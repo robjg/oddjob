@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql>
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[CREATE TABLE oddjob_grabbable(key VARCHAR(128),
+	instance VARCHAR(128),
+	winner VARCHAR(32),
+	complete boolean,
+	CONSTRAINT oddjob_pk PRIMARY KEY (key, instance))]]></buffer>
+                    </input>
+                </sql>
+                <sql-keeper-service id="keeper-service">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                </sql-keeper-service>
+                <sequence id="sequence"/>
+                <parallel id="grabbers">
+                    <jobs>
+                        <grab id="grabber1" identifier="grabber-1">
+                        	<instance>
+                        		<value value="${sequence.current}"/>
+                        	</instance>
+                            <job>
+                                <echo id="echo1" text="Grabbed By 1"/>
+                            </job>
+                            <keeper>
+                                <value value="${keeper-service.keeper(simple)}"/>
+                            </keeper>
+                        </grab>
+                        <grab id="grabber2" identifier="grabber-2">
+                        	<instance>
+                        		<value value="${sequence.current}"/>
+                        	</instance>
+                            <job>
+                                <echo id="echo2" text="Grabbed By 2"/>
+                            </job>
+                            <keeper>
+                                <value value="${keeper-service.keeper(simple)}"/>
+                            </keeper>
+                        </grab>
+                    </jobs>
+                </parallel>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

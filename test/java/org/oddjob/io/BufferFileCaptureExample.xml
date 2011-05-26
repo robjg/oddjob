@@ -1,0 +1,22 @@
+<oddjob id='this'>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id='v'>
+                    <buff>
+                        <buffer/>
+                    </buff>
+                </variables>
+                <copy id='foo'>
+                    <from>
+                        <file file='${this.args[0]}/work/io/buffer_example.txt'/>
+                    </from>
+                    <output>
+                        <value value='${v.buff}'/>
+                    </output>
+                </copy>
+                <echo id='e' text='${v.buff}'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

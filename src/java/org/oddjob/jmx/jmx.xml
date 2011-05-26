@@ -1,0 +1,15 @@
+<arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    prefix="jmx" namespace="http://rgordon.co.uk/oddjob/jmx">
+    <values>
+        <arooa:bean-def element='server-security'
+            className='org.oddjob.jmx.server.SimpleServerSecurity'/>
+        <arooa:bean-def element='client-credentials'
+            className='org.oddjob.jmx.client.UsernamePassword'/>
+    </values>
+    <components>
+        <arooa:bean-def element='client'
+            className='org.oddjob.jmx.JMXClientJob' designFactory='org.oddjob.designer.components.ClientDC'/>
+        <arooa:bean-def element='server'
+            className='org.oddjob.jmx.JMXServerJob' designFactory='org.oddjob.designer.components.ServerDC'/>
+    </components>
+</arooa:descriptor>

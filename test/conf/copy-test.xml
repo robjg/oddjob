@@ -1,0 +1,11 @@
+<oddjob id="oddjob">
+	<sequential>
+		<variables id="vars">
+			<input name="in">Hello World</input>
+			<output name="out"/>
+		</variables>
+		<copy input="${vars.in}" to="${oddjob.dir}/test.txt"/>
+		<copy from="${oddjob.dir}/test.txt" output="${vars.out}"/>
+		<echo text="${vars.out}"/>
+	</sequential>
+</oddjob>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential id="jobs">
+            <jobs>
+                <variables id="v">
+                    <buff>
+                        <buffer/>
+                    </buff>
+                </variables>
+                <echo text="apples">
+                    <output>
+                        <value value="${v.buff}"/>
+                    </output>
+                </echo>
+                <echo text="oranges">
+                    <output>
+                        <value value="${v.buff}"/>
+                    </output>
+                </echo>
+                <echo text="${v.buff}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

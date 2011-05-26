@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <parallel id="PAR1" name="PAR1">
+            <jobs>
+                <echo text="a"/>
+                <echo text="b"/>
+            </jobs>
+        </parallel>
+    </job>
+</oddjob>

@@ -1,0 +1,272 @@
+<?xml version="1.0"?>
+
+<!-- 
+	Various tests to do with months.
+-->
+
+<schedule-tester xmlns:ft="http://rgordon.co.uk/oddjob/schedules">
+	<!-- 
+		Test Different occurrences within the month. This test finds the second
+		Tuesday of the month. 
+	-->
+	<test>
+		<is name="Occurence Test">		
+			<runs>
+				<is date="2005-01-07 09:02"
+					expectedFrom="2005-01-11 00:00" 
+					expectedTo="2005-01-12 00:00"/>
+				<is date="2005-07-12 14:00"
+					expectedFrom="2005-07-12 00:00" 
+					expectedTo="2005-07-13 00:00"/>
+				<is date="2005-09-25 00:00"
+					expectedFrom="2005-10-11 00:00" 
+					expectedTo="2005-10-12 00:00"/>
+			</runs>
+			<schedule>
+				<ft:dayofmonth from="0" to="20">
+					<refinement>
+						<ft:occurrence occurrence="2">
+							<refinement>
+								<ft:dayofweek on="2"/>
+							</refinement>
+						</ft:occurrence>
+					</refinement>
+				</ft:dayofmonth>
+			</schedule>
+		</is>
+		
+	<!-- 
+		Simple Test - will it find next year?
+	-->
+		<is name="Simple Test">
+			<runs>
+				<is date="2004-01-31 20:01"
+					expectedFrom="2005-01-01 20:00"/>
+			</runs>
+			<schedule>
+				<ft:month in="1">
+					<refinement>
+						<ft:time at="20:00"/>
+					</refinement>
+				</ft:month>
+			</schedule>
+		</is>
+		
+	<!-- 
+		Testing schedule wich return intevals of whole months.
+		This will return each month of January, July, August and September
+	-->
+		<is name="Whole month test 1">
+			<runs>
+				<is date="2003-01-07 09:02"
+					expectedFrom="2003-01-01 00:00" 
+					expectedTo="2003-02-01 00:00"/>
+				<is date="2003-03-03 12:30"
+					expectedFrom="2003-07-01 00:00" 
+					expectedTo="2003-08-01 00:00"/>
+				<is date="2003-07-03 18:00"
+					expectedFrom="2003-07-01 00:00" 
+					expectedTo="2003-08-01 00:00"/>
+				<is date="2003-09-25 00:00"
+					expectedFrom="2003-09-01 00:00" 
+					expectedTo="2003-10-01 00:00"/>
+				<is date="2003-12-25 23:00"
+					expectedFrom="2004-01-01 00:00" 
+					expectedTo="2004-02-01 00:00"/>
+			</runs>
+			<schedule>
+				<ft:list>
+					<schedules>
+						<ft:month in="1"/>
+						<ft:month from="7" to="9">
+							<refinement>
+								<ft:dayofmonth from="1" to="0"/>
+							</refinement>
+						</ft:month>
+					</schedules>
+				</ft:list>
+			</schedule>
+		</is>
+		
+	<!-- 
+		This tests various ways of finding the last day of the month.
+	-->
+		<is name="Last Day of the month">
+			<runs>
+				<is date="2003-01-07 09:02"
+					expectedFrom="2003-02-28 00:00" 
+					expectedTo="2003-03-01 00:00"/>
+				<is date="2003-03-03 12:30"
+					expectedFrom="2003-04-30 00:00" 
+					expectedTo="2003-04-30 23:59"/>
+				<is date="2003-07-03 18:00"
+					expectedFrom="2003-07-31 00:00" 
+					expectedTo="2003-07-31 23:59"/>
+				<is date="2003-08-11 14:00"
+					expectedFrom="2003-08-31 00:00" 
+					expectedTo="2003-08-31 23:59"/>
+				<is date="2003-09-25 00:00"
+					expectedFrom="2003-09-30 00:00" 
+					expectedTo="2003-09-30 23:59"/>
+				<is date="2003-12-25 23:00"
+					expectedFrom="2004-02-29 00:00" 
+					expectedTo="2004-03-01 00:00"/>
+			</runs>
+			<schedule>
+				<ft:list>
+					<schedules>
+						<!-- The easy way - use the 0 day of month -->
+						<ft:month in="2">
+							<refinement>
+								<ft:dayofmonth on="0"/>
+							</refinement>
+						</ft:month>
+						<!-- or select the last day the hard way of starting at the beginning -->
+						<ft:month in="4">
+							<refinement>
+								<ft:last>
+									<refinement>
+										<ft:time from="00:00" to="23:59"/>
+									</refinement>
+								</ft:last>
+							</refinement>
+						</ft:month>
+						<!-- or start counting 3 days from the end - only slightly less hard! -->
+						<ft:month from="7" to="9">
+							<refinement>
+								<ft:dayofmonth from="-3" to="0">
+									<refinement>
+										<ft:last>
+											<refinement>
+												<ft:time from="00:00" to="23:59"/>
+											</refinement>
+										</ft:last>
+									</refinement>
+								</ft:dayofmonth>
+							</refinement>
+						</ft:month>
+					</schedules>
+				</ft:list>					
+			</schedule>
+		</is>
+	
+	<!-- Last working day of the month test -->
+		<is name="Last working day of month">
+			<runs>
+				<is date="2003-01-07 09:02"
+					expectedFrom="2003-01-31 00:00" 
+					expectedTo="2003-01-31 23:59"/>
+				<is date="2003-05-03 12:30"
+					expectedFrom="2003-05-30 00:00" 
+					expectedTo="2003-05-30 23:59"/>
+				<is date="2003-08-16 18:00"
+					expectedFrom="2003-08-29 00:00" 
+					expectedTo="2003-08-29 23:59"/>
+			</runs>
+			<schedule>
+				<ft:dayofmonth from="-3" to="0">
+					<refinement>
+						<ft:last>
+							<refinement>
+								<ft:broken>
+									<schedule>
+										<ft:time from="00:00" to="23:59" />
+									</schedule>
+									<breaks>
+										<ft:list>
+											<schedules>
+												<ft:dayofweek on="6" />
+												<ft:dayofweek on="7" />
+											</schedules>
+										</ft:list>
+									</breaks>
+								</ft:broken>
+							</refinement>
+						</ft:last>
+					</refinement>
+				</ft:dayofmonth>
+			</schedule>
+		</is>
+		
+	<!-- Day after the last day of the month -->
+	
+		<is name="Day after Last Day of Month">
+			<runs>
+				<is date="2003-01-07 09:02"
+					expectedFrom="2003-02-01 02:00" 
+					expectedTo="2003-02-02 02:00"/>
+				<is date="2003-05-03 12:30"
+					expectedFrom="2003-05-31 02:00:00:000" 
+					expectedTo="2003-06-01 02:00"/>
+				<is date="2003-08-16 18:00"
+					expectedFrom="2003-08-30 02:00" 
+					expectedTo="2003-08-31 02:00"/>
+			</runs>
+			<schedule>
+				<ft:dayafter>
+					<refinement>
+						<ft:dayofmonth from="-3" to="0">
+							<refinement>
+								<ft:last>
+									<refinement>
+										<ft:broken>
+											<schedule>
+												<ft:time from="02:00" to="06:00"/>
+											</schedule>
+											<breaks>
+												<ft:list>
+													<schedules>
+														<ft:dayofweek on="6"/>
+														<ft:dayofweek on="7"/>
+													</schedules>
+												</ft:list>
+											</breaks>
+										</ft:broken>
+									</refinement>
+								</ft:last>
+							</refinement>
+						</ft:dayofmonth>
+					</refinement>
+				</ft:dayafter>
+			</schedule>
+		</is>
+		
+	<!-- 
+		Nesting months and days and times.
+	-->
+	
+		<is name="Months and Days and Times">
+			<runs>
+				<is date="2004-01-07 09:02"
+					expectedFrom="2004-01-07 20:00"/>
+				<is date="2004-01-07 20:01"
+					expectedFrom="2004-01-08 20:00"/>
+				<is date="2004-03-03 12:30"
+					expectedFrom="2004-07-05 00:00" 
+					expectedTo="2004-07-08 00:00"/>
+				<is date="2004-07-15 14:00"
+					expectedFrom="2004-07-19 00:00" 
+					expectedTo="2004-07-22 00:00"/>
+				<is date="2004-09-30 00:00"
+					expectedFrom="2005-01-01 20:00"/>
+			</runs>
+			<schedule>
+				<ft:list>
+					<schedules>
+						<ft:month in="1">
+							<refinement>
+								<ft:time at="20:00"/>
+							</refinement>
+						</ft:month>
+						<ft:month from="7" to="9">
+							<refinement>
+								<ft:dayofweek from="1" to="3"/>
+							</refinement>
+						</ft:month>
+					</schedules>
+				</ft:list>
+			</schedule>
+		</is>
+
+	</test>	
+</schedule-tester>

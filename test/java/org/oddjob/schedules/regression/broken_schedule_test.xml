@@ -1,0 +1,83 @@
+<?xml version="1.0"?>
+<schedule-tester xmlns:ft="http://rgordon.co.uk/oddjob/schedules">
+
+	<test>
+		<is name="Break for Lunch">
+			<runs>
+				<!-- A Saturday -->
+				<is date="2003-05-24 09:02" 
+					expectedFrom="2003-05-26 09:00" 
+					expectedTo="2003-05-26 09:30"/>
+				<is date="2003-05-26 12:00"
+					expectedFrom="2003-05-26 13:00" 
+					expectedTo="2003-05-26 13:30"/>
+				<is date="2003-05-27 13:00"
+					expectedFrom="2003-05-27 13:00" 
+					expectedTo="2003-05-27 13:30"/>
+			</runs>
+			<schedule>
+				<ft:broken>	
+					<schedule>
+						<ft:time from="09:00" to="17:00">
+							<refinement>
+								<ft:interval interval="00:30"/>
+							</refinement>
+						</ft:time>
+					</schedule>
+					<breaks>
+						<ft:list>
+							<schedules>
+								<ft:dayofweek from="6" to="7"/>
+								<ft:time from="12:00" to="13:00"/>
+							</schedules>
+						</ft:list>
+					</breaks>
+				</ft:broken>
+			</schedule>
+		</is>
+		
+		<is name="Holidays 2005">
+			<runs>
+				<is date="2005-01-01 12:00"
+					expectedFrom="2005-01-04 09:00" 
+					expectedTo="2005-01-04 17:00"/>
+				<is date="2005-03-24 17:00"
+					expectedFrom="2005-03-29 09:00" 
+					expectedTo="2005-03-29 17:00"/>
+				<is date="2005-05-30 10:00"
+					expectedFrom="2005-05-31 09:00" 
+					expectedTo="2005-05-31 17:00"/>
+				<is date="2005-12-24 17:00"
+					expectedFrom="2005-12-28 09:00" 
+					expectedTo="2005-12-28 17:00"/>
+			</runs>
+			<schedule>
+				<ft:broken>	
+					<schedule>
+						<ft:dayofweek from="1" to="5">
+							<refinement>
+								<ft:time from="09:00" to="17:00"/>
+							</refinement>
+						</ft:dayofweek>
+					</schedule>
+					<breaks>
+						<ft:list>
+							<schedules>
+								<ft:date on="2005-01-03"/>
+								<ft:date on="2005-03-25"/>
+								<ft:date on="2005-03-28"/>
+								<ft:date on="2005-05-02"/>
+								<ft:date on="2005-05-30"/>
+								<ft:date on="2005-08-29"/>
+								<ft:date on="2005-12-26"/>
+								<ft:date on="2005-12-27"/>
+							</schedules>
+						</ft:list>
+					</breaks>
+				</ft:broken>
+			</schedule>	
+		</is>	
+		
+	</test>	
+	
+</schedule-tester>

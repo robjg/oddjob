@@ -1,0 +1,31 @@
+<oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+	<job>
+		<sequential id="seq" name="File2 sequence">
+			<jobs>
+			<!--  reusable buffer required because we are going to reset -->
+				<variables id='v'>
+					<xml>
+						<buffer />
+					</xml>
+				</variables>
+				<copy>
+					<input>
+						<value value="${config-3}" />
+					</input>
+					<output>
+						<value value='${v.xml}' />
+					</output>
+				</copy>
+				<oddjob id="oj" name="File2 Oddjob">
+					<configuration>
+						<arooa:configuration>
+							<input>
+								<value value="${v.xml}" />
+							</input>
+						</arooa:configuration>
+					</configuration>
+				</oddjob>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

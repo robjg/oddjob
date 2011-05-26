@@ -1,0 +1,103 @@
+package org.oddjob.jmx.server;
+
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.Notification;
+import javax.management.ObjectName;
+
+import junit.framework.TestCase;
+
+import org.oddjob.Helper;
+import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.jmx.client.MockClientHandlerResolver;
+
+public class OddjobMBeanToolkitTest extends TestCase {
+
+	private class OurServerSession extends MockServerSession {
+	
+		@Override
+		public ObjectName nameFor(Object object) {
+			return OddjobMBeanFactory.objectName(0);
+		}
+	}
+	
+	private class OurServerContext extends MockServerContext {
+		OurSIMF simf = new OurSIMF();
+
+		@Override
+		public ServerModel getModel() {
+			return new MockServerModel() {
+				@Override
+				public ServerInterfaceManagerFactory getInterfaceManagerFactory() {
+					return new ServerInterfaceManagerFactoryImpl(
+							new ServerInterfaceHandlerFactory<?, ?>[] {
+									simf
+							});
+				}
+			};
+		}
+	}
+
+	private interface Gold {
+		
+	}
+	
+	private class OurSIMF extends MockServerInterfaceHandlerFactory<Object, Gold> {
+	
+		ServerSideToolkit toolkit;
+		
+		@Override
+		public ServerInterfaceHandler createServerHandler(Object target,
+				ServerSideToolkit toolkit) {
+			this.toolkit = toolkit;
+			return new MockServerInterfaceHandler();
+		}
+		
+		@Override
+		public Class<Object> interfaceClass() {
+			return Object.class;
+		}
+		
+		@Override
+		public ClientHandlerResolver<Gold> clientHandlerFactory() {
+			return new MockClientHandlerResolver<Gold>();
+		}
+		
+		@Override
+		public MBeanAttributeInfo[] getMBeanAttributeInfo() {
+			return new MBeanAttributeInfo[0];
+		}
+		
+		@Override
+		public MBeanNotificationInfo[] getMBeanNotificationInfo() {
+			return new MBeanNotificationInfo[0];
+		}
+		
+		@Override
+		public MBeanOperationInfo[] getMBeanOperationInfo() {
+			return new MBeanOperationInfo[0];
+		}
+	}
+	
+	public void testNotification() throws Exception {
+		
+		Object node = new Object();
+
+		OurServerSession session = new OurServerSession();
+		
+		OurServerContext context = new OurServerContext();
+		
+		new OddjobMBean(node, session, context);
+
+		ServerSideToolkit toolkit = context.simf.toolkit;
+		
+		Notification n = toolkit.createNotification("X");
+		
+		assertEquals(0, n.getSequenceNumber());
+		assertEquals(OddjobMBeanFactory.objectName(0), n.getSource());
+		
+		// test serializable.
+		Helper.copy(n);
+	}
+}

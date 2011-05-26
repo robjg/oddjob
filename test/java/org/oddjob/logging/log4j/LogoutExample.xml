@@ -1,0 +1,12 @@
+<oddjob id="this">
+    <job>
+        <copy>
+            <input>
+                <file file="${this.args[0]}/test/io/TestFile.txt"/>
+            </input>
+            <output>
+                <logout/>
+            </output>
+        </copy>
+    </job>
+</oddjob>

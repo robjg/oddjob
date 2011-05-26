@@ -1,0 +1,31 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <input>
+                    <requests>
+                        <input-text prompt="System"
+                            default="Development"
+                            property="config.system"/>
+                        <input-text prompt="Username"
+                            property="config.username"/>
+                        <input-password
+                            prompt="Password"
+                            property="config.password"/>
+                        <input-confirm prompt="Agree To Licence"
+                            default = "false"
+                            property="config.agree"/>
+                    </requests>
+                </input>
+                <check value="${config.agree}" eq="true"/>
+                <echo
+                    text="Password for ${config.username} is ${config.password}"/>
+                <input>
+                    <requests>
+                        <input-message>Logging On to ${config.system} Now!</input-message>
+                    </requests>
+                </input>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

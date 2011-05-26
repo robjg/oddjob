@@ -1,0 +1,19 @@
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <sql-persister-service id="sql-persister">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                </sql-persister-service>
+                <oddjob id="oj" file="${this.dir}/SQLPersisterInner.xml">
+                    <persister>
+                        <value value="${sql-persister.persister(test)}"/>
+                    </persister>
+                </oddjob>
+                <stop job="${sql-persister}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

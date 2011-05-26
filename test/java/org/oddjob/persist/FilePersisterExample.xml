@@ -1,0 +1,9 @@
+<oddjob id="this">
+    <job>
+        <oddjob id="important-jobs" file="${this.dir}/FilePersisterExampleInner.xml">
+            <persister>
+                <file-persister dir="${this.args[0]}"/>
+            </persister>
+        </oddjob>
+    </job>
+</oddjob>

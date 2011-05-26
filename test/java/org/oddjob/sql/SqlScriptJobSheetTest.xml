@@ -1,0 +1,36 @@
+<oddjob xmlns:s="http://rgordon.co.uk/oddjob/schedules">
+	<job>
+        <sql>
+           	<connection>
+	            <connection driver="org.hsqldb.jdbcDriver"
+	            		url="jdbc:hsqldb:mem:test" 
+	            		username="sa" password=""/>
+           	</connection>
+           	<input>
+           		<buffer>
+           	create table numbers(number int);
+			insert into numbers (number) values (1);
+			insert into numbers (number) values (2);
+			insert into numbers (number) values (3);
+			insert into numbers (number) values (4);
+			insert into numbers (number) values (5);
+			insert into numbers (number) values (6);
+			insert into numbers (number) values (7);
+			insert into numbers (number) values (8);
+			insert into numbers (number) values (9);
+			insert into numbers (number) values (10);
+			select * from numbers;
+			select '0' || sum(number) as s from numbers;
+			shutdown;
+				</buffer>
+			</input>
+			<results>
+				<sql-results-sheet>
+					<output>
+						<value value="${output}"/>
+					</output>
+				</sql-results-sheet>
+			</results>
+		</sql>
+	</job>
+</oddjob>

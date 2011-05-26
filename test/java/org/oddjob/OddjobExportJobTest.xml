@@ -1,0 +1,31 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <folder>
+                    <jobs>
+                        <echo id="secret" text="I'm a secret job."/>
+                    </jobs>
+                </folder>
+                <oddjob id="inner">
+                    <export>
+                        <value key="secret" value="${secret}"/>
+                    </export>
+                    <configuration>
+                        <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                            <xml>
+                                <xml>
+                                    <oddjob>
+                                        <job>
+                                            <run job="${secret}"/>
+                                        </job>
+                                    </oddjob>
+                                </xml>
+                            </xml>
+                        </arooa:configuration>
+                    </configuration>
+                </oddjob>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

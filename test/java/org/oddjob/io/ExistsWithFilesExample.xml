@@ -1,0 +1,27 @@
+<oddjob id="this">
+    <job>
+        <sequential name="Find Files">
+            <jobs>
+                <exists id="exists"
+                    file="${this.args[0]}/test/io/reference/test*.txt"/>
+                <foreach id="found">
+                    <values>
+                        <value value="${exists.exists}"/>
+                    </values>
+                    <configuration>
+                        <arooa:configuration
+                            xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                            <xml>
+                                <xml>
+                                    <echo text="found ${found.current}"/>
+                                </xml>
+                            </xml>
+                        </arooa:configuration>
+                    </configuration>
+                </foreach>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+
+

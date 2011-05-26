@@ -1,0 +1,27 @@
+<!--
+ state components
+-->
+<arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    prefix="state" namespace="http://rgordon.co.uk/oddjob/state">
+	<components>
+		<is element='and' 
+			className='org.oddjob.state.AndState'/>
+		<is element='or' 
+			className='org.oddjob.state.OrState'/>
+		<is element='if' 
+			className='org.oddjob.state.IfJob'
+			designFactory='org.oddjob.designer.components.IfDC'/>
+		<is element='mirror' 
+			className='org.oddjob.state.MirrorState'/>
+		<is element='equals' 
+			className='org.oddjob.state.EqualsState'/>
+		<is element='flag'
+			className='org.oddjob.state.FlagState'/>
+		<is element='resets' 
+			className='org.oddjob.state.Resets'/>
+		<is element='cascade' 
+			className='org.oddjob.state.CascadeJob'/>
+		<is element='join' 
+			className='org.oddjob.state.JoinJob'/>
+	</components>
+</arooa:descriptor>

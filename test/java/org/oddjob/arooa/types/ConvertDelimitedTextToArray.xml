@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <foreach id="loop">
+            <values>
+                <convert>
+                    <to>
+                        <class name="[Ljava.lang.String;"/>
+                    </to>
+                    <value>
+                        <value
+                            value='"grapes, red", "grapes, white", gratefruit'/>
+                    </value>
+                </convert>
+            </values>
+            <configuration>
+                <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                    <xml>
+                        <xml>
+                            <echo text="${loop.current}"/>
+                        </xml>
+                    </xml>
+                </arooa:configuration>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

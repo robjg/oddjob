@@ -1,0 +1,23 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <set>
+                    <values>
+                        <value key="check.checkBoolean" value="true"/>
+                        <value key="check.checkByte" value="127"/>
+                        <value key="check.checkChar" value="a"/>
+                        <date key="check.checkDate" date="2005-12-25" timeZone="GMT"/>
+                        <value key="check.checkDouble" value="9E99"/>
+                        <value key="check.checkFloat" value="1.23"/>
+                        <value key="check.checkInt" value="1234567"/>
+                        <value key="check.checkLong" value="2345678"/>
+                        <value key="check.checkShort" value="123"/>
+                        <value key="check.checkString" value="hello"/>
+                    </values>
+                </set>
+                <bean id="check" class="org.oddjob.values.CheckBasicSetters"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

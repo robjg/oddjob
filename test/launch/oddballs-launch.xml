@@ -1,0 +1,19 @@
+<oddjob xmlns:fruit='http://rgordon.co.uk/fruit'>
+ <job>
+  <sequential>
+   <jobs>
+    <fruit:apple id='apple'>
+     <colour>
+      <fruit:colour colour='RED' shiny='true'/>
+     </colour>
+    </fruit:apple>
+    <echo text='Colour As String: ${apple.colour}'/>
+    <fruit:orange id='orange'>
+     <flavour>
+      <fruit:flavour description='Sharp'/>
+     </flavour>
+    </fruit:orange>
+   </jobs>
+  </sequential>
+ </job>
+</oddjob>

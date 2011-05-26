@@ -1,0 +1,32 @@
+<oddjob id='this'>
+    <job>
+        <sequential>
+            <jobs>
+                <mkdir dir="${this.args[0]}/work/io"/>
+                <variables id='v'>
+                    <buff>
+                        <buffer>
+                            <lines>
+                                <list>
+                                    <values>
+                                        <value value="apples"/>
+                                        <value value="oranges"/>
+                                    </values>
+                                </list>
+                            </lines>
+                        </buffer>
+                    </buff>
+                </variables>
+                <copy>
+                    <input>
+                        <value value='${v.buff}'/>
+                    </input>
+                    <output>
+                        <file file="${this.args[0]}/work/io/buffer_example.txt"/>
+                    </output>
+                </copy>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+

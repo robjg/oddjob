@@ -1,0 +1,21 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id='vars'>
+                    <message>
+                        <invoke function="greetPerson" static="true">
+                            <source>
+                                <class name='org.oddjob.script.GreetingService'/>
+                            </source>
+                            <parameters>
+                                <value value="John"/>
+                            </parameters>
+                        </invoke>
+                    </message>
+                </variables>
+                <echo id="echo-greeting" text="${vars.message}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

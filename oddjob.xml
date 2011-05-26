@@ -1,0 +1,11 @@
+<oddjob id="this">
+    <job>
+        <oddjob name="Explorer with Persister"
+                file="${this.dir}/explorer.xml"
+                id="explorer">
+            <persister>
+                <file-persister dir="${this.dir}"/>
+            </persister>
+        </oddjob>
+    </job>
+</oddjob>

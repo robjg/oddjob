@@ -1,0 +1,18 @@
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <copy name="Copy from a file to a buffer">
+                    <from>
+                        <file
+                            file='${this.args[0]}/test/io/reference/test1.txt'/>
+                    </from>
+                    <output>
+                        <buffer id='buff'/>
+                    </output>
+                </copy>
+                <echo id='e' name="What's in the file?" text='${buff}'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

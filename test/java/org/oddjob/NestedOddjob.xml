@@ -1,0 +1,11 @@
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <oddjob id="nested" 
+                        file="${this.dir}/HelloWorld.xml"/>
+                <echo text="Nested job said: ${nested/echo.text}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

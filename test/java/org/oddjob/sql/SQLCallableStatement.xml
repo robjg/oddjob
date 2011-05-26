@@ -1,0 +1,41 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql callable='true' delimiterType='ROW'>
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver"
+                            id="connection" url="jdbc:hsqldb:mem:test"
+                            username="sa" />
+                    </connection>
+                    <input>
+                        <buffer>
+create procedure TEST (out a int, inout b int, in c int)
+    MODIFIES SQL DATA
+    begin atomic
+        set a = b;
+        set b = c;
+    end
+                        </buffer>
+                    </input>
+                </sql>
+                <sql id='sql-call' callable='true'>
+                    <connection>
+                        <value value='${connection}' />
+                    </connection>
+                    <parameters>
+                        <value id='a' />
+                        <value id='b' value='2' />
+                        <value value='3' />
+                    </parameters>
+                    <input>
+                        <buffer>
+call TEST (?, ?, ?)
+                        </buffer>
+                    </input>
+                </sql>
+                <echo text="a=${a}, b=${b}." />
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

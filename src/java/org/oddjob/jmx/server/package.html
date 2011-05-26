@@ -1,0 +1,16 @@
+<body>
+<p>
+Classes for the JMX server side.
+</p>
+<p>
+The server side must provide information about the remote components. The client
+sees a component as something that implements a number of interfaces. 
+The server side implementation behaviour of an interface is handled by a 
+{@link ServerInterfaceHandler}. A {@link ServerInterfaceHandler} is provided
+by a {@link ServerInterfaceHandlerFactory}. A {@link ServerInterfaceManager} 
+collects together a number of {@link ServerInterfaceHandlerFactory} objects
+for a given target. A {@link ServerInterfaceManagerFactory} creates a 
+{@link ServerInterfaceMananger} for a given server side component.
+</p>
+
+</body>

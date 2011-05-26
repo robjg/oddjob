@@ -1,0 +1,18 @@
+<oddjob id='this'>
+	<job>
+		<launch className='org.oddjob.Main'>
+			<classLoader>
+				<value value='${this.class.classLoader}' />
+			</classLoader>
+			<args>
+				<list>
+					<values>
+						<value value='-f' />
+						<value value='${this.dir}/launcher-test.xml' />
+						<value value='${this.dir}/../..' />
+					</values>
+				</list>
+			</args>
+		</launch>
+	</job>
+</oddjob>

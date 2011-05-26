@@ -1,0 +1,24 @@
+<oddjob>
+    <job>
+        <repeat name="Repeat Ten Times">
+            <job>
+                <sequential name="Repeat Sequence">
+                    <jobs>
+                        <sequence id="seqnum" watch="${reset.current}"/>
+                        <variables id="vars">
+                            <seqnum>
+                                <format format="0000"
+                                    number="${seqnum.current}"/>
+                            </seqnum>
+                        </variables>
+                        <echo id="e" text="${vars.seqnum}"/>
+                    </jobs>
+                </sequential>
+            </job>
+            <schedule>
+                <schedules:count count="10"
+                    xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+            </schedule>
+        </repeat>
+    </job>
+</oddjob>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <oddjob file="${this.dir}/schedule-server.xml" id="persisted-schedule">
+            <export>
+                <value key="clock" value="${clock}"/>
+            </export>
+            <persister>
+                <file-persister dir="${work-dir}"/>
+            </persister>
+        </oddjob>
+    </job>
+</oddjob>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <foreach id="loop">
+            <values>
+                <list>
+                    <values>
+                        <value value="a"/>
+                        <value value="b"/>
+                        <value value="c"/>
+                        <value value="d"/>
+                        <value value="e"/>
+                        <value value="f"/>
+                        <value value="g"/>
+                        <value value="h"/>
+                    </values>
+                </list>
+            </values>
+            <configuration>
+                <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                    <xml>
+                        <xml>
+                            <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                                <schedule>
+                                    <schedules:now xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                                </schedule>
+                                <job>
+                                    <wait/>
+                                </job>
+                            </scheduling:timer>
+                        </xml>
+                    </xml>
+                </arooa:configuration>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

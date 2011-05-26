@@ -1,0 +1,17 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <myXML>
+                        <xml>
+                            <some-xml>
+                                <![CDATA[Some Text]]>
+                            </some-xml>
+                        </xml>
+                    </myXML>
+                </variables>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

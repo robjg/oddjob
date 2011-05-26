@@ -1,0 +1,6 @@
+<schedules:dayofmonth xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+                      from="17" to="22">
+     <refinement>
+        <schedules:time at="10:00"/>
+     </refinement>
+</schedules:dayofmonth>

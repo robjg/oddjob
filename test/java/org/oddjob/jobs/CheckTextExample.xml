@@ -1,0 +1,14 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <check value='apple' eq='apple'/>
+                <check value='apple' ne='orange'/>
+                <check value='apple' lt='orange'/>
+                <check value='apple' le='apple'/>
+                <check value='orange' gt='apple'/>
+                <check value='orange' ge='orange'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

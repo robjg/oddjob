@@ -1,0 +1,28 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="favourite.fruit" value="apples"/>
+                    </values>
+                </properties>
+                <oddjob id="inner" inheritance="SHARED">
+                    <configuration>
+                        <arooa:configuration
+                            xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'
+                            resource="org/oddjob/SharedInheritanceInner.xml"/>
+                    </configuration>
+                </oddjob>
+                <properties>
+                    <values>
+                        <value key="favourite.snack" value="pizza"/>
+                    </values>
+                </properties>
+                <echo id="snack-text" text="Favourite snack: ${favourite.snack}"/>
+                <echo id="connection-text" text="Connection is: ${vars.connection}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+    	

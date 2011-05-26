@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql>
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[create table TEST (
+	type varchar(16),
+	variety varchar(16),
+	colour varchar(16),
+	size double);
+
+insert into TEST values ('Apple', 'Cox', 'Red And Green', 7.6);
+insert into TEST values ('Orange', 'Jaffa', 'Orange', 9.245);]]></buffer>
+                    </input>
+                </sql>
+                <sql name="Sql Query">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <input>
+                    <buffer><![CDATA[select * from TEST]]>
+                    </buffer>
+                    </input>
+                    <results>
+                     <sql-results-bean id="sql" />
+                    </results>
+                   </sql>
+                <bean-report>
+                    <beans>
+                        <value value="${sql.rows}"/>
+                    </beans>
+                    <output>
+                        <tee>
+                            <outputs>
+                                <stdout/>
+                                <buffer id="results-buffer"/>
+                            </outputs>
+                        </tee>
+                    </output>
+                </bean-report>
+                <sql name="Shutdown">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection><input><buffer><![CDATA[shutdown]]></buffer></input></sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

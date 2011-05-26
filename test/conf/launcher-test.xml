@@ -1,0 +1,9 @@
+<oddjob id='this'>
+	<job>
+		<echo text='Launcher Worked'>
+			<output>
+				<file file="${this.args[0]}/work/launcher.result"/>
+			</output>
+		</echo>
+	</job>
+</oddjob>

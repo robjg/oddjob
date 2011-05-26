@@ -1,0 +1,9 @@
+<oddjob>
+	<job>
+		<archive-browser id="browser">
+			<archiver>
+				<bean class="org.oddjob.persist.ArchiveBrowserJobTest$OurArchiver"/>
+			</archiver>
+		</archive-browser>
+	</job>
+</oddjob>

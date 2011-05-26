@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql>
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[CREATE TABLE oddjob_silhouettes(
+    path VARCHAR(128), 
+    id VARCHAR(32), 
+    job BLOB, 
+   CONSTRAINT oddjob_silhouettes_pk PRIMARY KEY (path, id))]]></buffer>
+                    </input>
+                </sql>
+                <sql-persister-service id="silhouettes">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <serializationFactory>
+                    	<bean class='org.oddjob.sql.HSQLSerializationFactory'
+                    		table='oddjob_silhouettes'/>
+                    </serializationFactory>
+                </sql-persister-service>
+                <parallel>
+                    <jobs>
+                        <scheduling:timer id="timer1" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="5" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:interval interval="00:00:02"/>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <archive>
+                                    <archiveIdentifier>
+                                        <value value="${timer1.current.fromDate}"/>
+                                    </archiveIdentifier>
+                                    <archiver>
+                                        <value value="${silhouettes.persister(things1)}"/>
+                                    </archiver>
+                                    <job>
+                                        <sequential>
+                                            <jobs>
+                                                <echo text="Running at ${timer1.current.fromDate}"/>
+                                                <sequence id="counter"/>
+                                                <echo text="I've run ${counter.current} times."/>
+                                            </jobs>
+                                        </sequential>
+                                    </job>
+                                </archive>
+                            </job>
+                        </scheduling:timer>
+                        <scheduling:timer id="timer2" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="5" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:interval interval="00:00:01"/>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <archive>
+                                    <archiveIdentifier>
+                                        <value value="${timer2.current.fromDate}"/>
+                                    </archiveIdentifier>
+                                    <archiver>
+                                        <value value="${silhouettes.persister(things2)}"/>
+                                    </archiver>
+                                    <job>
+                                        <echo text="Running at ${timer2.current.fromDate}"/>
+                                    </job>
+                                </archive>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </parallel>
+                <folder>
+                    <jobs>
+                        <archive-browser id="browser1">
+                            <archiver>
+                                <value value="${silhouettes.persister(things1)}"/>
+                            </archiver>
+                        </archive-browser>
+                        <archive-browser id="browser2">
+                            <archiver>
+                                <value value="${silhouettes.persister(things2)}"/>
+                            </archiver>
+                        </archive-browser>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

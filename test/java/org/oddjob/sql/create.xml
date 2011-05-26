@@ -1,0 +1,37 @@
+<oddjob>
+	<job>
+		<sequential>
+			<jobs>
+				<variables id="vars">
+					<con>
+						<connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+							username="sa" password="">
+						</connection>
+					</con>
+				</variables>
+				<sql>
+					<connection>
+						<value value="${vars.con}"/>
+					</connection>
+					<input>
+						<buffer>
+					DROP TABLE oddjob IF EXISTS
+						</buffer>
+					</input>
+				</sql>
+				<sql>
+					<connection>
+						<value value="${vars.con}"/>
+					</connection>
+					<input>
+					<buffer>
+						CREATE TABLE oddjob( path VARCHAR(128), id
+						VARCHAR(32), job BLOB, CONSTRAINT oddjob_pk PRIMARY KEY (path,
+						id))
+					</buffer>
+					</input>
+				</sql>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

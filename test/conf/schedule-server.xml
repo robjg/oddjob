@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="scheduler1">
+    <job>
+        <scheduling:timer id="schedule1" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+            <clock>
+                <value value="${clock}"/>
+            </clock>
+            <schedule>
+                <schedules:time from="05:30" to="06:30" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+            </schedule>
+            <job>
+                <echo id="scheduled-job" 
+                      text="Job schedule at ${schedule1.current.fromDate} but running at ${schedule1.clock.date}"/>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

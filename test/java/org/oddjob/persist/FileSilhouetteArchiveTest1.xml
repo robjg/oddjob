@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential id="seq">
+            <jobs>
+                <echo id="hello" text="Hello"/>
+                <echo id="world" text="World"/>
+                <bean class="org.oddjob.persist.FileSilhouettesTest$SessionCapture" id="capture"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

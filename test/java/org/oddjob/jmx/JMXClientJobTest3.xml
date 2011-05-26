@@ -1,0 +1,13 @@
+<oddjob>
+	<job>
+		<sequential name="File3 seq1">
+			<jobs>
+				<sequential name="File3 seq2">
+					<jobs>
+						<echo id="fruit" text="apples" />
+					</jobs>
+				</sequential>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

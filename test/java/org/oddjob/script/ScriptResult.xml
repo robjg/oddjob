@@ -1,0 +1,13 @@
+<oddjob>
+  <job>
+    <script language='JavaScript' 
+            resultVariable="result"
+            resultForState="true">
+      <input>
+        <buffer>
+var result = 1;
+        </buffer>
+      </input>
+    </script>
+  </job>
+</oddjob>

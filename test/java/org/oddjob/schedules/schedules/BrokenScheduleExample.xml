@@ -1,0 +1,8 @@
+<schedules:broken xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <schedule>
+        <schedules:time at="10:00"/>
+    </schedule>
+    <breaks>
+        <schedules:dayofyear from="12-25" to="12-26"/>
+    </breaks>
+</schedules:broken>

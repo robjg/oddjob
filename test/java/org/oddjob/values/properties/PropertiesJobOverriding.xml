@@ -1,0 +1,26 @@
+<oddjob>
+  <job>
+   <sequential>
+    <jobs>
+     <properties>
+      <values>
+       <value key="fruit.favourite" value="apple"/>
+      </values>
+     </properties>
+     <properties>
+      <values>
+       <value key="fruit.favourite" value="pear"/>
+      </values>
+     </properties>
+     <echo id="echo1" text="$${fruit.favourite} is ${fruit.favourite}" />
+     <properties override='true'>
+      <values>
+       <value key="fruit.favourite" value="banana"/>
+      </values>
+     </properties>
+     <echo id="echo2" text="$${fruit.favourite} is ${fruit.favourite}" />
+    </jobs>
+   </sequential>
+  </job>
+ </oddjob>
+ 

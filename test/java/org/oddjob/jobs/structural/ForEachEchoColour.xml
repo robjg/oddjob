@@ -1,0 +1,3 @@
+<echo id="echo-colour" 
+    name="${colours.current}" 
+    text="I'm number ${colours.index} and my name is ${echo-colour.name}"/>

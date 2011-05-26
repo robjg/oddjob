@@ -1,0 +1,16 @@
+<oddjob>
+  <job>
+   <sequential>
+    <jobs>
+     <properties>
+      <values>
+       <value key="fruit.favourite" value="apple"/>
+       <value key="snack.favourite" value="${fruit.favourite}"/>
+      </values>
+     </properties>
+     <echo id="echo" text="$${snack.favourite} is ${snack.favourite}" />
+    </jobs>
+   </sequential>
+  </job>
+ </oddjob>
+ 

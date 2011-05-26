@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential id="seq">
+            <jobs>
+                <echo id="hello" text="Hello"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -1,0 +1,22 @@
+<oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+    <job>
+        <foreach id="copy-files">
+            <values>
+                        <files files="${this.args[0]}/test?.txt"/>
+            </values>
+            <configuration>
+                <arooa:configuration>
+                    <xml>
+                        <xml>
+                            <copy to="${this.args[1]}">
+                                <from>
+                                    <value value="${copy-files.current}"/>
+                                </from>
+                            </copy>
+                        </xml>
+                    </xml>
+                </arooa:configuration>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

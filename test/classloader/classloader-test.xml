@@ -1,0 +1,26 @@
+<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa' id ="this">
+	<job>
+		<oddjob id='nested'>
+			<classLoader>
+				<url-class-loader>
+					<files>
+						<file file="${this.dir}"/>
+					</files>
+				</url-class-loader>
+			</classLoader>
+			<configuration>
+				<arooa:configuration>
+					<xml>
+						<xml>
+							<oddjob>
+								<job>
+									<bean id='x' class='AJob' />
+								</job>
+							</oddjob>
+						</xml>
+					</xml>
+				</arooa:configuration>
+			</configuration>
+		</oddjob>
+	</job>
+</oddjob>

@@ -1,0 +1,5 @@
+<oddjob>
+    <job>
+        <bean id='x' class='AJob'/>
+    </job>
+</oddjob>

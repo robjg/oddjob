@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aList>
+                        <files>
+                            <list>
+                                <file file="a.jar"/>
+                                <value value="b.jar${path.separator}c.jar"/>
+                                <value value="${this.args}"/>
+                            </list>
+                        </files>
+                    </aList>
+                </variables>
+                <foreach id="loop">
+                    <values>
+                        <value value="${vars.aList}"/>
+                    </values>
+                    <configuration>
+                        <arooa:configuration
+                            xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                            <xml>
+                                <xml>
+                                    <echo text="${loop.current}"/>
+                                </xml>
+                            </xml>
+                        </arooa:configuration>
+                    </configuration>
+                </foreach>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

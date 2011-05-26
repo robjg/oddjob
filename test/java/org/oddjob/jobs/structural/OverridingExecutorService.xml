@@ -1,0 +1,24 @@
+<oddjob>
+ <job>
+  <sequential>
+   <jobs>
+    <bean class="org.oddjob.jobs.structural.OverridingExecutorServiceTest$ExecutorProvider" 
+           id="provider" threads="2"/>
+    <set>
+     <values>
+      <value key="parallel.executorService" value="${provider.service}"/>
+     </values>
+    </set>
+	<parallel id="parallel">
+     <jobs>
+      <wait id="wait1" name="Wait 1"/>
+      <wait id="wait2" name="Wait 2"/>
+      <wait id="wait3" name="Wait 3"/>
+      <wait id="wait4" name="Wait 4"/>
+     </jobs>
+	</parallel>
+	<stop job="${provider}"/>
+   </jobs>
+  </sequential>
+ </job>
+</oddjob>

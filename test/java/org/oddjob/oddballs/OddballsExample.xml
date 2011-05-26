@@ -1,0 +1,18 @@
+<oddjob id="this">
+    <job>
+        <oddjob file="${this.args[0]}/test/launch/oddballs-launch.xml">
+            <descriptorFactory>
+                <oddballs>
+                    <files>
+                        <files>
+                            <list>
+                                <file file="${this.args[0]}/test/oddballs/apple"/>
+                                <file file="${this.args[0]}/test/oddballs/orange"/>
+                            </list>
+                        </files>
+                    </files>
+                </oddballs>
+            </descriptorFactory>
+        </oddjob>
+    </job>
+</oddjob>

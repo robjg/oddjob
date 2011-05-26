@@ -1,0 +1,10 @@
+<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>
+	<job>
+		<sequential>
+			<jobs>
+				<echo id='fruit' text='apple' />
+				<jmx:server id='server' url='service:jmx:rmi://' root='${fruit}' />
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

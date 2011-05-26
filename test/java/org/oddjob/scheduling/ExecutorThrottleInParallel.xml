@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <parallel id="parallel">
+            <executorService>
+                <throttle limit="2"/>
+            </executorService>
+            <jobs>
+                <wait name="Wait 1"/>
+                <wait name="Wait 2"/>
+                <wait name="Wait 3"/>
+                <wait name="Wait 4"/>
+            </jobs>
+        </parallel>
+    </job>
+</oddjob>

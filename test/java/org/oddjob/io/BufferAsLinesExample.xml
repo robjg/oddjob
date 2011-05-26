@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="v">
+                    <buff>
+                        <buffer><![CDATA[apples
+oranges]]></buffer>
+                    </buff>
+                </variables>
+                <foreach id="f">
+                    <values>
+                        <value value="${v.buff.lines}"/>
+                    </values>
+                    <configuration>
+                        <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                            <xml>
+                                <xml>
+                                    <echo text="Line ${f.index} is ${f.current}."/>
+                                </xml>
+                            </xml>
+                        </arooa:configuration>
+                    </configuration>
+                </foreach>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

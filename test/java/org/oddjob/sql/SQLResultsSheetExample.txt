@@ -1,0 +1,15 @@
+\[0 rows affected, \d+ ms.\]
+
+\[1 rows affected, \d+ ms.\]
+
+\[1 rows affected, \d+ ms.\]
+
+TYPE    VARIETY  COLOUR         SIZE
+------  -------  -------------  -----
+Apple   Cox      Red and Green  7.6
+Orange  Jaffa    Orange         9.245
+
+\[2 rows, \d+ ms.\]
+
+\[0 rows affected, \d ms.\]
+

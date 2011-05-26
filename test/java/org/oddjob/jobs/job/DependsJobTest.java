@@ -1,0 +1,107 @@
+/*
+ * (c) Rob Gordon 2005.
+ */
+package org.oddjob.jobs.job;
+
+import junit.framework.TestCase;
+
+import org.oddjob.Helper;
+import org.oddjob.MockStateful;
+import org.oddjob.framework.SimpleJob;
+import org.oddjob.state.JobState;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateCondition;
+
+/**
+ *
+ */
+public class DependsJobTest extends TestCase {
+
+	class TestJob extends SimpleJob {
+		boolean ran;
+		public int execute() {
+			ran = true;
+			return 0;
+		}
+	}
+	
+	/**
+	 * Test that a ready job is run. 
+	 *
+	 */
+	public void testReady() {
+		TestJob testJob = new TestJob();
+		DependsJob j = new DependsJob();
+		j.setJob(testJob);
+		j.run();
+		
+		assertTrue(testJob.ran);
+		assertEquals("Complete", JobState.COMPLETE, Helper.getJobState(j));
+	}
+
+	/**
+	 * Test that a complete job isn't run. 
+	 *
+	 */
+	public void testAlreadyComplete() {
+		TestJob testJob = new TestJob();
+		testJob.run();
+		testJob.ran = false;
+		assertEquals(JobState.COMPLETE, testJob.lastJobStateEvent().getJobState());
+		
+		DependsJob j = new DependsJob();
+		j.setJob(testJob);
+		j.run();
+		
+		assertFalse(testJob.ran);
+		assertEquals("Complete", JobState.COMPLETE, Helper.getJobState(j));
+	}
+
+	private void setState(final JobStateHandler handler, 
+			final JobState state) {
+		boolean ran = handler.waitToWhen(new StateCondition() {
+			public boolean test(JobState state) {
+				return true;
+			}
+		}, new Runnable() {
+			public void run() {
+				handler.setJobState(state);
+				handler.fireEvent();
+			}
+		});
+		assertTrue(ran);
+	}
+	
+	/**
+	 * Test that an executing job is waited for. 
+	 *
+	 */
+	public void testExecuting() throws InterruptedException {
+		class Executing extends MockStateful {
+			JobStateHandler h = new JobStateHandler(this);
+			public void addJobStateListener(JobStateListener listener) {
+				h.addJobStateListener(listener);
+			}
+			public void removeJobStateListener(JobStateListener listener) {
+				h.removeJobStateListener(listener);
+			}
+		}
+		Executing testJob = new Executing();
+		setState(testJob.h, JobState.EXECUTING);
+		
+		DependsJob j = new DependsJob();
+		j.setJob(testJob);
+		Thread t = new Thread(j);
+		t.start();
+		
+		while (JobState.EXECUTING != Helper.getJobState(j)) {
+			Thread.yield();
+		}
+		
+		setState(testJob.h, JobState.INCOMPLETE);
+		
+		t.join();
+		assertEquals(JobState.INCOMPLETE, Helper.getJobState(j));
+	}
+}

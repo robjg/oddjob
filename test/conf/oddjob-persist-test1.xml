@@ -1,0 +1,9 @@
+<oddjob id="oddjob">
+	<job>
+		<oddjob id="oj2" file="${oddjob.dir}/oddjob-persist-test2.xml">
+			<persister>
+				<file-persister dir="${oddjob.dir}/../../work/persist"/>
+			</persister>
+		</oddjob>
+	</job>
+</oddjob>

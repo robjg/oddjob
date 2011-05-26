@@ -1,0 +1,16 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <input>
+                        <resource
+                            resource='org/oddjob/values/properties/PropertiesJobTest1.properties'/>
+                    </input>
+                </properties>
+                <echo id='echo' text='${someones.name}'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+

@@ -1,0 +1,26 @@
+<oddjob id="this" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx">
+	<job>
+		<sequential>
+			<jobs>
+		<!-- root for server. -->
+				<oddjob id="oj">
+					<configuration>
+						<value value="${child-config}"/>
+					</configuration>
+				</oddjob>
+				
+				<jmx:server id='server1' url='service:jmx:rmi://' root='${oj}' />
+				<jmx:client id='client1' url='${server1.address}' />
+		
+				<echo text='${client1/oj/fruit.text}' />
+				<set>
+					<values>
+						<value key='client1/oj/result.echo' value='${client1/oj/fruit.text}' />
+					</values>
+				</set>
+				<stop job='${client1}' />
+				<stop job='${server1}' />
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

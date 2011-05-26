@@ -1,0 +1,6 @@
+<schedules:time xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+    from="22:00" to="03:50">
+    <refinement>
+        <schedules:interval interval="00:15"/>
+    </refinement>
+</schedules:time>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql name="Lots Of Statemenets">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <input>
+        	            <resource resource="org/oddjob/sql/SqlJobMultipleStatements.sql"/>
+                    </input>
+                    <results>
+                    	<sql-results-bean id="result"/>
+                    </results>
+                </sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

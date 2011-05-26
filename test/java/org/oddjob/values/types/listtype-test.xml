@@ -1,0 +1,16 @@
+<oddjob>
+	<variables id="vars">
+		<list name="text-things">
+			<value>Some text</value>
+			<value value="2"/>
+		</list>
+		<list name="mixed-things">
+			<value>Some text</value>
+			<buffer/>
+		</list>
+		<list name="file-things">
+			<value value="text.txt"/>
+			<file file="text.txt"/>
+		</list>
+	</variables>
+</oddjob>

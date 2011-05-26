@@ -1,0 +1,40 @@
+<oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>
+	<job>
+		<sequential>
+			<jobs>
+			<!--  reusable buffer required because we are going to reset -->
+				<variables id='v'>
+					<xml>
+						<buffer/>
+					</xml>
+				</variables>
+				<copy>
+					<input>
+						<value value="${config-2}"/>
+					</input>
+					<output>
+						<value value='${v.xml}' />
+					</output>
+				</copy>
+				<sequential>
+					<jobs>
+						<oddjob id="oj">
+							<configuration>
+								<arooa:configuration>
+									<input>
+										<value value="${v.xml}"/>
+									</input>
+								</arooa:configuration>
+							</configuration>
+							<export>
+								<value key="config-3" value="${config-3}" />
+							</export>
+						</oddjob>
+						<jmx:server id='server' url='service:jmx:rmi://' root='${oj}' />
+					</jobs>
+				</sequential>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aList>
+                        <list>
+                            <elementType>
+                                <class name="[Ljava.lang.String;"/>
+                            </elementType>
+                            <values>
+                                <value value='"grapes, red", "grapes, white", gratefruit'/>
+                            </values>
+                        </list>
+                    </aList>
+                </variables>
+                <foreach id="loop">
+                    <values>
+                        <value value="${vars.aList}"/>
+                    </values>
+                    <configuration>
+                        <arooa:configuration
+                            xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                            <xml>
+                                <xml>
+                                    <foreach id="inner">
+                                        <values>
+                                            <value value="${loop.current}"/>
+                                        </values>
+                                        <configuration>
+                                            <arooa:configuration
+                                                xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                                                <xml>
+                                                    <xml>
+                                                        <echo text="${inner.current}"/>
+                                                    </xml>
+                                                </xml>
+                                            </arooa:configuration>
+                                        </configuration>
+                                    </foreach>
+                                </xml>
+                            </xml>
+                        </arooa:configuration>
+                    </configuration>
+                </foreach>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

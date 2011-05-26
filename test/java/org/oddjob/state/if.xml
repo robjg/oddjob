@@ -1,0 +1,45 @@
+<oddjob>
+    <job>
+        <sequential xmlns:state="http://rgordon.co.uk/oddjob/state">
+            <jobs>
+                <state:if>
+                    <jobs>
+                        <echo text="Hello"/>
+                        <echo text="Good Bye"/>
+                    </jobs>
+                </state:if>
+                <state:if>
+                    <jobs>
+                        <state:flag name="Exception" state="EXCEPTION"/>
+                        <state:flag name="Unexpected 1" state="EXCEPTION"/>
+                        <echo text="No Hello"/>
+                    </jobs>
+                </state:if>
+                <state:if>
+                    <jobs>
+                        <echo text="Only Hello"/>
+                    </jobs>
+                </state:if>
+                <state:if not="true">
+                    <jobs>
+                        <state:flag name="Exception" state="EXCEPTION"/>
+                        <echo text="No Hello"/>
+                    </jobs>
+                </state:if>
+                <state:if not="true">
+                    <jobs>
+                        <echo text="Hello"/>
+                        <state:flag name="Unexpected 2" state="EXCEPTION"/>
+                    </jobs>
+                </state:if>
+                <state:if not="true" state="EXCEPTION">
+                    <jobs>
+                        <echo text="Hello"/>
+                        <echo text="Good Bye"/>
+                        <state:flag name="Unexpected 3" state="EXCEPTION"/>
+                    </jobs>
+                </state:if>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

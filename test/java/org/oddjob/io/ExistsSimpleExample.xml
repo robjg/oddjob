@@ -1,0 +1,5 @@
+<oddjob id='this'>
+    <job>
+        <exists file='${this.args[0]}/test/io/reference/test1.txt'/>
+    </job>
+</oddjob>

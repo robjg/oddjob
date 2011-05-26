@@ -1,0 +1,11 @@
+<oddjob id='this' xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>
+	<job>
+		<sequential>
+			<jobs>
+				<echo text='${this.args[0]}' />
+				<jmx:client id='client' url='${this.args[0]}' />
+				<echo id='echo' text='${client/fruit.text}' />
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

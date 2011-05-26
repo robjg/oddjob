@@ -1,0 +1,18 @@
+<oddjob>
+    <job>
+        <variables id="vars">
+            <pathA>
+                <import resource="org/oddjob/arooa/types/ImportExampleImport.xml"/>
+            </pathA>
+            <pathB>
+                <files>
+                    <list>
+                        <file file="a.jar"/>
+                        <file file="b.jar"/>
+                        <file file="c.jar"/>
+                    </list>
+                </files>
+            </pathB>
+        </variables>
+    </job>
+</oddjob>

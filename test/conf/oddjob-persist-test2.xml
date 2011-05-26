@@ -1,0 +1,10 @@
+<oddjob>
+	<job>
+		<sequential>
+			<jobs>
+				<sequence name="Sequence Number" 
+					id='sequence' from="1"/>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

@@ -1,0 +1,10 @@
+<oddjob>
+    <job>
+        <exec name="Example With Environment" id="exec">
+            <environment>
+                <value key="ODDJOB_FILE" value="myfile.txt"/>
+            </environment>
+${platform.set.command}
+        </exec>
+    </job>
+</oddjob>

@@ -1,0 +1,15 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sequence id='sequence' from='1000'/>
+                <check value='${sequence.current}' eq='1000'/>
+                <check value='${sequence.current}' ne='999'/>
+                <check value='${sequence.current}' lt='1001'/>
+                <check value='${sequence.current}' le='1000'/>
+                <check value='${sequence.current}' gt='999'/>
+                <check value='${sequence.current}' ge='1000'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

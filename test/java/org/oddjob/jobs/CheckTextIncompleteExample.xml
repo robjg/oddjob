@@ -1,0 +1,14 @@
+<oddjob>
+    <job>
+        <parallel id="all-checks">
+            <jobs>
+                <check value='apple' eq='orange'/>
+                <check value='apple' ne='apple'/>
+                <check value='orange' lt='apple'/>
+                <check value='orange' le='apple'/>
+                <check value='apple' gt='orange'/>
+                <check value='apple' ge='orange'/>
+            </jobs>
+        </parallel>
+    </job>
+</oddjob>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <scheduling:timer id="timer" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+            <schedule>
+                <schedules:count count="4" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                    <refinement>
+                        <schedules:now/>
+                    </refinement>
+                </schedules:count>
+            </schedule>
+            <job>
+                <scheduling:retry id="retry">
+                    <schedule>
+                        <schedules:count count="2" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                            <refinement>
+                                <schedules:now/>
+                            </refinement>
+                        </schedules:count>
+                    </schedule>
+                    <job>
+                        <bean class="org.oddjob.scheduling.TimerRetryCombinationTest$Results" id="results" result="1"/>
+                    </job>
+                </scheduling:retry>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

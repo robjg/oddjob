@@ -1,0 +1,606 @@
+package org.oddjob.jmx;
+
+import java.io.IOException;
+import java.util.Map;
+
+import javax.management.MBeanServerConnection;
+import javax.management.Notification;
+import javax.management.NotificationListener;
+import javax.management.ObjectName;
+import javax.management.relation.MBeanServerNotificationFilter;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+
+import org.apache.log4j.Logger;
+import org.oddjob.Resetable;
+import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
+import org.oddjob.Structural;
+import org.oddjob.framework.BaseComponent;
+import org.oddjob.images.IconHelper;
+import org.oddjob.jmx.client.ClientSession;
+import org.oddjob.jmx.client.ClientSessionImpl;
+import org.oddjob.jmx.client.RemoteLogPoller;
+import org.oddjob.jmx.client.ServerView;
+import org.oddjob.jmx.client.SimpleNotificationProcessor;
+import org.oddjob.jmx.server.OddjobMBeanFactory;
+import org.oddjob.logging.ConsoleArchiver;
+import org.oddjob.logging.LogArchiver;
+import org.oddjob.logging.LogEnabled;
+import org.oddjob.logging.LogLevel;
+import org.oddjob.logging.LogListener;
+import org.oddjob.logging.OddjobNDC;
+import org.oddjob.state.IsAnyState;
+import org.oddjob.state.IsExecutable;
+import org.oddjob.state.IsHardResetable;
+import org.oddjob.state.IsSoftResetable;
+import org.oddjob.state.IsStoppable;
+import org.oddjob.state.JobState;
+import org.oddjob.structural.ChildHelper;
+import org.oddjob.structural.StructuralListener;
+
+/**
+ * @oddjob.description Connect to an Oddjob {@link org.oddjob.jmx.JMXServerJob}.
+ * This job allows remote jobs to be monitored and controlled from 
+ * a local Oddjob.
+ * <p>
+ * This job will run until it is manually stopped or until the remote server is
+ * stopped. If this job is stopped it's state will be COMPLETE, if the server stops
+ * this job's state will be NOT COMPLETE.
+ * <p>
+ * To access and control jobs on a server from within a configuration file this
+ * client job must have an id. If the client has an id of <code>'freds-pc'</code>
+ * and the job on the server has an id of <code>'freds-job'</code>. The job on
+ * the server can be accessed from the client using the expression
+ * <code>${freds-pc/freds-job}</code>.
+ * <p>
+ * 
+ * @oddjob.example
+ * 
+ * To create a connection to a remote server.
+ * <pre>
+ * &lt;jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
+ *            id="freds-pc"
+ *            name="Connection to Freds PC" 
+ *            url="service:jmx:rmi:///jndi/rmi://pcfred/public-jobs"/&gt;
+ * </pre>
+ * 
+ * @oddjob.example
+ * 
+ * Connect, run a remote job, and disconnect.
+ * <pre>
+ * &lt;sequential xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"&gt;
+ *  &lt;jobs&gt;
+ *   &lt;jmx:client id="freds-pc" 
+ *                  name="Connection to Fred's PC" 
+ *                  url="service:jmx:rmi:///jndi/rmi://pcfred/public-jobs" /&gt;
+ *   &lt;run name="Run Fred's Job" 
+ *           job="${freds-pc/freds-job}" /&gt;
+ *   &lt;stop name="Disconnect" 
+ *            job="${freds-pc} /gt;
+ *  &lt;/jobs&gt;
+ * &lt;sequential&gt;
+ * </pre>
+ * 
+ * <p>
+ * The run job starts the server job but doesn't wait for it to complete.
+ * We would need to add a wait job for that.
+ * 
+ * @oddjob.example
+ * 
+ * Connect using a username and password to a secure server.
+ * <pre>
+ * &lt;jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
+ *             url="service:jmx:rmi:///jndi/rmi://localhost/my-oddjob" &gt;
+ *  &lt;environment&gt;
+ *   &lt;jmx:client-credentials username="username"
+ *                           password="password" /&gt;
+ *  &lt;/environment&gt;
+ * &lt;/jmx:client&gt;
+ * </pre>
+ * 
+ * @author Rob Gordon
+ */
+
+public class JMXClientJob extends BaseComponent
+implements Runnable, Stateful, Resetable,
+		Stoppable, Structural, 
+		LogArchiver, ConsoleArchiver, LogEnabled,
+		RemoteDirectoryOwner {
+		
+	public static final long DEFAULT_LOG_POLLING_INTERVAL = 5000;
+	
+	private enum WhyStop {
+		STOP_REQUEST,
+		SERVER_STOPPED,
+		HEARTBEAT_FAILURE
+	}
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description A name, can be any text.
+	 * @oddjob.required No. 
+	 */
+	private String name;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The JMX service URL.
+	 * @oddjob.required Yes.
+	 */
+	private String url;
+
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The heart beat interval, in milliseconds.
+	 * @oddjob.required Not, defaults to 5 seconds.
+	 */
+	private long heartbeat = 5000;
+	
+	/** The log poller thread */
+	private RemoteLogPoller logPoller;
+	
+	/** The notification processor thread */
+	private SimpleNotificationProcessor notificationProcessor; 
+	
+	/** Child helper */
+	private ChildHelper<Object> childHelper = new ChildHelper<Object>(this);
+	
+	/** The client session */
+	private ClientSession clientSession;
+		
+	/** View of the main server bean. */
+	private ServerView serverView;
+	
+	/** The connector */ 
+	private JMXConnector cntor; 
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The environment. Typically username/password
+	 * credentials.
+	 * @oddjob.required No.
+	 */
+	private Map<String, ?> environment;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The maximum number of log lines to retrieve for any
+	 * component.
+	 * @oddjob.required No.
+	 */
+	private int maxLoggerLines = LogArchiver.MAX_HISTORY;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The maximum number of console lines to retrieve for any
+	 * component.
+	 * @oddjob.required No.
+	 */
+	private int maxConsoleLines = LogArchiver.MAX_HISTORY;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The number of milliseconds between polling for new
+	 * log events. Defaults to 5.
+	 * @oddjob.required No.
+	 */
+	private long logPollingInterval = 5000;
+	
+	private static int instance;
+	
+	private Logger theLogger;
+	
+	
+	/**
+	 * Get the name.
+	 * 
+	 * @return The name.
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * Set the name
+	 * 
+	 * @param name The name.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	protected Logger logger() {
+		if (theLogger == null) {
+			synchronized (JMXClientJob.class) {
+				theLogger = Logger.getLogger(JMXClientJob.class.getName() 
+						+ "." + String.valueOf(instance++));
+			}
+		}
+		return theLogger;
+	}
+	
+	public String loggerName() {
+		return logger().getName();
+	}
+	
+	/**
+	 * Set naming service url.
+	 * 
+	 * @param url The name of the remote node in the naming service.
+	 */
+	public void setUrl(String lookup) {		
+		this.url = lookup;
+	}
+	
+	/**
+	 * Get the JMX service URL.
+	 * 
+	 * @return The name of the remote node in the naming service.
+	 */
+	public String getUrl() {		
+		return url;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.oddjob.logging.LogArchiver#addLogListener(org.oddjob.logging.LogListener, java.lang.String, org.oddjob.logging.LogLevel, long, long)
+	 */
+	public void addLogListener(LogListener l, Object component, LogLevel level,
+			long last, int history) {
+		stateHandler.assertAlive();
+		
+		if (logPoller == null) {
+			throw new NullPointerException("logPoller not available");
+		}
+		logPoller.addLogListener(l, component, level, last, history);
+		// force poller to poll.
+		synchronized (logPoller) {
+			logPoller.notifyAll();
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.oddjob.logging.LogArchiver#removeLogListener(org.oddjob.logging.LogListener)
+	 */
+	public void removeLogListener(LogListener l, Object component) {
+		if (logPoller == null) {
+			// must have been shut down.
+			return;
+		}
+		logPoller.removeLogListener(l, component);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.oddjob.logging.ConsoleArchiver#addConsoleListener(org.oddjob.logging.LogListener, java.lang.Object, long, int)
+	 */
+	public void addConsoleListener(LogListener l, Object component, long last,
+			int max) {
+		stateHandler.assertAlive();
+		
+		if (logPoller == null) {
+			throw new NullPointerException("logPoller not available");
+		}
+		logPoller.addConsoleListener(l, component, last, max);
+		// force main thread to poll.
+		synchronized (this) {
+			notifyAll();
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.oddjob.logging.ConsoleArchiver#removeConsoleListener(org.oddjob.logging.LogListener, java.lang.Object)
+	 */
+	public void removeConsoleListener(LogListener l, Object component) {
+		if (logPoller == null) {
+			// must have been shut down.
+			return;
+		}
+		logPoller.removeConsoleListener(l, component);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.oddjob.logging.ConsoleArchiver#consoleIdFor(java.lang.Object)
+	 */
+	public String consoleIdFor(Object component) {
+		return logPoller.consoleIdFor(component);
+	}
+
+	public void onInitialised() {
+		if (maxConsoleLines == 0) {
+			maxConsoleLines = LogArchiver.MAX_HISTORY;
+		}
+		if (maxLoggerLines == 0) {
+			maxLoggerLines = LogArchiver.MAX_HISTORY;
+		}
+		if (logPollingInterval == 0) {
+			logPollingInterval = DEFAULT_LOG_POLLING_INTERVAL;
+		}
+	}
+	
+	
+	public void run() {
+		OddjobNDC.push(logger().getName());
+		try {
+			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
+				public void run() {
+					getStateChanger().setJobState(JobState.EXECUTING);
+					
+				}
+			})) {
+				return;
+			}
+			logger().info("[" + JMXClientJob.this + "] Starting.");
+			
+			try {
+				configure(JMXClientJob.this);
+				
+				onStart();
+			}
+			catch (final Throwable e) {
+				logger().warn("[" + JMXClientJob.this + "] Exception starting:", e);
+				
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						getStateChanger().setJobStateException(e);
+					}
+				});
+			}
+		}
+		finally {
+			OddjobNDC.pop();
+		}
+	}
+	
+	/**
+	 * 
+	 * @throws Exception
+	 */
+	private void onStart() throws Exception {
+		if (url == null) {
+			throw new IllegalStateException("url must be provided.");
+		}
+		
+		JMXServiceURL address = new JMXServiceURL(url);
+
+		logger().debug("Connecting to [" + url + "] ...");
+		cntor = JMXConnectorFactory.connect(address, environment);
+
+		MBeanServerConnection mbsc = cntor.getMBeanServerConnection();
+		MBeanServerNotificationFilter serverFilter = new MBeanServerNotificationFilter();
+		serverFilter.disableAllObjectNames();
+		serverFilter.enableObjectName(OddjobMBeanFactory.objectName(0));
+		mbsc.addNotificationListener(
+				new ObjectName("JMImplementation:type=MBeanServerDelegate"),
+				new NotificationListener() {
+					public void handleNotification(Notification notification, Object handback) {
+						if ("JMX.mbean.unregistered".equals(notification.getType())) {
+							logger().debug("MBeanServerDelgate unregestered in server. Server has stopped.");
+							try {
+								doStop(WhyStop.SERVER_STOPPED, null);
+							} catch (Exception e1) {
+								logger().error("Failed to stop.", e1);
+							}
+							
+						}
+					}
+				}, serverFilter, null);
+	
+		
+		notificationProcessor = new SimpleNotificationProcessor(logger());
+		notificationProcessor.start();
+		
+		clientSession = new ClientSessionImpl(
+				mbsc,
+				notificationProcessor,
+				getArooaSession(),
+				logger());
+		
+		Object serverMain = clientSession.create(
+				OddjobMBeanFactory.objectName(0));
+		
+		serverView = new ServerView(serverMain);
+		
+		notificationProcessor.enqueueDelayed(new Runnable() {
+			public void run() {
+				try {
+					serverView.noop();
+					notificationProcessor.enqueueDelayed(this, heartbeat);
+				} catch (RuntimeException e) {
+					try {
+						doStop(WhyStop.HEARTBEAT_FAILURE, e);
+					} catch (Exception e1) {
+						logger().error("Failed to stop.", e1);
+					}
+				}
+			}
+			@Override
+			public String toString() {
+				return "Heartbeat";
+			}
+		}, heartbeat);
+		
+		
+		this.logPoller = new RemoteLogPoller(serverMain, 
+				maxConsoleLines, maxLoggerLines);
+		
+		serverView.startStructural(childHelper);
+
+		logPoller.setLogPollingInterval(logPollingInterval);
+		
+		Thread t = new Thread(logPoller);
+		t.start();
+	}
+
+	public void stop() {
+		OddjobNDC.push(logger().getName());
+		try {
+			logger().debug("[" + this + "] Thread [" + 
+					Thread.currentThread().getName() + "] requested  stop, " +
+							"state is [" + lastJobStateEvent().getJobState() + "]");
+			
+			if (!stateHandler.waitToWhen(new IsStoppable(), 
+					new Runnable() {
+						public void run() {
+						}
+			})) {
+				return;
+			}
+	
+			iconHelper.changeIcon(IconHelper.STOPPING);
+			
+			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					try {
+						doStop(WhyStop.STOP_REQUEST, null);
+					} 
+					catch (Exception e) {
+						iconHelper.changeIcon(IconHelper.EXECUTING);
+						getStateChanger().setJobStateException(e);
+					}
+				}
+			});
+		}
+		finally {
+			OddjobNDC.pop();
+		}
+	}
+	
+	private void doStop(final WhyStop why, final Exception cause) 
+	throws IOException {
+		
+		logPoller.stop();
+		
+		// if not destroyed by remote peer
+		if (why == WhyStop.STOP_REQUEST) {
+			clientSession.destroy(serverView.getProxy());
+			cntor.close();
+		}		
+		childHelper.removeAllChildren();
+		
+		notificationProcessor.stopProcessor();
+		
+		cntor = null;
+		logPoller = null;
+		notificationProcessor = null;
+		
+		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			public void run() {
+				switch (why) {
+				case HEARTBEAT_FAILURE:
+					getStateChanger().setJobStateException(cause);
+					logger().error("[" + JMXClientJob.this + 
+							"] Stopped because of heartbeat Failure.", cause);
+					break;
+				case SERVER_STOPPED:
+					getStateChanger().setJobState(JobState.INCOMPLETE);
+					logger().info("[" + JMXClientJob.this + 
+							"] Stopped because server Stopped.");
+					break;
+				default:
+					getStateChanger().setJobState(JobState.COMPLETE);
+					logger().info("[" + JMXClientJob.this + 
+							"] Stopped.");
+				}
+			}
+		});
+	}
+		
+	public RemoteDirectory provideBeanDirectory() {
+		if (serverView == null) {
+			return null;
+		}
+		return serverView.provideBeanDirectory();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.oddjob.Structural#addStructuralListener(org.oddjob.structural.StructuralListener)
+	 */
+	public void addStructuralListener(StructuralListener listener) {
+		childHelper.addStructuralListener(listener);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.oddjob.Structural#removeStructuralListener(org.oddjob.structural.StructuralListener)
+	 */
+	public void removeStructuralListener(StructuralListener listener) {
+		childHelper.removeStructuralListener(listener);
+	}
+	
+	/**
+	 * Perform a soft reset on the job.
+	 */
+	public boolean softReset() {
+		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setJobState(JobState.READY);
+
+				logger().info("[" + JMXClientJob.this + "] Soft Reset." );
+			}
+		});
+	}
+	
+	/**
+	 * Perform a hard reset on the job.
+	 */
+	public boolean hardReset() {
+		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setJobState(JobState.READY);
+
+				logger().info("[" + JMXClientJob.this + "] Hard Reset." );
+			}
+		});
+	}
+
+	public int getMaxConsoleLines() {
+		return maxConsoleLines;
+	}
+	public void setMaxConsoleLines(int maxConsoleLines) {
+		this.maxConsoleLines = maxConsoleLines;
+	}
+	public int getMaxLoggerLines() {
+		return maxLoggerLines;
+	}
+	public void setMaxLoggerLines(int maxLoggerLines) {
+		this.maxLoggerLines = maxLoggerLines;
+	}
+	public long getLogPollingInterval() {
+		return logPollingInterval;
+	}
+	public void setLogPollingInterval(long logPollingInterval) {
+		this.logPollingInterval = logPollingInterval;
+	}
+	
+	public String toString() {
+	    if (name == null) {
+	        return getClass().getSimpleName();
+	    }
+	    else {
+	        return name;
+	    }
+	}
+
+	public Map<String, ?> getEnvironment() {
+		return environment;
+	}
+
+	public void setEnvironment(Map<String, ?> environment) {
+		this.environment = environment;
+	}
+
+	public long getHeartbeat() {
+		return heartbeat;
+	}
+
+	public void setHeartbeat(long heartbeat) {
+		this.heartbeat = heartbeat;
+	}
+
+	@Override
+	protected void onDestroy() {		
+		super.onDestroy();
+		
+		stop();
+	}
+}

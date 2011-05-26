@@ -1,0 +1,112 @@
+<!-- ===========================================================================
+
+	Build file for Oddjob
+	=====================
+
+============================================================================ -->
+
+<project default="compile" basedir="." name="Test Oddballs">
+
+	<!-- =================================================================== -->
+	<!-- Initialization target                                               -->
+	<!-- =================================================================== -->
+	<target name="init">
+
+		<!-- =================================================================== -->
+		<!-- Properties                                                          -->
+		<!-- =================================================================== -->
+
+		<property name="Name"     value="Test Oddballs"/>
+
+
+		<property name="debug"          value="on"/>
+		<property name="optimize"       value="off"/>
+		<property name="deprecation"    value="off"/>
+		<property name="nowarn"         value="on"/>
+		<!-- <property name="build.compiler" value="classic"/> -->
+
+		<property name="src.dir"      value="./src"/>
+		<property name="java.dir"     value="${src.dir}/java"/>
+		<property name="root.dir"     value="../../.."/>
+		<property name="lib.dir"      value="${root.dir}/lib"/>
+		<property name="oddjob.classes"  value="${root.dir}/build/classes"/>
+		<property name="opt.lib"     value="${root.dir}/opt/lib"/>
+
+		<property name="build.classes"     value="./classes"/>
+			
+		<echo message="--------------------------------------------------------------"/>
+		<echo message="            ${Name}                                           "/>
+		<echo message="--------------------------------------------------------------"/>
+		<echo message="Building with ${ant.version}"/>
+		<echo message="using build file ${ant.file}"/>
+		<echo message="root.dir is ${root.dir}"/>
+		<echo message="basedir is ${basedir}"/>
+		<echo message="--------------------------------------------------------------"/>		
+		
+		<!-- =================================================================== -->
+		<!-- Identify Classpath                                                 -->
+		<!-- =================================================================== -->
+
+		<path id="classpath">
+			<fileset dir="${oddjob.classes}"/>
+			<fileset dir="${lib.dir}">
+				<include name="*.jar"/>
+			</fileset>
+			<fileset dir="${opt.lib}">
+				<include name="*.jar"/>
+			</fileset>
+		</path>
+
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Prepares the build directory                                        -->
+	<!-- =================================================================== -->
+	<target name="prepare" depends="init">
+
+		<mkdir dir="${build.classes}"/>
+		
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Compiles the source directory                                       -->
+	<!-- =================================================================== -->
+	<target name="compile" depends="prepare"
+          description="Compiles the source code">
+
+		<copy todir="${build.classes}">
+			<fileset dir="${src.dir}">
+				<include name="**/*.gif"/>
+				<include name="**/*.properties"/>
+				<include name="**/*.xml"/>
+			</fileset>
+		</copy>
+
+		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
+
+		<javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+           debug="${debug}"
+           optimize="${optimize}"
+           deprecation="${deprecation}"
+           nowarn="${nowarn}">
+			<classpath refid="classpath"/>
+		</javac>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Clean targets                                                       -->
+	<!-- =================================================================== -->
+	<target name="clean" depends="init" description="Cleans the build directories">
+		<delete dir="${build.classes}"/>
+	</target>
+
+
+	<!-- =================================================================== -->
+	<!-- Test targets                                                       -->
+	<!-- =================================================================== -->
+	
+</project>
+
+<!-- End of file -->

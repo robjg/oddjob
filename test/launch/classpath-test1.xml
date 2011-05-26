@@ -1,0 +1,11 @@
+<oddjob>
+	<job>
+		<sequential>
+			<jobs>
+				<echo text="${java.class.path}"/>
+				<echo text="${oddjob.home}"/>
+				<bean class='org.oddjob.launch.PathParserLaunchTest$Test'/>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

@@ -1,0 +1,18 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <value value="shared"/>
+                    </connection>
+                </variables>
+                <properties>
+                    <values>
+                        <value key="favourite.snack" value="${favourite.fruit}"/>
+                    </values>
+                </properties>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

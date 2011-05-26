@@ -1,0 +1,18 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id='vars'>
+                    <businessDate>
+                        <format format='yyyyMMdd' date='2005-12-25'/>
+                    </businessDate>
+                    <sequence>
+                        <format format='000000' number='123'/>
+                    </sequence>
+                </variables>
+                <exists id="file-check"
+                    file="Data-${vars.businessDate}-${vars.sequence}.dat"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

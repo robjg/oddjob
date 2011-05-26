@@ -1,0 +1,26 @@
+<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>
+	<job>
+		<foreach id="each">
+			<values>
+				<list>
+					<values>
+						<value value="hello" />
+						<date date="2005-12-25" />
+						<value value="${doesntexist}" />
+						<file file="file.txt" />
+					</values>
+				</list>
+			</values>
+			<configuration>
+				<arooa:configuration>
+					<xml>
+						<xml>
+							<bean id="check" class="org.oddjob.jobs.structural.ForEachJobTest$Check"
+								object="${each.current}" index="${each.index}" />
+						</xml>
+					</xml>
+				</arooa:configuration>
+			</configuration>
+		</foreach>
+	</job>
+</oddjob>

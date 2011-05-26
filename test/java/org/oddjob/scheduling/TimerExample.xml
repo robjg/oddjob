@@ -1,0 +1,18 @@
+<oddjob>
+    <job>
+        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+            xmlns:schedules="http://rgordon.co.uk/oddjob/schedules" id="timer">
+            <schedule>
+                <schedules:dayofweek from="1" to="5">
+                    <refinement>
+                        <schedules:time at="10:00"/>
+                    </refinement>
+                </schedules:dayofweek>
+            </schedule>
+            <job>
+                <echo id="work"
+                     text="Doing some work at ${timer.current.fromDate}"/>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

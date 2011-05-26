@@ -1,0 +1,52 @@
+<oddjob>
+ 	<job>
+		<sequential>
+			<jobs>
+				<variables id="basic">
+					<boolean>
+						<value value="true"/>
+					</boolean>
+					<byte>
+						<value value="127"/>
+					</byte>
+					<char>
+						<value value="a"/>
+					</char>		
+					<date>	
+						<date date="2005-12-25" timeZone="GMT"/>
+					</date>
+					<double>
+						<value value="9E99"/>
+					</double>
+					<float>
+						<value value="1.23"/>
+					</float>
+					<int>
+						<value value="1234567"/>
+					</int>
+					<long>
+						<value value="2345678"/>
+					</long>
+					<short>
+						<value value="123"/>
+					</short>
+					<string>
+						<value value="hello"/>
+					</string>
+				</variables>
+				<bean id="check" class="org.oddjob.values.CheckBasicSetters"
+					checkBoolean="${basic.boolean}"
+					checkByte="${basic.byte}"
+					checkChar="${basic.char}"
+					checkDate="${basic.date}"
+					checkDouble="${basic.double}"
+					checkFloat="${basic.float}"
+					checkInt="${basic.int}"
+					checkLong="${basic.long}"
+					checkShort="${basic.short}"
+					checkString="${basic.string}"
+				/>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql name="Create table">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <input>
+        	            <buffer>
+	        	            <![CDATA[create table NUMBERS(NUMBER varchar(20))]]>
+    	                </buffer>
+                    </input>
+                </sql>
+                <sql name="Get Results">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <results>
+                    	<sql-results-bean id="result"/>
+                    </results>
+                    <input>
+                    	<buffer>
+<![CDATA[select * from numbers]]>
+                 	   </buffer>
+                 	</input>
+                 </sql>
+                <sql name="Shutdown">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <input>
+	                    <buffer>
+	                    	<![CDATA[Shutdown]]>
+	                    </buffer>
+                    </input>
+               </sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

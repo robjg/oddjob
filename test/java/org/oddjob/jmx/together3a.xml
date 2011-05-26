@@ -1,0 +1,10 @@
+<oddjob>
+	<job>
+		<sequential>
+			<jobs>
+				<variables id='result' />
+				<echo id='fruit' text='apples' />
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential id="seq">
+            <jobs>
+                <oddjob id="hello">
+                    <configuration>
+                        <arooa:configuration resource="${this.args[0]}" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"/>
+                    </configuration>
+                </oddjob>
+                <oddjob id="world">
+                    <configuration>
+                        <arooa:configuration resource="${this.args[1]}" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"/>
+                    </configuration>
+                </oddjob>
+                <bean class="org.oddjob.persist.FileSilhouettesTest$SessionCapture" id="capture"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

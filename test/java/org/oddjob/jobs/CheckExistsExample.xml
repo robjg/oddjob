@@ -1,0 +1,17 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="property.that.exists" value="some-value"/>
+                    </values>
+                </properties>
+                <check name="Check Something that Exists" value='${property.that.exists}'
+                    id="should-complete"/>
+                <check name="Check Something that doesn't Exist"
+                    value='${property.doesnt.exist}' id="should-incomplete"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

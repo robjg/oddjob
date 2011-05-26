@@ -1,0 +1,20 @@
+<oddjob>
+	<job>
+		<parallel>
+			<jobs>
+				<sequential>
+					<jobs>
+						<wait pause="2000"/>
+						<echo id="e" text="hello"/>
+					</jobs>
+				</sequential>
+				<sequential>
+					<jobs>
+						<wait for="${e}" state="complete"/>
+						<echo id="test" text="${e.text}"/>
+					</jobs>
+				</sequential>
+			</jobs>
+		</parallel>
+	</job>
+</oddjob>

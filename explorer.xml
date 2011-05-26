@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <reset job="${explorer}" level="hard"/>
+                <explorer id="explorer" dir="${this.dir}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

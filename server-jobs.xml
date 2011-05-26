@@ -1,0 +1,10 @@
+<oddjob id="this">
+    <job>
+        <folder name="Jobs">
+            <jobs>
+				<oddjob name="The Examples"
+				        file="${this.dir}/examples/oddjob.xml"/>
+            </jobs>
+        </folder>
+    </job>
+</oddjob>

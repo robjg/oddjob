@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+    	<echo id='e' text='${e.class.classLoader}'/>
+    </job>
+</oddjob>

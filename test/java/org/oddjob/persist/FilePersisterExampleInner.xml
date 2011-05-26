@@ -1,0 +1,5 @@
+<oddjob>
+    <job>
+        <echo id="save-me" text="${important.stuff}"/>
+    </job>
+</oddjob>

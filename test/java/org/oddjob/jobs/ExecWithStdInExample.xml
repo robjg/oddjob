@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <ourBuffer>
+                        <buffer/>
+                    </ourBuffer>
+                </variables>
+                <exec>
+                    <stdin>
+                        <buffer><![CDATA[apples
+oranges
+pears
+]]></buffer>
+                    </stdin>
+                    <stdout>
+                        <value value="${vars.ourBuffer}"/>
+                    </stdout><![CDATA[
+java -jar ${oddjob.run.jar} -f ${this.dir}/OddjobCat.xml
+        ]]></exec>
+                <exec id="exec">
+                    <stdin>
+                        <value value="${vars.ourBuffer}"/>
+                    </stdin>
+                    <stdout>
+                        <stdout/>
+                    </stdout><![CDATA[
+java -jar ${oddjob.run.jar} -f ${this.dir}/OddjobCat.xml
+        ]]></exec>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

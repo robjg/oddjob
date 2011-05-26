@@ -1,0 +1,13 @@
+<oddjob id="this">
+    <job>
+        <oddjob id='nested' file="${this.dir}/EchoProperty.xml">
+            <properties>
+                <properties>
+                    <values>
+                        <value key='our.greeting' value='Hello World'/>
+                    </values>
+                </properties>
+            </properties>
+        </oddjob>
+    </job>
+</oddjob>

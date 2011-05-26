@@ -1,0 +1,13 @@
+<arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    namespace="http://rgordon.co.uk/fruit" prefix="fruit">
+	<conversions>
+		<value value="fruit.ColourType$Conversions"/>
+		<value value="fruit.Colour$Conversions"/>
+	</conversions>
+	<components>
+		<arooa:bean-def element="apple" className="fruit.Apple"/>
+	</components>
+	<values>
+		<arooa:bean-def element="colour" className="fruit.ColourType"/>
+	</values>
+</arooa:descriptor>

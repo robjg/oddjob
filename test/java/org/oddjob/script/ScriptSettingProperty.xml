@@ -1,0 +1,23 @@
+<oddjob>
+ <job>
+  <sequential>
+   <jobs>
+    <script id='s' language='JavaScript'>
+     <input>
+      <buffer>
+vars.set('today', new java.util.Date());
+      </buffer>
+     </input>
+     <beans>
+      <value key='vars' value='${v}'/>
+     </beans>
+    </script>
+    <variables id='v'>
+     <formattedToday>
+      <format date='${v.today}' format='yyyyMMdd'/>
+     </formattedToday>
+    </variables>
+   </jobs>
+  </sequential>
+ </job>
+</oddjob>

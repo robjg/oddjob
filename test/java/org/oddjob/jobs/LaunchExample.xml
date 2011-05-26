@@ -1,0 +1,26 @@
+<oddjob id="this">
+    <job>
+        <launch className="${this.args[1]}">
+            <args>
+                <list>
+                    <values>
+                        <value value="-nb"/>
+                        <value value="-f"/>
+                        <value value="${this.args[0]}/test/conf/echo-class-loader.xml"/>
+                    </values>
+                </list>
+            </args>
+            <classLoader>
+                <url-class-loader noInherit="true">
+                    <files>
+                        <files files="${this.args[0]}/lib/*.jar">
+                            <list>
+                                <file file="${this.args[0]}/opt/classes"/>
+                            </list>
+                        </files>
+                    </files>
+                </url-class-loader>
+            </classLoader>
+        </launch>
+    </job>
+</oddjob>

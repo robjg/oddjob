@@ -1,0 +1,17 @@
+<!--
+ schedule types
+-->
+<arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    prefix="scheduling" namespace="http://rgordon.co.uk/oddjob/scheduling">
+	<components>
+		<is element='timer'
+			className='org.oddjob.scheduling.Timer'
+			designFactory='org.oddjob.scheduling.TimerDesFa'/>
+		<is element='retry'
+			className='org.oddjob.scheduling.Retry'
+			designFactory='org.oddjob.scheduling.RetryDesFa'/>
+		<is element='trigger'
+			className='org.oddjob.scheduling.Trigger'
+			designFactory='org.oddjob.scheduling.TriggerDesFa'/>
+	</components>
+</arooa:descriptor>

@@ -1,0 +1,20 @@
+<oddjob>
+	<job>
+		<sequential>
+			<jobs>
+				<folder>
+					<jobs>
+						<echo id='then' text="Good Bye" />
+						<echo id='else' text="Doh" />
+						<echo id='exception' text="Help!" />
+					</jobs>
+				</folder>
+				<if then='${then}' else='${else}' exception='${exception}'>
+					<job>
+						<echo text="Hello" />
+					</job>
+				</if>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

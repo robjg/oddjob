@@ -1,0 +1,48 @@
+<arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    prefix="schedules" namespace="http://rgordon.co.uk/oddjob/schedules">
+	<values>
+		<is element='after' 
+			className='org.oddjob.schedules.schedules.AfterSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.AfterScheduleDE'/>
+		<is element='broken' 
+			className='org.oddjob.schedules.schedules.BrokenSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.BrokenScheduleDE'/>
+		<is element='count' 
+			className='org.oddjob.schedules.schedules.CountSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.CountScheduleDE'/>
+		<is element='date' 
+			className='org.oddjob.schedules.schedules.DateSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.DateScheduleDE'/>
+		<is element='dayafter' 
+			className='org.oddjob.schedules.schedules.DayAfterSchedule'/>
+		<is element='dayofweek' 
+			className='org.oddjob.schedules.schedules.DayOfWeekSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.DayOfWeekScheduleDE'/>
+		<is element='dayofmonth' 
+			className='org.oddjob.schedules.schedules.DayOfMonthSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.DayOfMonthScheduleDE'/>
+		<is element='dayofyear' 
+			className='org.oddjob.schedules.schedules.DayOfYearSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.DayOfYearScheduleDE'/>
+		<is element='interval' 
+			className='org.oddjob.schedules.schedules.IntervalSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.IntervalScheduleDE'/>
+		<is element='last' 
+			className='org.oddjob.schedules.schedules.LastSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.LastScheduleDE'/>
+		<is element='list' 
+			className='org.oddjob.schedules.ScheduleList'/>
+		<is element='month' 
+			className='org.oddjob.schedules.schedules.MonthSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.MonthScheduleDE'/>
+		<is element='now' 
+			className='org.oddjob.schedules.schedules.NowSchedule'
+		/>
+		<is element='occurrence' 
+			className='org.oddjob.schedules.schedules.OccurrenceSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.OccurrenceScheduleDE'/>
+		<is element='time' 
+			className='org.oddjob.schedules.schedules.TimeSchedule'
+			designFactory='org.oddjob.designer.elements.schedule.TimeScheduleDE'/>
+	</values>
+</arooa:descriptor>

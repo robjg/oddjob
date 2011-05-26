@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<schedule-tester xmlns:ft="http://rgordon.co.uk/oddjob/schedules">
+
+	<test> 
+		<is name="Different things on different days.">
+			<runs>
+				<!-- A Saturday -->
+				<is date="2003-05-24 09:02" 
+					expectedFrom="2003-05-26 10:00" 
+					expectedTo="2003-05-26 15:00"/>
+				<is date="2003-05-25 10:30"
+					expectedFrom="2003-05-26 10:00" 
+					expectedTo="2003-05-26 15:00"/>
+				<is date="2003-05-26 11:00"
+					expectedFrom="2003-05-26 10:00" 
+					expectedTo="2003-05-26 15:00"/>
+				<is date="2003-05-27 14:00"
+					expectedFrom="2003-05-28 00:00" 
+					expectedTo="2003-05-31 00:00"/>
+				<is date="2003-05-28 17:00"
+					expectedFrom="2003-05-28 00:00" 
+					expectedTo="2003-05-31 00:00"/>
+				<is date="2003-05-29 20:00"
+					expectedFrom="2003-05-28 00:00" 
+					expectedTo="2003-05-31 00:00"/>
+			</runs>
+			<schedule>
+				<ft:list>
+					<schedules>
+						<ft:dayofweek on="1">
+							<refinement>
+								<ft:list>
+									<schedules>
+										<ft:time from="10:00" to="17:00">
+											<refinement>
+												<ft:interval interval="05:00"/>
+											</refinement>
+										</ft:time>
+										<ft:time from="18:00" to="01:00"/>
+									</schedules>
+								</ft:list>
+							</refinement>
+						</ft:dayofweek>
+						<ft:dayofweek from="3" to="5"/>
+					</schedules>
+				</ft:list>
+			</schedule>
+		</is>
+
+	<!-- This test doesn't gives bizzare results because the interval 
+	is over the Sat/Sun divide. -->
+	
+		<is name="A boundry schedule">
+			<runs>
+				<is date="2003-05-24 09:02"/> <!-- A Saturday -->
+				<is date="2003-05-25 10:30"/>
+				<is date="2003-05-26 11:00"/>
+			</runs>
+			<schedule>
+				<ft:dayofweek from="6" to="7"/>
+			</schedule>
+		</is>
+
+		<is name="Simple Daily">
+			<runs>
+				<!-- Tue -->
+				<is date="2003-05-27 14:00"
+					expectedFrom="2003-05-28 14:02"/>
+				<!-- Wed -->
+				<is date="2003-05-28 12:00" 
+					expectedFrom="2003-05-28 14:02"/>
+				<!-- Thi -->
+				<is date="2003-05-29 12:00" 
+					expectedFrom="2003-05-29 14:02"/>
+				<!-- Thi -->
+				<is date="2003-05-29 20:00" 
+					expectedFrom="2003-05-30 14:02"/>
+				<!-- Fri -->
+				<is date="2003-05-30 20:00" 
+					expectedFrom="2003-06-04 14:02"/>
+			</runs>
+			<schedule>
+				<ft:dayofweek from="3" to="5">
+					<refinement>
+						<ft:time at="14:02"/>
+					</refinement>
+				</ft:dayofweek>
+			</schedule>
+		</is>
+		
+	</test>
+
+</schedule-tester>

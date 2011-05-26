@@ -1,0 +1,19 @@
+<oddjob id="oddjob">
+    <job>
+        <sequential id="root"
+                    name="main">
+            <jobs>
+                <rmireg id="rmireg"
+                        name="RMI Registry"/>
+                <jmx:server xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
+                        id="server"
+                        name="Oddjob Server"
+                        root="${server-jobs}"
+                        url="service:jmx:rmi://ignored/jndi/rmi://localhost/oddjob-server"/>
+                <oddjob id="server-jobs"
+                        name="Server Jobs"
+                        file="${oddjob.dir}/server-jobs.xml"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

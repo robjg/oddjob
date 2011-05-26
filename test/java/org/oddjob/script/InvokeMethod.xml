@@ -1,0 +1,25 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id='vars'>
+                    <message>
+                        <invoke function="greeting">
+                            <source>
+                                <bean class='org.oddjob.script.GreetingService'/>
+                            </source>
+                            <parameters>
+                                <now>
+                                    <clock>
+                                        <value value="${clock}"/>
+                                    </clock>
+                                </now>
+                            </parameters>
+                        </invoke>
+                    </message>
+                </variables>
+                <echo id="echo-greeting" text="${vars.message}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

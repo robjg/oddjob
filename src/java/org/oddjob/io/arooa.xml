@@ -1,0 +1,46 @@
+<arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+	<conversions>
+		<value value='org.oddjob.io.BufferType$Conversions'/>
+		<value value='org.oddjob.io.FileType$Conversions'/>
+		<value value='org.oddjob.io.FilesType$Conversions'/>
+		<value value='org.oddjob.io.ResourceType$Conversions'/>
+	</conversions>
+	<components>
+		<arooa:bean-def element='copy' 
+		    className='org.oddjob.io.CopyJob' 
+		    designFactory='org.oddjob.designer.components.CopyDC' />
+		<arooa:bean-def element='delete' 
+		    className='org.oddjob.io.DeleteJob'
+		    designFactory='org.oddjob.designer.components.DeleteDC' />
+		<arooa:bean-def element='exists' 
+		    className='org.oddjob.io.ExistsJob'
+		    designFactory='org.oddjob.designer.components.ExistsDC' />
+		<arooa:bean-def element='mkdir' 
+		    className='org.oddjob.io.MkdirJob' 
+		    designFactory='org.oddjob.designer.components.MkdirDC'/>		    
+		<arooa:bean-def element='rename' 
+		    className='org.oddjob.io.RenameJob'
+		    designFactory='org.oddjob.designer.components.RenameDC' />
+	</components>
+	<values>
+		<arooa:bean-def element='buffer' 
+			className='org.oddjob.io.BufferType' 
+		/>
+		<arooa:bean-def element='file' 
+			className='org.oddjob.io.FileType' 
+			designFactory='org.oddjob.designer.elements.FileDE' />
+		<arooa:bean-def element='files' 
+			className='org.oddjob.io.FilesType'
+			designFactory='org.oddjob.designer.elements.FilesDE' />
+		<arooa:bean-def element='resource' 
+			className='org.oddjob.io.ResourceType' />
+        <arooa:bean-def element='stdin' 
+            className='org.oddjob.io.StdinType' />
+		<arooa:bean-def element='stdout' 
+			className='org.oddjob.io.StdoutType' />
+		<arooa:bean-def element='stderr' 
+			className='org.oddjob.io.StderrType' />
+		<arooa:bean-def element='tee' 
+			className='org.oddjob.io.TeeType' />
+	</values>
+</arooa:descriptor>

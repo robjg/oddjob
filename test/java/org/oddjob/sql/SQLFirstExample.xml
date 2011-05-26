@@ -1,0 +1,48 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql name="Create table">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver"
+                            id="connection" url="jdbc:hsqldb:mem:test"
+                            username="sa" />
+                    </connection>
+                    <input>
+                        <buffer>
+	        	            <![CDATA[
+create table GREETINGS(STYLE varchar(20),
+       TEXT varchar(20))
+       
+insert into GREETINGS values('nice', 'Hello')
+
+insert into GREETINGS values('gumpy', 'Bah Humbug')
+]]>
+                        </buffer>
+                    </input>
+                </sql>
+                <sql>
+                    <connection>
+                        <value value="${connection}" />
+                    </connection>
+                    <input>
+                        <buffer>
+	        	            <![CDATA[
+select TEXT from GREETINGS where STYLE = ?
+]]>
+                        </buffer>
+                    </input>
+                    <parameters>
+                        <value value='nice' />
+                    </parameters>
+                    <results>
+                        <sql-results-bean id="query" />
+                    </results>
+                </sql>
+                <echo name="Single Row Result" text="${query.row.TEXT}" />
+                <echo name="Result By Row Index" text="${query.rows[0].TEXT}" />
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+ 

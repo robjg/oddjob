@@ -1,0 +1,13 @@
+<oddjob id="this">
+    <job>
+        <oddjob id='nested' file="${this.dir}/EchoArg.xml">
+            <args>
+                <list>
+                    <values>
+                        <value value='Hello World'/>
+                    </values>
+                </list>
+            </args>
+        </oddjob>
+    </job>
+</oddjob>

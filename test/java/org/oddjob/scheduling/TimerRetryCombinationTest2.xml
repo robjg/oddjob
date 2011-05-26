@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <scheduling:timer id="timer" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+            <schedule>
+                <schedules:time from="07:00"  xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+            </schedule>
+            <clock>
+            	<value value="${clock}"/>
+            </clock>
+            <job>
+				<archive archiveName="the-archive" id="archiver">
+					<archiveIdentifier>
+						<format date="${timer.current.fromDate}"
+							format="yyyyMMdd"/>
+					</archiveIdentifier>
+					<job>
+		                <scheduling:retry id="retry">
+		                    <schedule>
+		                        <schedules:count count="2" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+		                            <refinement>
+		                                <schedules:now/>
+		                            </refinement>
+		                        </schedules:count>
+		                    </schedule>
+		                    <job>
+		                        <bean class="org.oddjob.scheduling.TimerRetryCombinationTest$Results" id="results"/>
+		                    </job>
+		                </scheduling:retry>
+		            </job>
+		        </archive>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

@@ -1,0 +1,18 @@
+<bean class="org.oddjob.monitor.actions.ActionProviderBean">
+	<explorerActions>
+		<list>
+			<values>
+				<bean class="org.oddjob.monitor.action.LoadAction" />
+                <bean class="org.oddjob.monitor.action.UnloadAction" />
+				<bean class="org.oddjob.monitor.action.ExecuteAction" />
+				<bean class="org.oddjob.monitor.action.SoftResetAction" />
+				<bean class="org.oddjob.monitor.action.HardResetAction" />
+				<bean class="org.oddjob.monitor.action.StopAction" />
+				<bean class="org.oddjob.monitor.action.SetPropertyAction" />
+				<bean class="org.oddjob.monitor.action.DesignerAction" />
+				<bean class="org.oddjob.monitor.action.DesignInsideAction" />
+                <bean class="org.oddjob.monitor.action.AddJobAction" />
+			</values>
+		</list>
+	</explorerActions>
+</bean>

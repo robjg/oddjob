@@ -1,0 +1,94 @@
+package org.oddjob.state;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.oddjob.Stateful;
+import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.framework.StructuralJob;
+import org.oddjob.util.OddjobConfigException;
+
+/**
+ * @oddjob.description
+ * 
+ * Waits for a COMPLETE state from it's child job before allowing
+ * the thread of execution to continue.
+ * <p>
+ * 
+ * 
+ * @author Rob Gordon
+ */
+
+public class JoinJob extends StructuralJob<Runnable> {
+	
+	private static final long serialVersionUID = 2010081600L;
+	
+	
+	/**
+	 * Set the child job.
+	 * 
+	 * @oddjob.property job
+	 * @oddjob.description The child job.
+	 * @oddjob.required No, but pointless if missing.
+	 * 
+	 * @param child A child
+	 */
+	@ArooaComponent
+	public void setJob(Runnable child) {
+	    
+		if (child == null) {
+		    logger().debug("Removing child.");
+			childHelper.removeAllChildren();
+		}
+		else {
+		    logger().debug("Adding child [" + child + "]");
+		    if (childHelper.getChild() != null) {
+		        throw new OddjobConfigException(
+		                "Join can't have more than one child component.");
+		    }
+			childHelper.insertChild(0, child);
+		}
+	}
+
+	/*
+	 *  (non-Javadoc)
+	 * @see org.oddjob.jobs.AbstractJob#execute()
+	 */
+	protected void execute() throws InterruptedException {
+		
+		Runnable child = childHelper.getChild();
+		
+		if (child == null) {
+			return;
+		}
+		
+		child.run();
+		
+		final AtomicReference<JobState> state = new AtomicReference<JobState>();
+		JobStateListener listener = new JobStateListener() {
+			@Override
+			public void jobStateChange(JobStateEvent event) {
+				state.set(event.getJobState());
+				synchronized (JoinJob.this) {
+					JoinJob.this.notifyAll();
+				}
+			}
+		};
+		((Stateful) child).addJobStateListener(listener);
+		
+		try {
+			while (!stop && state.get() == JobState.EXECUTING) {			
+				synchronized(this) {
+					wait();
+				}
+			}
+		} finally {
+			removeJobStateListener(listener);
+		}
+	}		
+	
+	@Override
+	protected StateOperator getStateOp() {
+		return new WorstStateOp();
+	}
+	
+}

@@ -1,0 +1,18 @@
+<oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+    <job>
+        <foreach id="colours">
+            <values>
+                <list>
+                    <values>
+                        <value value="Red"/>
+                        <value value="Blue"/>
+                        <value value="Green"/>
+                    </values>
+                </list>
+            </values>
+            <configuration>
+                <arooa:configuration resource="org/oddjob/jobs/structural/ForEachEchoColour.xml"/>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

@@ -1,0 +1,5 @@
+<oddjob id="this">
+    <job>
+        <mkdir dir="${this.args[0]}/a/b/c"/>
+    </job>
+</oddjob>
