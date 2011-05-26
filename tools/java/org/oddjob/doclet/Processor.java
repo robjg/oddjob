@@ -9,7 +9,6 @@ import org.oddjob.arooa.beandocs.WriteableExampleDoc;
 import org.oddjob.arooa.beandocs.WriteablePropertyDoc;
 import org.oddjob.tools.includes.CompositeLoader;
 import org.oddjob.tools.includes.IncludeLoader;
-import org.oddjob.tools.includes.XMLResourceLoader;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;

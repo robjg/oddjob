@@ -19,12 +19,14 @@ import org.oddjob.arooa.beandocs.PropertyDoc;
  * @author Rob Gordon.
  */
 public class ManualWriter {
-
 	
-    private final File directory ;
+    private final File directory;
    
-	public ManualWriter(String directory) {
+    private final String title;
+    
+	public ManualWriter(String directory, String title) {
 		this.directory = new File(directory);
+		this.title = title == null ? "Oddjob Reference" : title;
 	}
 	
 	
@@ -42,7 +44,8 @@ public class ManualWriter {
 
             out.println("<html>");
             out.println("  <head>");
-            out.println("    <title>" + beanDoc.getName() + "</title>");
+            out.println("    <title>" + title + " - " + 
+            		beanDoc.getName() + "</title>");
             out.println("  </head>");
             out.println("  <body>");
             out.println("    <h1>" + beanDoc.getName() + "</h1>");
@@ -161,10 +164,10 @@ public class ManualWriter {
 
             out.println("<html>");
             out.println("  <head>");
-            out.println("    <title>Oddjob Reference</title>");
+            out.println("    <title>" + title + " - Contents</title>");
             out.println("  </head>");
             out.println("  <body>");
-            out.println("    <h2>Oddjob Reference</h2>");
+            out.println("    <h2>" + title + "</h2>");
             out.println("    <ul>");
             out.println("    <li>Jobs");
             out.println("      <ul>");

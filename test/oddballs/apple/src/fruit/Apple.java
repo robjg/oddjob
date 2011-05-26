@@ -2,6 +2,12 @@ package fruit;
 
 import java.io.Serializable;
 
+/**
+ * @oddjob.description This will appear in the reference test.
+ * 
+ * @author rob
+ *
+ */
 public class Apple implements Serializable, Runnable, Fruit {
 	
 	private Colour colour;

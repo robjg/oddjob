@@ -3,14 +3,19 @@
  */
 package org.oddjob.doclet;
 
+import java.io.File;
+
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.beandocs.SessionArooaDocFactory;
 import org.oddjob.arooa.beandocs.WriteableArooaDoc;
+import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.arooa.deploy.ClassPathDescriptorFactory;
+import org.oddjob.arooa.deploy.LinkedDescriptor;
+import org.oddjob.arooa.standard.BaseArooaDescriptor;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.util.URLClassLoaderType;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.DocErrorReporter;
@@ -25,17 +30,51 @@ public class ManualDoclet {
 	private final JobsAndTypes jats;
 	private final Archiver archiver;
 
-	public ManualDoclet(String resource) {		
-		ClassPathDescriptorFactory factory = 
-			new ClassPathDescriptorFactory();
+	public ManualDoclet(String classPath, String descriptorResource) {
+		
+    	SessionArooaDocFactory docsFactory; 
+    		
+		ClassPathDescriptorFactory factory
+			= new ClassPathDescriptorFactory();
+		if (descriptorResource != null) {
+			factory.setResource(descriptorResource);
+		}
 
-		ArooaDescriptor descriptor = factory.createDescriptor(
-				getClass().getClassLoader());
+		if (classPath == null) {
+			
+			ArooaDescriptor descriptor = factory.createDescriptor(
+					getClass().getClassLoader());
+			
+			docsFactory = new SessionArooaDocFactory(
+					new StandardArooaSession(descriptor));	
+		}
+		else {
+			File[] files = new FileConvertlets().pathToFiles(classPath);
+			URLClassLoaderType classLoaderType = new URLClassLoaderType();
+			classLoaderType.setFiles(files);
+			classLoaderType.setParent(getClass().getClassLoader());
+			
+			factory.setExcludeParent(true);
+			
+			ClassLoader classLoader = classLoaderType.toValue();
+			
+			ArooaDescriptor thisDescriptor = 
+				factory.createDescriptor(classLoader);
+			
+			if (thisDescriptor == null) {
+				throw new NullPointerException("No Descriptor for path " +
+						classPath);
+			}
+			
+			ArooaDescriptor descriptor = 
+				new LinkedDescriptor(
+						thisDescriptor,
+						new BaseArooaDescriptor(classLoader));
+			
+			docsFactory = new SessionArooaDocFactory(
+					new StandardArooaSession(), descriptor);
+		}
 		
-    	ArooaSession session = new StandardArooaSession(descriptor);
-		
-    	SessionArooaDocFactory docsFactory = new SessionArooaDocFactory(session);
-    	
     	WriteableArooaDoc jobs = 
     		docsFactory.createBeanDocs(ArooaType.COMPONENT);
     	
@@ -46,11 +85,15 @@ public class ManualDoclet {
     	this.archiver = new Archiver(jats);
 	}
 	
+	JobsAndTypes jobsAndTypes() {
+		return jats;
+	}
+	
     void process(ClassDoc cd) {
     	archiver.archive(cd);
     }
     
-    void process(RootDoc rootDoc, String destination) {
+    void process(RootDoc rootDoc, String destination, String title) {
         ClassDoc[] cd = rootDoc.classes();
         
         System.out.println("ManualDoc: Working through " + 
@@ -59,7 +102,7 @@ public class ManualDoclet {
         for (int i = 0; i < cd.length; ++i) {
             process(cd[i]);
         }
-        ManualWriter w = new ManualWriter(destination);
+        ManualWriter w = new ManualWriter(destination, title);
         w.createManual(archiver);
     }
     
@@ -77,32 +120,46 @@ public class ManualDoclet {
     	Oddjob test = new Oddjob();
     	System.out.println(test);
     	
-    	String destination = readOptions(rootDoc.options());
+    	Options options = readOptions(rootDoc.options());
     			
-    	// need to work this out.
-    	String resource = null;
-    	
-    	ManualDoclet md = new ManualDoclet(resource);
-        md.process(rootDoc, destination);
+    	ManualDoclet md = new ManualDoclet(
+    			options.getDescriptorPath(), options.getResource());
+        md.process(rootDoc, options.getDestination(),
+        		options.getTitle());
         return true;
     }
     
-    private static String readOptions(String[][] options) {
-        String destination = null;
+    private static Options readOptions(String[][] options) {
+        Options result = new Options();
         for (int i = 0; i < options.length; i++) {
             String[] opt = options[i];
             if (opt[0].equals("-d")) {
-            	destination = opt[1];
+            	result.setDestination(opt[1]);
+            }
+            else if (opt[0].equals("-dp")) {
+            	result.setDescriptorPath(opt[1]);            	
+            }
+            else if (opt[0].equals("-dr")) {
+            	result.setResource(opt[1]);       
+            }
+            else if (opt[0].equals("-t")) {
+            	result.setTitle(opt[1]);            	
             }
         }
-        return destination;
+        return result;
     }
 
     public static int optionLength(String option) {
     	if (option.equals("-d")) {
     		return 2;
     	}
-    	if (option.equals("-r")) {
+    	if (option.equals("-dp")) {
+    		return 2;
+    	}
+    	if (option.equals("-dr")) {
+    		return 2;
+    	}
+    	if (option.equals("-t")) {
     		return 2;
     	}
     	return 0;
@@ -110,27 +167,108 @@ public class ManualDoclet {
     public static boolean validOptions(String options[][], 
 		       DocErrorReporter reporter) {
     	
-    	boolean foundTagOption = false;
+    	boolean foundDestination = false;
+    	boolean foundPath = false;
+    	boolean foundResource = false;
+    	boolean foundTitle = false;
 
+    	boolean ok = true;
+    	
     	for (int i = 0; i < options.length; i++) {
     		String[] opt = options[i];
     		if (opt[0].equals("-d")) {
-    			if (foundTagOption) {
-    				reporter.printError("Only one -tag option allowed.");
-    				return false;
+    			if (foundDestination) {
+    				reporter.printError("Only one -d option allowed.");
+    				ok = false;
     			} 
     			else { 
-    				foundTagOption = true;
+    				foundDestination = true;
     			}
-    		} 
+    		}
+			if (opt[0].equals("-dp")) {
+				if (foundPath) {
+					reporter.printError("Only one -dp option allowed.");
+					ok = false;
+				} 
+				else { 
+					foundPath= true;
+				}
+			}
+			if (opt[0].equals("-dr")) {
+				if (foundResource) {
+					reporter.printError("Only one -dr option allowed.");
+					ok = false;
+				} 
+				else { 
+					foundResource = true;
+				}
+			}
+			if (opt[0].equals("-t")) {
+				if (foundTitle) {
+					reporter.printError("Only one -t option allowed.");
+					ok = false;
+				} 
+				else { 
+					foundTitle= true;
+				}
+			}
     	}
-    	if (!foundTagOption) {
+    	
+    	if (!foundDestination) {
+    		ok = false;
+    	}
+    	
+    	if (!ok) {
     		reporter.printError("Usage: javadoc -d destinationDir" +
-    				" [-r arooa-descriptor]" +
+    				" [-dp arooa-descriptor-path]" +
+    				" [-dr arooa-descriptor-resource]" +
+    				" [-t titile]" +
     				" -doclet ManualDoclet ...");
     	}
     	
-    	return foundTagOption;
+    	return ok;
     }
 
+    private static class Options {
+    	
+    	private String destination;
+    	
+    	private String descriptorPath;
+
+    	private String resource;
+    	
+    	private String title; 
+    	
+		public String getDestination() {
+			return destination;
+		}
+
+		public void setDestination(String destination) {
+			this.destination = destination;
+		}
+
+		public String getDescriptorPath() {
+			return descriptorPath;
+		}
+
+		public void setDescriptorPath(String resource) {
+			this.descriptorPath = resource;
+		}
+
+		public String getTitle() {
+			return title;
+		}
+
+		public void setTitle(String title) {
+			this.title = title;
+		}
+
+		public String getResource() {
+			return resource;
+		}
+
+		public void setResource(String resource) {
+			this.resource = resource;
+		}
+    }
 }
