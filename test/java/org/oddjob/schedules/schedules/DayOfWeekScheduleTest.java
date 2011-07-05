@@ -14,7 +14,6 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -33,11 +32,11 @@ public class DayOfWeekScheduleTest extends TestCase {
         // 10th Feb 2004 was a Tuesday
         Date now1 = DateHelper.parseDateTime("2004-02-10 12:30");
         
-        Interval expected = new IntervalTo(
+        IntervalTo expected = new IntervalTo(
         		DateHelper.parseDateTime("2004-02-10"),
         		DateHelper.parseDateTime("2004-02-12"));
 
-        Interval result = schedule.nextDue(
+        IntervalTo result = schedule.nextDue(
         		new ScheduleContext(now1));
         
         assertEquals(expected, result);
@@ -50,11 +49,11 @@ public class DayOfWeekScheduleTest extends TestCase {
         
         Date now1 = DateHelper.parseDateTime("2004-02-14 12:30");
         
-        Interval expected = new IntervalTo(
+        IntervalTo expected = new IntervalTo(
         		DateHelper.parseDateTime("2004-02-17"),
         		DateHelper.parseDateTime("2004-02-19"));
         
-        Interval result = schedule.nextDue(new ScheduleContext(now1));
+        IntervalTo result = schedule.nextDue(new ScheduleContext(now1));
         
         assertEquals(expected, result);
     }
@@ -66,33 +65,35 @@ public class DayOfWeekScheduleTest extends TestCase {
         
         Date now1 = DateHelper.parseDateTime("2004-02-11 12:30");
         
-        Interval expected = new IntervalTo(
+        IntervalTo expected = new IntervalTo(
         		DateHelper.parseDateTime("2004-02-13"),
         		DateHelper.parseDateTime("2004-02-17"));
         		
-        Interval result1 = schedule.nextDue(
+        IntervalTo result1 = schedule.nextDue(
         		new ScheduleContext(now1));
         
         assertEquals(expected, result1);
 
         Date now2 = DateHelper.parseDateTime("2004-02-14 12:30");
         
-        Interval result2 = schedule.nextDue(
+        IntervalTo result2 = schedule.nextDue(
         		new ScheduleContext(now2));
         
         assertEquals(expected, result2);
         
         Date now3 = DateHelper.parseDateTime("2004-02-16 12:30");
         
-        Interval result3 = schedule.nextDue(
+        IntervalTo result3 = schedule.nextDue(
         		new ScheduleContext(now3));
         
         assertEquals(expected, result3);
     }
     
     public void testWithTime() throws ParseException {
+    	
         DayOfWeekSchedule schedule = new DayOfWeekSchedule();
         schedule.setOn(5);
+        
     	TimeSchedule time = new TimeSchedule();
     	time.setAt("10:00");
     	schedule.setRefinement(time);
@@ -101,14 +102,12 @@ public class DayOfWeekScheduleTest extends TestCase {
     	ScheduleContext context = new ScheduleContext(
     			DateHelper.parseDate("2005-11-01"));
     	
-    	Interval nextDue = schedule.nextDue(context);
+    	IntervalTo nextDue = schedule.nextDue(context);
     	
-    	Date expected = DateHelper.parseDateTime("2005-11-04 10:00");
+    	IntervalTo expected = new IntervalTo(
+    			DateHelper.parseDateTime("2005-11-04 10:00"));
     	
-    	assertEquals(expected,
-    			nextDue.getFromDate());
-    	assertEquals(expected,
-    			nextDue.getToDate());
+    	assertEquals(expected, nextDue);
     }
     
     public void testDefaultFrom() throws ParseException {
@@ -117,11 +116,11 @@ public class DayOfWeekScheduleTest extends TestCase {
         schedule.setTo(2);
 
         // A Friday.
-        Interval result = schedule.nextDue(
+        IntervalTo result = schedule.nextDue(
         		new ScheduleContext(DateHelper.parseDate("2006-03-03")));
         
         // Result should be from Monday to end Tuesday.
-        Interval expected = new IntervalTo(
+        IntervalTo expected = new IntervalTo(
         		DateHelper.parseDateTime("2006-03-06 00:00"), 
         		DateHelper.parseDateTime("2006-03-08 00:00"));
         
@@ -139,7 +138,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         schedule.setFrom(2);
 
         // 8th March 2006 was a Wednesday
-        Interval result = schedule.nextDue(
+        IntervalTo result = schedule.nextDue(
         		new ScheduleContext(DateHelper.parseDate("2006-03-06")));
         
         IntervalTo expected = new IntervalTo(
@@ -159,7 +158,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         DayOfWeekSchedule schedule = new DayOfWeekSchedule();
         schedule.setTo(2);
 
-        Interval result = schedule.nextDue(
+        IntervalTo result = schedule.nextDue(
         		new ScheduleContext(DateHelper.parseDate("2006-03-07 10:15")));
         
         IntervalTo expected = new IntervalTo(
@@ -187,9 +186,9 @@ public class DayOfWeekScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-11 00:00"));
 
-		Interval result = test.nextDue(context);
+		IntervalTo result = test.nextDue(context);
 
-        Interval expected = new IntervalTo(
+        IntervalTo expected = new IntervalTo(
         		DateHelper.parseDateTime("2009-02-11 23:00"), 
         		DateHelper.parseDateTime("2009-02-12 01:00"));
 		

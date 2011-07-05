@@ -53,7 +53,7 @@ public class DateUtils {
 		        inCalendar.get(Calendar.MONTH),
 		        inCalendar.get(Calendar.DAY_OF_MONTH) + 1);
 		nextDay.setTimeZone(timeZone);
-		return new Date(nextDay.getTime().getTime() - 1);
+		return new Date(nextDay.getTime().getTime());
 	}
 	
 	/**

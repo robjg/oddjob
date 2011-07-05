@@ -31,4 +31,10 @@ public class CalendarUnit {
 	public int getValue() {
 		return value;
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ", field=" + field + 
+				", value=" + value;
+	}
 }

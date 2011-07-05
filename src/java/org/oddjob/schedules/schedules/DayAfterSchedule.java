@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
 
@@ -47,7 +46,7 @@ final public class DayAfterSchedule extends AbstractSchedule implements Serializ
 		    throw new IllegalStateException("DayAfter must have a child schedule.");
 		}
 
-		Interval childInterval = getRefinement().nextDue(context);
+		IntervalTo childInterval = getRefinement().nextDue(context);
 
 		Calendar startCal = new GregorianCalendar();
 		startCal.setTime(childInterval.getFromDate());

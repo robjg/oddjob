@@ -28,7 +28,7 @@ public class DateUtilsTest extends TestCase {
 	 */
 	public void testEndOfDayDate() throws ParseException {
 		assertEquals(
-				DateUtils.oneMillisBefore(DateHelper.parseDate("2003-07-12")),
+				DateHelper.parseDate("2003-07-12"),
 				DateUtils.endOfDay(DateHelper.parseDateTime(
 						"2003-07-11 12:27"), TimeZone.getDefault()));
 	}

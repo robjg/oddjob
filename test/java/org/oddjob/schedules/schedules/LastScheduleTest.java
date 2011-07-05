@@ -10,7 +10,6 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -40,9 +39,9 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2003-06-21"));
 		
-		Interval result = last.nextDue(context);
+		IntervalTo result = last.nextDue(context);
 		
-		Interval expected = new IntervalTo(
+		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-12-25 00:00"),
 				DateHelper.parseDateTime("2009-12-26 00:00"));
 
@@ -60,7 +59,7 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-12-26"));
 		
-		Interval result = last.nextDue(context);
+		IntervalTo result = last.nextDue(context);
 		
 		assertNull(result);
 	}
@@ -82,9 +81,9 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-04-30 12:57"));
 		
-		Interval result = month.nextDue(context);
+		IntervalTo result = month.nextDue(context);
 		
-		Interval expected = new IntervalTo(
+		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-04-30 00:00"),
 				DateHelper.parseDateTime("2009-04-30 23:59"));
 
@@ -109,7 +108,7 @@ public class LastScheduleTest extends TestCase {
     	ScheduleContext context = new ScheduleContext(
     			DateHelper.parseDateTime("2011-04-12 11:00"));
     	
-    	Interval next = schedule.nextDue(context);
+    	IntervalTo next = schedule.nextDue(context);
     	
     	IntervalTo expected = new IntervalTo(
     			DateHelper.parseDateTime("2011-04-27 00:00"),

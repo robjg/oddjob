@@ -17,15 +17,15 @@ public class ScheduleRoller {
 		this.howMany = howMany;
 	}
 	
-	public Interval[] resultsFrom(Date date) {
+	public IntervalTo[] resultsFrom(Date date) {
 		
-		Interval[] results = new Interval[howMany];
+		IntervalTo[] results = new IntervalTo[howMany];
 	
 		ScheduleContext context = new ScheduleContext(date);
 		
 		for (int i = 0; i < howMany; ++i) {
 			
-			Interval result = schedule.nextDue(context); 
+			IntervalTo result = schedule.nextDue(context); 
 			
 			if (result == null) {
 				break;
@@ -33,8 +33,7 @@ public class ScheduleRoller {
 			
 			results[i] = result;
 			
-			context = context.move(DateUtils.oneMillisAfter(
-					result.getToDate()));
+			context = context.move(result.getUpToDate());
 		}
 		
 		return results;

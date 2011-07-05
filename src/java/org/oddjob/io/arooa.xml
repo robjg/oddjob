@@ -1,5 +1,6 @@
 <arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
 	<conversions>
+        <value value='org.oddjob.io.AppendType$Conversions'/>
 		<value value='org.oddjob.io.BufferType$Conversions'/>
 		<value value='org.oddjob.io.FileType$Conversions'/>
 		<value value='org.oddjob.io.FilesType$Conversions'/>
@@ -23,6 +24,8 @@
 		    designFactory='org.oddjob.designer.components.RenameDC' />
 	</components>
 	<values>
+        <arooa:bean-def element='append' 
+            className='org.oddjob.io.AppendType' />
 		<arooa:bean-def element='buffer' 
 			className='org.oddjob.io.BufferType' 
 		/>

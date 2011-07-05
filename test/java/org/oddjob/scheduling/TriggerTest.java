@@ -3,6 +3,7 @@
  */
 package org.oddjob.scheduling;
 
+import java.util.Date;
 import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
@@ -152,6 +153,8 @@ public class TriggerTest extends TestCase {
 		
 		testState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
 		
+		logger.info("Running dependant.");
+		
 		dependant.run();
 
 		testState.checkWait();
@@ -175,12 +178,21 @@ public class TriggerTest extends TestCase {
 		
 		testState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
 		
+		if (new Date().equals(dependant.lastJobStateEvent().getTime())) {
+			logger.info("Sleeping for a millisecond.");
+			Thread.sleep(1);
+		}
+		
+		logger.info("Running dependant again.");
+		
 		dependant.hardReset();
 		dependant.run();
 		
 		testState.checkWait();
 		
 		assertEquals(2, job.ran);
+		
+		logger.info("Shutting down.");
 		
 		services.stop();
 	}
@@ -301,7 +313,7 @@ public class TriggerTest extends TestCase {
 		}
 	};
 	
-	class SerializeSession extends MockArooaSession {
+	private class SerializeSession extends MockArooaSession {
 		
 		Object saved;
 		
@@ -354,7 +366,8 @@ public class TriggerTest extends TestCase {
 
 		copy.hardReset();
 		
-		if (System.currentTimeMillis() == copy.lastJobStateEvent().getTime().getTime()) {
+		if (new Date().equals(copy.lastJobStateEvent().getTime())) {
+			logger.info("Sleeping for a millisecond.");
 			Thread.sleep(1);
 		}
 		

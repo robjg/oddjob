@@ -6,6 +6,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
@@ -23,7 +24,14 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 
 public class ArchiveJobTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);
 
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		logger.info("----------------  " + getName() + "  -----------------");
+	}
+	
 	public void testState() throws FailedToStopException, ComponentPersistException, InterruptedException {
 
 		final MapPersister persister = new MapPersister();

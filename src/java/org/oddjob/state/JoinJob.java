@@ -14,10 +14,16 @@ import org.oddjob.util.OddjobConfigException;
  * the thread of execution to continue.
  * <p>
  * 
+ * @oddjob.example
+ * 
+ * An join that waits for two triggers. In this example another trigger
+ * to run the last job might be a better solution because it wouldn't hog
+ * a thread - but there are situations when join is just simpler.
+ * 
+ * {@oddjob.xml.resource org/oddjob/state/JoinExample.xml}
  * 
  * @author Rob Gordon
  */
-
 public class JoinJob extends StructuralJob<Runnable> {
 	
 	private static final long serialVersionUID = 2010081600L;

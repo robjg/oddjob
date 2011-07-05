@@ -5,8 +5,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -45,12 +43,12 @@ final public class AfterSchedule extends AbstractSchedule implements Serializabl
 				
 		Schedule child = getRefinement();
 
-		Interval next = child.nextDue(context);
+		IntervalTo next = child.nextDue(context);
 		if (next == null) {
 		    return null;
 		}
 		
-		Date after = DateUtils.oneMillisAfter(next.getToDate());
+		Date after = next.getUpToDate();
 		if (after == null) {
 			return null;
 		}

@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 
 import org.oddjob.Helper;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -34,7 +33,7 @@ public class CountScheduleTest extends TestCase {
 		test.setCount("3");
 		Counter c = new Counter();
 		test.setRefinement(c);
-		Interval nextDue = null;
+		IntervalTo nextDue = null;
 		ScheduleContext context = new ScheduleContext(new Date());
 		do {
 			context = context.move(
@@ -77,7 +76,7 @@ public class CountScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				now, null, map);
 		
-		Interval interval = test.nextDue(context);
+		IntervalTo interval = test.nextDue(context);
 		assertNotNull(interval);
 		
 		Schedule copy = (Schedule) Helper.copy(test);
@@ -103,7 +102,7 @@ public class CountScheduleTest extends TestCase {
 		
 		context = context.spawn(parentInterval);
 		
-		Interval interval1 = test.nextDue(context);
+		IntervalTo interval1 = test.nextDue(context);
 		
 		assertEquals(new IntervalTo(
 				DateHelper.parseDateTime("2010-06-27 09:00")),
@@ -112,7 +111,7 @@ public class CountScheduleTest extends TestCase {
 		context = context.spawn(DateHelper.parseDateTime("2010-06-27 11:00"),
 				parentInterval);
 		
-		Interval interval2 = test.nextDue(context);
+		IntervalTo interval2 = test.nextDue(context);
 		
 		assertNull(interval2);
 	}

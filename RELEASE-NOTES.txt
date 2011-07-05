@@ -1,5 +1,5 @@
-Oddjob-0.30.0
-=============
+Oddjob-1.0.0
+============
 
 **********************************************************************
 * Please note that configuration files from previous versions will   *
@@ -7,8 +7,31 @@ Oddjob-0.30.0
 * Please see the reference guide for property descriptions.          *
 **********************************************************************
 
-Changes in this release
------------------------
+Changes in 1.0.0
+----------------
+- A new append type has been introduced that allows a file to be appended to.
+- Corrected millisecond date format to be yyyy-MM-dd HH:mm:ss.SSS (decimal 
+  point not colon).
+- Fixed bug with stopping wrapped jobs via thread interrupt.
+
+Still Todo for 1.0.0
+--------------------
+- More tests/examples for foreach. Parallel execution and the idea of
+  an execution window. Maybe change tag to for-each.  
+- Add a 'forceComplete' action that will force a job to be complete.
+- JMX read only mode.
+- Positioning of Designer dialog. Maybe allow designer not to be Modal. 
+- Support opening of several Oddjob explorers from one Oddjob.
+- Introduce the idea of Read only configuration that can't be modified if
+  it's been loaded from a non modifiable resource, i.e. class path or text.
+- Improve the file rename job.
+- Document conversions. Possibly include conversions in the Reference.
+- Introduce a DelimitedType to support more flexible String to String array
+  conversion than just CSV.
+
+
+Changes in 0.30.0
+-----------------
 - Properties Panel of Explorer now updates on Job completion.
 - Explorer dialog positioning has been improved.
 - Job sleep and stop now use State synchronisation as race conditions were
@@ -64,23 +87,6 @@ Changes in this release
   blank line instead.
 - Fixed bugs with the merging of list types.
 - Added conversion from String to String[] that treats string as a CSV.
-
-
-Deferred to 0.31.0
-------------------
-- More tests/examples for foreach. Parallel execution and the idea of
-  an execution window. Maybe change tag to for-each.  
-- Add a 'forceComplete' action that will force a job to be complete.
-- File type needs an append mode.
-- JMX read only mode.
-- Positioning of Designer dialog. Maybe allow designer not to be Modal. 
-- Support opening of several Oddjob explorers from one Oddjob.
-- Introduce the idea of Read only configuration that can't be modified if
-  it's been loaded from a non modifiable resource, i.e. class path or text.
-- Improve the file rename job.
-- Document conversions. Possibly include conversions in the Reference.
-- Introduce a DelimitedType to support more flexible String to String array
-  conversion than just CSV.
 
 Changes in 0.29.0
 -------------------

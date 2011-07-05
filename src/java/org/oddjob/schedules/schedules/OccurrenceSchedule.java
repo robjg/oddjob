@@ -5,7 +5,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.DateUtils;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
 
@@ -80,7 +79,7 @@ final public class OccurrenceSchedule extends AbstractSchedule implements Serial
 			candidate = getRefinement().nextDue(context.move(use));
 			
 			if (candidate != null) {
-				use = DateUtils.oneMillisAfter(candidate.getToDate());
+				use = candidate.getUpToDate();
 			}
 			else {				
 				// break the cycle

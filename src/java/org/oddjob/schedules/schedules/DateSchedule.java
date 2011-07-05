@@ -8,7 +8,6 @@ import java.util.TimeZone;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -25,12 +24,13 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * A schedule for Christmas.
  * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DateScheduleExamples.xml}
+ * 
  * @author Rob Gordon
  */
 final public class DateSchedule extends AbstractSchedule implements Serializable {
 
     private static final long serialVersionUID = 20050226;
-    
 	
 	private String startDate;
 	private String endDate;
@@ -100,7 +100,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 */	
 	Date getStartDate(ScheduleContext context) {
 	    if (startDate == null) {
-	        return new Date(Interval.START_OF_TIME);
+	        return new Date(IntervalTo.START_OF_TIME);
 	    }
 	    
 	    TimeZone timeZone = context.getTimeZone();
@@ -121,7 +121,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 */
 	Date getEndDate(ScheduleContext context) {
 	    if (endDate == null) {
-	    	return new Date(Interval.END_OF_TIME);
+	    	return new Date(IntervalTo.END_OF_TIME);
 	    }
 	    
 	    TimeZone timeZone = context.getTimeZone();
@@ -143,11 +143,11 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 			if (now == null) {
 				return null;
 			}
-		    if (now.compareTo(getEndDate(context)) > 0) {
+		    if (now.compareTo(getEndDate(context)) >= 0) {
 		        return null;
 		    }
 		    
-		    return new IntervalTo(new Interval(
+		    return new IntervalTo(new IntervalTo(
 		    		getStartDate(context), 
 					getEndDate(context)));
 		}

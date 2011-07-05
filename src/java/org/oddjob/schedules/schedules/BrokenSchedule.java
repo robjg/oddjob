@@ -4,8 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -128,7 +126,7 @@ public class BrokenSchedule implements Serializable, Schedule{
 			}
 
 			// find the first exclusion interval
-			Interval exclude = breaks.nextDue(context.move(next.getFromDate()));
+			IntervalTo exclude = breaks.nextDue(context.move(next.getFromDate()));
 				
 			if (exclude == null) {
 			    return next;
@@ -140,7 +138,7 @@ public class BrokenSchedule implements Serializable, Schedule{
 			
 			// if we got here the last interval is blocked by an exclude so move
 			// the interval on.			
-			use = DateUtils.oneMillisAfter(next.getToDate());
+			use = next.getUpToDate();
 		}
 	}
 

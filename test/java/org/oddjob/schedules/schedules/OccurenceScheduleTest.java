@@ -16,8 +16,6 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -77,14 +75,14 @@ public class OccurenceScheduleTest extends TestCase {
         
         Date now1 = inputFormat.parse("10-feb-2004 12:30");
 
-        Interval expected = null;
+        IntervalTo expected = null;
 
         ScheduleContext context = new ScheduleContext(now1);
         context = context.spawn(new IntervalTo(
                 inputFormat.parse("10-feb-2004 09:00"), 
                 inputFormat.parse("10-feb-2004 15:00")));
 
-        Interval actual = test.nextDue(context);
+        IntervalTo actual = test.nextDue(context);
         
         assertEquals(expected, actual);
     }    
@@ -96,7 +94,7 @@ public class OccurenceScheduleTest extends TestCase {
             this.results = results;
             next = 0;
         }
-        public void setLimits(Interval limits) {}
+        public void setLimits(IntervalTo limits) {}
         public IntervalTo nextDue(ScheduleContext context) {
             if (results == null) {
                 return null;
@@ -125,12 +123,11 @@ public class OccurenceScheduleTest extends TestCase {
     	ScheduleContext context = 
     		new ScheduleContext(DateHelper.parseDateTime("2009-02-16"));
     	
-    	Interval result = monthly.nextDue(context);
+    	IntervalTo result = monthly.nextDue(context);
     	
-    	Interval expected = new Interval(
+    	IntervalTo expected = new IntervalTo(
     			DateHelper.parseDateTime("2009-02-18"),
-    			DateUtils.oneMillisBefore(
-    					DateHelper.parseDateTime("2009-02-19")));
+    			DateHelper.parseDateTime("2009-02-19"));
     	
     	assertEquals(expected, result); 
     }
@@ -151,7 +148,7 @@ public class OccurenceScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	Interval next = schedule.nextDue(new ScheduleContext(
+    	IntervalTo next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDate("2011-02-15")));
     	
     	// TODO: Isn't this wrong????

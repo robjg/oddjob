@@ -17,7 +17,6 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -181,13 +180,11 @@ abstract public class TimerBase extends ScheduleBase {
 	    ScheduleContext context = new ScheduleContext(
 	    		date, timeZone, contextData, getLimits());
 
-	    Interval next = schedule.nextDue(context);
-	    if (next == null) {
-	    	current = null;
+	    current = schedule.nextDue(context);
+	    if (current == null) {
 	    	setNextDue(null);
 	    }
 	    else {
-	    	current = new IntervalTo(next);
 	    	setNextDue(current.getFromDate());
 	    }
 	}

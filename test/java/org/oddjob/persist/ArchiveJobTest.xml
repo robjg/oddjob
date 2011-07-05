@@ -7,7 +7,7 @@
                     <schedule>
                         <schedules:count count="3" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
                         	<refinement>
-                        		<schedules:interval interval="00:00:00:100"/>
+                        		<schedules:interval interval="00:00:00.100"/>
                         	</refinement>
                         </schedules:count>
                     </schedule>

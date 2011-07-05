@@ -15,10 +15,11 @@ public class CalendarUtils {
 	 * @param calendar The calendar that will be set.
 	 */
 	public static void setEndOfDay(Calendar calendar) {
-		calendar.set(Calendar.HOUR_OF_DAY, 23);
-		calendar.set(Calendar.MINUTE, 59);
-		calendar.set(Calendar.SECOND, 59);
-		calendar.set(Calendar.MILLISECOND, 999);
+		calendar.add(Calendar.DATE, 1);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 	}
 	
 	/**
@@ -28,11 +29,11 @@ public class CalendarUtils {
 	 */
 	public static void setEndOfMonth(Calendar calendar) {
 		calendar.set(Calendar.MONTH, calendar.get(Calendar.MONTH) + 1);
-		calendar.set(Calendar.DAY_OF_MONTH, 0);
-		calendar.set(Calendar.HOUR_OF_DAY, 23);
-		calendar.set(Calendar.MINUTE, 59);
-		calendar.set(Calendar.SECOND, 59);
-		calendar.set(Calendar.MILLISECOND, 999);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 	}
 	
 	/**
@@ -65,8 +66,7 @@ public class CalendarUtils {
 		Calendar c2 = Calendar.getInstance(timeZone);
 		c2.clear();
 		c2.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH) + 1, 1);
-		// and take off a millisecond.
-		c2.add(Calendar.MILLISECOND, -1);
+		
 		return c2;
 	}
 	
@@ -130,9 +130,7 @@ public class CalendarUtils {
 		
 		c2.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH), 
 				c1.get(Calendar.DAY_OF_MONTH) + daysToAdd);
-		
-		c2.add(Calendar.MILLISECOND, -1);
-		
+				
 		return c2;
 	}
 	
@@ -215,8 +213,7 @@ public class CalendarUtils {
 		c2.clear();
 		c2.set(c1.get(Calendar.YEAR) + 1, 0, 1);
 		c2.setTimeZone(timeZone);
-		// and take off a millisecond.
-		c2.add(Calendar.MILLISECOND, -1);
+		
 		return c2;
 	}
 

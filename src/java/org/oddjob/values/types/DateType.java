@@ -27,7 +27,7 @@ import org.oddjob.arooa.utils.DateHelper;
  * <dt>yyyy-MM-dd</dt><dd>Just the date.</dd>
  * <dt>yyyy-MM-dd HH:mm</dt><dd>The date, hours and minutes.</dd>
  * <dt>yyyy-MM-dd HH:mm:ss</dt><dd>The date, hours, minutes and seconds.</dd>
- * <dt>yyyy-MM-dd HH:mm:ss:SSS</dt><dd>The date, hours, minutes, seconds 
+ * <dt>yyyy-MM-dd HH:mm:ss.SSS</dt><dd>The date, hours, minutes, seconds 
  * and milliseconds.</dd>
  * </dl>
  * <p>Because of this a date property of a job can be specified perfectly

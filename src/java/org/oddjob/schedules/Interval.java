@@ -10,7 +10,7 @@ import java.util.Date;
  * @author Rob Gordon
  */
 
-public class Interval implements Serializable {
+class Interval implements Serializable {
     private static final long serialVersionUID = 20050226;
     
     /** The end of time. */
@@ -77,7 +77,7 @@ public class Interval implements Serializable {
 	 * 
 	 * @return The to date.
 	 */	
-	public Date getToDate() {
+	protected Date getToDate() {
 		return toDate;
 	}
 	

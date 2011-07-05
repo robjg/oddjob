@@ -18,7 +18,7 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.io.FileOutputType;
+import org.oddjob.io.AppendType;
 
 /**
  *
@@ -35,9 +35,11 @@ public class FileOutputDETest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<bean class='" + FileOutputType.class.getName() + 
-				       "' file='test/myFile.txt'" +
-				"      append='true'/>";
+				"<append>" +
+				" <file>" +
+				"  <file file='test/myFile.txt'/>" +
+				" </file>" +
+				"</append>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -53,11 +55,10 @@ public class FileOutputDETest extends TestCase {
 		
 //		assertEquals(FileOutputDesign.class, design.getClass());
 		
-		FileOutputType test = (FileOutputType) Helper.createTypeFromConfiguration(
+		AppendType test = (AppendType) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(new File("test/MyFile.txt"), test.getFile());
-		assertEquals(true, test.isAppend());
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

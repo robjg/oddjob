@@ -13,6 +13,15 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateEvent;
 import org.oddjob.state.JobStateListener;
 
+/**
+ * A utility class to provide wait until stopped functionality.
+ * <p>
+ * The default timeout is 5 seconds before a {@link FailedToStopException}
+ * is thrown.
+ * 
+ * @author rob
+ *
+ */
 public class StopWait {
 
 	private final Stateful stateful;
@@ -52,11 +61,7 @@ public class StopWait {
 			
 			@Override
 			public void jobStateChange(JobStateEvent event) {
-				try {
-					handoff.put(event.getJobState());
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
+				handoff.add(event.getJobState());
 			}
 		};
 		
@@ -66,7 +71,6 @@ public class StopWait {
 		
 		try {
 			while (true) {
-				logger.debug("[" + stateful + "] waiting to stop...");
 
 				JobState state = handoff.poll(timeout, TimeUnit.MILLISECONDS);
 				if (state == null) {
@@ -75,6 +79,8 @@ public class StopWait {
 				if (!new IsStoppable().test(state)) {
 					return;
 				}
+				logger.debug("[" + stateful + "] is " + 
+						state + ", waiting to stop...");
 			}
 		}
 		catch (InterruptedException e) {

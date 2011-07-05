@@ -97,7 +97,9 @@ public class Trigger extends ScheduleBase {
 				new JobStateListener() {
 
 				public synchronized void jobStateChange(JobStateEvent event) {
-					logger().debug("Trigger on [" + on + "] has state [" + event.getJobState() + "]");
+					logger().debug("Trigger on [" + on + "] has state [" + 
+							event.getJobState() + "] + at " +
+							event.getTime());
 					
 					if (event.getJobState() == JobState.DESTROYED) {
 						stateHandler.waitToWhen(new IsStoppable(), 
@@ -117,7 +119,8 @@ public class Trigger extends ScheduleBase {
 					
 					// don't fire if event time hasn't changed.
 					if (event.getTime().equals(lastTime)) {
-						logger().debug("Already had this event.");
+						logger().info("Already had event for time " +
+								event.getTime() + ", not triggering.");
 						return;
 					}
 					

@@ -577,8 +577,8 @@ public class TimerTest extends TestCase {
 			Thread.sleep(500);
 		}
 
-		assertEquals("Job schedule at 2011-03-10 05:30:00:000 " +
-				"but running at 2011-03-10 07:00:00:000", 
+		assertEquals("Job schedule at 2011-03-10 05:30:00.000 " +
+				"but running at 2011-03-10 07:00:00.000", 
 				text);
 		
 		oddjob.stop();
@@ -599,7 +599,7 @@ public class TimerTest extends TestCase {
     	
     	Timer timer = lookup.lookup("timer", Timer.class);
     	
-    	timer.setClock(new ManualClock("2011-04-08 09:59:59:750"));
+    	timer.setClock(new ManualClock("2011-04-08 09:59:59.750"));
     	
     	oddjob.run();
     	
@@ -616,7 +616,7 @@ public class TimerTest extends TestCase {
     		Thread.sleep(500);
     	}
     	
-    	assertEquals("Doing some work at 2011-04-08 10:00:00:000",
+    	assertEquals("Doing some work at 2011-04-08 10:00:00.000",
     			result);
     	
     	oddjob.destroy();

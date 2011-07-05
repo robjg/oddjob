@@ -15,7 +15,6 @@ import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -51,11 +50,11 @@ public class BrokenScheduleTest extends TestCase {
 	public void testNextDue1() throws Exception {
 		Schedule s = brokenSchedule();
 		
-		Interval expected;
+		IntervalTo expected;
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		Interval[] results = roller.resultsFrom(DateHelper.parseDate("2003-02-01"));
+		IntervalTo[] results = roller.resultsFrom(DateHelper.parseDate("2003-02-01"));
 
 		expected = new IntervalTo(
 				DateHelper.parseDate("2003-02-03"),
@@ -98,11 +97,11 @@ public class BrokenScheduleTest extends TestCase {
 	public void testNextDue2() throws Exception {
 		Schedule s = brokenSchedule();
 				
-		Interval expected;
+		IntervalTo expected;
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		Interval[] results = roller.resultsFrom(
+		IntervalTo[] results = roller.resultsFrom(
 				DateHelper.parseDate("2003-02-15"));
 
 		expected = new IntervalTo(
@@ -122,11 +121,11 @@ public class BrokenScheduleTest extends TestCase {
 	public void testNextDue3() throws Exception {
 		Schedule s = brokenSchedule();
 		
-		Interval expected;
+		IntervalTo expected;
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		Interval[] results = roller.resultsFrom(
+		IntervalTo[] results = roller.resultsFrom(
 				DateHelper.parseDate("2003-02-26"));
 
 		expected = new IntervalTo(
@@ -163,14 +162,14 @@ public class BrokenScheduleTest extends TestCase {
 		test.setSchedule(dayOfWeekSchedule);
 		test.setBreaks(aBreak);
 		
-		Interval expected = new IntervalTo(
+		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-02-26 22:00"),
 				DateHelper.parseDateTime("2009-02-27 02:00"));
 		
 		ScheduleContext scheduleContext = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-24 12:00"));
 		
-		Interval result = test.nextDue(scheduleContext);
+		IntervalTo result = test.nextDue(scheduleContext);
 		
 		assertEquals(expected, result);
 
@@ -237,11 +236,11 @@ public class BrokenScheduleTest extends TestCase {
 		test.setSchedule(dayOfWeekSchedule);
 		test.setBreaks(aBreak);
 		
-		Interval expected;
+		IntervalTo expected;
 		
 		ScheduleRoller roller = new ScheduleRoller(test);
 		
-		Interval[] results = roller.resultsFrom(
+		IntervalTo[] results = roller.resultsFrom(
 				DateHelper.parseDateTime("2009-02-26 23:30"));
 		
 		expected = new IntervalTo(
@@ -272,7 +271,7 @@ public class BrokenScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	Interval next = schedule.nextDue(new ScheduleContext(
+    	IntervalTo next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2011-12-24 11:00")));
     	
     	IntervalTo expected = new IntervalTo(

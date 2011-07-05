@@ -48,7 +48,7 @@ public class CalendarUtilsTest extends TestCase {
 		test.setTime(DateHelper.parseDateTime("2003-07-15 12:27"));
 		CalendarUtils.setEndOfDay(test);
 		
-		assertEquals(DateHelper.parseDateTime("2003-07-15 23:59:59:999"), 
+		assertEquals(DateHelper.parseDateTime("2003-07-16 00:00"), 
 				test.getTime());
 	}
 	
@@ -57,7 +57,7 @@ public class CalendarUtilsTest extends TestCase {
 		test.setTime(DateHelper.parseDateTime("2003-07-15 12:27"));
 		CalendarUtils.setEndOfMonth(test);
 		
-		assertEquals(DateHelper.parseDateTime("2003-07-31 23:59:59:999"), 
+		assertEquals(DateHelper.parseDateTime("2003-08-01 00:00"), 
 				test.getTime());
 	}
 	
@@ -76,7 +76,7 @@ public class CalendarUtilsTest extends TestCase {
 	 * Test for Date endOfMonth(Date)
 	 */
 	public void testEndOfMonthDate() throws ParseException {
-		assertEquals(DateHelper.parseDateTime("2004-02-29 23:59:59:999"), 
+		assertEquals(DateHelper.parseDateTime("2004-03-01 00:00"), 
 				CalendarUtils.endOfMonth(
 						DateHelper.parseDateTime("2004-02-11 12:27"), 
 						TimeZone.getDefault()).getTime());
@@ -127,7 +127,7 @@ public class CalendarUtilsTest extends TestCase {
 				TimeZone.getDefault());
 		
 		Date expected = DateHelper.parseDateTime(
-				"2006-03-12 23:59:59:999");
+				"2006-03-13 00:00");
 		
 		assertEquals(expected, result.getTime());
 		
@@ -136,7 +136,7 @@ public class CalendarUtilsTest extends TestCase {
 				TimeZone.getDefault());
 		
 		expected = DateHelper.parseDateTime(
-				"2011-01-02 23:59:59:999");
+				"2011-01-03 00:00");
 		
 		assertEquals(expected, result.getTime());
 	}
@@ -168,7 +168,7 @@ public class CalendarUtilsTest extends TestCase {
 
 
 	public void testEndOfYearDate() throws ParseException {
-		assertEquals(DateHelper.parseDateTime("2003-12-31 23:59:59:999"),
+		assertEquals(DateHelper.parseDateTime("2004-01-01 00:00"),
 				CalendarUtils.endOfYear(
 						DateHelper.parseDateTime("2003-06-11 12:27"), 
 						TimeZone.getDefault()).getTime());

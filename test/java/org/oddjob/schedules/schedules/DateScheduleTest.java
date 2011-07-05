@@ -14,8 +14,6 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -31,53 +29,67 @@ public class DateScheduleTest extends TestCase {
 		
 		ScheduleContext scheduleContext = new ScheduleContext(new Date());
 
-		Interval expected = new Interval(
-				new Date(Interval.START_OF_TIME),
-				new Date(Interval.END_OF_TIME));
+		IntervalTo expected = new IntervalTo(
+				new Date(IntervalTo.START_OF_TIME),
+				new Date(IntervalTo.END_OF_TIME));
 		
-		Interval result = test.nextDue(scheduleContext);
+		IntervalTo result = test.nextDue(scheduleContext);
 				
 		assertEquals(expected, result);
 	}
 	
-	public void testNextDue1() throws ParseException {
-		DateSchedule s = new DateSchedule();
-		s.setFrom("2003-02-05");
-		s.setTo("2003-02-25");
+	public void testNextDueSingleDayDate() throws ParseException {
+		DateSchedule test = new DateSchedule();
+		test.setFrom("2003-02-05");
+		test.setTo("2003-02-25");
 		
-		ScheduleContext c = new ScheduleContext(
+		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDate("2003-02-02"));
-		Interval result = s.nextDue(c);
+		IntervalTo result = test.nextDue(context);
 		
-		assertEquals(DateHelper.parseDate("2003-02-05"),
-				result.getFromDate());
-		assertEquals(new Date(DateHelper.parseDate("2003-02-26").getTime() -1),
-				result.getToDate());
+		IntervalTo expected = new IntervalTo(
+				DateHelper.parseDate("2003-02-05"),
+				DateHelper.parseDate("2003-02-26"));
+		
+		assertEquals(expected, result);
+		
+		context = context.move(result.getUpToDate());
+		
+		result = test.nextDue(context);
+		
+		assertNull(result);
 	}
 
-	public void testNextDue2() throws ParseException {
-		DateSchedule s = new DateSchedule();
-		s.setFrom("2003-02-05");
-		s.setTo("2003-02-25");
+	public void testNextDueDateRange() throws ParseException {
+		DateSchedule test = new DateSchedule();
+		test.setFrom("2003-02-05");
+		test.setTo("2003-02-25");
 		
-		ScheduleContext c = new ScheduleContext(
+		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDate("2003-02-15"));
-		Interval result = s.nextDue(c);
+		IntervalTo result = test.nextDue(context);
 		
-		assertEquals(DateHelper.parseDate("2003-02-05"),
-				result.getFromDate());
-		assertEquals(new Date(DateHelper.parseDate("2003-02-26").getTime() -1),
-				result.getToDate());
+		IntervalTo expected = new IntervalTo(
+				DateHelper.parseDate("2003-02-05"),
+				DateHelper.parseDate("2003-02-26"));
+		
+		assertEquals(expected, result);
+		
+		context = context.move(result.getUpToDate());
+		
+		result = test.nextDue(context);
+		
+		assertEquals(null, result);
 	}
 
-	public void testNextDue3() throws ParseException {
-		DateSchedule s = new DateSchedule();
-		s.setFrom("2003-02-05");
-		s.setTo("2003-02-25");
+	public void testNextDueAfterDate() throws ParseException {
+		DateSchedule test = new DateSchedule();
+		test.setFrom("2003-02-05");
+		test.setTo("2003-02-25");
 		
-		ScheduleContext c = new ScheduleContext(
+		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDate("2003-02-27"));
-		Interval result = s.nextDue(c);
+		IntervalTo result = test.nextDue(context);
 		
 		assertNull(result);
 	}
@@ -96,15 +108,16 @@ public class DateScheduleTest extends TestCase {
     	ScheduleContext context = 
     		new ScheduleContext(DateHelper.parseDateTime("2003-02-16"));
     	
-    	Interval result = test.nextDue(context);
+    	IntervalTo result = test.nextDue(context);
     	
-    	Interval expected = new IntervalTo(
+    	IntervalTo expected = new IntervalTo(
     			DateHelper.parseDateTime("2003-12-25 12:00"));
     	
     	assertEquals(expected, result); 
 
-    	result = test.nextDue(context.move(
-    			DateUtils.oneMillisAfter(result.getToDate())));
+    	context = context.move(result.getUpToDate());
+    	
+    	result = test.nextDue(context);
 
     	assertNull(result);
 	}
@@ -124,7 +137,7 @@ public class DateScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	Interval next = schedule.nextDue(new ScheduleContext(
+    	IntervalTo next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2004-12-24 11:00")));
     	
     	IntervalTo expected = new IntervalTo(
@@ -132,7 +145,7 @@ public class DateScheduleTest extends TestCase {
     			DateHelper.parseDateTime("2004-12-26 00:00"));
     	
     	assertEquals(expected, next);
-    	
+
     	next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2004-12-26 11:00")));
     	

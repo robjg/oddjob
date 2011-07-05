@@ -134,13 +134,11 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 	    }
 	    else {
 	    	toCal.setTime(parseTime(to, referenceDate, timeZone, "to"));
+	    	if (to.equals(from)) {
+	    		toCal.add(Calendar.MILLISECOND, 1);
+	    	}
 	    }
 	    
-	    Calendar fromCal = fromCalendar(referenceDate, timeZone);
-		if (!fromCal.equals(toCal) && toCal.get(Calendar.MILLISECOND) == 0) {
-			toCal.add(Calendar.MILLISECOND, -1);	    	
-		}
-		
 		return toCal;
 	}
 	

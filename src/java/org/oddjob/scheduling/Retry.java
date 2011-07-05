@@ -56,7 +56,6 @@ public class Retry extends TimerBase {
 		return new CompleteOrNotOp();
 	}
 	
-	
 	@Override
 	protected void begin() throws Throwable {
 
@@ -68,8 +67,9 @@ public class Retry extends TimerBase {
 		
 		// This logic is required because we might be running with a Timer 
 		// that is not missing skipped runs.
-		if (getLimits() != null && use.after(getLimits().getToDate())) {
-			use = getLimits().getToDate();
+		if (getLimits() != null && 
+				use.compareTo(getLimits().getUpToDate()) >= 0) {
+			use = getLimits().getFromDate();
 		}
 		
 		scheduleFrom(use);

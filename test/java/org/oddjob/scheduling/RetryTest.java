@@ -708,7 +708,7 @@ public class RetryTest extends TestCase {
 		
 		assertNotNull(services.runnable);
 		assertEquals(0, services.delay);
-		assertEquals(DateHelper.parseDateTime("2010-06-10 09:45"), 
+		assertEquals(DateHelper.parseDateTime("2010-06-10 07:00"), 
 				test.getNextDue());
 		
 		services.runnable.run();
@@ -741,7 +741,7 @@ public class RetryTest extends TestCase {
 		
 		assertNotNull(services.runnable);
 		assertEquals(0, services.delay);
-		assertEquals(DateHelper.parseDateTime("2010-06-10 09:59:59:999"), 
+		assertEquals(DateHelper.parseDateTime("2010-06-10 07:00"), 
 				test.getNextDue());
 		
 		services.runnable.run();

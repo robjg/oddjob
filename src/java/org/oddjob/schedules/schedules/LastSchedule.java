@@ -59,7 +59,7 @@ final public class LastSchedule extends AbstractSchedule implements Serializable
 			    break;
 			}
 			last = candidate;
-			use = DateUtils.oneMillisAfter(candidate.getToDate());
+			use = candidate.getUpToDate();
 		}
 		
 		return last;

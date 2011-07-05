@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -386,7 +385,7 @@ public class SQLKeeperService {
 					});
 				}
 				else {
-					Interval nextDue = pollSchedule.nextDue(scheduleContext);
+					IntervalTo nextDue = pollSchedule.nextDue(scheduleContext);
 					if (nextDue == null) {
 						loosing.stateHandler.waitToWhen(new IsAnyState(), 
 								new Runnable() {
@@ -401,9 +400,9 @@ public class SQLKeeperService {
 					else {
 						scheduleContext = scheduleContext.move(
 								new IntervalTo(nextDue).getUpToDate());
-						long delay = nextDue.getToDate().getTime() - 
+						long delay = nextDue.getUpToDate().getTime() - 
 							new Date().getTime();
-						if (delay < 0) {
+						if (delay <= 0) {
 							delay = 0;
 						}
 						synchronized (loosers) {

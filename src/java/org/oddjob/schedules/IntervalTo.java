@@ -3,6 +3,8 @@ package org.oddjob.schedules;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.oddjob.arooa.ArooaConstants;
+
 /**
  * An Interval that extends to, but does not include the to date.
  * 
@@ -11,6 +13,12 @@ import java.util.Date;
  */
 public class IntervalTo extends Interval {
 	private static final long serialVersionUID = 2009022700L;
+
+	private static final String DATE_FORMAT_SECONDS =
+		ArooaConstants.DATE_FORMAT + " " + ArooaConstants.TIME_FORMAT2;
+	
+	private static final String DATE_FORMAT_MILLISECONDS =
+		ArooaConstants.DATE_FORMAT + " " + ArooaConstants.TIME_FORMAT1;
 	
 	/**
 	 * Create a point interval.
@@ -81,35 +89,31 @@ public class IntervalTo extends Interval {
 	    
 	    return new IntervalTo(result);
 	}
-
 	
 	/**
 	 * Return a string representation of this interval.
 	 */		
 	public String toString() {
-		
-		String fromString; 
-		if (getFromDate().getTime() % 1000 == 0) {
-			// no milliseconds - then miss them off.
-			fromString = new SimpleDateFormat(
-					"dd-MMM-yyyy HH:mm:ss").format(getFromDate());
+
+		if (getFromDate().equals(getToDate())) {
+			return "at " + formatDate(getFromDate());
 		}
 		else {
-			fromString = new SimpleDateFormat(
-					"dd-MMM-yyyy HH:mm:ss:SSS").format(getFromDate());
+			return formatDate(getFromDate())+ " up to " + 
+					formatDate(getUpToDate());	
 		}
-		
-		String toString;
-		if (getUpToDate().getTime() + 1 % 1000 == 0) {
+	}
+
+	private String formatDate(Date date) {
+		if (date.getTime() % 1000 == 0) {
 			// no milliseconds - then miss them off.
-			toString = new SimpleDateFormat(
-					"dd-MMM-yyyy HH:mm:ss").format(getUpToDate());
+			return new SimpleDateFormat(
+					DATE_FORMAT_SECONDS).format(date);
 		}
 		else {
-			toString = new SimpleDateFormat(
-					"dd-MMM-yyyy HH:mm:ss:SSS").format(getUpToDate());
+			return new SimpleDateFormat(
+					DATE_FORMAT_MILLISECONDS).format(date);
 		}
 		
-		return fromString + " up to " + toString;	
 	}
 }

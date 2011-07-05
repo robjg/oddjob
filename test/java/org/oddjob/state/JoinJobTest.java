@@ -10,8 +10,12 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.schedules.schedules.CountSchedule;
@@ -232,24 +236,74 @@ public class JoinJobTest extends TestCase {
 		testStates.checkNow();
 	}
 	
-	public void testInOddjob() {
-		
-		String xml = 
-			"<oddjob xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
-			" <job>" +
-			"  <state:join>" +
-			"   <job>" +
-			"    <echo text='hello'/>" +
-			"   </job>" +
-			"  </state:join>" +
-			" </job>" +
-			"</oddjob>";
-		
+	public void testInOddjob() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
+				
 		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/state/JoinExample.xml", 
+				getClass().getClassLoader()));
+
+		oddjob.load();
 		
-		oddjob.run();
+		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		Stateful test = lookup.lookup("our-join", Stateful.class);
+		
+		StateSteps state = new StateSteps(test);
+		
+		Thread t = new Thread(oddjob);
+		
+		state.startCheck(JobState.READY, JobState.EXECUTING);
+
+		t.start();
+		
+		state.checkWait();
+				
+		assertEquals(JobState.EXECUTING, 
+				oddjob.lastJobStateEvent().getJobState());
+		
+		Stateful lastJob = lookup.lookup("last-job", Stateful.class);
+		
+		assertEquals(JobState.READY, 
+				lastJob.lastJobStateEvent().getJobState());
+		
+		Object applesFlag = lookup.lookup("apples");
+		Object orangesFlag = lookup.lookup("oranges");
+		
+		((Runnable) applesFlag).run();
+		((Runnable) orangesFlag).run();
+		
+		t.join();
+		
+		assertEquals(JobState.COMPLETE, 
+				oddjob.lastJobStateEvent().getJobState());
+		
+		assertEquals(JobState.COMPLETE, 
+				lastJob.lastJobStateEvent().getJobState());
+		
+		((Resetable) test).hardReset();
+		((Resetable) lastJob).hardReset();
+		
+		Thread t2 = new Thread(oddjob);
+		
+		state.startCheck(JobState.READY, JobState.EXECUTING);
+
+		t2.start();
+		
+		state.checkWait();
+		
+		assertEquals(JobState.READY, 
+				lastJob.lastJobStateEvent().getJobState());
+
+		((Resetable) applesFlag).hardReset();
+		((Resetable) orangesFlag).hardReset();
+
+		((Runnable) applesFlag).run();
+		((Runnable) orangesFlag).run();
+		
+		t2.join();
+		
+		assertEquals(JobState.COMPLETE, 
+				lastJob.lastJobStateEvent().getJobState());
 	}
 }

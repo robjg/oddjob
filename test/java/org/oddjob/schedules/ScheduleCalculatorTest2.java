@@ -39,20 +39,24 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		Date retryDate;
 		boolean failed;
 		
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		@Override
+		public void complete(Date scheduleDate, IntervalTo lastComplete) {
 			throw new RuntimeException("Unexpected.");
 		}
 		
+		@Override
 		public void failed(Date scheduleDate) {
 			this.scheduleDate = scheduleDate;
 			retryDate = null;
 			failed = true;
 		}
 		
+		@Override
 		public void initialised(Date scheduleDate) {
 			this.scheduleDate = scheduleDate;
 		}
 		
+		@Override
 		public void retry(Date scheduleDate, Date retryDate) {
 			if (!scheduleDate.equals(this.scheduleDate)) {
 				throw new RuntimeException();
@@ -141,18 +145,22 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		
 		Date scheduleDate;
 		
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		@Override
+		public void complete(Date scheduleDate, IntervalTo lastComplete) {
 			this.scheduleDate = scheduleDate;
 		}
 		
+		@Override
 		public void failed(Date scheduleDate) {
 			throw new RuntimeException("Unexpected.");
 		}
 		
+		@Override
 		public void initialised(Date scheduleDate) {
 			this.scheduleDate = scheduleDate;
 		}
 		
+		@Override
 		public void retry(Date scheduleDate, Date retryDate) {
 			throw new RuntimeException("Unexpected.");
 		}

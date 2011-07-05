@@ -13,11 +13,14 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
@@ -45,7 +48,7 @@ import org.oddjob.state.JobStateListener;
  */
 public class RunnableWrapperTest extends TestCase {
 
-	class OurContext extends MockArooaContext {
+	private class OurContext extends MockArooaContext {
 		
 		OurSession session;
 		
@@ -64,7 +67,7 @@ public class RunnableWrapperTest extends TestCase {
 		}
 	}
 	
-	class OurSession extends MockArooaSession {
+	private class OurSession extends MockArooaSession {
 		Object configured;
 		Object saved;
 		
@@ -161,11 +164,52 @@ public class RunnableWrapperTest extends TestCase {
     }
     
     /** Listener fixture. */
-    class MyListener implements JobStateListener {
+    private class MyListener implements JobStateListener {
         JobStateEvent lastEvent;
         public void jobStateChange(JobStateEvent event) {
             lastEvent = event;
         }
+    }
+    
+    
+    public void testStop() throws InterruptedException, FailedToStopException {
+    	
+    	Runnable wrapper = RunnableWrapper.wrapperFor(
+    			new Runnable() {
+    				@Override
+    				public void run() {   					
+    					synchronized(this) {
+    						try {
+    							wait();
+    						} catch (InterruptedException e){
+    							Thread.currentThread().interrupt();
+    						}
+    					}
+    				}
+    				@Override
+    				public String toString() {
+    					return "StopTestJob";
+    				}
+    			}, getClass().getClassLoader());
+    	
+    	Stateful stateful = (Stateful) wrapper;
+    	
+    	StateSteps states = new StateSteps(stateful);
+    	
+    	states.startCheck(JobState.READY, JobState.EXECUTING);
+    	
+    	Thread t = new Thread(wrapper);
+    	t.start();
+    	
+    	states.checkWait();
+    	
+    	Stoppable stoppable = (Stoppable) wrapper;
+    	
+    	states.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+    	
+    	stoppable.stop();
+    	
+    	states.checkWait();
     }
     
     /**

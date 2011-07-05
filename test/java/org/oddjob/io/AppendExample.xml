@@ -1,0 +1,27 @@
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <myFile>
+                        <append>
+                            <file>
+                                <file file="${this.args[0]}/messages.txt"/>
+                            </file>
+                        </append>
+                    </myFile>
+                </variables>
+                <echo text="Hello World">
+                    <output>
+                        <value value="${vars.myFile}" />
+                    </output>
+                </echo>
+                <echo text="Goodbye World">
+                    <output>
+                        <value value="${vars.myFile}" />
+                    </output>
+                </echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

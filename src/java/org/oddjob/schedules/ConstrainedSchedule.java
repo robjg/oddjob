@@ -67,26 +67,26 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 		nowCal.setTime(context.getDate());
 		
 	    if (fromCal.after(toCal)) {
-	        if (!nowCal.after(toCal)) {
+	        if (nowCal.before(toCal)) {
 	        	fromCal.add(unit.getField(), -1 * unit.getValue());
 	        }
 	    } 
 	    else {
-	        if (nowCal.after(toCal)) {
+	        if (nowCal.compareTo(toCal) >= 0) {
 	        	fromCal.add(unit.getField(), unit.getValue());
 	        }
 	    }
 
-        if (nowCal.after(toCal)) {
+        if (nowCal.compareTo(toCal) >= 0) {
         	// Need to re-get from time because of leap years.
         	// - The end of February might change.
         	toCal.add(unit.getField(), unit.getValue());
-        	ScheduleContext shiftedContext = context.move(toCal.getTime());
+        	ScheduleContext shiftedContext = context.move(
+        			DateUtils.oneMillisBefore(toCal.getTime()));
         	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
         }
 	    
-	    return new IntervalTo(
-	    		new Interval(fromCal.getTime(), toCal.getTime()));
+	    return new IntervalTo(fromCal.getTime(), toCal.getTime());
 	}
 
 	/**
@@ -114,7 +114,7 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	        }
 	    } 
 	    else {
-	        if (!nowCal.after(toCal)) {
+	        if (nowCal.before(toCal)) {
 	        	fromCal.add(unit.getField(), -1 * unit.getValue());
 	        }
 	    }
@@ -123,12 +123,12 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
         	// Need to re-get from time because of leap years.
         	// - The end of February might change.
         	toCal.add(unit.getField(), -1 * unit.getValue());
-        	ScheduleContext shiftedContext = context.move(toCal.getTime());
+        	ScheduleContext shiftedContext = context.move(
+        			DateUtils.oneMillisBefore(toCal.getTime()));
         	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
         }
 	    
-	    return new IntervalTo(
-	    		new Interval(fromCal.getTime(), toCal.getTime()));
+	    return new IntervalTo(fromCal.getTime(), toCal.getTime());
 	}
 	
 	/*
@@ -167,7 +167,7 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 			
 			IntervalTo previous = parentChild.nextDue(context);
 
-			if (previous != null && !now.after(previous.getToDate())) {
+			if (previous != null && now.before(previous.getUpToDate())) {
 				return nextInterval = previous;
 			}				
 		}

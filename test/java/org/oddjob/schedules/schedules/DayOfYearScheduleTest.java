@@ -13,7 +13,6 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -31,7 +30,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-02"));
 		
-		Interval result = s.nextDue(c);
+		IntervalTo result = s.nextDue(c);
 
 		IntervalTo expected = 
 			new IntervalTo(DateHelper.parseDate("2003-02-05"),
@@ -78,7 +77,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2011-01-02"));
-		Interval result = s.nextDue(c);
+		IntervalTo result = s.nextDue(c);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDate("2010-12-17"),
@@ -94,7 +93,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2008-01-01"));
-		Interval result = test.nextDue(c);
+		IntervalTo result = test.nextDue(c);
 
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDate("2008-02-29"),

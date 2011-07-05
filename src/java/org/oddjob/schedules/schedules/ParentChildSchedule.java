@@ -1,10 +1,15 @@
 package org.oddjob.schedules.schedules;
 
-import org.oddjob.schedules.DateUtils;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 
+/**
+ * A help class for resolving a single parent/child schedule.
+ * 
+ * @author rob
+ *
+ */
 public class ParentChildSchedule implements Schedule {
 
 	private final Schedule parent;
@@ -33,7 +38,7 @@ public class ParentChildSchedule implements Schedule {
 		}
 		
 		parentInterval = limitedParentInterval(context.move(
-				DateUtils.oneMillisAfter(parentInterval.getToDate())));
+				parentInterval.getUpToDate()));
 		
 		if (parentInterval == null) {
 			return null;
@@ -58,7 +63,7 @@ public class ParentChildSchedule implements Schedule {
 				// I.e. one that spans midnight - so we want to give it a chance
 				// to be an extended refinement.
 				parentInterval = parent.nextDue(context.move(
-						DateUtils.oneMillisAfter(parentInterval.getToDate())));
+						parentInterval.getUpToDate()));
 				
 				if (parentInterval == null) {
 					return null;

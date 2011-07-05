@@ -1,17 +1,136 @@
 package org.oddjob.framework;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.MockStateful;
+import org.oddjob.Stateful;
+import org.oddjob.state.IsAnyState;
+import org.oddjob.state.JobState;
+import org.oddjob.state.JobStateEvent;
 import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.JobStateListener;
+import org.oddjob.util.OddjobLockedException;
 
 public class StopWaitTest extends TestCase {
-
-	public void testStopWait() throws FailedToStopException {
+	
+	private static final Logger logger = Logger.getLogger(StopWaitTest.class);
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
 		
-		JobStateHandler stateful = new JobStateHandler(new MockStateful());
+		logger.info("-------------------  " + getName() + "  ----------------");
+	}
+	
+	private class OurStateful implements Stateful {
+		
+		JobStateHandler jobStateHandler = new JobStateHandler(this);
+
+		Set<JobStateListener> listeners = Collections.synchronizedSet(
+				new HashSet<JobStateListener>());
+		
+		@Override
+		public void addJobStateListener(JobStateListener listener) {
+			jobStateHandler.addJobStateListener(listener);
+			listeners.add(listener);			
+		}
+		
+		@Override
+		public JobStateEvent lastJobStateEvent() {
+			return jobStateHandler.lastJobStateEvent();
+		}
+		
+		@Override
+		public void removeJobStateListener(JobStateListener listener) {
+			jobStateHandler.removeJobStateListener(listener);
+			listeners.remove(listener);
+		}
+	}
+	
+	public void testStopWaitOnReady() throws FailedToStopException {
+		
+		OurStateful stateful = new OurStateful();
 		
 		new StopWait(stateful).run();
+		
+		assertEquals(0, stateful.listeners.size());	
+	}
+	
+	public void testFailedTostop() throws OddjobLockedException {
+		
+		final OurStateful stateful = new OurStateful();
+		stateful.jobStateHandler.tryToWhen(new IsAnyState(), 
+				new Runnable() {
+			public void run() {
+				stateful.jobStateHandler.setJobState(JobState.EXECUTING);
+				stateful.jobStateHandler.fireEvent();
+			}
+		});
+		
+		try {
+			new StopWait(stateful, 10).run();
+			fail("Should throw excption.");
+		}
+		catch (FailedToStopException e) {
+			// expected
+		}
+		
+		assertEquals(0, stateful.listeners.size());
+	
+	}
+	
+	public void testSlowToStop() throws OddjobLockedException, FailedToStopException {
+		
+		final OurStateful stateful = new OurStateful();
+		stateful.jobStateHandler.tryToWhen(new IsAnyState(), 
+				new Runnable() {
+			@Override
+			public void run() {
+				stateful.jobStateHandler.setJobState(JobState.EXECUTING);
+				stateful.jobStateHandler.fireEvent();
+			}
+		});
+		
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (stateful.listeners.isEmpty()) {
+					logger.info("Nothing listening yet...");
+					try {
+						Thread.sleep(10);
+						
+					} 
+					catch (InterruptedException e) {
+						throw new RuntimeException("Unexpected!");
+					}
+				}
+				try {
+					logger.info("Setting state COMPLETE");
+					stateful.jobStateHandler.tryToWhen(new IsAnyState(), 
+							new Runnable() {
+						@Override
+						public void run() {
+							stateful.jobStateHandler.setJobState(
+									JobState.COMPLETE);
+							stateful.jobStateHandler.fireEvent();
+						}
+					});
+					logger.info("State set to COMPLETE");
+				} catch (OddjobLockedException e) {
+					throw new RuntimeException("Unexpected!");
+				}				
+			}
+		});
+		t.start();
+		
+		new StopWait(stateful).run();
+		
+		assertEquals(0, stateful.listeners.size());
+	
 	}
 }

@@ -11,7 +11,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.framework.StructuralJob;
-import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleCalculator;
 import org.oddjob.schedules.ScheduleListener;
@@ -357,7 +357,8 @@ implements Stoppable {
 		/* (non-Javadoc)
 		 * @see org.oddjob.treesched.ScheduleListener#complete(java.util.Date, java.util.Date)
 		 */
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		@Override
+		public void complete(Date scheduleDate, IntervalTo lastComplete) {
 			RepeatJob.this.scheduleDate = scheduleDate;
 			RepeatJob.this.nextDue = scheduleDate;
 			RepeatJob.this.retry = false;
@@ -367,6 +368,7 @@ implements Stoppable {
 		/* (non-Javadoc)
 		 * @see org.oddjob.treesched.ScheduleListener#retry(java.util.Date, java.util.Date)
 		 */
+		@Override
 		public void retry(Date scheduleDate, Date retryDate) {
 			RepeatJob.this.scheduleDate = scheduleDate;
 			RepeatJob.this.nextDue = retryDate;

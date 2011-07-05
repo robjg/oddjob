@@ -5,7 +5,6 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -86,11 +85,11 @@ implements Serializable {
 
 	class ImmediateSchedule implements Schedule, Serializable {
 		private static final long serialVersionUID = 20060113;
+
+		@Override
 		public IntervalTo nextDue(ScheduleContext context) {
 			Date date = context.getDate();
 			return new IntervalTo(date);
-		}
-		public void setLimits(Interval limits) {
 		}
 	}
 	

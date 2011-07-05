@@ -68,7 +68,7 @@ public class FileType implements ArooaValue {
     }
    
     public String toString() {
-    	return "File" + file.toString();
+    	return "File " + file.toString();
     }
 
 }

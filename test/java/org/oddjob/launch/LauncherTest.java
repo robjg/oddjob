@@ -14,11 +14,11 @@ import java.util.HashSet;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Main;
 import org.oddjob.OurDirs;
 import org.oddjob.io.CopyJob;
 import org.oddjob.util.URLClassLoaderType;
 
-import com.sun.tools.apt.main.Main;
 
 /**
  *

@@ -44,7 +44,7 @@ final public class IntervalSchedule implements Schedule, Serializable {
 	/**
 	 * @oddjob.property interval
 	 * @oddjob.description The interval time. 
-	 * @oddjob.required No but defaults to forever.
+	 * @oddjob.required No but defaults to no interval.
 	 * 
 	 * @param interval The interval.
 	 * @throws ParseException If the interval is not a valid date.

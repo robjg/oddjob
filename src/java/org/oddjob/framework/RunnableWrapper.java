@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
@@ -174,6 +175,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 		
 		OddjobNDC.push(loggerName());
 		try {
+			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setJobState(JobState.EXECUTING);
@@ -184,26 +186,26 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			
 			logger().info("[" + wrapped + "] Executing.");
 			
-			final Throwable[] exception = new Throwable[1];
+			final AtomicReference<Throwable> exception = 
+				new AtomicReference<Throwable>();;
 			
-			thread = Thread.currentThread();
 			try {
 				configure();
 				wrapped.run();
 			} catch (Throwable t) {
 				logger().error("[" + wrapped + "] Exception:", t);
-				exception[0] = t;
+				exception.set(t);
 			} finally {
 				thread = null;
 			}
-
+			
 			logger().info("[" + wrapped + "] Finished.");
 					
 			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 	
-					if (exception[0] != null) {
-						getStateChanger().setJobStateException(exception[0]);
+					if (exception.get() != null) {
+						getStateChanger().setJobStateException(exception.get());
 					}
 					else {
 						int result = getResult();
