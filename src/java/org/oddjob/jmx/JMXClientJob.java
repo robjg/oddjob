@@ -69,21 +69,9 @@ import org.oddjob.structural.StructuralListener;
  * @oddjob.example
  * 
  * Connect, run a remote job, and disconnect.
- * <pre>
- * &lt;sequential xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"&gt;
- *  &lt;jobs&gt;
- *   &lt;jmx:client id="freds-pc" 
- *                  name="Connection to Fred's PC" 
- *                  url="service:jmx:rmi:///jndi/rmi://pcfred/public-jobs" /&gt;
- *   &lt;run name="Run Fred's Job" 
- *           job="${freds-pc/freds-job}" /&gt;
- *   &lt;stop name="Disconnect" 
- *            job="${freds-pc} /gt;
- *  &lt;/jobs&gt;
- * &lt;sequential&gt;
- * </pre>
  * 
- * <p>
+ * {@oddjob.xml.resource org/oddjob/jmx/ClientRunsServerJob.xml}
+ * 
  * The run job starts the server job but doesn't wait for it to complete.
  * We would need to add a wait job for that.
  * 
@@ -99,6 +87,12 @@ import org.oddjob.structural.StructuralListener;
  *  &lt;/environment&gt;
  * &lt;/jmx:client&gt;
  * </pre>
+ * 
+ * @oddjob.example
+ * 
+ * A local job triggers when a server job runs.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/ClientTrigger.xml}
  * 
  * @author Rob Gordon
  */

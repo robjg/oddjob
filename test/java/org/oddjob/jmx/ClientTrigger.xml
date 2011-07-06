@@ -1,0 +1,22 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
+                    id="freds-pc" name="Oddjob Client"
+                    url="service:jmx:rmi:///jndi/rmi://${hosts.freds-pc}/oddjob-server"/>
+                <scheduling:trigger on="${freds-pc/server-jobs/greeting}"
+                    xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <job>
+                        <sequential>
+                            <jobs>
+                                <echo id="local-job" text="Server Job Ran!"/>
+                                <stop job="${freds-pc}"/>
+                            </jobs>
+                        </sequential>
+                    </job>
+                </scheduling:trigger>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

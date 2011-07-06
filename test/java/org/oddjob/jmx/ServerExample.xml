@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <rmireg/>
+                <jmx:server id="server1" root="${server-jobs}" url="service:jmx:rmi://ignored/jndi/rmi://localhost/oddjob-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <oddjob file="${this.dir}/ServerJobs.xml" id="server-jobs"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

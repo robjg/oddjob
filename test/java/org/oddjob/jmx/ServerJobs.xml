@@ -1,0 +1,9 @@
+<oddjob>
+    <job>
+        <folder>
+            <jobs>
+                <echo id="greeting" text="Hello World"/>
+            </jobs>
+        </folder>
+    </job>
+</oddjob>

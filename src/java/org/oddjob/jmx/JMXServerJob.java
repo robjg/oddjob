@@ -33,8 +33,8 @@ import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 
 /**
- * @oddjob.description A job which allows client a local job hierarchy to
- * be monitored and managed remotely via JMX. 
+ * @oddjob.description A job which allows a job hierarchy to
+ * be monitored and managed remotely using a {@link JMXClientJob}. 
  * <p>
  * Security can be added using the environment property. Simple JMX security comes
  * prepackaged as {@link SimpleServerSecurity}.
@@ -46,17 +46,20 @@ import org.oddjob.util.ThreadManager;
  * 
  * @oddjob.example
  * 
- * Typical configuration is:
- * <code><pre>
- * &lt;jmx:server xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
- *            name="My Server" 
- *            url="service:jmx:rmi://ignored/jndi/rmi://localhost/my-oddjob" 
- *            root="${some-job}"/&gt;
- * </pre></code>
+ * Creating a server.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/ServerExample.xml}
+ * 
+ * The nested Oddjob can be any normal Oddjob configuration. Here is the 
+ * nested Oddjob used in some client examples. The greeting is in 
+ * a folder because it will only be run from the client.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/ServerJobs.xml}
  * 
  * @oddjob.example
  * 
- * Create a secure server:
+ * Creating a secure server.
+ * 
  * <pre>
  * &lt;jmx:server xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
  *          root="${some-job}" 
