@@ -2,6 +2,7 @@ package org.oddjob.io;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
@@ -91,6 +92,7 @@ public class ExistsJob implements Runnable, Serializable {
 	public File[] getExists() {
 		return exists;
 	}
+	
 	/**
 	 * Get the result. Used to set complete/not state.
 	 * 
@@ -124,6 +126,36 @@ public class ExistsJob implements Runnable, Serializable {
 		for (File found: exists) {
 			logger.info("" + found);
 		}
+	}
+	
+	/**
+	 * @oddjob.property size
+	 * @oddjob.description If a single file is found, this is the size
+	 * of the file in bytes, or -1 if a single file hasn't been found.
+	 * @oddjob.required R/O.
+	 */
+	public long getSize() {
+		File[] exists = this.exists;
+		if (exists == null || exists.length != 1) {
+			return -1;
+		}
+		
+		return exists[0].length();
+	}
+	
+	/**
+	 * @oddjob.property lastModified
+	 * @oddjob.description If a single file is found, this is the last
+	 * modified date of the file.
+	 * @oddjob.required R/O.
+	 */
+	public Date getLastModified() {
+		File[] exists = this.exists;
+		if (exists == null || exists.length != 1) {
+			return null;
+		}
+		
+		return new Date(exists[0].lastModified());
 	}
 	
 	/*

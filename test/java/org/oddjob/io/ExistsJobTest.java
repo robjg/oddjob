@@ -23,7 +23,15 @@ public class ExistsJobTest extends TestCase {
 		
 		ExistsJob test = new ExistsJob();
 		test.setFile(new File(dirs.base(), "test/io/reference/test1.txt"));
+		
+		assertEquals(-1L, test.getSize());
+		assertNull(test.getLastModified());
+		assertEquals(-1, test.getResult());
+		
 		test.run();
+		
+		assertTrue(test.getSize() > 0);
+		assertNotNull(test.getLastModified());
 		assertEquals(0, test.getResult());
 	}
 	
@@ -34,6 +42,11 @@ public class ExistsJobTest extends TestCase {
 		test.setFile(new File(dirs.base(), "test/io/reference/*.txt"));
 		test.run();
 		assertEquals(0, test.getResult());
+		
+		assertEquals(3, test.getExists().length);
+		
+		assertEquals(-1L, test.getSize());
+		assertNull(test.getLastModified());		
 	}
 	
 	public void testInOddjob() {

@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -16,6 +17,26 @@ import org.oddjob.state.JobState;
 
 public class JMXExamplesTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(JMXExamplesTest.class);
+
+	Oddjob serverOddjob;
+	Oddjob clientOddjob;
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("----------------  " + getName() + "  -----------------");
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		
+		clientOddjob.destroy();
+		serverOddjob.destroy();
+	}
+	
 	public void testClientRunsServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 		
 		Properties props = new Properties();
@@ -25,7 +46,7 @@ public class JMXExamplesTest extends TestCase {
 		
 		File testDir = dirs.relative("test/java/org/oddjob/jmx");
 		
-		Oddjob serverOddjob = new Oddjob();
+		serverOddjob = new Oddjob();
 		serverOddjob.setProperties(props);
 		serverOddjob.setFile(new File(testDir, "ServerExample.xml"));
 
@@ -39,20 +60,20 @@ public class JMXExamplesTest extends TestCase {
 		Stateful serverJob = serverLookup.lookup("server-jobs/greeting", 
 				Stateful.class);
 	
-		Oddjob clientOddjob = new Oddjob();
+		clientOddjob = new Oddjob();
 		clientOddjob.setProperties(props);
 		clientOddjob.setFile(new File(testDir, "ClientRunsServerJob.xml"));
 
+		StateSteps steps = new StateSteps(serverJob);
+		steps.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		
 		clientOddjob.run();
 		
 		assertEquals(JobState.COMPLETE, 
 				clientOddjob.lastJobStateEvent().getJobState());
 		
-		assertEquals(JobState.COMPLETE, 
-				serverJob.lastJobStateEvent().getJobState());
+		steps.checkWait();
 		
-		clientOddjob.destroy();
-		serverOddjob.destroy();
 	}
 	
 	public void testClientTriggersOnServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
@@ -64,7 +85,7 @@ public class JMXExamplesTest extends TestCase {
 		
 		File testDir = dirs.relative("test/java/org/oddjob/jmx");
 		
-		Oddjob serverOddjob = new Oddjob();
+		serverOddjob = new Oddjob();
 		serverOddjob.setProperties(props);
 		serverOddjob.setFile(new File(testDir, "ServerExample.xml"));
 
@@ -78,7 +99,7 @@ public class JMXExamplesTest extends TestCase {
 		Runnable serverJob = serverLookup.lookup("server-jobs/greeting", 
 				Runnable.class);
 	
-		Oddjob clientOddjob = new Oddjob();
+		clientOddjob = new Oddjob();
 		clientOddjob.setProperties(props);
 		clientOddjob.setFile(new File(testDir, "ClientTrigger.xml"));
 
@@ -102,9 +123,6 @@ public class JMXExamplesTest extends TestCase {
 		serverJob.run();
 		
 		state.checkWait();
-		
-		clientOddjob.destroy();
-		serverOddjob.destroy();
 		
 	}
 
