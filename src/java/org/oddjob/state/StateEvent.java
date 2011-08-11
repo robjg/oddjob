@@ -17,13 +17,14 @@ import org.oddjob.util.IO;
  * @author Rob Gordon
  */
 
-public class JobStateEvent extends EventObject implements Serializable {
+public class StateEvent extends EventObject 
+implements Serializable {
 
     private static final long serialVersionUID = 20051026;
 
 	static final String REPLACEMENT_EXCEPTION_TEXT = "Exception is not serializable, message is: ";
 	
-    private JobState jobState;
+    private State state;
 	private Date time;
 	private Throwable exception;
 	
@@ -47,12 +48,12 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 * @param time the Time of the event.
 	 * @param exception The exception if applicable, or null otherwise.
 	 */	
-	public JobStateEvent(Stateful job, JobState jobState, Date time, Throwable exception) {
+	public StateEvent(Stateful job, State jobState, Date time, Throwable exception) {
 	    super(job);
 	    if (jobState == null) {
 	    	throw new NullPointerException("JobState can not be null!");
 	    }
-		this.jobState = jobState;
+		this.state = jobState;
 		this.time = time;
 		this.exception = exception;
 	}
@@ -64,7 +65,7 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 * @param jobState The state.
 	 * @param exception The exception if applicable, or null otherwise.
 	 */
-	public JobStateEvent(Stateful job, JobState jobState, Throwable exception) {
+	public StateEvent(Stateful job, State jobState, Throwable exception) {
 		this(job, jobState, new Date(), exception);
 	}
 
@@ -74,7 +75,7 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 * @param job The source of the event.
 	 * @param jobState The state.
 	 */
-	public JobStateEvent(Stateful job, JobState jobState) {
+	public StateEvent(Stateful job, State jobState) {
 		this(job, jobState, null);
 	}
 
@@ -88,14 +89,14 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 * 
 	 * @return The job state.
 	 */	
-	public JobState getJobState() {
-		return jobState;	
+	public State getState() {
+		return state;	
 	}
 
 	/**
 	 * Get the exception if applicable, null otherwise.
 	 * 
-	 * @return The excpetion of null.
+	 * @return The exception of null.
 	 */	
 	public Throwable getException() {
 		return exception;
@@ -114,7 +115,7 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 * Override toString.
 	 */
 	public String toString() {
-		return "JobStateEvent, source=" + getSource() + ", " + jobState;
+		return "JobStateEvent, source=" + getSource() + ", " + state;
 	}
 	
 	/*
@@ -122,7 +123,7 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 */
 	private void writeObject(ObjectOutputStream s) 
 	throws IOException {
-		s.writeObject(jobState);
+		s.writeObject(state);
 		s.writeObject(time);
 		if (IO.canSerialize(exception)) {
 			s.writeObject(exception);
@@ -137,7 +138,7 @@ public class JobStateEvent extends EventObject implements Serializable {
 	 */
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
-		jobState = (JobState) s.readObject();
+		state = (State) s.readObject();
 		time = (Date) s.readObject();
 		exception = (Exception) s.readObject();
 	}

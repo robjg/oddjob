@@ -19,8 +19,8 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -57,11 +57,11 @@ public class CascadeJobTest extends TestCase {
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 		
 		executors.stop();
 	}
@@ -80,20 +80,18 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(1, job2);
 		test.setJobs(2, job3);
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		
 		StateSteps testState = new StateSteps(test);
 		
-		testState.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		test.run();
 		
 		testState.checkWait();
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.COMPLETE, job3.lastJobStateEvent().getJobState());			
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());	
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());	
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());			
 		
 		assertEquals(1, job1.ran);
 		assertEquals(1, job2.ran);
@@ -101,21 +99,22 @@ public class CascadeJobTest extends TestCase {
 		
 		((Resetable) job2).hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.READY, job2.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.COMPLETE, job3.lastJobStateEvent().getJobState());	
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());	
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());	
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());	
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		assertEquals(JobState.READY, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.READY, job2.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.READY, job3.lastJobStateEvent().getJobState());	
+		assertEquals(JobState.READY, job1.lastStateEvent().getState());	
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());	
+		assertEquals(JobState.READY, job3.lastStateEvent().getState());	
 		
-		testState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		test.run();
 		
@@ -144,12 +143,12 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(0, job1);
 		test.setJobs(1, job2);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		test.run();
 		
 		new StopWait(job1).run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());	
 
 		job1.setState(JobState.COMPLETE);
 		job1.hardReset();
@@ -158,9 +157,9 @@ public class CascadeJobTest extends TestCase {
 		
 		new StopWait(test).run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());			
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());			
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());			
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());			
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());			
 		
 		executors.stop();
 	}
@@ -180,7 +179,7 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(0, job1);
 		test.setJobs(1, job2);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		StateSteps job2Check = new StateSteps(job2);
 		
@@ -193,9 +192,9 @@ public class CascadeJobTest extends TestCase {
 
 		new StopWait(test).run();
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.EXCEPTION, job2.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());	
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());	
+		assertEquals(JobState.EXCEPTION, job2.lastStateEvent().getState());	
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());	
 		
 		job2Check.startCheck(JobState.EXCEPTION, JobState.READY, 
 				JobState.EXECUTING, JobState.COMPLETE);
@@ -206,8 +205,8 @@ public class CascadeJobTest extends TestCase {
 		
 		job2Check.checkWait();
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
 		
 		executors.stop();
 	}
@@ -223,31 +222,31 @@ public class CascadeJobTest extends TestCase {
 		
 		test.setJobs(0, job1);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
 		new StopWait(test).run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 
-		final List<JobState> results = new ArrayList<JobState>();
+		final List<State> results = new ArrayList<State>();
 		
-		class OurListener implements JobStateListener {
+		class OurListener implements StateListener {
 			
-			public void jobStateChange(JobStateEvent event) {
-				results.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				results.add(event.getState());
 			}
 		}
 		OurListener l = new OurListener();
-		test.addJobStateListener(l);
+		test.addStateListener(l);
 		
-		assertEquals(JobState.COMPLETE, results.get(0));	
+		assertEquals(ParentState.COMPLETE, results.get(0));	
 		assertEquals(1, results.size());
 		
 		test.destroy();
 
-		assertEquals(JobState.DESTROYED, results.get(1));	
+		assertEquals(ParentState.DESTROYED, results.get(1));	
 		assertEquals(2, results.size());
 		
 		executors.stop();
@@ -265,8 +264,8 @@ public class CascadeJobTest extends TestCase {
 
 		StateSteps testState = new StateSteps(test);		
 		
-		testState.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		test.setJobs(0, job1);
 		test.setJobs(1, job2);
@@ -277,10 +276,10 @@ public class CascadeJobTest extends TestCase {
 		
 		test.setJobs(0, null);
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
-		testState.startCheck(JobState.COMPLETE, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		testState.startCheck(ParentState.COMPLETE, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
 		
 		FlagState job3 = new FlagState(JobState.COMPLETE);
 		
@@ -296,8 +295,8 @@ public class CascadeJobTest extends TestCase {
 		
 		test.setJobs(0, job4);
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, job4.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(JobState.READY, job4.lastStateEvent().getState());
 		
 	}
 	
@@ -321,13 +320,13 @@ public class CascadeJobTest extends TestCase {
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);		
 		
-		oddjobStates.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		oddjob.run();
 		
 		oddjobStates.checkWait();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 }

@@ -20,6 +20,7 @@ import org.oddjob.arooa.life.MockComponentPersister;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class SerializableWrapperTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SerializableWrapperTest.class);
@@ -146,7 +147,7 @@ public class SerializableWrapperTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		Proxy proxy = (Proxy) new OddjobLookup(oddjob).lookup("test");
 		Test1 test1 = (Test1) ((RunnableWrapper) Proxy.getInvocationHandler(
@@ -163,7 +164,7 @@ public class SerializableWrapperTest extends TestCase {
 		
 		oddjob2.load();
 		
-		assertEquals(JobState.READY, oddjob2.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
 		
 		proxy = (Proxy) new OddjobLookup(oddjob2).lookup("test");
 		test1 = (Test1) ((RunnableWrapper) Proxy.getInvocationHandler(
@@ -196,7 +197,7 @@ public class SerializableWrapperTest extends TestCase {
 		
 		oddjob.run();
 
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		Object proxy = new OddjobLookup(oddjob).lookup("test");
 		

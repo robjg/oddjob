@@ -1,11 +1,11 @@
 package org.oddjob;
 
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
 
 
 /**
- * A stateful job implments this interface so that 
+ * A stateful job implements this interface so that 
  * it's state can be discovered. State is used to 
  * control the flow of execution within Oddjob, as
  * well as being a way of informing client applications
@@ -22,7 +22,7 @@ public interface Stateful {
 	 * @param listener The listener.
 	 */
 
-	public void addJobStateListener(JobStateListener listener);
+	public void addStateListener(StateListener listener);
 
 	/**
 	 * Remove a job state listener.
@@ -30,13 +30,13 @@ public interface Stateful {
 	 * @param listener The listener.
 	 */
 	
-	public void removeJobStateListener(JobStateListener listener);
+	public void removeStateListener(StateListener listener);
 
 	/**
 	 * Get the last job state event.
 	 * 
 	 * @return
 	 */
-	public JobStateEvent lastJobStateEvent();
+	public StateEvent lastStateEvent();
 	
 }

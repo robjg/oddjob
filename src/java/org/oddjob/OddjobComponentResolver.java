@@ -27,7 +27,7 @@ import org.oddjob.framework.ServiceWrapper;
  *
  * @author Rob Gordon.
  */
-class OddjobComponentResolver 
+public class OddjobComponentResolver 
 implements ComponentProxyResolver {
 	
 	public Object resolve(Object component, ArooaContext parentContext) {

@@ -11,6 +11,6 @@ public class ConfirmationJobMain {
 		
 		test.run();
 		
-		System.out.println(test.lastJobStateEvent().getJobState());
+		System.out.println(test.lastStateEvent().getState());
 	}
 }

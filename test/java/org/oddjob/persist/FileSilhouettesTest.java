@@ -21,6 +21,7 @@ import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class FileSilhouettesTest extends TestCase {
 
@@ -68,8 +69,8 @@ public class FileSilhouettesTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -102,7 +103,7 @@ public class FileSilhouettesTest extends TestCase {
 		
 		assertNotNull(restored);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(restored));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(restored));
 		
 		Object[] children = Helper.getChildren((Structural) restored);
 		
@@ -126,8 +127,8 @@ public class FileSilhouettesTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -160,7 +161,7 @@ public class FileSilhouettesTest extends TestCase {
 		
 		assertNotNull(restored);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(restored));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(restored));
 		
 		Object[] children = Helper.getChildren((Structural) restored);
 		
@@ -169,8 +170,8 @@ public class FileSilhouettesTest extends TestCase {
 		Stateful hello = (Stateful) children[0];
 		Stateful world= (Stateful) children[1];
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(hello));
-		assertEquals(JobState.COMPLETE, Helper.getJobState(world));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(hello));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(world));
 		
 	}
 }

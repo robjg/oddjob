@@ -306,7 +306,7 @@ public class PropertiesJobTest extends TestCase {
 		
 		Stateful test1 = lookup.lookup("test", Stateful.class);
 		assertEquals(JobState.COMPLETE, 
-				test1.lastJobStateEvent().getJobState());
+				test1.lastStateEvent().getState());
 
 		String r1 = lookup.lookup("vars.result", String.class);
 		
@@ -323,7 +323,7 @@ public class PropertiesJobTest extends TestCase {
 		
 		Stateful test2 = lookup.lookup("test", Stateful.class);
 		assertEquals(JobState.COMPLETE, 
-				test2.lastJobStateEvent().getJobState());
+				test2.lastStateEvent().getState());
 		
 		String r2 = lookup.lookup("vars.result", String.class);
 		

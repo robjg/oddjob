@@ -74,4 +74,9 @@ public class MapPersister extends PersisterBase {
 		logger.info("Clearing " + path);
 		cache.remove(path);
 	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ", " + cache.size() + " saved";
+	}
 }

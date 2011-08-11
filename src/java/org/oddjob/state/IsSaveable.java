@@ -12,15 +12,13 @@ package org.oddjob.state;
  */
 public class IsSaveable implements StateCondition {
 
-	public boolean test(JobState state) {
-		switch (state) {
-		case READY:
-		case COMPLETE:
-		case INCOMPLETE:
-		case EXCEPTION:
-			return true;
-		default:
-			return false;
-		}
+	@Override
+	public boolean test(State state) {
+		
+		return state.isReady() ||
+		state.isComplete() ||
+		state.isIncomplete() ||
+		state.isException();
 	}
 }
+

@@ -21,7 +21,7 @@ import org.oddjob.beanbus.StageListener;
 import org.oddjob.beanbus.StageNotifier;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class SQLResultsSheetTest extends TestCase {
 
@@ -152,8 +152,8 @@ public class SQLResultsSheetTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);

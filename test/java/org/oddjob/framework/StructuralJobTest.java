@@ -29,6 +29,7 @@ import org.oddjob.jobs.job.StopJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateOperator;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.WorstStateOp;
 
 /**
@@ -73,7 +74,7 @@ public class StructuralJobTest extends TestCase {
 		test.runnable = new Runnable() {
 			public void run() {
 				child.run();		
-				assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 			}
 		};
 		test.onInitialised();
@@ -81,12 +82,12 @@ public class StructuralJobTest extends TestCase {
 		test.run();
 		
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, child.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 	
 	public void testRunInComplete() {
@@ -97,7 +98,7 @@ public class StructuralJobTest extends TestCase {
 		test.runnable = new Runnable() {
 			public void run() {
 				child.run();		
-				assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 			}
 		};
 		test.onInitialised();
@@ -105,19 +106,19 @@ public class StructuralJobTest extends TestCase {
 		test.run();
 		
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		child.setState(JobState.COMPLETE);
 		child.softReset();
 		child.run();
 		
-		assertEquals(JobState.COMPLETE, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, child.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, child.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 
 	public void testRunStop() throws FailedToStopException {
@@ -136,7 +137,7 @@ public class StructuralJobTest extends TestCase {
 		test.runnable = new Runnable() {
 			public void run() {
 				child.run();
-				assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 				stop.run();
 			}
 		};
@@ -144,20 +145,20 @@ public class StructuralJobTest extends TestCase {
 		
 		executor.shutdown();
 		
-		assertEquals(JobState.COMPLETE, stop.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, stop.lastStateEvent().getState());
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		test.softReset();
 		
-		assertEquals(JobState.READY, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, child.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 		
 		child.setState(JobState.COMPLETE);
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, child.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testJustChild() {
@@ -168,18 +169,18 @@ public class StructuralJobTest extends TestCase {
 		test.setJob(child);
 		test.runnable = child;
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.softReset();
 		
-		assertEquals(JobState.READY, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, child.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 		
 		child.setState(JobState.COMPLETE);
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, child.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, child.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 
 	public void testPersist() throws IOException, ClassNotFoundException {
@@ -191,11 +192,11 @@ public class StructuralJobTest extends TestCase {
 		test.run();
 		child.run();
 	
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		OurStructural copy = (OurStructural) Helper.copy(test);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 	}
 	
 	class OurSession extends MockArooaSession {
@@ -235,14 +236,14 @@ public class StructuralJobTest extends TestCase {
 		test.runnable = new Runnable() {
 			public void run() {
 				child.run();		
-				assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 			}
 		};
 		test.onInitialised();
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		
 		OurStructural test2 = session.saved;
@@ -254,18 +255,18 @@ public class StructuralJobTest extends TestCase {
 		test2.runnable = new Runnable() {
 			public void run() {
 				child2.run();		
-				assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 			}
 		};
 		test2.onInitialised();
 		
-		assertEquals(JobState.COMPLETE, test2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, child2.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.COMPLETE, test2.lastStateEvent().getState());
+		assertEquals(JobState.READY, child2.lastStateEvent().getState());		
 				
 		test2.hardReset();
 		
-		assertEquals(JobState.READY, child2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test2.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, child2.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test2.lastStateEvent().getState());		
 	}
 	
 	
@@ -341,8 +342,9 @@ public class StructuralJobTest extends TestCase {
 		final SimpleStructural test = new SimpleStructural();
 		
 		StateSteps state = new StateSteps(test);
-		state.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE, JobState.READY);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE, 
+				ParentState.READY);
 		
 		test.setChild(component);
 		
@@ -389,8 +391,9 @@ public class StructuralJobTest extends TestCase {
 		test.setArooaContext(structuralContext);
 		
 		StateSteps state = new StateSteps(test);
-		state.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE, JobState.DESTROYED);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE, 
+				ParentState.DESTROYED);
 		
 		test.setChild(component);
 		
@@ -439,7 +442,7 @@ public class StructuralJobTest extends TestCase {
 		AnyStructural test = new AnyStructural();
 		
 		StateSteps check = new StateSteps(test);
-		check.startCheck(JobState.READY);
+		check.startCheck(ParentState.READY);
 		test.setChild(component);
 		
 		test.stop();

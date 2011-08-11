@@ -10,7 +10,8 @@ import org.oddjob.MockStateful;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
 import org.oddjob.state.StateCondition;
 
 /**
@@ -48,7 +49,7 @@ public class DependsJobTest extends TestCase {
 		TestJob testJob = new TestJob();
 		testJob.run();
 		testJob.ran = false;
-		assertEquals(JobState.COMPLETE, testJob.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, testJob.lastStateEvent().getState());
 		
 		DependsJob j = new DependsJob();
 		j.setJob(testJob);
@@ -61,12 +62,12 @@ public class DependsJobTest extends TestCase {
 	private void setState(final JobStateHandler handler, 
 			final JobState state) {
 		boolean ran = handler.waitToWhen(new StateCondition() {
-			public boolean test(JobState state) {
+			public boolean test(State state) {
 				return true;
 			}
 		}, new Runnable() {
 			public void run() {
-				handler.setJobState(state);
+				handler.setState(state);
 				handler.fireEvent();
 			}
 		});
@@ -80,11 +81,11 @@ public class DependsJobTest extends TestCase {
 	public void testExecuting() throws InterruptedException {
 		class Executing extends MockStateful {
 			JobStateHandler h = new JobStateHandler(this);
-			public void addJobStateListener(JobStateListener listener) {
-				h.addJobStateListener(listener);
+			public void addStateListener(StateListener listener) {
+				h.addStateListener(listener);
 			}
-			public void removeJobStateListener(JobStateListener listener) {
-				h.removeJobStateListener(listener);
+			public void removeStateListener(StateListener listener) {
+				h.removeStateListener(listener);
 			}
 		}
 		Executing testJob = new Executing();

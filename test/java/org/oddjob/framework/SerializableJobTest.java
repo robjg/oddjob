@@ -58,7 +58,7 @@ public class SerializableJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 		assertEquals(1, session.count);
 		
@@ -66,13 +66,13 @@ public class SerializableJobTest extends TestCase {
 		
 		assertEquals(2, session.count);
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
 		assertEquals(3, session.count);
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 	}
 
@@ -95,7 +95,7 @@ public class SerializableJobTest extends TestCase {
 
 		OurJob copy = Helper.copy(test);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		
 		IconCatcher icon = new IconCatcher();
 		
@@ -146,26 +146,26 @@ public class SerializableJobTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 		OurStopJob copy = Helper.copy(test);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		
 		copy.hardReset();
 		
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, copy.lastStateEvent().getState());
 		
 		copy.run();
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		
 		copy.hardReset();
 		
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, copy.lastStateEvent().getState());
 		
 		copy.run();
 
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 	}	
 }

@@ -27,7 +27,9 @@ import org.oddjob.jobs.SequenceJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateConditions;
 
 /**
  * 
@@ -44,7 +46,7 @@ public class TriggerTest extends TestCase {
 	}
 		
 	private class OurDependant extends SimpleJob {
-		private JobStateListener listenerCheck;
+		private StateListener listenerCheck;
 
 		private JobState state;
 		
@@ -73,24 +75,24 @@ public class TriggerTest extends TestCase {
 		}
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(listenerCheck);
 			assertNotNull(listener);
 			this.listenerCheck = listener;
-			super.addJobStateListener(listener);
+			super.addStateListener(listener);
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(listenerCheck);
 			assertEquals(listenerCheck, listener);
 			listenerCheck = null;
-			super.removeJobStateListener(listener);
+			super.removeStateListener(listener);
 		}
 	}
 	
 	private class OurJob extends SimpleJob {
-		private JobStateListener listenerCheck;
+		private StateListener listenerCheck;
 		
 		int ran;
 		
@@ -115,19 +117,19 @@ public class TriggerTest extends TestCase {
 		}
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(listenerCheck);
 			assertNotNull(listener);
 			this.listenerCheck = listener;
-			super.addJobStateListener(listener);
+			super.addStateListener(listener);
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(listenerCheck);
 			assertEquals(listenerCheck, listener);
 			listenerCheck = null;
-			super.removeJobStateListener(listener);
+			super.removeStateListener(listener);
 		}
 	}
 	
@@ -145,13 +147,13 @@ public class TriggerTest extends TestCase {
 		test.setExecutorService(services.getPoolExecutor());
 		
 		StateSteps testState = new StateSteps(test);
-		testState.startCheck(JobState.READY, JobState.EXECUTING);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 		
 		test.run();
 		
 		testState.checkNow();
 		
-		testState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		logger.info("Running dependant.");
 		
@@ -161,13 +163,14 @@ public class TriggerTest extends TestCase {
 				
 		assertEquals(1, job.ran);
 		
-		testState.startCheck(JobState.COMPLETE, JobState.READY);
+		testState.startCheck(ParentState.COMPLETE, ParentState.READY);
 		
 		job.hardReset();
 		
 		testState.checkNow();
 
-		testState.startCheck(JobState.READY, JobState.EXECUTING);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
 		
 		// trigger won't fire because event is the same.
 		test.run();
@@ -176,9 +179,9 @@ public class TriggerTest extends TestCase {
 		
 		testState.checkNow();
 		
-		testState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
-		if (new Date().equals(dependant.lastJobStateEvent().getTime())) {
+		if (new Date().equals(dependant.lastStateEvent().getTime())) {
 			logger.info("Sleeping for a millisecond.");
 			Thread.sleep(1);
 		}
@@ -213,13 +216,14 @@ public class TriggerTest extends TestCase {
 		
 		StateSteps testState = new StateSteps(test);
 		
-		testState.startCheck(JobState.READY, JobState.EXECUTING);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
 		
 		test.run();
 
 		testState.checkNow();
 		
-		testState.startCheck(JobState.EXECUTING, JobState.EXCEPTION);
+		testState.startCheck(ParentState.ACTIVE, ParentState.EXCEPTION);
 		
 		depends.run();
 						
@@ -230,8 +234,8 @@ public class TriggerTest extends TestCase {
 		depends.hardReset();
 		test.hardReset();
 		
-		testState.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.INCOMPLETE);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		
 		test.run();
 		
@@ -258,15 +262,16 @@ public class TriggerTest extends TestCase {
 		
 		StateSteps testState = new StateSteps(test);
 		
-		testState.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		test.run();
 		depends.run();
 						
 		testState.checkWait();
 		
-		testState.startCheck(JobState.COMPLETE, JobState.READY, JobState.DESTROYED);
+		testState.startCheck(ParentState.COMPLETE, ParentState.READY, 
+				ParentState.DESTROYED);
 		
 		test.setJob(null);
 		
@@ -297,11 +302,11 @@ public class TriggerTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
 		
 		test.stop();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	private class OurOddjobServices extends MockScheduledExecutorService {
@@ -353,12 +358,12 @@ public class TriggerTest extends TestCase {
 		
 		on.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals(test, session.saved);
 		
 		Trigger copy = (Trigger) Helper.copy(test);		
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		
 		copy.setExecutorService(new OurOddjobServices());
 		copy.setOn(on);
@@ -366,22 +371,22 @@ public class TriggerTest extends TestCase {
 
 		copy.hardReset();
 		
-		if (new Date().equals(copy.lastJobStateEvent().getTime())) {
+		if (new Date().equals(copy.lastStateEvent().getTime())) {
 			logger.info("Sleeping for a millisecond.");
 			Thread.sleep(1);
 		}
 		
 		copy.run();
 		
-		assertEquals(JobState.EXECUTING, copy.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, sample.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, copy.lastStateEvent().getState());
+		assertEquals(JobState.READY, sample.lastStateEvent().getState());
 		
 		on.hardReset();
 		
 		on.run();
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, sample.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
 	}
 
 	public void testReset() throws Exception {
@@ -397,7 +402,7 @@ public class TriggerTest extends TestCase {
 		test.setExecutorService(new OurOddjobServices());
 		test.setOn(on);
 		test.setJob(sequence);
-		test.setState(JobState.INCOMPLETE);
+		test.setState(StateConditions.INCOMPLETE);
 		
 		test.run();
 		
@@ -407,24 +412,24 @@ public class TriggerTest extends TestCase {
 		
 		assertEquals(new Integer(1), sequence.getCurrent());
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		if (System.currentTimeMillis() == test.lastJobStateEvent().getTime().getTime()) {
+		if (System.currentTimeMillis() == test.lastStateEvent().getTime().getTime()) {
 			Thread.sleep(1);
 		}
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		on.hardReset();
 		on.run();
 		
 		assertEquals(new Integer(2), sequence.getCurrent());
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 
 	public void testNoChild() throws Exception {
@@ -436,19 +441,19 @@ public class TriggerTest extends TestCase {
 		
 		test.setExecutorService(new OurOddjobServices());
 		test.setOn(on);
-		test.setState(JobState.INCOMPLETE);
+		test.setState(StateConditions.INCOMPLETE);
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		on.run();
 				
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.destroy();
 	}
@@ -486,17 +491,17 @@ public class TriggerTest extends TestCase {
 		oddjob.setOddjobExecutors(services);
 		oddjob.run();
 		
-		assertEquals(JobState.EXECUTING, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		Runnable runnable = (Runnable) new OddjobLookup(oddjob).lookup("thing1");
 		runnable.run();
 		
 		WaitJob wj = new WaitJob();
 		wj.setFor(new OddjobLookup(oddjob).lookup("trigger"));
-		wj.setState("complete");
+		wj.setState(StateConditions.COMPLETE);
 		wj.run();
 
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		services.stop();
 		
@@ -533,7 +538,7 @@ public class TriggerTest extends TestCase {
 		oddjob.setOddjobExecutors(services);
 		oddjob.run();
 		
-		assertEquals(JobState.EXECUTING, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		Object on = new OddjobLookup(oddjob).lookup("thing1");
 		
@@ -547,7 +552,7 @@ public class TriggerTest extends TestCase {
 			throw e;
 		}
 		
-		assertEquals(JobState.EXCEPTION, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oddjob.lastStateEvent().getState());
 		
 		services.stop();
 		

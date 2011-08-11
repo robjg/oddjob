@@ -1,13 +1,15 @@
 package org.oddjob.jobs.structural;
 
+import junit.framework.TestCase;
+
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 
 public class SequentialJobInOddjobTest extends TestCase {
 
@@ -45,19 +47,19 @@ public class SequentialJobInOddjobTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ServiceState.STARTED, 
 				Helper.getJobState(lookup.lookup("1")));
 		assertEquals(JobState.EXCEPTION, 
 				Helper.getJobState(lookup.lookup("2")));
 		assertEquals(JobState.READY, 
 				Helper.getJobState(lookup.lookup("3")));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				Helper.getJobState(lookup.lookup("test")));
 
 		oddjob.stop();
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				Helper.getJobState(lookup.lookup("test")));
 		
 		oddjob.destroy();

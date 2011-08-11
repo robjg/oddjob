@@ -14,6 +14,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class JMXExamplesTest extends TestCase {
 
@@ -52,8 +53,8 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(JobState.EXECUTING, 
-				serverOddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, 
+				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);
 		
@@ -69,8 +70,8 @@ public class JMXExamplesTest extends TestCase {
 		
 		clientOddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				clientOddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				clientOddjob.lastStateEvent().getState());
 		
 		steps.checkWait();
 		
@@ -91,8 +92,8 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(JobState.EXECUTING, 
-				serverOddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, 
+				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);
 		
@@ -110,15 +111,15 @@ public class JMXExamplesTest extends TestCase {
 		Stateful localJob = clientLookup.lookup("local-job", 
 				Stateful.class);
 		
-		assertEquals(JobState.EXECUTING, 
-				clientOddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, 
+				clientOddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.READY, 
-				localJob.lastJobStateEvent().getJobState());
+				localJob.lastStateEvent().getState());
 		
 		StateSteps state = new StateSteps(clientOddjob);
 		
-		state.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		serverJob.run();
 		

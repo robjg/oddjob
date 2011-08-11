@@ -23,8 +23,10 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.URLClassLoaderType;
@@ -51,11 +53,11 @@ public class OddjobLoadTest extends TestCase {
 			}
 		}
 
-		class MySL implements JobStateListener {
-			List<JobState> states = new ArrayList<JobState>();
+		class MySL implements StateListener {
+			List<State> states = new ArrayList<State>();
 			
-			public void jobStateChange(JobStateEvent event) {
-				states.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				states.add(event.getState());
 			}
 		}
 		
@@ -79,7 +81,7 @@ public class OddjobLoadTest extends TestCase {
 		Stateful flag = (Stateful) new OddjobLookup(oj).lookup("flag");
 		
 		MySL stateListener = new MySL();
-		flag.addJobStateListener(stateListener);
+		flag.addStateListener(stateListener);
 		
 		assertEquals(1, stateListener.states.size());
 		assertEquals(JobState.READY, stateListener.states.get(0));
@@ -142,27 +144,27 @@ public class OddjobLoadTest extends TestCase {
 		oj.load();
 		
 		assertEquals(1, l.count);
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 		
 		oj.softReset();
 		
 		assertEquals(1, l.count);
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 		
 		oj.load();
 		
 		assertEquals(1, l.count);		
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 		
 		oj.softReset();
 		
 		assertEquals(1, l.count);
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 	
 		oj.load();
 		
 		assertEquals(1, l.count);		
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 		
 		oj.destroy();
 	}
@@ -186,7 +188,7 @@ public class OddjobLoadTest extends TestCase {
 				
 		oj.run();
 		
-		assertEquals(JobState.EXCEPTION, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 		
 		String xml2 =
 			"<oddjob xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
@@ -198,15 +200,15 @@ public class OddjobLoadTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("XML", xml2));
 		oj.load();
 		
-		assertEquals(JobState.EXCEPTION, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 
 		oj.softReset();
 		
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());
 		
 		oj.run();
 
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());		
 		
 		oj.destroy();
 	}
@@ -227,13 +229,13 @@ public class OddjobLoadTest extends TestCase {
         
         assertEquals(Oddjob.OddjobRoot.class, root.getClass());
         
-        assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, test.lastStateEvent().getState());
         
         test.hardReset();
         
         test.load();
         
-        assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, test.lastStateEvent().getState());
         
         test.destroy();
     }
@@ -250,7 +252,7 @@ public class OddjobLoadTest extends TestCase {
     	
     	test.load();
     	
-    	assertEquals(JobState.READY, Helper.getJobState(test));
+    	assertEquals(ParentState.READY, Helper.getJobState(test));
     	
     	assertTrue(file.exists());
     	
@@ -286,21 +288,21 @@ public class OddjobLoadTest extends TestCase {
         
         oj.load();
 
-        assertEquals(JobState.READY, 
-        		oj.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, 
+        		oj.lastStateEvent().getState());
         
         Oddjob test = (Oddjob) new OddjobLookup(oj).lookup("nested");
         assertNotNull("Nested oddjob", test);
         
-        assertEquals(JobState.READY, 
-        		test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, 
+        		test.lastStateEvent().getState());
         
         test.hardReset();
         
         test.load();
         
-        assertEquals(JobState.READY, 
-        		test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, 
+        		test.lastStateEvent().getState());
         
         oj.destroy();
     }
@@ -617,13 +619,13 @@ public class OddjobLoadTest extends TestCase {
     	
         assertFalse(test.isLoadable());
 
-    	assertEquals(JobState.READY, 
-    			test.lastJobStateEvent().getJobState());
+    	assertEquals(ParentState.READY, 
+    			test.lastStateEvent().getState());
     	
     	test.destroy();
     	
-    	assertEquals(JobState.DESTROYED, 
-    			test.lastJobStateEvent().getJobState());
+    	assertEquals(ParentState.DESTROYED, 
+    			test.lastStateEvent().getState());
     }
 }
 

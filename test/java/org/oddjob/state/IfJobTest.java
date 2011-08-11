@@ -34,11 +34,11 @@ public class IfJobTest extends TestCase {
 		test.setJobs(0, child);
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
 	public void testIfOnlyJobNotComplete() {
@@ -50,11 +50,11 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
 	public void testIfOnlyJobException() {
@@ -66,11 +66,11 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
 	class OurJob extends SimpleJob {
@@ -107,25 +107,25 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, then.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		IfJob copy = (IfJob) Helper.copy(test);
 		copy.setJobs(0, depends);
 		copy.setJobs(1, then);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		
 		copy.hardReset();
 		copy.run();
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		
 		assertEquals(2, then.count);
 		
 		then.hardReset();
 		
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 
 	}
 	
@@ -137,13 +137,13 @@ public class IfJobTest extends TestCase {
 		FlagState then = new FlagState();
 		then.setState(JobState.INCOMPLETE);
 		
-		IfJob j = new IfJob();
-		j.setJobs(0, depends);
-		j.setJobs(1, then);
+		IfJob test = new IfJob();
+		test.setJobs(0, depends);
+		test.setJobs(1, then);
 		
-		j.run();
+		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, j.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 
 	public void testThen3() {
@@ -159,22 +159,22 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());
 		
 		then.softReset();
 	
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, depends.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, depends.lastStateEvent().getState());
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
 
 		depends.hardReset();
 		
-		assertEquals(JobState.READY, depends.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, depends.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 
 	public void testNotThen() {
@@ -186,15 +186,15 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setNot(true);
+		test.setState(new IsNot(StateConditions.COMPLETE));
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, depends.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, depends.lastStateEvent().getState());
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testNotThen2() {
@@ -206,15 +206,15 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.INCOMPLETE);
+		test.setState(StateConditions.INCOMPLETE);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, depends.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, depends.lastStateEvent().getState());
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testElse1() {
@@ -236,7 +236,7 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
@@ -244,14 +244,14 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		assertEquals(2, elze.count);
 		
 		test.softReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, elze.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(JobState.READY, elze.lastStateEvent().getState());
 	}
 	
 	public void testElse2() {
@@ -272,7 +272,7 @@ public class IfJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 
 	public void testElse3() {
@@ -287,14 +287,14 @@ public class IfJobTest extends TestCase {
 		elze.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.INCOMPLETE);
+		test.setState(StateConditions.INCOMPLETE);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		test.setJobs(2, elze);
 		
 		test.run();
 		
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());
 	}
 	
 	// only an else job but the child completes.
@@ -307,13 +307,13 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.INCOMPLETE);
+		test.setState(StateConditions.INCOMPLETE);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testException1() {
@@ -325,21 +325,20 @@ public class IfJobTest extends TestCase {
 		then.setDesired(JobState.COMPLETE);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.EXCEPTION);		
+		test.setState(StateConditions.EXCEPTION);		
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		assertEquals(2, then.count);
-		
 	}
 	
 	public void testException2() {
@@ -351,14 +350,14 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.INCOMPLETE);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.EXCEPTION);
+		test.setState(StateConditions.EXCEPTION);
 		
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testException3() {
@@ -370,13 +369,13 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.EXCEPTION);
+		test.setState(StateConditions.EXCEPTION);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());
 	}
 	
 	public void testNotException() {
@@ -388,13 +387,13 @@ public class IfJobTest extends TestCase {
 		then.setState(JobState.EXCEPTION);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.EXCEPTION);
+		test.setState(StateConditions.EXCEPTION);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testNotExceptionWithElse() {
@@ -409,29 +408,29 @@ public class IfJobTest extends TestCase {
 		elze.setState(JobState.COMPLETE);
 		
 		IfJob test = new IfJob();
-		test.setState(JobState.EXCEPTION);
+		test.setState(StateConditions.EXCEPTION);
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		test.setJobs(2, elze);
 		
 		test.run();
 		
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, elze.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, elze.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testInOddjob() {
 		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("Resource",
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("Resource",
 				IfJobTest.class.getResourceAsStream("if.xml")));
 
-		oj.run();
+		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		oj.destroy();
+		oddjob.destroy();
 	}
 	
 	
@@ -445,11 +444,11 @@ public class IfJobTest extends TestCase {
 		IfJob test = new IfJob();
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
-		test.setNot(true);
+		test.setState(new IsNot(StateConditions.COMPLETE));
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.COMPLETE, then.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 
 	public void testNotNotComplete() throws IOException, ClassNotFoundException {
@@ -465,9 +464,10 @@ public class IfJobTest extends TestCase {
 		IfJob test = new IfJob();
 		
 		StateSteps testState = new StateSteps(test);
-		testState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
-		test.setNot(true);
+		test.setState(new IsNot(StateConditions.COMPLETE));
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
 		
@@ -488,12 +488,11 @@ public class IfJobTest extends TestCase {
 		IfJob test = new IfJob();
 		test.setJobs(0, depends);
 		test.setJobs(1, then);
-		test.setNot(true);
-		test.setState(JobState.INCOMPLETE);
+		test.setState(new IsNot(StateConditions.INCOMPLETE));
 		test.run();
 		
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testReset() {
@@ -511,9 +510,8 @@ public class IfJobTest extends TestCase {
 
 		test.hardReset();
 		
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());		
-		
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 	
 	public void testStop() throws IOException, ClassNotFoundException, FailedToStopException, InterruptedException {
@@ -538,8 +536,7 @@ public class IfJobTest extends TestCase {
 		
 		t.join();
 		
-		assertEquals(JobState.READY, then.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		
+		assertEquals(JobState.READY, then.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 }

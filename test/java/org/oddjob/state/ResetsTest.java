@@ -19,13 +19,11 @@ public class ResetsTest extends TestCase {
 		
 		test.hardReset();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 
 		test.softReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 
 	}
 	
@@ -43,14 +41,10 @@ public class ResetsTest extends TestCase {
 		
 		test.softReset();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-
-	}
-	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+	}	
 }

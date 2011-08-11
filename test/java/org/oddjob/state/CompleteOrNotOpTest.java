@@ -9,28 +9,28 @@ public class CompleteOrNotOpTest extends TestCase {
 		
 		CompleteOrNotOp test = new CompleteOrNotOp();
 		
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate());
 		
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(JobState.COMPLETE));
 		
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(JobState.COMPLETE, JobState.COMPLETE, JobState.COMPLETE));
 		
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.COMPLETE, JobState.INCOMPLETE, JobState.COMPLETE));
 		
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(JobState.READY));
 
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING));
 		
 		try {
 			test.evaluate(JobState.DESTROYED);
 			fail("Should fail.");
-		} catch (IllegalArgumentException e) {
+		} catch (IllegalStateException e) {
 			// expected.
 		}
 	}

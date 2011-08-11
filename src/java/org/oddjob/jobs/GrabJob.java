@@ -12,26 +12,32 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
-import org.oddjob.state.AbstractJobStateListener;
 import org.oddjob.state.IsAnyState;
+import org.oddjob.state.IsDone;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateConverter;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateListener;
 import org.oddjob.state.OrderedStateChanger;
+import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -54,6 +60,12 @@ implements
 		Stoppable, Resetable, Stateful, Structural {
 	private static final long serialVersionUID = 2010031800L;
 
+	private transient JobStateHandler stateHandler;
+	
+	private transient JobStateChanger stateChanger;
+	
+	protected transient volatile boolean stop;
+	
 	/**
 	 * Actions on loosing.
 	 */
@@ -125,9 +137,26 @@ implements
 	}
 	
 	private void completeConstruction() {
+		stateHandler = new JobStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
+		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+			@Override
+			public void persist() throws ComponentPersistException {
+				save();
+			}
+		});
 	}
 
+	@Override
+	protected JobStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<JobState> getStateChanger() {
+		return stateChanger;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
@@ -141,7 +170,7 @@ implements
 					if (listener != null) {
 						listener.stop();
 					}
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(JobState.EXECUTING);
 				}					
 			})) {
 				return;
@@ -159,7 +188,7 @@ implements
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobStateException(e);
+						getStateChanger().setStateException(e);
 					}
 				});
 			}	
@@ -205,14 +234,14 @@ implements
 			case COMPLETE:
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobState(JobState.COMPLETE);
+						getStateChanger().setState(JobState.COMPLETE);
 					}
 				});
 				break;
 			case INCOMPLETE:
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobState(JobState.INCOMPLETE);
+						getStateChanger().setState(JobState.INCOMPLETE);
 					}
 				});
 				break;
@@ -228,28 +257,26 @@ implements
 	/**
 	 * Watch the keeper.
 	 */
-	class StandBackAndWatch implements JobStateListener, GrabListener {
+	class StandBackAndWatch implements StateListener, GrabListener {
 
 		private final LoosingOutcome outcome;
 				
 		StandBackAndWatch(LoosingOutcome outcome) {
 			this.outcome = outcome;
-			outcome.addJobStateListener(this);
+			outcome.addStateListener(this);
 		}
 
 		@Override
-		public void jobStateChange(JobStateEvent event) {
-			final JobState state = event.getJobState();
-			
-			switch (state) {
-			case COMPLETE:
-			case INCOMPLETE:
-			case EXCEPTION:
-				outcome.removeJobStateListener(this);
+		public void jobStateChange(StateEvent event) {
+			final State state = event.getState();
+
+			if (new IsDone().test(state)) {
+				outcome.removeStateListener(this);
 				listener = null;			
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobState(state);
+						getStateChanger().setState(
+								new JobStateConverter().toJobState(state));
 					}
 				});
 			}
@@ -259,14 +286,14 @@ implements
 			stopListening();
 			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
-					getStateChanger().setJobState(JobState.INCOMPLETE);
+					getStateChanger().setState(JobState.INCOMPLETE);
 				}
 			});
 		}
 		
 		@Override
 		public void stopListening() {
-			outcome.removeJobStateListener(this);
+			outcome.removeStateListener(this);
 			listener = null;
 		}
 	}
@@ -282,11 +309,11 @@ implements
 	 * Watch the child.
 	 *
 	 */
-	class ChildWatcher extends AbstractJobStateListener
-	implements GrabListener {
+	class ChildWatcher
+	implements GrabListener, StateListener {
 
-		private final StateChanger stateChanger = 
-			new OrderedStateChanger(getStateChanger(), stateHandler);
+		private final StateChanger<JobState> stateChanger = 
+			new OrderedStateChanger<JobState>(getStateChanger(), stateHandler);
 		
 		private final Stateful child; 
 		
@@ -295,40 +322,39 @@ implements
 		ChildWatcher(Stateful child, WinningOutcome outcome) {
 			this.child = child;
 			this.outcome = outcome;
-			child.addJobStateListener(this);
+			child.addStateListener(this);
 		}
 
 		@Override
-		protected void jobStateReady(Stateful source, Date time) {
-			stateChanger.setJobState(JobState.READY, time);
-			checkStop();
-		}
-		
-		@Override
-		protected void jobStateExecuting(Stateful source, Date time) {
-			stateChanger.setJobState(JobState.EXECUTING, time);
-		}
-		
-		@Override
-		protected void jobStateComplete(Stateful source, Date time) {
-			stateChanger.setJobState(JobState.COMPLETE, time);
-			outcome.complete();
-			checkStop();
-		}
-		
-		@Override
-		protected void jobStateNotComplete(Stateful source, Date time) {
-			stateChanger.setJobState(JobState.INCOMPLETE, time);
-			checkStop();
+		public void jobStateChange(StateEvent event) {
+			State state = event.getState();
+			Date time = event.getTime();
+			
+			if (state.isReady()) {
+				stateChanger.setState(JobState.READY, time);
+				checkStop();
+			}
+			else if (state.isStoppable()) {
+				stateChanger.setState(JobState.EXECUTING, time);
+			}
+			else if (state.isComplete()) {
+				stateChanger.setState(JobState.COMPLETE, time);
+				outcome.complete();
+				checkStop();
+			}
+			else if (state.isIncomplete()) {
+				stateChanger.setState(JobState.INCOMPLETE, time);
+				checkStop();
+			}
+			else if (state.isException()) {
+				stateChanger.setStateException(event.getException(), time);
+				checkStop();
+			}
+			else {
+				throw new IllegalStateException("Don't know what to do with " + state);
+			}
 		}
 	
-		@Override
-		protected void jobStateException(Stateful source, Date time,
-				Throwable throwable) {
-			stateChanger.setJobStateException(throwable, time);
-			checkStop();
-		}
-		
 		private void checkStop() {
 			if (stop) {
 				stopListening();
@@ -337,7 +363,7 @@ implements
 
 		@Override
 		public void stopListening() {
-			child.removeJobStateListener(this);
+			child.removeStateListener(this);
 			listener = null;
 		}
 		
@@ -354,7 +380,7 @@ implements
 
 		logger().debug("[" + this + "] Thread [" + 
 				Thread.currentThread().getName() + "] requested  stop, " +
-						"state is [" + lastJobStateEvent().getJobState() + "]");
+						"state is [" + lastStateEvent().getState() + "]");
 		
 		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 			public void run() {
@@ -401,7 +427,8 @@ implements
 				
 				childHelper.softResetChildren();
 				reset();
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
+				stop = false;
 				
 				logger().info("[" + GrabJob.this + "] Soft Reset.");
 			}
@@ -423,7 +450,8 @@ implements
 				
 				childHelper.hardResetChildren();
 				reset();
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
+				stop = false;
 				
 				logger().info("[" + GrabJob.this + "] Hard Reset.");
 			}
@@ -520,7 +548,7 @@ implements
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -529,13 +557,32 @@ implements
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		setName((String) s.readObject());
+
+		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+		StateEvent savedEvent = (StateEvent) s.readObject();
+		
+		completeConstruction();
+		
+		setName(name);
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getJobState()));
-		completeConstruction();
+				StateIcons.iconFor(stateHandler.getState()));
 	}
 
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + GrabJob.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + GrabJob.this + "] destroyed.");				
+	}
 }

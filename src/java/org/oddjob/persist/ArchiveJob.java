@@ -19,13 +19,18 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsAnyState;
+import org.oddjob.state.IsDone;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateConverter;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -48,6 +53,10 @@ public class ArchiveJob extends BasePrimary
 implements 
 	Runnable, Serializable, 
 	Stoppable, Resetable, Stateful, Structural {
+
+	private transient JobStateHandler stateHandler;
+	
+	private transient JobStateChanger stateChanger;
 	
 	private static final long serialVersionUID = 2010032500L;
 	
@@ -78,7 +87,9 @@ implements
 	private transient OddjobPersister archiver;
 	
 	
-	private volatile transient JobStateListener listener;
+	private volatile transient StateListener listener;
+	
+	protected transient volatile boolean stop;
 	
 	/**
 	 * Constructor.
@@ -88,7 +99,24 @@ implements
 	}
 	
 	private void completeConstruction() {
+		stateHandler = new JobStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
+		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
+	}
+
+	@Override
+	protected JobStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<JobState> getStateChanger() {
+		return stateChanger;
 	}
 	
 	/**
@@ -100,7 +128,7 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(JobState.EXECUTING);
 				}					
 			})) {
 				return;
@@ -118,7 +146,7 @@ implements
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobStateException(e);
+						getStateChanger().setStateException(e);
 					}
 				});
 			}	
@@ -169,59 +197,56 @@ implements
 			throw new IllegalArgumentException("Child must be stateful to be archived.");
 		}
 		
-		listener = new JobStateListener() {
+		listener = new StateListener() {
 
 			@Override
-			public void jobStateChange(final JobStateEvent event) {
+			public void jobStateChange(final StateEvent event) {
 				
 				if (stop) {
 					if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 						public void run() {
-							if (event.getJobState() == JobState.EXCEPTION) {
-								getStateChanger().setJobStateException(
+							if (event.getState().isException()) {
+								getStateChanger().setStateException(
 										event.getException());
 							}
 							else {
-								getStateChanger().setJobState(
-										event.getJobState());
+								getStateChanger().setState(new JobStateConverter().toJobState(
+										event.getState()));
 							}
 						}
 					})) {
 						logger().info("[" + ArchiveJob.this + 
 								"] Stopping and reflecting child state [" +
-								event.getJobState() + "].");
+								event.getState() + "].");
 					}
 					// don't persist when stopping.
 					return;
 				}
 				
-				switch (event.getJobState()) {
-				
-				case COMPLETE:
-				case INCOMPLETE:
-				case EXCEPTION:
+				if (new IsDone().test(event.getState())) {
+					
 					if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 						public void run() {
 							logger().info("[" + ArchiveJob.this + 
 									"] Archiving [" + event.getSource() + 
 									"] as [" + archiveIdentifier + 
-									"] because " + event.getJobState() + ".");
+									"] because " + event.getState() + ".");
 							
 							try {
 								persist(event.getSource());
 								
-								if (event.getJobState() == JobState.EXCEPTION) {
-									getStateChanger().setJobStateException(
+								if (event.getState().isException()) {
+									getStateChanger().setStateException(
 											event.getException());
 								}
 								else {
-									getStateChanger().setJobState(
-											event.getJobState());
+									getStateChanger().setState(new JobStateConverter().toJobState(
+											event.getState()));
 								}
 							}
 							catch (ComponentPersistException e) {
 								logger().error("Failed to persist.", e);
-								getStateChanger().setJobStateException(e);
+								getStateChanger().setStateException(e);
 							}
 							
 						}
@@ -229,10 +254,9 @@ implements
 						logger().info("[" + ArchiveJob.this + 
 								"] Not archiving as no longer executing.");
 					}
-					break;
-				case DESTROYED:
+				}
+				else if (event.getState().isDestroyed()) {
 					stopListening(event.getSource());
-					
 				}
 			}
 			
@@ -252,13 +276,13 @@ implements
 			}
 			
 			private void stopListening(Stateful source) {
-				source.removeJobStateListener(this);
+				source.removeStateListener(this);
 				listener = null;
 				logger().debug("Listener removed.");				
 			}
 		};
 		
-		((Stateful) child).addJobStateListener(listener);
+		((Stateful) child).addStateListener(listener);
 		
 		child.run();
 	}
@@ -316,7 +340,7 @@ implements
 				stopListening();
 				childHelper.softResetChildren();
 				stop = false;
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
 				
 				logger().info("[" + ArchiveJob.this + "] Soft Reset.");
 			}
@@ -335,7 +359,7 @@ implements
 				stopListening();
 				childHelper.hardResetChildren();
 				stop = false;
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
 				
 				logger().info("[" + ArchiveJob.this + "] Hard Reset.");
 			}
@@ -344,12 +368,12 @@ implements
 
 	private void stopListening() {
 		
-		JobStateListener listener = this.listener;
+		StateListener listener = this.listener;
 		this.listener = null;
 		
 		if (listener != null) {
 			Stateful child = (Stateful) childHelper.getChild();
-			child.removeJobStateListener(listener);
+			child.removeStateListener(listener);
 			logger().debug("Archiving Listener removed from child");
 		}		
 	}
@@ -429,7 +453,7 @@ implements
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -438,12 +462,31 @@ implements
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		setName((String) s.readObject());
+		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+		StateEvent savedEvent = (StateEvent) s.readObject();
+		
+		completeConstruction();
+		
+		setName(name);
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getJobState()));
-		completeConstruction();
+				StateIcons.iconFor(stateHandler.getState()));
+	}
+	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + ArchiveJob.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + ArchiveJob.this + "] destroyed.");				
 	}
 }

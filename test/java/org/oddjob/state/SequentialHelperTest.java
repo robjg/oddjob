@@ -10,22 +10,22 @@ public class SequentialHelperTest extends TestCase {
 		
 		private final JobState jobState;
 		
-		JobStateListener listener;
+		StateListener listener;
 		
 		public OurStateful(JobState jobState) {
 			this.jobState = jobState;
 		}
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(this.listener);
 			assertNotNull(listener);
 			this.listener = listener;
-			listener.jobStateChange(new JobStateEvent(this, jobState));
+			listener.jobStateChange(new StateEvent(this, jobState));
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(listener);
 			assertEquals(this.listener, listener);
 			this.listener = null;

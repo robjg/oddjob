@@ -3,21 +3,21 @@ package org.oddjob.state;
 import java.util.Date;
 
 
-public class MockStateChanger implements StateChanger {
+public class MockStateChanger implements StateChanger<ParentState> {
 
-	public void setJobState(JobState state) {
+	public void setState(ParentState state) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
-	public void setJobState(JobState state, Date date) {
+	public void setState(ParentState state, Date date) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
-	public void setJobStateException(Throwable t) {
+	public void setStateException(Throwable t) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
-	public void setJobStateException(Throwable t, Date date) {
+	public void setStateException(Throwable t, Date date) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 }

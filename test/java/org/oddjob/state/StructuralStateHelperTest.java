@@ -15,11 +15,11 @@ import org.oddjob.structural.StructuralListener;
  */
 public class StructuralStateHelperTest extends TestCase {
 	
-	JobState state;
+	State state;
 
-	class OurStateListener implements JobStateListener {
-		public void jobStateChange(JobStateEvent event) {
-			state = event.getJobState();
+	class OurStateListener implements StateListener {
+		public void jobStateChange(StateEvent event) {
+			state = event.getState();
 		}		
 	}
 	
@@ -49,9 +49,9 @@ public class StructuralStateHelperTest extends TestCase {
 		StructuralStateHelper test = new StructuralStateHelper(
 				childHelper, new WorstStateOp());
 		
-		test.addJobStateListener(new OurStateListener());
+		test.addStateListener(new OurStateListener());
 		
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 		
 		childHelper.insertChild(0, j1);
 		childHelper.insertChild(1, j2);
@@ -59,34 +59,34 @@ public class StructuralStateHelperTest extends TestCase {
 		childHelper.insertChild(3, j4);
 		childHelper.insertChild(4, j5);
 		
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 		
 		j1.run();
 
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 		
 		// j3 wrapper
 		((Runnable) childHelper.getChildAt(2)).run();
 
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 		
 		// j4 wrapper
 		((Runnable) childHelper.getChildAt(3)).run();
 		
-		assertEquals(JobState.EXCEPTION, state);
+		assertEquals(ParentState.EXCEPTION, state);
 		
 		childHelper.removeChildAt(3);
 		
 		j5.run();
 
-		assertEquals(JobState.INCOMPLETE, state);
+		assertEquals(ParentState.INCOMPLETE, state);
 		
 		childHelper.removeChildAt(3);
 
 		j1.hardReset();
 		j1.run();
 		
-		assertEquals(JobState.COMPLETE, state);
+		assertEquals(ParentState.COMPLETE, state);
 		
 		childHelper.removeChildAt(2);
 		childHelper.insertChild(2, j5);
@@ -94,11 +94,11 @@ public class StructuralStateHelperTest extends TestCase {
 		j5.hardReset();
 		j5.run();
 		
-		assertEquals(JobState.INCOMPLETE, state);
+		assertEquals(ParentState.INCOMPLETE, state);
 		
 		childHelper.softResetChildren();
 		
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 	}
 
 	// If a job just contains a folder like object
@@ -111,10 +111,10 @@ public class StructuralStateHelperTest extends TestCase {
 		StructuralStateHelper test = new StructuralStateHelper(
 				childHelper, new WorstStateOp());
 		
-		test.addJobStateListener(new OurStateListener());
+		test.addStateListener(new OurStateListener());
 		childHelper.insertChild(0, j1);
 		
-		assertEquals(JobState.COMPLETE, state);
+		assertEquals(ParentState.COMPLETE, state);
 	}
 
 	
@@ -128,16 +128,16 @@ public class StructuralStateHelperTest extends TestCase {
 		StructuralStateHelper test = new StructuralStateHelper(
 				childHelper, new WorstStateOp());
 		
-		test.addJobStateListener(new OurStateListener());
+		test.addStateListener(new OurStateListener());
 
 		childHelper.insertChild(0, j1);
 		childHelper.insertChild(1, j2);		
 		
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 		
 		((Runnable) childHelper.getChildAt(1)).run();
 
-		assertEquals(JobState.COMPLETE, state);
+		assertEquals(ParentState.COMPLETE, state);
 	}
 	
 	
@@ -147,21 +147,21 @@ public class StructuralStateHelperTest extends TestCase {
 		StructuralStateHelper h = new StructuralStateHelper(
 				childHelper, new WorstStateOp());
 		
-		h.addJobStateListener(new OurStateListener());
+		h.addStateListener(new OurStateListener());
 		
-		assertEquals(JobState.READY, state);
+		assertEquals(ParentState.READY, state);
 	}
 	
 	private class OurStateful extends MockStateful {
 		
-		JobStateListener listener;
+		StateListener listener;
 		
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(this.listener);
 			this.listener = listener;
 		}
 		
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertEquals(this.listener, listener);
 			this.listener = null;
 		}
@@ -189,7 +189,7 @@ public class StructuralStateHelperTest extends TestCase {
 		assertNotNull(job.listener);
 
 		try {
-			job.listener.jobStateChange(new JobStateEvent(
+			job.listener.jobStateChange(new StateEvent(
 				job, JobState.DESTROYED));
 			fail("Should Fail.");
 		} catch (Exception e) {
@@ -198,6 +198,6 @@ public class StructuralStateHelperTest extends TestCase {
 		
 		childHelper.removeChildAt(1);
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 }

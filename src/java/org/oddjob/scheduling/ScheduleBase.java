@@ -11,21 +11,26 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
 import org.oddjob.state.OrderedStateChanger;
+import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
 import org.oddjob.state.StateOperator;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ParentStateChanger;
+import org.oddjob.state.ParentStateHandler;
 import org.oddjob.state.StructuralStateHelper;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
@@ -43,21 +48,46 @@ implements
 		Resetable, Stateful, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
+	private transient ParentStateHandler stateHandler;
+	
+	private transient ParentStateChanger stateChanger;
+	
 	protected transient ChildHelper<Runnable> childHelper; 
 			
 	protected transient StructuralStateHelper structuralState;
 			
 	protected transient StateExchange childStateReflector;
 		
+	protected transient volatile boolean stop;
+	
 	public ScheduleBase() {
 		completeConstruction();
 	}
 	
 	private void completeConstruction() {
+		stateHandler = new ParentStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
 		structuralState = new StructuralStateHelper(childHelper, getStateOp());
+		
+		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
+		
 		childStateReflector = new StateExchange(structuralState, 
-				new OrderedStateChanger(getStateChanger(), stateHandler));
+				new OrderedStateChanger<ParentState>(stateChanger, stateHandler));
+	}
+
+	@Override
+	protected ParentStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<ParentState> getStateChanger() {
+		return stateChanger;
 	}
 		
 	abstract protected StateOperator getStateOp();
@@ -80,7 +110,7 @@ implements
 				public void run() {
 					childStateReflector.stop();
 					
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(ParentState.EXECUTING);
 					
 				}
 			})) {
@@ -97,13 +127,20 @@ implements
 				iconHelper.changeIcon(IconHelper.SLEEPING);
 				
 				begin();
+				
+				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+					public void run() {
+						stateHandler.setState(ParentState.ACTIVE);
+						stateHandler.fireEvent();
+					}
+				});
 			}
 			catch (final Throwable e) {
 				logger().warn("[" + ScheduleBase.this + "] Job Exception:", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobStateException(e);
+						getStateChanger().setStateException(e);
 					}
 				});
 			}	
@@ -179,7 +216,7 @@ implements
 				onReset();
 				stop = false;
 				
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				
 				logger().info("[" + ScheduleBase.this + "] Soft Reset.");			
 			}
@@ -201,7 +238,7 @@ implements
 				onReset();
 				stop = false;
 				
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 	
 				logger().info("[" + ScheduleBase.this + "] Hard Reset.");			
 			}
@@ -246,7 +283,7 @@ implements
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -255,13 +292,16 @@ implements
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		setName((String) s.readObject());
+		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+		StateEvent savedEvent = (StateEvent) s.readObject();
+		
+		completeConstruction();
+		
+		setName(name);
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getJobState()));
-		completeConstruction();
+				StateIcons.iconFor(stateHandler.getState()));
 	}
 	
 	@Override
@@ -277,4 +317,19 @@ implements
 		childStateReflector.stop();
 	}
 	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(ParentState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + ScheduleBase.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + ScheduleBase.this + "] destroyed.");				
+	}
 }

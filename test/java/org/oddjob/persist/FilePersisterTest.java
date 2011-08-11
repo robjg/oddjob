@@ -27,6 +27,7 @@ import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  *
@@ -177,8 +178,8 @@ public class FilePersisterTest extends TestCase {
 		oddjob1.setProperties(props);
 		oddjob1.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob1.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob1.lastStateEvent().getState());
 		oddjob1.destroy();
 		
 		assertTrue(new File(DIR, "important-jobs/save-me.ser").exists());

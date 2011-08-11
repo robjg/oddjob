@@ -21,25 +21,35 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ArooaContextAware;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
+import org.oddjob.state.IsHardResetable;
+import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ServiceState;
+import org.oddjob.state.ServiceStateChanger;
+import org.oddjob.state.ServiceStateHandler;
 
 /**
  * Wraps a Runnable object and adds state to it. 
  * <p>
  * This is a helper class for parent jobs which depend on their
  * child being Stateful - this pretends an un Stateful Runnable
- * is Statful thus allowing the parent to accept plain Runnables
+ * is Stateful thus allowing the parent to accept plain Runnables
  * as children.
  * 
  * @author Rob Gordon.
  */
 public class ServiceWrapper extends BaseWrapper
 implements InvocationHandler {
+	
+	private final ServiceStateHandler stateHandler;
+	
+	private final ServiceStateChanger stateChanger;
 	
     private Service service;
     
@@ -49,12 +59,27 @@ implements InvocationHandler {
     private transient Map<Method, Object> methods;
     
     private Object proxy;
-    
-    protected ServiceWrapper() { }
-    
+    	
     private ServiceWrapper(Service service) {
-	   setWrapped(service);
+    	setWrapped(service);
+    	stateHandler = new ServiceStateHandler(this);
+    	stateChanger = new ServiceStateChanger(stateHandler, iconHelper, 
+    			new Persistable() {					
+    		@Override
+    		public void persist() throws ComponentPersistException {
+    			save();
+    		}
+    	});
     }
+    
+    @Override
+    protected ServiceStateHandler stateHandler() {
+    	return stateHandler;
+    }
+    
+	protected ServiceStateChanger getStateChanger() {
+		return stateChanger;
+	}
     
     public static Runnable wrapperFor(Service 
     		service, ClassLoader classLoader) {
@@ -145,7 +170,7 @@ implements InvocationHandler {
         try {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
-        			getStateChanger().setJobState(JobState.EXECUTING);
+        			getStateChanger().setState(ServiceState.STARTING);
         		}   
         	})) {
         		return;
@@ -159,12 +184,19 @@ implements InvocationHandler {
         		service.start();
 
     	        logger().info("[" + wrapped + "] Started.");
-    	    } catch (final Throwable t) {
+    	        
+            	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+            		public void run() {
+            			getStateChanger().setState(ServiceState.STARTED);
+            		}   
+            	});
+    	    } 
+        	catch (final Throwable t) {
     	    	logger().error("[" + wrapped + "] Exception:", t);
     			
     	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     	    		public void run() {
-        				getStateChanger().setJobStateException(t);
+        				getStateChanger().setStateException(t);
     	    		}
     	    	});
     	    }
@@ -198,12 +230,55 @@ implements InvocationHandler {
     	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     		public void run() {
                 if (result.get() == 0) {
-                	getStateChanger().setJobState(JobState.COMPLETE);
+                	getStateChanger().setState(ServiceState.COMPLETE);
                 } else {
-                	getStateChanger().setJobState(JobState.INCOMPLETE);
+                	getStateChanger().setState(ServiceState.INCOMPLETE);
                 }
     		}
     	});
 
     }
+    
+	/**
+	 * Perform a soft reset on the job.
+	 */
+	public boolean softReset() {
+		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(ServiceState.READY);
+				
+				logger().info("[" + getWrapped() + "] Soft Reset.");
+			}
+		});
+	}
+	
+	/**
+	 * Perform a hard reset on the job.
+	 */
+	public boolean hardReset() {
+		
+		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(ServiceState.READY);
+
+				logger().info("[" + getWrapped() + "] Hard Reset.");
+			}
+		});
+	}
+	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(ServiceState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + ServiceWrapper.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + ServiceWrapper.this + "] destroyed.");				
+	}
 }

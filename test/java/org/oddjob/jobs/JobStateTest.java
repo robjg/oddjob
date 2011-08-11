@@ -10,8 +10,8 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  *
@@ -22,9 +22,9 @@ public class JobStateTest extends TestCase {
 	JobState jobState;
 	String iconId;
 	
-	JobStateListener stateListener = new JobStateListener() {
-		public void jobStateChange(JobStateEvent event) {
-			JobStateTest.this.jobState = event.getJobState();
+	StateListener stateListener = new StateListener() {
+		public void jobStateChange(StateEvent event) {
+			JobStateTest.this.jobState = (JobState) event.getState();
 		}
 	};
 	
@@ -39,7 +39,7 @@ public class JobStateTest extends TestCase {
 		j.setName("Exception Test");
 		j.setState(JobState.EXCEPTION);
 		
-		j.addJobStateListener(stateListener);
+		j.addStateListener(stateListener);
 		j.addIconListener(iconListener);
 		assertTrue("job state not READY.",
 				jobState == JobState.READY);
@@ -57,7 +57,7 @@ public class JobStateTest extends TestCase {
 		j.setName("Test Not Complete");
 		j.setState(JobState.INCOMPLETE);
 		
-		j.addJobStateListener(stateListener);
+		j.addStateListener(stateListener);
 		j.addIconListener(iconListener);
 		assertTrue("job state not READY.",
 				jobState == JobState.READY);
@@ -74,7 +74,7 @@ public class JobStateTest extends TestCase {
 		j.setName("Test Complete");
 		j.setState(JobState.COMPLETE);
 		
-		j.addJobStateListener(stateListener);
+		j.addStateListener(stateListener);
 		j.addIconListener(iconListener);
 		assertTrue("job state not READY.",
 				jobState == JobState.READY);

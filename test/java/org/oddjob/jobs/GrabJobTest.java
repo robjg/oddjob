@@ -12,9 +12,10 @@ import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class GrabJobTest extends TestCase {
 
@@ -60,28 +61,28 @@ public class GrabJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, flag.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 		assertEquals("me", test.getWinner());
 		assertEquals(true, keeper.complete);
 		
 		GrabJob copy = Helper.copy(test);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals("me", copy.getWinner());
 	}
 	
 	class LooserKeeper implements Keeper {
 	
-		JobStateListener listener;
+		StateListener listener;
 		
 		@Override
 		public Outcome grab(String ourIdentifier, Object ourInstance) {
 			return new LoosingOutcome() {
 				
 				@Override
-				public void removeJobStateListener(JobStateListener l) {
+				public void removeStateListener(StateListener l) {
 					if (listener == null) {
 						throw new IllegalStateException("No Listener.");
 					}
@@ -90,7 +91,7 @@ public class GrabJobTest extends TestCase {
 				}
 				
 				@Override
-				public void addJobStateListener(JobStateListener l) {
+				public void addStateListener(StateListener l) {
 					if (listener != null) {
 						throw new IllegalStateException("Listener already set.");
 					}
@@ -98,7 +99,7 @@ public class GrabJobTest extends TestCase {
 				}
 
 				@Override
-				public JobStateEvent lastJobStateEvent() {
+				public StateEvent lastStateEvent() {
 					throw new RuntimeException("Unexpected.");
 				}
 				
@@ -130,12 +131,12 @@ public class GrabJobTest extends TestCase {
 		test.setOnLoosing(LoosingAction.WAIT);
 		test.run();
 		
-		assertEquals(JobState.READY, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, flag.lastStateEvent().getState());
+		assertEquals(JobState.EXECUTING, test.lastStateEvent().getState());
 		
-		keeper.listener.jobStateChange(new JobStateEvent(flag, JobState.COMPLETE));
+		keeper.listener.jobStateChange(new StateEvent(flag, JobState.COMPLETE));
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals("complete", Helper.getIconId(test));
 		
 		assertEquals("not you", test.getWinner());
@@ -155,12 +156,12 @@ public class GrabJobTest extends TestCase {
 		test.setOnLoosing(LoosingAction.WAIT);
 		test.run();
 		
-		assertEquals(JobState.READY, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, flag.lastStateEvent().getState());
+		assertEquals(JobState.EXECUTING, test.lastStateEvent().getState());
 		
 		test.stop();
 
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
 		assertNull(keeper.listener);
 		
 		assertEquals("not you", test.getWinner());
@@ -183,15 +184,15 @@ public class GrabJobTest extends TestCase {
 		
 		WaitJob checkExecuting = new WaitJob();
 		checkExecuting.setFor(wait);
-		checkExecuting.setState("EXECUTING");
+		checkExecuting.setState(new IsStoppable());
 		checkExecuting.run();
 		
 		test.stop();
 
 		t.join();
 		
-		assertEquals(JobState.COMPLETE, wait.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, wait.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testSerialize() throws IOException, ClassNotFoundException {
@@ -208,28 +209,28 @@ public class GrabJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, flag.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 		GrabJob copy = Helper.copy(test);
 
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals("me", test.getWinner());
 		
 		copy.setJob(flag);
 		
 		copy.hardReset();
 		
-		assertEquals(JobState.READY, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, flag.lastStateEvent().getState());
+		assertEquals(JobState.READY, copy.lastStateEvent().getState());
 		assertNull(copy.getWinner());
 		
 		copy.setKeeper(new WinnerKeeper());
 		
 		copy.run();
 		
-		assertEquals(JobState.COMPLETE, flag.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, flag.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals("me", copy.getWinner());
 	}
 }

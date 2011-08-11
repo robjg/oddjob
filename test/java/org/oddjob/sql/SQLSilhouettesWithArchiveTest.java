@@ -1,5 +1,7 @@
 package org.oddjob.sql;
 
+import junit.framework.TestCase;
+
 import org.apache.log4j.Logger;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
@@ -7,8 +9,8 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
 
 public class SQLSilhouettesWithArchiveTest extends TestCase {
 
@@ -31,7 +33,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.EXECUTING, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -39,7 +41,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		WaitJob wait1 = new WaitJob();
 		wait1.setFor(timer1);
-		wait1.setState("COMPLETE");
+		wait1.setState(StateConditions.COMPLETE);
 		
 		wait1.run();
 		
@@ -47,7 +49,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		WaitJob wait2 = new WaitJob();
 		wait2.setFor(timer2);
-		wait2.setState("COMPLETE");
+		wait2.setState(StateConditions.COMPLETE);
 		
 		wait2.run();
 		
@@ -67,7 +69,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		assertEquals(1, silhouettes1.length);
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(silhouettes1[0]));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(silhouettes1[0]));
 		
 		/////////
 		

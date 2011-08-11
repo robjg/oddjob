@@ -9,7 +9,7 @@ import org.oddjob.Resetable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.state.CompleteOrNotOp;
-import org.oddjob.state.JobState;
+import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
 
 /**
@@ -104,13 +104,13 @@ public class Timer extends TimerBase {
 	}
 	
 	@Override
-	protected void rescheduleOn(JobState state) throws ComponentPersistException {
-	    JobState completeOrNot = new CompleteOrNotOp().evaluate(state);
-	    if (!(completeOrNot == JobState.COMPLETE) && haltOnFailure) {
+	protected void rescheduleOn(State state) throws ComponentPersistException {
+	    State completeOrNot = new CompleteOrNotOp().evaluate(state);
+	    if (!(completeOrNot.isComplete()) && haltOnFailure) {
 	    	setNextDue(null);
 	    }
 	    else {
-	    	if (completeOrNot == JobState.COMPLETE) {
+	    	if (completeOrNot.isComplete()) {
 				lastComplete = getCurrent();			
 	    	}
 	    	

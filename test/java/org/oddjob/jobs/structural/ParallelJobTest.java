@@ -9,6 +9,7 @@ import junit.framework.TestCase;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
@@ -23,9 +24,10 @@ import org.oddjob.scheduling.MockScheduledFuture;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
 import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class ParallelJobTest extends TestCase {
 
@@ -39,6 +41,10 @@ public class ParallelJobTest extends TestCase {
 		
 		ParallelJob test = new ParallelJob();
 		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
+		
 		test.setExecutorService(defaultServices.getPoolExecutor());
 
 		test.setJobs(0, job1);
@@ -47,27 +53,32 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 	
-		assertEquals(JobState.COMPLETE, job3.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
 		
 		test.hardReset();
 		
-		assertEquals(JobState.READY, job1.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, job2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, job3.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, job1.lastStateEvent().getState());
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());
+		assertEquals(JobState.READY, job3.lastStateEvent().getState());
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job3.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		steps.checkNow();
 	
 		defaultServices.stop();
 	}
@@ -83,6 +94,10 @@ public class ParallelJobTest extends TestCase {
 		
 		ParallelJob test = new ParallelJob();
 		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
+		
 		test.setExecutorService(defaultServices.getPoolExecutor());
 
 		test.setJobs(0, job1);
@@ -91,11 +106,11 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 	
-		assertEquals(JobState.COMPLETE, job3.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job2.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		steps.checkNow();		
 	}
 	
 	private class OurJob extends SimpleJob 
@@ -149,7 +164,7 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		test.destroy();
 	}
@@ -159,17 +174,17 @@ public class ParallelJobTest extends TestCase {
 		
 		JobStateHandler handler = new JobStateHandler(this);
 		
-		public void addJobStateListener(JobStateListener listener) {
-			handler.addJobStateListener(listener);
+		public void addStateListener(StateListener listener) {
+			handler.addStateListener(listener);
 		}
-		public void removeJobStateListener(JobStateListener listener) {
-			handler.removeJobStateListener(listener);
+		public void removeStateListener(StateListener listener) {
+			handler.removeStateListener(listener);
 		}
 		
 		public void run() {
 			handler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-					handler.setJobState(JobState.COMPLETE);
+					handler.setState(JobState.COMPLETE);
 					handler.fireEvent();
 				}
 			});
@@ -178,7 +193,7 @@ public class ParallelJobTest extends TestCase {
 		void destroy() {
 			handler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-					handler.setJobState(JobState.DESTROYED);
+					handler.setState(JobState.DESTROYED);
 					handler.fireEvent();
 				}
 			});
@@ -200,20 +215,20 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 		
-		JobStateEvent event = test.lastJobStateEvent();
-		assertEquals(JobState.COMPLETE, event.getJobState());
+		StateEvent event = test.lastStateEvent();
+		assertEquals(ParentState.COMPLETE, event.getState());
 		
 		destroy.destroy();
 		
-		assertEquals(event, test.lastJobStateEvent());
+		assertEquals(event, test.lastStateEvent());
 		
 	}
 	
-	private class RecordingStateListener implements JobStateListener {
+	private class RecordingStateListener implements StateListener {
 		
-		List<JobStateEvent> events = new ArrayList<JobStateEvent>();
+		List<StateEvent> events = new ArrayList<StateEvent>();
 		
-		public void jobStateChange(JobStateEvent event) {
+		public void jobStateChange(StateEvent event) {
 			events.add(event);
 		}
 	}
@@ -229,10 +244,10 @@ public class ParallelJobTest extends TestCase {
 		ParallelJob test = new ParallelJob();
 		
 		RecordingStateListener recorder = new RecordingStateListener();
-		test.addJobStateListener(recorder);
+		test.addStateListener(recorder);
 		
 		assertEquals(1, recorder.events.size());
-		assertEquals(JobState.READY, recorder.events.get(0).getJobState());
+		assertEquals(ParentState.READY, recorder.events.get(0).getState());
 		
 		test.setExecutorService(defaultServices.getPoolExecutor());
 
@@ -243,19 +258,19 @@ public class ParallelJobTest extends TestCase {
 		test.run();
 
 		assertEquals(3, recorder.events.size());
-		assertEquals(JobState.EXECUTING, recorder.events.get(1).getJobState());
-		assertEquals(JobState.COMPLETE, recorder.events.get(2).getJobState());
+		assertEquals(ParentState.EXECUTING, recorder.events.get(1).getState());
+		assertEquals(ParentState.COMPLETE, recorder.events.get(2).getState());
 		
 		test.hardReset();
 		
 		assertEquals(4, recorder.events.size());
-		assertEquals(JobState.READY, recorder.events.get(3).getJobState());
+		assertEquals(ParentState.READY, recorder.events.get(3).getState());
 		
 		test.run();
 		
 		assertEquals(6, recorder.events.size());
-		assertEquals(JobState.EXECUTING, recorder.events.get(4).getJobState());
-		assertEquals(JobState.COMPLETE, recorder.events.get(5).getJobState());
+		assertEquals(ParentState.EXECUTING, recorder.events.get(4).getState());
+		assertEquals(ParentState.COMPLETE, recorder.events.get(5).getState());
 	
 		defaultServices.stop();
 	}
@@ -279,8 +294,8 @@ public class ParallelJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}
@@ -318,10 +333,50 @@ public class ParallelJobTest extends TestCase {
 		
 		oddjob.stop();
 
-		oddjobState.checkWait();
+		oddjobState.checkNow();
 		
 		oddjob.destroy();
 		
+	}
+	
+	public static class MyService {
+		
+		public void start() {}
+		public void stop() {}
+	}
+	
+	public void testParallelServices() throws FailedToStopException {
+		
+		DefaultExecutors defaultServices = new DefaultExecutors();
+		
+		ParallelJob test = new ParallelJob();
+		
+		test.setExecutorService(defaultServices.getPoolExecutor());
+		
+		Object service1 = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		Object service2 = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		
+		test.setJobs(0, (Runnable) service1);
+		test.setJobs(1, (Runnable) service2);
+		
+		StateSteps steps = new StateSteps(test);
+		
+		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
+		
+		test.run();
+		
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		test.stop();
+
+		steps.checkNow();
+		
+		defaultServices.stop();
 	}
 	
 }

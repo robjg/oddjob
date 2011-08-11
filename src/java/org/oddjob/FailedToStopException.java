@@ -7,7 +7,7 @@ public class FailedToStopException extends Exception {
 	
 	public FailedToStopException(Stateful failedToStop) {
 		super("[" + failedToStop + "] failed to stop, state is " +
-				failedToStop.lastJobStateEvent().getJobState() + ".");
+				failedToStop.lastStateEvent().getState() + ".");
 		this.failedToStop = failedToStop;
 	}
 

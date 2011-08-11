@@ -21,7 +21,7 @@ import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ServiceState;
 
 public class ServiceWrapperTest extends TestCase {
 
@@ -99,12 +99,12 @@ public class ServiceWrapperTest extends TestCase {
 
 		assertEquals(wrapper, session.configured);
 		
-		assertEquals(JobState.EXECUTING, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.STARTED, Helper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "started"));
 		
 		((Stoppable) wrapper).stop();
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.COMPLETE, Helper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "stopped"));
 
 		((Resetable) wrapper).hardReset();
@@ -112,7 +112,7 @@ public class ServiceWrapperTest extends TestCase {
 		// Service don't persist.
 		assertNull(session.saved);
 		
-		assertEquals(JobState.READY, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.READY, Helper.getJobState(wrapper));
 	}
 
     public void testInOddjob() throws Exception {
@@ -128,12 +128,12 @@ public class ServiceWrapperTest extends TestCase {
     	oj.run();
     	
     	Object r = new OddjobLookup(oj).lookup("s");
-    	assertEquals(JobState.EXECUTING, Helper.getJobState(r));
+    	assertEquals(ServiceState.STARTED, Helper.getJobState(r));
     	assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "started"));
     	
     	oj.stop();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(r));
+    	assertEquals(ServiceState.COMPLETE, Helper.getJobState(r));
     	assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "stopped"));    	
     }
     

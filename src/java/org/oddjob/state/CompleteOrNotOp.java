@@ -12,22 +12,21 @@ package org.oddjob.state;
  */
 public class CompleteOrNotOp implements StateOperator {
 	
-	public JobState evaluate(JobState... states) {
-		for (JobState state: states) {
-			if (state == JobState.DESTROYED) {
-				throw new IllegalArgumentException("Illegal operand state " +
-						JobState.DESTROYED + ".");
+	public ParentState evaluate(State... states) {
+		
+		new AssertNonDestroyed().evaluate(states);
+		
+		for (State state: states) {
+			if (state.isStoppable()) {
+				return ParentState.ACTIVE;
 			}
-			if (state == JobState.EXECUTING) {
-				return JobState.EXECUTING;
+			if (state.isReady()) {
+				return ParentState.COMPLETE;
 			}
-			if (state == JobState.READY) {
-				return JobState.COMPLETE;
-			}
-			if (state != JobState.COMPLETE) {
-				return JobState.INCOMPLETE;
+			if (!state.isComplete()) {
+				return ParentState.INCOMPLETE;
 			}
 		}
-		return JobState.COMPLETE;
+		return ParentState.COMPLETE;
 	}
 }

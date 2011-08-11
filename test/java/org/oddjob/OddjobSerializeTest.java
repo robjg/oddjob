@@ -2,10 +2,11 @@ package org.oddjob;
 
 import java.io.IOException;
 
+import junit.framework.TestCase;
+
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
 
 public class OddjobSerializeTest extends TestCase {
 	
@@ -23,12 +24,12 @@ public class OddjobSerializeTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals("Apples", new OddjobLookup(test).lookup("e.text"));
 
 		Oddjob copy = Helper.copy(test);
 		
-		assertEquals(JobState.COMPLETE, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals(null, new OddjobLookup(copy).lookup("e"));
 		
 		copy.load();
@@ -56,15 +57,15 @@ public class OddjobSerializeTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 
 		test.hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		Oddjob copy = Helper.copy(test);
 		copy.setConfiguration(new XMLConfiguration("XML", xml));
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 		
 		copy.run();
 		
@@ -81,10 +82,10 @@ public class OddjobSerializeTest extends TestCase {
 		
 		Oddjob test = new Oddjob();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		Oddjob copy = Helper.copy(test);
 		
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 	}
 }

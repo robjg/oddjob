@@ -58,11 +58,11 @@ public class JoinJobTest extends TestCase {
 
 		JoinJob test = new JoinJob();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 		
 	}
 		
@@ -74,27 +74,28 @@ public class JoinJobTest extends TestCase {
 		
 		test.setJob(job1);
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		StateSteps testState = new StateSteps(test);
 		
-		testState.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		test.run();
 		
 		testState.checkNow();
 		
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		
 		assertEquals(1, job1.ran);
 		
 		((Resetable) job1).hardReset();
 		
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, job1.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(JobState.READY, job1.lastStateEvent().getState());	
 				
-		testState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		testState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		test.run();
 		
@@ -114,18 +115,18 @@ public class JoinJobTest extends TestCase {
 		
 		test.setJob(job1);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());	
 
 		job1.setState(JobState.COMPLETE);
 		job1.hardReset();
 
 		job1.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());			
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());			
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());			
 	}
 	
 	public void testAsynchronous() throws FailedToStopException, InterruptedException {
@@ -147,19 +148,17 @@ public class JoinJobTest extends TestCase {
 		
 		test.setJob(timer);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
-		
 		StateSteps testStates = new StateSteps(test);
 		
-		testStates.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE);
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		test.run();
 
 		testStates.checkNow();
 
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
 		executors.stop();
 	}
@@ -181,14 +180,12 @@ public class JoinJobTest extends TestCase {
 		
 		final JoinJob test = new JoinJob();
 		test.setJob(timer);
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
 		
 		StateSteps testStates = new StateSteps(test);
 		
-		testStates.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.COMPLETE);
-		
-		
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.COMPLETE);
+				
 		executors.getScheduledExecutor().schedule(new Runnable() {
 			@Override
 			public void run() {
@@ -205,8 +202,8 @@ public class JoinJobTest extends TestCase {
 
 		testStates.checkNow();
 
-		assertEquals(JobState.COMPLETE, job1.lastJobStateEvent().getJobState());	
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
 		executors.stop();
 	}
@@ -220,16 +217,16 @@ public class JoinJobTest extends TestCase {
 		
 		test.setJob(job1);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 
 		StateSteps testStates = new StateSteps(test);
 		
-		testStates.startCheck(JobState.COMPLETE, 
-				JobState.DESTROYED);
+		testStates.startCheck(ParentState.COMPLETE, 
+				ParentState.DESTROYED);
 		
 		test.destroy();
 
@@ -245,6 +242,8 @@ public class JoinJobTest extends TestCase {
 
 		oddjob.load();
 		
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		Stateful test = lookup.lookup("our-join", Stateful.class);
@@ -253,19 +252,19 @@ public class JoinJobTest extends TestCase {
 		
 		Thread t = new Thread(oddjob);
 		
-		state.startCheck(JobState.READY, JobState.EXECUTING);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING);
 
 		t.start();
 		
 		state.checkWait();
 				
-		assertEquals(JobState.EXECUTING, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXECUTING, 
+				oddjob.lastStateEvent().getState());
 		
 		Stateful lastJob = lookup.lookup("last-job", Stateful.class);
 		
 		assertEquals(JobState.READY, 
-				lastJob.lastJobStateEvent().getJobState());
+				lastJob.lastStateEvent().getState());
 		
 		Object applesFlag = lookup.lookup("apples");
 		Object orangesFlag = lookup.lookup("oranges");
@@ -275,25 +274,25 @@ public class JoinJobTest extends TestCase {
 		
 		t.join();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
-				lastJob.lastJobStateEvent().getJobState());
+				lastJob.lastStateEvent().getState());
 		
 		((Resetable) test).hardReset();
 		((Resetable) lastJob).hardReset();
 		
 		Thread t2 = new Thread(oddjob);
 		
-		state.startCheck(JobState.READY, JobState.EXECUTING);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING);
 
 		t2.start();
 		
 		state.checkWait();
 		
 		assertEquals(JobState.READY, 
-				lastJob.lastJobStateEvent().getJobState());
+				lastJob.lastStateEvent().getState());
 
 		((Resetable) applesFlag).hardReset();
 		((Resetable) orangesFlag).hardReset();
@@ -304,6 +303,6 @@ public class JoinJobTest extends TestCase {
 		t2.join();
 		
 		assertEquals(JobState.COMPLETE, 
-				lastJob.lastJobStateEvent().getJobState());
+				lastJob.lastStateEvent().getState());
 	}
 }

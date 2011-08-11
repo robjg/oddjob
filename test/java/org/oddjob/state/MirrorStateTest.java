@@ -27,11 +27,11 @@ public class MirrorStateTest extends TestCase {
 		logger.info("-----------------   " + getName() + "  ---------------");
 	}
 	
-	private class Result implements JobStateListener {
+	private class Result implements StateListener {
 		JobState result;
 		
-		public void jobStateChange(JobStateEvent event) {
-			result = event.getJobState();
+		public void jobStateChange(StateEvent event) {
+			result = (JobState) event.getState();
 		}
 	}
 	
@@ -52,7 +52,7 @@ public class MirrorStateTest extends TestCase {
 		Result listener = new Result();
 		Icon icon = new Icon();
 		
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 		test.addIconListener(icon);
 		
 		assertEquals(JobState.READY, listener.result);
@@ -78,7 +78,7 @@ public class MirrorStateTest extends TestCase {
 		job.hardReset();
 		
 		assertEquals(JobState.READY, 
-				job.lastJobStateEvent().getJobState());
+				job.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, listener.result);		
 
@@ -100,45 +100,45 @@ public class MirrorStateTest extends TestCase {
 		job.run();
 		
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 
 		test.run();
 		
 		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		test.softReset();
 		
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 
 		test.setJob(job);
 		test.run();
 		
 		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		test.stop();
 		
 		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 	}
 
 	private class ExecutingThing extends MockStateful {
 
-		JobStateListener listener;
+		StateListener listener;
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(this.listener);
 			assertNotNull(listener);
 			this.listener = listener;
 		}
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(this.listener);
 			assertEquals(listener, this.listener);
 			this.listener = null;
@@ -153,26 +153,26 @@ public class MirrorStateTest extends TestCase {
 		test.setJob(job);
 
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 
 		test.run();
 		
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
-		job.listener.jobStateChange(new JobStateEvent(job, 
+		job.listener.jobStateChange(new StateEvent(job, 
 				JobState.EXECUTING));
 				
 		assertEquals(JobState.EXECUTING, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.EXECUTING, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		test.stop();
 		
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		assertNull(job.listener);
 	}
@@ -180,34 +180,26 @@ public class MirrorStateTest extends TestCase {
 	private class OurStateful extends MockStateful {
 		JobStateHandler state = new JobStateHandler(this);
 		
-		public void addJobStateListener(JobStateListener listener) {
-			state.addJobStateListener(listener);
+		public void addStateListener(StateListener listener) {
+			state.addStateListener(listener);
 		}
-		public void removeJobStateListener(JobStateListener listener) {
-			state.removeJobStateListener(listener);
+		public void removeStateListener(StateListener listener) {
+			state.removeStateListener(listener);
 		}
 		
 		void startRunning() {
-			state.waitToWhen(new StateCondition() {
-				public boolean test(JobState state) {
-					return true;
-				}
-			}, new Runnable() {
+			state.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-					state.setJobState(JobState.EXECUTING);
+					state.setState(JobState.EXECUTING);
 					state.fireEvent();
 				}
 			});
 		}
 		
 		void destroy() {
-			state.waitToWhen(new StateCondition() {
-				public boolean test(JobState state) {
-					return true;
-				}
-			}, new Runnable() {
+			state.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-					state.setJobState(JobState.DESTROYED);
+					state.setState(JobState.DESTROYED);
 					state.fireEvent();
 				}
 			});
@@ -226,7 +218,7 @@ public class MirrorStateTest extends TestCase {
 		job.destroy();
 		
 		assertEquals(JobState.EXCEPTION, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 
 	}
 	
@@ -249,7 +241,7 @@ public class MirrorStateTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());	
 
 		oddjob.destroy();
 	}
@@ -280,7 +272,7 @@ public class MirrorStateTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());	
 
 		Object on = new OddjobLookup(oddjob).lookup("e");
 		
@@ -294,13 +286,13 @@ public class MirrorStateTest extends TestCase {
 			throw e;
 		}
 		
-		assertEquals(JobState.EXCEPTION, oddjob.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.EXCEPTION, oddjob.lastStateEvent().getState());	
 		
 		oddjob.destroy();
 		
 		services.stop();
 		
-		assertEquals(JobState.DESTROYED, oddjob.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.DESTROYED, oddjob.lastStateEvent().getState());	
 	}
 	
 	public void testStopWhenRunning() {
@@ -314,12 +306,12 @@ public class MirrorStateTest extends TestCase {
 		test.run();
 	
 		assertEquals(JobState.EXECUTING, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 		
 		test.stop();
 		
 		assertEquals(JobState.READY, 
-				test.lastJobStateEvent().getJobState());
+				test.lastStateEvent().getState());
 
 	}
 	
@@ -341,12 +333,14 @@ public class MirrorStateTest extends TestCase {
 
 		StateSteps steps = new StateSteps(oddjob);
 		
-		steps.startCheck(JobState.READY, JobState.EXECUTING);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
 
 		oddjob.run();
 		
 		steps.checkNow();
-		steps.startCheck(JobState.EXECUTING, JobState.READY, JobState.DESTROYED);
+		steps.startCheck(ParentState.ACTIVE, ParentState.READY, 
+				ParentState.DESTROYED);
 		
 		oddjob.destroy();
 		

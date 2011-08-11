@@ -12,7 +12,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class MkdirJobTest extends TestCase {
 
@@ -81,7 +81,7 @@ public class MkdirJobTest extends TestCase {
 		oj.setArgs(new String[] { dir.getPath() });
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		assertTrue(new File(dir, "a/b/c").exists());		
 	}

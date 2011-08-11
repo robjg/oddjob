@@ -109,6 +109,17 @@ implements Stoppable {
 				}
 			}
 			jobThreads = null;
+			
+			if (stop) {
+				// Slight bodge. Cancel returns CancelException before
+				// things have actually finished.
+				try {
+					new StopWait(structuralState).run();
+				}
+				catch (FailedToStopException e) {
+					throw new RuntimeException(e);
+				}
+			}
 		}
 	}
 
@@ -120,7 +131,7 @@ implements Stoppable {
 		if (jobThreads == null) {
 			return;
 		}
-		
+
 		for (Future<?> future : jobThreads) {
 			future.cancel(false);
 		}

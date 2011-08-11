@@ -69,26 +69,26 @@ public class JoinJob extends StructuralJob<Runnable> {
 		
 		child.run();
 		
-		final AtomicReference<JobState> state = new AtomicReference<JobState>();
-		JobStateListener listener = new JobStateListener() {
+		final AtomicReference<State> state = new AtomicReference<State>();
+		StateListener listener = new StateListener() {
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				state.set(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				state.set(event.getState());
 				synchronized (JoinJob.this) {
 					JoinJob.this.notifyAll();
 				}
 			}
 		};
-		((Stateful) child).addJobStateListener(listener);
+		((Stateful) child).addStateListener(listener);
 		
 		try {
-			while (!stop && state.get() == JobState.EXECUTING) {			
+			while (!stop && state.get().isStoppable()) {			
 				synchronized(this) {
 					wait();
 				}
 			}
 		} finally {
-			removeJobStateListener(listener);
+			removeStateListener(listener);
 		}
 	}		
 	

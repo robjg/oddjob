@@ -23,7 +23,7 @@ import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  * Test for BufferType.
@@ -111,8 +111,8 @@ public class BufferTypeTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		Object jobs = new OddjobLookup(oddjob).lookup("jobs");
 		
@@ -148,8 +148,8 @@ public class BufferTypeTest extends TestCase {
 		
 		oddjob1.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob1.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob1.lastStateEvent().getState());
 		
 		oddjob1.destroy();
 		

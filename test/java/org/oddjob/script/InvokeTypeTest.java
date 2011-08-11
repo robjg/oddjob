@@ -16,7 +16,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.scheduling.ManualClock;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class InvokeTypeTest extends TestCase {
 
@@ -190,8 +190,8 @@ public class InvokeTypeTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		

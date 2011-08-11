@@ -30,6 +30,7 @@ import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.structural.ChildHelper;
 
 /**
@@ -90,7 +91,7 @@ public class ExecJobTest extends TestCase {
 		job.setCommand("java -version");
 		
 		job.run();
-		assertEquals("Success", JobState.COMPLETE, job.lastJobStateEvent().getJobState());
+		assertEquals("Success", JobState.COMPLETE, job.lastStateEvent().getState());
 		
 	}
 
@@ -148,7 +149,7 @@ public class ExecJobTest extends TestCase {
 		
 		assertEquals(1, lines.length);
 		
-		assertEquals(JobState.INCOMPLETE, job.lastJobStateEvent().getJobState());
+		assertEquals(JobState.INCOMPLETE, job.lastStateEvent().getState());
 		
 	}
 	
@@ -157,7 +158,7 @@ public class ExecJobTest extends TestCase {
 		job.setCommand("java rubbish");
 		
 		job.run();
-		assertEquals(JobState.INCOMPLETE, job.lastJobStateEvent().getJobState());		
+		assertEquals(JobState.INCOMPLETE, job.lastStateEvent().getState());		
 	}
 
 	public void testOutput() throws IOException {
@@ -221,7 +222,7 @@ public class ExecJobTest extends TestCase {
 //		explorer.setRoot(oj);
 //		explorer.run();
 //		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		// check console output for second job
 		ConsoleOwner ca = (ConsoleOwner) new OddjobLookup(

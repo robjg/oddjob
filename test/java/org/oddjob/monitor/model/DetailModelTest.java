@@ -17,7 +17,7 @@ import org.oddjob.logging.LogHelper;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -77,11 +77,11 @@ public class DetailModelTest extends TestCase {
 		}
 		boolean added;
 		boolean removed;
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			logger.debug("JobStateListener added");
 			added = true;
 		}
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			logger.debug("JobStateListener removed");
 			removed = true;
 		}

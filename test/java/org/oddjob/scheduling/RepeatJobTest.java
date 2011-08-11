@@ -27,6 +27,7 @@ import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.util.Clock;
 
 /**
@@ -194,7 +195,7 @@ public class RepeatJobTest extends TestCase {
         
         new StopWait(oj).run();
         
-        assertEquals("OJ complete", JobState.COMPLETE, Helper.getJobState(oj));
+        assertEquals("OJ complete", ParentState.COMPLETE, Helper.getJobState(oj));
     }
     
     private Schedule retrySchedule() throws ParseException {

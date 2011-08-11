@@ -9,9 +9,8 @@ import org.oddjob.Stoppable;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
 import org.oddjob.util.ThreadManager;
 
 /**
@@ -21,7 +20,7 @@ import org.oddjob.util.ThreadManager;
  */
 
 public class StopAction extends JobAction 
-implements JobStateListener {
+implements StateListener {
 
 	private static final Logger logger = Logger.getLogger(StopAction.class);
 	
@@ -66,7 +65,7 @@ implements JobStateListener {
 			this.threadManager = explorerContext.getThreadManager();
 			
 			if (job instanceof Stateful) {
-				((Stateful) job).addJobStateListener(this);
+				((Stateful) job).addStateListener(this);
 			}
 		}
 		else {
@@ -77,7 +76,7 @@ implements JobStateListener {
 	@Override
 	protected void doFree(ExplorerContext explorerContext) {
 		if (job != null && job instanceof Stateful) {
-			((Stateful) job).removeJobStateListener(this);
+			((Stateful) job).removeStateListener(this);
 		}
 		job = null;			
 	}
@@ -99,8 +98,8 @@ implements JobStateListener {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 	 */	
-	public void jobStateChange(JobStateEvent event) {
-		if (event.getJobState() == JobState.EXECUTING
+	public void jobStateChange(StateEvent event) {
+		if (event.getState().isStoppable()
 				&& event.getSource() instanceof Stoppable) {
 			setEnabled(true);
 		} else {

@@ -7,11 +7,11 @@ import org.oddjob.scheduling.MockScheduledExecutorService;
 
 public class AndStateTest extends TestCase {
 
-	private class Result implements JobStateListener {
-		JobState result;
+	private class Result implements StateListener {
+		State result;
 		
-		public void jobStateChange(JobStateEvent event) {
-			result = event.getJobState();
+		public void jobStateChange(StateEvent event) {
+			result = event.getState();
 		}
 	}
 	
@@ -28,38 +28,38 @@ public class AndStateTest extends TestCase {
 		test.run();
 		
 		Result listener = new Result();
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		FlagState j1 = new FlagState(JobState.COMPLETE);
 
 		test.setJobs(0, j1);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		j1.run();
 		
-		assertEquals(JobState.COMPLETE, listener.result);
+		assertEquals(ParentState.COMPLETE, listener.result);
 		
 		FlagState j2 = new FlagState(JobState.COMPLETE);
 
 		test.setJobs(0, j2);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		j2.run();
 		
-		assertEquals(JobState.COMPLETE, listener.result);
+		assertEquals(ParentState.COMPLETE, listener.result);
 		
 		test.setJobs(1, null);
 		
-		assertEquals(JobState.COMPLETE, listener.result);
+		assertEquals(ParentState.COMPLETE, listener.result);
 		
 		test.setJobs(0, null);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 	}
 	
 	public void testException() {
@@ -69,37 +69,37 @@ public class AndStateTest extends TestCase {
 		test.run();
 		
 		Result listener = new Result();
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		FlagState j1 = new FlagState(JobState.COMPLETE);
 
 		test.setJobs(0, j1);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		j1.run();
 		
-		assertEquals(JobState.COMPLETE, listener.result);
+		assertEquals(ParentState.COMPLETE, listener.result);
 		
 		FlagState j2 = new FlagState(JobState.EXCEPTION);
 
 		test.setJobs(0, j2);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		j2.run();
 		
-		assertEquals(JobState.EXCEPTION, listener.result);
+		assertEquals(ParentState.EXCEPTION, listener.result);
 		
 		test.setJobs(1, null);
 		
-		assertEquals(JobState.EXCEPTION, listener.result);
+		assertEquals(ParentState.EXCEPTION, listener.result);
 		
 		test.setJobs(0, null);
 		
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 	}
 	
 	public void testManyComplete() {
@@ -109,9 +109,9 @@ public class AndStateTest extends TestCase {
 		test.run();
 		
 		Result listener = new Result();
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 
-		assertEquals(JobState.READY, listener.result);
+		assertEquals(ParentState.READY, listener.result);
 		
 		FlagState j1 = new FlagState(JobState.COMPLETE);
 		FlagState j2 = new FlagState(JobState.COMPLETE);
@@ -128,8 +128,6 @@ public class AndStateTest extends TestCase {
 		test.setJobs(2, j3);
 		test.setJobs(3, j4);
 		
-		assertEquals(JobState.COMPLETE, listener.result);
-		
+		assertEquals(ParentState.COMPLETE, listener.result);
 	}
-	
 }

@@ -18,16 +18,16 @@ import org.oddjob.structural.StructuralListener;
 public class StructuralStateHelper implements Stateful {
 
 	/** Used to capture state into. */
-	private final JobStateHandler stateHandler = 
-		new JobStateHandler(this);
+	private final ParentStateHandler stateHandler = 
+		new ParentStateHandler(this);
 	
 	/** The states of the children. */
 	private final List<StateHolder> states = 
 		new ArrayList<StateHolder>();
 	
 	/** The listeners listening to the children. */
-	private final List<JobStateListener> listeners = 
-		new ArrayList<JobStateListener>();
+	private final List<StateListener> listeners = 
+		new ArrayList<StateListener>();
 
 	/** The {@link StateOperator}. */
 	private final StateOperator operator;
@@ -37,22 +37,23 @@ public class StructuralStateHelper implements Stateful {
 	 * of an index to insert state.
 	 */
 	class StateHolder {
-		private JobState state = JobState.COMPLETE;
+		private State state = ParentState.COMPLETE;
 	}
 
 	/**
 	 * Listens to a single child's state.
 	 */
-	class StateListener implements JobStateListener {
+	class ChildStateListener implements StateListener {
 
 		private final StateHolder holder;
 		
-		public StateListener(StateHolder holder) {
+		public ChildStateListener(StateHolder holder) {
 			this.holder = holder;
 		}
 		
-		public synchronized void jobStateChange(JobStateEvent event) {
-			holder.state = event.getJobState();
+		@Override
+		public synchronized void jobStateChange(StateEvent event) {
+			holder.state = event.getState();
 			
 			checkStates();
 		};
@@ -77,13 +78,13 @@ public class StructuralStateHelper implements Stateful {
 	
 					StateHolder stateHolder = new StateHolder();
 	
-					StateListener listener = new StateListener(stateHolder);
+					ChildStateListener listener = new ChildStateListener(stateHolder);
 					listeners.add(index, listener);
 					
 					states.add(index, stateHolder);
 	
 					if (child instanceof Stateful) {
-						((Stateful) child).addJobStateListener(listener);
+						((Stateful) child).addStateListener(listener);
 					}
 					else {
 						checkStates();
@@ -97,10 +98,10 @@ public class StructuralStateHelper implements Stateful {
 					Object child = event.getChild();
 
 
-					JobStateListener listener = listeners.remove(index);
+					StateListener listener = listeners.remove(index);
 
 					if (child instanceof Stateful) {
-						((Stateful) child).removeJobStateListener(listener);
+						((Stateful) child).removeStateListener(listener);
 					}
 
 					states.remove(index);
@@ -111,44 +112,44 @@ public class StructuralStateHelper implements Stateful {
 		});
 	}
 	
-	public void addJobStateListener(JobStateListener listener) {
-		stateHandler.addJobStateListener(listener);
+	public void addStateListener(StateListener listener) {
+		stateHandler.addStateListener(listener);
 	}
 	
-	public void removeJobStateListener(JobStateListener listener) {
-		stateHandler.removeJobStateListener(listener);		
+	public void removeStateListener(StateListener listener) {
+		stateHandler.removeStateListener(listener);		
 	}
 			
 	private void checkStates() {
 		
 		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				JobState[] stateArgs = new JobState[states.size()];
+				State[] stateArgs = new State[states.size()];
 				int i = 0;
 				for (StateHolder holder : states) {
 					stateArgs[i++] = holder.state; 
 				}
 				
-				JobState state = operator.evaluate(stateArgs);
+				ParentState state = operator.evaluate(stateArgs);
 						
-				if (state == stateHandler.getJobState()) {
+				if (state == stateHandler.getState()) {
 					return;
 				}
 				
-				stateHandler.setJobState(state);
+				stateHandler.setState(state);
 				stateHandler.fireEvent();
 			}
 		});
 	}
 
 	@Override
-	public JobStateEvent lastJobStateEvent() {
-		return stateHandler.lastJobStateEvent();
+	public StateEvent lastStateEvent() {
+		return stateHandler.lastStateEvent();
 	}
 	
-	public JobState[] getChildStates() {
+	public State[] getChildStates() {
 		synchronized(states) {
-			JobState[] array = new JobState[states.size()];
+			State[] array = new State[states.size()];
 			int i = 0;
 			for (StateHolder holder : states) {
 				array[i++] = holder.state;

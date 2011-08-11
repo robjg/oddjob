@@ -9,9 +9,9 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 
 /**
  * A utility class to provide wait until stopped functionality.
@@ -48,35 +48,35 @@ public class StopWait {
 	public void run() throws FailedToStopException {		
 
 		if (new IsStoppable().test(
-				stateful.lastJobStateEvent().getJobState())) {
+				stateful.lastStateEvent().getState())) {
 			doWait();
 		}
 	}
 	
 	private void doWait() throws FailedToStopException {		
 		
-		final BlockingQueue<JobState> handoff = new LinkedBlockingQueue<JobState>();
+		final BlockingQueue<State> handoff = new LinkedBlockingQueue<State>();
 		
-		class StopListener implements JobStateListener {
+		class StopListener implements StateListener {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				handoff.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				handoff.add(event.getState());
 			}
 		};
 		
 		StopListener listener = new StopListener();
 				
-		stateful.addJobStateListener(listener);
+		stateful.addStateListener(listener);
 		
 		try {
 			while (true) {
 
-				JobState state = handoff.poll(timeout, TimeUnit.MILLISECONDS);
+				State state = handoff.poll(timeout, TimeUnit.MILLISECONDS);
 				if (state == null) {
 					throw new FailedToStopException(stateful);
 				}
-				if (!new IsStoppable().test(state)) {
+				if (!state.isStoppable()) {
 					return;
 				}
 				logger.debug("[" + stateful + "] is " + 
@@ -87,7 +87,7 @@ public class StopWait {
 			Thread.currentThread().interrupt();
 		}
 		finally {
-			stateful.removeJobStateListener(listener);
+			stateful.removeStateListener(listener);
 		}
 	}	
 }

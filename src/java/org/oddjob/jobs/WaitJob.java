@@ -6,9 +6,10 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateCondition;
 
 /**
  * @oddjob.description This Job will either wait a given number of milliseconds
@@ -67,10 +68,8 @@ public class WaitJob extends SimpleJob
 	 * @oddjob.description A state to wait for. 
 	 * @oddjob.required No.
 	 */
-	private JobState state;
+	private StateCondition state;
 	
-	private boolean not;
-		
 	/**
 	 * Set the delay time in milli seconds.
 	 * 
@@ -138,8 +137,8 @@ public class WaitJob extends SimpleJob
 	}
 
 	protected void waitForState() {
-		class Listener implements JobStateListener {
-			synchronized public void jobStateChange(JobStateEvent event) {
+		class Listener implements StateListener {
+			synchronized public void jobStateChange(StateEvent event) {
 				synchronized (WaitJob.this) {
 					WaitJob.this.notifyAll();
 				}
@@ -149,7 +148,7 @@ public class WaitJob extends SimpleJob
 		
 		Stateful stateful = (Stateful) forProperty;
 		
-		stateful.addJobStateListener(listener);
+		stateful.addStateListener(listener);
 		
 		long waitBetweenChecks = pause;
 		if (waitBetweenChecks == 0) {
@@ -158,21 +157,19 @@ public class WaitJob extends SimpleJob
 		
 		while (!stop) {
 
-			JobState now = stateful.lastJobStateEvent().getJobState();
+			State now = stateful.lastStateEvent().getState();
 			logger().debug("State of [" + forProperty + "] is "+ state);
-						
-			if (now == state && !not) {
-				break;
-			}
-			if (now != state && not) {
+				
+			if (state.test(now)) {
 				break;
 			}
 			logger().debug("Waiting for state " + 
-					(not ? "!" : "") + state + ", currently "
+					 state + ", currently "
 					+ now);
+			
 			sleep(waitBetweenChecks);
 		}
-		((Stateful) forProperty).removeJobStateListener(listener);
+		((Stateful) forProperty).removeStateListener(listener);
 	}
 	
 	public Object getFor() {
@@ -185,21 +182,12 @@ public class WaitJob extends SimpleJob
 		this.forSet = true;
 	}
 	
-	public String getState() {
-		if (state == null) {
-			return null;
-		}
-		return state.toString();
+	public StateCondition getState() {
+		return state;
 	}
 	
-	public void setState(String state) {
-		if (state.startsWith("!")) {
-			not = true;
-			state = state.substring(state.indexOf("!") + 1);
-		}
-		this.state = JobState.stateFor(state);
-		if (this.state == null) {
-			throw new IllegalArgumentException("Unknown state requested [" + state + "]");
-		}
+	@ArooaAttribute
+	public void setState(StateCondition state) {
+		this.state = state;
 	}
 }

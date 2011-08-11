@@ -9,14 +9,14 @@ import java.util.Date;
  * @author rob
  *
  */
-public interface StateChanger {
+public interface StateChanger<S extends State> {
 
 	/**
 	 * Set the state to given state.
 	 * 
 	 * @param state
 	 */
-	public void setJobState(JobState state);
+	public void setState(S state);
 	
 	/**
 	 * Set the state to the given state with the
@@ -25,20 +25,20 @@ public interface StateChanger {
 	 * @param state
 	 * @param date
 	 */
-	public void setJobState(JobState state, Date date);
+	public void setState(S state, Date date);
 
 	/**
-	 * Set the state to {@link JobState#EXCEPTION} with
+	 * Set the state to an EXCEPTION state.
 	 * 
 	 * @param t The Exception.
 	 */
-	public void setJobStateException(Throwable t);
+	public void setStateException(Throwable t);
 	
 	/**
-	 * Set the state to {@link JobState#EXCEPTION} with
+	 * Set the state to an EXCEPTION state with
 	 * the given event time.
 	 * 
 	 * @param t The Exception.
 	 */
-	public void setJobStateException(Throwable t, Date date);
+	public void setStateException(Throwable t, Date date);
 }

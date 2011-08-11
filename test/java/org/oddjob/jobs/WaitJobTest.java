@@ -16,7 +16,10 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.IsNot;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
 
 public class WaitJobTest extends TestCase {
 
@@ -58,12 +61,12 @@ public class WaitJobTest extends TestCase {
 		
 		WaitJob test = new WaitJob();
 		test.setFor(sample);
-		test.setState("complete");
+		test.setState(StateConditions.COMPLETE);
 
 		t.start();
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, sample.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
 	}
 	
 	public void testStateWaitInOJ() throws Exception {
@@ -86,9 +89,9 @@ public class WaitJobTest extends TestCase {
 				
 		WaitJob test = new WaitJob();
 		test.setFor(sample);
-		test.setState("!complete");
+		test.setState(new IsNot(StateConditions.COMPLETE));
 
-		assertEquals(JobState.READY, sample.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, sample.lastStateEvent().getState());
 		
 		// smample will still be ready
 		test.run();
@@ -139,7 +142,7 @@ public class WaitJobTest extends TestCase {
 //		explorer.run();
 //		
 		WaitJob wait = new WaitJob();
-		wait.setState("COMPLETE");
+		wait.setState(StateConditions.COMPLETE);
 		wait.setFor(oddjob);
 		
 		wait.run();
@@ -179,7 +182,7 @@ public class WaitJobTest extends TestCase {
 		
 		oddjob.run();
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(oddjob));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(oddjob));
 		
 		assertNotNull(new OddjobLookup(oddjob).lookup("wait.for"));
 		

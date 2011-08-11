@@ -13,7 +13,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class DeleteJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(DeleteJobTest.class);
@@ -57,7 +57,7 @@ public class DeleteJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		found = wild.findFiles();
 		assertEquals(0, found.length);
@@ -83,7 +83,7 @@ public class DeleteJobTest extends TestCase {
 		oj.setArgs(new String[] { dir.getPath().toString() });
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		found = wild.findFiles();
 		assertEquals(0, found.length);
@@ -108,7 +108,7 @@ public class DeleteJobTest extends TestCase {
 		
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		assertFalse(dir.exists());
 	}
 	
@@ -135,7 +135,7 @@ public class DeleteJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("XML", xml));
 		
 		oj.run();
-		assertEquals(JobState.EXCEPTION, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 		
 		assertTrue(dir.exists());
 
@@ -153,9 +153,11 @@ public class DeleteJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 
 		oj.run();
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		assertFalse(dir.exists());
+		
+		oj.destroy();
 	}
 	
 	public void testSerialize() throws Exception {

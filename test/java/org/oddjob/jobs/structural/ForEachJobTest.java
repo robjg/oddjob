@@ -39,6 +39,7 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.persist.MockPersisterBase;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -317,7 +318,7 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
     			test));
     	
     	test.softReset();
@@ -326,7 +327,7 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.READY, Helper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.READY, Helper.getJobState(
+    	assertEquals(ParentState.READY, Helper.getJobState(
     			test));
     	
     	test.run();
@@ -335,7 +336,7 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
     			test));
     	
     	test.hardReset();
@@ -348,7 +349,7 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
     			test));    	
     }
 
@@ -385,8 +386,8 @@ public class ForEachJobTest extends TestCase {
 
     	oddjob.run();
     	
-    	assertEquals(JobState.COMPLETE, 
-    			oddjob.lastJobStateEvent().getJobState());    	
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());    	
     }
 
     private class OurPersister extends MockPersisterBase {
@@ -451,8 +452,8 @@ public class ForEachJobTest extends TestCase {
     	
     	oddjob.run();
     	
-    	assertEquals(JobState.COMPLETE, 
-    			oddjob.lastJobStateEvent().getJobState());    	
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());    	
     }
     
     public void testFileCopyExample() {
@@ -496,8 +497,8 @@ public class ForEachJobTest extends TestCase {
 				
     	oddjob.run();
     	
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);
@@ -572,8 +573,8 @@ public class ForEachJobTest extends TestCase {
 				
     	oddjob.run();
     	
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);

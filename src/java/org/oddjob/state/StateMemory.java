@@ -11,23 +11,25 @@ import org.oddjob.Stateful;
  * 
  * @author Rob Gordon.
  */
-public class StateMemory implements JobStateListener {
-    private volatile JobState jobState;
+public class StateMemory implements StateListener {
+	
+    private volatile State jobState;
     private volatile Throwable t;
 
-    public void jobStateChange(JobStateEvent event) {
+    @Override
+    public void jobStateChange(StateEvent event) {
     	// only save the first state change after the
     	// job finishes executing - stops the unlikely
     	// event that the job is reset before our listener
     	// is removed.
     	if (jobState == null || jobState == JobState.READY
     			|| jobState == JobState.EXECUTING) {
-    		jobState = event.getJobState();
+    		jobState = event.getState();
     		t = event.getException();
     	}
     }
 		    
-    public JobState getJobState() {
+    public State getJobState() {
         return jobState;
     }
 		    
@@ -37,7 +39,7 @@ public class StateMemory implements JobStateListener {
     
     public void run(Runnable job) {
         if (job instanceof Stateful) {
-            ((Stateful)job).addJobStateListener(this);
+            ((Stateful)job).addStateListener(this);
         } else {
             jobState = JobState.COMPLETE;
         }
@@ -46,7 +48,7 @@ public class StateMemory implements JobStateListener {
         }
         finally {
             if (job instanceof Stateful) {
-                ((Stateful)job).removeJobStateListener(this);
+                ((Stateful)job).removeStateListener(this);
             }	            
         }
     }

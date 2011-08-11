@@ -19,7 +19,7 @@ import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.oddballs.BuildOddballs;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class OddjobModulesTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(OddjobModulesTest.class);
@@ -148,6 +148,6 @@ public class OddjobModulesTest extends TestCase {
 		oddjob.setExport("inner-config", configType);
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 }

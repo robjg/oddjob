@@ -5,6 +5,7 @@ import junit.framework.TestCase;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.schedules.schedules.NowSchedule;
+import org.oddjob.state.StateConditions;
 
 /**
  * Bulk test.
@@ -44,7 +45,7 @@ public class TimerRetryBulkTest extends TestCase {
 		test.run();
 
 		WaitJob wait = new WaitJob();
-		wait.setState("INCOMPLETE");
+		wait.setState(StateConditions.INCOMPLETE);
 		wait.setFor(test);
 		
 		wait.run();
@@ -82,7 +83,7 @@ public class TimerRetryBulkTest extends TestCase {
 		test.run();
 
 		WaitJob wait = new WaitJob();
-		wait.setState("COMPLETE");
+		wait.setState(StateConditions.COMPLETE);
 		wait.setFor(test);
 		
 		wait.run();

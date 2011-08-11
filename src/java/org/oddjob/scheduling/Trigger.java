@@ -16,9 +16,10 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 
@@ -60,7 +61,7 @@ public class Trigger extends ScheduleBase {
 	 * to fire.
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
-	private JobState state = JobState.COMPLETE;
+	private StateCondition state = StateConditions.COMPLETE;
 	
 	/** The last time the trigger fired. */
 	private Date lastTime;
@@ -71,7 +72,7 @@ public class Trigger extends ScheduleBase {
 	/** The schedule id. */
 	private transient Future<?> future;
 	
-	private transient JobStateListener listener;
+	private transient StateListener listener;
 	
 	@ArooaHidden
 	@Inject
@@ -94,25 +95,27 @@ public class Trigger extends ScheduleBase {
 			}
 			
 			listener = 
-				new JobStateListener() {
+				new StateListener() {
 
-				public synchronized void jobStateChange(JobStateEvent event) {
+				@Override
+				public synchronized void jobStateChange(StateEvent event) {
 					logger().debug("Trigger on [" + on + "] has state [" + 
-							event.getJobState() + "] + at " +
+							event.getState() + "] + at " +
 							event.getTime());
 					
-					if (event.getJobState() == JobState.DESTROYED) {
-						stateHandler.waitToWhen(new IsStoppable(), 
+					if (event.getState().isDestroyed()) {
+						stateHandler().waitToWhen(new IsStoppable(), 
 								new Runnable() {
+							@Override
 							public void run() {
-								getStateChanger().setJobStateException(
+								getStateChanger().setStateException(
 										new JobDestroyedException(on));
 							}
 						});
 						on = null;
 					}
 						
-					if (event.getJobState() != state) {
+					if (!state.test(event.getState())) {
 						logger().debug("Not the trigger state, returning.");
 						return;
 					}
@@ -136,7 +139,7 @@ public class Trigger extends ScheduleBase {
 				};
 			};
 			
-			on.addJobStateListener(listener);
+			on.addStateListener(listener);
 			
 			iconHelper.changeIcon(IconHelper.SLEEPING);
 	
@@ -162,14 +165,14 @@ public class Trigger extends ScheduleBase {
 	
 	private void removeListener() {
 
-		JobStateListener listener = null;
+		StateListener listener = null;
 		
 		synchronized (this) {
 			listener = this.listener;
 			this.listener = null;
 		}
 		if (listener != null) {
-			on.removeJobStateListener(listener);
+			on.removeStateListener(listener);
 		}
 	}
 	
@@ -188,12 +191,12 @@ public class Trigger extends ScheduleBase {
 		}
 	}
 		
-	public JobState getState() {
+	public StateCondition getState() {
 		return state;
 	}
 	
 	@ArooaAttribute
-	public void setState(JobState state) {
+	public void setState(StateCondition state) {
 		this.state = state;
 	}
 		
@@ -217,7 +220,7 @@ public class Trigger extends ScheduleBase {
 
 		    // check job state here because it guarantees all other
 		    // state listeners have been notified.
-		    on.lastJobStateEvent();
+		    on.lastStateEvent();
 			
 			iconHelper.changeIcon(IconHelper.EXECUTING);
 		    

@@ -11,9 +11,9 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.OddjobLockedException;
 
 public class StopWaitTest extends TestCase {
@@ -31,23 +31,23 @@ public class StopWaitTest extends TestCase {
 		
 		JobStateHandler jobStateHandler = new JobStateHandler(this);
 
-		Set<JobStateListener> listeners = Collections.synchronizedSet(
-				new HashSet<JobStateListener>());
+		Set<StateListener> listeners = Collections.synchronizedSet(
+				new HashSet<StateListener>());
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
-			jobStateHandler.addJobStateListener(listener);
+		public void addStateListener(StateListener listener) {
+			jobStateHandler.addStateListener(listener);
 			listeners.add(listener);			
 		}
 		
 		@Override
-		public JobStateEvent lastJobStateEvent() {
-			return jobStateHandler.lastJobStateEvent();
+		public StateEvent lastStateEvent() {
+			return jobStateHandler.lastStateEvent();
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
-			jobStateHandler.removeJobStateListener(listener);
+		public void removeStateListener(StateListener listener) {
+			jobStateHandler.removeStateListener(listener);
 			listeners.remove(listener);
 		}
 	}
@@ -67,7 +67,7 @@ public class StopWaitTest extends TestCase {
 		stateful.jobStateHandler.tryToWhen(new IsAnyState(), 
 				new Runnable() {
 			public void run() {
-				stateful.jobStateHandler.setJobState(JobState.EXECUTING);
+				stateful.jobStateHandler.setState(JobState.EXECUTING);
 				stateful.jobStateHandler.fireEvent();
 			}
 		});
@@ -91,7 +91,7 @@ public class StopWaitTest extends TestCase {
 				new Runnable() {
 			@Override
 			public void run() {
-				stateful.jobStateHandler.setJobState(JobState.EXECUTING);
+				stateful.jobStateHandler.setState(JobState.EXECUTING);
 				stateful.jobStateHandler.fireEvent();
 			}
 		});
@@ -115,7 +115,7 @@ public class StopWaitTest extends TestCase {
 							new Runnable() {
 						@Override
 						public void run() {
-							stateful.jobStateHandler.setJobState(
+							stateful.jobStateHandler.setState(
 									JobState.COMPLETE);
 							stateful.jobStateHandler.fireEvent();
 						}

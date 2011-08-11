@@ -14,6 +14,8 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -32,7 +34,8 @@ import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -141,7 +144,7 @@ public class JMXClientJobTest extends TestCase {
 		client.stop();				
 		server.stop();
 		
-		assertEquals(JobState.COMPLETE, client.lastJobStateEvent().getJobState());
+		assertEquals(ServiceState.COMPLETE, client.lastStateEvent().getState());
 	}
 
 	/** 
@@ -236,7 +239,7 @@ public class JMXClientJobTest extends TestCase {
 							WaitForChildren wait = new WaitForChildren(client);
 							wait.waitFor(1);
 							client.stop();
-							if (Helper.getJobState(client) == JobState.COMPLETE) {
+							if (Helper.getJobState(client) == ServiceState.COMPLETE) {
 								ok[index] = true;
 							}
 						}
@@ -286,8 +289,8 @@ public class JMXClientJobTest extends TestCase {
 		
 		server.stop();
 		
-		assertEquals(JobState.COMPLETE, client.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, server.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, client.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, server.lastStateEvent().getState());
 	}
 
 	public static class Echo {
@@ -339,7 +342,7 @@ public class JMXClientJobTest extends TestCase {
 		client.stop();
 		server.stop();
 
-		assertEquals(JobState.COMPLETE, client.lastJobStateEvent().getJobState());
+		assertEquals(ServiceState.COMPLETE, client.lastStateEvent().getState());
 	}
 
 	class Owner extends MockBeanDirectoryOwner implements Structural {
@@ -428,25 +431,25 @@ public class JMXClientJobTest extends TestCase {
 	 */
 	public void testRegistryManagement() throws Exception {
 		
-		Oddjob oj = new Oddjob();
-		oj.setName("Top OJ");
-		oj.setConfiguration(
+		Oddjob oddjob = new Oddjob();
+		oddjob.setName("Top OJ");
+		oddjob.setConfiguration(
 				new XMLConfiguration("Resource", 
 						this.getClass().getResourceAsStream(
 								"JMXClientJobTest1.xml")));
-		oj.setExport("config-2",  
+		oddjob.setExport("config-2",  
 		        new ArooaObject(JMXClientJobTest.class.getResourceAsStream(
 		        		"JMXClientJobTest2.xml")));
-		oj.setExport("config-3", 
+		oddjob.setExport("config-3", 
 				new ArooaObject(JMXClientJobTest.class.getResourceAsStream(
 						"JMXClientJobTest3.xml")));
 		
-		oj.run();
+		oddjob.run();
 		
 		JMXClientJob client = new JMXClientJob(); 
 		client.setArooaSession(new StandardArooaSession());
 		
-		Object server = new OddjobLookup(oj).lookup("server");
+		Object server = new OddjobLookup(oddjob).lookup("server");
 		client.setUrl((String) PropertyUtils.getProperty(
 				server, "address"));
 
@@ -461,40 +464,50 @@ public class JMXClientJobTest extends TestCase {
 		Resetable nested = (Resetable) new OddjobLookup(client).lookup("oj/oj");
 		assertNotNull(nested);
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(nested));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(nested));
 
 		Object echoJob = new OddjobLookup(client).lookup("oj/oj/fruit");
 		assertNotNull(echoJob);
 		
+		StateSteps steps = new StateSteps((Stateful) nested);
+		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+		
 		nested.hardReset();
 		
 		// takes a while for the notifications...
-		WaitForState w3 = new WaitForState(nested);
-		w3.waitFor(JobState.READY);
+		steps.checkWait();
 		
 		assertNull(new OddjobLookup(client).lookup("oj/oj/fruit"));
 		
 		logger.info("Re-running Once...");
 				
+		steps.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
 		((Runnable) nested).run();
 		
 		// We might still be waiting for notifications. This is where
 		// we need to wait for a JobState.DESTROYED on echoJob.
 
-		w3.waitFor(JobState.COMPLETE);
+		steps.checkWait();
 		
 		while (new OddjobLookup(client).lookup("oj/oj/fruit") == null) {
 			Thread.sleep(1000);
 			Thread.yield();
 		}
 							
+		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+		
 		nested.hardReset();
 
-		w3.waitFor(JobState.READY);
+		steps.checkWait();
 		
 		assertNull(new OddjobLookup(client).lookup("oj/oj/fruit"));
 		
 		logger.info("Re-running Twice...");
+		
+		steps.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
 		
 		((Runnable) nested).run();
 
@@ -503,12 +516,12 @@ public class JMXClientJobTest extends TestCase {
 			Thread.yield();
 		}
 		
-		w3.waitFor(JobState.COMPLETE);
+		steps.checkWait();
 		
 		client.stop();
 		((Stoppable) server).stop();
 		
-		oj.destroy();
+		oddjob.destroy();
 	}
 
 	/**

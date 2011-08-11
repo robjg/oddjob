@@ -70,9 +70,9 @@ import org.oddjob.sql.SQLPersisterService;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 import org.oddjob.util.OddjobConfigException;
@@ -648,7 +648,7 @@ implements Loadable,
 				    } 
 				    catch (Exception e) {
 						logger().error("[" + Oddjob.this + "] Exception executing job.", e);
-						getStateChanger().setJobStateException(e);
+						getStateChanger().setStateException(e);
 				    }
 				}
 			});
@@ -827,14 +827,14 @@ implements Loadable,
 	 * @return True if saved.
 	 */
 	private boolean saveLastReset() {
-		if (stateHandler.getJobState() != JobState.READY) {
+		if (stateHandler.getState() != ParentState.READY) {
 			return true;
 		}
 		
 		try {
 			save();
 		} catch (ComponentPersistException e) {
-			getStateChanger().setJobStateException(e);
+			getStateChanger().setStateException(e);
 			return false;
 		}
 		
@@ -866,7 +866,7 @@ implements Loadable,
 				reset();
 				stop = false;
 				restored = false;
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				logger().info("[" + Oddjob.this + "] Hard Reset.");
 			}
 		});
@@ -1073,17 +1073,17 @@ implements Loadable,
 	    	}
 	    }
 
-	    public void addJobStateListener(JobStateListener listener) {
-	    	Oddjob.this.addJobStateListener(listener);
+	    public void addStateListener(StateListener listener) {
+	    	Oddjob.this.addStateListener(listener);
 	    }
 	    
-	    public void removeJobStateListener(JobStateListener listener) {
-	    	Oddjob.this.removeJobStateListener(listener);
+	    public void removeStateListener(StateListener listener) {
+	    	Oddjob.this.removeStateListener(listener);
 	    }
 
 	    @Override
-	    public JobStateEvent lastJobStateEvent() {
-	    	return Oddjob.this.lastJobStateEvent();
+	    public StateEvent lastStateEvent() {
+	    	return Oddjob.this.lastStateEvent();
 	    }
 	    
 		public File getFile() {

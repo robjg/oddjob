@@ -12,7 +12,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class SQLParametersTest extends TestCase {
 
@@ -92,13 +92,15 @@ public class SQLParametersTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		int count = new OddjobLookup(oddjob).lookup("result.row.C", Integer.class);
 		
 		assertEquals(2, count);
 		
 		keepAlive.close();
+		
+		oddjob.destroy();
 	}
 	
 	public void testInsertsMultipleStatements() throws SQLException, ArooaPropertyException, ArooaConversionException {		
@@ -146,7 +148,7 @@ public class SQLParametersTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		int count = new OddjobLookup(oddjob).lookup("result.row.C", Integer.class);
 		
@@ -155,6 +157,8 @@ public class SQLParametersTest extends TestCase {
 		int sum = new OddjobLookup(oddjob).lookup("result.row.S", Integer.class);
 		
 		assertEquals(8, sum);
+		
+		oddjob.destroy();
 	}
 	
 	/**
@@ -173,7 +177,7 @@ public class SQLParametersTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		int a = new OddjobLookup(oddjob).lookup("a", Integer.class);
 		int b = new OddjobLookup(oddjob).lookup("b", Integer.class);
@@ -189,5 +193,7 @@ public class SQLParametersTest extends TestCase {
 		shutdown.setConnection(connection);
 		shutdown.setInput(new ByteArrayInputStream("shutdown".getBytes()));
 		shutdown.run();
+		
+		oddjob.destroy();
 	}
 }

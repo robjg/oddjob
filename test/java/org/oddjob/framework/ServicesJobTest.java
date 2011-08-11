@@ -6,7 +6,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.registry.Services;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class ServicesJobTest extends TestCase {
 
@@ -81,7 +81,7 @@ public class ServicesJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		Object service = new OddjobLookup(oddjob).lookup(
 				"my-services.services.service(MyCafe;non-veggie)");

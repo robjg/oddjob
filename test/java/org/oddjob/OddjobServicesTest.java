@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.input.InputHandler;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class OddjobServicesTest extends TestCase {
 
@@ -42,8 +42,8 @@ public class OddjobServicesTest extends TestCase {
 		test.setConfiguration(new XMLConfiguration("XML", xml));
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
 		
 		OddjobServices result = new OddjobLookup(
 				test).lookup("mine.oddjobServices", OddjobServices.class);
@@ -98,8 +98,8 @@ public class OddjobServicesTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
 		
 		OddjobServices result = new OddjobLookup(
 				test).lookup("mine.oddjobServices", OddjobServices.class);
@@ -138,8 +138,8 @@ public class OddjobServicesTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
 		
 		OddjobServices result = new OddjobLookup(
 				test).lookup("nested/mine.oddjobServices", OddjobServices.class);

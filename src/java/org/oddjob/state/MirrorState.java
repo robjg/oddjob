@@ -5,8 +5,10 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
 import org.oddjob.framework.JobDestroyedException;
+import org.oddjob.persist.Persistable;
 
 
 /**
@@ -20,9 +22,34 @@ import org.oddjob.framework.JobDestroyedException;
 public class MirrorState extends BasePrimary
 implements Runnable, Stoppable, Resetable {
 
+	private final JobStateHandler stateHandler;
+	
+	private final JobStateChanger stateChanger;
+	
 	private Stateful job;
 	
-	private JobStateListener listener;
+	private StateListener listener;
+	
+	public MirrorState() {
+		stateHandler = new JobStateHandler(this);
+		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
+	}
+
+	@Override
+	protected JobStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<JobState> getStateChanger() {
+		return stateChanger;
+	}
+	
 	
     /**
      * @oddjob.property job
@@ -48,7 +75,7 @@ implements Runnable, Stoppable, Resetable {
 				try {
 					configure();
 				} catch (ArooaConfigurationException e) {
-					getStateChanger().setJobStateException(
+					getStateChanger().setStateException(
 							e);
 					logger().error("[" + MirrorState.this + 
 							"] Exception configuring.", e);
@@ -56,7 +83,7 @@ implements Runnable, Stoppable, Resetable {
 				}
 
 				if (job == null) {
-					getStateChanger().setJobStateException(
+					getStateChanger().setStateException(
 							new NullPointerException("No Job."));
 					return;
 				}
@@ -65,40 +92,43 @@ implements Runnable, Stoppable, Resetable {
 
 				listener = new MirrorListener();
 					
-				job.addJobStateListener(listener);
+				job.addStateListener(listener);
 			}
 		});
 	}
 
-	class MirrorListener implements JobStateListener {
+	class MirrorListener implements StateListener {
 
+		@Override
 		public synchronized void jobStateChange(
-				final JobStateEvent event) {
-			logger().info("Mirroring [" + event.getJobState() + "], time [" +
+				final StateEvent event) {
+			logger().info("Mirroring [" + event.getState() + "], time [" +
 					event.getTime() + "]");
 			
 			stateHandler.waitToWhen(new IsAnyState(), 
 					new Runnable() {
 				public void run() {
-					JobState state = event.getJobState();
+					State state = event.getState();
 					
-					if (state == JobState.DESTROYED) {
+					if (state.isDestroyed()) {
 						logger().info("Target Destroyed! Raising Exception.");
 						
-						getStateChanger().setJobStateException(
+						getStateChanger().setStateException(
 								new JobDestroyedException(job));
 						
 						stop();
 					}
 					else {
-						if (state == JobState.EXCEPTION){
+						if (state.isException()){
 							
-							getStateChanger().setJobStateException(
+							getStateChanger().setStateException(
 									event.getException(), event.getTime());
 						}
 						else {
 						
-							getStateChanger().setJobState(state, event.getTime());
+							getStateChanger().setState(
+									new JobStateConverter().toJobState(
+											state), event.getTime());
 						}
 						
 					}
@@ -109,13 +139,13 @@ implements Runnable, Stoppable, Resetable {
 	
 	public synchronized void stop() {
 		if (listener != null) {
-			job.removeJobStateListener(listener);
+			job.removeStateListener(listener);
 			listener = null;
 			logger().info("Stopped mirroring [" + job + "]");
 			stateHandler.waitToWhen(new IsStoppable(), 
 					new Runnable() {
 				public void run() {
-					getStateChanger().setJobState(JobState.READY);
+					getStateChanger().setState(JobState.READY);
 				}
 			});
 			job = null;
@@ -126,13 +156,13 @@ implements Runnable, Stoppable, Resetable {
 		stop();
 		return stateHandler.waitToWhen(new StateCondition() {			
 			@Override
-			public boolean test(JobState state) {
+			public boolean test(State state) {
 				return JobState.READY != state;
 			}
 		}, 
 				new Runnable() {
 			public void run() {
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
 			}
 		});
 	}
@@ -149,5 +179,21 @@ implements Runnable, Stoppable, Resetable {
 	public void onDestroy() {
 		stop();
 		super.onDestroy();
+	}
+	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + MirrorState.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + MirrorState.this + "] destroyed.");				
 	}
 }

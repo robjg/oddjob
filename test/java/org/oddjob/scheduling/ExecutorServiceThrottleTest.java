@@ -17,8 +17,8 @@ import org.oddjob.Stateful;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class ExecutorServiceThrottleTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ExecutorServiceThrottle.class);
@@ -30,16 +30,16 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		logger.info("---------------  " + getName() + "  -----------------");
 	}
 	
-	private class ExecutingCounter implements JobStateListener {
+	private class ExecutingCounter implements StateListener {
 		
 		private final List<Stateful[]> exceptions = new ArrayList<Stateful[]>();
 		
 		private final List<Stateful> executing = new ArrayList<Stateful>();
 		
 		@Override
-		public void jobStateChange(JobStateEvent event) {
+		public void jobStateChange(StateEvent event) {
 			synchronized(executing) {
-				switch (event.getJobState()) {
+				switch ((JobState) event.getState()) {
 				case COMPLETE:
 					executing.remove(event.getSource());
 					break;
@@ -78,7 +78,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 			jobs[i] = new FlagState();
 			jobs[i].setName("Job " + i);
 			
-			jobs[i].addJobStateListener(counter);
+			jobs[i].addStateListener(counter);
 			
 			futures[i] = throttle.submit(jobs[i]);
 		}
@@ -86,7 +86,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		for (int i = 0; i < 100; ++i) {
 			futures[i].get();
 			assertEquals(JobState.COMPLETE, 
-					jobs[i].lastJobStateEvent().getJobState());
+					jobs[i].lastStateEvent().getState());
 		}
 	
 		assertEquals(0, counter.exceptions.size());
@@ -137,9 +137,9 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		s1.checkWait();
 		s2.checkWait();
 
-		assertEquals(JobState.READY, w3.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, w4.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, w5.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, w3.lastStateEvent().getState());
+		assertEquals(JobState.READY, w4.lastStateEvent().getState());
+		assertEquals(JobState.READY, w5.lastStateEvent().getState());
 		
 		w1.stop();
 		
@@ -147,8 +147,8 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		
 		s3.checkWait();
 		
-		assertEquals(JobState.READY, w4.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, w5.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, w4.lastStateEvent().getState());
+		assertEquals(JobState.READY, w5.lastStateEvent().getState());
 		
 		w3.stop();
 		
@@ -156,7 +156,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		
 		s4.checkWait();
 		
-		assertEquals(JobState.READY, w5.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, w5.lastStateEvent().getState());
 
 		w4.stop();
 		
@@ -212,7 +212,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		
 		assertTrue(executorService.isTerminated());
 		
-		assertEquals(JobState.READY, wait2.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, wait2.lastStateEvent().getState());
 	}
 	
 	public void testCancelledWork() throws InterruptedException, ExecutionException, FailedToStopException {
@@ -252,7 +252,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		
 		f1.get();
 		
-		assertEquals(JobState.READY, w2.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, w2.lastStateEvent().getState());
 		
 		executorService.shutdown();		
 	}

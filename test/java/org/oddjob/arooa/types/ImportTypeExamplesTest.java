@@ -8,7 +8,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class ImportTypeExamplesTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
@@ -23,8 +23,8 @@ public class ImportTypeExamplesTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		String pathA = lookup.lookup("vars.pathA", String.class);

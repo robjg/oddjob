@@ -16,7 +16,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.values.VariablesJob;
 
 /**
@@ -33,7 +33,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(oj));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(oj));
 	}
 
 	public void testVariableFromAndToJava() throws ArooaPropertyException, ArooaConversionException {
@@ -44,7 +44,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(oj));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(oj));
 		
 		String snack = new OddjobLookup(oj).lookup("e.text",
 				String.class);
@@ -91,7 +91,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.INCOMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, oj.lastStateEvent().getState());
 	}
 	
 	public void testSettingVariables() throws Exception {
@@ -102,7 +102,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		VariablesJob v = (VariablesJob) new OddjobLookup(oj).lookup("v");
 		
 		

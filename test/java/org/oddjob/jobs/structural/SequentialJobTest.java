@@ -8,14 +8,19 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.OddjobComponentResolver;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
 import org.oddjob.state.MirrorState;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -37,25 +42,25 @@ public class SequentialJobTest extends TestCase {
 	// this is really a bug in StatefulChildHelper. An empty sequence should
 	// be ready until run and then be complete. I think.
 	public void testEmpty() {
-		SequentialJob j = new SequentialJob();
+		SequentialJob test = new SequentialJob();
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		j.run();
+		test.run();
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 	}
 	
 	// a sequence of just objects will always be complete when it runs
 	public void testObject() {
-		SequentialJob j = new SequentialJob();
+		SequentialJob test = new SequentialJob();
 		
-		j.setJobs(0, (new Object()));
-		j.setJobs(1, (new Object()));
+		test.setJobs(0, (new Object()));
+		test.setJobs(1, (new Object()));
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
-		j.run();
-		assertEquals(JobState.COMPLETE, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
 	}
 	
@@ -70,27 +75,27 @@ public class SequentialJobTest extends TestCase {
 		t2.setJob((Stateful) j2);
 		t2.run();
 		
-		SequentialJob j = new SequentialJob();
-		j.setJobs(0, t1);
-		j.setJobs(1, t2);
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, t1);
+		test.setJobs(1, t2);
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		j.run();
+		test.run();
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 		
 		((Runnable) j1).run();
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 		
 		((Runnable) j2).run();
 		
-		assertEquals(JobState.COMPLETE, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
 		((Resetable) j2).hardReset();
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 	}
 	
 	public void testRunnable() {
@@ -98,18 +103,18 @@ public class SequentialJobTest extends TestCase {
 		
 		OurJob j2 = new OurJob();
 		
-		SequentialJob j = new SequentialJob();
-		j.setJobs(0, j1);
-		j.setJobs(1, j2);
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, j1);
+		test.setJobs(1, j2);
 		
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
-		j.run();
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
 		
-		assertEquals(JobState.COMPLETE, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
 		((Resetable) j2).hardReset();
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 	}
 	
 	/**
@@ -124,22 +129,22 @@ public class SequentialJobTest extends TestCase {
 		t2.setJob((Stateful) j2);
 		t2.run();
 		
-		SequentialJob j = new SequentialJob();
-		j.setJobs(0, j1);
-		j.setJobs(1, t2);
-		j.setJobs(2, new Object());
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, j1);
+		test.setJobs(1, t2);
+		test.setJobs(2, new Object());
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
-		j.run();
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 		
 		((Runnable) j2).run();
 		
-		assertEquals(JobState.COMPLETE, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
-		j.hardReset();
+		test.hardReset();
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 	}
 	
 	public void testNotComplete() {
@@ -149,18 +154,18 @@ public class SequentialJobTest extends TestCase {
 		FlagState j2 = new FlagState();
 		j2.setState(JobState.INCOMPLETE);
 		
-		SequentialJob j = new SequentialJob();
-		j.setJobs(0, j1);
-		j.setJobs(1, j2);
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, j1);
+		test.setJobs(1, j2);
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
-		j.run();
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());	
 		
-		j.hardReset();
+		test.hardReset();
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 		
 	}
 	
@@ -171,18 +176,18 @@ public class SequentialJobTest extends TestCase {
 		FlagState j2 = new FlagState();
 		j2.setState(JobState.EXCEPTION);
 		
-		SequentialJob j = new SequentialJob();
-		j.setJobs(0, j1);
-		j.setJobs(1, j2);
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, j1);
+		test.setJobs(1, j2);
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());
-		j.run();
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
 		
-		assertEquals(JobState.EXCEPTION, j.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());	
 		
-		j.hardReset();
+		test.hardReset();
 
-		assertEquals(JobState.READY, j.lastJobStateEvent().getJobState());			
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 		
 	}
 	
@@ -194,28 +199,98 @@ public class SequentialJobTest extends TestCase {
 		SequentialJob test = new SequentialJob();
 		test.setJobs(0, j1);
 
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());	
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 
-		final List<JobState> results = new ArrayList<JobState>();
+		final List<State> results = new ArrayList<State>();
 		
-		class OurListener implements JobStateListener {
+		class OurListener implements StateListener {
 			
-			public void jobStateChange(JobStateEvent event) {
-				results.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				results.add(event.getState());
 			}
 		}
 		OurListener l = new OurListener();
-		test.addJobStateListener(l);
+		test.addStateListener(l);
 		
-		assertEquals(JobState.COMPLETE, results.get(0));	
+		assertEquals(ParentState.COMPLETE, results.get(0));	
 		assertEquals(1, results.size());
 		
 		test.destroy();
 
-		assertEquals(JobState.DESTROYED, results.get(1));	
+		assertEquals(ParentState.DESTROYED, results.get(1));	
 		assertEquals(2, results.size());
+	}
+	
+	public static class MyService {
+		
+		public void start() {}
+		public void stop() {}
+	}
+	
+	public void testService() throws FailedToStopException {
+		
+		Object service = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		
+		FlagState job = new FlagState();
+		
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, service);
+		test.setJobs(0, job);
+
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		test.run();
+		
+		states.checkNow();
+		
+		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
+		
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+
+		test.stop();
+		
+		states.checkNow();
+	}
+	
+	public void testNestedSequentials() throws FailedToStopException {
+		
+		Object service = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		
+		FlagState job1 = new FlagState();
+		
+		SequentialJob sequential1 = new SequentialJob();
+		sequential1.setJobs(0, service);
+		sequential1.setJobs(0, job1);
+
+		SequentialJob sequential2 = new SequentialJob();
+		FlagState job2 = new FlagState();
+		sequential2.setJobs(0, job2);
+		
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, sequential1);
+		test.setJobs(1, sequential2);
+		
+		StateSteps states = new StateSteps(sequential1);
+		states.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		test.run();
+		
+		states.checkNow();
+		
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+		
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+
+		test.stop();
+		
+		states.checkNow();		
 	}
 }

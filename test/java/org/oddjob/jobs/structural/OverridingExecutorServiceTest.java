@@ -15,6 +15,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class OverridingExecutorServiceTest extends TestCase {
 
@@ -53,9 +54,7 @@ public class OverridingExecutorServiceTest extends TestCase {
 		public ExecutorService getService() {
 			return service;
 		}
-
 	}
-	
 	
 	public void testExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 
@@ -66,13 +65,16 @@ public class OverridingExecutorServiceTest extends TestCase {
 		oddjob.load();
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
-		oddjobStates.startCheck(JobState.READY, JobState.EXECUTING);
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING);
 		
 		Thread t = new Thread(oddjob);
 		t.start();
 
 		oddjobStates.checkWait();
 				
+		oddjobStates.startCheck(ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.READY);
+		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		WaitJob wait1 = lookup.lookup("wait1", WaitJob.class); 
@@ -107,16 +109,20 @@ public class OverridingExecutorServiceTest extends TestCase {
 //		states3.checkWait();
 //		states4.checkWait();
 		
+		states1.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		states2.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		states3.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		states4.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		
 		oddjob.stop();
 		
-		states1.startCheck(JobState.COMPLETE);
-		states2.startCheck(JobState.COMPLETE);
-		states3.startCheck(JobState.COMPLETE);
-		states4.startCheck(JobState.COMPLETE);
+		oddjobStates.checkNow();
 		
-		states1.checkWait();
-		states2.checkWait();
-		states3.checkWait();
-		states4.checkWait();
+		states1.checkNow();
+		states2.checkNow();
+		states3.checkNow();
+		states4.checkNow();
+		
+		oddjob.destroy();
 	}
 }

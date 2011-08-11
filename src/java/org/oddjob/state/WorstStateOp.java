@@ -12,23 +12,35 @@ import org.oddjob.Structural;
  */
 public class WorstStateOp implements StateOperator {
 	
-	private static final JobState[][] worst = { 
-		 {JobState.READY,      JobState.EXECUTING,  JobState.INCOMPLETE, JobState.READY,      JobState.EXCEPTION}, 
-		 {JobState.EXECUTING,  JobState.EXECUTING,  JobState.EXECUTING, JobState.EXECUTING,  JobState.EXECUTING}, 
-		 {JobState.INCOMPLETE, JobState.EXECUTING, JobState.INCOMPLETE, JobState.INCOMPLETE, JobState.EXCEPTION}, 
-		 {JobState.READY,      JobState.EXECUTING,  JobState.INCOMPLETE, JobState.COMPLETE,   JobState.EXCEPTION},
-		 {JobState.EXCEPTION,  JobState.EXECUTING,  JobState.EXCEPTION,  JobState.EXCEPTION,  JobState.EXCEPTION} 
-	};
-	 
-	public JobState evaluate(JobState... states) {
+	@Override
+	public ParentState evaluate(State... states) {
+		
 		new AssertNonDestroyed().evaluate(states);
 		
-		JobState state = JobState.READY;
+		ParentState state = ParentState.READY;
 		
-		if (states.length > 0 ) {
-			state = states[0];
+		if (states.length > 0) {
+			
+			state = new ParentStateConverter().toStructuralState(states[0]);
+			
 			for (int i = 1; i < states.length; ++i) {
-				state = worst[state.ordinal()][states[i].ordinal()]; 
+				State next = states[i];
+
+				if (state.isStoppable() || next.isStoppable()){
+					state = ParentState.ACTIVE;
+				}
+				else if (state.isException() || next.isException()) {
+					state = ParentState.EXCEPTION;
+				}
+				else if (state.isIncomplete() || next.isIncomplete()){
+					state = ParentState.INCOMPLETE;
+				}
+				else if (state.isReady() || next.isReady()){
+					state = ParentState.READY;
+				}
+				else {
+					state = ParentState.COMPLETE;
+				}
 			}
 		}
 		

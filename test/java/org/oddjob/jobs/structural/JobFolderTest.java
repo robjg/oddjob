@@ -10,7 +10,7 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class JobFolderTest extends TestCase {
 
@@ -33,7 +33,7 @@ public class JobFolderTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(oddjob));
+		assertEquals(ParentState.COMPLETE, Helper.getJobState(oddjob));
 
 		assertNotNull(new OddjobLookup(oddjob).lookup("job1"));
 		assertNotNull(new OddjobLookup(oddjob).lookup("job2"));

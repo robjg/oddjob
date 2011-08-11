@@ -22,7 +22,7 @@ import org.oddjob.OddjobException;
  * 
  */
 public class JobStateEventTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(JobStateEvent.class);
+	private static final Logger logger = Logger.getLogger(StateEvent.class);
 
 	String message = "This should serialize.";
 	
@@ -32,11 +32,11 @@ public class JobStateEventTest extends TestCase {
 	
 	class OurStateful extends MockStateful {
 		
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			throw new RuntimeException("Unexpected.");
 		}
 		
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			throw new RuntimeException("Unexpected.");
 		}
 	}
@@ -52,43 +52,43 @@ public class JobStateEventTest extends TestCase {
 	
 	public void testSerialize1() throws IOException, ClassNotFoundException {
 		OurStateful source = new OurStateful();
-		JobStateEvent event = new JobStateEvent(source, 
+		StateEvent event = new StateEvent(source, 
 				JobState.EXCEPTION, new Date(1234), new OddjobException(message));
 
-		JobStateEvent event2 = (JobStateEvent) outAndBack(event);
+		StateEvent event2 = (StateEvent) outAndBack(event);
 		logger.debug(event2);
 		// source is transient in eventObject.
 		assertNull(event2.getSource());
-		assertEquals(JobState.EXCEPTION, event2.getJobState());
+		assertEquals(JobState.EXCEPTION, event2.getState());
 		assertEquals(1234, event2.getTime().getTime());
 		assertEquals(message, event2.getException().getMessage());
 	}
 	
 	public void testSerialize2() throws IOException, ClassNotFoundException {
 		OurStateful source = new OurStateful();
-		JobStateEvent event = new JobStateEvent(source, 
+		StateEvent event = new StateEvent(source, 
 				JobState.EXCEPTION, new Date(1234), new NotSerializableException());
 
-		JobStateEvent event2 = (JobStateEvent) outAndBack(event);
+		StateEvent event2 = (StateEvent) outAndBack(event);
 		logger.debug(event2);
 		logger.debug("Exception:", event2.getException());
 		// source is transient in eventObject.
 		assertNull(event2.getSource());
-		assertEquals(JobState.EXCEPTION, event2.getJobState());
+		assertEquals(JobState.EXCEPTION, event2.getState());
 		assertEquals(1234, event2.getTime().getTime());
-		assertEquals(JobStateEvent.REPLACEMENT_EXCEPTION_TEXT + message, event2.getException().getMessage());
+		assertEquals(StateEvent.REPLACEMENT_EXCEPTION_TEXT + message, event2.getException().getMessage());
 	}
 	
 	public void testSerializeComplete() throws IOException, ClassNotFoundException {
 		OurStateful source = new OurStateful();
-		JobStateEvent event = new JobStateEvent(source, 
+		StateEvent event = new StateEvent(source, 
 				JobState.COMPLETE, new Date(1234), null);
 
-		JobStateEvent event2 = (JobStateEvent) outAndBack(event);
+		StateEvent event2 = (StateEvent) outAndBack(event);
 		logger.debug(event2);
 		// source is transient in eventObject.
 		assertNull(event2.getSource());
-		assertEquals(JobState.COMPLETE, event2.getJobState());
+		assertEquals(JobState.COMPLETE, event2.getState());
 		assertEquals(1234, event2.getTime().getTime());
 		assertEquals(null, event2.getException());
 	}

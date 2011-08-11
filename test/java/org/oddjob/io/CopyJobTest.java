@@ -15,7 +15,7 @@ import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class CopyJobTest extends TestCase {
 
@@ -45,7 +45,7 @@ public class CopyJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		assertTrue(new File(dir, "test1.txt").exists());
 	}
@@ -71,7 +71,7 @@ public class CopyJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		assertEquals(3, new WildcardSpec(
 				new File(dir, "*.txt")).findFiles().length);
@@ -98,7 +98,7 @@ public class CopyJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		assertTrue(new File(dir, "a/x/test3.txt").exists());
 	}
@@ -125,7 +125,7 @@ public class CopyJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		assertTrue(new File(dir, "x/test3.txt").exists());
 	}
@@ -159,8 +159,8 @@ public class CopyJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 				
 		String result = new OddjobLookup(oddjob).lookup("e.text", String.class);
 		

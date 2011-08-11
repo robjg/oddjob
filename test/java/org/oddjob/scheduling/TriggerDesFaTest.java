@@ -15,7 +15,7 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.StateConditions;
 
 /**
  *
@@ -53,7 +53,7 @@ public class TriggerDesFaTest extends TestCase {
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(trigger, trigger.getOn());
-		assertEquals(JobState.EXCEPTION, trigger.getState());
+		assertEquals(StateConditions.EXCEPTION, trigger.getState());
 		assertEquals(1, Helper.getChildren(trigger).length);
 	}
 

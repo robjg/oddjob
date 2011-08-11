@@ -340,7 +340,7 @@ implements Stoppable {
 				return;
 			}
 			
-			if (oddjob.lastJobStateEvent().getJobState() == JobState.EXECUTING) {
+			if (oddjob.lastStateEvent().getState() == JobState.EXECUTING) {
 				throw new PropertyVetoException("Oddjob Not Stopped.", evt);
 			}
 			

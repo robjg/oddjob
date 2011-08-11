@@ -39,6 +39,7 @@ import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  * Test for Variables Job.
@@ -275,7 +276,7 @@ public class VariablesJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("XML", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		assertEquals("20051225", 
 				new OddjobLookup(oj).lookup(

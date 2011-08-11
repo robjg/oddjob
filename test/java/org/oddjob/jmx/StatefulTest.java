@@ -8,17 +8,17 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 import junit.framework.TestCase;
 
 public class StatefulTest extends TestCase {
 
-	class Result implements JobStateListener {
-		JobStateEvent event;
+	class Result implements StateListener {
+		StateEvent event;
 		
-		public void jobStateChange(JobStateEvent event) {
+		public void jobStateChange(StateEvent event) {
 			this.event = event;
 			synchronized (this) {
 				notifyAll();
@@ -66,9 +66,9 @@ public class StatefulTest extends TestCase {
 		
 		Result result = new Result();
 
-		fruit.addJobStateListener(result);
+		fruit.addStateListener(result);
 		
-		assertEquals(JobState.COMPLETE, result.event.getJobState());
+		assertEquals(JobState.COMPLETE, result.event.getState());
 
 		Resetable resetable = (Resetable) fruit;
 		
@@ -77,7 +77,7 @@ public class StatefulTest extends TestCase {
 		synchronized (result) {
 			result.wait(5000);
 		}
-		assertEquals(JobState.READY, result.event.getJobState());
+		assertEquals(JobState.READY, result.event.getState());
 
 		client.destroy();
 		

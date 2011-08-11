@@ -9,16 +9,11 @@ package org.oddjob.state;
  */
 public class IsSoftResetable implements StateCondition {
 
-	public boolean test(JobState state) {
+	@Override
+	public boolean test(State state) {
 		
-		switch (state) {
-		case READY:
-		case INCOMPLETE:
-		case EXCEPTION:
-			return true;
-		default:
-			return false;
-		}
-	}
-	
+		return state.isReady() ||
+		state.isIncomplete() ||
+		state.isException();
+	}	
 }

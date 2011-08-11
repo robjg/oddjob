@@ -18,7 +18,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class DesignerActionTest extends TestCase {
 
@@ -97,7 +97,7 @@ public class DesignerActionTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		Object sequentialJob = new OddjobLookup(oddjob).lookup("sequential");
 		

@@ -10,7 +10,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.launch.Launcher;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class LaunchJobTest extends TestCase {
 
@@ -37,7 +37,7 @@ public class LaunchJobTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);

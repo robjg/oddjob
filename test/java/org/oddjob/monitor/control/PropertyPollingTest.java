@@ -12,8 +12,8 @@ import org.oddjob.monitor.model.DetailModel;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.monitor.model.PropertyModel;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class PropertyPollingTest extends TestCase {
 
@@ -86,22 +86,22 @@ public class PropertyPollingTest extends TestCase {
 	
 	public class OurStateful implements Stateful {
 		
-		private JobStateListener listener;
+		private StateListener listener;
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNotNull(listener);
 			assertNull(this.listener);
 			this.listener = listener;
 		}
 		
 		@Override
-		public JobStateEvent lastJobStateEvent() {
+		public StateEvent lastStateEvent() {
 			throw new RuntimeException("Unexpected.");
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(listener);
 			assertSame(this.listener, listener);
 			this.listener = null;
@@ -138,7 +138,7 @@ public class PropertyPollingTest extends TestCase {
 		assertNotNull(ec.stateful.listener); 
 		
 		ec.stateful.listener.jobStateChange(
-				new JobStateEvent(ec.stateful, JobState.COMPLETE)); 
+				new StateEvent(ec.stateful, JobState.COMPLETE)); 
 		
 		detailModel.setSelectedContext(null);
 		

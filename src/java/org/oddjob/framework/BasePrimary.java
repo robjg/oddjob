@@ -4,12 +4,7 @@ package org.oddjob.framework;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
 
 /**
  * An abstract implementation of a component which provides common functionality to
@@ -33,23 +28,6 @@ implements LogEnabled {
 	 * @oddjob.required No. 
 	 */
 	private String name;
-
-	/**
-	 * This flag is set by the stop method and should
-	 * be examined by any Stoppable sub classes in 
-	 * their processing loop.
-	 */
-	protected transient volatile boolean stop;
-	
-	public BasePrimary() {
-		stateHandler.addJobStateListener(new JobStateListener() {
-			public void jobStateChange(JobStateEvent event) {
-				if (event.getJobState() == JobState.READY) {
-					stop = false;					
-				}
-			}
-		});
-	}
 	
 	/**
 	 * Allow sub classes access to the logger.
@@ -79,47 +57,12 @@ implements LogEnabled {
 	}
 	
 	/**
-	 * Utility method to sleep a certain time.
-	 * 
-	 * @param waitTime Milliseconds to sleep for.
-	 */
-	protected void sleep(final long waitTime) {
-		stateHandler.assertAlive();
-		
-		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				if (stop) {
-					logger().debug("[" + BasePrimary.this + 
-					"] Stop request detected. Not sleeping.");
-					
-					return;
-				}
-				
-				logger().debug("[" + BasePrimary.this + "] Sleeping for " + ( 
-						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
-				
-				iconHelper.changeIcon(IconHelper.SLEEPING);
-					
-				try {
-					stateHandler.sleep(waitTime);
-				} catch (InterruptedException e) {
-					logger().debug("Sleep interupted.");
-				}
-				
-				iconHelper.changeIcon(IconHelper.EXECUTING);
-			}
-		})) {
-			throw new IllegalStateException("Can't sleep unless EXECUTING.");
-		}
-	}	
-		
-	/**
 	 * Set the job name. Used by subclasses to set the job name.
 	 * 
 	 * @param name The name of the job.
 	 */
 	synchronized public void setName(String name) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		
 		String old = this.name;
 		this.name = name;

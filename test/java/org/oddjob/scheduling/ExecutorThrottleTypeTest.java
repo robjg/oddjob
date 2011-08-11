@@ -17,8 +17,9 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -26,7 +27,12 @@ public class ExecutorThrottleTypeTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(ExecutorThrottleTypeTest.class);
 	
-	private class Capture implements StructuralListener, JobStateListener {
+	@Override
+	protected void setUp() throws Exception {
+		logger.info("---------------------- " + getName() + "-----------------------");
+	}
+	
+	private class Capture implements StructuralListener, StateListener {
 
 		Set<Stateful> ready = new HashSet<Stateful>();
 		
@@ -35,11 +41,11 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		Set<Stateful> complete = new HashSet<Stateful>();
 		
 		@Override
-		public void jobStateChange(JobStateEvent event) {
+		public void jobStateChange(StateEvent event) {
 			logger.info("Received: " + event);
 			
 			synchronized(this) {
-				switch (event.getJobState()) {
+				switch ((JobState) event.getState()) {
 					case READY:
 						ready.add(event.getSource());
 						break;
@@ -53,7 +59,7 @@ public class ExecutorThrottleTypeTest extends TestCase {
 						break;
 				    default:
 				    	throw new RuntimeException("Unexpected " + 
-				    			event.getJobState());
+				    			event.getState());
 				}
 				
 				this.notifyAll();
@@ -62,12 +68,12 @@ public class ExecutorThrottleTypeTest extends TestCase {
 
 		@Override
 		public void childAdded(StructuralEvent event) {
-			((Stateful) event.getChild()).addJobStateListener(this);
+			((Stateful) event.getChild()).addStateListener(this);
 		}
 
 		@Override
 		public void childRemoved(StructuralEvent event) {
-			((Stateful) event.getChild()).removeJobStateListener(this);
+			((Stateful) event.getChild()).removeStateListener(this);
 		}
 		
 	}
@@ -81,13 +87,15 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		
 		StateSteps oddjobState = new StateSteps(oddjob);
 		
-		oddjobState.startCheck(JobState.READY, JobState.EXECUTING);
+		oddjobState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING);
 		
 		new Thread(oddjob).start();
 		
 		oddjobState.checkWait();
 		
-		oddjobState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		oddjobState.startCheck(ParentState.EXECUTING, 
+				ParentState.COMPLETE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -164,13 +172,14 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		
 		StateSteps oddjobState = new StateSteps(oddjob);
 		
-		oddjobState.startCheck(JobState.READY, JobState.EXECUTING);
+		oddjobState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING);
 		
 		new Thread(oddjob).start();
 		
 		oddjobState.checkWait();
 		
-		oddjobState.startCheck(JobState.EXECUTING, JobState.READY);
+		oddjobState.startCheck(ParentState.EXECUTING, ParentState.READY);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		

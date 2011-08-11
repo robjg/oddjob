@@ -10,14 +10,14 @@ public class StateExchangeTest extends TestCase {
 
 	private class OurStateful extends MockStateful {
 		
-		JobStateListener listener;
+		StateListener listener;
 		
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			assertNull(this.listener);
 			this.listener = listener;
 		}
 		
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertEquals(this.listener, listener);
 			this.listener = null;
 		}
@@ -27,10 +27,10 @@ public class StateExchangeTest extends TestCase {
 
 	private class OurChanger extends MockStateChanger {
 
-		JobState state;
+		ParentState state;
 		
 		@Override
-		public void setJobState(JobState state, Date date) {
+		public void setState(ParentState state, Date date) {
 			this.state = state;
 		}
 	}
@@ -54,13 +54,13 @@ public class StateExchangeTest extends TestCase {
 		assertNotNull(stateful.listener);
 		assertNull(changer.state);
 		
-		stateful.listener.jobStateChange(new JobStateEvent(stateful, JobState.COMPLETE));
+		stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.COMPLETE));
 		
-		assertEquals(JobState.COMPLETE, changer.state);
+		assertEquals(ParentState.COMPLETE, changer.state);
 		
-		stateful.listener.jobStateChange(new JobStateEvent(stateful, JobState.DESTROYED));
+		stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.DESTROYED));
 		
-		assertEquals(JobState.COMPLETE, changer.state);
+		assertEquals(ParentState.COMPLETE, changer.state);
 		
 		test.stop();
 		

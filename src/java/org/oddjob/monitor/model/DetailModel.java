@@ -14,8 +14,8 @@ import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * Model for controlling the detail views.
@@ -52,8 +52,8 @@ public class DetailModel implements PropertyChangeNotifier {
 	private final StateModel stateModel = new StateModel();
 
 	/** State control */
-	private final JobStateListener stateListener = new JobStateListener() {		
-		public void jobStateChange(JobStateEvent event) {
+	private final StateListener stateListener = new StateListener() {		
+		public void jobStateChange(StateEvent event) {
 			stateModel.change(event);
 		}
 	};
@@ -137,7 +137,7 @@ public class DetailModel implements PropertyChangeNotifier {
 			// state
 			stateModel.clear();
 			if (selectedJob instanceof Stateful) {
-				((Stateful) selectedJob).removeJobStateListener(stateListener);
+				((Stateful) selectedJob).removeStateListener(stateListener);
 			}
 			break;
 		case CONSOLE_TAB:
@@ -169,7 +169,7 @@ public class DetailModel implements PropertyChangeNotifier {
 		case STATE_TAB:
 			// stateful
 			if (selectedJob instanceof Stateful) {	
-				((Stateful) selectedJob).addJobStateListener(stateListener);
+				((Stateful) selectedJob).addStateListener(stateListener);
 			}
 			break;
 		case CONSOLE_TAB:

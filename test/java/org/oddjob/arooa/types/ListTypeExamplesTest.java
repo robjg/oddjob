@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  * @author rob
@@ -36,8 +36,8 @@ public class ListTypeExamplesTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);
@@ -68,8 +68,8 @@ public class ListTypeExamplesTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);

@@ -15,7 +15,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class SQLScriptJobTest extends TestCase {
 
@@ -118,11 +118,13 @@ public class SQLScriptJobTest extends TestCase {
 		
 		assertNotNull(input);
 		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("Resource", input));
-		oj.setExport("output", out);
-		oj.run();
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("Resource", input));
+		oddjob.setExport("output", out);
+		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		oddjob.destroy();
 	}
 }

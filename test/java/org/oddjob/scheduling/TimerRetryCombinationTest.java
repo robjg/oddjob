@@ -23,9 +23,10 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
 
 
@@ -131,7 +132,7 @@ public class TimerRetryCombinationTest extends TestCase {
 
 		WaitJob wait1 = new WaitJob();
 		wait1.setFor(oddjob1);
-		wait1.setState("INCOMPLETE");
+		wait1.setState(StateConditions.INCOMPLETE);
 		
 		wait1.run();
 		
@@ -182,7 +183,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		WaitJob wait2 = new WaitJob();
 		wait2.setFor(oddjob2);
-		wait2.setState("INCOMPLETE");
+		wait2.setState(StateConditions.INCOMPLETE);
 		wait2.run();
 		
 		OddjobLookup lookup2 = new OddjobLookup(oddjob2);
@@ -200,17 +201,17 @@ public class TimerRetryCombinationTest extends TestCase {
 		services.stop();
 	}
 	
-	private class RecordingStateListener implements JobStateListener {
+	private class RecordingStateListener implements StateListener {
 				
-		final List<JobStateEvent> eventList = new ArrayList<JobStateEvent>();
+		final List<StateEvent> eventList = new ArrayList<StateEvent>();
 		
-		public synchronized void jobStateChange(JobStateEvent event) {
-			logger.info("Recording Event [" + event.getJobState() + "] for [" + 
+		public synchronized void jobStateChange(StateEvent event) {
+			logger.info("Recording Event [" + event.getState() + "] for [" + 
 					event.getSource() + "] index [" + eventList.size() + "]");
 			eventList.add(event);
 		}
 		
-		public synchronized JobStateEvent get(int index) {
+		public synchronized StateEvent get(int index) {
 			return eventList.get(index);
 		}
 		
@@ -232,10 +233,10 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob1.setConfiguration(config);
 
 		RecordingStateListener ojRec = new RecordingStateListener();
-		oddjob1.addJobStateListener(ojRec);
+		oddjob1.addStateListener(ojRec);
 		
 		assertEquals(1, ojRec.size());
-		assertEquals(JobState.READY, ojRec.get(0).getJobState());
+		assertEquals(ParentState.READY, ojRec.get(0).getState());
 		
 		oddjob1.load();
 		
@@ -244,57 +245,63 @@ public class TimerRetryCombinationTest extends TestCase {
 		Timer timer = (Timer) new OddjobLookup(oddjob1).lookup("timer");
 		
 		RecordingStateListener timerRec = new RecordingStateListener();
-		timer.addJobStateListener(timerRec);
+		timer.addStateListener(timerRec);
 				
 		assertEquals(1, timerRec.size());
-		assertEquals(JobState.READY, timerRec.get(0).getJobState());
+		assertEquals(ParentState.READY, timerRec.get(0).getState());
 		
 		Retry retry = (Retry) new OddjobLookup(oddjob1).lookup("retry");
 		
 		RecordingStateListener retryRec = new RecordingStateListener();
-		retry.addJobStateListener(retryRec);
+		retry.addStateListener(retryRec);
 		
 		assertEquals(1, retryRec.size());
-		assertEquals(JobState.READY, retryRec.get(0).getJobState());
+		assertEquals(ParentState.READY, retryRec.get(0).getState());
 		
 		oddjob1.run();
 
 		new StopWait(oddjob1).run();
-		logger.info("Oddjob1 has stopped. State is: " + oddjob1.lastJobStateEvent().getJobState());
+		logger.info("Oddjob1 has stopped. State is: " + oddjob1.lastStateEvent().getState());
 		
-		assertEquals(JobState.EXECUTING, ojRec.get(1).getJobState());
-		assertEquals(JobState.INCOMPLETE, ojRec.get(2).getJobState());
-		assertEquals(3, ojRec.size());
+		assertEquals(ParentState.EXECUTING, ojRec.get(1).getState());
+		assertEquals(ParentState.ACTIVE, ojRec.get(2).getState());
+		assertEquals(ParentState.INCOMPLETE, ojRec.get(3).getState());
+		assertEquals(4, ojRec.size());
 		
 		// Not our recording listener is added after Oddjob's, so it's possible
 		// that we haven't have all events yet. This wait ensures we have.
 		new StopWait(timer).run();
 		
-		logger.info("Timer has stopped. State is: " + timer.lastJobStateEvent().getJobState());
+		logger.info("Timer has stopped. State is: " + timer.lastStateEvent().getState());
 		
-		assertEquals(JobState.EXECUTING, timerRec.get(1).getJobState());
-		assertEquals(JobState.INCOMPLETE, timerRec.get(2).getJobState());
-		assertEquals(3, timerRec.size());
+		assertEquals(ParentState.EXECUTING, timerRec.get(1).getState());
+		assertEquals(ParentState.ACTIVE, timerRec.get(2).getState());
+		assertEquals(ParentState.INCOMPLETE, timerRec.get(3).getState());
+		assertEquals(4, timerRec.size());
 		
-		assertEquals(JobState.EXECUTING, retryRec.get(1).getJobState());
-		assertEquals(JobState.INCOMPLETE, retryRec.get(2).getJobState());
-		assertEquals(JobState.READY, retryRec.get(3).getJobState());
-		assertEquals(JobState.EXECUTING, retryRec.get(4).getJobState());
-		assertEquals(JobState.INCOMPLETE, retryRec.get(5).getJobState());
-		assertEquals(JobState.READY, retryRec.get(6).getJobState());
-		assertEquals(JobState.EXECUTING, retryRec.get(7).getJobState());
-		assertEquals(JobState.INCOMPLETE, retryRec.get(8).getJobState());
-		assertEquals(JobState.READY, retryRec.get(9).getJobState());
-		assertEquals(JobState.EXECUTING, retryRec.get(10).getJobState());
-		assertEquals(JobState.INCOMPLETE, retryRec.get(11).getJobState());
-		assertEquals(12, retryRec.size());
+		assertEquals(ParentState.EXECUTING, retryRec.get(1).getState());
+		assertEquals(ParentState.ACTIVE, retryRec.get(2).getState());
+		assertEquals(ParentState.INCOMPLETE, retryRec.get(3).getState());
+		assertEquals(ParentState.READY, retryRec.get(4).getState());
+		assertEquals(ParentState.EXECUTING, retryRec.get(5).getState());
+		assertEquals(ParentState.ACTIVE, retryRec.get(6).getState());
+		assertEquals(ParentState.INCOMPLETE, retryRec.get(7).getState());
+		assertEquals(ParentState.READY, retryRec.get(8).getState());
+		assertEquals(ParentState.EXECUTING, retryRec.get(9).getState());
+		assertEquals(ParentState.ACTIVE, retryRec.get(10).getState());
+		assertEquals(ParentState.INCOMPLETE, retryRec.get(11).getState());
+		assertEquals(ParentState.READY, retryRec.get(12).getState());
+		assertEquals(ParentState.EXECUTING, retryRec.get(13).getState());
+		assertEquals(ParentState.ACTIVE, retryRec.get(14).getState());
+		assertEquals(ParentState.INCOMPLETE, retryRec.get(15).getState());
+		assertEquals(16, retryRec.size());
 		
 		logger.info("Cleaning Up.");
 		
 		oddjob1.destroy();
 		
-		assertEquals(JobState.DESTROYED, retryRec.get(12).getJobState());
-		assertEquals(13, retryRec.size());
+		assertEquals(ParentState.DESTROYED, retryRec.get(16).getState());
+		assertEquals(17, retryRec.size());
 		
 		services.stop();
 	}

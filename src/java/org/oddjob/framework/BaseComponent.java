@@ -3,7 +3,6 @@ package org.oddjob.framework;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Iconic;
@@ -21,14 +20,10 @@ import org.oddjob.arooa.runtime.RuntimeListenerAdaptor;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.IconTip;
-import org.oddjob.images.StateIcons;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsSaveable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.JobStateListener;
-import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateHandler;
 
 /**
  * An abstract implementation of a component which provides common functionality to
@@ -55,10 +50,10 @@ implements Iconic, Stateful,
 	/** 
 	 * A state handler to delegate state change functionality to. 
 	 * */
-	protected final JobStateHandler stateHandler = new JobStateHandler(this);
-	
 	private ArooaSession session;
 
+	abstract protected StateHandler<?> stateHandler();
+	
 	/**
 	 * Here for the tests...
 	 * 
@@ -83,7 +78,7 @@ implements Iconic, Stateful,
 			@Override
 			public void afterInit(RuntimeEvent event) throws ArooaException {
 				onInitialised();
-				stateHandler.waitToWhen(new IsAnyState(), 
+				stateHandler().waitToWhen(new IsAnyState(), 
 						new Runnable() {
 					@Override
 					public void run() {
@@ -102,7 +97,7 @@ implements Iconic, Stateful,
 			
 			@Override
 			public void beforeDestroy(RuntimeEvent event) throws ArooaException {
-				stateHandler.assertAlive();
+				stateHandler().assertAlive();
 				logger().debug("[" + BaseComponent.this + "] destroying.");
 				onDestroy();
 			}
@@ -121,65 +116,7 @@ implements Iconic, Stateful,
 	}
 	
 	protected abstract Logger logger();
-	
-	
-	protected StateChanger getStateChanger() {
-		return new StateChanger() {
-			
-			public void setJobState(JobState state) {
-				setJobState(state, new Date());
-			}
-			
-			public void setJobState(JobState state, Date date) {
-				if (state == stateHandler.getJobState()) {
-					return;
-				}
-				
-				stateHandler.setJobState(state, date);
-				iconHelper.changeIcon(StateIcons.iconFor(state));
-				
-				try {
-					
-					if (new IsSaveable().test(state)) {
-							save();
-					}
-					
-					stateHandler.fireEvent();
-					
-					
-				} catch (ComponentPersistException e) {
-					setJobStateException(e);
-				}
-			}
-			
-			public void setJobStateException(Throwable t) {
-				setJobStateException(t, new Date());
-			}
-			
-			public void setJobStateException(Throwable t, Date date) {
-				if (JobState.EXCEPTION == stateHandler.getJobState()) {
-					return;
-				}
-				
-				stateHandler.setJobStateException(t, date);
-				iconHelper.changeIcon(IconHelper.EXCEPTION);
-				
-				if (new IsSaveable().test(JobState.EXCEPTION) &&
-						!(t instanceof ComponentPersistException)) {
-					try {
-						save();
-					} catch (ComponentPersistException e) {
-						stateHandler.setJobStateException(e, date);
-					}
-				}
-				
-				stateHandler.fireEvent();
-				
-			}
-			
-		};
-	}
-	
+		
 	/**
 	 * Implementations override this to save their state on state
 	 * change.
@@ -227,22 +164,22 @@ implements Iconic, Stateful,
 	 * 
 	 * @return The last JobStateEvent. Will never be null.
 	 */	
-	public JobStateEvent lastJobStateEvent() {
-		return stateHandler.lastJobStateEvent();
+	public StateEvent lastStateEvent() {
+		return stateHandler().lastStateEvent();
 	}
 	
 	/**
 	 * Add a job state listener.
 	 */
-	public void addJobStateListener(JobStateListener listener) {
-		stateHandler.addJobStateListener(listener);
+	public void addStateListener(StateListener listener) {
+		stateHandler().addStateListener(listener);
 	}
 
 	/**
 	 * Remove a job state listener.
 	 */
-	public void removeJobStateListener(JobStateListener listener){
-		stateHandler.removeJobStateListener(listener);
+	public void removeStateListener(StateListener listener){
+		stateHandler().removeStateListener(listener);
 	}
 	
 	/**
@@ -251,7 +188,7 @@ implements Iconic, Stateful,
 	 * @param l The property change listener.
 	 */		
 	public void addPropertyChangeListener(PropertyChangeListener l) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		propertyChangeSupport.addPropertyChangeListener(l);		
 	}
 
@@ -290,7 +227,7 @@ implements Iconic, Stateful,
 	 * @param listener The listener.
 	 */
 	public void addIconListener(IconListener listener) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		iconHelper.addIconListener(listener);
 	}
 
@@ -309,7 +246,7 @@ implements Iconic, Stateful,
 	 * to call this method to initialise the job.
 	 */
 	public void initialise() {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		onInitialised();
 		onConfigured();
 	}	
@@ -319,7 +256,7 @@ implements Iconic, Stateful,
 	 * be called to clear up resources.
 	 */
 	public void destroy() { 
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		onDestroy();
 		fireDestroyedState();
 	}
@@ -347,19 +284,6 @@ implements Iconic, Stateful,
 	 */
 	protected void onDestroy() { }
 	
-	/**
-	 * Internal method to fire state.
-	 */
-	private void fireDestroyedState() {
-		
-		if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stateHandler.setJobState(JobState.DESTROYED);
-				stateHandler.fireEvent();
-			}
-		})) {
-			throw new IllegalStateException("[" + BaseComponent.this + " Failed set state DESTROYED");
-		}
-		logger().debug("[" + BaseComponent.this + "] destroyed.");				
-	}
+	abstract protected void fireDestroyedState();
+	
 }

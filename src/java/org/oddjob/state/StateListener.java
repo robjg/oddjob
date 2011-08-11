@@ -8,7 +8,7 @@ package org.oddjob.state;
  * @author Rob Gordon
  */
 
-public interface JobStateListener {
+public interface StateListener {
 
 
 	/**
@@ -16,6 +16,6 @@ public interface JobStateListener {
 	 * 
 	 * @param event The job state event.
 	 */	
-	public void jobStateChange(JobStateEvent event);
+	public void jobStateChange(StateEvent event);
 	
 }

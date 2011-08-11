@@ -10,8 +10,8 @@ import org.oddjob.Stoppable;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
@@ -69,11 +69,11 @@ public class StopActionTest extends TestCase {
 		class MySS extends MockStateful implements Stoppable {
 			boolean removed;
 			public void stop() {}
-			public void addJobStateListener(JobStateListener listener) {
+			public void addStateListener(StateListener listener) {
 				listener.jobStateChange(
-						new JobStateEvent(this, JobState.EXECUTING));
+						new StateEvent(this, JobState.EXECUTING));
 			}
-			public void removeJobStateListener(JobStateListener listener) {
+			public void removeStateListener(StateListener listener) {
 				removed = true;
 			}
 		}
@@ -101,11 +101,11 @@ public class StopActionTest extends TestCase {
 		class MySS extends MockStateful implements Stoppable {
 			boolean removed;
 			public void stop() {}
-			public void addJobStateListener(JobStateListener listener) {
+			public void addStateListener(StateListener listener) {
 				listener.jobStateChange(
-						new JobStateEvent(this, JobState.COMPLETE));
+						new StateEvent(this, JobState.COMPLETE));
 			}
-			public void removeJobStateListener(JobStateListener listener) {
+			public void removeStateListener(StateListener listener) {
 				removed = true;
 			}
 		}

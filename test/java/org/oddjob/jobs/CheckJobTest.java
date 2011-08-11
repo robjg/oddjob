@@ -18,6 +18,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class CheckJobTest extends TestCase {
 
@@ -293,8 +294,8 @@ public class CheckJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}
@@ -308,8 +309,8 @@ public class CheckJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.INCOMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		Structural structural = new OddjobLookup(oddjob).lookup(
 				"all-checks", Structural.class);
@@ -318,7 +319,7 @@ public class CheckJobTest extends TestCase {
 		
 		for (Object child : children) {
 			assertEquals(JobState.INCOMPLETE, 
-					((Stateful) child).lastJobStateEvent().getJobState());
+					((Stateful) child).lastStateEvent().getState());
 		}
 		
 		oddjob.destroy();
@@ -333,8 +334,8 @@ public class CheckJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}	
@@ -348,16 +349,16 @@ public class CheckJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.INCOMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE,
 				new OddjobLookup(oddjob).lookup("should-complete", 
-						Stateful.class).lastJobStateEvent().getJobState());
+						Stateful.class).lastStateEvent().getState());
 		
 		assertEquals(JobState.INCOMPLETE,
 				new OddjobLookup(oddjob).lookup("should-incomplete", 
-						Stateful.class).lastJobStateEvent().getJobState());
+						Stateful.class).lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}	

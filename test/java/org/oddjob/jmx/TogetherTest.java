@@ -154,29 +154,29 @@ public class TogetherTest extends TestCase {
 		
 		TrackingServices services = new TrackingServices(3);
 	
-		Oddjob oj = new Oddjob();
-		oj.setOddjobExecutors(services);
-		oj.setConfiguration(new XMLConfiguration("Resource",
+		Oddjob oddjob = new Oddjob();
+		oddjob.setOddjobExecutors(services);
+		oddjob.setConfiguration(new XMLConfiguration("Resource",
 				this.getClass().getResourceAsStream("together4.xml")));
 		
 //		OddjobExplorer e = new OddjobExplorer();
-//		e.setOddjob(oj);
+//		e.setOddjob(oddjob);
 //		Thread t = new Thread(e);
 //		t.start();
 		
-		oj.run();
+		oddjob.run();
 
 //		t.join();
 		
-		Object test1 = new OddjobLookup(oj).lookup("test1");
+		Object test1 = new OddjobLookup(oddjob).lookup("test1");
 		assertEquals("oranges", PropertyUtils.getProperty(test1, "text"));
 		
-		Object test2 = new OddjobLookup(oj).lookup("test2");
+		Object test2 = new OddjobLookup(oddjob).lookup("test2");
 		assertEquals("apples", PropertyUtils.getProperty(test2, "text"));
 		
 		services.stop();
 		
-		oj.destroy();
+		oddjob.destroy();
 		
 	}
 	

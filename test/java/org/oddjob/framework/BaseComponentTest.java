@@ -22,10 +22,16 @@ import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.images.StateIcons;
+import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateHandler;
 
 public class BaseComponentTest extends TestCase {
 
@@ -33,6 +39,29 @@ public class BaseComponentTest extends TestCase {
 	
 	private class OurComponent extends BaseComponent {
 
+		private final JobStateHandler stateHandler = new JobStateHandler(this);
+		
+		private final JobStateChanger stateChanger;
+		
+		protected OurComponent() {
+			stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+					new Persistable() {					
+						@Override
+						public void persist() throws ComponentPersistException {
+							save();
+						}
+					});
+		}
+		
+		@Override
+		protected StateHandler<?> stateHandler() {
+			return stateHandler;
+		}
+		
+		protected StateChanger<JobState> getStateChanger() {
+			return stateChanger;
+		}
+		
 		@Override
 		protected Logger logger() {
 			return logger;
@@ -46,9 +75,14 @@ public class BaseComponentTest extends TestCase {
 		void complete() {
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-						getStateChanger().setJobState(JobState.COMPLETE);
+						getStateChanger().setState(JobState.COMPLETE);
 				}
 			});
+		}
+		
+		@Override
+		protected void fireDestroyedState() {
+			throw new RuntimeException("Unexpected");
 		}
 	}
 
@@ -72,17 +106,28 @@ public class BaseComponentTest extends TestCase {
 
 		test.complete();
 		
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.EXCEPTION, test.lastStateEvent().getState());
 		assertEquals(ComponentPersistException.class, 
-				test.lastJobStateEvent().getException().getClass());
+				test.lastStateEvent().getException().getClass());
 	}
 	
 	private static class SerializableComponent extends BaseComponent 
 	implements Serializable {
 		private static final long serialVersionUID = 2010042700L;
 
+		transient JobStateHandler stateHandler;
+		
 		public SerializableComponent() {
-			
+			completeConstruction();
+		}
+
+		private void completeConstruction() {
+			stateHandler = new JobStateHandler(this);
+		}
+		
+		@Override
+		protected StateHandler<?> stateHandler() {
+			return stateHandler;
 		}
 		
 		@Override
@@ -100,7 +145,7 @@ public class BaseComponentTest extends TestCase {
 		private void writeObject(ObjectOutputStream s) 
 		throws IOException {
 			s.defaultWriteObject();
-			s.writeObject(stateHandler.lastJobStateEvent());
+			s.writeObject(stateHandler.lastStateEvent());
 		}
 
 		/**
@@ -109,11 +154,19 @@ public class BaseComponentTest extends TestCase {
 		private void readObject(ObjectInputStream s) 
 		throws IOException, ClassNotFoundException {
 			s.defaultReadObject();
-			assertNotNull(stateHandler);
-			JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+			assertNotNull(iconHelper);
+			StateEvent savedEvent = (StateEvent) s.readObject();
+			
+			completeConstruction();
+			
 			stateHandler.restoreLastJobStateEvent(savedEvent);
 			iconHelper.changeIcon(
-					StateIcons.iconFor(stateHandler.getJobState()));
+					StateIcons.iconFor(stateHandler.getState()));
+		}
+		
+		@Override
+		protected void fireDestroyedState() {
+			throw new RuntimeException("Unexpected.");
 		}
 	}
 
@@ -122,7 +175,7 @@ public class BaseComponentTest extends TestCase {
 		SerializableComponent test = new SerializableComponent();
 		
 		assertNotNull(test.stateHandler);
-		JobStateEvent event = test.stateHandler.lastJobStateEvent();
+		StateEvent event = test.stateHandler.lastStateEvent();
 
 		Thread.sleep(1L);
 		
@@ -131,7 +184,7 @@ public class BaseComponentTest extends TestCase {
 		assertNotNull(copy.stateHandler);
 		
 		assertEquals(event.getTime(),
-				copy.stateHandler.lastJobStateEvent().getTime());
+				copy.stateHandler.lastStateEvent().getTime());
 	}
 	
 	private class OurContext extends MockArooaContext {
@@ -164,11 +217,19 @@ public class BaseComponentTest extends TestCase {
 	
 	public void testStateNotifiedOnDestroy() {
 
-		final List<JobState> results = new ArrayList<JobState>();
+		final List<State> results = new ArrayList<State>();
 
 		final AtomicBoolean destroyed = new AtomicBoolean();
+		
 		BaseComponent test = new BaseComponent() {
 
+			JobStateHandler stateHandler = new JobStateHandler(this);
+			
+			@Override
+			protected StateHandler<?> stateHandler() {
+				return stateHandler;
+			}
+			
 			@Override
 			protected Logger logger() {
 				return logger;
@@ -180,13 +241,25 @@ public class BaseComponentTest extends TestCase {
 				destroyed.set(true);
 			}
 			
+			@Override
+			protected void fireDestroyedState() {
+				
+				if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						stateHandler.setState(JobState.DESTROYED);
+						stateHandler.fireEvent();
+					}
+				})) {
+					throw new IllegalStateException("Failed set state DESTROYED");
+				}
+			}
 		};
 				
-		test.addJobStateListener(new JobStateListener() {
+		test.addStateListener(new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				results.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				results.add(event.getState());
 			}
 		});
 		

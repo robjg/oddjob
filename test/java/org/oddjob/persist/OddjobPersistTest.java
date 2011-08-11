@@ -20,6 +20,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.structural.ChildHelper;
 
 /**
@@ -62,7 +63,8 @@ public class OddjobPersistTest extends TestCase {
 		oj.setFile(config);
 				
 		oj.run();
-		assertEquals("State should be complete", JobState.COMPLETE, Helper.getJobState(oj));
+		assertEquals("State should be complete", 
+				ParentState.COMPLETE, Helper.getJobState(oj));
 		
 		Object seqJob = new OddjobLookup(oj).lookup("oj2/sequence");
 		
@@ -133,7 +135,7 @@ public class OddjobPersistTest extends TestCase {
 		((Resetable) seqJob).hardReset();
 		
 		assertEquals(JobState.READY, Helper.getJobState(seqJob));
-		assertEquals(JobState.READY, oj.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.READY, oj.lastStateEvent().getState());		
 
 		 ((Runnable) seqJob).run();
 		

@@ -9,44 +9,44 @@ import java.util.Date;
  * @author rob
  *
  */
-public class OrderedStateChanger implements StateChanger {
+public class OrderedStateChanger<S extends State> implements StateChanger<S> {
 
-	private final StateChanger stateChanger;
+	private final StateChanger<S> stateChanger;
 	private final StateLock stateLock;
 	
-	public OrderedStateChanger(StateChanger stateChanger, StateLock stateLock) {
+	public OrderedStateChanger(StateChanger<S> stateChanger, StateLock stateLock) {
 		this.stateChanger = stateChanger;
 		this.stateLock = stateLock;
 	}
 	
-	public void setJobStateException(final Throwable t, final Date date) {
+	public void setStateException(final Throwable t, final Date date) {
 		runLocked(new Runnable() {
 				public void run() {
-					stateChanger.setJobStateException(t, date);
+					stateChanger.setStateException(t, date);
 				}
 			});
 	}
 	
-	public void setJobStateException(final Throwable t) {
+	public void setStateException(final Throwable t) {
 		runLocked(new Runnable() {
 			public void run() {
-				stateChanger.setJobStateException(t);
+				stateChanger.setStateException(t);
 			}
 		});
 	}
 	
-	public void setJobState(final JobState state, final Date date) {
+	public void setState(final S state, final Date date) {
 		runLocked(new Runnable() {
 			public void run() {
-				stateChanger.setJobState(state, date);
+				stateChanger.setState(state, date);
 			}
 		});
 	}
 	
-	public void setJobState(final JobState state) {
+	public void setState(final S state) {
 		runLocked(new Runnable() {
 			public void run() {
-				stateChanger.setJobState(state);
+				stateChanger.setState(state);
 			}
 		});
 	}

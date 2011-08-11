@@ -21,10 +21,7 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
 
 /**
  * Base class for proxy creators.
@@ -51,7 +48,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	
 	abstract protected Object getProxy();
 	    
-    protected Logger logger() {
+	protected Logger logger() {
     	if (theLogger == null) {
     		String logger = LogHelper.getLogger(getWrapped());
     		if (logger == null) {
@@ -65,33 +62,6 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
     public String loggerName() {
 		return logger().getName();    	
     }
-        
-	/**
-	 * Perform a soft reset on the job.
-	 */
-	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setJobState(JobState.READY);
-				
-				logger().info("[" + getWrapped() + "] Soft Reset.");
-			}
-		});
-	}
-	
-	/**
-	 * Perform a hard reset on the job.
-	 */
-	public boolean hardReset() {
-		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setJobState(JobState.READY);
-
-				logger().info("[" + getWrapped() + "] Hard Reset.");
-			}
-		});
-	}
     
 	protected void configure() 
 	throws ArooaConfigurationException {
@@ -155,9 +125,9 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
     }
     
 	public final void stop() throws FailedToStopException {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		
-    	if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
     		public void run() {    			
     		}
     	})) {

@@ -3,6 +3,7 @@
         <bean class="org.oddjob.arooa.deploy.ArooaDescriptorDescriptorFactory"/>
         <arooa:descriptor>
             <conversions>
+                <value value='org.oddjob.state.StateConditions$Conversions'/>
                 <value value='org.oddjob.values.types.DateType$Conversions'/>
                 <value value='org.oddjob.values.types.FormatType$Conversions'/>
                 <value value='org.oddjob.script.InvokeType$Conversions'/>

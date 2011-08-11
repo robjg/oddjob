@@ -31,8 +31,8 @@ import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.MockThreadManager;
@@ -116,15 +116,15 @@ public class OddjobMBeanTest extends TestCase {
 	throws Exception {
 		/** Fixture Stateful */
 		class MyStateful extends MockStateful {
-			JobStateListener jsl;
-			public void addJobStateListener(JobStateListener listener) {
+			StateListener jsl;
+			public void addStateListener(StateListener listener) {
 				jsl = listener;
-				listener.jobStateChange(new JobStateEvent(this, JobState.READY, null));
+				listener.jobStateChange(new StateEvent(this, JobState.READY, null));
 			}
-			public void removeJobStateListener(JobStateListener listener) {
+			public void removeStateListener(StateListener listener) {
 			}
 			public void foo() {
-				jsl.jobStateChange(new JobStateEvent(this, JobState.COMPLETE, null));
+				jsl.jobStateChange(new StateEvent(this, JobState.COMPLETE, null));
 			}
 		};
 		MyStateful myJob = new MyStateful();

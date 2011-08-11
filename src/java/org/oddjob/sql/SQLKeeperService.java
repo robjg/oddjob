@@ -28,9 +28,9 @@ import org.oddjob.scheduling.WinningOutcome;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
 
 /**
  * @oddjob.description Provides a {@link Keeper} that uses a database 
@@ -379,7 +379,7 @@ public class SQLKeeperService {
 					loosing.stateHandler.waitToWhen(new IsAnyState(), 
 							new Runnable() {
 						public void run() {
-							loosing.stateHandler.setJobState(JobState.COMPLETE);
+							loosing.stateHandler.setState(JobState.COMPLETE);
 							loosing.stateHandler.fireEvent();
 						}
 					});
@@ -390,7 +390,8 @@ public class SQLKeeperService {
 						loosing.stateHandler.waitToWhen(new IsAnyState(), 
 								new Runnable() {
 							public void run() {
-								loosing.stateHandler.setJobStateException(
+								loosing.stateHandler.setStateException(
+										JobState.EXCEPTION,
 										new Exception("Job failed to complete " +
 												"in expected time."));
 								loosing.stateHandler.fireEvent();
@@ -438,7 +439,8 @@ public class SQLKeeperService {
 		
 		private final String winner;
 		
-		private final JobStateHandler stateHandler = new JobStateHandler(this);
+		private final JobStateHandler stateHandler = 
+			new JobStateHandler(this);
 
 		private final Poll poll;
 		
@@ -451,23 +453,23 @@ public class SQLKeeperService {
 		}
 		
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			if (stateHandler.listenerCount() == 0) {
 				stateHandler.waitToWhen(new IsAnyState(), 
 						new Runnable() {
 					@Override
 					public void run() {
-						stateHandler.setJobState(JobState.EXECUTING);
+						stateHandler.setState(JobState.EXECUTING);
 					}
 				});
 				poll.run();
 			}
-			stateHandler.addJobStateListener(listener);
+			stateHandler.addStateListener(listener);
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
-			stateHandler.removeJobStateListener(listener);
+		public void removeStateListener(StateListener listener) {
+			stateHandler.removeStateListener(listener);
 			if (stateHandler.listenerCount() == 0) {
 				synchronized (loosers) {
 					loosers.remove(this);
@@ -477,8 +479,8 @@ public class SQLKeeperService {
 		}
 		
 		@Override
-		public JobStateEvent lastJobStateEvent() {
-			return stateHandler.lastJobStateEvent();
+		public StateEvent lastStateEvent() {
+			return stateHandler.lastStateEvent();
 		}
 		
 		private void stop() {
@@ -486,7 +488,7 @@ public class SQLKeeperService {
 			stateHandler.waitToWhen(new IsStoppable(), 
 					new Runnable() {
 				public void run() {
-					stateHandler.setJobState(JobState.INCOMPLETE);
+					stateHandler.setState(JobState.INCOMPLETE);
 					stateHandler.fireEvent();
 				}
 			});				

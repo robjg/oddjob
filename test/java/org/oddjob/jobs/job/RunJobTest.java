@@ -34,7 +34,7 @@ public class RunJobTest extends TestCase {
 		j.run();
 		
 		assertEquals(JobState.COMPLETE
-				, j.lastJobStateEvent().getJobState());
+				, j.lastStateEvent().getState());
 		assertTrue(r.ran);
 	}
 	

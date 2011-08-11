@@ -31,8 +31,9 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 
 public class StatefulHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
@@ -75,7 +76,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	public ServerInterfaceHandler createServerHandler(Stateful stateful, 
 			ServerSideToolkit ojmb) {
 		ServerStateHandler stateHelper = new ServerStateHandler(stateful, ojmb);
-		stateful.addJobStateListener(stateHelper);
+		stateful.addStateListener(stateHelper);
 		return stateHelper;
 	}
 
@@ -111,11 +112,11 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	static class ClientStatefulHandler implements Stateful {
 
 		/** Remember the last event so new state listeners can be told it. */
-		private JobStateEvent lastEvent;
+		private StateEvent lastEvent;
 
 		/** State listeners */
-		private final List<JobStateListener> listeners = 
-			new ArrayList<JobStateListener>();
+		private final List<StateListener> listeners = 
+			new ArrayList<StateListener>();
 		
 		private final ClientSideToolkit toolkit;
 
@@ -132,21 +133,21 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		public ClientStatefulHandler(Stateful owner, ClientSideToolkit toolkit) {
 			this.owner = owner;
 			this.toolkit = toolkit;
-			lastEvent = new JobStateEvent(this.owner, JobState.READY, null);	
+			lastEvent = new StateEvent(this.owner, JobState.READY, null);	
 		}
 
 		void jobStateChange(StateData data) {
 			
-			JobStateEvent newEvent = new JobStateEvent(owner, data.getJobState(),
+			StateEvent newEvent = new StateEvent(owner, data.getJobState(),
 					data.getDate(), data.getThrowable());
 
 			lastEvent = newEvent;
-			List<JobStateListener> copy = null;
+			List<StateListener> copy = null;
 			synchronized (listeners) {
-				copy = new ArrayList<JobStateListener>(listeners);
+				copy = new ArrayList<StateListener>(listeners);
 			}
-			for (Iterator<JobStateListener> it = copy.iterator(); it.hasNext();) {				
-				((JobStateListener)it.next()).jobStateChange(newEvent);	
+			for (Iterator<StateListener> it = copy.iterator(); it.hasNext();) {				
+				((StateListener)it.next()).jobStateChange(newEvent);	
 			}
 		}
 		
@@ -155,7 +156,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		 * 
 		 * @param listener The job state listener.
 		 */
-		public void addJobStateListener(JobStateListener listener) {	
+		public void addStateListener(StateListener listener) {	
 			synchronized (this) {
 				if (synchronizer == null) {
 					
@@ -180,7 +181,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 					synchronizer.synchronize(lastNotifications);
 				}
 				
-				JobStateEvent nowEvent = lastEvent;
+				StateEvent nowEvent = lastEvent;
 				listener.jobStateChange(nowEvent);
 				listeners.add(listener);
 			}
@@ -191,7 +192,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		 * 
 		 * @param listener The job state listener.
 		 */
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			synchronized (this) {
 				listeners.remove(listener);
 				if (listeners.size() == 0) {
@@ -202,13 +203,13 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		}
 		
 		@Override
-		public JobStateEvent lastJobStateEvent() {
+		public StateEvent lastStateEvent() {
 			return lastEvent;
 		}
 	}
 
 	
-	class ServerStateHandler implements JobStateListener, ServerInterfaceHandler  {
+	class ServerStateHandler implements StateListener, ServerInterfaceHandler  {
 
 		private final Stateful stateful;
 		private final ServerSideToolkit toolkit;
@@ -227,11 +228,11 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		 * 
 		 * @see org.oddjob.state.AbstractJobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 		 */
-		public void jobStateChange(final JobStateEvent event) {
+		public void jobStateChange(final StateEvent event) {
 			toolkit.runSynchronized(new Runnable() {
 				public void run() {
 					StateData newEvent = new StateData(
-							event.getJobState(), 
+							event.getState(), 
 							event.getTime(), 
 							event.getException());
 					Notification notification = 
@@ -260,26 +261,26 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		}
 		
 		public void destroy() {
-			stateful.removeJobStateListener(this);
+			stateful.removeStateListener(this);
 		}
 	}
 	
 	public static class StateData implements Serializable {
 		private static final long serialVersionUID = 2009063000L;
 
-		private final JobState jobState;
+		private final State jobState;
 		
 		private final Date date;
 		
 		private final Throwable throwable;
 		
-		public StateData(JobState state, Date date, Throwable throwable) {
+		public StateData(State state, Date date, Throwable throwable) {
 			this.jobState = state;
 			this.date = date;
 			this.throwable = throwable;
 		}
 		
-		public JobState getJobState() {
+		public State getJobState() {
 			return jobState;
 		}
 		

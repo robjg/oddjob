@@ -1,20 +1,20 @@
 package org.oddjob;
 
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class MockStateful implements Stateful {
 
-	public void addJobStateListener(JobStateListener listener) {
+	public void addStateListener(StateListener listener) {
 		throw new RuntimeException("Unexpected from class " + getClass());
 	}
 	
-	public void removeJobStateListener(JobStateListener listener) {
+	public void removeStateListener(StateListener listener) {
 		throw new RuntimeException("Unexpected from class " + getClass());
 	}
 	
 	@Override
-	public JobStateEvent lastJobStateEvent() {
+	public StateEvent lastStateEvent() {
 		throw new RuntimeException("Unexpected from class " + getClass());
 	}
 }

@@ -8,25 +8,35 @@ package org.oddjob.state;
  *
  */
 public class AndStateOp implements StateOperator {
-	
-	 private static final JobState[][] and = { 
-		 {JobState.READY, JobState.READY, JobState.READY, JobState.READY, JobState.EXCEPTION}, 
-		 {JobState.READY, JobState.EXECUTING, JobState.READY, JobState.READY, JobState.EXCEPTION}, 
-		 {JobState.READY, JobState.READY, JobState.INCOMPLETE, JobState.READY, JobState.EXCEPTION}, 
-		 {JobState.READY, JobState.READY, JobState.READY, JobState.COMPLETE, JobState.EXCEPTION},
-		 {JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION} 
-	};
-	 
-	public JobState evaluate(JobState... states) {
+		 
+	public ParentState evaluate(State... states) {
+		
 		new AssertNonDestroyed().evaluate(states);
 		
-		JobState state = JobState.READY;
+		ParentState state = ParentState.READY;
 		
-		if (states.length > 0 ) {			
-			state = states[0];
+		if (states.length > 0) {
+			
+			state = new ParentStateConverter().toStructuralState(states[0]);
 			
 			for (int i = 1; i < states.length; ++i) {
-				state = and[state.ordinal()][states[i].ordinal()]; 
+				State next = states[i];
+				
+				if (state.isStoppable() || next.isStoppable()){
+					state = ParentState.ACTIVE;
+				}
+				else if (state.isException() || next.isException()) {
+					state = ParentState.EXCEPTION;
+				}
+				else if (state.isIncomplete() && next.isIncomplete()){
+					state = ParentState.INCOMPLETE;
+				}
+				else if (state.isComplete() && next.isComplete()){
+					state = ParentState.COMPLETE;
+				}
+				else {
+					state = ParentState.READY;
+				}
 			}
 		}
 		

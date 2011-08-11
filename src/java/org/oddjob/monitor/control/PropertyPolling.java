@@ -13,8 +13,8 @@ import org.oddjob.Stateful;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.monitor.model.DetailModel;
 import org.oddjob.monitor.model.PropertyModel;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  *  Populate a property model with a subjects properties.
@@ -45,11 +45,11 @@ public class PropertyPolling implements PropertyChangeListener {
 		}
 	};
 	
-	private final JobStateListener stateListener = 
-		new JobStateListener() {
+	private final StateListener stateListener = 
+		new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
+			public void jobStateChange(StateEvent event) {
 				synchronized (kick) {
 					kick.notifyAll();
 				}
@@ -106,7 +106,7 @@ public class PropertyPolling implements PropertyChangeListener {
 					this.subject,
 					subjectListener);
 			if (this.subject instanceof Stateful) {
-				((Stateful) this.subject).removeJobStateListener(stateListener);
+				((Stateful) this.subject).removeStateListener(stateListener);
 			}
 		}
 		this.subject = subject;
@@ -115,7 +115,7 @@ public class PropertyPolling implements PropertyChangeListener {
 					this.subject, 
 					subjectListener);
 			if (this.subject instanceof Stateful) {
-				((Stateful) this.subject).addJobStateListener(stateListener);
+				((Stateful) this.subject).addStateListener(stateListener);
 			}
 		}
 		synchronized (kick) {

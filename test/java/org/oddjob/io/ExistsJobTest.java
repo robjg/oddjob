@@ -13,7 +13,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class ExistsJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ExistsJobTest.class);
@@ -60,7 +60,9 @@ public class ExistsJobTest extends TestCase {
 				getClass().getClassLoader()));
 
 		oj.run();
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		
+		oj.destroy();
 	}
 	
 	public void testInOddjob2() {
@@ -75,11 +77,12 @@ public class ExistsJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 
 		oj.run();
-		assertEquals(JobState.INCOMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, oj.lastStateEvent().getState());
+		
+		oj.destroy();
 	}
 	
 	public void testExistsResultsExample() {
-
 		
 		String xml = 
 			"<oddjob>" +
@@ -92,7 +95,9 @@ public class ExistsJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 
 		oj.run();
-		assertEquals(JobState.INCOMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, oj.lastStateEvent().getState());
+		
+		oj.destroy();
 	}
 	
 	public void existsWithFilesExamplesTest() {
@@ -113,11 +118,12 @@ public class ExistsJobTest extends TestCase {
 		console.close();
 		console.dump(logger);
 		
-		assertEquals(JobState.COMPLETE,
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE,
+				oddjob.lastStateEvent().getState());
 		
 		assertEquals(2, console.getLines().length);
-		
+
+		oddjob.destroy();
 	}
 	
 	

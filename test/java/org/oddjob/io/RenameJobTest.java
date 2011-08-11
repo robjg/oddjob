@@ -12,7 +12,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class RenameJobTest extends TestCase {
 
@@ -78,7 +78,7 @@ public class RenameJobTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		assertTrue(b.exists());		
 	}
 	

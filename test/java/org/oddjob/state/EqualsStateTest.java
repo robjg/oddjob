@@ -1,10 +1,10 @@
 package org.oddjob.state;
 
 
+import junit.framework.TestCase;
+
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
-
-import junit.framework.TestCase;
 
 public class EqualsStateTest extends TestCase {
 
@@ -18,31 +18,32 @@ public class EqualsStateTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		job.setState(JobState.COMPLETE);
 		
 		test.softReset();
 		
-		assertEquals(JobState.READY, job.lastJobStateEvent().getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, job.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testNotComplete() {
 		
 		EqualsState test = new EqualsState();
-		test.setNot(true);
+		test.setState(new IsNot(StateConditions.COMPLETE));
+		
 		FlagState job = new FlagState(JobState.INCOMPLETE);
 		
 		test.setJob(job);
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		job.setState(JobState.COMPLETE);
 		
@@ -50,14 +51,13 @@ public class EqualsStateTest extends TestCase {
 		
 		job.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 
 	public void testNotException() {
 		
 		EqualsState test = new EqualsState();
-		test.setNot(true);
-		test.setState(JobState.EXCEPTION);
+		test.setState(new IsNot(StateConditions.EXCEPTION));
 		
 		FlagState job = new FlagState(JobState.INCOMPLETE);
 		
@@ -65,7 +65,7 @@ public class EqualsStateTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		job.setState(JobState.EXCEPTION);
 		
@@ -73,7 +73,7 @@ public class EqualsStateTest extends TestCase {
 		
 		job.run();
 		
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testInOddjob() {
@@ -94,7 +94,7 @@ public class EqualsStateTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 	
 }

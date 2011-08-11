@@ -21,9 +21,9 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
 
@@ -283,7 +283,7 @@ abstract public class TimerBase extends ScheduleBase {
 	
 	abstract protected IntervalTo getLimits();
 	
-	abstract protected void rescheduleOn(JobState state) 
+	abstract protected void rescheduleOn(State state) 
 	throws ComponentPersistException;
 
 	abstract protected void reset(Resetable job);
@@ -293,38 +293,39 @@ abstract public class TimerBase extends ScheduleBase {
 	 * a different thread to that which launched the Executor.
 	 *
 	 */
-	class RescheduleStateListener implements JobStateListener {
+	class RescheduleStateListener implements StateListener {
 		
-		public void jobStateChange(JobStateEvent event) {
-			final JobState state = event.getJobState();
+		@Override
+		public void jobStateChange(StateEvent event) {
+			final State state = event.getState();
 			
 			if (stop) {
-			    event.getSource().removeJobStateListener(this);
+			    event.getSource().removeStateListener(this);
 				return;
 			}
 			
-			if (state == JobState.READY) {
+			if (state.isReady()) {
 				return;
 			}
 						
-			if (state == JobState.EXECUTING) {
+			if (state.isStoppable()) {
 				iconHelper.changeIcon(IconHelper.EXECUTING);
 				return;
 			}
 
 			// Order is important! Must remove this before scheduling again.
-		    event.getSource().removeJobStateListener(this);
+		    event.getSource().removeStateListener(this);
 		    
 			logger().debug("[" + TimerBase.this + "] Rescheduling based on state [" + state + "]");
 			
 			try {
 				rescheduleOn(state);
 			} catch (final ComponentPersistException e) {
-				stateHandler.waitToWhen(new IsAnyState(), 
+				stateHandler().waitToWhen(new IsAnyState(), 
 						new Runnable() {
 							@Override
 							public void run() {
-								getStateChanger().setJobStateException(e);
+								getStateChanger().setStateException(e);
 							}
 						});
 			}
@@ -358,7 +359,7 @@ abstract public class TimerBase extends ScheduleBase {
 				    
 			    	if (job instanceof Stateful) {
 			    		
-			    		((Stateful) job).addJobStateListener(
+			    		((Stateful) job).addStateListener(
 			    				new RescheduleStateListener());
 			    	}
 
@@ -368,9 +369,9 @@ abstract public class TimerBase extends ScheduleBase {
 				}
 				catch (final Exception t) {
 					logger().error("Failed running scheduled job.", t);
-					stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 						public void run() {
-							getStateChanger().setJobStateException(t);
+							getStateChanger().setStateException(t);
 						}
 					});
 				}

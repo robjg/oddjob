@@ -1,9 +1,9 @@
 package org.oddjob;
 
 import org.apache.log4j.Logger;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.IsDone;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
 
 /**
  * A Wrapper for running Oddjob that ensures a smooth shutdown.
@@ -63,13 +63,10 @@ public class OddjobRunner {
 			// mainly to close down executors, so the application
 			// can terminate.
 			if (!destroying) {
-			    oddjob.addJobStateListener(new JobStateListener() {
-			    	public void jobStateChange(JobStateEvent event) {
-			    		switch (event.getJobState()) {
-			    			case COMPLETE:
-			    			case INCOMPLETE:
-			    			case EXCEPTION:
-			    				oddjob.removeJobStateListener(this);
+			    oddjob.addStateListener(new StateListener() {
+			    	public void jobStateChange(StateEvent event) {
+			    		if (new IsDone().test(event.getState())) {
+			    				oddjob.removeStateListener(this);
 			    				oddjob.stopExecutors();
 			    		}
 			    	}
@@ -119,23 +116,23 @@ public class OddjobRunner {
 
 			// remember the last job event because we can't get it once
 			// Oddjob is destroyed.
-			JobStateEvent lastJobStateEvent = oddjob.lastJobStateEvent();
+			StateEvent lastJobStateEvent = oddjob.lastStateEvent();
 
 			destroying = true;
 			oddjob.onDestroy();
 				
 			// determine exit status.
-			JobState state = lastJobStateEvent.getJobState();
-			if (state == JobState.EXCEPTION) {
+			org.oddjob.state.State state = lastJobStateEvent.getState();
+			if (state.isException()) {
 				logger.error("Oddjob complete. State [" + state + "].", 
 					lastJobStateEvent.getException());
 			} else {
 				logger.info("Oddjob complete. State [" + state + "].");			
 			}
 			
-			if (state != JobState.COMPLETE) {
+			if (!state.isComplete()) {
 				// really really bad but how else to get the state out.
-				if (state == JobState.INCOMPLETE) {
+				if (state.isIncomplete()) {
 					Runtime.getRuntime().halt(1);
 				}
 				else {

@@ -12,25 +12,25 @@ import org.oddjob.jobs.structural.SequentialJob;
  */
 public class SequentialHelper {
 
-	private class StateCatcher implements JobStateListener {
+	private class StateCatcher implements StateListener {
 		
-		private JobState jobState;
+		private State jobState;
 		
-		public JobState stateFor(Object object) {
+		public State stateFor(Object object) {
 			if (!(object instanceof Stateful)) {
 				jobState = JobState.READY;
 			}
 			else {
 				Stateful stateful = (Stateful) object;
-				stateful.addJobStateListener(this);
-				stateful.removeJobStateListener(this);
+				stateful.addStateListener(this);
+				stateful.removeStateListener(this);
 			}
 			return jobState;
 		}
 		
 		@Override
-		public void jobStateChange(JobStateEvent event) {
-			jobState = event.getJobState();
+		public void jobStateChange(StateEvent event) {
+			jobState = event.getState();
 		}
 	}
 	

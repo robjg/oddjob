@@ -42,9 +42,12 @@ import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.IsNot;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
 
 /**
@@ -62,22 +65,22 @@ public class TimerTest extends TestCase {
 
 		boolean reset;
 		
-		final List<JobStateListener> listeners = new ArrayList<JobStateListener>();
+		final List<StateListener> listeners = new ArrayList<StateListener>();
 		
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			listeners.add(listener);
-			listener.jobStateChange(new JobStateEvent(this, JobState.READY));
+			listener.jobStateChange(new StateEvent(this, JobState.READY));
 			
 		}
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			listeners.remove(listener);
 		}
 
 		
 		public void run() {
-			List<JobStateListener> copy = new ArrayList<JobStateListener>(listeners);
-			for (JobStateListener listener: copy) {
-				listener.jobStateChange(new JobStateEvent(this, JobState.COMPLETE));
+			List<StateListener> copy = new ArrayList<StateListener>(listeners);
+			for (StateListener listener: copy) {
+				listener.jobStateChange(new StateEvent(this, JobState.COMPLETE));
 			}
 		}
 		
@@ -136,7 +139,7 @@ public class TimerTest extends TestCase {
 		assertEquals(-1, oddjobServices.delay);
 
 		assertTrue(ourJob.reset);
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 
 		test.setJob(null);
 		
@@ -301,8 +304,7 @@ public class TimerTest extends TestCase {
 		assertEquals(-1, oddjobServices.delay);
 		assertEquals(null, test.getNextDue());
 
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(test));
-		
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testTimeZone() 
@@ -410,7 +412,7 @@ public class TimerTest extends TestCase {
 
 		Timer copy = (Timer) Helper.copy(test);
 
-		assertEquals(JobState.READY, copy.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 		assertEquals(null, test.getLastComplete());
 		
 	}
@@ -467,10 +469,10 @@ public class TimerTest extends TestCase {
 		
 		WaitJob wait = new WaitJob();
 		wait.setFor(test);
-		wait.setState("!EXECUTING");
+		wait.setState(new IsNot(StateConditions.EXECUTING));
 		wait.run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		retry.destroy();
 		test.destroy();
@@ -497,11 +499,11 @@ public class TimerTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		test.stop();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	/**
@@ -543,8 +545,8 @@ public class TimerTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.EXECUTING, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.stop();
 		

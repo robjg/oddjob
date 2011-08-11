@@ -27,6 +27,8 @@ public class IconHelper implements Iconic {
 	public static final String SLEEPING = "sleeping";
 	public static final String STOPPING = "stopping";
 	public static final String STOPPED= "stopped";
+	public static final String STARTED = "started"; 
+	public static final String ACTIVE = "active"; 
 	public static final String INVALID = "invalid"; 
 	
 	public static final IconTip nullIcon
@@ -84,6 +86,16 @@ public class IconHelper implements Iconic {
 				IconHelper.class.getResource("asterix_red.gif"),
 				"Exception");
 
+	public static final IconTip startedIcon
+		= new IconTip(
+				IconHelper.class.getResource("dot_green.gif"),
+				"Started");
+
+	public static final IconTip activeIcon
+		= new IconTip(
+			IconHelper.class.getResource("right_green.gif"),
+			"Active");
+	
 	private static Map<String, IconTip> defaultIconMap = 
 		new HashMap<String, IconTip>();
 
@@ -99,6 +111,8 @@ public class IconHelper implements Iconic {
 		defaultIconMap.put(STOPPED, stoppedIcon);
 		defaultIconMap.put(INVALID, invalidIcon);
 		defaultIconMap.put(EXCEPTION, exceptionIcon);
+		defaultIconMap.put(STARTED, startedIcon);
+		defaultIconMap.put(ACTIVE, activeIcon);
 	}
 
 	private final Iconic source;

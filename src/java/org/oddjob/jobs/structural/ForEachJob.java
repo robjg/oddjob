@@ -31,9 +31,9 @@ import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.JobState;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.StateOperator;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.WorstStateOp;
 
 
@@ -418,7 +418,7 @@ implements Stoppable, Loadable {
 				
 				stop = false;
 				
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				logger().info("[" + ForEachJob.this + "] Hard Reset." );
 			}
 		});

@@ -24,13 +24,20 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ArooaContextAware;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
+import org.oddjob.state.IsHardResetable;
+import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateEvent;
 
 /**
  * Creates a proxy for any java.lang.Runnable to allow it to be controlled and
@@ -42,6 +49,10 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 		Serializable {
 	private static final long serialVersionUID = 20051231;
 
+	private transient JobStateHandler stateHandler;
+	
+	private transient JobStateChanger stateChanger;
+	
 	/** The wrapped Runnable. */
 	private Runnable wrapped;
 
@@ -74,6 +85,23 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	}
 
 	private void completeConstruction() {
+		stateHandler = new JobStateHandler(this);
+		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
+	}
+	
+	@Override
+	protected JobStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected JobStateChanger getStateChanger() {
+		return stateChanger;
 	}
 	
 	/**
@@ -178,7 +206,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(JobState.EXECUTING);
 				}	
 			})) {
 				return;			
@@ -205,14 +233,14 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 				public void run() {
 	
 					if (exception.get() != null) {
-						getStateChanger().setJobStateException(exception.get());
+						getStateChanger().setStateException(exception.get());
 					}
 					else {
 						int result = getResult();
 						if (result == 0) {
-							getStateChanger().setJobState(JobState.COMPLETE);
+							getStateChanger().setState(JobState.COMPLETE);
 						} else {
-							getStateChanger().setJobState(JobState.INCOMPLETE);
+							getStateChanger().setState(JobState.INCOMPLETE);
 						}
 					}
 				}
@@ -235,11 +263,38 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	}
 
 	/**
+	 * Perform a soft reset on the job.
+	 */
+	public boolean softReset() {
+		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(JobState.READY);
+				
+				logger().info("[" + getWrapped() + "] Soft Reset.");
+			}
+		});
+	}
+	
+	/**
+	 * Perform a hard reset on the job.
+	 */
+	public boolean hardReset() {
+		
+		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(JobState.READY);
+
+				logger().info("[" + getWrapped() + "] Hard Reset.");
+			}
+		});
+	}
+	
+	/**
 	 * Custom serialisation.
 	 */
 	private void writeObject(ObjectOutputStream s) throws IOException {
 		s.defaultWriteObject();
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -249,10 +304,25 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			ClassNotFoundException {
 		s.defaultReadObject();
 		setWrapped(wrapped);
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
-		stateHandler.restoreLastJobStateEvent(savedEvent);
-		iconHelper.changeIcon(StateIcons.iconFor(stateHandler.getJobState()));
+		StateEvent savedEvent = (StateEvent) s.readObject();
 		completeConstruction();
+		stateHandler.restoreLastJobStateEvent(savedEvent);
+		iconHelper.changeIcon(StateIcons.iconFor(stateHandler.getState()));
 	}
 
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + RunnableWrapper.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + RunnableWrapper.this + "] destroyed.");				
+	}
 }

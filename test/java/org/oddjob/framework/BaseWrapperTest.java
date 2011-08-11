@@ -9,6 +9,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.monitor.model.Describer;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateHandler;
 
 /**
  * Tests on BaseWrapper.
@@ -25,10 +27,19 @@ public class BaseWrapperTest extends TestCase {
 	
 	/** Test base wrapper by extending it. */
 	class MockWrapper extends BaseWrapper {
+		
+		JobStateHandler stateHandler = new JobStateHandler(this);
+		
 		Object wrapped;
 		MockWrapper(Object wrapped) {
 			this.wrapped = wrapped;
 		}
+		
+		@Override
+		protected StateHandler<?> stateHandler() {
+			return stateHandler;
+		}
+		
 		public Object getWrapped() {
 			return wrapped;
 		}
@@ -39,6 +50,20 @@ public class BaseWrapperTest extends TestCase {
 			return new WrapDynaBean(wrapped);
 		}
 		public void run() {}
+		
+		@Override
+		public boolean softReset() {
+			throw new RuntimeException("Unexpected.");
+		}
+		@Override
+		public boolean hardReset() {
+			throw new RuntimeException("Unexpected.");
+		}
+		
+		@Override
+		protected void fireDestroyedState() {
+			throw new RuntimeException("Unexpected");
+		}
 	}
 
 	/**

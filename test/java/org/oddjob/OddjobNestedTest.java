@@ -11,6 +11,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class OddjobNestedTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(OddjobNestedTest.class);
@@ -34,14 +35,14 @@ public class OddjobNestedTest extends TestCase {
 						
         oj.run();
 
-        assertEquals(JobState.COMPLETE, 
-        		oj.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.COMPLETE, 
+        		oj.lastStateEvent().getState());
         
         Oddjob test = (Oddjob) new OddjobLookup(oj).lookup("nested");
         assertNotNull("Nested oddjob", test);
         
-        assertEquals(JobState.COMPLETE, 
-        		test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.COMPLETE, 
+        		test.lastStateEvent().getState());
         
 		console.close();
 		console.dump(logger);
@@ -55,13 +56,13 @@ public class OddjobNestedTest extends TestCase {
 		
         test.hardReset();
         
-        assertEquals(JobState.READY, 
-        		test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.READY, 
+        		test.lastStateEvent().getState());
         
         test.run();
         
-        assertEquals(JobState.COMPLETE, 
-        		test.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.COMPLETE, 
+        		test.lastStateEvent().getState());
         
         oj.destroy();
     }
@@ -107,8 +108,8 @@ public class OddjobNestedTest extends TestCase {
     	
     	oddjob.run();
     	
-    	assertEquals(JobState.COMPLETE, 
-    			oddjob.lastJobStateEvent().getJobState());
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());
     	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
@@ -116,7 +117,7 @@ public class OddjobNestedTest extends TestCase {
     			Stateful.class);
     	
     	assertEquals(JobState.COMPLETE, 
-    			stateful.lastJobStateEvent().getJobState());
+    			stateful.lastStateEvent().getState());
     	
     	try {
     		lookup.lookup("inner/secret.text", String.class);
@@ -175,6 +176,7 @@ public class OddjobNestedTest extends TestCase {
         
         String fruit = new OddjobLookup(oj).lookup(
         		"nested/fruits.fruit", String.class);
+        
         assertEquals("apple", fruit);
         
         oj.destroy();
@@ -188,8 +190,8 @@ public class OddjobNestedTest extends TestCase {
 				getClass().getClassLoader()));
         oj.run();
         
-        assertEquals(JobState.COMPLETE,
-        		oj.lastJobStateEvent().getJobState());
+        assertEquals(ParentState.COMPLETE,
+        		oj.lastStateEvent().getState());
         
         
         OddjobLookup lookup = new OddjobLookup(oj);

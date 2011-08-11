@@ -9,17 +9,13 @@ package org.oddjob.state;
  */
 public class IsHardResetable implements StateCondition {
 
-	public boolean test(JobState state) {
+	@Override
+	public boolean test(State state) {
 		
-		switch (state) {
-		case READY:
-		case COMPLETE:
-		case INCOMPLETE:
-		case EXCEPTION:
-			return true;
-		default:
-			return false;
-		}
+		return state.isReady() ||
+			state.isComplete() ||
+			state.isIncomplete() ||
+			state.isException();
 	}
 	
 }

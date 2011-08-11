@@ -42,47 +42,33 @@ implements Stoppable {
 	 * @oddjob.description The state to match.
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
-	private JobState state = JobState.COMPLETE;
-	
-	/**
-	 * @oddjob.property
-	 * @oddjob.description Changes this job to 'Not Equals'
-	 * @oddjob.required No.
-	 */
-	private boolean not;
-		
-	public JobState getState() {
+	private StateCondition state = StateConditions.COMPLETE;
+			
+	public StateCondition getState() {
 		return state;
 	}
 	
 	@ArooaAttribute
-	public void setState(JobState state) {
+	public void setState(StateCondition state) {
 		this.state = state;
 	}		
 	
-	public boolean isNot() {
-		return not;
-	}
-	
-	public void setNot(boolean not) {
-		this.not = not;
-	}
 		
 	@Override
 	protected StateOperator getStateOp() {
 		return new StateOperator() {
-			public JobState evaluate(JobState... states) {
+			public ParentState evaluate(State... states) {
 				if (states.length == 0) {
-					return JobState.READY;
+					return ParentState.READY;
 				}
 
-				JobState state = states[0];
+				State state = states[0];
 				
-				if (state == EqualsState.this.state ^ not) {
-					return JobState.COMPLETE;
+				if (EqualsState.this.state.test(state)) {
+					return ParentState.COMPLETE;
 				}
 				else {
-					return JobState.INCOMPLETE;
+					return ParentState.INCOMPLETE;
 				}
 			}
 		};

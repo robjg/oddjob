@@ -18,11 +18,8 @@ public class StateSupportLockTest extends TestCase {
 		
 		public void run() {
 			try {
-				boolean condition = state.tryToWhen(new StateCondition() {
-					public boolean test(JobState state) {
-						return true;
-					}
-				}, new Runnable() {
+				boolean condition = state.tryToWhen(new IsAnyState(), 
+						new Runnable() {
 					public void run() {
 					}
 				});
@@ -57,7 +54,7 @@ public class StateSupportLockTest extends TestCase {
 					
 					assertTrue(check.locked);
 					
-					test.setJobState(JobState.COMPLETE);
+					test.setState(JobState.COMPLETE);
 					test.fireEvent();
 				}
 			});
@@ -71,7 +68,7 @@ public class StateSupportLockTest extends TestCase {
 		
 		assertFalse(check.locked);
 		
-		assertEquals(JobState.COMPLETE, test.getJobState());
+		assertEquals(JobState.COMPLETE, test.getState());
 	}
 	
 	public void testWaitFor() throws InterruptedException {
@@ -97,7 +94,7 @@ public class StateSupportLockTest extends TestCase {
 					
 					assertTrue(check.locked);
 					
-					test.setJobState(JobState.COMPLETE);
+					test.setState(JobState.COMPLETE);
 					test.fireEvent();
 				}
 			});
@@ -111,7 +108,7 @@ public class StateSupportLockTest extends TestCase {
 		
 		assertFalse(check.locked);
 		
-		assertEquals(JobState.COMPLETE, test.getJobState());
+		assertEquals(JobState.COMPLETE, test.getState());
 	}
 	
 	

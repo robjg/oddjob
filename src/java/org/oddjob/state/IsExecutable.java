@@ -9,14 +9,10 @@ package org.oddjob.state;
  */
 public class IsExecutable implements StateCondition {
 
-	public boolean test(JobState state) {
-		
-		switch (state) {
-		case READY:
-			return true;
-		default:
-			return false;
-		}
+	@Override
+	public boolean test(State state) {
+
+		return state.isReady();
 	}
 	
 }

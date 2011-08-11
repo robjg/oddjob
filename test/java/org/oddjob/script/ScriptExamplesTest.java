@@ -2,14 +2,14 @@ package org.oddjob.script;
 
 import java.util.Properties;
 
+import junit.framework.TestCase;
+
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
 
 public class ScriptExamplesTest extends TestCase {
 
@@ -22,8 +22,8 @@ public class ScriptExamplesTest extends TestCase {
 		
 		oddjob.run();
 
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		Properties props = new OddjobLookup(oddjob).lookup(
 				"properties.properties", Properties.class);

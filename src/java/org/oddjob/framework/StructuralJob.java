@@ -5,23 +5,27 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
 import org.oddjob.state.OrderedStateChanger;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ParentStateChanger;
+import org.oddjob.state.ParentStateHandler;
+import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.StructuralStateHelper;
@@ -41,6 +45,8 @@ implements
 		Stoppable, Resetable, Stateful, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
+	protected transient ParentStateHandler stateHandler;
+	
 	/** Track changes to children an notify listeners. */
 	protected transient ChildHelper<E> childHelper; 
 			
@@ -50,6 +56,10 @@ implements
 	/** Reflect state of children. */
 	protected transient StateExchange childStateReflector;
 	
+	private transient ParentStateChanger stateChanger;
+	
+	protected transient volatile boolean stop;
+	
 	/**
 	 * Constructor.
 	 */
@@ -58,12 +68,29 @@ implements
 	}
 	
 	private void completeConstruction() {
+		stateHandler = new ParentStateHandler(this);		
 		childHelper = new ChildHelper<E>(this);
 		structuralState = new StructuralStateHelper(childHelper, getStateOp());
+		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
 		childStateReflector = new StateExchange(structuralState, 
-				new OrderedStateChanger(getStateChanger(), stateHandler));
+				new OrderedStateChanger<ParentState>(stateChanger, stateHandler));
 	}
 		
+	@Override
+	protected ParentStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<ParentState> getStateChanger() {
+		return stateChanger;
+	}
+	
 	abstract protected StateOperator getStateOp();
 	
 	/**
@@ -84,7 +111,7 @@ implements
 				public void run() {
 					childStateReflector.stop();
 					
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(ParentState.EXECUTING);
 				}					
 			})) {
 				return;
@@ -105,7 +132,7 @@ implements
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setJobStateException(e);
+						getStateChanger().setStateException(e);
 					}
 				});
 			}	
@@ -128,9 +155,6 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		final AtomicReference<FailedToStopException> failedToStop = 
-			new AtomicReference<FailedToStopException>();
-		
 		if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
 				stop = true;
@@ -140,46 +164,41 @@ implements
 				stateHandler.wake();
 				
 				iconHelper.changeIcon(IconHelper.STOPPING);
-				try {
-					onStop();
-				} catch (FailedToStopException e) {
-					failedToStop.set(e);
-				} catch (RuntimeException e) {
-					failedToStop.set(
-							new FailedToStopException(StructuralJob.this, e));
-				}				
 			}					
 		})) {
 			throw new IllegalStateException();
 		}
 
-		if (failedToStop.get() == null) {
-			try {
-				childHelper.stopChildren();
-			} catch (FailedToStopException e) {
-				failedToStop.set(e);
-			} catch (RuntimeException e) {
-				failedToStop.set(
-						new FailedToStopException(StructuralJob.this, e));
-			}				
-		}
-		
-		FailedToStopException e = failedToStop.get();
+		FailedToStopException failedToStopException = null;
 		try {
-			if (e == null) {				
+			// Order is here for SimultaneousStructural to cancel jobs first.
+			
+			onStop();
+			
+			childHelper.stopChildren();
+			
+		} catch (FailedToStopException e) {
+			failedToStopException = e;
+		} catch (RuntimeException e) {
+			failedToStopException =
+				new FailedToStopException(StructuralJob.this, e);
+		}				
+		
+		try {
+			if (failedToStopException == null) {				
 
 				new StopWait(this).run();
 				
 				logger().info("[" + StructuralJob.this + "] Stopped.");		
 			}
 			else {
-				throw e;
+				throw failedToStopException;
 			}
 		}	finally {	
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
 					iconHelper.changeIcon(
-							StateIcons.iconFor(stateHandler.getJobState()));
+							StateIcons.iconFor(stateHandler.getState()));
 				}					
 			});
 		}		
@@ -204,7 +223,7 @@ implements
 				childHelper.softResetChildren();
 				stop = false;
 				onReset();
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				
 				logger().info("[" + StructuralJob.this + "] Soft Reset.");
 			}
@@ -224,7 +243,7 @@ implements
 				childHelper.hardResetChildren();
 				onReset();
 				stop = false;
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				
 				logger().info("[" + StructuralJob.this + "] Hard Reset.");
 			}
@@ -272,7 +291,7 @@ implements
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -281,13 +300,16 @@ implements
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		setName((String) s.readObject());
+		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+		StateEvent savedEvent = (StateEvent) s.readObject();
+		
+		completeConstruction();
+		
+		setName(name);
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getJobState()));
-		completeConstruction();
+				StateIcons.iconFor(stateHandler.getState()));
 	}
 
 	@Override
@@ -301,5 +323,21 @@ implements
 		}
 		
 		childStateReflector.stop();
+	}
+	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(ParentState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + StructuralJob.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + StructuralJob.this + "] destroyed.");				
 	}
 }

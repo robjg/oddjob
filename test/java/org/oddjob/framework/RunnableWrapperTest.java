@@ -39,8 +39,9 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.ParentState;
 
 /**
  *
@@ -121,7 +122,7 @@ public class RunnableWrapperTest extends TestCase {
         ((ArooaContextAware) wrapper).setArooaContext(context);
         
         MyListener l = new MyListener();
-        ((Stateful) wrapper).addJobStateListener(l);
+        ((Stateful) wrapper).addStateListener(l);
         
         ((Runnable) wrapper).run();
         
@@ -130,13 +131,13 @@ public class RunnableWrapperTest extends TestCase {
         
         assertTrue(test.ran);
         assertEquals("JobState", JobState.COMPLETE, 
-                l.lastEvent.getJobState());
+                l.lastEvent.getState());
         
         session.saved = null;
         
         ((Resetable) wrapper).hardReset();
         assertEquals("JobState", JobState.READY, 
-                l.lastEvent.getJobState());
+                l.lastEvent.getState());
 	
         assertEquals(wrapper, session.saved);
     }
@@ -154,19 +155,19 @@ public class RunnableWrapperTest extends TestCase {
                     }
                 }, getClass().getClassLoader());
         MyListener l = new MyListener();
-        ((Stateful) wrapper).addJobStateListener(l);
+        ((Stateful) wrapper).addStateListener(l);
         ((Runnable) wrapper).run();
         assertEquals("JobState", JobState.EXCEPTION, 
-                l.lastEvent.getJobState());
+                l.lastEvent.getState());
         ((Resetable) wrapper).softReset();
         assertEquals("JobState", JobState.READY, 
-                l.lastEvent.getJobState());
+                l.lastEvent.getState());
     }
     
     /** Listener fixture. */
-    private class MyListener implements JobStateListener {
-        JobStateEvent lastEvent;
-        public void jobStateChange(JobStateEvent event) {
+    private class MyListener implements StateListener {
+        StateEvent lastEvent;
+        public void jobStateChange(StateEvent event) {
             lastEvent = event;
         }
     }
@@ -557,7 +558,7 @@ public class RunnableWrapperTest extends TestCase {
     	
     	oj.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(oj));
+    	assertEquals(ParentState.COMPLETE, Helper.getJobState(oj));
     	
     	try {
     		oj.destroy();

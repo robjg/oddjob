@@ -27,9 +27,9 @@ import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -44,19 +44,19 @@ public class Helper {
 	
 	public static final String LS = System.getProperty("line.separator");
 	
-	public static JobState getJobState(Object o) {
-	    class StateCatcher implements JobStateListener {
-		    JobState jobState;
-	        public void jobStateChange(JobStateEvent event) {
-	            jobState = event.getJobState();
+	public static State getJobState(Object o) {
+	    class StateCatcher implements StateListener {
+		    State state;
+	        public void jobStateChange(StateEvent event) {
+	            state = event.getState();
 	        }
 	    };
 	    
 		Stateful stateful = (Stateful) o;
 	    StateCatcher listener = new StateCatcher();
-	    stateful.addJobStateListener(listener);
-	    stateful.removeJobStateListener(listener);
-	    return listener.jobState;
+	    stateful.addStateListener(listener);
+	    stateful.removeStateListener(listener);
+	    return listener.state;
 	}
     
 	public static Object[] getChildren(Object o) {

@@ -7,14 +7,15 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
+import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.SimpleJob;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class TimerStopTest extends TestCase {
 
@@ -54,10 +55,10 @@ public class TimerStopTest extends TestCase {
 		test.stop();
 		
 		assertEquals(JobState.READY, 
-				job.lastJobStateEvent().getJobState());
+				job.lastStateEvent().getState());
 		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
 		
 		services.stop();
 	}
@@ -119,11 +120,11 @@ public class TimerStopTest extends TestCase {
 
 		assertFalse(Thread.interrupted());
 		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
-				job.lastJobStateEvent().getJobState());
+				job.lastStateEvent().getState());
 		
 		services.stop();
 	}
@@ -170,19 +171,17 @@ public class TimerStopTest extends TestCase {
 				
 		test.setJob(job);
 	
+		StateSteps state = new StateSteps(test);
+		
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.COMPLETE);
+		
 		test.run();
 		
-		WaitJob wait = new WaitJob();
-		wait.setFor(test);
-		wait.setState("!executing");
-		wait.hardReset();
-		wait.run();
+		state.checkWait();
 		
 		assertEquals(JobState.COMPLETE, 
-				job.lastJobStateEvent().getJobState());
-		
-		assertEquals(JobState.COMPLETE, 
-				test.lastJobStateEvent().getJobState());
+				job.lastStateEvent().getState());
 		
 		services.stop();
 	}

@@ -19,6 +19,9 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
+import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.ParentState;
 
 public class GrabbingWithSQLTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(GrabbingWithSQLTest.class);
@@ -61,13 +64,13 @@ public class GrabbingWithSQLTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(JobState.EXECUTING, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, 
+				oddjob.lastStateEvent().getState());
 		
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);
 		
 		WaitJob wait = new WaitJob();
-		wait.setState("COMPLETE");
+		wait.setState(StateConditions.COMPLETE);
 		wait.setFor(grabbers);
 		wait.run();
 		
@@ -128,8 +131,8 @@ public class GrabbingWithSQLTest extends TestCase {
 
 		while (true) {
 
-			JobState grabber1State = Helper.getJobState(grabber1);
-			JobState grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = Helper.getJobState(grabber1);
+			State grabber2State = Helper.getJobState(grabber2);
 			
 			if (grabber1State == JobState.INCOMPLETE) {
 				winner = grabber1;
@@ -161,7 +164,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);
 		
 		WaitJob wait = new WaitJob();
-		wait.setState("COMPLETE");
+		wait.setState(StateConditions.COMPLETE);
 		wait.setFor(grabbers);
 		wait.run();
 				
@@ -187,8 +190,8 @@ public class GrabbingWithSQLTest extends TestCase {
 
 		while (true) {
 
-			JobState grabber1State = Helper.getJobState(grabber1);
-			JobState grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = Helper.getJobState(grabber1);
+			State grabber2State = Helper.getJobState(grabber2);
 			
 			if (grabber1State == JobState.INCOMPLETE) {
 				looser = grabber2;
@@ -216,7 +219,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);
 		
 		WaitJob wait = new WaitJob();
-		wait.setState("INCOMPLETE");
+		wait.setState(StateConditions.INCOMPLETE);
 		wait.setFor(grabbers);
 		wait.run();
 				
@@ -248,8 +251,8 @@ public class GrabbingWithSQLTest extends TestCase {
 
 		while (true) {
 
-			JobState grabber1State = Helper.getJobState(grabber1);
-			JobState grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = Helper.getJobState(grabber1);
+			State grabber2State = Helper.getJobState(grabber2);
 			
 			if (grabber1State == JobState.INCOMPLETE) {
 				looser = grabber2;
@@ -280,7 +283,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);
 		
 		WaitJob wait = new WaitJob();
-		wait.setState("INCOMPLETE");
+		wait.setState(StateConditions.INCOMPLETE);
 		wait.setFor(grabbers);
 		wait.run();
 				

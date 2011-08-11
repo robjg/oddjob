@@ -21,7 +21,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
 import org.oddjob.jobs.BeanReportJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class SQLJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SQLJobTest.class);
@@ -132,7 +132,7 @@ public class SQLJobTest extends TestCase {
 		console.close();
 		console.dump(logger);
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		String[] lines = console.getLines();
 		
@@ -224,7 +224,7 @@ public class SQLJobTest extends TestCase {
 		assertEquals(9, lookup.lookup("sql-job.executedSQLCount"));
 		assertEquals(8, lookup.lookup("sql-job.successfulSQLCount"));
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		oj.destroy();
 	}
@@ -253,7 +253,7 @@ public class SQLJobTest extends TestCase {
 		assertEquals(3, lookup.lookup("sql-job.executedSQLCount"));
 		assertEquals(2, lookup.lookup("sql-job.successfulSQLCount"));
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		oj.destroy();
 	}
@@ -282,7 +282,7 @@ public class SQLJobTest extends TestCase {
 		assertEquals(3, lookup.lookup("sql-job.executedSQLCount"));
 		assertEquals(2, lookup.lookup("sql-job.successfulSQLCount"));
 		
-		assertEquals(JobState.EXCEPTION, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 		
 		oj.destroy();
 	}

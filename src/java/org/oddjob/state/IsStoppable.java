@@ -9,14 +9,9 @@ package org.oddjob.state;
  */
 public class IsStoppable implements StateCondition {
 
-	public boolean test(JobState state) {
+	@Override
+	public boolean test(State state) {
 		
-		switch (state) {
-		case EXECUTING:
-			return true;
-		default:
-			return false;
-		}
+		return state.isStoppable();
 	}
-	
 }

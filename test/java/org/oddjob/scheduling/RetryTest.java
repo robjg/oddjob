@@ -16,11 +16,11 @@ import org.oddjob.Helper;
 import org.oddjob.MockOddjobServices;
 import org.oddjob.MockStateful;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.SequenceJob;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
@@ -32,10 +32,11 @@ import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.Resets;
-import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
 
 public class RetryTest extends TestCase {
@@ -129,7 +130,7 @@ public class RetryTest extends TestCase {
 		
 		oddjobServices.runnable.run();
 
-		assertEquals(JobState.EXECUTING, Helper.getJobState(test));
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		assertEquals(2 * 60 * 1000, oddjobServices.delay);
 		assertEquals(
@@ -144,7 +145,7 @@ public class RetryTest extends TestCase {
 		assertEquals(null,
 				test.getNextDue());
 		
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(test));
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		test.stop();
 		
@@ -201,7 +202,7 @@ public class RetryTest extends TestCase {
 		
 		oddjobServices.runnable.run();
 
-		assertEquals(JobState.EXECUTING, Helper.getJobState(test));
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		assertEquals(0, oddjobServices.delay);
 		assertEquals(
@@ -216,7 +217,7 @@ public class RetryTest extends TestCase {
 		assertEquals(null,
 				test.getNextDue());
 		
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(test));
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		test.stop();
 		
@@ -271,14 +272,14 @@ public class RetryTest extends TestCase {
 		// next time timer runs job it should go straight to complete.
 		oddjobServices.runnable.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(test));		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 		assertEquals(-1, oddjobServices.delay);
 		
 		test.stop();
 		
 		assertFalse(oddjobServices.canceled);
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	private class OurJob extends MockStateful
@@ -286,22 +287,22 @@ public class RetryTest extends TestCase {
 
 		boolean reset;
 		
-		final List<JobStateListener> listeners = new ArrayList<JobStateListener>();
+		final List<StateListener> listeners = new ArrayList<StateListener>();
 		
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			listeners.add(listener);
-			listener.jobStateChange(new JobStateEvent(this, JobState.READY));
+			listener.jobStateChange(new StateEvent(this, JobState.READY));
 			
 		}
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			listeners.remove(listener);
 		}
 
 		
 		public void run() {
-			List<JobStateListener> copy = new ArrayList<JobStateListener>(listeners);
-			for (JobStateListener listener: copy) {
-				listener.jobStateChange(new JobStateEvent(this, JobState.COMPLETE));
+			List<StateListener> copy = new ArrayList<StateListener>(listeners);
+			for (StateListener listener: copy) {
+				listener.jobStateChange(new StateEvent(this, JobState.COMPLETE));
 			}
 		}
 		
@@ -350,7 +351,7 @@ public class RetryTest extends TestCase {
 		assertEquals(-1, oddjobServices.delay);
 
 		assertTrue(ourJob.reset);
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 
 		test.setJob(null);
 		
@@ -381,16 +382,7 @@ public class RetryTest extends TestCase {
 		assertNull(copy.getSchedule());
 	}
 
-	private class RecordingStateListener implements JobStateListener {
-		
-		List<JobStateEvent> events = new ArrayList<JobStateEvent>();
-		
-		public void jobStateChange(JobStateEvent event) {
-			events.add(event);
-		}
-	}
-	
-	public void testStateNotifications() {
+	public void testStateNotifications() throws InterruptedException {
 		
 		FlagState incomplete = new FlagState(JobState.INCOMPLETE);
 
@@ -398,12 +390,10 @@ public class RetryTest extends TestCase {
 		
 		Retry test = new Retry();
 		
-		RecordingStateListener recorder = new RecordingStateListener();
-		test.addJobStateListener(recorder);
-		
-		assertEquals(1, recorder.events.size());
-		assertEquals(JobState.READY, recorder.events.get(0).getJobState());
-		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				
 		CountSchedule count = new CountSchedule();
 		count.setCount("3");
 		count.setRefinement(new NowSchedule());
@@ -428,31 +418,23 @@ public class RetryTest extends TestCase {
 		
 		test.run();
 
-		WaitJob wait = new WaitJob();
-		wait.setState("INCOMPLETE");
-		wait.setFor(test);
-		wait.run();
-		
-		assertEquals(3, recorder.events.size());
-		assertEquals(JobState.EXECUTING, recorder.events.get(1).getJobState());
-		assertEquals(JobState.INCOMPLETE, recorder.events.get(2).getJobState());
+		steps.checkWait();
 		
 		assertEquals(3, sequence.getCurrent().intValue());
 		
+		steps.startCheck(ParentState.INCOMPLETE, ParentState.READY);
+		
 		test.softReset();
 		
-		assertEquals(4, recorder.events.size());
-		assertEquals(JobState.READY, recorder.events.get(3).getJobState());
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		
 		test.run();
 		
-		wait.hardReset();
-		wait.run();
+		steps.checkWait();
 		
-		assertEquals(6, recorder.events.size());
-		assertEquals(JobState.EXECUTING, recorder.events.get(4).getJobState());
-		assertEquals(JobState.INCOMPLETE, recorder.events.get(5).getJobState());
-	
 		assertEquals(6, sequence.getCurrent().intValue());
 		
 		defaultServices.stop();
@@ -511,7 +493,7 @@ public class RetryTest extends TestCase {
 		
 		new StopWait(test).run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	private class TestListeners extends SimpleJob {
@@ -538,15 +520,15 @@ public class RetryTest extends TestCase {
 		}
 
 		@Override
-		public void addJobStateListener(JobStateListener listener) {
+		public void addStateListener(StateListener listener) {
 			listeners++;
-			super.addJobStateListener(listener);
+			super.addStateListener(listener);
 		}
 		
 		@Override
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			listeners--;
-			super.removeJobStateListener(listener);
+			super.removeStateListener(listener);
 		}
 	}
 	
@@ -563,7 +545,7 @@ public class RetryTest extends TestCase {
 		
 		new StopWait(test).run();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	private class ExecuteNever 
@@ -584,30 +566,18 @@ public class RetryTest extends TestCase {
 	private class LaterJob extends SimpleJob {
 		
 		void start() {
-			stateHandler.waitToWhen(new StateCondition() {
-				
-				public boolean test(JobState state) {
-					assertEquals(JobState.READY, state);
-					return true;
-				}
-			}, new Runnable() {
+			stateHandler.waitToWhen(StateConditions.READY, new Runnable() {
 				public void run() {
-					stateHandler.setJobState(JobState.EXECUTING);
+					stateHandler.setState(JobState.EXECUTING);
 					stateHandler.fireEvent();
 				}
 			});
 		}
 		
 		void complete() {
-			stateHandler.waitToWhen(new StateCondition() {
-				
-				public boolean test(JobState state) {
-					assertEquals(JobState.EXECUTING, state);
-					return true;
-				}
-			}, new Runnable() {
+			stateHandler.waitToWhen(StateConditions.EXECUTING, new Runnable() {
 				public void run() {
-					stateHandler.setJobState(JobState.COMPLETE);
+					stateHandler.setState(JobState.COMPLETE);
 					stateHandler.fireEvent();
 				}
 			});
@@ -641,11 +611,11 @@ public class RetryTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 
 		job.start();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		SimpleJob stop = new SimpleJob() {
 			@Override
@@ -658,7 +628,7 @@ public class RetryTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testStopLast() throws FailedToStopException {
@@ -672,16 +642,16 @@ public class RetryTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 
 		job.start();
 		job.complete();
 		
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		test.stop();
 		
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testWithLimitsLongOverDue() throws ParseException {

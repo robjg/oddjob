@@ -15,19 +15,19 @@ import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactoryTest extends TestCase {
 
 	class OurStateful extends MockStateful {
-		JobStateListener l;
-		public void addJobStateListener(JobStateListener listener) {
+		StateListener l;
+		public void addStateListener(StateListener listener) {
 			assertNull(l);
 			l = listener;
-			l.jobStateChange(new JobStateEvent(this, JobState.READY));
+			l.jobStateChange(new StateEvent(this, JobState.READY));
 		}
-		public void removeJobStateListener(JobStateListener listener) {
+		public void removeStateListener(StateListener listener) {
 			assertNotNull(l);
 			l = null;
 		}		
@@ -91,10 +91,10 @@ public class StatefulHandlerFactoryTest extends TestCase {
 				
 	}
 	
-	class Result implements JobStateListener {
-		JobStateEvent event;
+	class Result implements StateListener {
+		StateEvent event;
 		
-		public void jobStateChange(JobStateEvent event) {
+		public void jobStateChange(StateEvent event) {
 			this.event = event;
 		}
 	}
@@ -124,33 +124,33 @@ public class StatefulHandlerFactoryTest extends TestCase {
 
 		Result result = new Result();
 		
-		local.addJobStateListener(result);
+		local.addStateListener(result);
 		
 		assertEquals("State ready", JobState.READY, 
-				result.event.getJobState());
+				result.event.getState());
 
 		Result result2 = new Result();
 		
-		local.addJobStateListener(result2);
+		local.addStateListener(result2);
 		
 		assertEquals("State ready", JobState.READY, 
-				result2.event.getJobState());
+				result2.event.getState());
 
 		serverToolkit.listener = clientToolkit.listener;
 		
-		stateful.l.jobStateChange(new JobStateEvent(stateful, JobState.COMPLETE));
+		stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
 
 		// check the notification is sent
 		assertEquals("State complete", JobState.COMPLETE, 
-				result.event.getJobState());
+				result.event.getState());
 		assertEquals("State complete", JobState.COMPLETE, 
-				result2.event.getJobState());
+				result2.event.getState());
 		
-		local.removeJobStateListener(result);
+		local.removeStateListener(result);
 		
 		assertNotNull(clientToolkit.listener);
 		
-		local.removeJobStateListener(result2);
+		local.removeStateListener(result2);
 		
 		assertNull(clientToolkit.listener);
 		

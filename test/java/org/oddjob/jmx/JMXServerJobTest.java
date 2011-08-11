@@ -26,7 +26,9 @@ import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.IsNotExecuting;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.State;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -369,22 +371,22 @@ public class JMXServerJobTest extends TestCase {
 		server.stop();
 
 		WaitJob wj = new WaitJob();
-		wj.setState("!EXECUTING");
+		wj.setState(new IsNotExecuting());
 		wj.setFor(client);
 		wj.run();
 
 		// An exception is really a bug. Client should detect server
 		// stopped before heartbeat failure.
-		switch (client.lastJobStateEvent().getJobState()) {
-		case INCOMPLETE:
+		State last = client.lastStateEvent().getState();
+		if (last.isIncomplete()) {
 			// desired
-			break;
-		case EXCEPTION:
+		}
+		else if (last.isException()) {
 			// a bug
-			break;
-		default:
+		}
+		else {
 			fail("Unexpected state: " + 
-					client.lastJobStateEvent().getJobState());
+					client.lastStateEvent().getState());
 		}
 	}
 	
@@ -433,7 +435,7 @@ public class JMXServerJobTest extends TestCase {
 		
 		oj.stop();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 	}
 	
 }

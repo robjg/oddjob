@@ -8,19 +8,19 @@ public class WorstStateOpTest extends TestCase {
 		
 		WorstStateOp test = new WorstStateOp();
 		
-		assertEquals(JobState.READY, 
+		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.EXCEPTION));
 				
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.INCOMPLETE));
 				
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(JobState.COMPLETE));
 		
 	}
@@ -29,79 +29,79 @@ public class WorstStateOpTest extends TestCase {
 		
 		WorstStateOp test = new WorstStateOp();
 		
-		assertEquals(JobState.READY, 
+		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.READY, JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.READY, JobState.EXECUTING));
 		
-		assertEquals(JobState.READY, 
+		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.READY, JobState.COMPLETE));
 
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.READY, JobState.INCOMPLETE));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.READY, JobState.EXCEPTION));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.EXECUTING));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.COMPLETE));
 
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.INCOMPLETE));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.EXCEPTION));
 		
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.INCOMPLETE, JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.INCOMPLETE, JobState.EXECUTING));
 		
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.INCOMPLETE, JobState.COMPLETE));
 
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.INCOMPLETE, JobState.INCOMPLETE));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.INCOMPLETE, JobState.EXCEPTION));
 		
-		assertEquals(JobState.READY, 
+		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.COMPLETE, JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.COMPLETE, JobState.EXECUTING));
 		
-		assertEquals(JobState.COMPLETE, 
+		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(JobState.COMPLETE, JobState.COMPLETE));
 
-		assertEquals(JobState.INCOMPLETE, 
+		assertEquals(ParentState.INCOMPLETE, 
 				test.evaluate(JobState.COMPLETE, JobState.INCOMPLETE));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.COMPLETE, JobState.EXCEPTION));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.EXCEPTION, JobState.READY));
 		
-		assertEquals(JobState.EXECUTING, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXCEPTION, JobState.EXECUTING));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.EXCEPTION, JobState.COMPLETE));
 
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.EXCEPTION, JobState.INCOMPLETE));
 		
-		assertEquals(JobState.EXCEPTION, 
+		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
 	}
 	

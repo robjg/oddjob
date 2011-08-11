@@ -9,24 +9,26 @@ package org.oddjob.state;
  */
 public class OrStateOp implements StateOperator {
 	
-	private static final JobState[][] or = { 
-		 {JobState.READY, JobState.EXECUTING, JobState.INCOMPLETE, JobState.COMPLETE, JobState.EXCEPTION}, 
-		 {JobState.EXECUTING, JobState.EXECUTING, JobState.INCOMPLETE, JobState.COMPLETE, JobState.EXCEPTION}, 
-		 {JobState.INCOMPLETE, JobState.INCOMPLETE, JobState.INCOMPLETE, JobState.COMPLETE, JobState.EXCEPTION}, 
-		 {JobState.COMPLETE, JobState.COMPLETE, JobState.COMPLETE, JobState.COMPLETE, JobState.EXCEPTION},
-		 {JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION, JobState.EXCEPTION} 
-	};
-	 
-	public JobState evaluate(JobState... states) {
+	@Override
+	public ParentState evaluate(State... states) {
 		new AssertNonDestroyed().evaluate(states);
 		
-		JobState state = JobState.READY;
+		ParentState state = ParentState.READY;
 		
-		if (states.length > 0 ) {			
-			state = states[0];
+		for (int i = 0; i < states.length; ++i) {
+			State next = states[i];
 			
-			for (int i = 1; i < states.length; ++i) {
-				state = or[state.ordinal()][states[i].ordinal()]; 
+			if (state.isStoppable() || next.isStoppable()){
+				state = ParentState.ACTIVE;
+			}
+			else if (state.isException() || next.isException()) {
+				state = ParentState.EXCEPTION;
+			}
+			else if (state.isComplete() || next.isComplete()){
+				state = ParentState.COMPLETE;
+			}
+			else if (state.isIncomplete() || next.isIncomplete()){
+				state = ParentState.INCOMPLETE;
 			}
 		}
 		

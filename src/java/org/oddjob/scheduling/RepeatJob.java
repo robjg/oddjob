@@ -11,13 +11,15 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.framework.StructuralJob;
+import org.oddjob.images.IconHelper;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleCalculator;
 import org.oddjob.schedules.ScheduleListener;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.IsStoppable;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 import org.oddjob.util.Clock;
@@ -302,6 +304,41 @@ implements Stoppable {
 		
 	}
 
+	/**
+	 * Utility method to sleep a certain time.
+	 * 
+	 * @param waitTime Milliseconds to sleep for.
+	 */
+	protected void sleep(final long waitTime) {
+		stateHandler().assertAlive();
+		
+		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+			public void run() {
+				if (stop) {
+					logger().debug("[" + RepeatJob.this + 
+					"] Stop request detected. Not sleeping.");
+					
+					return;
+				}
+				
+				logger().debug("[" + RepeatJob.this + "] Sleeping for " + ( 
+						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
+				
+				iconHelper.changeIcon(IconHelper.SLEEPING);
+					
+				try {
+					stateHandler().sleep(waitTime);
+				} catch (InterruptedException e) {
+					logger().debug("Sleep interupted.");
+				}
+				
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+			}
+		})) {
+			throw new IllegalStateException("Can't sleep unless EXECUTING.");
+		}
+	}	
+		
 	private void runJob(Runnable job, ScheduleCalculator scheduleCalculator) {
 		
         if (job instanceof Resetable) {
@@ -314,24 +351,24 @@ implements Stoppable {
         }
         
 		ScheduleStateListener ssl = new ScheduleStateListener();
-		((Stateful) job).addJobStateListener(ssl);
+		((Stateful) job).addStateListener(ssl);
 
 		try {
 			job.run();
 		}
 		finally {
-			((Stateful) job).removeJobStateListener(ssl);
+			((Stateful) job).removeStateListener(ssl);
 		}
 		
-		if (ssl.state == JobState.EXCEPTION) {
+		if (ssl.state.isException()) {
 			logger().debug("Job [" + job + "] Exception");
 			scheduleCalculator.calculateRetry();			
 		}
-		else if (ssl.state == JobState.INCOMPLETE) {
+		else if (ssl.state.isIncomplete()) {
 			logger().debug("Job [" + job + "] Not Complete.");
 			scheduleCalculator.calculateRetry();
 		}
-		else if (ssl.state == JobState.COMPLETE){
+		else if (ssl.state.isComplete()) {
 			logger().debug("Job [" + job + "] Complete");
 			scheduleCalculator.calculateComplete();
 		}
@@ -387,12 +424,13 @@ implements Stoppable {
 		}
 	}
 	
-    class ScheduleStateListener implements JobStateListener {
+    class ScheduleStateListener implements StateListener {
 		
-    	JobState state;
+    	State state;
     	
-    	public final void jobStateChange(JobStateEvent event) {
-    		state = event.getJobState();
+    	@Override
+    	public final void jobStateChange(StateEvent event) {
+    		state = event.getState();
     	}
 	}
     

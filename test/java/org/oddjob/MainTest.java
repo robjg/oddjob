@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  * 
@@ -205,8 +205,8 @@ public class MainTest extends TestCase {
 	
 		oddjob.run();
 
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());		
 	}
 	
 	public void testOddjobDestroyOnComleteWithServices() throws IOException {
@@ -220,7 +220,7 @@ public class MainTest extends TestCase {
 	
 		oddjob.run();
 
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());		
 	}
 }

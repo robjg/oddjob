@@ -1,14 +1,13 @@
 package org.oddjob.script;
 
-import org.oddjob.Helper;
+import junit.framework.TestCase;
+
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
 
 public class ScriptAndInvokeTest extends TestCase {
 
@@ -45,7 +44,7 @@ public class ScriptAndInvokeTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("XML", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(oj));
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		String snack = new OddjobLookup(oj).lookup("v.snack", String.class);
 		

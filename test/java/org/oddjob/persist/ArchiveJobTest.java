@@ -21,7 +21,9 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.Trigger;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class ArchiveJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);
@@ -43,7 +45,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		WaitJob checkExecuting = new WaitJob();
 		checkExecuting.setFor(wait);
-		checkExecuting.setState("EXECUTING");
+		checkExecuting.setState(new IsStoppable());
 		checkExecuting.run();
 		
 		ArchiveJob test = new ArchiveJob();
@@ -54,7 +56,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.EXECUTING, test.lastStateEvent().getState());
 		
 		wait.stop();
 
@@ -66,8 +68,8 @@ public class ArchiveJobTest extends TestCase {
 		assertNotNull(stateful);
 		
 		assertEquals(IconHelper.COMPLETE, Helper.getIconId(stateful));
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.COMPLETE, stateful.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, stateful.lastStateEvent().getState());
 	}
 
 	public void testReflectsChildState() throws FailedToStopException, ComponentPersistException, InterruptedException {
@@ -96,8 +98,8 @@ public class ArchiveJobTest extends TestCase {
 		assertNotNull(stateful);
 		
 		assertEquals(IconHelper.NOT_COMPLETE, Helper.getIconId(stateful));
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
-		assertEquals(JobState.INCOMPLETE, stateful.lastJobStateEvent().getJobState());
+		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
+		assertEquals(JobState.INCOMPLETE, stateful.lastStateEvent().getState());
 	}
 	
 	public void testStop() throws InterruptedException, FailedToStopException {
@@ -156,8 +158,8 @@ public class ArchiveJobTest extends TestCase {
 		oddjob.setArgs(new String[] { baseDir.getPath() });
 		
 		StateSteps state = new StateSteps(oddjob);
-		state.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		oddjob.run();
 		

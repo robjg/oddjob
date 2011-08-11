@@ -27,7 +27,7 @@ import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  * Test the Arooa aspects of Oddjob.
@@ -221,13 +221,13 @@ public class OddjobArooaTest extends TestCase {
 		
 		assertEquals(MyEcho.class, echo.getClass());
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 
-		assertEquals(JobState.DESTROYED, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.DESTROYED, 
+				oddjob.lastStateEvent().getState());
 	}
 
 	public void testNestedDescriptorOverride() throws ArooaParseException {
@@ -258,13 +258,13 @@ public class OddjobArooaTest extends TestCase {
 		
 		assertEquals(MyEcho.class, echo.getClass());
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 
-		assertEquals(JobState.DESTROYED, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.DESTROYED, 
+				oddjob.lastStateEvent().getState());
 	}
 
 }

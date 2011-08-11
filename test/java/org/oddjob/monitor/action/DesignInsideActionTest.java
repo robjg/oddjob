@@ -16,7 +16,7 @@ import org.oddjob.arooa.design.view.SwingFormFactory;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.MockExplorerContext;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class DesignInsideActionTest extends TestCase {
 
@@ -48,7 +48,7 @@ public class DesignInsideActionTest extends TestCase {
 		oddjob.setConfiguration(config);
 		oddjob.run();
 		
-		assertEquals(JobState.EXCEPTION, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.EXCEPTION, oddjob.lastStateEvent().getState());
 		
 		OurExplorerContext explorerContext = 
 			new OurExplorerContext();		
@@ -79,7 +79,7 @@ public class DesignInsideActionTest extends TestCase {
 		oddjob.setConfiguration(config);
 		oddjob.run();
 		
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		OurExplorerContext explorerContext = 
 			new OurExplorerContext();		
@@ -117,7 +117,7 @@ public class DesignInsideActionTest extends TestCase {
 		oddjob.setConfiguration(config);
 		oddjob.run();
 
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		OurExplorerContext explorerContext = 
 			new OurExplorerContext();		
@@ -151,7 +151,7 @@ public class DesignInsideActionTest extends TestCase {
 		oddjob.setConfiguration(config);
 		oddjob.load();
 
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		OurExplorerContext explorerContext = 
 			new OurExplorerContext();		
@@ -195,7 +195,7 @@ public class DesignInsideActionTest extends TestCase {
 		oddjob.setConfiguration(config);
 		oddjob.run();
 
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		OurExplorerContext explorerContext = 
 			new OurExplorerContext();		

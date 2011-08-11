@@ -6,11 +6,18 @@ import java.util.concurrent.CountDownLatch;
 
 import junit.framework.TestCase;
 
+import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateHandler;
 
 public class BasePrimaryTest extends TestCase {
 
@@ -18,18 +25,45 @@ public class BasePrimaryTest extends TestCase {
 		
 		final CountDownLatch latch = new CountDownLatch(1);
 		
-		void work() {
+		private final JobStateHandler stateHandler = new JobStateHandler(this);
+		
+		private final JobStateChanger stateChanger;
+		
+		protected OurComp() {
+			stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+					new Persistable() {					
+						@Override
+						public void persist() throws ComponentPersistException {
+							save();
+						}
+					});
+		}
+
+		@Override
+		protected StateHandler<?> stateHandler() {
+			return stateHandler;
+		}
+		
+		protected StateChanger<JobState> getStateChanger() {
+			return stateChanger;
+		}
+		
+		synchronized void work() {
 			
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				@Override
 				public void run() {
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(JobState.EXECUTING);
 			
 					latch.countDown();
 
-					sleep(0);
+					try {
+						stateHandler.sleep(0);
+					} catch (InterruptedException e) {
+						throw new RuntimeException("Unexpected");
+					}
 
-					getStateChanger().setJobState(JobState.COMPLETE);
+					getStateChanger().setState(JobState.COMPLETE);
 				}
 			});
 			
@@ -50,23 +84,28 @@ public class BasePrimaryTest extends TestCase {
 				}
 			});
 		}
+		
+		@Override
+		protected void fireDestroyedState() {
+			throw new RuntimeException("Unexpected");
+		}
 	}
 	
 	public void testSleep() throws InterruptedException {
 		
 		final OurComp test = new OurComp();
 		
-		final List<JobState> events = new ArrayList<JobState>();
+		final List<State> events = new ArrayList<State>();
 		
-		JobStateListener listener = new JobStateListener() {
+		StateListener listener = new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				events.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				events.add(event.getState());
 			}
 		};
 		
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 		
 		Thread t1 = new Thread(new Runnable() {
 			@Override

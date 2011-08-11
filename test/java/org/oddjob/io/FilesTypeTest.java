@@ -41,7 +41,7 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.ListType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 /**
  *
@@ -147,7 +147,12 @@ public class FilesTypeTest extends TestCase {
     public static class MyFiles extends SimpleJob {
         File[] files;
     	public void setFiles(File[] files) {
-    		this.files = Files.expand(files);
+    		if (files == null) {
+    			this.files = null;
+    		}
+    		else {
+    			this.files = Files.expand(files);
+    		}
     	}
     	public int execute() {
     		return 0;
@@ -173,10 +178,12 @@ public class FilesTypeTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		MyFiles mine = (MyFiles) new OddjobLookup(oj).lookup("mine");
 		assertTrue(mine.files.length > 1);
+		
+		oj.destroy();
     }
     
     public void testInOddjob2() throws Exception {
@@ -202,13 +209,15 @@ public class FilesTypeTest extends TestCase {
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oj);
 		
 		File[] files = lookup.lookup("v.myfiles", File[].class);
 		
 		assertEquals(3, files.length);
+		
+		oj.destroy();
     }
 
     public void testSupports() throws ArooaParseException {
@@ -337,8 +346,8 @@ public class FilesTypeTest extends TestCase {
 				
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		console.dump(logger);

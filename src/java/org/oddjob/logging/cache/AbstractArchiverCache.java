@@ -13,9 +13,8 @@ import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
 
 /**
  * An base implementation of a Cache for LogEvents.
@@ -40,10 +39,11 @@ abstract public class AbstractArchiverCache implements LogArchiverCache {
 	
 	private final ArchiveNameResolver resolver;
 	
-	private final JobStateListener stateListener = new JobStateListener() {
+	private final StateListener stateListener = new StateListener() {
 		
-		public void jobStateChange(JobStateEvent event) {
-			if (event.getJobState() == JobState.DESTROYED) {
+		@Override
+		public void jobStateChange(StateEvent event) {
+			if (event.getState().isDestroyed()) {
 				removeArchive(event.getSource());
 				
 			}
@@ -167,7 +167,7 @@ abstract public class AbstractArchiverCache implements LogArchiverCache {
 		});
 		
 		if (component instanceof Stateful) {
-			((Stateful) component).addJobStateListener(stateListener);
+			((Stateful) component).addStateListener(stateListener);
 		}
 	}	
 

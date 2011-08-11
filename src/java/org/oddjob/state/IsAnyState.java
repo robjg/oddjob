@@ -12,7 +12,7 @@ package org.oddjob.state;
  */
 public class IsAnyState implements StateCondition {
 
-	public boolean test(JobState state) {
+	public boolean test(State state) {
 		return true;
 	}
 }

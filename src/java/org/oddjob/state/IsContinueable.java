@@ -9,15 +9,9 @@ package org.oddjob.state;
  */
 public class IsContinueable implements StateCondition {
 	
-	public boolean test(JobState state) {
+	@Override
+	public boolean test(State state) {
 		
-		switch (state) {
-		case READY:
-		case EXECUTING:
-		case COMPLETE:
-			return true;
-		default:
-			return false;
-		}
+		return state.isPassable();
 	}
 }

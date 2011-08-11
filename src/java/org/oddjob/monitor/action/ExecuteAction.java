@@ -7,8 +7,8 @@ import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.ThreadManager;
 
 /**
@@ -17,7 +17,7 @@ import org.oddjob.util.ThreadManager;
  * @author Rob Gordon 
  */
 public class ExecuteAction extends JobAction 
-implements JobStateListener {
+implements StateListener {
 
 	/** The job */
 	private Object job = null;
@@ -65,7 +65,7 @@ implements JobStateListener {
 			this.threadManager = explorerContext.getThreadManager();
 				
 			if (job instanceof Stateful) {
-				((Stateful) job).addJobStateListener(this);
+				((Stateful) job).addStateListener(this);
 			}
 			else {
 				setEnabled(true);
@@ -76,7 +76,7 @@ implements JobStateListener {
 	@Override
 	protected void doFree(ExplorerContext explorerContext) {
 		if (job != null && job instanceof Stateful) {
-			((Stateful) job).removeJobStateListener(this);
+			((Stateful) job).removeStateListener(this);
 		}
 		job = null;
 	}
@@ -90,8 +90,8 @@ implements JobStateListener {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 	 */	
-	public void jobStateChange(JobStateEvent event) {
-		if (event.getJobState() == JobState.READY) {
+	public void jobStateChange(StateEvent event) {
+		if (event.getState().isReady()) {
 			setEnabled(true);
 		} else {
 			setEnabled(false);

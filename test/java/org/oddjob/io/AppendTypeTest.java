@@ -3,13 +3,13 @@ package org.oddjob.io;
 import java.io.File;
 import java.io.FileInputStream;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
-
-import junit.framework.TestCase;
+import org.oddjob.state.ParentState;
 
 public class AppendTypeTest extends TestCase {
 
@@ -35,7 +35,7 @@ public class AppendTypeTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
 		File resultFile = new File(outputDir, "messages.txt");
 		

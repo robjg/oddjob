@@ -15,7 +15,7 @@ import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.util.ThreadManager;
 
 public class ExplorerContextImplTest extends TestCase {
@@ -111,7 +111,7 @@ public class ExplorerContextImplTest extends TestCase {
 		
 		oddjob.hardReset();
 		
-		assertEquals(JobState.READY, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		
 		oddjob.run();
 		

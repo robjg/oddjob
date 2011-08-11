@@ -18,7 +18,8 @@ import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
 
 public class SQLPersisterTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SQLPersisterTest.class);
@@ -29,11 +30,14 @@ public class SQLPersisterTest extends TestCase {
 	}
 	
 	public void testSql() throws Exception {
+
 		Oddjob setUp = new Oddjob();
+		
 		setUp.setConfiguration(new XMLConfiguration("Resource",
 				getClass().getResourceAsStream("create.xml")));
 		setUp.run();
-		assertEquals(JobState.COMPLETE, setUp.lastJobStateEvent().getJobState());
+		
+		assertEquals(ParentState.COMPLETE, setUp.lastStateEvent().getState());
 
 		ConnectionType connection = new OddjobLookup(
 				setUp).lookup("vars.con", ConnectionType.class);
@@ -72,17 +76,17 @@ public class SQLPersisterTest extends TestCase {
 	public void testInOddjob() throws Exception {		
 		
 		Oddjob setUp = new Oddjob();
+		
 		setUp.setConfiguration(new XMLConfiguration("Resource",
 				getClass().getResourceAsStream("create.xml")));
 		setUp.run();
-		assertEquals(JobState.COMPLETE, setUp.lastJobStateEvent().getJobState());
+		
+		assertEquals(ParentState.COMPLETE, setUp.lastStateEvent().getState());
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/sql/SqlPersisterTest.xml");
     	
     	File file = new File(url.getFile());
-    	        
-
-		
+    	        		
 		Oddjob oj = new Oddjob();
 		oj.setFile(file);
 		oj.run();
@@ -93,12 +97,12 @@ public class SQLPersisterTest extends TestCase {
 //		
 		WaitJob wait = new WaitJob();
 		wait.setFor(oj);
-		wait.setState("COMPLETE");
+		wait.setState(StateConditions.COMPLETE);
 		wait.run();
 		
 		Object echoJob = new OddjobLookup(oj).lookup("oj/e"); 
 		
-		assertEquals(JobState.COMPLETE, oj.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 		assertEquals("0009", PropertyUtils.getProperty(
 				echoJob, "text"));
 		
@@ -111,7 +115,7 @@ public class SQLPersisterTest extends TestCase {
 		
 		WaitJob wait2 = new WaitJob();
 		wait2.setFor(oj2);
-		wait2.setState("COMPLETE");
+		wait2.setState(StateConditions.COMPLETE);
 		wait2.run();
 		
 		assertEquals("0019", PropertyUtils.getProperty(

@@ -6,8 +6,9 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.Trigger;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateMemory;
 import org.oddjob.util.OddjobConfigException;
 
@@ -32,7 +33,7 @@ import org.oddjob.util.OddjobConfigException;
  */
 
 public class DependsJob extends SimpleJob implements Stoppable,
-		JobStateListener {
+		StateListener {
     private static final long serialVersionUID = 20050806;
 
 	/**
@@ -42,7 +43,7 @@ public class DependsJob extends SimpleJob implements Stoppable,
 	 */
 	private transient Stateful job;
 
-	private transient volatile JobStateEvent event;
+	private transient volatile StateEvent event;
 
 	/**
 	 * Set the stop node directly.
@@ -74,20 +75,20 @@ public class DependsJob extends SimpleJob implements Stoppable,
 			throw new OddjobConfigException("Job must be set.");
 		}
 		try {
-			job.addJobStateListener(this);
+			job.addStateListener(this);
 			while (!stop) {
-				JobState state = event.getJobState();
+				State state = event.getState();
 				logger().debug("State is [" +  state + "]");
 				long sleep = 10;
 				if (state == JobState.READY) {
 					if (job instanceof Runnable) {
 						StateMemory remember = new StateMemory();
 						remember.run((Runnable) job);
-						if (remember.getJobState() == JobState.COMPLETE) {
+						if (remember.getJobState().isComplete()) {
 							return 0;
-						} else if (remember.getJobState() == JobState.INCOMPLETE) {
+						} else if (remember.getJobState().isIncomplete()) {
 							return 1;
-						} else if (remember.getJobState() == JobState.EXCEPTION) {
+						} else if (remember.getJobState().isException()) {
 							throw remember.getThrowable();
 						}
 						// this shouldn't happen but something else
@@ -98,11 +99,11 @@ public class DependsJob extends SimpleJob implements Stoppable,
 						// if job's not runnable we could be waiting a long time.
 						sleep = 0;
 					}
-				} else if (state == JobState.COMPLETE) {
+				} else if (state.isComplete()) {
 					return 0;
-				} else if (state == JobState.INCOMPLETE) {
+				} else if (state.isIncomplete()) {
 					return 1;
-				} else if (state == JobState.EXCEPTION) {
+				} else if (state.isException()) {
 					throw event.getException();
 				} else {
 					logger().debug("[" + job + "] still executing...");
@@ -113,7 +114,7 @@ public class DependsJob extends SimpleJob implements Stoppable,
 
 			return 0;
 		} finally {
-			job.removeJobStateListener(this);
+			job.removeStateListener(this);
 		}
 	}
 
@@ -122,7 +123,8 @@ public class DependsJob extends SimpleJob implements Stoppable,
 	 * 
 	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 	 */
-	public void jobStateChange(JobStateEvent event) {
+	@Override
+	public void jobStateChange(StateEvent event) {
 		this.event = event;
 		synchronized (this) {
 			notifyAll();

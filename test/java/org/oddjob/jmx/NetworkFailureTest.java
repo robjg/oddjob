@@ -13,6 +13,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.JobState;
 
 public class NetworkFailureTest extends TestCase {
@@ -74,7 +75,7 @@ public class NetworkFailureTest extends TestCase {
 		
 		WaitJob wait = new WaitJob();
 		wait.setFor(client);
-		wait.setState("!executing");
+		wait.setState(new IsNotExecuting());
 		wait.setPause(1000);
 		wait.run();
 		

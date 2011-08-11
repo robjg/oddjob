@@ -14,7 +14,7 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.deploy.LinkedDescriptor;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 
 public class OddballsDescriptorFactoryTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
@@ -39,7 +39,9 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		oddjob.destroy();
 	}
 
 	
@@ -58,7 +60,9 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		oddjob.destroy();
 	}
 	
 	public void testClassResolverResources() {

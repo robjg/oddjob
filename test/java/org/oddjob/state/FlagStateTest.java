@@ -14,6 +14,6 @@ public class FlagStateTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.EXCEPTION, test.lastStateEvent().getState());
 	}
 }

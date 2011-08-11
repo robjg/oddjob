@@ -18,8 +18,9 @@ import org.oddjob.scheduling.MockScheduledFuture;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
 import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
 
 public class SQLKeeperTest extends TestCase {
 	
@@ -67,12 +68,12 @@ public class SQLKeeperTest extends TestCase {
 		sql.run();
 	}
 	
-	private class OurListener implements JobStateListener {
-		List<JobState> states = new ArrayList<JobState>();
+	private class OurListener implements StateListener {
+		List<State> states = new ArrayList<State>();
 		
 		@Override
-		public void jobStateChange(JobStateEvent event) {
-			states.add(event.getJobState());
+		public void jobStateChange(StateEvent event) {
+			states.add(event.getState());
 		}
 	}
 	
@@ -121,7 +122,7 @@ public class SQLKeeperTest extends TestCase {
 
 		OurListener listener = new OurListener();
 		
-		((LoosingOutcome) second).addJobStateListener(listener);
+		((LoosingOutcome) second).addStateListener(listener);
 		
 		assertEquals(1, listener.states.size());
 		assertEquals(JobState.EXECUTING, listener.states.get(0));
@@ -161,14 +162,14 @@ public class SQLKeeperTest extends TestCase {
 
 		OurListener listener = new OurListener();
 		
-		((LoosingOutcome) second).addJobStateListener(listener);
+		((LoosingOutcome) second).addStateListener(listener);
 		
 		assertEquals(1, listener.states.size());
 		assertEquals(JobState.EXECUTING, listener.states.get(0));
 		
 		assertNotNull(executor.runnable);
 		
-		((LoosingOutcome) second).removeJobStateListener(listener);
+		((LoosingOutcome) second).removeStateListener(listener);
 		
 		test.stop();
 		
@@ -201,7 +202,7 @@ public class SQLKeeperTest extends TestCase {
 
 		OurListener listener = new OurListener();
 		
-		((LoosingOutcome) second).addJobStateListener(listener);
+		((LoosingOutcome) second).addStateListener(listener);
 		
 		assertEquals(1, listener.states.size());
 		assertEquals(JobState.EXECUTING, listener.states.get(0));

@@ -12,42 +12,35 @@ import org.oddjob.Stateful;
  */
 public class StateExchange {
 
-	private final StateChanger recipient;
+	private final StateChanger<ParentState> recipient;
 	
 	private final Stateful source;
 	
 	private boolean running;
 
-	private final JobStateListener stateListener = 
-			new AbstractJobStateListener() {
-		@Override
-		protected void jobStateReady(Stateful source, Date time) {
-			recipient.setJobState(JobState.READY, time);
-		}
+	private final StateListener stateListener = 
+			new StateListener() {
 		
 		@Override
-		protected void jobStateExecuting(Stateful source, Date time) {
-			recipient.setJobState(JobState.EXECUTING, time);
-		}
+		public void jobStateChange(StateEvent event) {
+			ParentState state = (ParentState) event.getState();
+			Date time = event.getTime();
 		
-		@Override
-		protected void jobStateComplete(Stateful source, Date time) {
-			recipient.setJobState(JobState.COMPLETE, time);
-		}
-		
-		@Override
-		protected void jobStateNotComplete(Stateful source, Date time) {
-			recipient.setJobState(JobState.INCOMPLETE, time);
-		}
-	
-		@Override
-		protected void jobStateException(Stateful source, Date time,
-				Throwable throwable) {
-			recipient.setJobStateException(throwable, time);
+			switch (state) {
+				case DESTROYED:
+					break;
+				case EXCEPTION:
+					Throwable throwable = event.getException();
+					recipient.setStateException(throwable, time);
+					break;
+				default:
+					recipient.setState(state, time);
+					break;
+			}
 		}
 	};
 	
-	public StateExchange(Stateful source, StateChanger recipient) {
+	public StateExchange(Stateful source, StateChanger<ParentState> recipient) {
 		this.source = source;
 		this.recipient = recipient;
 	}
@@ -59,14 +52,14 @@ public class StateExchange {
 			}
 			running = true;
 		}
-		source.addJobStateListener(stateListener);
+		source.addStateListener(stateListener);
 	}
 	
 	public void stop() {
 		synchronized (this) {
 			running = false;
 		}
-		source.removeJobStateListener(stateListener);
+		source.removeStateListener(stateListener);
 	}
 	
 	public boolean isRunning() {

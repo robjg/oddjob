@@ -9,7 +9,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.oddjob.images.StateIcons;
-import org.oddjob.state.JobStateEvent;
+import org.oddjob.state.StateEvent;
 
 abstract public class SerializableJob extends SimpleJob 
 implements Serializable {
@@ -35,7 +35,7 @@ implements Serializable {
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastJobStateEvent());
+		s.writeObject(stateHandler.lastStateEvent());
 	}
 
 	/**
@@ -44,13 +44,16 @@ implements Serializable {
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		setName((String) s.readObject());
+		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		JobStateEvent savedEvent = (JobStateEvent) s.readObject();
+		StateEvent savedEvent = (StateEvent) s.readObject();
+		
+		completeConstruction();
+		
+		setName(name);
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getJobState()));
-		completeConstruction();
+				StateIcons.iconFor(stateHandler.getState()));
 	}
 
 }

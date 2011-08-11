@@ -3,9 +3,9 @@ package org.oddjob;
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.State;
 
 public class StateSteps {
 	private static final Logger logger = Logger.getLogger(StateSteps.class);
@@ -23,9 +23,9 @@ public class StateSteps {
 		this.stateful = stateful;
 	}
 	
-	class Listener implements JobStateListener {
+	class Listener implements StateListener {
 		
-		private final JobState[] steps;
+		private final State[] steps;
 		
 		private int index;
 		
@@ -33,22 +33,22 @@ public class StateSteps {
 		
 		private String failureMessage;
 		
-		public Listener(JobState[] steps) {
+		public Listener(State[] steps) {
 			this.steps = steps;
 		}
 		
 		@Override
-		public void jobStateChange(JobStateEvent event) {
-			logger.info("Received " + event.getJobState() + 
+		public void jobStateChange(StateEvent event) {
+			logger.info("Received " + event.getState() + 
 					" from [" + event.getSource() + "]");
 			
 			if (index >= steps.length) {
 				failureMessage = 
-					"More states than expected: " + event.getJobState() + 
+					"More states than expected: " + event.getState() + 
 					" (index " + index + ")";
 			}
 			else {
-				if (event.getJobState() == steps[index]) {
+				if (event.getState() == steps[index]) {
 					if (++index == steps.length) {
 						done = true;
 						synchronized(this) {
@@ -60,7 +60,7 @@ public class StateSteps {
 					done = true;
 					failureMessage = 
 							"Expected " + steps[index] + 
-							", was " + event.getJobState() + 
+							", was " + event.getState() + 
 							" (index " + index + ")";
 					synchronized(this) {
 						notifyAll();
@@ -70,7 +70,7 @@ public class StateSteps {
 		}
 	};	
 	
-	public void startCheck(final JobState... steps) {
+	public void startCheck(final State... steps) {
 		if (listener != null) {
 			throw new IllegalStateException("Check in progress!");
 		}
@@ -80,7 +80,7 @@ public class StateSteps {
 		
 		this.listener = new Listener(steps);
 		
-		stateful.addJobStateListener(listener);
+		stateful.addStateListener(listener);
 	}
 
 	public void checkNow() {
@@ -93,13 +93,14 @@ public class StateSteps {
 			}
 			else {
 				throw new IllegalStateException(
-						"Not enough states: expected " 
-						+ listener.steps.length + " " + listener.steps + 
+						"Not enough states: expected " + 
+						listener.steps.length + " " + 
+						Arrays.toString(listener.steps) + 
 						", was only first " + listener.index + ".");
 			}
 		}
 		finally {
-			stateful.removeJobStateListener(listener);
+			stateful.removeStateListener(listener);
 			listener = null;
 		}
 	}

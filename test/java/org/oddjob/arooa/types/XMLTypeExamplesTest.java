@@ -8,7 +8,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.xml.sax.SAXException;
 
 public class XMLTypeExamplesTest extends XMLTestCase {
@@ -21,8 +21,8 @@ public class XMLTypeExamplesTest extends XMLTestCase {
 
 		oddjob.run();
 		
-		assertEquals(JobState.COMPLETE, 
-				oddjob.lastJobStateEvent().getJobState());
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		String result = lookup.lookup("vars.myXML", String.class);

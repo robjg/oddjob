@@ -22,13 +22,9 @@ public class JobStateHandlerTest extends TestCase {
 		
 	private void setState(final JobStateHandler handler, 
 			final JobState state) {
-		boolean ran = handler.waitToWhen(new StateCondition() {
-			public boolean test(JobState state) {
-				return true;
-			}
-		}, new Runnable() {
+		boolean ran = handler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				handler.setJobState(state);
+				handler.setState(state);
 				handler.fireEvent();
 			}
 		});
@@ -37,13 +33,9 @@ public class JobStateHandlerTest extends TestCase {
 	
 	private void setException(final JobStateHandler handler, 
 			final Exception e) {
-		boolean ran = handler.waitToWhen(new StateCondition() {
-			public boolean test(JobState state) {
-				return true;
-			}
-		}, new Runnable() {
+		boolean ran = handler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				handler.setJobStateException(e);
+				handler.setStateException(JobState.EXCEPTION, e);
 				handler.fireEvent();
 			}
 		});
@@ -54,40 +46,40 @@ public class JobStateHandlerTest extends TestCase {
 		
 		JobStateHandler test = new JobStateHandler(new MockStateful());
 		
-		assertEquals(JobState.READY, test.getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, test.getState());
+		assertEquals(JobState.READY, test.lastStateEvent().getState());
 		
 		setState(test, JobState.EXECUTING);
 		
-		assertEquals(JobState.EXECUTING, test.getJobState());
-		assertEquals(JobState.EXECUTING, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.EXECUTING, test.getState());
+		assertEquals(JobState.EXECUTING, test.lastStateEvent().getState());
 
 		setState(test, JobState.COMPLETE);
 		
-		assertEquals(JobState.COMPLETE, test.getJobState());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.getState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
 		setState(test, JobState.INCOMPLETE);
 		
-		assertEquals(JobState.INCOMPLETE, test.getJobState());
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.INCOMPLETE, test.getState());
+		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
 
 		setException(test, new Exception());
 		
-		assertEquals(JobState.EXCEPTION, test.getJobState());
-		assertEquals(JobState.EXCEPTION, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.EXCEPTION, test.getState());
+		assertEquals(JobState.EXCEPTION, test.lastStateEvent().getState());
 
 		setState( test, JobState.READY);
 		
-		assertEquals(JobState.READY, test.getJobState());
-		assertEquals(JobState.READY, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.READY, test.getState());
+		assertEquals(JobState.READY, test.lastStateEvent().getState());
 	}
 
-	private class RecordingStateListener implements JobStateListener {
+	private class RecordingStateListener implements StateListener {
 		
-		List<JobStateEvent> events = new ArrayList<JobStateEvent>();
+		List<StateEvent> events = new ArrayList<StateEvent>();
 		
-		public synchronized void jobStateChange(JobStateEvent event) {
+		public synchronized void jobStateChange(StateEvent event) {
 			events.add(event);
 		}
 	}
@@ -98,43 +90,43 @@ public class JobStateHandlerTest extends TestCase {
 		JobStateHandler test = new JobStateHandler(source);
 
 		RecordingStateListener l = new RecordingStateListener();
-		test.addJobStateListener(l);
+		test.addStateListener(l);
 		
 		assertEquals(1, l.events.size());
-		assertEquals(JobState.READY, l.events.get(0).getJobState());
+		assertEquals(JobState.READY, l.events.get(0).getState());
 		assertEquals(source, l.events.get(0).getSource());
 
 		setState(test, JobState.EXECUTING);
 		
 		assertEquals(2, l.events.size());
-		assertEquals(JobState.EXECUTING, l.events.get(1).getJobState());
+		assertEquals(JobState.EXECUTING, l.events.get(1).getState());
 
 		setState(test, JobState.COMPLETE);
 		
 		assertEquals(3, l.events.size());
-		assertEquals(JobState.COMPLETE, l.events.get(2).getJobState());
+		assertEquals(JobState.COMPLETE, l.events.get(2).getState());
 		
 		setState(test, JobState.INCOMPLETE);
 		
 		assertEquals(4, l.events.size());
-		assertEquals(JobState.INCOMPLETE, l.events.get(3).getJobState());
+		assertEquals(JobState.INCOMPLETE, l.events.get(3).getState());
 
 		Exception e = new Exception();
 		setException(test, e);
 		
 		assertEquals(5, l.events.size());
-		assertEquals(JobState.EXCEPTION, l.events.get(4).getJobState());
+		assertEquals(JobState.EXCEPTION, l.events.get(4).getState());
 		assertEquals(e, l.events.get(4).getException());
 
 		setState(test, JobState.READY);
 		
 		assertEquals(6, l.events.size());
-		assertEquals(JobState.READY, l.events.get(5).getJobState());
+		assertEquals(JobState.READY, l.events.get(5).getState());
 		
 		setState(test, JobState.DESTROYED);
 		
 		assertEquals(7, l.events.size());
-		assertEquals(JobState.DESTROYED, l.events.get(6).getJobState());
+		assertEquals(JobState.DESTROYED, l.events.get(6).getState());
 	}
 
 	public void testDuplicateEventsNotified() {
@@ -143,10 +135,10 @@ public class JobStateHandlerTest extends TestCase {
 		JobStateHandler test = new JobStateHandler(source);
 
 		RecordingStateListener l = new RecordingStateListener();
-		test.addJobStateListener(l);
+		test.addStateListener(l);
 		
 		assertEquals(1, l.events.size());
-		assertEquals(JobState.READY, l.events.get(0).getJobState());
+		assertEquals(JobState.READY, l.events.get(0).getState());
 		assertEquals(source, l.events.get(0).getSource());
 
 		setState(test, JobState.READY);
@@ -160,12 +152,12 @@ public class JobStateHandlerTest extends TestCase {
 		setState(test, JobState.EXECUTING);
 		
 		assertEquals(4, l.events.size());
-		assertEquals(JobState.EXECUTING, l.events.get(3).getJobState());
+		assertEquals(JobState.EXECUTING, l.events.get(3).getState());
 
 		setState(test, JobState.COMPLETE);
 		
 		assertEquals(5, l.events.size());
-		assertEquals(JobState.COMPLETE, l.events.get(4).getJobState());
+		assertEquals(JobState.COMPLETE, l.events.get(4).getState());
 	}
 	
 	public void testManyListeners() throws Exception {
@@ -181,9 +173,9 @@ public class JobStateHandlerTest extends TestCase {
 			}
 		});
 		
-		test.addJobStateListener(l1);
-		test.addJobStateListener(l2);
-		test.addJobStateListener(l3);
+		test.addStateListener(l1);
+		test.addStateListener(l2);
+		test.addStateListener(l3);
 		
 		t.start();
 		
@@ -193,9 +185,9 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(2, l2.events.size());
 		assertEquals(2, l3.events.size());
 		
-		assertEquals(JobState.COMPLETE, l1.events.get(1).getJobState());
-		assertEquals(JobState.COMPLETE, l2.events.get(1).getJobState());
-		assertEquals(JobState.COMPLETE, l3.events.get(1).getJobState());
+		assertEquals(JobState.COMPLETE, l1.events.get(1).getState());
+		assertEquals(JobState.COMPLETE, l2.events.get(1).getState());
+		assertEquals(JobState.COMPLETE, l3.events.get(1).getState());
 	}
 	
 	
@@ -203,10 +195,10 @@ public class JobStateHandlerTest extends TestCase {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
 
-		test.addJobStateListener(new JobStateListener() {
-			public void jobStateChange(JobStateEvent event) {
-				if (event.getJobState() == JobState.COMPLETE) {
-					test.removeJobStateListener(this);
+		test.addStateListener(new StateListener() {
+			public void jobStateChange(StateEvent event) {
+				if (event.getState() == JobState.COMPLETE) {
+					test.removeStateListener(this);
 				}
 			}
 		});
@@ -216,7 +208,7 @@ public class JobStateHandlerTest extends TestCase {
 		test.waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
 			public void run() {
-				test.setJobState(JobState.COMPLETE);
+				test.setState(JobState.COMPLETE);
 				test.fireEvent();
 			}
 		});
@@ -228,14 +220,14 @@ public class JobStateHandlerTest extends TestCase {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
 		
-		JobStateListener listener = new JobStateListener() {
+		StateListener listener = new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
+			public void jobStateChange(StateEvent event) {
 				test.waitToWhen(new IsAnyState(), new Runnable() {
 					@Override
 					public void run() {
-						test.setJobState(JobState.COMPLETE);
+						test.setState(JobState.COMPLETE);
 						test.fireEvent();
 					}
 				});
@@ -243,7 +235,7 @@ public class JobStateHandlerTest extends TestCase {
 		};
 		
 		try {
-			test.addJobStateListener(listener);
+			test.addStateListener(listener);
 			fail("Expected to fail.");
 		}
 		catch (IllegalStateException e) {
@@ -252,14 +244,14 @@ public class JobStateHandlerTest extends TestCase {
 
 		final AtomicBoolean failed = new AtomicBoolean();
 		
-		JobStateListener listener2 = new JobStateListener() {
+		StateListener listener2 = new StateListener() {
 			
 			@Override
-			public void jobStateChange(final JobStateEvent event) {
+			public void jobStateChange(final StateEvent event) {
 				
-				if (JobState.INCOMPLETE == event.getJobState()) {
+				if (JobState.INCOMPLETE == event.getState()) {
 					try {
-						test.setJobState(JobState.COMPLETE);
+						test.setState(JobState.COMPLETE);
 						test.fireEvent();
 					}
 					catch (IllegalStateException e) {
@@ -269,18 +261,18 @@ public class JobStateHandlerTest extends TestCase {
 			}
 		};
 
-		test.addJobStateListener(listener2);
+		test.addStateListener(listener2);
 		
 		test.waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
 			public void run() {
-				test.setJobState(JobState.INCOMPLETE);
+				test.setState(JobState.INCOMPLETE);
 				test.fireEvent();
 			}
 		});
 		
 		assertTrue(failed.get());
-		assertEquals(JobState.INCOMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testListenerNotificationOrder() throws InterruptedException {
@@ -289,12 +281,12 @@ public class JobStateHandlerTest extends TestCase {
 		
 		final Exchanger<Void> exchanger = new Exchanger<Void>();
 		
-		test.addJobStateListener(new JobStateListener() {
+		test.addStateListener(new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
+			public void jobStateChange(StateEvent event) {
 				try {
-					if (event.getJobState() == JobState.COMPLETE) {
+					if (event.getState() == JobState.COMPLETE) {
 						exchanger.exchange(null);
 						exchanger.exchange(null);
 					}
@@ -304,13 +296,13 @@ public class JobStateHandlerTest extends TestCase {
 			}
 		});
 		
-		final List<JobState> events = new ArrayList<JobState>();
+		final List<State> events = new ArrayList<State>();
 		
-		JobStateListener listener = new JobStateListener() {
+		StateListener listener = new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				events.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				events.add(event.getState());
 			}
 		};
 		
@@ -320,7 +312,7 @@ public class JobStateHandlerTest extends TestCase {
 				test.waitToWhen(new IsAnyState(), new Runnable() {
 					@Override
 					public void run() {
-						test.setJobState(JobState.COMPLETE);
+						test.setState(JobState.COMPLETE);
 						test.fireEvent();
 					}
 				});
@@ -331,11 +323,11 @@ public class JobStateHandlerTest extends TestCase {
 		exchanger.exchange(null);
 				
 		// able to get event before other listener complete.
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 		
 		assertEquals(JobState.COMPLETE, events.get(0));
 		assertEquals(1, events.size());
-		assertEquals(JobState.COMPLETE, test.lastJobStateEvent().getJobState());
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testSleep() throws InterruptedException {
@@ -344,17 +336,17 @@ public class JobStateHandlerTest extends TestCase {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
 		
-		final List<JobState> events = new ArrayList<JobState>();
+		final List<State> events = new ArrayList<State>();
 		
-		JobStateListener listener = new JobStateListener() {
+		StateListener listener = new StateListener() {
 			
 			@Override
-			public void jobStateChange(JobStateEvent event) {
-				events.add(event.getJobState());
+			public void jobStateChange(StateEvent event) {
+				events.add(event.getState());
 			}
 		};
 		
-		test.addJobStateListener(listener);
+		test.addStateListener(listener);
 		
 		Thread t1 = new Thread(new Runnable() {
 			@Override
@@ -368,7 +360,7 @@ public class JobStateHandlerTest extends TestCase {
 						} catch (InterruptedException e) {
 							throw new RuntimeException(e);
 						}
-						test.setJobState(JobState.COMPLETE);
+						test.setState(JobState.COMPLETE);
 						test.fireEvent();
 					}
 				});
@@ -386,7 +378,7 @@ public class JobStateHandlerTest extends TestCase {
 				test.waitToWhen(new IsAnyState(), new Runnable() {
 					@Override
 					public void run() {
-						test.setJobState(JobState.INCOMPLETE);
+						test.setState(JobState.INCOMPLETE);
 						test.fireEvent();
 						test.wake();
 					}

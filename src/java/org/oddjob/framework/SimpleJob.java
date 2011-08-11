@@ -4,13 +4,19 @@ package org.oddjob.framework;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.persist.Persistable;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
+import org.oddjob.state.JobStateChanger;
+import org.oddjob.state.JobStateHandler;
+import org.oddjob.state.StateChanger;
 
 /**
  * An abstract implementation of a job which provides common functionality to
@@ -21,6 +27,37 @@ import org.oddjob.state.JobState;
 public abstract class SimpleJob extends BasePrimary
 implements  Runnable, Resetable, Stateful {
 
+	protected transient JobStateHandler stateHandler;
+	
+	private final JobStateChanger stateChanger;
+	
+	/**
+	 * This flag is set by the stop method and should
+	 * be examined by any Stoppable sub classes in 
+	 * their processing loop.
+	 */
+	protected transient volatile boolean stop;
+	
+	protected SimpleJob() {
+		stateHandler = new JobStateHandler(this);
+		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+				new Persistable() {					
+					@Override
+					public void persist() throws ComponentPersistException {
+						save();
+					}
+				});
+	}
+	
+	@Override
+	protected JobStateHandler stateHandler() {
+		return stateHandler;
+	}
+	
+	protected StateChanger<JobState> getStateChanger() {
+		return stateChanger;
+	}
+	
 	/**
 	 * Execute this job.
 	 * 
@@ -38,7 +75,7 @@ implements  Runnable, Resetable, Stateful {
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
-					getStateChanger().setJobState(JobState.EXECUTING);
+					getStateChanger().setState(JobState.EXECUTING);
 				}
 			})) {
 				return;			
@@ -65,13 +102,13 @@ implements  Runnable, Resetable, Stateful {
 			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					if (exception[0] != null) {
-						getStateChanger().setJobStateException(exception[0]);
+						getStateChanger().setStateException(exception[0]);
 					}
 					else if (result[0] == 0) {
-		            	getStateChanger().setJobState(JobState.COMPLETE);
+		            	getStateChanger().setState(JobState.COMPLETE);
 					}
 					else {						
-		            	getStateChanger().setJobState(JobState.INCOMPLETE);
+		            	getStateChanger().setState(JobState.INCOMPLETE);
 					}
 				}
 			});
@@ -81,6 +118,41 @@ implements  Runnable, Resetable, Stateful {
 		}
 	}
 	
+	/**
+	 * Utility method to sleep a certain time.
+	 * 
+	 * @param waitTime Milliseconds to sleep for.
+	 */
+	protected void sleep(final long waitTime) {
+		stateHandler().assertAlive();
+		
+		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+			public void run() {
+				if (stop) {
+					logger().debug("[" + SimpleJob.this + 
+					"] Stop request detected. Not sleeping.");
+					
+					return;
+				}
+				
+				logger().debug("[" + SimpleJob.this + "] Sleeping for " + ( 
+						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
+				
+				iconHelper.changeIcon(IconHelper.SLEEPING);
+					
+				try {
+					stateHandler().sleep(waitTime);
+				} catch (InterruptedException e) {
+					logger().debug("Sleep interupted.");
+				}
+				
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+			}
+		})) {
+			throw new IllegalStateException("Can't sleep unless EXECUTING.");
+		}
+	}	
+		
 	/**
 	 * Allow subclasses to indicate they are 
 	 * stopping. The subclass must still implement 
@@ -137,7 +209,9 @@ implements  Runnable, Resetable, Stateful {
 			public void run() {
 				onReset();
 				
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
+				
+				stop = false;
 				
 				logger().info("[" + SimpleJob.this + "] Soft Reset.");
 			}
@@ -152,8 +226,10 @@ implements  Runnable, Resetable, Stateful {
 			public void run() {
 				onReset();
 				
-				getStateChanger().setJobState(JobState.READY);
+				getStateChanger().setState(JobState.READY);
 		
+				stop = false;
+				
 				logger().info("[" + SimpleJob.this + "] Hard Reset.");
 			}
 		});
@@ -175,5 +251,21 @@ implements  Runnable, Resetable, Stateful {
 		} catch (FailedToStopException e) {
 			logger().warn(e);
 		}
+	}
+	
+	/**
+	 * Internal method to fire state.
+	 */
+	protected void fireDestroyedState() {
+		
+		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().fireEvent();
+			}
+		})) {
+			throw new IllegalStateException("[" + SimpleJob.this + " Failed set state DESTROYED");
+		}
+		logger().debug("[" + SimpleJob.this + "] destroyed.");				
 	}
 }

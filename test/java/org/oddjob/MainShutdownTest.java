@@ -11,6 +11,8 @@ import org.oddjob.io.BufferType;
 import org.oddjob.jobs.ExecJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
+import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
 
 public class MainShutdownTest extends TestCase {
 
@@ -129,7 +131,7 @@ public class MainShutdownTest extends TestCase {
 		
 		WaitJob wait = new WaitJob();
 		wait.setFor(exec);
-		wait.setState("EXECUTING");
+		wait.setState(StateConditions.EXECUTING);
 		
 		wait.run();
 		
@@ -140,7 +142,7 @@ public class MainShutdownTest extends TestCase {
 			buffer.setLines(console.getLines());
 			buffer.configured();
 			
-			JobState jobState = exec.lastJobStateEvent().getJobState();
+			State jobState = exec.lastStateEvent().getState();
 			if (buffer.getText().contains("Naughty Thread Started.")) {
 				break;
 			}
@@ -161,7 +163,7 @@ public class MainShutdownTest extends TestCase {
 		assertEquals(1, exec.getExitValue());
 		
 		assertEquals(JobState.INCOMPLETE, 
-				exec.lastJobStateEvent().getJobState());
+				exec.lastStateEvent().getState());
 		
 		console.close();
 	}

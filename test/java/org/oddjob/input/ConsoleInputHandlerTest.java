@@ -43,7 +43,7 @@ public class ConsoleInputHandlerTest extends TestCase {
 		console.dump(logger);
 		
 		assertEquals(JobState.COMPLETE, 
-				exec.lastJobStateEvent().getJobState());
+				exec.lastStateEvent().getState());
 		
 		String[] lines = console.getLines();
 		

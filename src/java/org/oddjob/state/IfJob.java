@@ -37,20 +37,17 @@ public class IfJob extends StructuralJob<Object>
     private static final long serialVersionUID = 20050806;
     
     /** The condition state. */
-	private JobState state = JobState.COMPLETE;
+	private StateCondition state = StateConditions.COMPLETE;
 	
 	/** remember then/else */ 
 	private volatile boolean then;
 	
-	/** Not the state. */
-	private boolean not;
-
 	/**
 	 * Getter for state.
 	 * 
 	 * @return The state.
 	 */
-	public JobState getState() {
+	public StateCondition getState() {
 		return state;
 	}
 	
@@ -60,26 +57,8 @@ public class IfJob extends StructuralJob<Object>
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
 	@ArooaAttribute
-	public void setState(JobState state) {
+	public void setState(StateCondition state) {
 		this.state = state;
-	}		
-	
-	/**
-	 * Getter for not property.
-	 * 
-	 * @return The not property.
-	 */
-	public boolean isNot() {
-		return not;
-	}
-	
-	/**
-	 * @oddjob.property not
-	 * @oddjob.description Not the state.
-	 * @oddjob.required No, defaults to false.
-	 */
-	public void setNot(boolean not) {
-		this.not = not;
 	}		
 	
 	/**
@@ -100,26 +79,26 @@ public class IfJob extends StructuralJob<Object>
 	@Override
 	protected StateOperator getStateOp() {
 		return new StateOperator() {
-			public JobState evaluate(JobState... states) {
+			public ParentState evaluate(State... states) {
 
 				if (states.length < 1) {
-					return JobState.READY;
+					return ParentState.READY;
 				}
 				
-				then =  ( (states[0] == state) ^ not );
+				then =  state.test(states[0]);
 				
 				if (then) {
 					if (states.length > 1) {
-						return states[1];
+						return new ParentStateConverter().toStructuralState(states[1]);
 					}
 				}
 				else {
 					if (states.length > 2) {
-						return states[2];
+						return new ParentStateConverter().toStructuralState(states[2]);
 					}
 				}
 				
-				return JobState.COMPLETE;
+				return ParentState.COMPLETE;
 			}
 		};
 

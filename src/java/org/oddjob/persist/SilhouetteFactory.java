@@ -17,8 +17,9 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.IconTip;
 import org.oddjob.monitor.model.Describer;
-import org.oddjob.state.JobStateEvent;
-import org.oddjob.state.JobStateListener;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateEvent;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -33,13 +34,13 @@ public class SilhouetteFactory {
 		
 		interfaces.add(Describeable.class);
 		
-		JobStateEvent lastJobStateEvent = null;
+		StateEvent lastJobStateEvent = null;
 		
 		if (subject instanceof Stateful) {
 			Stateful stateful = (Stateful) subject;
 			StateTrap stateTrap = new StateTrap();
-			stateful.addJobStateListener(stateTrap);
-			stateful.removeJobStateListener(stateTrap);
+			stateful.addStateListener(stateTrap);
+			stateful.removeStateListener(stateTrap);
 			lastJobStateEvent = stateTrap.getLastJobStateEvent();
 			interfaces.add(Stateful.class);
 		}
@@ -74,9 +75,9 @@ public class SilhouetteFactory {
 				silhouette);
 		
 		if (lastJobStateEvent != null) {
-			silhouette.setLastJobStateEvent(new JobStateEvent(
+			silhouette.setLastJobStateEvent(new StateEvent(
 					(Stateful) proxy, 
-					lastJobStateEvent.getJobState(),
+					lastJobStateEvent.getState(),
 					lastJobStateEvent.getTime(),
 					lastJobStateEvent.getException()));
 		}
@@ -112,7 +113,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	
 	private StructuralEvent[] structuralEvents;
 	
-	private JobStateEvent lastJobStateEvent;
+	private StateEvent lastJobStateEvent;
 	
 	private IconEvent iconEvent;
 	
@@ -127,7 +128,7 @@ class Silhouette implements InvocationHandler, Serializable,
 		this.structuralEvents = children;
 	}
 	
-	void setLastJobStateEvent(JobStateEvent lastJobStateEvent) {
+	void setLastJobStateEvent(StateEvent lastJobStateEvent) {
 		this.lastJobStateEvent = lastJobStateEvent;
 	}
 	
@@ -151,16 +152,16 @@ class Silhouette implements InvocationHandler, Serializable,
 	}
 	
 	@Override
-	public void addJobStateListener(JobStateListener listener) {
+	public void addStateListener(StateListener listener) {
 		listener.jobStateChange(lastJobStateEvent);
 	}
 	
 	@Override
-	public void removeJobStateListener(JobStateListener listener) {
+	public void removeStateListener(StateListener listener) {
 	}
 
 	@Override
-	public JobStateEvent lastJobStateEvent() {
+	public StateEvent lastStateEvent() {
 		return lastJobStateEvent;
 	}
 	
@@ -238,16 +239,16 @@ class ChildCatcher implements StructuralListener {
 	}
 }
 
-class StateTrap implements JobStateListener {
+class StateTrap implements StateListener {
 	
-	private JobStateEvent lastJobStateEvent;
+	private StateEvent lastJobStateEvent;
 	
-	public JobStateEvent getLastJobStateEvent() {
+	public StateEvent getLastJobStateEvent() {
 		return lastJobStateEvent;
 	}
 	
 	@Override
-	public void jobStateChange(JobStateEvent event) {
+	public void jobStateChange(StateEvent event) {
 		this.lastJobStateEvent = event;
 	}
 }
