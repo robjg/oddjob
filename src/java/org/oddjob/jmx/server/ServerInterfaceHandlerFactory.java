@@ -15,6 +15,9 @@ import org.oddjob.jmx.client.ClientHandlerResolver;
  * 
  * @author Rob Gordon.
  *
+ * @param <S> The class of the interface (or Object) being exposed remotely.
+ * @param <T> The class of thing that will provide the signature of 
+ * the handler.
  */
 public interface ServerInterfaceHandlerFactory<S, T> {
 
@@ -65,5 +68,5 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return The resolver.
 	 */
-	public ClientHandlerResolver clientHandlerFactory();
+	public ClientHandlerResolver<T> clientHandlerFactory();
 }

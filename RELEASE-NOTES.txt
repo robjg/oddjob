@@ -13,13 +13,17 @@ Changes in 1.0.0
 - Corrected millisecond date format to be yyyy-MM-dd HH:mm:ss.SSS (decimal 
   point not colon).
 - Fixed bug with stopping wrapped jobs via thread interrupt.
+- Reworked state so components can have different state. Services
+  now have different states to Jobs.
+- JMX server now has a read only mode.
+- JMX server will now use the Platform MBean Server if no URL
+  is provided.
 
 Still Todo for 1.0.0
 --------------------
 - More tests/examples for foreach. Parallel execution and the idea of
   an execution window. Maybe change tag to for-each.  
 - Add a 'forceComplete' action that will force a job to be complete.
-- JMX read only mode.
 - Positioning of Designer dialog. Maybe allow designer not to be Modal. 
 - Support opening of several Oddjob explorers from one Oddjob.
 - Introduce the idea of Read only configuration that can't be modified if

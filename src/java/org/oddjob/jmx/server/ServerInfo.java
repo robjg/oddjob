@@ -25,7 +25,7 @@ public class ServerInfo implements Serializable {
 	
 	/** The set of interfaces the server side
 	 * component supports. */
-	private final ClientHandlerResolver[] clientResolvers;
+	private final ClientHandlerResolver<?>[] clientResolvers;
 	
 	/**
 	 * Constructor.
@@ -37,7 +37,7 @@ public class ServerInfo implements Serializable {
 	 */
 	public ServerInfo(
 			Address address,
-			ClientHandlerResolver[] resolvers) {
+			ClientHandlerResolver<?>[] resolvers) {
 		if (resolvers == null) {
 			throw new NullPointerException("interfaces must not be null.");
 		}
@@ -63,7 +63,7 @@ public class ServerInfo implements Serializable {
 	 * 
 	 * @return The factories.
 	 */
-	public ClientHandlerResolver[] getClientResolvers() {
+	public ClientHandlerResolver<?>[] getClientResolvers() {
 		return clientResolvers;
 	}
 

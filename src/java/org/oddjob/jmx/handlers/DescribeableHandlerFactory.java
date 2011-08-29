@@ -31,8 +31,7 @@ implements ServerInterfaceHandlerFactory<Object, Describeable> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
-	@SuppressWarnings("unchecked")
-	private static final JMXOperation<Map> DESCRIBE = 
+	private static final JMXOperation<Map<String, String>> DESCRIBE = 
 		new JMXOperationFactory(Describeable.class
 				).operationFor("describe", 
 			"Describe properties.",

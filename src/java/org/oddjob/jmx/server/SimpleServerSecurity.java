@@ -67,7 +67,7 @@ public class SimpleServerSecurity implements ValueFactory<Map<String,?>>{
 	    	
 	    }
 	    if (accessFile != null) {
-		    env.put("jmx.remote.x.access.file", 
+		    env.put(JMXServerJob.ACCESS_FILE_PROPERTY, 
 		              accessFile.getAbsolutePath()); 
 	    }
 

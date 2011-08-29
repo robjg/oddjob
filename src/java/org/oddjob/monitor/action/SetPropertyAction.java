@@ -2,6 +2,7 @@ package org.oddjob.monitor.action;
 
 import javax.swing.KeyStroke;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -24,6 +25,7 @@ import org.oddjob.arooa.runtime.ConfigurationNode;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
+import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
@@ -65,28 +67,36 @@ public class SetPropertyAction extends JobAction implements FormAction {
 	@Override
 	protected void doPrepare(ExplorerContext explorerContext) {
 		
+		// No writable properties on Oddjob root.
 		if(explorerContext.getParent() != null) {
 			
 			setVisible(true);
 			
 			Object component = explorerContext.getThisComponent();
 			
-			ConfigContextSearch search = new ConfigContextSearch();
-			sessionLite = search.sessionFor(explorerContext);
-	
-			if (sessionLite == null) {
+			// Remote connection is read only.
+			if (component instanceof RemoteOddjobBean && 
+					!(component instanceof DynaBean)) {
 				setEnabled(false);
 			}
 			else {
-				job = component;
-				
-				DesignSeedContext context = new DesignSeedContext(
-						ArooaType.VALUE,
-						new StandardArooaSession(sessionLite.getArooaDescriptor()));
-				
-				propertyForm = new PropertyForm(new ArooaElement("property"), context);
-				
-				setEnabled(true);
+				ConfigContextSearch search = new ConfigContextSearch();
+				sessionLite = search.sessionFor(explorerContext);
+		
+				if (sessionLite == null) {
+					setEnabled(false);
+				}
+				else {
+					job = component;
+					
+					DesignSeedContext context = new DesignSeedContext(
+							ArooaType.VALUE,
+							new StandardArooaSession(sessionLite.getArooaDescriptor()));
+					
+					propertyForm = new PropertyForm(new ArooaElement("property"), context);
+					
+					setEnabled(true);
+				}
 			}
 		}
 		else {

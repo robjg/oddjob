@@ -21,7 +21,7 @@ public interface ServerInterfaceManager {
 	 * 
 	 * @return The interfaces.
 	 */
-	public ClientHandlerResolver[] allClientInfo();
+	public ClientHandlerResolver<?>[] allClientInfo();
 
 	/**
 	 * Get the MBeanInfo based on all the interfaces.

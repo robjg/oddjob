@@ -5,6 +5,7 @@ package org.oddjob.jmx.server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,17 +32,30 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 	private final MBeanInfo mBeanInfo;
 
 	/** The collective interfaces. */
-	private final List<ClientHandlerResolver> clientResolvers = 
-		new ArrayList<ClientHandlerResolver>();
+	private final Map<ClientHandlerResolver<?>, MBeanOperationInfo[]> clientResolvers = 
+		new LinkedHashMap<ClientHandlerResolver<?>, MBeanOperationInfo[]>();
 	
+	/** Remember the handlers so they can be destroyed */
 	private final ServerInterfaceHandler[] handlers;
-	
 	
 	/** Map of methods to InterfaceHandlers. Not sure if the order
 	 * interface might be important but we are using a LinkedHashMap just
 	 * in case it is. */
 	private final Map<RemoteOperation<?>, ServerInterfaceHandler> operations = 
 		new LinkedHashMap<RemoteOperation<?>, ServerInterfaceHandler>();
+	
+	/** Map of remote operations. */
+	private final Map<RemoteOperation<?>, MBeanOperationInfo> opInfos = 
+		new HashMap<RemoteOperation<?>, MBeanOperationInfo>();
+	
+	/** Simple Security */
+	private final OddjobJMXAccessController accessController;
+	
+	public ServerInterfaceManagerImpl(Object target, 
+			ServerSideToolkit ojmb,
+			ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories) {
+		this(target, ojmb, serverHandlerFactories, null);
+	}
 	
 	/**
 	 * Constructor.
@@ -52,7 +66,8 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 	 */
 	public ServerInterfaceManagerImpl(Object target, 
 			ServerSideToolkit ojmb,
-			ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories) {
+			ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories,
+			OddjobJMXAccessController accessController) {
 		
 		List<MBeanAttributeInfo> attributeInfo = 
 			new ArrayList<MBeanAttributeInfo>();
@@ -67,8 +82,6 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 		for (int i = 0; i < serverHandlerFactories.length; ++i) {
 			ServerInterfaceHandlerFactory<?, ?> serverHandlerFactory = serverHandlerFactories[i];
 	
-			clientResolvers.add(serverHandlerFactory.clientHandlerFactory());
-			
 			// create the interface handler
 			ServerInterfaceHandler interfaceHandler 
 				= create(target, ojmb, serverHandlerFactory);
@@ -79,11 +92,17 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 			
 			// collate MBeanOperationInfo.
 			MBeanOperationInfo[] oInfo = serverHandlerFactory.getMBeanOperationInfo();
-			for (int j = 0; j < oInfo.length; ++j) {
-				operationInfo.add(oInfo[j]);
+			
+			clientResolvers.put(serverHandlerFactory.clientHandlerFactory(), oInfo);
+						
+			for (MBeanOperationInfo opInfo : oInfo) {
+				operationInfo.add(opInfo);
+				RemoteOperation<?> remoteOp = 
+					new OperationInfoOperation(opInfo); 
 				operations.put(
-						new OperationInfoOperation(oInfo[j]), 
+						remoteOp, 
 						interfaceHandler);
+				opInfos.put(remoteOp, opInfo);
 			}
 			
 			// collate MBeanNotificationInfo.
@@ -97,6 +116,19 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 				new MBeanConstructorInfo[0], 
 				(MBeanOperationInfo[]) operationInfo.toArray(new MBeanOperationInfo[0]), 
 				(MBeanNotificationInfo[]) notificationInfo.toArray(new MBeanNotificationInfo[0]));
+		
+		if (accessController == null) {
+			this.accessController = new OddjobJMXAccessController() {
+				
+				@Override
+				public boolean isAccessable(MBeanOperationInfo opInfo) {
+					return true;
+				}
+			};
+		}
+		else {
+			this.accessController = accessController;
+		}
 	}
 
 	private <S> ServerInterfaceHandler create(
@@ -119,9 +151,24 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 		return interfaceHandler;
 	}
 	
-	public ClientHandlerResolver[] allClientInfo() {
-		return clientResolvers.toArray(
-				new ClientHandlerResolver[clientResolvers.size()]);
+	public ClientHandlerResolver<?>[] allClientInfo() {
+		
+		List<ClientHandlerResolver<?>> resolvers = 
+			new ArrayList<ClientHandlerResolver<?>>();
+		
+	resolver:
+		for (Map.Entry<ClientHandlerResolver<?>, MBeanOperationInfo[]> entry 
+				: clientResolvers.entrySet()) {
+			for (MBeanOperationInfo opInfo : entry.getValue()) {
+				if (!accessController.isAccessable(opInfo)) {
+					continue resolver;
+				}
+			}
+			resolvers.add(entry.getKey());
+		}
+		
+		return resolvers.toArray(
+				new ClientHandlerResolver[resolvers.size()]);
 	}
 	
 	/*
@@ -145,6 +192,15 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 		if (interfaceHandler == null) {
 			throw new IllegalArgumentException(
 					"No interface supports method [" + op + "]");
+		}
+		MBeanOperationInfo opInfo = this.opInfos.get(op);
+		if (opInfo == null) {
+			throw new RuntimeException(
+					"No OpInfo for [" + op + "] (This is a bug!)");
+		}
+		if (!accessController.isAccessable(opInfo)) {
+	        throw new SecurityException(
+	        		"Access denied! Invalid access level for " + op);
 		}
 		return interfaceHandler.invoke(op, params);
 	}

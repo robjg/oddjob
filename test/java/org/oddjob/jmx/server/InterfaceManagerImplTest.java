@@ -32,8 +32,14 @@ public class InterfaceManagerImplTest extends TestCase {
 				}
 				public Object invoke(RemoteOperation<?> operation, Object[] params) 
 				throws MBeanException, ReflectionException {
-					assertEquals("foo", operation.getActionName());
-					return "Apples";
+					if ("foo".equals(operation.getActionName())) {
+						return "Apples";
+					}
+					else if ("moo".equals(operation.getActionName()))
+					{
+						return "Oranges";
+					}
+					else throw new RuntimeException("Unexpected!");
 				}
 				
 			};
@@ -51,7 +57,13 @@ public class InterfaceManagerImplTest extends TestCase {
 							"Foo method",
 							new MBeanParameterInfo[0],
 							String.class.getName(),
-							MBeanOperationInfo.INFO) };
+							MBeanOperationInfo.INFO), 
+					new MBeanOperationInfo(
+							"moo", 
+							"Moo method",
+							new MBeanParameterInfo[0],
+							String.class.getName(),
+							MBeanOperationInfo.ACTION_INFO)};
 		}
 		
 		public Class<MockI> interfaceClass() {
@@ -62,6 +74,34 @@ public class InterfaceManagerImplTest extends TestCase {
 		}
 	}
 	
+	public void testAllClientInfo() throws MBeanException, ReflectionException {
+		MockI target = new MockI() {};
+		
+		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
+				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() });
+
+		ClientHandlerResolver<?>[] result = test.allClientInfo();
+				
+		assertEquals(1, result.length);
+	}
+	
+	public void testAllClientInfoReadOnly() throws MBeanException, ReflectionException {
+		MockI target = new MockI() {};
+		
+		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
+				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() },
+				new OddjobJMXAccessController() {
+					
+					@Override
+					public boolean isAccessable(MBeanOperationInfo opInfo) {
+						return opInfo.getImpact() == MBeanOperationInfo.INFO;
+					}
+				});
+
+		ClientHandlerResolver<?>[] result = test.allClientInfo();
+				
+		assertEquals(0, result.length);
+	}
 	
 	public void testInvoke() throws MBeanException, ReflectionException {
 		MockI target = new MockI() {};
@@ -75,6 +115,45 @@ public class InterfaceManagerImplTest extends TestCase {
 				new String[0]);
 				
 		assertEquals("Apples", result);
+		
+		result = test.invoke(
+				"moo", 
+				new Object[0], 
+				new String[0]);
+				
+		assertEquals("Oranges", result);
+	}
+	
+	public void testInvokeWithAccessController() throws MBeanException, ReflectionException {
+		MockI target = new MockI() {};
+		
+		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
+				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() },
+				new OddjobJMXAccessController() {
+					
+					@Override
+					public boolean isAccessable(MBeanOperationInfo opInfo) {
+						return opInfo.getImpact() == MBeanOperationInfo.INFO;
+					}
+				});
+
+		Object result = test.invoke(
+				"foo", 
+				new Object[0], 
+				new String[0]);
+				
+		assertEquals("Apples", result);
+		
+		try {
+			test.invoke(
+					"moo", 
+					new Object[0], 
+					new String[0]);
+			fail("Moo should fail!");
+		}
+		catch (SecurityException e) {
+			// expected
+		}
 	}
 	
 	public void testDestory() {

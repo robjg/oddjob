@@ -1,8 +1,10 @@
 package org.oddjob.jmx;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Map;
 
+import javax.management.JMException;
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
 import javax.management.NotificationListener;
@@ -51,7 +53,7 @@ import org.oddjob.structural.StructuralListener;
  * <p>
  * This job will run until it is manually stopped or until the remote server is
  * stopped. If this job is stopped it's state will be COMPLETE, if the server stops
- * this job's state will be NOT COMPLETE.
+ * this job's state will be INCOMPLETE.
  * <p>
  * To access and control jobs on a server from within a configuration file this
  * client job must have an id. If the client has an id of <code>'freds-pc'</code>
@@ -129,7 +131,8 @@ implements Runnable, Stateful, Resetable,
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The JMX service URL.
-	 * @oddjob.required Yes.
+	 * @oddjob.required No. If not provided the client connects to the Platform 
+	 * MBean Server but this is really only useful for testing.
 	 */
 	private String url;
 
@@ -157,6 +160,42 @@ implements Runnable, Stateful, Resetable,
 	
 	/** The connector */ 
 	private JMXConnector cntor; 
+	
+	private class ServerStoppedListener implements NotificationListener {
+		
+		private final MBeanServerConnection mbsc;
+ 
+		public ServerStoppedListener(MBeanServerConnection mbsc) throws JMException, IOException {
+			this.mbsc = mbsc;
+			
+			MBeanServerNotificationFilter serverFilter = new MBeanServerNotificationFilter();
+			serverFilter.disableAllObjectNames();
+			serverFilter.enableObjectName(OddjobMBeanFactory.objectName(0));
+			mbsc.addNotificationListener(
+					new ObjectName("JMImplementation:type=MBeanServerDelegate"),
+					this, serverFilter, null);
+			
+		}
+		
+		public void handleNotification(Notification notification, Object handback) {
+			if ("JMX.mbean.unregistered".equals(notification.getType())) {
+				logger().debug("MBeanServerDelgate unregestered in server. Server has stopped.");
+				try {
+					doStop(WhyStop.SERVER_STOPPED, null);
+				} catch (Exception e1) {
+					logger().error("Failed to stop.", e1);
+				}
+				
+			}
+		}
+		
+		public void remove() throws JMException, IOException {
+			mbsc.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), 
+						this);
+		}
+	}
+	
+	private ServerStoppedListener serverStoppedListener;
 	
 	/** 
 	 * @oddjob.property
@@ -384,36 +423,22 @@ implements Runnable, Stateful, Resetable,
 	 * @throws Exception
 	 */
 	private void onStart() throws Exception {
+		MBeanServerConnection mbsc;
 		if (url == null) {
-			throw new IllegalStateException("url must be provided.");
+			logger().info("Connecting to the Platform MBean Server...");
+			
+			mbsc = ManagementFactory.getPlatformMBeanServer();
+		}
+		else {
+			logger().info("Connecting to [" + url + "] ...");
+			
+			JMXServiceURL address = new JMXServiceURL(url);
+			cntor = JMXConnectorFactory.connect(address, environment);
+			mbsc = cntor.getMBeanServerConnection();
 		}
 		
-		JMXServiceURL address = new JMXServiceURL(url);
-
-		logger().debug("Connecting to [" + url + "] ...");
-		cntor = JMXConnectorFactory.connect(address, environment);
-
-		MBeanServerConnection mbsc = cntor.getMBeanServerConnection();
-		MBeanServerNotificationFilter serverFilter = new MBeanServerNotificationFilter();
-		serverFilter.disableAllObjectNames();
-		serverFilter.enableObjectName(OddjobMBeanFactory.objectName(0));
-		mbsc.addNotificationListener(
-				new ObjectName("JMImplementation:type=MBeanServerDelegate"),
-				new NotificationListener() {
-					public void handleNotification(Notification notification, Object handback) {
-						if ("JMX.mbean.unregistered".equals(notification.getType())) {
-							logger().debug("MBeanServerDelgate unregestered in server. Server has stopped.");
-							try {
-								doStop(WhyStop.SERVER_STOPPED, null);
-							} catch (Exception e1) {
-								logger().error("Failed to stop.", e1);
-							}
-							
-						}
-					}
-				}, serverFilter, null);
-	
-		
+		serverStoppedListener = new ServerStoppedListener(mbsc);
+			
 		notificationProcessor = new SimpleNotificationProcessor(logger());
 		notificationProcessor.start();
 		
@@ -494,19 +519,28 @@ implements Runnable, Stateful, Resetable,
 	}
 	
 	private void doStop(final WhyStop why, final Exception cause) 
-	throws IOException {
-		
+	throws JMException, IOException {
+
 		logPoller.stop();
 		
 		// if not destroyed by remote peer
 		if (why == WhyStop.STOP_REQUEST) {
 			clientSession.destroy(serverView.getProxy());
-			cntor.close();
 		}		
+		
+		if (why != WhyStop.HEARTBEAT_FAILURE) {
+			serverStoppedListener.remove();
+			
+			if (cntor != null) {
+				cntor.close();
+			}
+		}
+		
 		childHelper.removeAllChildren();
 		
 		notificationProcessor.stopProcessor();
 		
+		serverStoppedListener = null;
 		cntor = null;
 		logPoller = null;
 		notificationProcessor = null;

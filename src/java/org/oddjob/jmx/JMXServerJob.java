@@ -6,11 +6,8 @@ import java.util.Map;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobException;
@@ -37,7 +34,16 @@ import org.oddjob.util.ThreadManager;
  * be monitored and managed remotely using a {@link JMXClientJob}. 
  * <p>
  * Security can be added using the environment property. Simple JMX security comes
- * prepackaged as {@link SimpleServerSecurity}.
+ * prepackaged as {@link SimpleServerSecurity}. Note that the access file is
+ * an Oddjob specific access file. Oddjob requires full read/write access because
+ * it uses JMX operations and all JMX operation require full read/write access.
+ * Oddjob uses a JMX access format file but provides it's own primitive access 
+ * control on top the JMX layer. Oddjob's access control removes an entire java 
+ * interface from the client side proxy if any of it's methods are write.
+ * One affect of this is that a read only account can't access properties of
+ * the remote job with the ${server/remote-job} syntax because this functionality
+ * is provided by the same interface (BeanUtils <code>DynaBean</code) that allows
+ * a remote job's properties to be written.
  * <p> 
  * For more information on JMX Security see
  * <a href="http://java.sun.com/javase/6/docs/technotes/guides/jmx/tutorial/security.html">
@@ -79,6 +85,8 @@ import org.oddjob.util.ThreadManager;
 public class JMXServerJob implements ArooaSessionAware {
 	private static final Logger logger = Logger.getLogger(JMXServerJob.class);
 	
+	public static final String ACCESS_FILE_PROPERTY = "oddjob.jmx.remote.x.access.file";
+	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description A name, can be any text.
@@ -96,7 +104,8 @@ public class JMXServerJob implements ArooaSessionAware {
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The JMX service URL. 
-	 * @oddjob.required Yes.
+	 * @oddjob.required No. If none is provided the server connects to the 
+	 * Platform MBean Server.
 	 */
 	private String url;
 
@@ -218,13 +227,10 @@ public class JMXServerJob implements ArooaSessionAware {
 		if (root == null) {			
 			throw new OddjobException("No root node.");
 		}
-		if (url == null) {
-			throw new OddjobException("Url missing.");
-		}
 		
-		JMXServiceURL address = new JMXServiceURL(url);
-
-		MBeanServer server = MBeanServerFactory.createMBeanServer();
+		ServerStrategy serverStrategy = ServerStrategy.stratagyFor(url);
+		
+		MBeanServer server = serverStrategy.findServer(); 
 
 		threadManager = new SimpleThreadManager();
 		
@@ -232,7 +238,7 @@ public class JMXServerJob implements ArooaSessionAware {
 		// note that some interface are hardwired in the factory because
 		// they are aspects of the server.
 		ServerInterfaceManagerFactoryImpl imf = 
-			new ServerInterfaceManagerFactoryImpl();
+			new ServerInterfaceManagerFactoryImpl(environment);
 		
 		imf.addServerHandlerFactories(
 				new ResourceFactoryProvider(
@@ -243,9 +249,9 @@ public class JMXServerJob implements ArooaSessionAware {
 		}
 		
 		BeanDirectory registry = session.getBeanRegistry();
-		
+				
 		ServerModelImpl model = new ServerModelImpl(
-				new ServerId(address.getURLPath()),
+				new ServerId(serverStrategy.serverIdText()),
 				threadManager, 
 				imf);
 		
@@ -260,13 +266,8 @@ public class JMXServerJob implements ArooaSessionAware {
 		mainName = factory.createMBeanFor(serverBean, 
 				new ServerContextMain(model, registry));
 			
-		cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(
-				address, environment, server);
-		cntorServer.start();
-		this.address = cntorServer.getAddress().toString();
-		
-		logger.info("Server started. Clients may connect to: " +
-				this.address);
+		this.cntorServer = serverStrategy.startConnector(environment);
+		this.address = serverStrategy.getAddress();
 	}
 	
 	/**
@@ -280,9 +281,11 @@ public class JMXServerJob implements ArooaSessionAware {
 		logger.debug("Desroying MBeans.");
 		factory.destroy(mainName);
 		
-		logger.debug("Stopping JMXConnectorServer.");
-		this.address = null;
-		cntorServer.stop();
+		if (cntorServer != null) {
+			logger.debug("Stopping JMXConnectorServer.");
+			this.address = null;
+			cntorServer.stop();
+		}
 	}
 
 	/*
