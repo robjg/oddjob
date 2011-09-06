@@ -13,11 +13,13 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
+import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.OurDirs;
+import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -40,6 +42,8 @@ import org.oddjob.persist.MockPersisterBase;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -332,25 +336,35 @@ public class ForEachJobTest extends TestCase {
     	
     	test.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
-    			childs.children.get(0)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
-    			childs.children.get(1)));
-    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
-    			test));
+    	Stateful child1 = (Stateful) childs.children.get(0); 
+    	Stateful child2 = (Stateful) childs.children.get(1); 
+    	
+    	assertEquals(JobState.COMPLETE, child1.lastStateEvent().getState());
+    	assertEquals(JobState.INCOMPLETE, child2.lastStateEvent().getState());
+    	assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
     	
     	test.hardReset();
+    	
+    	assertEquals(JobState.DESTROYED, child1.lastStateEvent().getState());
+    	assertEquals(JobState.DESTROYED, child2.lastStateEvent().getState());
     	
     	assertEquals(0, childs.children.size());
     	
     	test.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
-    			childs.children.get(0)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
-    			childs.children.get(1)));
-    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
-    			test));    	
+    	child1 = (Stateful) childs.children.get(0); 
+    	child2 = (Stateful) childs.children.get(1); 
+    	
+    	assertEquals(JobState.COMPLETE, child1.lastStateEvent().getState());
+    	assertEquals(JobState.INCOMPLETE, child2.lastStateEvent().getState());
+    	assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
+    	
+    	test.destroy();
+    	
+    	assertEquals(0, childs.children.size());
+    	
+    	assertEquals(JobState.DESTROYED, child1.lastStateEvent().getState());
+    	assertEquals(JobState.DESTROYED, child2.lastStateEvent().getState());
     }
 
     public void testIdenticalIdInForEachConfig() throws Exception {
@@ -589,4 +603,98 @@ public class ForEachJobTest extends TestCase {
     	oddjob.destroy();    	
     }
     
+    public void testStop() {
+    	
+    	String xml = "<wait/>";
+    	
+    	final ForEachJob test = new ForEachJob();
+    	
+    	test.setArooaSession(new OddjobSessionFactory().createSession());
+    	test.setConfiguration(new XMLConfiguration("XML", xml));
+  
+    	test.setValues(new Object[] { "apple", "orange" });
+    
+    	test.addStructuralListener(new StructuralListener() {
+			
+			@Override
+			public void childRemoved(StructuralEvent event) {
+			}
+			
+			@Override
+			public void childAdded(StructuralEvent event) {
+				Stateful child = (Stateful) event.getChild();
+				child.addStateListener(new StateListener() {
+					
+					@Override
+					public void jobStateChange(StateEvent event) {
+						if (event.getState().isStoppable()) {
+							new Thread(new Runnable() {
+								@Override
+								public void run() {
+									try {
+										test.stop();
+									} catch (FailedToStopException e) {
+										throw new RuntimeException(e);
+									}
+								}
+							}).start();
+						}
+					}
+				});
+			}
+		});
+    	
+    	test.run();
+    }
+    
+    /**
+     * Tracking down a bug where execution services weren't getting passed in to the
+     * internal configuration.
+     */
+    public void testAutoInject() {
+    	
+    	String forEachConfig =
+    		"<parallel>" +
+    		" <jobs>" +
+    		"  <echo text='Hello'/>" +
+    		" </jobs>" +
+    		"</parallel>";
+    	
+    	String ojConfig = 
+    		"<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
+    		" <job>" +
+    		"  <foreach id='test'>" +
+    		"   <values>" +
+    		"    <list>" +
+    		"     <values>" +
+    		"      <value value='1'/>" +
+    		"      <value value='2'/>" +
+    		"     </values>" +
+    		"    </list>" +
+    		"   </values>" +
+    		"   <configuration>" +
+    		"    <arooa:configuration>" +
+    		"     <xml>" +
+    		"      <xml>" + forEachConfig + "</xml>" +
+    		"     </xml>" +
+    		"    </arooa:configuration>" +
+    		"   </configuration>" +
+    		"  </foreach>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	Oddjob oddjob = new Oddjob();
+    	
+    	oddjob.setConfiguration(new XMLConfiguration("XML" , ojConfig));
+
+    	ConsoleCapture console = new ConsoleCapture();
+    	console.capture(Oddjob.CONSOLE);
+    	
+    	oddjob.run();
+
+    	String[] lines = console.getLines();
+    	assertEquals(2, lines.length);
+    	
+    	oddjob.destroy();
+    }
 }

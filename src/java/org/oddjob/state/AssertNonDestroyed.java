@@ -1,5 +1,12 @@
 package org.oddjob.state;
 
+/**
+ * A {@link StateOperator} that ensures non of the operands
+ * are destroyed.
+ * 
+ * @author rob
+ *
+ */
 public class AssertNonDestroyed implements StateOperator {
 
 	@Override

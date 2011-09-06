@@ -13,6 +13,7 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.ArooaType;
+import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -158,6 +159,9 @@ implements Stoppable, Loadable {
 	    logger().debug("Creating children from configuration.");
 	    
 		ArooaSession existingSession = getArooaSession();
+		if (existingSession == null) {
+			throw new NullPointerException("No ArooaSession.");
+		}
 		
 		configurationHandles = new ArrayList<ConfigurationHandle>();
 		
@@ -287,7 +291,8 @@ implements Stoppable, Loadable {
     			BeanRegistry registry) {
     		this.existingSession = exsitingSession;
     		this.beanDirectory = registry;
-    		this.componentPool = new SimpleComponentPool();
+    		this.componentPool = new PsudoComponentPool(
+    				exsitingSession.getComponentPool());
     		this.propertyManager = new StandardPropertyManager(
     				existingSession.getPropertyManager());
 		}
@@ -373,7 +378,40 @@ implements Stoppable, Loadable {
 		 */
 		public String getIdFor(Object component) {
 			return null;
-		}		
+		}
+		
+		@Override
+		public synchronized <T> Iterable<T> getAllByType(Class<T> type) {
+			List<T> results = new ArrayList<T>();
+			for (T t : super.getAllByType(type)) {
+				results.add(t);
+			}
+			for (T t : existingDirectory.getAllByType(type)) {
+				results.add(t);
+			}
+			return results;
+		}
+    }
+    
+    class PsudoComponentPool extends SimpleComponentPool {
+    	
+    	private final ComponentPool existingPool;
+    	
+    	public PsudoComponentPool(ComponentPool existingPool) {
+    		this.existingPool = existingPool;
+		}
+    	
+    	@Override
+    	public Iterable<ComponentTrinity> allTrinities() {
+			List<ComponentTrinity> results = new ArrayList<ComponentTrinity>();
+			for (ComponentTrinity t : super.allTrinities()) {
+				results.add(t);
+			}
+			for (ComponentTrinity t : existingPool.allTrinities()) {
+				results.add(t);
+			}
+			return results;
+    	}
     }
     
 	/**
@@ -399,14 +437,22 @@ implements Stoppable, Loadable {
 			logger().warn(e);
 		}
 		
+		childHelper.removeAllChildren();
+		
 		for (ConfigurationHandle handle : configurationHandles) {
 			handle.getDocumentContext().getRuntime().destroy();
 		}
 		
-		childHelper.removeAllChildren();
 	}
 
-	/**
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+				
+		reset();
+	}
+	
+		/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {

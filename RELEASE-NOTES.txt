@@ -18,6 +18,7 @@ Changes in 1.0.0
 - JMX server now has a read only mode.
 - JMX server will now use the Platform MBean Server if no URL
   is provided.
+- Fixed bug in foreach where @Inject didn't work.
 
 Still Todo for 1.0.0
 --------------------

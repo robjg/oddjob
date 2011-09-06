@@ -43,10 +43,23 @@ public class OddjobSessionFactory {
 	
 	private OddjobInheritance inherit;
 	
+	/**
+	 * Create a session without any persister. Used for testing.
+	 * 
+	 * @return A session. Never null.
+	 */
 	public ArooaSession createSession() {
 		return createSession(null);
 	}
 	
+	/**
+	 * Create a session.
+	 * 
+	 * @param oddjob Used to find the id of Oddjob in any existing session
+	 * if a persister is being used.
+	 * 
+	 * @return A session. Never null.
+	 */
 	public ArooaSession createSession(Object oddjob) {
 
 		ComponentProxyResolver componentProxyResolver = null;
