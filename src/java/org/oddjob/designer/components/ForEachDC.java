@@ -7,6 +7,7 @@ import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleDesignProperty;
+import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
@@ -33,6 +34,10 @@ class ForEachDesign extends BaseDC {
 	
 	private final SimpleDesignProperty configuration;
 	
+	private final SimpleTextAttribute preLoad;
+	
+	private final SimpleTextAttribute purgeAfter;
+	
 	ForEachDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
@@ -41,6 +46,10 @@ class ForEachDesign extends BaseDC {
 
 		configuration = new SimpleDesignProperty(
 				"configuration", this);
+		
+		preLoad = new SimpleTextAttribute("preLoad", this);
+		
+		purgeAfter = new SimpleTextAttribute("purgeAfter", this);
 	}
 	
 	public Form detail() {
@@ -50,11 +59,13 @@ class ForEachDesign extends BaseDC {
 				new BorderedGroup(null)
 					.add(values.view().setTitle("Values"))
 					.add(configuration.view().setTitle("Configuration"))
+					.add(preLoad.view().setTitle("Pre-Load"))
+					.add(purgeAfter.view().setTitle("Purge After"))
 				);
 	}
 	
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, values, configuration };
+		return new DesignProperty[] { name, values, configuration, preLoad, purgeAfter };
 	}
 }

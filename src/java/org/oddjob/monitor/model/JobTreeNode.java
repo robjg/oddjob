@@ -70,7 +70,7 @@ public class JobTreeNode
 			}
 			
 			synchronized (nodeList) {
-				nodeList.insertElementAt(child, index);
+				nodeList.add(index, child);
 			}
 
 			model.fireTreeNodesInserted(JobTreeNode.this, child, index);
@@ -85,8 +85,7 @@ public class JobTreeNode
 			int index = e.getIndex();
 			JobTreeNode child = null;
 			synchronized (nodeList) {
-				child = (JobTreeNode)nodeList.elementAt(index);
-				nodeList.removeElementAt(index);
+				child = nodeList.remove(index);
 			}
 			child.destroy();
 
@@ -168,7 +167,7 @@ public class JobTreeNode
 	}
 		
 	public TreeNode getChildAt(int index) {
-		return (JobTreeNode)nodeList.elementAt(index);
+		return nodeList.get(index);
 	}
 
 	public int getChildCount() {

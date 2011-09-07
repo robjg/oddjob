@@ -6,6 +6,7 @@
                 <value value='org.oddjob.state.StateConditions$Conversions'/>
                 <value value='org.oddjob.values.types.DateType$Conversions'/>
                 <value value='org.oddjob.values.types.FormatType$Conversions'/>
+                <value value='org.oddjob.values.types.TokenizerType$Conversions'/>
                 <value value='org.oddjob.script.InvokeType$Conversions'/>
                 <value value='org.oddjob.values.types.NowType$Conversions'/>
                 <value value='org.oddjob.values.types.PropertyType$Conversions'/>
@@ -23,7 +24,7 @@
                     designFactory='org.oddjob.designer.components.EchoDC'/>
                 <is element='exec' className='org.oddjob.jobs.ExecJob'
                     designFactory='org.oddjob.designer.components.ExecDC'/>
-                <is element='explorer' className='org.oddjob.monitor.OddjobExplorer'/>
+                <is element='explorer' className='org.oddjob.monitor.MultiExplorerLauncher'/>
                 <is element='folder' className='org.oddjob.jobs.structural.JobFolder'
                     designFactory='org.oddjob.designer.components.FolderDC'>
                     <properties>
@@ -89,6 +90,8 @@
                 <is element='sql-results-sheet' className='org.oddjob.sql.SQLResultsSheet'/>
                 <is element='throttle'
                     className='org.oddjob.scheduling.ExecutorThrottleType'/>
+                <is element='tokenizer'
+                    className='org.oddjob.values.types.TokenizerType'/>
                 <is element='url-class-loader' className='org.oddjob.util.URLClassLoaderType'/>
             </values>
         </arooa:descriptor>

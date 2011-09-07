@@ -66,7 +66,27 @@ public class ChildHelper<E> implements Structural {
 		}
 		notifyChildAdded(event);
 	}
+	
+	public int addChild(E child) {
+		if (child == null) {
+			throw new NullPointerException("Attempt to add a null child.");
+		}
 
+		int index = -1; 
+			
+		StructuralEvent event = null;
+		synchronized (missed) {
+			index = jobList.size();
+			jobList.add(index, child);
+			event = new StructuralEvent(source, child, index);
+			for (List<ChildAction> missing : missed) {
+				missing.add(new ChildAdded(event));
+			}
+		}
+		notifyChildAdded(event);
+		
+		return index;
+	}
 	
 	/**
 	 * Remove a child by index. This method
@@ -89,6 +109,29 @@ public class ChildHelper<E> implements Structural {
 		
 		notifyChildRemoved(event);
 		return child;
+	}
+	
+	public int removeChild(Object child) {
+		int index = -1;
+		
+		StructuralEvent event;
+		synchronized (missed) {
+			index = jobList.indexOf(child);
+			
+			if (index < 0) {
+				throw new IllegalStateException("Failed removing child, [" + child + "] is not a child");
+			}
+			
+			jobList.remove(child);
+			
+			event = new StructuralEvent(source, child, index);
+			for (List<ChildAction> missing : missed) {
+				missing.add(new ChildRemoved(event));
+			}
+		}
+		
+		notifyChildRemoved(event);
+		return index;
 	}
 
 	/**

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -97,7 +98,7 @@ public class ForEachJobTest extends TestCase {
 		ForEachJob test = new ForEachJob();
 		test.setArooaSession(new OddjobSessionFactory().createSession());
 		test.setConfiguration(new XMLConfiguration("XML", xml));
-		test.setValues(new Object[] { "apple", "orange" });
+		test.setValues(Arrays.asList("apple", "orange"));
 		test.setId("foreach");
 		
 		ChildCatcher children = new ChildCatcher();
@@ -130,7 +131,7 @@ public class ForEachJobTest extends TestCase {
 		ForEachJob test = new ForEachJob();
 		test.setArooaSession(new OddjobSessionFactory().createSession());
 		test.setConfiguration(new XMLConfiguration("XML", xml));
-		test.setValues(new Object[] { "apple", "orange" });
+		test.setValues(Arrays.asList("apple", "orange"));
 		test.setId("foreach");
 		
 		ChildCatcher children = new ChildCatcher();
@@ -197,7 +198,7 @@ public class ForEachJobTest extends TestCase {
 		
 		ForEachJob test = new ForEachJob();
 		test.setId("test");
-		test.setValues(new String[] { "one" });
+		test.setValues(Arrays.asList("one"));
 		test.setArooaSession(session);
 		test.setConfiguration(new XMLConfiguration("XML", xml));
 		
@@ -343,7 +344,11 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(JobState.INCOMPLETE, child2.lastStateEvent().getState());
     	assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
     	
+    	assertEquals(2, test.getIndex());
+    	
     	test.hardReset();
+    	
+    	assertEquals(0, test.getIndex());
     	
     	assertEquals(JobState.DESTROYED, child1.lastStateEvent().getState());
     	assertEquals(JobState.DESTROYED, child2.lastStateEvent().getState());
@@ -612,7 +617,7 @@ public class ForEachJobTest extends TestCase {
     	test.setArooaSession(new OddjobSessionFactory().createSession());
     	test.setConfiguration(new XMLConfiguration("XML", xml));
   
-    	test.setValues(new Object[] { "apple", "orange" });
+    	test.setValues(Arrays.asList("apple", "orange"));
     
     	test.addStructuralListener(new StructuralListener() {
 			

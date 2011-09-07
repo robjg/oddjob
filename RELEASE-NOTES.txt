@@ -13,27 +13,32 @@ Changes in 1.0.0
 - Corrected millisecond date format to be yyyy-MM-dd HH:mm:ss.SSS (decimal 
   point not colon).
 - Fixed bug with stopping wrapped jobs via thread interrupt.
-- Reworked state so components can have different state. Services
+- Reworked state so components can have different state. Services and structural jobs
   now have different states to Jobs.
 - JMX server now has a read only mode.
 - JMX server will now use the Platform MBean Server if no URL
   is provided.
 - Fixed bug in foreach where @Inject didn't work.
+- foreach now has purgeAfter and preLoad properties that introduce the idea
+  of an execution window for values.
+- Support for opening several Oddjob Explorers from one Oddjob has been added
+  by the introduction of a MultiExplorerLauncher job. This is now the default 
+  job for the explorer element.
+- A DelimitedType has been introduced to support more flexible String to 
+  String array conversion than just CSV.
 
 Still Todo for 1.0.0
 --------------------
-- More tests/examples for foreach. Parallel execution and the idea of
-  an execution window. Maybe change tag to for-each.  
+- More tests/examples for foreach. Configuration. Parallel execution. 
+  Maybe change tag to for-each.  
 - Add a 'forceComplete' action that will force a job to be complete.
 - Positioning of Designer dialog. Maybe allow designer not to be Modal. 
-- Support opening of several Oddjob explorers from one Oddjob.
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. class path or text.
 - Improve the file rename job.
 - Document conversions. Possibly include conversions in the Reference.
-- Introduce a DelimitedType to support more flexible String to String array
-  conversion than just CSV.
-
+- Rework SQLJob so working with results are simpler.
+- Remove Ids from Values. Introduce an Identifiable type.
 
 Changes in 0.30.0
 -----------------

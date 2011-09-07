@@ -1,6 +1,8 @@
 package org.oddjob.monitor;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -30,6 +32,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.event.TreeModelEvent;
@@ -64,6 +67,7 @@ import org.oddjob.monitor.control.PropertyPolling;
 import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.ExplorerModel;
 import org.oddjob.monitor.model.ExplorerModelImpl;
+import org.oddjob.monitor.model.FileHistory;
 import org.oddjob.monitor.model.JobTreeNode;
 import org.oddjob.monitor.view.ExplorerComponent;
 import org.oddjob.monitor.view.MonitorMenuBar;
@@ -73,8 +77,7 @@ import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 
 /**
- * @oddjob.description Runs Oddjob Explorer. This is the default job that 
- * Oddjob runs on startup.
+ * @oddjob.description Runs Oddjob Explorer.
  * <p>
  * In the log panel the log level shown is set to be that of the 
  * rootLogger in the log4j.properties file in the <code>opt/classes</code> 
@@ -89,7 +92,7 @@ import org.oddjob.util.ThreadManager;
 public class OddjobExplorer extends SerializableJob
 implements Stoppable {
 	
-    private static final long serialVersionUID = 2011042800L;
+    private static final long serialVersionUID = 2011090600L;
 
     private static final Logger logger = Logger.getLogger(OddjobExplorer.class);
 
@@ -122,7 +125,7 @@ implements Stoppable {
      * @oddjob.description How often to poll in milli seconds for property updates.
      * @oddjob.required No.
      */
-	private transient long pollingInterval;
+	private long pollingInterval = 5000;
 	
 	/** 
 	 * @oddjob.property
@@ -136,6 +139,7 @@ implements Stoppable {
 	/** The frame */
 	private volatile transient JFrame frame;
 		
+	private transient Action newExplorerAction;
 	private transient Action newAction;
 	private transient Action openAction;
 	private transient Action saveAction;
@@ -166,8 +170,7 @@ implements Stoppable {
 	 */
 	private transient OddjobServices oddjobServices;
 	
-	private static List<File> sharedFileHistory;
-	private List<File> fileHistory;
+	private FileHistory fileHistory;
 
 	// These will be serialzed so frame settings are preserved.
 	private ScreenPresence screen;
@@ -176,10 +179,22 @@ implements Stoppable {
 	transient private Set<ConfigurationOwner> owners;
 		
 	public OddjobExplorer() {
-		completeConstruction();
+		fileHistory = new FileHistory();
 		
 		ScreenPresence whole = ScreenPresence.wholeScreen();
-		screen = whole.smaller(0.66);
+		screen = whole.smaller(0.66);		
+		
+		completeConstruction();
+	}
+	
+	public OddjobExplorer(MultiViewController controller, 
+			ScreenPresence screen,
+			FileHistory sharedFileHistory) {
+		this.screen = screen;
+		this.fileHistory = sharedFileHistory;
+		this.newExplorerAction = new NewExplorerAction(controller);
+		
+		completeConstruction();
 	}
 	
 	/**
@@ -187,10 +202,6 @@ implements Stoppable {
 	 * doesn't go through the constructor.
 	 */
 	private void completeConstruction() {
-		
-		if (fileHistory == null) {
-			fileHistory = new ArrayList<File>();
-		}
 		
 		vetoableChangeSupport = 
 			new VetoableChangeSupport(this);
@@ -203,21 +214,26 @@ implements Stoppable {
 		closeAction = new CloseAction();
 		exitAction = new ExitAction();
 		
-		pollingInterval = 5000;
-		
-		if (sharedFileHistory == null) {
-			// first to start
-			sharedFileHistory = fileHistory; 
-		}
-		else {
-			if (fileHistory.size() > sharedFileHistory.size()) {
-				sharedFileHistory = fileHistory;
-			}
-			else {
-				fileHistory = sharedFileHistory;
-			}
-		}
 		propertyPolling = new PropertyPolling(this);		
+		
+		fileHistory.addChangeAction(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (frame == null) {
+					fileHistory.removeChangeAction(this);
+				}
+				else {
+					SwingUtilities.invokeLater(new Runnable() {
+						
+						@Override
+						public void run() {
+							updateFileMenu();
+						}
+					});
+				}
+			}
+		});
 	}
 
 	protected ExplorerComponent getExplorerComponent() {
@@ -279,20 +295,15 @@ implements Stoppable {
 		if (file == null) {
 			return;
 		}
-		
-		fileHistory = sharedFileHistory;
-		fileHistory.remove(file);
-		fileHistory.add(file);
-		while (fileHistory.size() > 4) {
-			fileHistory.remove(0);
-		}
-		sharedFileHistory = fileHistory;
-		updateFileMenu();
+		fileHistory.addHistory(file);
 	}
 
 	void updateFileMenu() {
 		
 		fileMenu.removeAll();
+		if (newExplorerAction != null) {
+			fileMenu.add(new JMenuItem(newExplorerAction));
+		}
 		fileMenu.add(new JMenuItem(newAction));
 		fileMenu.add(new JMenuItem(openAction));
 		fileMenu.add(new JMenuItem(saveAction));
@@ -687,7 +698,17 @@ implements Stoppable {
 		setOddjob(oddjob);
 		
 		frame.setVisible(true);
-				
+		frame.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				screen = new ScreenPresence(e.getComponent());
+			}
+			@Override
+			public void componentResized(ComponentEvent e) {
+				screen = new ScreenPresence(e.getComponent());
+			}
+		});
+		
 		while (!stop) {
 			try {
 				propertyPolling.poll();
@@ -754,11 +775,32 @@ implements Stoppable {
 		return oddjob;
 	}
 	
+	class NewExplorerAction extends AbstractAction {
+		
+		private static final long serialVersionUID = 2011090600;
+		
+		private final MultiViewController multiViewController;
+		
+		NewExplorerAction(MultiViewController multiViewController) {
+			this.multiViewController = multiViewController;
+			
+			putValue(Action.NAME, "New Explorer");
+			putValue(Action.MNEMONIC_KEY, Standards.NEW_EXPLORER_MNEMONIC_KEY); 
+			putValue(Action.ACCELERATOR_KEY, Standards.NEW_EXPLORER_ACCELERATOR_KEY);
+		}
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			multiViewController.launchNewExplorer(OddjobExplorer.this);
+		}
+	}
+	
+	
 	class NewAction extends AbstractAction {
 		private static final long serialVersionUID = 2008120400;
 		
 		NewAction() {
-			putValue(Action.NAME, "New");
+			putValue(Action.NAME, "New Oddjob");
 			putValue(Action.MNEMONIC_KEY, Standards.NEW_MNEMONIC_KEY); 
 			putValue(Action.ACCELERATOR_KEY, Standards.NEW_ACCELERATOR_KEY);
 		}
@@ -1112,4 +1154,28 @@ implements Stoppable {
 		this.pollingInterval = pollingInterval;
 	}
 
+	public int getFileHistorySize() {
+		return fileHistory.size();
+	}
+
+    /**
+     * @oddjob.property
+     * @oddjob.description How many lines to keep in file history.
+     * @oddjob.required No.
+     */
+	public void setFileHistorySize(int fileHistorySize) {
+		this.fileHistory.setListSize(fileHistorySize);
+	}
+
+	public ScreenPresence getScreen() {
+		return screen;
+	}
+
+	public String getLogFormat() {
+		return logFormat;
+	}
+
+	public void setLogFormat(String logFormat) {
+		this.logFormat = logFormat;
+	}
 }

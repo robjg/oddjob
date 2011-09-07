@@ -1,11 +1,15 @@
 package org.oddjob.jobs.structural;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Loadable;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -32,9 +36,12 @@ import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.SequentialHelper;
-import org.oddjob.state.StateOperator;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.SequentialHelper;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 
 
@@ -85,15 +92,37 @@ import org.oddjob.state.WorstStateOp;
 
 public class ForEachJob extends StructuralJob<Runnable>
 implements Stoppable, Loadable {
-    private static final long serialVersionUID = 2009032100L;
+    private static final long serialVersionUID = 200903212011060700L;
 	
     /**
      * @oddjob.property values
      * @oddjob.description Any value.
      * @oddjob.required No.
      */
-	private transient List<Object> types = new ArrayList<Object>();
+	private transient Iterable<? extends Object> values;
     		
+	/** The current iterator. */
+	private transient Iterator<? extends Object> iterator;
+	
+    /**
+     * @oddjob.property 
+     * @oddjob.description The number of values to pre-load configurations for. 
+     * This property can be used with large sets of values to ensure that only a 
+     * certain number are pre-loaded before execution starts.
+     * @oddjob.required No. Defaults to all configurations being loaded first.
+     */
+	private int preLoad;
+	
+    /**
+     * @oddjob.property 
+     * @oddjob.description The number of completed jobs to keep. Oddjob configurations
+     * can be quite memory intensive, mainly due to logging, purging complete jobs
+     * will stop too much memory being taken. 
+ 	 *
+     * @oddjob.required No. Defaults to no complete jobs being purged.
+     */
+	private int purgeAfter;
+	
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The configuration that will be parsed
@@ -120,11 +149,15 @@ implements Stoppable, Loadable {
 	/** Used by Loadable. */
     private boolean loadOnly;
     
-    /** Caputure the id of this component. */
+    /** Capture the id of this component. */
     private String id;
     
     /** Track configuration so they can be destroyed. */
-    private transient List<ConfigurationHandle> configurationHandles;
+    private transient Map<Object, ConfigurationHandle> configurationHandles;
+    
+    private transient LinkedList<Runnable> ready;
+    
+    private transient LinkedList<Stateful> complete;
     
 	/**
 	 * The current value.
@@ -141,56 +174,120 @@ implements Stoppable, Loadable {
  	 * 
 	 * @param type The type.
 	 */
-	public void setValues(Object[] values) {
-		if (values == null) {
-			types = null;
-		}	
-		else {
-			types = Arrays.asList(values);
-		}
+	public void setValues(Iterable<? extends Object> values) {
+		this.values = values;
 	}
 
 	@Override
 	protected StateOperator getStateOp() {
 		return new WorstStateOp();
 	}
-
-	protected void doLoad() throws ArooaParseException {
-	    logger().debug("Creating children from configuration.");
-	    
+	
+	/**
+	 * Load a configuration for a single value.
+	 * 
+	 * @param value
+	 * @throws ArooaParseException
+	 */
+	protected void loadConfigFor(Object value) throws ArooaParseException {
+		
+		logger().debug("creating child for [" + value + "]");
+		
 		ArooaSession existingSession = getArooaSession();
 		if (existingSession == null) {
 			throw new NullPointerException("No ArooaSession.");
 		}
 		
-		configurationHandles = new ArrayList<ConfigurationHandle>();
+		PsudoRegistry psudoRegistry = new PsudoRegistry(
+				existingSession.getBeanRegistry(),
+				existingSession.getTools().getPropertyAccessor(),
+				existingSession.getTools().getArooaConverter(),
+				index++, 
+				value);
+
+		RegistryOverrideSession session = new RegistryOverrideSession(
+				existingSession, psudoRegistry);
+		
+		StandardFragmentParser parser = new StandardFragmentParser(
+				session);
+		parser.setArooaType(ArooaType.COMPONENT);
+		
+		ConfigurationHandle handle = parser.parse(configuration);
+		
+		Runnable root = (Runnable) parser.getRoot();
+		
+		configurationHandles.put(root, handle);			
+		
+	    childHelper.addChild(root);
+	    
+	    if (root instanceof Stateful) {
+	    	((Stateful) root).addStateListener(new StateListener() {
+				
+				@Override
+				public void jobStateChange(StateEvent event) {
+					Stateful source = event.getSource();					
+					State state = event.getState();
+					
+					if (state.isReady()) {
+					    ready.add((Runnable) source);
+					}
+					else if (state.isComplete()) {
+						complete.add(source);
+					}
+				}
+			});
+	    }
+	    else {
+	    	// Support for none stateful jobs. Should we support this?
+	    	ready.add(root);
+	    }	    
+	}
+
+	private void remove(Object child) {
+		
+		childHelper.removeChild(child);
+
+		ConfigurationHandle handle = configurationHandles.get(child);
+		handle.getDocumentContext().getRuntime().destroy();
+	}
+	
+	protected void preLoad() throws ArooaParseException {
+	    
+		if (values == null) {
+			throw new IllegalStateException("No values supplied.");
+		}
+		if (configuration == null) {
+			throw new IllegalStateException("No configuration.");
+		}
+		
+		// already loaded?
+		if (configurationHandles != null) {
+			return;
+		}
+		
+	    logger().debug("Creating children from configuration.");
+	    
+		configurationHandles = new HashMap<Object, ConfigurationHandle>();
+		ready = new LinkedList<Runnable>();
+		complete = new LinkedList<Stateful>();
+		
+		iterator = values.iterator();
+		
+		loadNext();
+	}
+	
+	private boolean loadNext() throws ArooaParseException {
 		
 		// load child jobs for each value
-		for (int index = 0; index < types.size(); ++index) {
-			Object value = types.get(index);
-			
-			logger().debug("creating child for [" + value + "]");
-			
-			PsudoRegistry psudoRegistry = new PsudoRegistry(
-					existingSession.getBeanRegistry(),
-					existingSession.getTools().getPropertyAccessor(),
-    				existingSession.getTools().getArooaConverter(),
-					index, 
-					value);
-
-			RegistryOverrideSession session = new RegistryOverrideSession(
-					existingSession, psudoRegistry);
-			
-			StandardFragmentParser parser = new StandardFragmentParser(
-					session);
-			parser.setArooaType(ArooaType.COMPONENT);
-			
-			ConfigurationHandle handle = parser.parse(configuration);
-			configurationHandles.add(handle);			
-			
-		    childHelper.insertChild(childHelper.size(), 
-		    		(Runnable) parser.getRoot());
-		}
+		while (preLoad < 1 || ready.size() < preLoad) {
+			if (iterator.hasNext()) {
+				loadConfigFor(iterator.next());
+			}
+			else {
+				return false;
+			}
+		}		
+		return true;
 	}
 	
 	public void load() {
@@ -220,35 +317,40 @@ implements Stoppable, Loadable {
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
 	protected void execute() throws Exception {
-		if (types == null) {
-			throw new IllegalStateException("No values supplied.");
-		}
-		if (configuration == null) {
-			throw new IllegalStateException("No configuration.");
-		}
-		if (configurationHandles == null) {
-			doLoad();
-		}
+
+		preLoad();
+		
 		if (loadOnly) {
 			return;
 		}
 
-		// execute
-		Runnable[] children = childHelper.getChildren(
-				new Runnable[0]);
-		
-		for (index = 0; index < types.size() && !stop; ++index) {
-		    current = types.get(index);
-		    
-			Runnable job = children[index];
-			job.run();
+		while (!stop) {
 			
-			// Test we can still execute children.
-			if (!new SequentialHelper().canContinueAfter(job)) {				
-				logger().info("Job [" + job + "] failed. Can't continue.");
+			loadNext();
+			
+			while (purgeAfter > 0 && complete.size() > purgeAfter) {
+				
+				remove(complete.removeFirst());
+			}
+			
+			if (ready.size() > 0) {
+				
+				Runnable job = ready.removeFirst();	
+				
+				job.run();
+				
+				// Test we can still execute children.
+				if (!new SequentialHelper().canContinueAfter(job)) {
+					logger().info("Job [" + job + "] failed. Can't continue.");
+					break;
+				}				
+			}
+			else {
 				break;
-			}			
-		}	
+			}
+		}		
+		
+		stop = false;
 	}
 	    
     /**
@@ -423,10 +525,6 @@ implements Stoppable, Loadable {
 	
 	private void reset() {
 		
-	    List<ConfigurationHandle> configurationHandles = 
-	    	this.configurationHandles;
-	    this.configurationHandles = null;
-	    
 	    if (configurationHandles == null) {
 			return;
 		}
@@ -437,12 +535,17 @@ implements Stoppable, Loadable {
 			logger().warn(e);
 		}
 		
-		childHelper.removeAllChildren();
+		Object[] children = childHelper.getChildren();
 		
-		for (ConfigurationHandle handle : configurationHandles) {
-			handle.getDocumentContext().getRuntime().destroy();
+		for (Object child : children) {
+			remove(child);
 		}
 		
+	    this.configurationHandles = null;
+	    this.ready = null;
+	    this.complete = null;	    
+		this.index = 0;
+		this.stop = false;
 	}
 
 	@Override
@@ -462,8 +565,6 @@ implements Stoppable, Loadable {
 				
 				reset();
 				
-				stop = false;
-				
 				getStateChanger().setState(ParentState.READY);
 				logger().info("[" + ForEachJob.this + "] Hard Reset." );
 			}
@@ -476,6 +577,22 @@ implements Stoppable, Loadable {
 
 	public void setConfiguration(ArooaConfiguration configuration) {
 		this.configuration = configuration;
+	}
+
+	public int getPreLoad() {
+		return preLoad;
+	}
+
+	public void setPreLoad(int preLoad) {
+		this.preLoad = preLoad;
+	}
+
+	public int getPurgeAfter() {
+		return purgeAfter;
+	}
+
+	public void setPurgeAfter(int purgeAfter) {
+		this.purgeAfter = purgeAfter;
 	}
 }
 

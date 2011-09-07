@@ -135,7 +135,7 @@ public class ChildHelperTest extends TestCase {
 		executor.shutdown();
 	}
 	
-	class StructureAlteringListener implements StructuralListener {
+	private class StructureAlteringListener implements StructuralListener {
 	
 		ChildHelper<String> test;
 		
@@ -169,5 +169,98 @@ public class ChildHelperTest extends TestCase {
 		
 		assertEquals(1, listener.children.size());
 		assertEquals("orange", listener.children.get(0));		
+	}
+	
+	private enum Type { ADDED, REMOVED }
+	
+	private class SimpleListener implements StructuralListener {
+		
+		private List<Type> types = new ArrayList<Type>();
+		private List<StructuralEvent> events = new ArrayList<StructuralEvent>();
+		
+		@Override
+		public void childAdded(StructuralEvent event) {
+			types.add(Type.ADDED);
+			events.add(event);
+		}
+		
+		@Override
+		public void childRemoved(StructuralEvent event) {
+			types.add(Type.REMOVED);
+			events.add(event);
+		}
+	}
+	
+	public void testAddAndRemove() {
+		
+		ChildHelper<Object> test = new ChildHelper<Object>(new MockStructural());
+				
+		SimpleListener listener = new SimpleListener();
+		
+		test.addStructuralListener(listener);
+		
+		Object o1 = new Object();
+		Object o2 = new Object();
+		Object o3 = new Object();
+		Object o4 = new Object();
+				
+		test.addChild(o1);
+		
+		assertEquals(1, listener.types.size());
+		assertEquals(Type.ADDED, listener.types.get(0));
+		assertEquals(o1, listener.events.get(0).getChild());
+		assertEquals(0, listener.events.get(0).getIndex());
+		
+		test.addChild(o2);
+		
+		assertEquals(2, listener.types.size());
+		assertEquals(Type.ADDED, listener.types.get(1));
+		assertEquals(o2, listener.events.get(1).getChild());
+		assertEquals(1, listener.events.get(1).getIndex());
+		
+		test.addChild(o3);
+		
+		assertEquals(3, listener.types.size());
+		assertEquals(Type.ADDED, listener.types.get(2));
+		assertEquals(o3, listener.events.get(2).getChild());
+		assertEquals(2, listener.events.get(2).getIndex());
+		
+		test.removeChild(o2);
+		
+		assertEquals(4, listener.types.size());
+		assertEquals(Type.REMOVED, listener.types.get(3));
+		assertEquals(o2, listener.events.get(3).getChild());
+		assertEquals(1, listener.events.get(3).getIndex());
+		
+		test.removeChild(o1);
+		
+		assertEquals(5, listener.types.size());
+		assertEquals(Type.REMOVED, listener.types.get(4));
+		assertEquals(o1, listener.events.get(4).getChild());
+		assertEquals(0, listener.events.get(4).getIndex());
+		
+		test.addChild(o4);
+		
+		assertEquals(6, listener.types.size());
+		assertEquals(Type.ADDED, listener.types.get(5));
+		assertEquals(o4, listener.events.get(5).getChild());
+		assertEquals(1, listener.events.get(5).getIndex());
+		
+		test.removeChild(o3);
+		
+		assertEquals(7, listener.types.size());
+		assertEquals(Type.REMOVED, listener.types.get(6));
+		assertEquals(o3, listener.events.get(6).getChild());
+		assertEquals(0, listener.events.get(6).getIndex());
+		
+		try {
+			test.removeChild(o1);
+			fail("Child doesn't exist");
+		}
+		catch (IllegalStateException e) {
+			// expected.
+		}
+		
+		assertEquals(7, listener.types.size());
 	}
 }
