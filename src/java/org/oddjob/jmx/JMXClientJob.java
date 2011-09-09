@@ -452,7 +452,12 @@ implements Runnable, Stateful, Resetable,
 				OddjobMBeanFactory.objectName(0));
 		
 		serverView = new ServerView(serverMain);
+				
+		this.logPoller = new RemoteLogPoller(serverMain, 
+				maxConsoleLines, maxLoggerLines);
 		
+		serverView.startStructural(childHelper);
+
 		notificationProcessor.enqueueDelayed(new Runnable() {
 			public void run() {
 				try {
@@ -472,12 +477,6 @@ implements Runnable, Stateful, Resetable,
 			}
 		}, heartbeat);
 		
-		
-		this.logPoller = new RemoteLogPoller(serverMain, 
-				maxConsoleLines, maxLoggerLines);
-		
-		serverView.startStructural(childHelper);
-
 		logPoller.setLogPollingInterval(logPollingInterval);
 		
 		Thread t = new Thread(logPoller);

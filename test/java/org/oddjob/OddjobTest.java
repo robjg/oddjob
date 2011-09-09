@@ -4,6 +4,8 @@
 package org.oddjob;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 import junit.framework.TestCase;
 
@@ -19,6 +21,7 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.jobs.EchoJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
@@ -236,25 +239,6 @@ public class OddjobTest extends TestCase {
         test.destroy();
     }
 
-    public void testLoadNoFile() {
-    	
-    	OurDirs dirs = new OurDirs();  
-    	
-    	File file = dirs.relative("work/oddjob-test.xml");
-    	file.delete();
-    	
-    	Oddjob test = new Oddjob();
-    	test.setFile(file);
-    	
-    	test.run();
-    	
-    	assertEquals(ParentState.READY, Helper.getJobState(test));
-    	
-    	assertTrue(file.exists());
-    	
-    	test.destroy();
-    }
-    
     public void testLoadOddjobClassloader() {
         String config = 
         	"<oddjob>" +
@@ -530,6 +514,43 @@ public class OddjobTest extends TestCase {
     	
     	assertEquals(ParentState.DESTROYED, 
     			test.lastStateEvent().getState());
+    }
+    
+    public void testCreateFile() throws FileNotFoundException {
+    	
+    	OurDirs dirs = new OurDirs();
+    	
+    	File testFile = dirs.relative("work/OddjobCreateFileTest.xml");
+    	
+    	EchoJob echo = new EchoJob();
+    	echo.setOutput(new FileOutputStream(testFile));
+    	echo.setText("<oddjob/>");
+    	
+    	echo.run();
+    	
+    	String xml = 
+    		"<oddjob>" +
+    		" <job>" +
+    		"  <oddjob file='" + testFile.getAbsolutePath() + "'/>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+    	
+    	testFile.delete();
+    	
+    	oddjob.hardReset();
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+    	
+    	assertTrue(testFile.exists());
     }
 }
 

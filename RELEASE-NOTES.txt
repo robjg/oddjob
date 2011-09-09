@@ -26,11 +26,13 @@ Changes in 1.0.0
   job for the explorer element.
 - A DelimitedType has been introduced to support more flexible String to 
   String array conversion than just CSV.
+- foreach now provides a file attribute for configuration and it supports the
+  Design Inside action for configuration. It was necessary to introduce a
+  root foreach element in the inner configuration.
 
 Still Todo for 1.0.0
 --------------------
-- More tests/examples for foreach. Configuration. Parallel execution. 
-  Maybe change tag to for-each.  
+- More tests/examples for foreach. Parallel execution.  
 - Add a 'forceComplete' action that will force a job to be complete.
 - Positioning of Designer dialog. Maybe allow designer not to be Modal. 
 - Introduce the idea of Read only configuration that can't be modified if

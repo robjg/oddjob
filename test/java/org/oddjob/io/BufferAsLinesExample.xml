@@ -9,7 +9,7 @@
 oranges]]></buffer>
                     </buff>
                 </variables>
-                <foreach id="f">
+                <foreach>
                     <values>
                         <value value="${v.buff.lines}"/>
                     </values>
@@ -17,7 +17,11 @@ oranges]]></buffer>
                         <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
                             <xml>
                                 <xml>
-                                    <echo text="Line ${f.index} is ${f.current}."/>
+                                    <foreach id="f">
+                                        <job>
+                                            <echo text="Line ${f.index} is ${f.current}."/>
+                                        </job>
+                                    </foreach>
                                 </xml>
                             </xml>
                         </arooa:configuration>

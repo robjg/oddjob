@@ -1,5 +1,9 @@
 package org.oddjob.jobs.structural;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -16,13 +20,23 @@ import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
-import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
+import org.oddjob.arooa.parsing.ArooaElement;
+import org.oddjob.arooa.parsing.ConfigConfigurationSession;
+import org.oddjob.arooa.parsing.ConfigurationOwner;
+import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
+import org.oddjob.arooa.parsing.ConfigurationSession;
+import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;
@@ -30,12 +44,16 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.registry.SimpleComponentPool;
 import org.oddjob.arooa.runtime.PropertyManager;
-import org.oddjob.arooa.standard.StandardFragmentParser;
+import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardPropertyManager;
+import org.oddjob.arooa.utils.RootConfigurationFileCreator;
+import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.designer.components.ForEachRootDC;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
-import org.oddjob.state.IsExecutable;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsHardResetable;
+import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.State;
@@ -91,9 +109,13 @@ import org.oddjob.state.WorstStateOp;
  */
 
 public class ForEachJob extends StructuralJob<Runnable>
-implements Stoppable, Loadable {
+implements Stoppable, Loadable, ConfigurationOwner {
     private static final long serialVersionUID = 200903212011060700L;
 	
+    /** Root element for configuration. */
+    public static final ArooaElement FOREACH_ELEMENT = 
+    	new ArooaElement("foreach");
+    
     /**
      * @oddjob.property values
      * @oddjob.description Any value.
@@ -131,6 +153,12 @@ implements Stoppable, Loadable {
 	 */
     private transient ArooaConfiguration configuration;
     
+	/** The configuration file. */
+	private File file;
+		    
+	/** Support for configuration modification. */
+	private transient ConfigurationOwnerSupport configurationOwnerSupport;
+	
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The current value
@@ -146,18 +174,24 @@ implements Stoppable, Loadable {
 	 */
 	private transient int index;
 		
-	/** Used by Loadable. */
-    private boolean loadOnly;
-    
-    /** Capture the id of this component. */
-    private String id;
-    
     /** Track configuration so they can be destroyed. */
     private transient Map<Object, ConfigurationHandle> configurationHandles;
     
     private transient LinkedList<Runnable> ready;
     
     private transient LinkedList<Stateful> complete;
+    
+    public ForEachJob() {
+    	completeConstruction();
+	}
+    
+	private void completeConstruction() {
+		configurationOwnerSupport =
+			new ConfigurationOwnerSupport(this);		
+	}
+
+    
+    
     
 	/**
 	 * The current value.
@@ -183,6 +217,44 @@ implements Stoppable, Loadable {
 		return new WorstStateOp();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#provideConfigurationSession()
+	 */
+	@Override
+	public ConfigurationSession provideConfigurationSession() {
+		
+		return configurationOwnerSupport.provideConfigurationSession();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#addOwnerStateListener(org.oddjob.arooa.parsing.OwnerStateListener)
+	 */
+	@Override
+	public void addOwnerStateListener(OwnerStateListener listener) {
+		configurationOwnerSupport.addOwnerStateListener(listener);
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#removeOwnerStateListener(org.oddjob.arooa.parsing.OwnerStateListener)
+	 */
+	@Override
+	public void removeOwnerStateListener(OwnerStateListener listener) {
+		configurationOwnerSupport.removeOwnerStateListener(listener);
+	}
+	
+	@Override
+	public DesignFactory rootDesignFactory() {
+		return new ForEachRootDC();
+	}
+	
+	@Override
+	public ArooaElement rootElement() {
+		return FOREACH_ELEMENT;
+	}
+	
 	/**
 	 * Load a configuration for a single value.
 	 * 
@@ -194,27 +266,34 @@ implements Stoppable, Loadable {
 		logger().debug("creating child for [" + value + "]");
 		
 		ArooaSession existingSession = getArooaSession();
-		if (existingSession == null) {
-			throw new NullPointerException("No ArooaSession.");
-		}
 		
 		PsudoRegistry psudoRegistry = new PsudoRegistry(
 				existingSession.getBeanRegistry(),
 				existingSession.getTools().getPropertyAccessor(),
-				existingSession.getTools().getArooaConverter(),
-				index++, 
-				value);
+				existingSession.getTools().getArooaConverter());
 
 		RegistryOverrideSession session = new RegistryOverrideSession(
 				existingSession, psudoRegistry);
 		
-		StandardFragmentParser parser = new StandardFragmentParser(
+		LocalBean seed = new LocalBean(index++, value);
+		
+		StandardArooaParser parser = new StandardArooaParser(seed,
 				session);
-		parser.setArooaType(ArooaType.COMPONENT);
+		parser.setExpectedDocumentElement(FOREACH_ELEMENT);
 		
 		ConfigurationHandle handle = parser.parse(configuration);
 		
-		Runnable root = (Runnable) parser.getRoot();
+		Runnable root = (Runnable) seed.job;
+
+		if (root == null) {
+			logger().info("No child job created.");
+			return;
+		}
+
+		// Configure the root so we can see the name if it uses the
+		// current value.
+		handle.getDocumentContext().getSession(
+				).getComponentPool().configure(root);
 		
 		configurationHandles.put(root, handle);			
 		
@@ -259,12 +338,20 @@ implements Stoppable, Loadable {
 		if (configuration == null) {
 			throw new IllegalStateException("No configuration.");
 		}
+		if (getArooaSession() == null) {
+			throw new NullPointerException("No ArooaSession.");
+		}
 		
 		// already loaded?
 		if (configurationHandles != null) {
 			return;
 		}
 		
+        configurationOwnerSupport.setConfigurationSession(
+				new ForeachConfigurationSession(
+						new ConfigConfigurationSession(
+								getArooaSession(), configuration)));
+        
 	    logger().debug("Creating children from configuration.");
 	    
 		configurationHandles = new HashMap<Object, ConfigurationHandle>();
@@ -291,16 +378,28 @@ implements Stoppable, Loadable {
 	}
 	
 	public void load() {
-		stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
-			public void run() {
-			    try {
-			    	loadOnly = true;
-			    	ForEachJob.this.run();
-			    } finally {
-			    	loadOnly = false;
-			    }
-			}
-		});
+		OddjobNDC.push(loggerName());
+		try {
+			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
+				public void run() {
+				    try {
+						if (configurationHandles != null) {
+							return;
+						}
+				    	configure();
+				    	
+				    	preLoad();
+				    }
+				    catch (Exception e) {
+				    	logger().error("[" + ForEachJob.this + "] Exception executing job.", e);
+				    	getStateChanger().setStateException(e);
+				    }
+				}
+			});
+		}
+		finally {
+			OddjobNDC.pop();
+		}
 	};
 	
 	@Override
@@ -320,10 +419,6 @@ implements Stoppable, Loadable {
 
 		preLoad();
 		
-		if (loadOnly) {
-			return;
-		}
-
 		while (!stop) {
 			
 			loadNext();
@@ -364,8 +459,12 @@ implements Stoppable, Loadable {
      * This provides a bean for current properties.
      */
     public static class LocalBean {
+    	
     	private final int index;
     	private final Object current;
+
+    	private Object job;
+    	
     	LocalBean (int index, Object value) {
     		this.index = index;
     		this.current = value;
@@ -376,6 +475,11 @@ implements Stoppable, Loadable {
     	public int getIndex() {
     		return index;
     	}
+    	
+    	@ArooaComponent
+	    public void setJob(Object child) {
+	    	job = child;
+	    }
     }
 
     class RegistryOverrideSession implements ArooaSession {
@@ -440,14 +544,9 @@ implements Stoppable, Loadable {
     	    	
     	PsudoRegistry(BeanDirectory existingDirectory,
     			PropertyAccessor propertyAccessor,
-    			ArooaConverter converter,
-    			int index, 
-    			Object value) {
+    			ArooaConverter converter) {
     		super(propertyAccessor, converter);
     		this.existingDirectory = existingDirectory;
-    		if (id != null) {
-        		register(id, new LocalBean(index, value));    			
-    		}
     	}
     			
 		/**
@@ -516,13 +615,6 @@ implements Stoppable, Loadable {
     	}
     }
     
-	/**
-	 * @param id The id to set.
-	 */
-	public void setId(String id) {
-		this.id = id;
-	}
-	
 	private void reset() {
 		
 	    if (configurationHandles == null) {
@@ -546,6 +638,8 @@ implements Stoppable, Loadable {
 	    this.complete = null;	    
 		this.index = 0;
 		this.stop = false;
+		
+		configurationOwnerSupport.setConfigurationSession(null);		
 	}
 
 	@Override
@@ -555,7 +649,7 @@ implements Stoppable, Loadable {
 		reset();
 	}
 	
-		/**
+	/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
@@ -571,6 +665,37 @@ implements Stoppable, Loadable {
 		});
 	}
 
+	/**
+	 * @oddjob.property file
+	 * @oddjob.description The name of the configuration file.
+	 * to use for configuration.
+	 * @oddjob.required No.
+	 * 
+	 * @return The file name.
+	 */
+	@ArooaAttribute
+	public void setFile(File file) {
+
+		this.file = file;
+		if (file == null) {
+			this.file = null;
+			configuration = null;
+		}
+		else {
+			new RootConfigurationFileCreator(
+					FOREACH_ELEMENT).createIfNone(file);
+			this.file = file;
+			configuration = new XMLConfiguration(file);
+		} 
+	}
+
+	public File getFile() {
+		if (file == null) {
+			return null;
+		}
+		return file.getAbsoluteFile();
+	}
+	
 	public ArooaConfiguration getConfiguration() {
 		return configuration;
 	}
@@ -593,6 +718,65 @@ implements Stoppable, Loadable {
 
 	public void setPurgeAfter(int purgeAfter) {
 		this.purgeAfter = purgeAfter;
+	}
+	
+	/*
+	 * Custom serialization.
+	 */
+	private void writeObject(ObjectOutputStream s) 
+	throws IOException {
+		s.defaultWriteObject();
+	}
+	
+	/*
+	 * Custom serialization.
+	 */
+	private void readObject(ObjectInputStream s) 
+	throws IOException, ClassNotFoundException {
+		s.defaultReadObject();
+		completeConstruction();
+	}
+	
+	/**
+	 * Only the root foreach should result in a drag point..
+	 */
+	class ForeachConfigurationSession implements ConfigurationSession {
+
+		private final ConfigurationSession delegate;
+		
+		public ForeachConfigurationSession(ConfigurationSession delegate) {
+			this.delegate = delegate;
+		}
+		
+		public DragPoint dragPointFor(Object component) {
+			// required for the Design Inside action.
+			if (component == ForEachJob.this) {
+				return delegate.dragPointFor(component);
+			}
+			else {
+				return null;
+			}
+		}
+		
+		public ArooaDescriptor getArooaDescriptor() {
+			return delegate.getArooaDescriptor();
+		}
+		
+		public void save() throws ArooaParseException {
+			delegate.save();
+		}
+		
+		public boolean isModified() {
+			return delegate.isModified();
+		}
+		
+		public void addSessionStateListener(SessionStateListener listener) {
+			delegate.addSessionStateListener(listener);
+		}
+		
+		public void removeSessionStateListener(SessionStateListener listener) {
+			delegate.removeSessionStateListener(listener);
+		}
 	}
 }
 

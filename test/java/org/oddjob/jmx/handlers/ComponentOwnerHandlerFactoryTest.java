@@ -6,7 +6,11 @@ import javax.management.NotificationListener;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.design.DesignFactory;
+import org.oddjob.arooa.design.DesignInstance;
+import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigOwnerEvent;
 import org.oddjob.arooa.parsing.ConfigSessionEvent;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
@@ -19,11 +23,14 @@ import org.oddjob.arooa.parsing.MockConfigurationOwner;
 import org.oddjob.arooa.parsing.MockConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
@@ -108,6 +115,14 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+	private class OurDesignFactory implements DesignFactory {
+		@Override
+		public DesignInstance createDesign(ArooaElement element,
+				ArooaContext parentContext) throws ArooaPropertyException {
+			throw new RuntimeException("Unexpected!");
+		}
+	}
+	
 	private class MyComponentOwner extends MockConfigurationOwner {
 	
 		MySessionLite sess = new MySessionLite();
@@ -122,6 +137,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		
 		@Override
 		public void removeOwnerStateListener(OwnerStateListener listener) {
+		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
 		}
 	}
 	
@@ -143,6 +168,35 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 					args);
 		}
 		
+	}
+	
+	public void testBasicInfo() {
+		
+		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+		
+		MyComponentOwner compO = new MyComponentOwner();
+		
+		ServerInterfaceHandler serverHandler = test.createServerHandler(
+				compO, new OurServerSideToolkit());
+		
+		OurClientToolkit clientToolkit = new OurClientToolkit();
+		clientToolkit.handler = serverHandler;
+		
+		ClientHandlerResolver<ConfigurationOwner> clientResolver =
+			test.clientHandlerFactory();
+		
+		ClientInterfaceHandlerFactory<ConfigurationOwner> cihf =
+			clientResolver.resolve(new ClassLoaderClassResolver(
+					getClass().getClassLoader()));
+			
+		ConfigurationOwner clientHandler = cihf.createClientHandler(
+				new MockConfigurationOwner(), clientToolkit);
+				
+		assertEquals(new ArooaElement("test"), 
+				clientHandler.rootElement());
+		
+		assertEquals(OurDesignFactory.class, 
+				clientHandler.rootDesignFactory().getClass());
 	}
 	
 	public void testDragPointOperations() throws ArooaParseException {
@@ -227,6 +281,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		@Override
 		public void removeOwnerStateListener(OwnerStateListener listener) {
 		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
+		}
 	}
 	
 	public void testEditOperations() throws Exception {
@@ -295,6 +359,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		@Override
 		public void removeOwnerStateListener(OwnerStateListener listener) {
 		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
+		}
 	}
 	
 	public void testNullConfiguration() {
@@ -340,6 +414,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		
 		@Override
 		public void removeOwnerStateListener(OwnerStateListener listener) {
+		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
 		}
 	}
 	
@@ -408,6 +492,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		
 		@Override
 		public void removeOwnerStateListener(OwnerStateListener listener) {
+		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
 		}
 	}
 	
@@ -542,6 +636,16 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		public void removeOwnerStateListener(OwnerStateListener listener) {
 			assertEquals(this.listener, listener);
 			this.listener = null;
+		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return new ArooaElement("test");
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return new OurDesignFactory();
 		}
 	}
 	

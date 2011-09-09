@@ -2,11 +2,9 @@ package org.oddjob;
 
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -16,7 +14,6 @@ import javax.inject.Inject;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
@@ -27,6 +24,7 @@ import org.oddjob.arooa.deploy.ArooaDescriptorBean;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -36,7 +34,6 @@ import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.ElementConfiguration;
 import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SessionStateListener;
@@ -49,8 +46,9 @@ import org.oddjob.arooa.runtime.SubstitutionPolicy;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.types.XMLConfigurationType;
-import org.oddjob.arooa.xml.XMLArooaParser;
+import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.designer.components.RootDC;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.input.InputHandler;
 import org.oddjob.jobs.EchoJob;
@@ -411,14 +409,9 @@ implements Loadable,
 
 		this.file = file;
 		if (file == null) {
-			this.file = null;
+			// during destroy clean up. Does this matter?
 			configuration = null;
 		}
-		else {
-			createFreshIfNo(file);
-			this.file = file;
-			configuration = new XMLConfiguration(file);
-		} 
 	}
 
 	public File getFile() {
@@ -491,6 +484,16 @@ implements Loadable,
 		configurationOwnerSupport.removeOwnerStateListener(listener);
 	}
 	
+	@Override
+	public DesignFactory rootDesignFactory() {
+		return new RootDC();
+	}
+	
+	@Override
+	public ArooaElement rootElement() {
+		return ODDJOB_ELEMENT;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.framework.StructuralJob#getStateOp()
@@ -514,6 +517,14 @@ implements Loadable,
 	 * @return
 	 */
 	private OddjobServices preLoadInitialisation() {
+		
+		// When configured by a file, check it exists and use
+		// it as Oddjob's configuration.
+		if (file != null) {
+			new RootConfigurationFileCreator(
+					ODDJOB_ELEMENT).createIfNone(file);
+			configuration = new XMLConfiguration(file);
+		}		
 		
 		if (configuration == null){
 			throw new IllegalStateException("No configuration given.");
@@ -572,14 +583,7 @@ implements Loadable,
 
         // Bean directory needs to be available during creation.
         setOurSession(newSession);
-        
-        // This will edit a failed configuration in case of
-        // failure.
-        configurationOwnerSupport.setConfigurationSession(
-        		new OddjobConfigurationSession(
-        				new ConfigConfigurationSession(
-        						newSession, configuration)));			
-  		
+          		
 		return services;
 	}
 	
@@ -609,6 +613,11 @@ implements Loadable,
 	        						ourSession, configHandle)));
         }
         catch (Exception e) {
+            // This will edit a failed configuration in case of
+            // failure.
+            configurationOwnerSupport.setConfigurationSession(
+            				new ConfigConfigurationSession(
+            						ourSession, configuration));			
 	        // Reset on failure.
         	setOurSession(null);
         	throw e;
@@ -737,33 +746,6 @@ implements Loadable,
 		configurationOwnerSupport.setConfigurationSession(null);		
 	}
 
-	/**
-	 * Check the file exists. If it doesn't create it with only 
-	 * the root element. This allows an Oddjob to be created on
-	 * a server where there might not be direct access to the file
-	 * system.  
-	 * 
-	 * @param file
-	 */
-	public static void createFreshIfNo(File file) {
-		if (file.exists()) {
-			return;
-		}
-		
-		try {
-			XMLArooaParser xmlParser = new XMLArooaParser();
-			xmlParser.parse(new ElementConfiguration(ODDJOB_ELEMENT));			
-			
-			PrintWriter writer = new PrintWriter(new FileWriter(file));
-			writer.print(xmlParser.getXml());
-			writer.close();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ArooaException(e);
-		}
-	}
-	
 	/**
 	 * Part of Oddjob's internals. Stop the Executors, if we started them.
 	 */

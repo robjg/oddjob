@@ -1,6 +1,6 @@
 <oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
     <job>
-        <foreach id="colours">
+        <foreach id="foreach">
             <values>
                 <list>
                     <values>

@@ -7,11 +7,17 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
+import org.oddjob.arooa.parsing.ConfigurationOwner;
+import org.oddjob.arooa.parsing.ConfigurationSession;
+import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.ConsoleArchiver;
@@ -19,6 +25,7 @@ import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.TrackingServices;
+import org.oddjob.state.ParentState;
 import org.oddjob.values.VariablesJob;
 
 /**
@@ -254,5 +261,40 @@ public class TogetherTest extends TestCase {
 		clientOddjob.destroy();
 		
 		serverOddjob.destroy();
+	}
+	
+	public void testForEachConfigurationOwner() throws FailedToStopException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jmx/TogetherForEachTestMain.xml",
+				getClass().getClassLoader()));
+
+		oddjob.run();
+		
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		
+		Object client = new OddjobLookup(oddjob).lookup("client");
+		
+		Object foreach = new OddjobLookup(
+				(BeanDirectoryOwner) client).lookup("oj/foreach");
+
+		assertTrue(foreach instanceof ConfigurationOwner);
+		
+		ConfigurationSession configurationSession = ((ConfigurationOwner) foreach).provideConfigurationSession();
+		
+		assertNotNull(configurationSession);
+		
+		ArooaConfiguration config = configurationSession.dragPointFor(foreach);
+		
+		assertNotNull(config);
+		
+		((Stoppable) client).stop();
+		
+		oddjob.stop();
+		
+		
+		
+		oddjob.destroy();
 	}
 }

@@ -10,12 +10,13 @@
                                 <class name="[Ljava.lang.String;"/>
                             </elementType>
                             <values>
-                                <value value='"grapes, red", "grapes, white", gratefruit'/>
+                                <value
+                                    value='"grapes, red", "grapes, white", gratefruit'/>
                             </values>
                         </list>
                     </aList>
                 </variables>
-                <foreach id="loop">
+                <foreach>
                     <values>
                         <value value="${vars.aList}"/>
                     </values>
@@ -24,20 +25,30 @@
                             xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
                             <xml>
                                 <xml>
-                                    <foreach id="inner">
-                                        <values>
-                                            <value value="${loop.current}"/>
-                                        </values>
-                                        <configuration>
-                                            <arooa:configuration
-                                                xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
-                                                <xml>
-                                                    <xml>
-                                                        <echo text="${inner.current}"/>
-                                                    </xml>
-                                                </xml>
-                                            </arooa:configuration>
-                                        </configuration>
+                                    <foreach id="loop">
+                                        <job>
+                                            <foreach>
+                                                <values>
+                                                    <value
+                                                        value="${loop.current}"/>
+                                                </values>
+                                                <configuration>
+                                                    <arooa:configuration
+                                                        xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                                                        <xml>
+                                                            <xml>
+                                                                <foreach
+                                                                    id="inner">
+                                                                    <job>
+                                                                        <echo text="${inner.current}"/>
+                                                                    </job>
+                                                                </foreach>
+                                                            </xml>
+                                                        </xml>
+                                                    </arooa:configuration>
+                                                </configuration>
+                                            </foreach>
+                                        </job>
                                     </foreach>
                                 </xml>
                             </xml>

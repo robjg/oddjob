@@ -1,0 +1,11 @@
+<oddjob>
+    <job>
+        <sequential id="sequential">
+            <jobs>
+                <bean id="service"
+                    class="org.oddjob.state.StateBehaviourTest$OurService"/>
+                <echo id="echo"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -22,10 +22,14 @@ public class ForEachWindowsTest extends TestCase {
 	
 	public void testPreLoad() {
 	
-    	String xml = "<echo text='${test.current}'/>";
+    	String xml =
+			"<foreach id='test'>" +
+			" <job>" +
+    		"  <echo text='${test.current}'/>" +
+    		" </job>" +
+    		"</foreach>";
 
 		ForEachJob test = new ForEachJob();
-		test.setId("test");
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
 		
@@ -52,10 +56,14 @@ public class ForEachWindowsTest extends TestCase {
 	
 	public void testPurgeAfter() {
 		
-    	String xml = "<echo text='${test.current}'/>";
+    	String xml = 
+			"<foreach id='test'>" +
+			" <job>" +
+    		"  <echo text='${test.current}'/>" +
+    		" </job>" +
+    		"</foreach>";
 
 		ForEachJob test = new ForEachJob();
-		test.setId("test");
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
 		
@@ -82,10 +90,14 @@ public class ForEachWindowsTest extends TestCase {
 	
 	public void testPreLoadAndPurgeAfter() {
 		
-    	String xml = "<echo text='${test.current}'/>";
+    	String xml = 
+			"<foreach id='test'>" +
+			" <job>" +
+			"  <echo text='${test.current}'/>" +
+			" </job>" +
+			"</foreach>";
 
 		ForEachJob test = new ForEachJob();
-		test.setId("test");
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
 		

@@ -31,7 +31,7 @@ public class ForEachDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<foreach name=\"Each of Somehting\" preLoad=\"6\" purgeAfter=\"4\">" +
+				"<foreach name=\"Each of Something\" preLoad=\"6\" purgeAfter=\"4\">" +
 				"  <values>" +
 				"    <files files=\"*\"/>" +
 				"  </values>" +

@@ -7,15 +7,11 @@ import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
-import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.state.ParentState;
 import org.oddjob.util.ThreadManager;
 
 public class ExplorerContextImplTest extends TestCase {
@@ -95,27 +91,11 @@ public class ExplorerContextImplTest extends TestCase {
 		// Oddjob not run - no components.
 		assertNull(configOwner.provideConfigurationSession());
 		
-		// run Oddjob on an empty configuration.
-		oddjob.setConfiguration(new ArooaConfiguration() {
-			public ConfigurationHandle parse(ArooaContext parentContext)
-					throws ArooaParseException {
-				return null;
-			}
-		});
-		
-		oddjob.run();
-		
-		assertNotNull(configOwner.provideConfigurationSession().dragPointFor(oddjob));
-		
 		oddjob.setConfiguration(new XMLConfiguration("TEST", "<oddjob/>"));
 		
-		oddjob.hardReset();
-		
-		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
-		
 		oddjob.run();
 		
-		assertNotNull(configOwner.provideConfigurationSession().dragPointFor(oddjob));
+		assertNotNull(configOwner.provideConfigurationSession().dragPointFor(oddjob));		
 	}
 	
 }

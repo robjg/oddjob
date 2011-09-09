@@ -1,0 +1,21 @@
+<oddjob id="this" xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>
+	<job>
+		<sequential>
+			<jobs>
+
+				<sequential>
+					<jobs>
+						<oddjob id="oj">
+							<configuration>
+								<arooa:configuration resource="org/oddjob/jmx/TogetherForEachTestOddjob.xml"/>
+							</configuration>
+						</oddjob>
+						<jmx:server id='server' url='service:jmx:rmi://' root='${oj}' />
+                        <jmx:client id='client' url='${server.address}'/>
+					</jobs>
+				</sequential>
+			</jobs>
+		</sequential>
+	</job>
+</oddjob>

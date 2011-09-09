@@ -55,6 +55,13 @@ import org.oddjob.structural.StructuralListener;
 public class ForEachJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ForEachJobTest.class);
 
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("--------------------  " + getName() + "  ---------------");
+	}
+	
 	public static class OurJob extends SimpleJob {
 		
 		Object stuff;
@@ -92,14 +99,17 @@ public class ForEachJobTest extends TestCase {
 	public void testOneJobTwoValues() throws ArooaParseException {
 		
 		String xml = 
-			"<bean class='" + OurJob.class.getName() + 
-			"' stuff='${foreach.current}' index='${foreach.index}'/>";
+			"<foreach id='foreach'>" +
+			" <job>" +
+			"  <bean class='" + OurJob.class.getName() + 
+			"' stuff='${foreach.current}' index='${foreach.index}'/>" +
+			" </job>" +
+			"</foreach>";
 		
 		ForEachJob test = new ForEachJob();
 		test.setArooaSession(new OddjobSessionFactory().createSession());
 		test.setConfiguration(new XMLConfiguration("XML", xml));
 		test.setValues(Arrays.asList("apple", "orange"));
-		test.setId("foreach");
 		
 		ChildCatcher children = new ChildCatcher();
 		
@@ -125,14 +135,17 @@ public class ForEachJobTest extends TestCase {
 	public void testLoadOnJobTwoValues() throws ArooaParseException {
 		
 		String xml = 
+			"<foreach id='foreach'>" +
+			" <job>" +
 			"<bean class='" + OurJob.class.getName() + 
-			"' stuff='${foreach.current}' index='${foreach.index}'/>";
+			"' stuff='${foreach.current}' index='${foreach.index}'/>" +
+			" </job>" +
+			"</foreach>";
 		
 		ForEachJob test = new ForEachJob();
 		test.setArooaSession(new OddjobSessionFactory().createSession());
 		test.setConfiguration(new XMLConfiguration("XML", xml));
 		test.setValues(Arrays.asList("apple", "orange"));
-		test.setId("foreach");
 		
 		ChildCatcher children = new ChildCatcher();
 		
@@ -193,11 +206,14 @@ public class ForEachJobTest extends TestCase {
 		session.getBeanRegistry().register(
 				"fruit", findMe);
 
-		String xml = "<bean class='" + RegistryCheck.class.getName() + "'" +
-				"/>";
+		String xml = 
+			"<foreach id='test'>" +
+			" <job>" +
+			"  <bean class='" + RegistryCheck.class.getName() + "'/>" +
+			" </job>" +
+			"</foreach>";
 		
 		ForEachJob test = new ForEachJob();
-		test.setId("test");
 		test.setValues(Arrays.asList("one"));
 		test.setArooaSession(session);
 		test.setConfiguration(new XMLConfiguration("XML", xml));
@@ -253,8 +269,8 @@ public class ForEachJobTest extends TestCase {
     	
         Oddjob oj = new Oddjob();
         oj.setConfiguration(
-        		new XMLConfiguration("Resource",
-        				getClass().getResourceAsStream("foreach-test.xml")));
+        		new XMLConfiguration("org/oddjob/jobs/structural/foreach-test.xml",
+        				getClass().getClassLoader()));
         oj.run();
         
         // check doesn't get registered!
@@ -294,12 +310,13 @@ public class ForEachJobTest extends TestCase {
     	ChildCatcher childs = new ChildCatcher();
     	
     	String xml =
-    			"<foreach id='e' xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
+    			"<foreach xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
     			"  <values>" +
     			"   <list>" +
     			"    <values>" +
     			"     <value value='COMPLETE'/>" +
     			"     <value value='INCOMPLETE'/>" +
+    			"     <value value='COMPLETE'/>" +
     			"    </values>" +
     			"   </list>" +
     			"  </values>" +
@@ -307,7 +324,11 @@ public class ForEachJobTest extends TestCase {
     			"   <arooa:configuration>" +
     			"    <xml>" +
     			"     <xml>" +
-    			"      <bean class='" + FlagState.class.getName() + "' state='${e.current}'/>" +
+    			"      <foreach id='e'>" +
+    			"       <job>" +
+    			"        <bean class='" + FlagState.class.getName() + "' state='${e.current}'/>" +
+    			"       </job>" +
+    			"      </foreach>" +
     			"     </xml>" +
     			"    </xml>" +
 				"   </arooa:configuration>" +
@@ -323,6 +344,8 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
     			childs.children.get(1)));
+    	assertEquals(JobState.READY, Helper.getJobState(
+    			childs.children.get(2)));
     	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
     			test));
     	
@@ -332,6 +355,8 @@ public class ForEachJobTest extends TestCase {
     			childs.children.get(0)));
     	assertEquals(JobState.READY, Helper.getJobState(
     			childs.children.get(1)));
+    	assertEquals(JobState.READY, Helper.getJobState(
+    			childs.children.get(2)));
     	assertEquals(ParentState.READY, Helper.getJobState(
     			test));
     	
@@ -344,7 +369,7 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(JobState.INCOMPLETE, child2.lastStateEvent().getState());
     	assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
     	
-    	assertEquals(2, test.getIndex());
+    	assertEquals(3, test.getIndex());
     	
     	test.hardReset();
     	
@@ -375,7 +400,11 @@ public class ForEachJobTest extends TestCase {
     public void testIdenticalIdInForEachConfig() throws Exception {
     	
     	String config = 
-    		"<echo id='e' text='${e.current}'/>";
+    		"<foreach id='e'>" +
+    		" <job>" +
+    		"  <echo text='${e.current}'/>" +
+    		" </job>" +
+    		"</foreach>";
     	 
     	String xml =
     			"<oddjob>" +
@@ -409,6 +438,29 @@ public class ForEachJobTest extends TestCase {
     			oddjob.lastStateEvent().getState());    	
     }
 
+    public void testSerializeForEach() throws IOException, ClassNotFoundException {
+    	
+    	String xml = 
+    			"<foreach>" +
+    			" <job>" +
+    			"  <echo/>" +
+    			" </job>" +
+    			"</foreach>";
+    	
+    	ForEachJob test = new ForEachJob();
+    	test.setArooaSession(new OddjobSessionFactory().createSession());
+    	test.setConfiguration(new XMLConfiguration("XML", xml));
+    	test.setValues(Arrays.asList("a", "b"));
+    	test.run();
+    	
+    	assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+    	
+    	ForEachJob copy = Helper.copy(test);
+    	
+    	assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
+    	
+    }
+
     private class OurPersister extends MockPersisterBase {
 
 		@Override
@@ -436,7 +488,11 @@ public class ForEachJobTest extends TestCase {
     public void testForEachPersistenceButNoChildren() throws Exception {
     	
     	String config = 
-    		"<echo id='x' text='${fe.current}'/>";
+    		"<foreach>" +
+    		" <job>" +
+    		"  <echo id='x' text='${fe.current}'/>" +
+    		" </job>" +
+    		"</foreach>";
     	 
     	String xml =
     			"<oddjob>" +
@@ -496,6 +552,8 @@ public class ForEachJobTest extends TestCase {
     	
     	oddjob.run();
     	
+    	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+    	
     	oddjob.destroy();
     	
     	assertTrue(new File(toDir, "test1.txt").exists());
@@ -524,7 +582,7 @@ public class ForEachJobTest extends TestCase {
 		
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
-    	Structural foreach = lookup.lookup("colours", Structural.class);
+    	Structural foreach = lookup.lookup("foreach", Structural.class);
     	
     	ChildCatcher catcher = new ChildCatcher();
     	foreach.addStructuralListener(catcher);
@@ -549,21 +607,25 @@ public class ForEachJobTest extends TestCase {
     public void testPropertiesInChildren() {
     	
     	String config = 
-    		"<sequential>" +
-    		" <jobs>" +
-    		"  <properties>" +
-    		"   <values>" +
-    		"    <value key='my.fruit' value='${fe.current}'/>" +
-    		"   </values>" +
-    		"  </properties>" +
-    		"  <echo text='${my.fruit}'/>" +
-    		" </jobs>" +
-    		"</sequential>";
+    		"<foreach  id='fe'>" +
+    		" <job>" +
+    		"  <sequential>" +
+    		"   <jobs>" +
+    		"    <properties>" +
+    		"     <values>" +
+    		"      <value key='my.fruit' value='${fe.current}'/>" +
+    		"     </values>" +
+    		"    </properties>" +
+    		"    <echo text='${my.fruit}'/>" +
+    		"   </jobs>" +
+    		"  </sequential>" +
+    		" </job>" +
+    		"</foreach>";
     	 
     	String xml =
     			"<oddjob>" +
     			" <job>" +
-    			"  <foreach id='fe'>" +
+    			"  <foreach>" +
     			"   <values>" +
     			"    <list>" +
     			"     <values>" +
@@ -610,7 +672,12 @@ public class ForEachJobTest extends TestCase {
     
     public void testStop() {
     	
-    	String xml = "<wait/>";
+    	String xml = 
+    		"<foreach>" +
+    		" <job>" +
+    		"  <wait/>" +
+    		" </job>" +
+    		"</foreach>";
     	
     	final ForEachJob test = new ForEachJob();
     	
@@ -650,6 +717,13 @@ public class ForEachJobTest extends TestCase {
 		});
     	
     	test.run();
+
+    	Object[] children = Helper.getChildren(test);
+    	
+    	assertEquals(2, children.length);
+    	
+    	assertEquals(JobState.COMPLETE, Helper.getJobState(children[0]));
+    	assertEquals(JobState.READY, Helper.getJobState(children[1]));
     }
     
     /**
@@ -659,16 +733,20 @@ public class ForEachJobTest extends TestCase {
     public void testAutoInject() {
     	
     	String forEachConfig =
-    		"<parallel>" +
-    		" <jobs>" +
-    		"  <echo text='Hello'/>" +
-    		" </jobs>" +
-    		"</parallel>";
+    		"<foreach id='test'>" +
+    		" <job>" +
+    		"  <parallel>" +
+    		"   <jobs>" +
+    		"    <echo text='Hello'/>" +
+    		"   </jobs>" +
+    		"  </parallel>" +
+    		" </job>" +
+    		"</foreach>";
     	
     	String ojConfig = 
     		"<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
     		" <job>" +
-    		"  <foreach id='test'>" +
+    		"  <foreach>" +
     		"   <values>" +
     		"    <list>" +
     		"     <values>" +
@@ -701,5 +779,5 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(2, lines.length);
     	
     	oddjob.destroy();
-    }
+    }    
 }

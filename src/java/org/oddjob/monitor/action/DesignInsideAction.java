@@ -5,7 +5,6 @@ package org.oddjob.monitor.action;
 
 import javax.swing.KeyStroke;
 
-import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -18,7 +17,6 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.designer.components.RootDC;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
@@ -34,7 +32,7 @@ public class DesignInsideAction extends JobAction implements FormAction {
 	
 	private ArooaConfiguration config;
 
-	private ArooaDescriptor descriptor;
+	private DesignParser parser;
 	
 	private ConfigurationHandle configHandle;
 	
@@ -84,8 +82,17 @@ public class DesignInsideAction extends JobAction implements FormAction {
 						setEnabled(false);
 					}
 					else {
-						descriptor = configOwner.provideConfigurationSession(
+						
+						ArooaDescriptor descriptor = configOwner.provideConfigurationSession(
 								).getArooaDescriptor();
+						
+						ArooaSession session = new StandardArooaSession(descriptor);
+						
+						parser = new DesignParser(session, configOwner.rootDesignFactory());
+						
+						parser.setExpectedDoucmentElement(configOwner.rootElement());
+						parser.setArooaType(ArooaType.COMPONENT);
+								
 						
 						setEnabled(true);
 					}
@@ -104,13 +111,6 @@ public class DesignInsideAction extends JobAction implements FormAction {
 	
 	public Form form() {
 		
-		ArooaSession session = new StandardArooaSession(descriptor);
-		
-		//TODO: Need to re-think this when foreach becomes a ConfigurationOwner!!!
-		DesignParser parser = new DesignParser(session, new RootDC());
-		parser.setExpectedDoucmentElement(Oddjob.ODDJOB_ELEMENT);
-		parser.setArooaType(ArooaType.COMPONENT);
-				
 		try {
 			configHandle = parser.parse(config);			
 		} catch (ArooaParseException e) {

@@ -14,7 +14,9 @@ import javax.management.ReflectionException;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigOwnerEvent;
 import org.oddjob.arooa.parsing.ConfigSessionEvent;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
@@ -47,7 +49,7 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 public class ComponentOwnerHandlerFactory 
 implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	public static final String MODIFIED_NOTIF_TYPE = "oddjob.config.modified";
 	
@@ -110,6 +112,14 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				MBeanOperationInfo.INFO
 			).addParam("component", Object.class, "");
 	
+	private static final JMXOperationPlus<ComponentOwnerInfo> INFO = 
+		new JMXOperationPlus<ComponentOwnerInfo>(
+				"componentOwnerInfo",
+				"Basic Info For Component Owner",
+				ComponentOwnerInfo.class,
+				MBeanOperationInfo.INFO
+			);
+	
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
@@ -124,6 +134,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
+			INFO.getOpInfo(),
 			SESSION_AVAILABLE.getOpInfo(),
 			DRAG_POINT_INFO.getOpInfo(),
 			CUT.getOpInfo(),
@@ -175,6 +186,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final ConfigurationOwnerSupport ownerSupport;
 		
+		private final DesignFactory rootDesignFactory;
+		
+		private final ArooaElement rootElement;
+		
 		private final NotificationListener listener = new NotificationListener() {
 			public void handleNotification(Notification notification,
 					Object handback) {
@@ -199,6 +214,15 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 							CHANGE_NOTIF_TYPE, listener);
 				}
 			});
+			
+			try {
+				ComponentOwnerInfo info = clientToolkit.invoke(
+						INFO);
+				rootDesignFactory = info.rootDesignFactory;
+				rootElement = info.rootElement;
+			} catch (Throwable e) {
+				throw new UndeclaredThrowableException(e);
+			}
 		}
 		
 		public ConfigurationSession provideConfigurationSession() {
@@ -226,6 +250,16 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		public void removeOwnerStateListener(OwnerStateListener listener) {
 			ownerSupport.removeOwnerStateListener(listener);
+		}
+		
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return rootDesignFactory;
+		}
+		
+		@Override
+		public ArooaElement rootElement() {
+			return rootElement;
 		}
 	}
 	
@@ -472,6 +506,11 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 			ConfigurationSession configSession = configurationOwner.provideConfigurationSession();
 
+			if (INFO.equals(operation)) {
+
+				return new ComponentOwnerInfo(configurationOwner);
+			}
+			
 			if (SESSION_AVAILABLE.equals(operation)) {
 				return (configSession != null);
 			}
@@ -603,5 +642,17 @@ class DragPointInfo implements Serializable {
 	}
 }
 
+class ComponentOwnerInfo implements Serializable {
+	private static final long serialVersionUID = 2011090800L;
+	
+	final DesignFactory rootDesignFactory;
+	
+	final ArooaElement rootElement;
+	
+	ComponentOwnerInfo(ConfigurationOwner serverConfigOwner) {
+		this.rootDesignFactory = serverConfigOwner.rootDesignFactory();
+		this.rootElement = serverConfigOwner.rootElement();
+	}
+}
 
 

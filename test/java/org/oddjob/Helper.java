@@ -97,19 +97,8 @@ public class Helper {
 		return listener.iconId;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static <T> T copy(T object) throws IOException, ClassNotFoundException {
-
-    	ByteArrayOutputStream out = new ByteArrayOutputStream();
-		ObjectOutput oo = new ObjectOutputStream(out);
-		oo.writeObject(object);
-		oo.close();
-			
-		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		ObjectInput oi = new ObjectInputStream(in);
-		Object o = oi.readObject();
-		oi.close();
-		return (T) o;
+		return TestHelper.copy(object);
     }
 
     public static class Surrogate {

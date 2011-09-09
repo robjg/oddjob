@@ -14,7 +14,7 @@
                         </files>
                     </aList>
                 </variables>
-                <foreach id="loop">
+                <foreach>
                     <values>
                         <value value="${vars.aList}"/>
                     </values>
@@ -23,7 +23,11 @@
                             xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
                             <xml>
                                 <xml>
-                                    <echo text="${loop.current}"/>
+                                    <foreach id="loop">
+                                        <job>
+                                            <echo text="${loop.current}"/>
+                                        </job>
+                                    </foreach>
                                 </xml>
                             </xml>
                         </arooa:configuration>

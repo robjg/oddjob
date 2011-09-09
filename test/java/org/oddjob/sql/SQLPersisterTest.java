@@ -87,26 +87,26 @@ public class SQLPersisterTest extends TestCase {
     	
     	File file = new File(url.getFile());
     	        		
-		Oddjob oj = new Oddjob();
-		oj.setFile(file);
-		oj.run();
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
+		oddjob.run();
 	
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oj);
 //		explorer.run();
 //		
 		WaitJob wait = new WaitJob();
-		wait.setFor(oj);
+		wait.setFor(oddjob);
 		wait.setState(StateConditions.COMPLETE);
 		wait.run();
 		
-		Object echoJob = new OddjobLookup(oj).lookup("oj/e"); 
+		Object echoJob = new OddjobLookup(oddjob).lookup("oj/e"); 
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		assertEquals("0009", PropertyUtils.getProperty(
 				echoJob, "text"));
 		
-		oj.destroy();
+		oddjob.destroy();
 		
 		Oddjob oj2 = new Oddjob();
 		oj2.setFile(file);

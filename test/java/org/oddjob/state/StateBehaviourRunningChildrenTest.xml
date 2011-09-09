@@ -1,0 +1,11 @@
+<oddjob>
+    <job>
+        <sequential id="sequential">
+            <jobs>
+                <wait id="wait1"/>
+                <wait id="wait2"/>
+                <echo id="echo"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

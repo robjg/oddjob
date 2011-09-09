@@ -24,7 +24,7 @@ public enum ParentState implements State {
 		}
 		@Override
 		public boolean isPassable() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isComplete() {

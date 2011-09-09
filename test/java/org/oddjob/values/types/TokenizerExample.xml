@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <foreach id="test" preLoad="7" purgeAfter="3">
+        <foreach preLoad="7" purgeAfter="3">
             <values>
                 <tokenizer text="1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12"/>
             </values>
@@ -9,7 +9,11 @@
                 <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
                     <xml>
                         <xml>
-                            <echo name="Echo ${test.current}" text="I'm ${test.current}"/>
+                            <foreach id="test">
+                                <job>
+                                    <echo name="Echo ${test.current}" text="I'm ${test.current}"/>
+                                </job>
+                            </foreach>
                         </xml>
                     </xml>
                 </arooa:configuration>

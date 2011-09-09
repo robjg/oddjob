@@ -1,0 +1,13 @@
+<oddjob>
+    <job>
+        <foreach id="foreach">
+            <values>
+                <tokenizer text="Rod, Jane, Freddy"/>
+            </values>
+            <configuration>
+                <arooa:configuration xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+                    resource="org/oddjob/jmx/TogetherForEachTestForEach.xml"/>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

@@ -8,7 +8,9 @@ import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleDesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
+import org.oddjob.arooa.design.etc.FileAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
+import org.oddjob.arooa.design.screem.FieldSelection;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -32,6 +34,8 @@ class ForEachDesign extends BaseDC {
 	
 	private final SimpleDesignProperty values;
 	
+	private final FileAttribute file;
+	
 	private final SimpleDesignProperty configuration;
 	
 	private final SimpleTextAttribute preLoad;
@@ -44,6 +48,8 @@ class ForEachDesign extends BaseDC {
 		values = new SimpleDesignProperty(
 				"values", this);
 
+		file = new FileAttribute("file", this);
+		
 		configuration = new SimpleDesignProperty(
 				"configuration", this);
 		
@@ -55,10 +61,15 @@ class ForEachDesign extends BaseDC {
 	public Form detail() {
 		return new StandardForm(this)
 				.addFormItem(basePanel())
+				.addFormItem(new BorderedGroup("For Each Of")
+					.add(values.view().setTitle("Values")))
+				.addFormItem(new BorderedGroup("Configuration Options").add(
+						new FieldSelection()
+							.add(file.view().setTitle("Configuration File"))
+							.add(configuration.view().setTitle("Configuration"))
+						))
 				.addFormItem(
-				new BorderedGroup(null)
-					.add(values.view().setTitle("Values"))
-					.add(configuration.view().setTitle("Configuration"))
+				new BorderedGroup("Execution Window")
 					.add(preLoad.view().setTitle("Pre-Load"))
 					.add(purgeAfter.view().setTitle("Purge After"))
 				);
@@ -66,6 +77,6 @@ class ForEachDesign extends BaseDC {
 	
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, values, configuration, preLoad, purgeAfter };
+		return new DesignProperty[] { name, values, file, configuration, preLoad, purgeAfter };
 	}
 }
