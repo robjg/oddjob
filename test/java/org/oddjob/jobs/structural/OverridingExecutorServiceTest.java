@@ -17,6 +17,12 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
+/**
+ * I really can't remember what was the point of this test was.
+ * 
+ * @author rob
+ *
+ */
 public class OverridingExecutorServiceTest extends TestCase {
 
 	public static class ExecutorProvider {
@@ -73,7 +79,7 @@ public class OverridingExecutorServiceTest extends TestCase {
 		oddjobStates.checkWait();
 				
 		oddjobStates.startCheck(ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.READY);
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -94,34 +100,20 @@ public class OverridingExecutorServiceTest extends TestCase {
 
 		states1.checkWait();
 		states2.checkWait();
+		wait1.stop();
+		
 		states3.checkWait();
+		wait2.stop();
+		
 		states4.checkWait();
 		
-//		states1.startCheck(JobState.EXECUTING);
-//		states2.startCheck(JobState.EXECUTING, JobState.COMPLETE);
-//		states3.startCheck(JobState.READY, JobState.EXECUTING);
-//		states4.startCheck(JobState.READY);
-//		
-//		wait2.stop();
-//		
-//		states1.checkWait();
-//		states2.checkWait();
-//		states3.checkWait();
-//		states4.checkWait();
+		wait3.stop();
 		
-		states1.startCheck(JobState.EXECUTING, JobState.COMPLETE);
-		states2.startCheck(JobState.EXECUTING, JobState.COMPLETE);
-		states3.startCheck(JobState.EXECUTING, JobState.COMPLETE);
-		states4.startCheck(JobState.EXECUTING, JobState.COMPLETE);
-		
+		wait4.stop();
+				
 		oddjob.stop();
 		
 		oddjobStates.checkNow();
-		
-		states1.checkNow();
-		states2.checkNow();
-		states3.checkNow();
-		states4.checkNow();
 		
 		oddjob.destroy();
 	}

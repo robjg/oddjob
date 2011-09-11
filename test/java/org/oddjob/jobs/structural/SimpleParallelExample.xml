@@ -1,0 +1,10 @@
+<oddjob>
+    <job>
+        <parallel>
+            <jobs>
+                <echo text='This runs in parallel'/>
+                <echo text='With this which could be displayed first!'/>
+            </jobs>
+        </parallel>
+    </job>
+</oddjob>

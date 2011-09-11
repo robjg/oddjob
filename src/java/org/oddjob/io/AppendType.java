@@ -31,19 +31,19 @@ public class AppendType implements ArooaValue {
 	public static class Conversions implements ConversionProvider {
 
 		public void registerWith(ConversionRegistry registry) {
-	    	registry.register(AppendType.class, File.class, 
-	    			new Convertlet<AppendType, File>() {
-	    		public File convert(AppendType from) throws ConvertletException {
-	    	    	return from.file;
-	    		}
-	    	});
-	    	
-	    	registry.register(AppendType.class, File[].class, 
-	    			new Convertlet<AppendType, File[]>() {
-	    		public File[] convert(AppendType from) throws ConvertletException {
-	    	    	return new File[] { from.file };
-	    		}
-	    	});
+//	    	registry.register(AppendType.class, File.class, 
+//	    			new Convertlet<AppendType, File>() {
+//	    		public File convert(AppendType from) throws ConvertletException {
+//	    	    	return from.file;
+//	    		}
+//	    	});
+//	    	
+//	    	registry.register(AppendType.class, File[].class, 
+//	    			new Convertlet<AppendType, File[]>() {
+//	    		public File[] convert(AppendType from) throws ConvertletException {
+//	    	    	return new File[] { from.file };
+//	    		}
+//	    	});
 	    	
 	    	registry.register(AppendType.class, OutputStream.class, 
 	    			new Convertlet<AppendType, OutputStream>() {

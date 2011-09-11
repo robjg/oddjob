@@ -29,6 +29,11 @@ Changes in 1.0.0
 - foreach now provides a file attribute for configuration and it supports the
   Design Inside action for configuration. It was necessary to introduce a
   root foreach element in the inner configuration.
+- fix bug where Oddjob leaves configuration input streams open.
+- Echo can now echo any array of String using the lines property.
+- XML can now provide an ArooaConfiguration that also supports
+  inline editing and saving back into the original configuration that
+  the xml property of the arooa:configuration type did not.
 
 Still Todo for 1.0.0
 --------------------

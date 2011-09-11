@@ -121,6 +121,15 @@ public class DesignerActionTest extends TestCase {
 		final DesignerActionTest test = new DesignerActionTest();
 		test.testGoodConfig();
 		
+		test.config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			
+			@Override
+			public void acceptXML(String xml) {
+
+				System.out.println(xml);
+			}
+		});
+		
 		Component view = SwingFormFactory.create(test.test.form()).dialog();
 		
 		JFrame frame = new JFrame();
@@ -135,7 +144,6 @@ public class DesignerActionTest extends TestCase {
 				} catch (Exception e1) {
 					throw new RuntimeException(e1);
 				}		
-				System.out.println(test.config.getSavedXml());
 			}
 		});
 					

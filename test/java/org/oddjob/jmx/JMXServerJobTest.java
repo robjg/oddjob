@@ -202,8 +202,6 @@ public class JMXServerJobTest extends TestCase {
 			"    <jmx:server id='server' root='${oj}' url='service:jmx:rmi://'/>" + EOL +
 			"    <oddjob id='oj'>" + EOL +
 			"     <configuration>" + EOL +
-			"      <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" + EOL +
-			"       <xml>" + EOL +
 			"        <xml>" + EOL +
 			"         <oddjob>" + EOL +
 			"          <job>" + EOL +
@@ -211,8 +209,6 @@ public class JMXServerJobTest extends TestCase {
 			"          </job>" + EOL +
 			"         </oddjob>" + EOL +
 			"        </xml>" + EOL +
-			"       </xml>" + EOL +
-			"      </arooa:configuration>" +
 			"     </configuration>" + EOL +
 			"    </oddjob>" + EOL +
 			"   </jobs>" + EOL +
@@ -406,8 +402,6 @@ public class JMXServerJobTest extends TestCase {
 			"            url='service:jmx:rmi://'/>" + EOL +
 			"    <oddjob id='oj'>" + EOL +
 			"     <configuration>" + EOL +
-			"      <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" + EOL +
-			"       <xml>" + EOL +
 			"        <xml>" + EOL +
 			"         <oddjob>" + EOL +
 			"          <job>" + EOL +
@@ -415,8 +409,6 @@ public class JMXServerJobTest extends TestCase {
 			"          </job>" + EOL +
 			"         </oddjob>" + EOL +
 			"        </xml>" + EOL +
-			"       </xml>" +
-			"      </arooa:configuration>" +
 			"     </configuration>" + EOL +
 			"    </oddjob>" + EOL +
 			"   </jobs>" + EOL +

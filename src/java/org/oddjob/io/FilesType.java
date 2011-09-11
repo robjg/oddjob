@@ -70,17 +70,6 @@ public class FilesType implements ArooaValue, Serializable {
 	    			return from.toFiles();
 	    		}
 	    	});
-	    	
-	    	registry.register(FilesType.class, File.class, 
-	    			new Convertlet<FilesType, File>() {
-	    		public File convert(FilesType from) throws ConvertletException {
-	    			File[] results = from.toFiles();
-	    			if (results.length == 0)  {
-	    				return null;
-	    			}
-	    			return results[0];
-	    		}
-	    	});
 		}
 	}
 	

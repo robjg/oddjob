@@ -408,18 +408,24 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 							public void save()
 							throws ArooaParseException {
+								
+								config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+									@Override
+									public void acceptXML(String xml) {
+										try {
+											if (xml.equals(dragPointInfo.copy)) {
+												return;
+											}
+											
+											clientToolkit.invoke(
+													REPLACE, new Object[] { component, xml });
+										} catch (Throwable e) {
+											throw new UndeclaredThrowableException(e);
+										}
+									}
+								});
+								
 								handle.save();
-
-								if (config.getSavedXml().equals(dragPointInfo.copy)) {
-									return;
-								}
-
-								try {
-									clientToolkit.invoke(
-											REPLACE, new Object[] { component , config.getSavedXml() });
-								} catch (Throwable e) {
-									throw new UndeclaredThrowableException(e);
-								}
 							}
 						};
 

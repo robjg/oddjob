@@ -1,6 +1,7 @@
 package org.oddjob;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -70,6 +71,14 @@ public class OddjobConfigurationTest extends XMLTestCase {
 		
 		XMLConfiguration config = new XMLConfiguration("TEST", xml);
 		
+		final AtomicReference<String > savedXML = new AtomicReference<String>();
+		config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			@Override
+			public void acceptXML(String xml) {
+				savedXML.set(xml);
+			}
+		});
+		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(config);
 		oddjob.load();
@@ -92,7 +101,7 @@ public class OddjobConfigurationTest extends XMLTestCase {
 			"    </job>" + 
 			"</oddjob>";
 		
-		String result = config.getSavedXml();
+		String result = savedXML.get();
 		
 		logger.debug("XML:" + result);
 		

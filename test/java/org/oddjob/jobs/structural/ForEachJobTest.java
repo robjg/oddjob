@@ -321,8 +321,6 @@ public class ForEachJobTest extends TestCase {
     			"   </list>" +
     			"  </values>" +
     			"  <configuration>" +
-    			"   <arooa:configuration>" +
-    			"    <xml>" +
     			"     <xml>" +
     			"      <foreach id='e'>" +
     			"       <job>" +
@@ -330,8 +328,6 @@ public class ForEachJobTest extends TestCase {
     			"       </job>" +
     			"      </foreach>" +
     			"     </xml>" +
-    			"    </xml>" +
-				"   </arooa:configuration>" +
 				"  </configuration>" +
     			"</foreach>";
     	

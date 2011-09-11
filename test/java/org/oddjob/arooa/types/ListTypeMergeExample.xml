@@ -24,18 +24,13 @@
                         <value value="${vars.aList}"/>
                     </values>
                     <configuration>
-                        <arooa:configuration
-                            xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
-                            <xml>
-                                <xml>
-                                    <foreach id="loop">
-                                        <job>
-                                            <echo text="${loop.current}"/>
-                                        </job>
-                                    </foreach>
-                                </xml>
-                            </xml>
-                        </arooa:configuration>
+                        <xml>
+                            <foreach id="loop">
+                                <job>
+                                    <echo text="${loop.current}"/>
+                                </job>
+                            </foreach>
+                        </xml>
                     </configuration>
                 </foreach>
             </jobs>

@@ -42,10 +42,19 @@ implements Runnable, Serializable {
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The text to display.
-	 * @oddjob.required No, if there is no text only a blank line will be
-	 * printed.
+	 * @oddjob.required No, if there is no text and no lines 
+	 * only a blank line will be printed.
 	 */
 	private String text;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description Lines of text to display.
+	 * @oddjob.required No, if there is no text and no lines 
+	 * only a blank line will be printed.
+	 * printed.
+	 */
+	private String[] lines;
 	
 	/** 
 	 * @oddjob.property
@@ -90,6 +99,14 @@ implements Runnable, Serializable {
 		this.text = text;
 	}
 
+	public String[] getLines() {
+		return lines;
+	}
+
+	public void setLines(String[] lines) {
+		this.lines = lines;
+	}
+
 	public OutputStream getOutput() {
 		return output;
 	}
@@ -112,11 +129,16 @@ implements Runnable, Serializable {
 			out = System.out;
 		}
 		
-		if (text == null) {
-			out.println();
+		if (text != null) {
+			out.println(text);
+		}
+		else if (lines != null){
+			for (String line : lines) {
+				out.println(line);
+			}
 		}
 		else {
-			out.println(text);
+			out.println();
 		}
 		
 		if (output != null) {

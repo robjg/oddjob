@@ -164,15 +164,11 @@ public class OddjobPersisterTest extends TestCase {
 		" <job>" +
 		"  <oddjob id='nested'>" +
 		"   <configuration>" +
-		"    <arooa:configuration>" +
-		"     <xml>" +
 		"      <xml>" +
 		"       <oddjob>" +
 		"        <job>" +
 		"         <oddjob id='inner'>" +
 		"          <configuration>" +
-		"           <arooa:configuration>" +
-		"            <xml>" +
 		"             <xml>" +
 		"              <oddjob>" +
 		"               <job>" +
@@ -180,15 +176,11 @@ public class OddjobPersisterTest extends TestCase {
 		"               </job>" +
 		"              </oddjob>" +
 		"             </xml>" +
-		"            </xml>" +
-		"           </arooa:configuration>" +
 		"          </configuration>" +
 		"         </oddjob>" +
 		"        </job>" +
 		"       </oddjob>" +
 		"      </xml>" +
-		"     </xml>" +
-		"    </arooa:configuration>" +
 		"   </configuration>" +
 		"  </oddjob>" +
 		" </job>" +
@@ -453,15 +445,11 @@ public class OddjobPersisterTest extends TestCase {
 		" <job>" +
 		"  <oddjob id='nested'>" +
 		"   <configuration>" +
-		"    <arooa:configuration>" +
-		"     <xml>" +
 		"      <xml>" +
 		"       <oddjob>" +
 		"        <job>" +
 		"         <oddjob id='inner'>" +
 		"          <configuration>" +
-		"           <arooa:configuration>" +
-		"            <xml>" +
 		"             <xml>" +
 		"              <oddjob>" +
 		"               <job>" +
@@ -469,15 +457,11 @@ public class OddjobPersisterTest extends TestCase {
 		"               </job>" +
 		"              </oddjob>" +
 		"             </xml>" +
-		"            </xml>" +
-		"           </arooa:configuration>" +
 		"          </configuration>" +
 		"         </oddjob>" +
 		"        </job>" +
 		"       </oddjob>" +
 		"      </xml>" +
-		"     </xml>" +
-		"    </arooa:configuration>" +
 		"   </configuration>" +
 		"  </oddjob>" +
 		" </job>" +

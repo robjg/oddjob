@@ -1,0 +1,10 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <echo id='e' text='Hello'/>
+                <echo id='2' text='${e.text}'/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

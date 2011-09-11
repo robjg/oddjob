@@ -1,5 +1,7 @@
 package org.oddjob.jmx;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -30,6 +32,17 @@ public class ServerDragTest extends XMLTestCase {
 					"</job>" +
 					"</oddjob>");
 		
+	final AtomicReference<String > savedXML = new AtomicReference<String>();
+	
+	{ 
+		configuration.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			@Override
+			public void acceptXML(String xml) {
+				savedXML.set(xml);
+			}
+		});
+	}
+	
 	JMXServerJob server;
 	JMXClientJob client;
 	
@@ -135,8 +148,7 @@ public class ServerDragTest extends XMLTestCase {
 		
 		String expected = "<oddjob id=\"apples\"/>" + EOL;
 		
-		assertXMLEqual(expected, 
-				configuration.getSavedXml());
+		assertXMLEqual(expected, savedXML.get());
 	}
 	
 	public void testEditRoot() throws Exception {
@@ -168,12 +180,11 @@ public class ServerDragTest extends XMLTestCase {
 		
 		handle.save();
 
-		assertNull(configuration.getSavedXml());
+		assertNull(savedXML.get());
 		
 		remoteOddjob.provideConfigurationSession().save();
 		
-		assertXMLEqual(replacement, 
-				configuration.getSavedXml());
+		assertXMLEqual(replacement, savedXML.get());
 	}
 	
 	public void testPaste() throws Exception {
@@ -203,8 +214,7 @@ public class ServerDragTest extends XMLTestCase {
 			"    </job>" + EOL +
 			"</oddjob>" + EOL;
 		
-		assertXMLEqual(expected, 
-				configuration.getSavedXml());
+		assertXMLEqual(expected, savedXML.get());
 	}
 	
 	public void testFailedPaste() throws ArooaParseException {

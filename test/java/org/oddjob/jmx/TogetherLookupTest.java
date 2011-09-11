@@ -79,8 +79,6 @@ public class TogetherLookupTest extends TestCase {
 			"            root='${fruit}' />" +
 			"    <oddjob id='fruit'>" +
 			"     <configuration>" +
-			"      <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
-			"       <xml>" +
 			"        <xml>" +
 			"         <oddjob>" +
 			"          <job>" +   
@@ -88,8 +86,6 @@ public class TogetherLookupTest extends TestCase {
 			"          </job>" +
 			"         </oddjob>" +
 			"        </xml>" +
-			"       </xml>" +
-			"      </arooa:configuration>" +
 			"     </configuration>" +
 			"    </oddjob>" +
 			"   </jobs>" +

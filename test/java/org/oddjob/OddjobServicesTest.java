@@ -116,8 +116,6 @@ public class OddjobServicesTest extends TestCase {
 			" <job>" +
 			"  <oddjob id='nested'>" +
 			"   <configuration>" +
-			"    <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
-			"     <xml>" +
 			"      <xml>" +
 			"       <oddjob>" +
 			"        <job>" +
@@ -125,8 +123,6 @@ public class OddjobServicesTest extends TestCase {
 			"        </job>" +
 			"       </oddjob>" +
 			"      </xml>" +
-			"     </xml>" +
-			"    </arooa:configuration>" +
 			"   </configuration>" +
 			"  </oddjob>" +
 			" </job>" +

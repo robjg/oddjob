@@ -218,6 +218,17 @@ public class DesignInsideActionTest extends TestCase {
 		final DesignInsideActionTest test = new DesignInsideActionTest();
 		test.testNestedOddjob();
 		
+		// Only get this from the badRootConfig because
+		// different ConfigurationSession used.
+		test.config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			
+			@Override
+			public void acceptXML(String xml) {
+
+				System.out.println(xml);
+			}
+		});
+		
 		Component view = SwingFormFactory.create(test.test.form()).dialog();
 		
 		JFrame frame = new JFrame();
@@ -232,9 +243,6 @@ public class DesignInsideActionTest extends TestCase {
 				} catch (Exception e1) {
 					throw new RuntimeException(e1);
 				}		
-				// Only get this from the badRootConfig because
-				// different ConfigurationSession used.
-				System.out.println(test.config.getSavedXml());
 			}
 		});
 					

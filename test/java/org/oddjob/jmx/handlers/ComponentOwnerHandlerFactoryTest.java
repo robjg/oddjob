@@ -1,5 +1,7 @@
 package org.oddjob.jmx.handlers;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.management.Notification;
 import javax.management.NotificationListener;
 
@@ -301,6 +303,14 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		XMLConfiguration config = new XMLConfiguration("TEST", 
 		"<class id='apples'/>");
 
+		final AtomicReference<String > savedXML = new AtomicReference<String>();
+		config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			@Override
+			public void acceptXML(String xml) {
+				savedXML.set(xml);
+			}
+		});
+		
 		StandardArooaParser parser = new StandardArooaParser(root);
 		
 		final ConfigurationHandle handle = parser.parse(config);
@@ -344,7 +354,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 			System.getProperty("line.separator"); 
 		
 		assertXMLEqual(expected, 
-				config.getSavedXml());
+				savedXML.get());
 	}
 	
 	private class NullConfigurationOwner extends MockConfigurationOwner {

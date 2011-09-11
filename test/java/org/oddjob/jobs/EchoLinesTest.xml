@@ -1,0 +1,9 @@
+<oddjob id="this">
+    <job>
+        <echo>
+            <lines>
+                <files files="${this.args[0]}/test/io/reference/*.txt"/>
+            </lines>
+        </echo>
+    </job>
+</oddjob>

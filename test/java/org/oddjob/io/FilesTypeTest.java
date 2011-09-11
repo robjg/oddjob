@@ -25,6 +25,7 @@ import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.ElementMappings;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.convert.ConversionFailedException;
+import org.oddjob.arooa.convert.ConversionPath;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.design.DesignElementProperty;
 import org.oddjob.arooa.design.InstanceSupport;
@@ -53,18 +54,27 @@ public class FilesTypeTest extends TestCase {
     public void testPattern() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
-        FilesType f = new FilesType();
-        f.setFiles(dirs.base() + "/lib/*.jar");
+        FilesType test = new FilesType();
+        test.setFiles(dirs.base() + "/lib/*.jar");
         
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();
 		
-        File[] fs = converter.convert(f, File[].class);
+        File[] fs = converter.convert(test, File[].class);
 
         assertTrue(fs.length > 1);
+        
         for (int i = 0; i < fs.length; ++i) {
             System.out.println(fs[i]);
         }
+        
+        ConversionPath<FilesType, String[]> path = converter.findConversion(
+        		FilesType.class, String[].class);
+        assertEquals("FilesType-File[]-Object-String[]", path.toString());
+        
+        String[] strings = converter.convert(test, String[].class);
+        
+        assertTrue(strings.length > 1);
     }
         
     public void testNestedFileList() throws Exception {

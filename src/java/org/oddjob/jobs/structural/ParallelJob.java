@@ -19,14 +19,7 @@ import org.oddjob.state.WorstStateOp;
  * 
  * Two jobs running in parallel.
  * 
- * <pre>
- * &lt;parallel&gt;
- *  &lt;jobs&gt;
- *   &lt;echo message="This runs in parallel,"&gt;/>
- *   &lt;echo message="with this."&gt;/>
- *  &lt;/jobs&gt;
- * &lt;/parallel&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/SimpleParallelExample.xml}
  * 
  * @author Rob Gordon
  */

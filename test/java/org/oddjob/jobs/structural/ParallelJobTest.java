@@ -1,11 +1,15 @@
 package org.oddjob.jobs.structural;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
@@ -31,6 +35,8 @@ import org.oddjob.state.StateListener;
 
 public class ParallelJobTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(ParallelJobTest.class);
+	
 	public void testThreeJobs() {
 	
 		FlagState job1 = new FlagState(JobState.COMPLETE);
@@ -276,31 +282,40 @@ public class ParallelJobTest extends TestCase {
 	}
 	
 	public void testInOddjob() {
-		
-		String xml = 
-			"<oddjob>" +
-			" <job>" +
-			"  <parallel>" +
-            "   <jobs>" + 
-            "    <echo text='a'/>" +
-            "    <echo text='b'/>" +
-            "   </jobs>" +
-			"  </parallel>" +
-			" </job>" + 
-			"</oddjob>";
-		
+				
 		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/SimpleParallelExample.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
 		
 		oddjob.run();
 		
+		console.close();
+		
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(2, lines.length);
+		
+		Set<String> results = new HashSet<String>();
+		
+		results.add(lines[0].trim());
+		results.add(lines[1].trim());
+		
+		assertTrue(results.contains("This runs in parallel"));
+		assertTrue(results.contains("With this which could be displayed first!"));
+				
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}
 	
-	public void stop() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+	public void testStopInOddjob() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		String xml = 
 			"<oddjob>" +
@@ -329,7 +344,7 @@ public class ParallelJobTest extends TestCase {
 		wait2State.checkWait();
 		
 		StateSteps oddjobState = new StateSteps(oddjob);
-		oddjobState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		oddjobState.startCheck(ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		oddjob.stop();
 
@@ -377,6 +392,5 @@ public class ParallelJobTest extends TestCase {
 		steps.checkNow();
 		
 		defaultServices.stop();
-	}
-	
+	}	
 }

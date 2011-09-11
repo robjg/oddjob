@@ -89,8 +89,19 @@ public class AddJobActionTest extends TestCase {
 	
 	public static void main(String... args) throws Exception {
 
+		
 		AddJobActionTest test = new AddJobActionTest();
+		
 		test.testAll();
+		
+		test.config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			
+			@Override
+			public void acceptXML(String xml) {
+
+				System.out.println(xml);
+			}
+		});
 		
 		ValueDialog dialog = new ValueDialog(test.view.dialog());
 		
@@ -102,9 +113,6 @@ public class AddJobActionTest extends TestCase {
 		
 		test.test.action();
 		
-		test.configOwner.provideConfigurationSession().save();
-		
-
-		System.out.println(test.config.getSavedXml());
+		test.configOwner.provideConfigurationSession().save();		
 	}
 }

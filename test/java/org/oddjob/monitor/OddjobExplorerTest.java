@@ -54,6 +54,14 @@ public class OddjobExplorerTest extends XMLTestCase {
 		XMLConfiguration config = new XMLConfiguration(
 				"TEST", xml);
 		
+		final AtomicReference<String > savedXML = new AtomicReference<String>();
+		config.setSaveHandler(new XMLConfiguration.SaveHandler() {
+			@Override
+			public void acceptXML(String xml) {
+				savedXML.set(xml);
+			}
+		});
+		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(config);
 		oddjob.load();
@@ -71,14 +79,12 @@ public class OddjobExplorerTest extends XMLTestCase {
 		
 		component.getTree().setSelectionRow(1);
 		
-		assertNull(config.getSavedXml());
+		assertNull(savedXML.get());
 		
 		Action action = test.new SaveAction();
 		action.actionPerformed(null);
-		
-		assertNotNull(config.getSavedXml());
-		
-		assertXMLEqual(xml, config.getSavedXml());
+				
+		assertXMLEqual(xml, savedXML.get());
 	}
 	
 	public static class OurConfigOwner extends MockConfigurationOwner {

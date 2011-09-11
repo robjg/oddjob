@@ -271,13 +271,9 @@ public class OddjobLoadTest extends TestCase {
         	"  <oddjob id='nested' " +
         	"          xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
         	"   <configuration>" +
-        	"    <arooa:configuration>" +
-        	"     <xml>" +
-        	"      <xml>" +
-        	"       <oddjob/>" +
-        	"      </xml>" +
-        	"     </xml>" +
-        	"    </arooa:configuration>" +
+        	"    <xml>" +
+        	"     <oddjob/>" +
+        	"    </xml>" +
         	"   </configuration>" +
         	"  </oddjob>" +
         	" </job>" +
@@ -438,13 +434,9 @@ public class OddjobLoadTest extends TestCase {
     		"    </list>" +
     		"   </args>" +
     		"   <configuration>" +
-    		"    <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
-    		"     <xml>" +
-    		"      <xml>" +
-    		"       <oddjob/>" +
-    		"      </xml>" +
-    		"     </xml>" +
-    		"    </arooa:configuration>" +
+    		"    <xml>" +
+    		"     <oddjob/>" +
+    		"    </xml>" +
     		"   </configuration>" +
     		"  </oddjob>" +
     		" </job>" +
@@ -478,8 +470,6 @@ public class OddjobLoadTest extends TestCase {
     		"      <value key='fruit' value='apple'/>" +
     		"   </export>" +
     		"   <configuration>" +
-    		"    <arooa:configuration xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
-    		"     <xml>" +
     		"      <xml>" +
     		"<oddjob>" +
     		" <job>" +
@@ -491,8 +481,6 @@ public class OddjobLoadTest extends TestCase {
     		" </job>" +
     		"</oddjob>" + 
     		"      </xml>" +
-    		"     </xml>" +
-    		"    </arooa:configuration>" +
     		"   </configuration>" +
     		"  </oddjob>" +
     		" </job>" +
