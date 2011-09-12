@@ -1,0 +1,13 @@
+<oddjob>
+    <job>
+        <variables>
+            <test>
+                <bean idx="our-value" class="org.oddjob.values.types.IdentifiableValueType">
+                    <value>
+                        <value value="Apple"/>
+                    </value>
+                </bean>
+            </test>
+        </variables>
+    </job>
+</oddjob>

@@ -10,9 +10,11 @@ import org.oddjob.arooa.design.SimpleDesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.etc.FileAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
+import org.oddjob.arooa.design.screem.FieldGroup;
 import org.oddjob.arooa.design.screem.FieldSelection;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
+import org.oddjob.arooa.design.screem.TabGroup;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
 
@@ -38,6 +40,10 @@ class ForEachDesign extends BaseDC {
 	
 	private final SimpleDesignProperty configuration;
 	
+	private final SimpleTextAttribute parallel;
+	
+	private final SimpleDesignProperty executorService;
+	
 	private final SimpleTextAttribute preLoad;
 	
 	private final SimpleTextAttribute purgeAfter;
@@ -52,6 +58,12 @@ class ForEachDesign extends BaseDC {
 		
 		configuration = new SimpleDesignProperty(
 				"configuration", this);
+		
+		parallel = new SimpleTextAttribute(
+				"parallel", this);
+		
+		executorService = new SimpleDesignProperty(
+				"executorService", this);
 		
 		preLoad = new SimpleTextAttribute("preLoad", this);
 		
@@ -69,14 +81,19 @@ class ForEachDesign extends BaseDC {
 							.add(configuration.view().setTitle("Configuration"))
 						))
 				.addFormItem(
-				new BorderedGroup("Execution Window")
-					.add(preLoad.view().setTitle("Pre-Load"))
-					.add(purgeAfter.view().setTitle("Purge After"))
-				);
+					new TabGroup()
+						.add(new FieldGroup("Parallel")
+							.add(parallel.view().setTitle("Parallel"))
+							.add(executorService.view().setTitle("Execution Service")))
+						.add(new FieldGroup("Execution Window")
+							.add(preLoad.view().setTitle("Pre-Load"))
+							.add(purgeAfter.view().setTitle("Purge After"))))
+				;
 	}
 	
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, values, file, configuration, preLoad, purgeAfter };
+		return new DesignProperty[] { name, values, file, configuration, 
+				parallel, executorService, preLoad, purgeAfter };
 	}
 }

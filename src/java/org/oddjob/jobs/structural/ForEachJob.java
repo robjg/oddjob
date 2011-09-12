@@ -10,6 +10,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
+import javax.inject.Inject;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Loadable;
@@ -49,11 +53,13 @@ import org.oddjob.arooa.standard.StandardPropertyManager;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.ForEachRootDC;
+import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNotExecuting;
+import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.State;
@@ -103,11 +109,14 @@ import org.oddjob.state.WorstStateOp;
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachFilesExample.xml}
  * 
+ * Also {@link ExistsJob} has a similar example.
+ * 
  * @oddjob.example
  * 
- * Also {@link ExistsJob} has a similar example.
+ * Executing children in parallel.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachParallelExample.xml}
  */
-
 public class ForEachJob extends StructuralJob<Runnable>
 implements Stoppable, Loadable, ConfigurationOwner {
     private static final long serialVersionUID = 200903212011060700L;
@@ -177,10 +186,30 @@ implements Stoppable, Loadable, ConfigurationOwner {
     /** Track configuration so they can be destroyed. */
     private transient Map<Object, ConfigurationHandle> configurationHandles;
     
+    /** List of jobs loaded and ready to execute. */
     private transient LinkedList<Runnable> ready;
     
+    /** List of jobs complete and ready to be removed if the purgeAfter
+     * property is set. */
     private transient LinkedList<Stateful> complete;
     
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Should jobs be executed in parallel.
+	 * @oddjob.required No. Defaults to false.
+	 */
+    private transient boolean parallel;
+    
+	/** The executor to use for parallel execution. */
+	private transient ExecutorService executorService;
+
+	/** The job threads. */
+	private transient List<Future<?>> jobThreads;
+	
+    
+    /**
+     * Constructor.
+     */
     public ForEachJob() {
     	completeConstruction();
 	}
@@ -190,9 +219,21 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			new ConfigurationOwnerSupport(this);		
 	}
 
-    
-    
-    
+	/**
+	 * Set the {@link ExecutorService}.
+	 * 
+	 * @oddjob.property executorService
+	 * @oddjob.description The ExecutorService to use. This will 
+	 * be automatically set by Oddjob.
+	 * @oddjob.required No.
+	 * 
+	 * @param child A child
+	 */
+	@Inject
+	public void setExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
+	}
+	    
 	/**
 	 * The current value.
 	 * 
@@ -357,6 +398,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		configurationHandles = new HashMap<Object, ConfigurationHandle>();
 		ready = new LinkedList<Runnable>();
 		complete = new LinkedList<Stateful>();
+		jobThreads = new ArrayList<Future<?>>();
 		
 		iterator = values.iterator();
 		
@@ -419,6 +461,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
 
 		preLoad();
 		
+		ExecutionWatcher executionWatcher = 
+			new ExecutionWatcher(new Runnable() {
+				public void run() {
+					ForEachJob.super.startChildStateReflector();
+				}
+		});
+		
 		while (!stop) {
 			
 			loadNext();
@@ -430,14 +479,22 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			
 			if (ready.size() > 0) {
 				
-				Runnable job = ready.removeFirst();	
+				Runnable child = ready.removeFirst();
 				
-				job.run();
+				Runnable job = executionWatcher.addJob(child);	
 				
-				// Test we can still execute children.
-				if (!new SequentialHelper().canContinueAfter(job)) {
-					logger().info("Job [" + job + "] failed. Can't continue.");
-					break;
+				if (parallel) {
+					Future<?> future = executorService.submit(job);
+					jobThreads.add(future);
+				}
+				else {
+					job.run();
+					
+					// Test we can still execute children.
+					if (!new SequentialHelper().canContinueAfter(child)) {
+						logger().info("Job [" + child + "] failed. Can't continue.");
+						break;
+					}				
 				}				
 			}
 			else {
@@ -445,9 +502,48 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			}
 		}		
 		
-		stop = false;
+		if (stop) {
+			stop = false;
+		}
+		else {
+			// We need to do this force consistent state transitions. 
+			// This precludes the situation that all child jobs
+			// have completed before the execute method completes
+			// so the active state is missed, or that none have started
+			// so there is a spurious ready state.
+			if (parallel) {
+				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+					public void run() {
+						getStateChanger().setState(ParentState.ACTIVE);
+					}
+				});
+			}
+			executionWatcher.start();
+		}
 	}
+	
+	@Override
+	protected void startChildStateReflector() {
+		// This is started by us so override and do nothing.
+	}
+	
 	    
+	@Override
+	protected void onStop() throws FailedToStopException {
+		super.onStop();
+
+		Iterable<Future<?>> jobThreads = this.jobThreads;
+		if (jobThreads == null) {
+			return;
+		}
+
+		for (Future<?> future : jobThreads) {
+			future.cancel(false);
+		}
+		
+		super.startChildStateReflector();
+	}
+	
     /**
      * @return Returns the index.
      */
@@ -638,6 +734,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	    this.complete = null;	    
 		this.index = 0;
 		this.stop = false;
+		this.jobThreads = null;
 		
 		configurationOwnerSupport.setConfigurationSession(null);		
 	}
@@ -720,6 +817,14 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		this.purgeAfter = purgeAfter;
 	}
 	
+	public boolean isParallel() {
+		return parallel;
+	}
+
+	public void setParallel(boolean parallel) {
+		this.parallel = parallel;
+	}
+
 	/*
 	 * Custom serialization.
 	 */

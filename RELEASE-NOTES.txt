@@ -34,10 +34,10 @@ Changes in 1.0.0
 - XML can now provide an ArooaConfiguration that also supports
   inline editing and saving back into the original configuration that
   the xml property of the arooa:configuration type did not.
+- foreach supports execution of it's children in parallel.
 
 Still Todo for 1.0.0
---------------------
-- More tests/examples for foreach. Parallel execution.  
+-------------------- 
 - Add a 'forceComplete' action that will force a job to be complete.
 - Positioning of Designer dialog. Maybe allow designer not to be Modal. 
 - Introduce the idea of Read only configuration that can't be modified if

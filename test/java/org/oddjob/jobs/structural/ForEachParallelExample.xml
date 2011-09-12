@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <foreach parallel="true">
+            <values>
+                <tokenizer text="1,2,3,4,5,6,7,8,9"/>
+            </values>
+            <configuration>
+                <xml>
+                    <foreach id="loop">
+                        <job>
+                            <wait name="Wait ${loop.current}"/>
+                        </job>
+                    </foreach>
+                </xml>
+            </configuration>
+            <executorService>
+                <throttle limit="3"/>
+            </executorService>
+        </foreach>
+    </job>
+</oddjob>

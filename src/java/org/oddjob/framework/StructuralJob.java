@@ -123,9 +123,10 @@ implements
 				configure();
 				
 				execute();
+				
 				// we ignore state while executing but now we need to update.
 				// dependent on our child states.
-				childStateReflector.start();
+				startChildStateReflector();
 			}
 			catch (final Throwable e) {
 				logger().error("[" + StructuralJob.this + "] Job Exception.", e);
@@ -141,6 +142,10 @@ implements
 		finally {
 			OddjobNDC.pop();
 		}
+	}
+	
+	protected void startChildStateReflector() {
+		childStateReflector.start();
 	}
 	
 	/**
