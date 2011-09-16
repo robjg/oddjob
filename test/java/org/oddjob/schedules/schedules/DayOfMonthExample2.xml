@@ -1,2 +1,2 @@
-<schedules:dayofmonth xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
-                     on="15"/>
+<schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+                     onDay="15"/>

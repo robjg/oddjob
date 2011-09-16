@@ -126,6 +126,9 @@ public class TimerTest extends TestCase {
 
 		test.run();
 		
+		assertEquals(ParentState.ACTIVE, 
+				test.lastStateEvent().getState());
+		
 		Date expected = DateHelper.parseDate("2020-12-25");
 		
 		assertEquals(expected, test.getNextDue());
@@ -588,7 +591,7 @@ public class TimerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
-	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
     	Oddjob oddjob = new Oddjob();
     	oddjob.setConfiguration(new XMLConfiguration(
@@ -597,6 +600,8 @@ public class TimerTest extends TestCase {
     	
     	oddjob.load();
     	
+    	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+    	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
     	Timer timer = lookup.lookup("timer", Timer.class);
@@ -604,6 +609,8 @@ public class TimerTest extends TestCase {
     	timer.setClock(new ManualClock("2011-04-08 09:59:59.750"));
     	
     	oddjob.run();
+    	
+    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
     	
     	String result = null;
     	
@@ -620,6 +627,10 @@ public class TimerTest extends TestCase {
     	
     	assertEquals("Doing some work at 2011-04-08 10:00:00.000",
     			result);
+    	
+    	oddjob.stop();
+    	
+    	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
     	
     	oddjob.destroy();
     	

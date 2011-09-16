@@ -5,9 +5,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.CalendarUtils;
 import org.oddjob.schedules.ConstrainedSchedule;
+import org.oddjob.schedules.units.DayOfWeek;
 
 /**
  * @oddjob.description A schedule for the days of the week. This schedule
@@ -29,18 +31,16 @@ import org.oddjob.schedules.ConstrainedSchedule;
  * 
  * @author Rob Gordon
  */
-
-
-final public class DayOfWeekSchedule extends ConstrainedSchedule 
+final public class WeeklySchedule extends ConstrainedSchedule 
 implements Serializable {
 
     private static final long serialVersionUID = 20050226;
     
 	/** The from day int as a string. */
-	private Integer from;
+	private DayOfWeek from;
 	
 	/** The to day int as a string. */
-	private Integer to;
+	private DayOfWeek to;
 	
     /**
      * @oddjob.property from
@@ -49,7 +49,8 @@ implements Serializable {
      * 
      * @param from The from date.
      */
-	public void setFrom(Integer from) {
+	@ArooaAttribute
+	public void setFrom(DayOfWeek from) {
 		this.from = from;
 	}
 
@@ -57,7 +58,7 @@ implements Serializable {
 	 *  (non-Javadoc)
 	 * @see org.treesched.ConstrainedSchedule#getFrom()
 	 */
-	public Integer getFrom() {
+	public DayOfWeek getFrom() {
 		return from;
 	}
 	
@@ -68,7 +69,8 @@ implements Serializable {
      * 
      * @param to The to day.
      */
-	public void setTo(Integer to) {
+	@ArooaAttribute
+	public void setTo(DayOfWeek to) {
 		this.to = to;
 	}
 	
@@ -76,8 +78,8 @@ implements Serializable {
 	 *  (non-Javadoc)
 	 * @see org.treesched.ConstrainedSchedule#getTo()
 	 */
-	public Integer getTo() {
-	    return to;
+	public DayOfWeek getTo() {
+		return to;
 	}
 	
 	/**
@@ -88,7 +90,8 @@ implements Serializable {
 	 * 
 	 * @param on The on text.
 	 */
-	public void setOn(Integer on) {		
+	@ArooaAttribute
+	public void setOn(DayOfWeek on) {		
 		setFrom(on);
 		setTo(on);
 	}
@@ -103,9 +106,9 @@ implements Serializable {
 			return CalendarUtils.startOfWeek(referenceDate, timeZone);
 		}
 		else {
-			return CalendarUtils.dayOfWeek(referenceDate,
-					from,
-					timeZone);
+			return new CalendarUtils(
+					referenceDate, timeZone).dayOfWeek(
+							from);
 		}
 	}
 	
@@ -114,9 +117,9 @@ implements Serializable {
 			return CalendarUtils.endOfWeek(referenceDate, timeZone);
 	    }
 	    else {
-	    	Calendar cal = CalendarUtils.dayOfWeek(referenceDate,
-	    			to,
-	    			timeZone);
+	    	Calendar cal = new CalendarUtils(
+	    			referenceDate, timeZone).dayOfWeek(
+	    					to);
 	    	CalendarUtils.setEndOfDay(cal);
 	    	return cal;
 	    }		
@@ -128,6 +131,41 @@ implements Serializable {
 	 * @return A description of the schedule.
 	 */
 	public String toString() {
-		return this.getClass().getSimpleName() + " from " + getFrom() + " to " + getTo();
+		
+		String from;
+		
+		if (this.from == null) {
+			from = "the start of the week";
+		} else {
+			from = this.from.toString();
+		}
+		
+		String to;
+		
+		if (this.to == null) {
+			to = "the end of the week";
+		}
+		else {
+			to = this.to.toString();
+		}
+		
+		StringBuilder description = new StringBuilder();
+		if (from.equals(to)) {
+			description.append(" on ");
+			description.append(from);
+		}
+		else {
+			description.append(" from ");
+			description.append(from);
+			description.append(" to ");
+			description.append(to);
+		}
+		
+		if (getRefinement() != null) {
+			description.append(" with refinement ");
+			description.append(getRefinement().toString());
+		}
+		
+		return "Weekly" + description;
 	}
 }

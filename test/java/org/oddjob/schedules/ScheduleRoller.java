@@ -2,6 +2,13 @@ package org.oddjob.schedules;
 
 import java.util.Date;
 
+/**
+ * Utility class to role a schedule and provide the 
+ * resultant intervals.
+ * 
+ * @author rob
+ *
+ */
 public class ScheduleRoller {
 
 	private final Schedule schedule;
@@ -17,15 +24,15 @@ public class ScheduleRoller {
 		this.howMany = howMany;
 	}
 	
-	public IntervalTo[] resultsFrom(Date date) {
+	public ScheduleResult[] resultsFrom(Date date) {
 		
-		IntervalTo[] results = new IntervalTo[howMany];
+		ScheduleResult[] results = new ScheduleResult[howMany];
 	
 		ScheduleContext context = new ScheduleContext(date);
 		
 		for (int i = 0; i < howMany; ++i) {
 			
-			IntervalTo result = schedule.nextDue(context); 
+			ScheduleResult result = schedule.nextDue(context); 
 			
 			if (result == null) {
 				break;
@@ -33,7 +40,7 @@ public class ScheduleRoller {
 			
 			results[i] = result;
 			
-			context = context.move(result.getUpToDate());
+			context = context.move(result.getUseNext());
 		}
 		
 		return results;

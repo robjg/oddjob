@@ -21,6 +21,6 @@ public interface Schedule {
 	 * @param now The date now.
 	 * @return The next due interval for the schedule.
 	 */
-	public IntervalTo nextDue(ScheduleContext context);
+	public ScheduleResult nextDue(ScheduleContext context);
 
 }

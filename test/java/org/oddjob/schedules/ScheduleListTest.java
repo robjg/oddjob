@@ -14,8 +14,9 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.schedules.DayOfWeekSchedule;
+import org.oddjob.schedules.schedules.WeeklySchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
+import org.oddjob.schedules.units.DayOfWeek;
 
 /**
  * 
@@ -48,14 +49,14 @@ public class ScheduleListTest extends TestCase {
 
 		Interval result = test.nextDue(context);
 		
-		Interval expected = new IntervalTo(
+		IntervalBase expected = new IntervalTo(
 				DateHelper.parseDateTime("2003-08-14 22:00"),
 				DateHelper.parseDateTime("2003-08-15 02:00"));
 
 		assertEquals(expected, result);	
 		
 		result = test.nextDue(context.move(
-				DateUtils.oneMillisAfter(result.getToDate())));
+				result.getToDate()));
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2003-08-15 10:00"),
@@ -77,8 +78,8 @@ public class ScheduleListTest extends TestCase {
 		ScheduleList test = new ScheduleList();
 		test.setSchedules(new Schedule[] { s1, s2 });
 		
-		DayOfWeekSchedule dayOfWeek = new DayOfWeekSchedule();
-		dayOfWeek.setOn(4);
+		WeeklySchedule dayOfWeek = new WeeklySchedule();
+		dayOfWeek.setOn(DayOfWeek.Days.THURSDAY);
 
 		dayOfWeek.setRefinement(test);
 		
@@ -89,7 +90,7 @@ public class ScheduleListTest extends TestCase {
 
 		Interval result = dayOfWeek.nextDue(context);
 		
-		Interval expected;
+		IntervalBase expected;
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2003-08-14 10:00"),
@@ -98,7 +99,7 @@ public class ScheduleListTest extends TestCase {
 		assertEquals(expected, result);	
 		
 		result = dayOfWeek.nextDue(context.move(
-				DateUtils.oneMillisAfter(result.getToDate())));
+				result.getToDate()));
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2003-08-14 22:00"),
@@ -121,7 +122,7 @@ public class ScheduleListTest extends TestCase {
 				DateHelper.parseDateTime("2003-08-15 00:00")); 		
 		context = context.spawn(expected);
 		
-		assertEquals(expected, test.nextDue(context));
+		assertEquals(null, test.nextDue(context));
 		
 	}
 	

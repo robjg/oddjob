@@ -8,6 +8,7 @@ import java.util.Date;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.schedules.IntervalTo;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.state.CompleteOrNotOp;
 import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
@@ -37,7 +38,7 @@ public class Timer extends TimerBase {
 	 * changed using the reSchedule property.
 	 * @oddjob.required Read only.
 	 */ 
-	private IntervalTo lastComplete;
+	private ScheduleResult lastComplete;
 
 	/**
 	 * @oddjob.property 
@@ -94,7 +95,7 @@ public class Timer extends TimerBase {
 	 * 
 	 * @return The last complete date, null if never completed.
 	 */
-	public IntervalTo getLastComplete() {
+	public ScheduleResult getLastComplete() {
 	    return lastComplete;
 	}
 
@@ -114,7 +115,7 @@ public class Timer extends TimerBase {
 				lastComplete = getCurrent();			
 	    	}
 	    	
-	    	Date use = getCurrent().getUpToDate();
+	    	Date use = getCurrent().getToDate();
 	    	Date now = getClock().getDate();
 	    	if (skipMissedRuns && use.before(now)) {
 	    		use = now;

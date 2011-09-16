@@ -1,5 +1,11 @@
 <arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
     prefix="schedules" namespace="http://rgordon.co.uk/oddjob/schedules">
+    <conversions>
+        <value value='org.oddjob.schedules.units.DayOfWeek$Conversions'/>
+        <value value='org.oddjob.schedules.units.DayOfMonth$Conversions'/>
+        <value value='org.oddjob.schedules.units.Month$Conversions'/>
+        <value value='org.oddjob.schedules.units.WeekOfMonth$Conversions'/>
+    </conversions>    
 	<values>
 		<is element='after' 
 			className='org.oddjob.schedules.schedules.AfterSchedule'
@@ -13,17 +19,19 @@
 		<is element='date' 
 			className='org.oddjob.schedules.schedules.DateSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.DateScheduleDE'/>
-		<is element='dayafter' 
+		<is element='day-after' 
 			className='org.oddjob.schedules.schedules.DayAfterSchedule'/>
-		<is element='dayofweek' 
-			className='org.oddjob.schedules.schedules.DayOfWeekSchedule'
+        <is element='day-before' 
+            className='org.oddjob.schedules.schedules.DayBeforeSchedule'/>
+		<is element='weekly' 
+			className='org.oddjob.schedules.schedules.WeeklySchedule'
 			designFactory='org.oddjob.designer.elements.schedule.DayOfWeekScheduleDE'/>
-		<is element='dayofmonth' 
-			className='org.oddjob.schedules.schedules.DayOfMonthSchedule'
-			designFactory='org.oddjob.designer.elements.schedule.DayOfMonthScheduleDE'/>
-		<is element='dayofyear' 
-			className='org.oddjob.schedules.schedules.DayOfYearSchedule'
-			designFactory='org.oddjob.designer.elements.schedule.DayOfYearScheduleDE'/>
+		<is element='monthly' 
+			className='org.oddjob.schedules.schedules.MonthlySchedule'
+			designFactory='org.oddjob.designer.elements.schedule.MonthlyScheduleDE'/>
+		<is element='yearly' 
+			className='org.oddjob.schedules.schedules.YearlySchedule'
+			designFactory='org.oddjob.designer.elements.schedule.YearlyScheduleDE'/>
 		<is element='interval' 
 			className='org.oddjob.schedules.schedules.IntervalSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.IntervalScheduleDE'/>
@@ -32,15 +40,9 @@
 			designFactory='org.oddjob.designer.elements.schedule.LastScheduleDE'/>
 		<is element='list' 
 			className='org.oddjob.schedules.ScheduleList'/>
-		<is element='month' 
-			className='org.oddjob.schedules.schedules.MonthSchedule'
-			designFactory='org.oddjob.designer.elements.schedule.MonthScheduleDE'/>
 		<is element='now' 
 			className='org.oddjob.schedules.schedules.NowSchedule'
 		/>
-		<is element='occurrence' 
-			className='org.oddjob.schedules.schedules.OccurrenceSchedule'
-			designFactory='org.oddjob.designer.elements.schedule.OccurrenceScheduleDE'/>
 		<is element='time' 
 			className='org.oddjob.schedules.schedules.TimeSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.TimeScheduleDE'/>

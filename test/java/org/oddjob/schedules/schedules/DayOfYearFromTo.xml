@@ -1,2 +1,2 @@
-<schedules:dayofyear xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
-             from="12-25" to="12-26"/>
+<schedules:yearly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+             fromDate="12-25" toDate="12-26"/>

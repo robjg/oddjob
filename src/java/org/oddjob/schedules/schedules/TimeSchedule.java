@@ -19,7 +19,7 @@ import org.oddjob.schedules.DateUtils;
  * <p>
  * Please note the property 'on' is used instead of at, this is due to a
  * lazy developer sharing logic with other constrained schedules such as
- * {@link DayOfYearSchedule}.
+ * {@link YearlySchedule}.
  * <p>
  * If the 'to' time is less than the 'from' time it is assumed that the 'to'
  * time is the next day. 
@@ -148,6 +148,41 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 	 * @return A description of the schedule.
 	 */
 	public String toString() {
-		return this.getClass().getSimpleName() + " from " + getFrom() + " to " + getTo();
+
+		String from;
+		
+		if (this.from == null) {
+			from = "the start of the day";
+		} else {
+			from = this.from;
+		}
+		
+		String to;
+		
+		if (this.to == null) {
+			to = "the end of the day";
+		}
+		else {
+			to = this.to;
+		}
+		
+		StringBuilder description = new StringBuilder();
+		if (from.equals(to)) {
+			description.append(" at ");
+			description.append(from);
+		}
+		else {
+			description.append(" from ");
+			description.append(from);
+			description.append(" to ");
+			description.append(to);
+		}
+		
+		if (getRefinement() != null) {
+			description.append(" with refinement ");
+			description.append(getRefinement().toString());
+		}
+		
+		return "Time" + description;
 	}
 }

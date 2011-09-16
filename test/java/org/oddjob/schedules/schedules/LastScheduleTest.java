@@ -10,10 +10,12 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleList;
+import org.oddjob.schedules.units.Month;
 
 public class LastScheduleTest extends TestCase {
 
@@ -39,7 +41,7 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2003-06-21"));
 		
-		IntervalTo result = last.nextDue(context);
+		Interval result = last.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-12-25 00:00"),
@@ -59,7 +61,7 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-12-26"));
 		
-		IntervalTo result = last.nextDue(context);
+		Interval result = last.nextDue(context);
 		
 		assertNull(result);
 	}
@@ -68,8 +70,8 @@ public class LastScheduleTest extends TestCase {
 		
 		LastSchedule test = new LastSchedule();
 
-		MonthSchedule month = new MonthSchedule();
-		month.setIn(4);
+		YearlySchedule month = new YearlySchedule();
+		month.setInMonth(Month.Months.APRIL);
 		
 		TimeSchedule time = new TimeSchedule();
 		time.setFrom("00:00");
@@ -81,7 +83,7 @@ public class LastScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-04-30 12:57"));
 		
-		IntervalTo result = month.nextDue(context);
+		Interval result = month.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-04-30 00:00"),
@@ -108,7 +110,7 @@ public class LastScheduleTest extends TestCase {
     	ScheduleContext context = new ScheduleContext(
     			DateHelper.parseDateTime("2011-04-12 11:00"));
     	
-    	IntervalTo next = schedule.nextDue(context);
+    	Interval next = schedule.nextDue(context);
     	
     	IntervalTo expected = new IntervalTo(
     			DateHelper.parseDateTime("2011-04-27 00:00"),
@@ -117,7 +119,7 @@ public class LastScheduleTest extends TestCase {
     	assertEquals(expected, next);
     	
     	next = schedule.nextDue(context.move(
-    			expected.getUpToDate()));
+    			expected.getToDate()));
     	
     	expected = new IntervalTo(
     			DateHelper.parseDateTime("2011-05-31 00:00"),

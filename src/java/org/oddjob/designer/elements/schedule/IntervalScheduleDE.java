@@ -40,17 +40,13 @@ class IntervalScheduleDesign extends DesignValueBase {
 	
 	public Form detail() {
 		return new StandardForm(this).addFormItem(
-				new BorderedGroup(toString())
+				new BorderedGroup()
 			.add(interval.view().setTitle("Interval")));
 	}				
 
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { interval } ;
-	}
-	
-	public String toString() {
-		return "Interval";
 	}
 	
 }

@@ -36,7 +36,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	
 	String scheduleDate;
 	String nextDue;
-	IntervalTo lastComplete;
+	Interval lastComplete;
 	boolean failed;
 	boolean retry;
 	
@@ -58,7 +58,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		 * @see org.oddjob.treesched.ScheduleListener#complete(java.util.Date, java.util.Date)
 		 */
 		@Override
-		public void complete(Date scheduleDate, IntervalTo lastComplete) {
+		public void complete(Date scheduleDate, Interval lastComplete) {
 			if (scheduleDate == null) {
 				ScheduleCalculatorTest.this.scheduleDate = null; 
 				ScheduleCalculatorTest.this.nextDue = null;				

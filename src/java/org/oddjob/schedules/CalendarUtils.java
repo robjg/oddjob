@@ -7,8 +7,26 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.oddjob.schedules.units.DayOfMonth;
+import org.oddjob.schedules.units.DayOfWeek;
+import org.oddjob.schedules.units.WeekOfMonth;
+
 public class CalendarUtils {
 
+	private final Calendar baseCalendar;
+	
+	/**
+	 * Constructor.
+	 * 
+	 * @param inDate The date to base functionality on.
+	 * @param timeZone The timezone for the calendar
+	 */
+	public CalendarUtils(Date inDate, TimeZone timeZone) {
+		baseCalendar = Calendar.getInstance(timeZone);
+		baseCalendar.setTime(inDate);
+	}
+	
+	
 	/**
 	 * Set the calendar to the end of day.
 	 * 
@@ -39,33 +57,29 @@ public class CalendarUtils {
 	/**
 	 * Calculate the date at the start of the month for the given date.
 	 * 
-	 * @param inDate The given date.
 	 * @return The date at the start of the month.
 	 */
-	public static Calendar startOfMonth(Date inDate, TimeZone timeZone) {
-		Calendar c1 = Calendar.getInstance(timeZone);
-		c1.setTime(inDate);
+	public Calendar startOfMonth() {
 		
-		Calendar c2 = Calendar.getInstance(timeZone);
+		Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
 		c2.clear();
-		c2.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH), 1);
+		c2.set(baseCalendar.get(Calendar.YEAR), 
+				baseCalendar.get(Calendar.MONTH), 1);
 		return c2;
 	}
 
 	/**
 	 * Calculate the date at the end of the month for the given date.
 	 * 
-	 * @param inDate The given date.
 	 * @return The calendar at the end of the month.
 	 */
-	public static Calendar endOfMonth(Date inDate, TimeZone timeZone) {
-		Calendar c1 = Calendar.getInstance(timeZone);
-		c1.setTime(inDate);
+	public Calendar endOfMonth() {
 		
 		// get the date at the beginning of next month
-		Calendar c2 = Calendar.getInstance(timeZone);
+		Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
 		c2.clear();
-		c2.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH) + 1, 1);
+		c2.set(baseCalendar.get(Calendar.YEAR), 
+				baseCalendar.get(Calendar.MONTH) + 1, 1);
 		
 		return c2;
 	}
@@ -74,20 +88,67 @@ public class CalendarUtils {
      * Utility function to get a calendar which 
      * represents the day of the month in which the reference date is.
      * 
-     * @param referenceDate The date to take month from.
      * @param day The day.
      * @return The Calendar.
      */
-	public static Calendar dayOfMonth(Date referenceDate, int day, TimeZone timeZone) {
-		Calendar c1 = Calendar.getInstance(timeZone);
-		c1.setTime(referenceDate);
+	public Calendar dayOfMonth(DayOfMonth dayOfMonth) {
 		
-		int month = day > 0 ? c1.get(Calendar.MONTH) : c1.get(Calendar.MONTH) + 1;
+		int day = dayOfMonth.getDayNumber();
 		
-		Calendar c2 = Calendar.getInstance(timeZone);
+		int month = day > 0 ? 
+				baseCalendar.get(Calendar.MONTH) : 
+					baseCalendar.get(Calendar.MONTH) + 1;
+		
+		Calendar c2 = Calendar.getInstance(
+				baseCalendar.getTimeZone());
 		c2.clear();
-		c2.set(c1.get(Calendar.YEAR), month, day);
+		c2.set(baseCalendar.get(Calendar.YEAR), month, day);
+		
 		return c2;
+	}
+		
+	public Calendar startOfWeekOfMonth(WeekOfMonth week) {
+
+		int weekNumber = week.getWeekNumber();
+		
+		Calendar result = Calendar.getInstance(baseCalendar.getTimeZone());
+		result.clear();
+		result.setFirstDayOfWeek(Calendar.MONDAY);
+		result.setMinimalDaysInFirstWeek(7);
+		result.set(Calendar.YEAR, baseCalendar.get(Calendar.YEAR));
+		if (weekNumber < 0) {
+			result.set(Calendar.MONTH, baseCalendar.get(Calendar.MONTH) + 1);
+		}
+		else {
+			result.set(Calendar.MONTH, baseCalendar.get(Calendar.MONTH));
+		}
+		result.set(Calendar.WEEK_OF_MONTH, weekNumber);
+		
+		return result;
+	}
+	
+	public Calendar endOfWeekOfMonth(WeekOfMonth week) {
+
+		Calendar result = startOfWeekOfMonth(week);
+		
+		result.add(Calendar.DATE, 7);
+		
+		return result;		
+	}
+	
+	public Calendar dayOfWeekInMonth(DayOfWeek dayOfWeek, WeekOfMonth week) {
+
+		int weekNumber = week.getWeekNumber();
+		int javaDay = javaDayOfWeek(dayOfWeek);
+		
+		Calendar result = Calendar.getInstance(baseCalendar.getTimeZone());
+		result.clear();
+		result.set(Calendar.YEAR, baseCalendar.get(Calendar.YEAR));
+		result.set(Calendar.MONTH, baseCalendar.get(Calendar.MONTH));
+		result.set(Calendar.DAY_OF_WEEK_IN_MONTH, weekNumber);
+		result.set(Calendar.DAY_OF_WEEK, javaDay);
+		
+		return result;
 	}
 		
 	/**
@@ -157,25 +218,48 @@ public class CalendarUtils {
 		}
 	}
 	
+	private static int javaDayOfWeek(DayOfWeek isoDayOfWeek) {
+		
+		switch (isoDayOfWeek.getDayNumber()) {
+		case 1:
+			return Calendar.MONDAY;
+		case 2:
+			return Calendar.TUESDAY;
+		case 3:
+			return Calendar.WEDNESDAY;
+		case 4:
+			return Calendar.THURSDAY;
+		case 5:
+			return Calendar.FRIDAY;
+		case 6:
+			return Calendar.SATURDAY;
+		case 7:
+			return Calendar.SUNDAY;
+		default:
+			throw new IllegalArgumentException("Invalid day of week " + 
+					isoDayOfWeek);
+		}
+	}
+	
     /**
      * Utility function to get a calendar which 
      * represents the day of the week from the reference date.
 
-     * @param referenceDate The date to take week from.
      * @param day The day.
-     * @return The Calendar.
      */
-	public static Calendar dayOfWeek(Date referenceDate, int day, TimeZone timeZone) {
+	public Calendar dayOfWeek(
+			DayOfWeek dayOfWeek) {
 		
-		Calendar c1 = Calendar.getInstance(timeZone);
-		c1.setTime(referenceDate);
-		
-		Calendar c2 = Calendar.getInstance(timeZone);
+		int day = dayOfWeek.getDayNumber();
+				
+		Calendar c2 = Calendar.getInstance(
+				baseCalendar.getTimeZone());
 		c2.clear();
-		c2.set(c1.get(Calendar.YEAR), c1.get(Calendar.MONTH), 
-				c1.get(Calendar.DAY_OF_MONTH));
+		c2.set(baseCalendar.get(Calendar.YEAR), 
+				baseCalendar.get(Calendar.MONTH), 
+				baseCalendar.get(Calendar.DAY_OF_MONTH));
 		
-		int offset = day - isoDayOfWeek(c1.get(Calendar.DAY_OF_WEEK));
+		int offset = day - isoDayOfWeek(baseCalendar.get(Calendar.DAY_OF_WEEK));
 		
 		c2.add(Calendar.DATE, offset);
 		

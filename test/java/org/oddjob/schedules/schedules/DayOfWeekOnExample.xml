@@ -1,2 +1,2 @@
-<schedules:dayofweek xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
-    on="2"/>
+<schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+    on="Tuesday"/>

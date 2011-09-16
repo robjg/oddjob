@@ -1,9 +1,9 @@
-<schedules:dayofmonth xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+<schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
     <refinement>
-        <schedules:occurrence occurrence="2">
+        <bean class="org.oddjob.schedules.schedules.OccurrenceSchedule" occurrence="2">
             <refinement>
-                <schedules:dayofweek on="2"/>
+                <schedules:weekly on="2"/>
             </refinement>
-        </schedules:occurrence>
+        </bean>
     </refinement>
-</schedules:dayofmonth>
+</schedules:monthly>

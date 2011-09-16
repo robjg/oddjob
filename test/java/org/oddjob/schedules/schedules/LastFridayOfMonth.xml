@@ -1,0 +1,6 @@
+<schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+                      onDayOfWeek="FRIDAY" inWeek="LAST">
+     <refinement>
+        <schedules:time at="07:00"/>
+     </refinement>
+</schedules:monthly>

@@ -13,6 +13,7 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -23,14 +24,14 @@ import org.oddjob.schedules.ScheduleContext;
 public class DayOfYearScheduleTest extends TestCase {
 
 	public void testNextDue1() throws ParseException {
-		DayOfYearSchedule s = new DayOfYearSchedule();
-		s.setFrom("02-05");
-		s.setTo("02-25");
+		YearlySchedule s = new YearlySchedule();
+		s.setFromDate("02-05");
+		s.setToDate("02-25");
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-02"));
 		
-		IntervalTo result = s.nextDue(c);
+		Interval result = s.nextDue(c);
 
 		IntervalTo expected = 
 			new IntervalTo(DateHelper.parseDate("2003-02-05"),
@@ -71,13 +72,13 @@ public class DayOfYearScheduleTest extends TestCase {
 
 
 	public void testOverYearBoundary() throws ParseException {
-		DayOfYearSchedule s = new DayOfYearSchedule();
-		s.setFrom("12-17");
-		s.setTo("01-04");
+		YearlySchedule s = new YearlySchedule();
+		s.setFromDate("12-17");
+		s.setToDate("01-04");
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2011-01-02"));
-		IntervalTo result = s.nextDue(c);
+		Interval result = s.nextDue(c);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDate("2010-12-17"),
@@ -88,12 +89,12 @@ public class DayOfYearScheduleTest extends TestCase {
 	
 	public void test29thFeb() throws ParseException {
 		
-		DayOfYearSchedule test = new DayOfYearSchedule();
-		test.setOn("02-29");
+		YearlySchedule test = new YearlySchedule();
+		test.setOnDate("02-29");
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2008-01-01"));
-		IntervalTo result = test.nextDue(c);
+		Interval result = test.nextDue(c);
 
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDate("2008-02-29"),
@@ -117,7 +118,7 @@ public class DayOfYearScheduleTest extends TestCase {
 
 		Schedule schedule = (Schedule)	parser.getRoot();
 
-		IntervalTo next = schedule.nextDue(new ScheduleContext(
+		Interval next = schedule.nextDue(new ScheduleContext(
 				DateHelper.parseDate("2010-02-15")));
 
 		IntervalTo expected = new IntervalTo(
@@ -142,7 +143,7 @@ public class DayOfYearScheduleTest extends TestCase {
 
 		Schedule schedule = (Schedule)	parser.getRoot();
 
-		IntervalTo next = schedule.nextDue(new ScheduleContext(
+		Interval next = schedule.nextDue(new ScheduleContext(
 				DateHelper.parseDate("2010-02-15")));
 
 		IntervalTo expected = new IntervalTo(

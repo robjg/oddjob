@@ -6,9 +6,13 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.IntervalHelper;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * @oddjob.description This schedule returns an interval 
@@ -57,7 +61,7 @@ final public class IntervalSchedule implements Schedule, Serializable {
      *  (non-Javadoc)
      * @see org.treesched.Schedule#nextDue(java.util.Date)
      */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 
 		if (intervalMillis == 0) {
 			return null;
@@ -65,8 +69,8 @@ final public class IntervalSchedule implements Schedule, Serializable {
 		
 		Date now = context.getDate();
 		
-		IntervalTo parentInterval = context.getParentInterval();
-		IntervalTo nextInterval = null;
+		Interval parentInterval = context.getParentInterval();
+		Interval nextInterval = null;
 		
 		if (parentInterval == null) {
 		    // no limits so just return an interval later.
@@ -93,12 +97,18 @@ final public class IntervalSchedule implements Schedule, Serializable {
 						new Date(lastBegin + intervalMillis));
 			}
 			
-			nextInterval = parentInterval.limit(nextInterval);
+			nextInterval = new IntervalHelper(
+					parentInterval).limit(nextInterval);
 		}
 		logger.debug(this + ": in date is " + now
 					+ ", next Interval is " + nextInterval);
 
-		return nextInterval;
+		if (nextInterval == null) {
+			return null;
+		}
+		else {
+			return new SimpleScheduleResult(nextInterval);
+		}
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.SequenceJob;
 import org.oddjob.jobs.structural.ParallelJob;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -95,7 +96,7 @@ public class RetryTest extends TestCase {
 		time.setFrom("14:45");
 		time.setTo("15:00");
 
-		IntervalTo limits = time.nextDue(
+		Interval limits = time.nextDue(
 				new ScheduleContext(
 						DateHelper.parseDateTime("2009-02-10 12:00")));
 		
@@ -167,7 +168,7 @@ public class RetryTest extends TestCase {
 		time.setFrom("14:45");
 		time.setTo("15:00");
 
-		IntervalTo limits = time.nextDue(
+		Interval limits = time.nextDue(
 				new ScheduleContext(
 						DateHelper.parseDateTime("2009-02-10 12:00")));
 		

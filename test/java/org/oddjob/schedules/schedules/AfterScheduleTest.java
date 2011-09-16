@@ -10,14 +10,19 @@ import java.text.SimpleDateFormat;
 import junit.framework.TestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.ScheduleRoller;
 
 /**
  *
@@ -37,13 +42,21 @@ public class AfterScheduleTest extends TestCase {
         
         after.setRefinement(interval);
 
-        IntervalTo next = after.nextDue(new ScheduleContext(
-        		DateHelper.parseDateTime("2000-01-01 12:00")));
+        Interval[] results = new ScheduleRoller(
+        		after).resultsFrom(
+        				DateHelper.parseDateTime("2000-01-01 12:00"));
 
         IntervalTo expected = new IntervalTo(
-        		DateHelper.parseDateTime("2000-01-01 12:10"));
+        		DateHelper.parseDateTime("2000-01-01 12:10"),
+        		DateHelper.parseDateTime("2000-01-01 12:20"));
 
-        assertEquals(expected, next);        
+        assertEquals(expected, results[0]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2000-01-01 12:20"),
+        		DateHelper.parseDateTime("2000-01-01 12:30"));
+
+        assertEquals(expected, results[1]);        
     }
     
     public void testAfterExample() throws ArooaParseException, ParseException {
@@ -64,10 +77,11 @@ public class AfterScheduleTest extends TestCase {
     	ScheduleContext context = new ScheduleContext(
     			DateHelper.parseDateTime("2011-04-12 11:00"));
     	
-    	IntervalTo next = schedule.nextDue(context);
+    	ScheduleResult next = schedule.nextDue(context);
     	
     	IntervalTo expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-12 11:20"));
+    			DateHelper.parseDateTime("2011-04-12 11:20"),
+    			DateHelper.parseDateTime("2011-04-12 11:40"));
     	
     	assertEquals(expected, next);
     	
@@ -76,4 +90,56 @@ public class AfterScheduleTest extends TestCase {
     	
     	assertEquals(null, next);
     }
+    
+	public void testAfterBusinessDays() throws ArooaParseException, ParseException {
+    	
+    	ArooaSession session = new OddjobSessionFactory().createSession();
+    	
+    	StandardFragmentParser parser = new StandardFragmentParser(session);
+    	
+    	parser.parse(new XMLConfiguration(
+    			"org/oddjob/schedules/schedules/AfterBusinessDays.xml", 
+    			getClass().getClassLoader()));
+    	
+    	Schedule schedule = (Schedule)	parser.getRoot();
+    	
+    	Interval[] results = new ScheduleRoller(schedule).resultsFrom(
+    			DateHelper.parseDateTime("2011-04-27 12:00"));
+    	    	
+    	IntervalTo expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-04-28 08:00"),
+    			DateHelper.parseDateTime("2011-04-29 00:00"));
+    	
+    	assertEquals(expected, results[0]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-04-29 08:00"),
+    			DateHelper.parseDateTime("2011-04-30 00:00"));
+    	
+    	assertEquals(expected, results[1]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-04-30 08:00"),
+    			DateHelper.parseDateTime("2011-04-31 00:00"));
+    	
+    	assertEquals(expected, results[2]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-05-04 08:00"),
+    			DateHelper.parseDateTime("2011-05-05 00:00"));
+    	
+    	assertEquals(expected, results[3]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-05-05 08:00"),
+    			DateHelper.parseDateTime("2011-05-06 00:00"));
+    	
+    	assertEquals(expected, results[4]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-05-06 08:00"),
+    			DateHelper.parseDateTime("2011-05-07 00:00"));
+    	
+    	assertEquals(expected, results[5]);
+	}
 }

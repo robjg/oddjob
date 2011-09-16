@@ -27,7 +27,7 @@
 			<schedule>
 				<ft:list>
 					<schedules>
-						<ft:dayofweek on="1">
+						<ft:weekly on="1">
 							<refinement>
 								<ft:list>
 									<schedules>
@@ -40,8 +40,8 @@
 									</schedules>
 								</ft:list>
 							</refinement>
-						</ft:dayofweek>
-						<ft:dayofweek from="3" to="5"/>
+						</ft:weekly>
+						<ft:weekly from="3" to="5"/>
 					</schedules>
 				</ft:list>
 			</schedule>
@@ -57,7 +57,7 @@
 				<is date="2003-05-26 11:00"/>
 			</runs>
 			<schedule>
-				<ft:dayofweek from="6" to="7"/>
+				<ft:weekly from="6" to="7"/>
 			</schedule>
 		</is>
 
@@ -80,11 +80,11 @@
 					expectedFrom="2003-06-04 14:02"/>
 			</runs>
 			<schedule>
-				<ft:dayofweek from="3" to="5">
+				<ft:weekly from="3" to="5">
 					<refinement>
 						<ft:time at="14:02"/>
 					</refinement>
-				</ft:dayofweek>
+				</ft:weekly>
 			</schedule>
 		</is>
 		

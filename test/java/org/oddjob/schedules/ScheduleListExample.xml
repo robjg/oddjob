@@ -1,6 +1,6 @@
 <schedules:list xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
     <schedules>
-        <schedules:dayofweek on="1"/>
-        <schedules:dayofweek on="5"/>
+        <schedules:weekly on="Monday"/>
+        <schedules:weekly on="Friday"/>
     </schedules>
 </schedules:list>

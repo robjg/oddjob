@@ -5,9 +5,9 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 
 /**
  * @oddjob.description This schedule returns up to count 
@@ -82,28 +82,20 @@ implements Serializable {
 	public String getCount() {	
 		return Integer.toString(countTo);
 	}
-
-	class ImmediateSchedule implements Schedule, Serializable {
-		private static final long serialVersionUID = 20060113;
-
-		@Override
-		public IntervalTo nextDue(ScheduleContext context) {
-			Date date = context.getDate();
-			return new IntervalTo(date);
-		}
-	}
 	
 	/*
 	 *  (non-Javadoc)
 	 * @see org.treesched.Schedule#nextDue(java.util.Date)
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		Date now = context.getDate();
 		if (now == null) {
 			return null;
 		}
-		if (getRefinement() == null) {
-		    setRefinement(new ImmediateSchedule());
+		
+		Schedule child = getRefinement();
+		if (child == null) {
+		    child = new NowSchedule();
 		}
 
 		int counted = 0;
@@ -125,16 +117,7 @@ implements Serializable {
 		context.putData(LAST_KEY, last);
 		
 		if ( counted <= countTo) {
-			Schedule child = getRefinement();
-			IntervalTo next = child.nextDue(context);
-			
-			IntervalTo parentInterval = context.getParentInterval();
-			if (parentInterval == null) {
-				return next;
-			}
-			else {
-				return parentInterval.limit(next);
-			}
+			return child.nextDue(context);
 		}
 		else {
 			return null;			

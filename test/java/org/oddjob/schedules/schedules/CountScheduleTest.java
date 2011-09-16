@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 
 import org.oddjob.Helper;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -33,7 +34,7 @@ public class CountScheduleTest extends TestCase {
 		test.setCount("3");
 		Counter c = new Counter();
 		test.setRefinement(c);
-		IntervalTo nextDue = null;
+		Interval nextDue = null;
 		ScheduleContext context = new ScheduleContext(new Date());
 		do {
 			context = context.move(
@@ -76,7 +77,7 @@ public class CountScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				now, null, map);
 		
-		IntervalTo interval = test.nextDue(context);
+		Interval interval = test.nextDue(context);
 		assertNotNull(interval);
 		
 		Schedule copy = (Schedule) Helper.copy(test);
@@ -87,32 +88,5 @@ public class CountScheduleTest extends TestCase {
 		interval = copy.nextDue(context);
 		assertEquals(null, interval);
 		
-	}
-	
-	public void testLimitedByParentInterval() throws ParseException {
-		
-		IntervalTo parentInterval = new IntervalTo(
-				DateHelper.parseDateTime("2010-06-27 07:00"),
-				DateHelper.parseDateTime("2010-06-27 10:00"));
-		
-		CountSchedule test = new CountSchedule(3);
-
-		ScheduleContext context = new ScheduleContext(
-				DateHelper.parseDateTime("2010-06-27 09:00"));
-		
-		context = context.spawn(parentInterval);
-		
-		IntervalTo interval1 = test.nextDue(context);
-		
-		assertEquals(new IntervalTo(
-				DateHelper.parseDateTime("2010-06-27 09:00")),
-				interval1);
-		
-		context = context.spawn(DateHelper.parseDateTime("2010-06-27 11:00"),
-				parentInterval);
-		
-		IntervalTo interval2 = test.nextDue(context);
-		
-		assertNull(interval2);
 	}
 }

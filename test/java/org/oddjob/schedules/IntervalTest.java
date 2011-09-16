@@ -25,7 +25,7 @@ public class IntervalTest extends TestCase {
 				DateHelper.parseDateTime("2003-07-11 12:15"), 
 				DateHelper.parseDateTime("2003-07-12 23:17"));
 
-		Interval copy = new Interval(test);
+		Interval copy = new IntervalTo(test);
 		
 		assertTrue(test.equals(copy));
 	}
@@ -35,11 +35,11 @@ public class IntervalTest extends TestCase {
 	 */
 	public void testIsBeforeBetweenTimes() throws ParseException {
 
-		Interval test1 = new IntervalTo(
+		IntervalBase test1 = new IntervalTo(
 		        DateHelper.parseDateTime("2003-07-11 12:15"), 
 		        DateHelper.parseDateTime("2003-07-12 23:17"));
 
-		Interval test2 = new IntervalTo(
+		IntervalBase test2 = new IntervalTo(
 		        DateHelper.parseDateTime("2003-07-12 12:15"), 
 		        DateHelper.parseDateTime("2003-07-13 23:17"));
 				
@@ -51,11 +51,11 @@ public class IntervalTest extends TestCase {
 	 */
 	public void testIsPastBetweenTimes() throws ParseException {
 
-		Interval test1 = new Interval(
+		IntervalBase test1 = new IntervalBase(
 				DateHelper.parseDateTime("2003-07-11 12:15"), 
 				DateHelper.parseDateTime("2003-07-12 23:17"));
 
-		Interval test2 = new Interval(
+		IntervalBase test2 = new IntervalBase(
 		        DateHelper.parseDateTime("2003-07-13 12:15"), 
 		        DateHelper.parseDateTime("2003-07-13 23:17"));
 				
@@ -73,7 +73,7 @@ public class IntervalTest extends TestCase {
 				DateHelper.parseDateTime("2003-07-11 12:30"), 
 				DateHelper.parseDateTime("2003-07-11 13:00"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		
 		assertEquals(i2, result);
 		
@@ -82,19 +82,19 @@ public class IntervalTest extends TestCase {
 	public void testLimitExtendedRefinement() throws ParseException {
 		Interval result;
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
-		Interval i2 = new Interval(
+		Interval i2 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:30"), 
 				DateHelper.parseDateTime("2003-07-11 13:30"));
 		
-		Interval expected = new Interval(
+		Interval expected = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:30"), 
 				DateHelper.parseDateTime("2003-07-11 13:30"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		assertEquals(expected, result);
 		
 	}
@@ -102,15 +102,15 @@ public class IntervalTest extends TestCase {
 	public void testLimitEagerRefinement() throws ParseException {
 		Interval result;
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
-		Interval i2 = new Interval(
+		Interval i2 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:00"), 
 				DateHelper.parseDateTime("3003-07-11 13:00"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		
 		assertNull(result);
 	}
@@ -118,15 +118,15 @@ public class IntervalTest extends TestCase {
 	public void testLimitAntiRefinement() throws ParseException {
 		Interval result;
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
-		Interval i2 = new Interval(
+		Interval i2 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:00"), 
 				DateHelper.parseDateTime("2003-07-11 13:30"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		
 		assertNull(result);
 	}
@@ -134,40 +134,40 @@ public class IntervalTest extends TestCase {
 	public void testLimitDisjointedAfter() throws ParseException {
 		Interval result;
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
-		Interval i2 = new Interval(
+		Interval i2 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 14:00"), 
 				DateHelper.parseDateTime("2003-07-11 15:30"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		assertNull(result);
 	}
 	
 	public void testLimitDisjointedBefore() throws ParseException {
 		Interval result;
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
-		Interval i2 = new Interval(
+		Interval i2 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 10:00"), 
 				DateHelper.parseDateTime("2003-07-11 11:30"));
 		
-		result = i1.limit(i2);
+		result = new IntervalHelper(i1).limit(i2);
 		assertNull(result);
 	}
 	
 	public void testLimitNull() throws ParseException {
 		
-		Interval i1 = new Interval(
+		Interval i1 = new IntervalTo(
 				DateHelper.parseDateTime("2003-07-11 12:15"),
 				DateHelper.parseDateTime("2003-07-11 13:15"));
 		
 		// This is an important assumption....
-		assertNull(i1.limit(null));
+		assertNull(new IntervalHelper(i1).limit(null));
 	}
 }

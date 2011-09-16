@@ -5,9 +5,12 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * @oddjob.description Schedule at a point in time immediately
@@ -28,30 +31,66 @@ import org.oddjob.schedules.ScheduleContext;
  * @author Rob Gordon
  */
 final public class AfterSchedule extends AbstractSchedule implements Serializable {
-
+    
     private static final long serialVersionUID = 20050226;
     
     private static final Logger logger = Logger.getLogger(AfterSchedule.class);
     
-	public IntervalTo nextDue(ScheduleContext context) {
-		Date now = context.getDate();
-		if (getRefinement() == null) {
+    private Schedule apply;
+    
+	public ScheduleResult nextDue(ScheduleContext context) {
+				
+		Schedule child = getRefinement();
+		if (child == null) {
 		    throw new IllegalStateException("After must have a child schedule.");
 		}
 		
+		Date now = context.getDate();
+		
 		logger.debug(this + ": in date is " + now);
+		
+		ScheduleResult next = child.nextDue(context);
 				
-		Schedule child = getRefinement();
-
-		IntervalTo next = child.nextDue(context);
 		if (next == null) {
 		    return null;
 		}
 		
-		Date after = next.getUpToDate();
-		if (after == null) {
+		Date from = next.getToDate();
+		
+		ScheduleResult following = child.nextDue(context.move(from));
+		
+		Date to;
+		
+		if (following == null) {
+			to = new Date(IntervalTo.END_OF_TIME);
+		}
+		else {
+			to = following.getToDate();
+		}
+		
+		IntervalTo afterInterval = new IntervalTo(from, to); 
+		
+		Interval result; 
+		if (apply == null) {
+			result = afterInterval;
+		}
+		else {
+			result = apply.nextDue(context.spawn(
+					afterInterval.getFromDate(), afterInterval));
+		}
+		
+		if (result == null) {
 			return null;
 		}
-		return new IntervalTo(after);
+		
+		return new SimpleScheduleResult(result, from);
+	}
+	
+	public Schedule getApply() {
+		return apply;
+	}
+
+	public void setApply(Schedule apply) {
+		this.apply = apply;
 	}
 }

@@ -23,7 +23,7 @@
 			<schedule>
 				<ft:list>
 					<schedules>
-						<ft:dayofyear from="07-07" to="08-20"/>
+						<ft:yearly fromDate="07-07" toDate="08-20"/>
 						<ft:date from="2003-12-25" to="2004-05-15"/>
 					</schedules>
 				</ft:list>

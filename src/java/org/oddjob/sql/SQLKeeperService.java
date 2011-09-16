@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
@@ -385,7 +386,7 @@ public class SQLKeeperService {
 					});
 				}
 				else {
-					IntervalTo nextDue = pollSchedule.nextDue(scheduleContext);
+					ScheduleResult nextDue = pollSchedule.nextDue(scheduleContext);
 					if (nextDue == null) {
 						loosing.stateHandler.waitToWhen(new IsAnyState(), 
 								new Runnable() {
@@ -400,8 +401,8 @@ public class SQLKeeperService {
 					}
 					else {
 						scheduleContext = scheduleContext.move(
-								new IntervalTo(nextDue).getUpToDate());
-						long delay = nextDue.getUpToDate().getTime() - 
+								new IntervalTo(nextDue).getToDate());
+						long delay = nextDue.getToDate().getTime() - 
 							new Date().getTime();
 						if (delay <= 0) {
 							delay = 0;

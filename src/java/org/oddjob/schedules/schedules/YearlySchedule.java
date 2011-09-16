@@ -7,16 +7,30 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.CalendarUtils;
 import org.oddjob.schedules.ConstrainedSchedule;
 import org.oddjob.schedules.DateUtils;
+import org.oddjob.schedules.units.Month;
 
 /**
  * @oddjob.description A schedule for the days of the year. 
  * This will most frequently be used to define annual holidays. 
  * <p>
  * The form is MM-dd, i.e. 03-02 is The second of February.
+ * 
+ * @oddjob.description A schedule for a range of months, or a month. The month
+ * is specified as an integer between 1 and 12 where 1 is January and 
+ * 12 is December.
+ * 
+ * @oddjob.example
+ *
+ * A schedule for two different month ranges. From April to September the
+ * job will run daily at 10 am, and from October to March the job will run
+ * daily at 11 am.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/MonthScheduleExample.xml}
  * 
  * @oddjob.example 
  * 
@@ -32,41 +46,87 @@ import org.oddjob.schedules.DateUtils;
  * 
  * @author Rob Gordon
  */
-final public class DayOfYearSchedule extends ConstrainedSchedule implements Serializable {
+final public class YearlySchedule extends ConstrainedSchedule implements Serializable {
 
     private static final long serialVersionUID = 20050226;
     
 	public static final String DAY_FORMAT = "MM-dd";
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The from month.
+	 * @oddjob.required No, defaults to 1 (January).
+	 */
+	private Month fromMonth;
+	
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The to month.
+	 * @oddjob.required No, defaults to 12 (December).
+	 */
+	private Month toMonth;
+				
+	@ArooaAttribute
+	public void setFromMonth(Month from) {
+		this.fromMonth = from;
+	}
+
+	public Month getFromMonth() {
+	    return fromMonth;
+	}
+	
+	@ArooaAttribute
+	public void setToMonth(Month to) {
+		this.toMonth = to;
+	}
+	
+	public Month getToMonth() {
+	    return toMonth;
+	}
+	
+	/**
+     * @oddjob.property in
+     * @oddjob.description The month in which this schedule is for. 
+     * This has the same effect as setting from and to to the same thing.
+     * @oddjob.required No.
+	 * 
+	 * @param in The in month.
+	 */
+	@ArooaAttribute
+	public void setInMonth(Month in) {
+		this.setFromMonth(in);
+		this.setToMonth(in);
+	}
+			
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The from month and day.
 	 * @oddjob.require No. 
 	 */
-	private String from;
+	private String fromDate;
 	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The to month and day.
 	 * @oddjob.require No. 
 	 */
-	private String to;
+	private String toDate;
 
 	
-	public void setFrom(String from) {
-		this.from = from;
+	public void setFromDate(String from) {
+		this.fromDate = from;
 	}
 
-	public String getFrom() {
-	    return from;
+	public String getFromDate() {
+	    return fromDate;
 	}
 
-	public void setTo(String to) {
-		this.to = to;
+	public void setToDate(String to) {
+		this.toDate = to;
 	}
 	
-	public String getTo() {
-	    return to;
+	public String getToDate() {
+	    return toDate;
 	}
 
 	/**
@@ -77,9 +137,9 @@ final public class DayOfYearSchedule extends ConstrainedSchedule implements Seri
 	 * 
 	 * @param on The day on which this schedule is for.
 	 */
-	public void setOn(String on) {
-		this.setFrom(on);
-		this.setTo(on);
+	public void setOnDate(String on) {
+		this.setFromDate(on);
+		this.setToDate(on);
 	}
 
     @Override
@@ -102,29 +162,31 @@ final public class DayOfYearSchedule extends ConstrainedSchedule implements Seri
 	}
 	
 	protected Calendar fromCalendar(Date referenceDate, TimeZone timeZone) {
-		if (from == null) {
-			return CalendarUtils.startOfYear(referenceDate, timeZone);
-		}
-		else {
+		if (fromDate != null) {
 			try {
 				return CalendarUtils.dayOfYear(referenceDate,
-							parseDay(from, timeZone),
+							parseDay(fromDate, timeZone),
 							timeZone);
 			}
 			catch (ParseException e) {
 				throw new RuntimeException("Failed to parse from day.", e);
 			}
 		}
+		else if (fromMonth != null) {
+			return CalendarUtils.monthOfYear(referenceDate,
+					fromMonth.getMonthNumber(),
+					timeZone);
+		}
+		else {
+			return CalendarUtils.startOfYear(referenceDate, timeZone);
+		}
 	}
 	
 	protected Calendar toCalendar(Date referenceDate, TimeZone timeZone) {
-	    if (to == null) {
-			return CalendarUtils.endOfYear(referenceDate, timeZone);
-	    }
-	    else {
+	    if (toDate != null) {
 	    	try {
 		    	Calendar cal = CalendarUtils.dayOfYear(referenceDate,
-		    				parseDay(to, timeZone),
+		    				parseDay(toDate, timeZone),
 		    				timeZone);
 		    	CalendarUtils.setEndOfDay(cal);
 			    return cal;
@@ -132,6 +194,16 @@ final public class DayOfYearSchedule extends ConstrainedSchedule implements Seri
 			catch (ParseException e) {
 				throw new RuntimeException("Failed to parse to day.", e);
 			}
+	    }
+	    else if (toMonth != null) {
+	    	Calendar toCal = CalendarUtils.monthOfYear(referenceDate,
+	    			toMonth.getMonthNumber(),
+	    			timeZone);
+	    	CalendarUtils.setEndOfMonth(toCal);
+	    	return toCal;
+	    }	    
+	    else {
+			return CalendarUtils.endOfYear(referenceDate, timeZone);
 	    }		
 	}
 	
@@ -142,6 +214,6 @@ final public class DayOfYearSchedule extends ConstrainedSchedule implements Seri
 	 * @return A description of the schedule.
 	 */
 	public String toString() {
-		return this.getClass().getSimpleName() + " from " + getFrom() + " to " + getTo();
+		return this.getClass().getSimpleName() + " from " + getFromDate() + " to " + getToDate();
 	}
 }

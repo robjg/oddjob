@@ -3,11 +3,11 @@
         <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
             xmlns:schedules="http://rgordon.co.uk/oddjob/schedules" id="timer">
             <schedule>
-                <schedules:dayofweek from="1" to="5">
+                <schedules:weekly from="Monday" to="Friday">
                     <refinement>
                         <schedules:time at="10:00"/>
                     </refinement>
-                </schedules:dayofweek>
+                </schedules:weekly>
             </schedule>
             <job>
                 <echo id="work"

@@ -1,6 +1,7 @@
 package org.oddjob.script;
 
 import java.io.File;
+import java.text.ParseException;
 
 import junit.framework.TestCase;
 
@@ -14,8 +15,8 @@ import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.scheduling.ManualClock;
 import org.oddjob.state.ParentState;
 
 public class InvokeTypeTest extends TestCase {
@@ -178,15 +179,15 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("simple", result);
 	}
 	
-	public void testMethodExample() throws ArooaPropertyException, ArooaConversionException {
+	public void testMethodExample() throws ArooaPropertyException, ArooaConversionException, ParseException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/script/InvokeMethod.xml",
 				getClass().getClassLoader()));
 		
-		ManualClock clock = new ManualClock("2011-04-01 14:00");
-		oddjob.setExport("clock", new ArooaObject(clock));
+		oddjob.setExport("date", new ArooaObject(
+				DateHelper.parseDateTime("2011-04-01 14:00")));
 		
 		oddjob.run();
 		

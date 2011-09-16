@@ -23,15 +23,7 @@
 					expectedTo="2005-10-12 00:00"/>
 			</runs>
 			<schedule>
-				<ft:dayofmonth from="0" to="20">
-					<refinement>
-						<ft:occurrence occurrence="2">
-							<refinement>
-								<ft:dayofweek on="2"/>
-							</refinement>
-						</ft:occurrence>
-					</refinement>
-				</ft:dayofmonth>
+				<ft:monthly onDayOfWeek="tuesday" inWeek="2"/>
 			</schedule>
 		</is>
 		
@@ -44,11 +36,11 @@
 					expectedFrom="2005-01-01 20:00"/>
 			</runs>
 			<schedule>
-				<ft:month in="1">
+				<ft:yearly inMonth="1">
 					<refinement>
 						<ft:time at="20:00"/>
 					</refinement>
-				</ft:month>
+				</ft:yearly>
 			</schedule>
 		</is>
 		
@@ -77,12 +69,12 @@
 			<schedule>
 				<ft:list>
 					<schedules>
-						<ft:month in="1"/>
-						<ft:month from="7" to="9">
+						<ft:yearly inMonth="1"/>
+						<ft:yearly fromMonth="7" toMonth="9">
 							<refinement>
-								<ft:dayofmonth from="1" to="0"/>
+								<ft:monthly fromDay="1" toDay="LAST"/>
 							</refinement>
-						</ft:month>
+						</ft:yearly>
 					</schedules>
 				</ft:list>
 			</schedule>
@@ -116,13 +108,13 @@
 				<ft:list>
 					<schedules>
 						<!-- The easy way - use the 0 day of month -->
-						<ft:month in="2">
+						<ft:yearly inMonth="2">
 							<refinement>
-								<ft:dayofmonth on="0"/>
+								<ft:monthly onDay="LAST"/>
 							</refinement>
-						</ft:month>
+						</ft:yearly>
 						<!-- or select the last day the hard way of starting at the beginning -->
-						<ft:month in="4">
+						<ft:yearly inMonth="4">
 							<refinement>
 								<ft:last>
 									<refinement>
@@ -130,11 +122,11 @@
 									</refinement>
 								</ft:last>
 							</refinement>
-						</ft:month>
+						</ft:yearly>
 						<!-- or start counting 3 days from the end - only slightly less hard! -->
-						<ft:month from="7" to="9">
+						<ft:yearly fromMonth="7" toMonth="9">
 							<refinement>
-								<ft:dayofmonth from="-3" to="0">
+								<ft:monthly fromDay="-3" toDay="0">
 									<refinement>
 										<ft:last>
 											<refinement>
@@ -142,9 +134,9 @@
 											</refinement>
 										</ft:last>
 									</refinement>
-								</ft:dayofmonth>
+								</ft:monthly>
 							</refinement>
-						</ft:month>
+						</ft:yearly>
 					</schedules>
 				</ft:list>					
 			</schedule>
@@ -164,7 +156,7 @@
 					expectedTo="2003-08-29 23:59"/>
 			</runs>
 			<schedule>
-				<ft:dayofmonth from="-3" to="0">
+				<ft:monthly fromDay="-3" toDay="0">
 					<refinement>
 						<ft:last>
 							<refinement>
@@ -175,8 +167,8 @@
 									<breaks>
 										<ft:list>
 											<schedules>
-												<ft:dayofweek on="6" />
-												<ft:dayofweek on="7" />
+												<ft:weekly on="6" />
+												<ft:weekly on="7" />
 											</schedules>
 										</ft:list>
 									</breaks>
@@ -184,7 +176,7 @@
 							</refinement>
 						</ft:last>
 					</refinement>
-				</ft:dayofmonth>
+				</ft:monthly>
 			</schedule>
 		</is>
 		
@@ -194,30 +186,30 @@
 			<runs>
 				<is date="2003-01-07 09:02"
 					expectedFrom="2003-02-01 02:00" 
-					expectedTo="2003-02-02 02:00"/>
+					expectedTo="2003-02-01 06:00"/>
 				<is date="2003-05-03 12:30"
-					expectedFrom="2003-05-31 02:00:00:000" 
-					expectedTo="2003-06-01 02:00"/>
+					expectedFrom="2003-05-31 02:00" 
+					expectedTo="2003-05-31 06:00"/>
 				<is date="2003-08-16 18:00"
 					expectedFrom="2003-08-30 02:00" 
-					expectedTo="2003-08-31 02:00"/>
+					expectedTo="2003-08-30 06:00"/>
 			</runs>
 			<schedule>
-				<ft:dayafter>
+				<ft:after>
 					<refinement>
-						<ft:dayofmonth from="-3" to="0">
+						<ft:monthly fromDay="-3" toDay="0">
 							<refinement>
 								<ft:last>
 									<refinement>
 										<ft:broken>
 											<schedule>
-												<ft:time from="02:00" to="06:00"/>
+												<ft:time/>
 											</schedule>
 											<breaks>
 												<ft:list>
 													<schedules>
-														<ft:dayofweek on="6"/>
-														<ft:dayofweek on="7"/>
+														<ft:weekly on="6"/>
+														<ft:weekly on="7"/>
 													</schedules>
 												</ft:list>
 											</breaks>
@@ -225,9 +217,12 @@
 									</refinement>
 								</ft:last>
 							</refinement>
-						</ft:dayofmonth>
+						</ft:monthly>
 					</refinement>
-				</ft:dayafter>
+                    <apply>
+                        <ft:time from="02:00" to="06:00"/>
+                    </apply>
+				</ft:after>
 			</schedule>
 		</is>
 		
@@ -253,16 +248,16 @@
 			<schedule>
 				<ft:list>
 					<schedules>
-						<ft:month in="1">
+						<ft:yearly inMonth="1">
 							<refinement>
 								<ft:time at="20:00"/>
 							</refinement>
-						</ft:month>
-						<ft:month from="7" to="9">
+						</ft:yearly>
+						<ft:yearly fromMonth="7" toMonth="9">
 							<refinement>
-								<ft:dayofweek from="1" to="3"/>
+								<ft:weekly from="1" to="3"/>
 							</refinement>
-						</ft:month>
+						</ft:yearly>
 					</schedules>
 				</ft:list>
 			</schedule>

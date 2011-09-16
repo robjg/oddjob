@@ -1,15 +1,15 @@
-<schedules:dayofmonth xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
-    from="-6" to="0">
+<schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+    fromDay="-6" toDay="0">
     <refinement>
         <schedules:last>
             <refinement>
                 <schedules:list>
                     <schedules>
-                        <schedules:dayofweek on="2"/>
-                        <schedules:dayofweek on="3"/>
+                        <schedules:weekly on="Tuesday"/>
+                        <schedules:weekly on="Wednesday"/>
                     </schedules>
                 </schedules:list>
             </refinement>
         </schedules:last>
     </refinement>
-</schedules:dayofmonth>
+</schedules:monthly>

@@ -11,7 +11,8 @@ import org.oddjob.arooa.ArooaConstants;
  * @author rob
  *
  */
-public class IntervalTo extends Interval {
+public class IntervalTo extends IntervalBase implements ScheduleResult {
+	
 	private static final long serialVersionUID = 2009022700L;
 
 	private static final String DATE_FORMAT_SECONDS =
@@ -47,7 +48,8 @@ public class IntervalTo extends Interval {
 	 * @param interval
 	 */
 	public IntervalTo(Interval interval) {
-		super(interval.getFromDate(), interval.getToDate());
+		super(interval.getFromDate().getTime(), 
+				interval.getToDate().getTime() - 1);
 	}
 	
 	
@@ -57,8 +59,8 @@ public class IntervalTo extends Interval {
 	 * 
 	 * @return
 	 */
-	public Date getUpToDate() {
-		return new Date(getToDate().getTime() + 1);
+	public Date getToDate() {
+		return new Date(getEndDate().getTime() + 1);
 	}
 	
 	/**
@@ -79,15 +81,58 @@ public class IntervalTo extends Interval {
 	 * @return The new interval.
 	 */
 
-	public IntervalTo limit(Interval limit) {
+	public Interval limit(Interval limit) {
 		
-		Interval result = super.limit(limit);
-		
-	    if (result == null) {
+	    if (limit == null) {
 	        return null;
 	    }
+
+	    if (limit.getFromDate().compareTo(this.getFromDate()) < 0) {
+	    	return null;
+	    }
 	    
-	    return new IntervalTo(result);
+	    if (limit.getFromDate().compareTo(this.getEndDate()) > 0) {
+	    	return null;
+	    }
+	    
+	    Date newStart;
+	    if (this.getFromDate().compareTo(limit.getFromDate()) < 0) {
+	    	newStart = limit.getFromDate();
+	    }
+	    else {
+	    	newStart = this.getFromDate();
+	    }
+	    
+	    return new IntervalTo(newStart, limit.getToDate());
+	}
+	
+	/**
+	 * Crude implementation of hashCode, so intervals could
+	 * be stored in HashSets.
+	 * 
+	 */
+	public int hashCode() {
+		return getFromDate().hashCode() + getToDate().hashCode();
+	}
+
+	/**
+	 * Test if two intervals are equivalent.
+	 * <p>
+	 * Intervals are equivalent if there start and end times 
+	 * are the same.
+	 * 
+	 * @param other The interval to test against.
+	 * @return true if they are equal.
+	 */
+	public boolean equals(Object other) {
+		if (!(other instanceof Interval)) {
+			return false;
+		}
+		
+		Interval interval = (Interval) other;
+		
+		return this.getToDate().equals(interval.getToDate()) 
+				&& this.getFromDate().equals(interval.getFromDate());
 	}
 	
 	/**
@@ -95,12 +140,12 @@ public class IntervalTo extends Interval {
 	 */		
 	public String toString() {
 
-		if (getFromDate().equals(getToDate())) {
+		if (getFromDate().equals(getEndDate())) {
 			return "at " + formatDate(getFromDate());
 		}
 		else {
 			return formatDate(getFromDate())+ " up to " + 
-					formatDate(getUpToDate());	
+					formatDate(getToDate());	
 		}
 	}
 
@@ -115,5 +160,10 @@ public class IntervalTo extends Interval {
 					DATE_FORMAT_MILLISECONDS).format(date);
 		}
 		
+	}
+	
+	@Override
+	public Date getUseNext() {
+		return getToDate();
 	}
 }

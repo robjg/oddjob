@@ -32,6 +32,7 @@ class BrokenScheduleDesign extends DesignValueBase {
 	
 	private final SimpleDesignProperty schedule;
 	private final SimpleDesignProperty breaks;
+	private final SimpleDesignProperty alternative;
 	
 	public BrokenScheduleDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
@@ -41,23 +42,23 @@ class BrokenScheduleDesign extends DesignValueBase {
 		
 		breaks = new SimpleDesignProperty(
 				"breaks", this);
+		
+		alternative = new SimpleDesignProperty(
+				"alternative", this);
 	}
 	
 	public Form detail() {
 		return new StandardForm(this).addFormItem(
-				new BorderedGroup(toString())
+				new BorderedGroup()
 			.add(schedule.view().setTitle("Schedule"))
 			.add(breaks.view().setTitle("Breaks"))
+			.add(alternative.view().setTitle("Alternative"))
 			);
 	}
 
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { schedule, breaks };
-	}
-	
-	public String toString() {
-		return "Broken";
+		return new DesignProperty[] { schedule, breaks, alternative };
 	}
 	
 }

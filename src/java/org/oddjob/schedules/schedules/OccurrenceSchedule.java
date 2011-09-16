@@ -5,8 +5,8 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 
 /**
  * @oddjob.description This schedule counts the occurence's 
@@ -59,7 +59,7 @@ final public class OccurrenceSchedule extends AbstractSchedule implements Serial
 	 * it's child schedules.
 	 */
 	
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		Date now = context.getDate();
 		if (getRefinement() == null) {
 		    throw new IllegalStateException("Occurence must have a child schedule.");
@@ -72,20 +72,21 @@ final public class OccurrenceSchedule extends AbstractSchedule implements Serial
 		if (context.getParentInterval() != null) {
 		    use = context.getParentInterval().getFromDate();
 		}
-		IntervalTo candidate = null;
+		ScheduleResult candidate = null;
 		
 		for (int i = 0; i < occurrence && use != null; ++i) {
 			logger.debug(this + ": use interval is " + use);
 			candidate = getRefinement().nextDue(context.move(use));
 			
 			if (candidate != null) {
-				use = candidate.getUpToDate();
+				use = candidate.getToDate();
 			}
 			else {				
 				// break the cycle
 				use = null;
 			}
 		}
+		
 		return candidate;
 	}
 

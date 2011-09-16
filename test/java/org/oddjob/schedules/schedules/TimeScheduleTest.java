@@ -12,9 +12,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.units.DayOfWeek;
 
 /**
  * 
@@ -35,7 +37,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 09:00"));
 		
-		IntervalTo result = test.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-03-02 10:00"),
@@ -71,7 +73,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 09:00"));
 		
-		IntervalTo result = test.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-03-02 10:00"),
@@ -79,7 +81,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 				
-		context = context.move(result.getUpToDate());
+		context = context.move(result.getToDate());
 		
 		result = test.nextDue(context);
 		
@@ -89,7 +91,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 		
-		context = context.move(result.getUpToDate());
+		context = context.move(result.getToDate());
 		
 		result = test.nextDue(context);
 		
@@ -110,7 +112,7 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2006-03-01 11:00"),
 				DateHelper.parseDateTime("2006-03-02 10:00"));
 		
-		IntervalTo result = s.nextDue(new ScheduleContext(
+		Interval result = s.nextDue(new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 09:00")));
 		
 		assertEquals(expected, result);
@@ -147,7 +149,7 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2005-06-21 10:00"),
 				DateHelper.parseDateTime("2005-06-21 11:00"));
 
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 		
@@ -191,7 +193,7 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2005-06-21 23:00"),
 				DateHelper.parseDateTime("2005-06-22 01:00"));
 
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 
@@ -234,7 +236,7 @@ public class TimeScheduleTest extends TestCase {
 		IntervalTo expected = new IntervalTo(
 					DateHelper.parseDateTime("2005-06-21 12:00"));
 
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 		
@@ -292,11 +294,11 @@ public class TimeScheduleTest extends TestCase {
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2005-10-30 02:00"));
 
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 		
-		on = expected.getUpToDate();
+		on = expected.getToDate();
 		context = new ScheduleContext(on);
 		
 		expected = new IntervalTo(
@@ -324,11 +326,11 @@ public class TimeScheduleTest extends TestCase {
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2005-03-27 02:00"));
 
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 		
-		on = result.getUpToDate();
+		on = result.getToDate();
 		context = new ScheduleContext(on);
 		
 		expected = new IntervalTo(
@@ -355,7 +357,7 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDate("2020-06-21"), 
 				DateHelper.parseDate("2020-06-22")));
 		
-		IntervalTo result = test.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2020-06-21 12:00"));
@@ -371,7 +373,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2005-12-25 09:00"));		
 		
-		IntervalTo result = test.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		logger.debug("result " + result);
 		
@@ -381,7 +383,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 		
-		context = context.move(result.getUpToDate());
+		context = context.move(result.getToDate());
 		
 		result = test.nextDue(context);
 		
@@ -398,7 +400,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2005-12-25 11:00"));		
 		
-		IntervalTo result = s.nextDue(context);
+		Interval result = s.nextDue(context);
 		logger.debug("result " + result);
 				
 		assertEquals(new IntervalTo(		
@@ -419,7 +421,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 00:07"));
 		
-		IntervalTo result = timeSchedule.nextDue(context);
+		Interval result = timeSchedule.nextDue(context);
 		
 		logger.debug("result " + result);
 
@@ -430,7 +432,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 		
 		result = timeSchedule.nextDue(
-				context.move(result.getUpToDate()));
+				context.move(result.getToDate()));
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-02-23 08:15"),
@@ -486,8 +488,8 @@ public class TimeScheduleTest extends TestCase {
 		IntervalSchedule intervalSchedule = new IntervalSchedule();
 		intervalSchedule.setInterval("05:00");
 
-		DayOfWeekSchedule dayOfWeek = new DayOfWeekSchedule();
-		dayOfWeek.setOn(1);
+		WeeklySchedule dayOfWeek = new WeeklySchedule();
+		dayOfWeek.setOn(DayOfWeek.Days.MONDAY);
 		
 		test.setRefinement(intervalSchedule);
 		dayOfWeek.setRefinement(test);
@@ -495,7 +497,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(dayOfWeek);
 		
-		IntervalTo[] results = roller.resultsFrom(
+		Interval[] results = roller.resultsFrom(
 				DateHelper.parseDateTime("2003-05-24 14:00"));
 				
 		IntervalTo expected;
@@ -530,8 +532,8 @@ public class TimeScheduleTest extends TestCase {
 		test.setTo("25:00");
 		
 		ScheduleContext context; 
-		IntervalTo expected;
-		IntervalTo result;
+		Interval expected;
+		Interval result;
 		
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-27"));
@@ -571,7 +573,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(schedule);
 		
-		IntervalTo[] results = roller.resultsFrom(
+		Interval[] results = roller.resultsFrom(
 				DateHelper.parseDateTime("2009-02-15 13:51"));
 		
 		assertNull(results[0]);
@@ -596,8 +598,8 @@ public class TimeScheduleTest extends TestCase {
 						DateHelper.parseDateTime("2009-02-15 07:00"),
 						DateHelper.parseDateTime("2009-02-16 00:00")));
 		
-		IntervalTo expected;
-		IntervalTo result;
+		Interval expected;
+		Interval result;
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-02-15 13:45"),
@@ -607,7 +609,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 		
-		result = retry.nextDue(context.move(expected.getUpToDate()));
+		result = retry.nextDue(context.move(expected.getToDate()));
 		
 		assertNull(result);
 	}
@@ -619,7 +621,7 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2011-06-30 00:00"));
 		
-		IntervalTo result = test.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2011-06-30 00:00"),
@@ -627,7 +629,7 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 		
-		context = context.move(result.getUpToDate());
+		context = context.move(result.getToDate());
 		
 		result = test.nextDue(context);
 		

@@ -742,6 +742,9 @@ class VariablesTableView implements SwingItemView {
 	 * @return
 	 */
 	static Component generateRenderer(DesignInstance designInstance) {
+		if (designInstance == null) {
+			return null;
+		}
 		Form designDefintion = designInstance.detail();
 		SwingFormView view = SwingFormFactory.create(designDefintion);
 		

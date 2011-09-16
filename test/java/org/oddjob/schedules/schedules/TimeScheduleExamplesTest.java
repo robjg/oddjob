@@ -10,6 +10,7 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -35,7 +36,7 @@ public class TimeScheduleExamplesTest extends TestCase {
     	assertEquals("14:00", schedule.getTo());
     	
     	
-    	IntervalTo next = schedule.nextDue(new ScheduleContext(
+    	Interval next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2011-02-15 16:05")));
     	
     	IntervalTo expected = new IntervalTo(
@@ -61,7 +62,7 @@ public class TimeScheduleExamplesTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	IntervalTo next = schedule.nextDue(new ScheduleContext(
+    	Interval next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2011-02-15 16:05")));
     	
     	IntervalTo expected = new IntervalTo(

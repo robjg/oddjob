@@ -55,8 +55,7 @@ final public class ScheduleList implements Serializable, Schedule {
 
 	public Schedule[] getSchedules() {
 		return this.schedules.toArray(new Schedule[0]);
-	}
-	
+	}	
 	
 	/**
 	 * The number of subschedules this list contains.
@@ -71,34 +70,34 @@ final public class ScheduleList implements Serializable, Schedule {
 	 *  (non-Javadoc)
 	 * @see org.treesched.Schedule#nextDue(java.util.Date)
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		Date now = context.getDate();
 		
 		logger.debug(this + ": in date " + now);
 		
 		if (schedules == null || schedules.size() == 0) {
-			return context.getParentInterval();
+			return null;
 		}
 		
-		IntervalTo candidate = null;
+		ScheduleResult candidate = null;
 		
 		int i = 1;		
 		for	(Schedule schedule : schedules) {
 			
 			logger.debug(this + ": evaluating schedule " + i++ + " (" + schedule + ")");
 			
-			IntervalTo nextDue = schedule.nextDue(context);
-		    if (context.getParentInterval() != null) {
-		        nextDue = context.getParentInterval().limit(nextDue);
-		    }			
+			ScheduleResult nextDue = schedule.nextDue(context);
+			
 			if (nextDue != null) {
-			    if (candidate == null || nextDue.isBefore(candidate)) {
+			    if (candidate == null || new IntervalHelper(
+			    		nextDue).isBefore(candidate)) {
 			        candidate = nextDue;
 			    }
 			}
 		}
 		
 		logger.debug(this + ": returning " + candidate);
+		
 		return candidate;
 	}
 

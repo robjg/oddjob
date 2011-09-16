@@ -25,7 +25,7 @@ import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.schedules.DayOfWeekSchedule;
+import org.oddjob.schedules.schedules.WeeklySchedule;
 
 /**
  *
@@ -44,11 +44,11 @@ public class TimerDesFaTest extends TestCase {
 			"                  haltOnFailure='true'" +
 			"                  skipMissedRuns='true'>" +
 			"   <schedule>" +
-			"    <s:dayofweek on=\"7\">" +
+			"    <s:weekly on=\"7\">" +
 			"     <refinement>" +
 			"     <s:time from=\"12:00\" to=\"16:00\"/>" +
 			"     </refinement>" +
-			"    </s:dayofweek>" +
+			"    </s:weekly>" +
 			"   </schedule>" +
 			"   <job>" +
 			"    <echo text='Do Something Useful'/>" +
@@ -90,7 +90,7 @@ public class TimerDesFaTest extends TestCase {
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("America/Chicago", timer.getTimeZone());
-		assertEquals(new Integer(7), ((DayOfWeekSchedule) timer.getSchedule()).getFrom());
+		assertEquals(7, ((WeeklySchedule) timer.getSchedule()).getFrom().getDayNumber());
 		assertEquals(true, timer.isHaltOnFailure());
 		assertEquals(true, timer.isSkipMissedRuns());
 		assertEquals(1, Helper.getChildren(timer).length);

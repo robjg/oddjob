@@ -118,7 +118,7 @@ public class DateUtils {
 	 * @return The date one millisecond later.
 	 */	
 	public static Date oneMillisAfter(Date date) {
-		if (date.getTime() == Interval.END_OF_TIME) {
+		if (date.getTime() == IntervalBase.END_OF_TIME) {
 			return null;
 		}
 		return new Date(date.getTime() + 1);

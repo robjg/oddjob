@@ -6,14 +6,19 @@
                     <message>
                         <invoke function="greeting">
                             <source>
-                                <bean class='org.oddjob.script.GreetingService'/>
+                                <bean
+                                    class='org.oddjob.script.GreetingService'/>
                             </source>
                             <parameters>
-                                <now>
-                                    <clock>
-                                        <value value="${clock}"/>
-                                    </clock>
-                                </now>
+                                <schedule>
+                                    <date>
+                                        <value value='${date}'/>
+                                    </date>
+                                    <schedule>
+                                        <schedules:now
+                                            xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                                    </schedule>
+                                </schedule>
                             </parameters>
                         </invoke>
                     </message>

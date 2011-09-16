@@ -11,6 +11,7 @@ import org.oddjob.schedules.DateUtils;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -59,8 +60,10 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 
 	/**
 	 * @oddjob.property to
-	 * @oddjob.description The to date for the schedule. Defaults to the 
-	 * a long time away Defaults to (292 million and something A.D.).
+	 * @oddjob.description The to date for the schedule. This date is
+	 * inclusive, the defined interval is up to and including the last
+	 * millisecond of this date. This defaults to
+	 * a long time away (292 million and something A.D.).
 	 * @oddjob.required No.
 	 * 
 	 * @param endDateString The end date. May be null.
@@ -157,7 +160,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 *  (non-Javadoc)
 	 * @see org.treesched.Schedule#nextDue(java.util.Date)
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		
 		ParentChildSchedule parentChild = 
 			new ParentChildSchedule(new ThisSchedule(), getRefinement());

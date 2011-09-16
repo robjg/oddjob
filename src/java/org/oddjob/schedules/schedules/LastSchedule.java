@@ -5,10 +5,12 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.IntervalTo;
+import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.IntervalHelper;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * @oddjob.description This schedule will return it's last due nested 
@@ -32,7 +34,7 @@ final public class LastSchedule extends AbstractSchedule implements Serializable
 	/**
 	 * Calculate the next due interval within the given interval.
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		Date now = context.getDate();
 		if (now == null) {
 	        return null;
@@ -43,23 +45,20 @@ final public class LastSchedule extends AbstractSchedule implements Serializable
 		
 		logger.debug(this + ": in date is " + now);
 		
-		IntervalTo last = null;						
+		ScheduleResult last = null;						
 		Date use = now;
 		
 		Schedule child = getRefinement();
 		
 		while(true) {
 			logger.debug(this + ": use date is " + use);
-			IntervalTo candidate = child.nextDue(context.move(use));
-			if (context.getParentInterval() != null) {
-				candidate = context.getParentInterval().limit(candidate);
-			}
+			ScheduleResult candidate = child.nextDue(context.move(use));
 			
 			if (candidate == null) {
 			    break;
 			}
 			last = candidate;
-			use = candidate.getUpToDate();
+			use = candidate.getToDate();
 		}
 		
 		return last;

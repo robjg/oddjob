@@ -48,7 +48,7 @@ public class ScheduleElementTest extends TestCase {
 			"   <jobs>" +
 			"    <variables id='vars'>" +
 			"     <sched>" +
-			"        <s:dayofweek on='2'/>" +
+			"        <s:weekly on='2'/>" +
 			"     </sched>" +
 			"    </variables>" +
 			"    <bean id='test' class='" + OurJob.class.getName() + "'" +

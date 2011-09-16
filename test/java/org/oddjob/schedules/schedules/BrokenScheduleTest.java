@@ -15,11 +15,15 @@ import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleList;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.units.DayOfMonth;
+import org.oddjob.schedules.units.DayOfWeek;
 
 /**
  * 
@@ -28,17 +32,17 @@ public class BrokenScheduleTest extends TestCase {
 	
 	static Schedule brokenSchedule() throws ParseException, NoConversionAvailableException, ConversionFailedException {
 		
-		DayOfWeekSchedule d1 = new DayOfWeekSchedule();
-		d1.setOn(1);
-		DayOfWeekSchedule d2 = new DayOfWeekSchedule();
-		d2.setOn(3);
+		WeeklySchedule d1 = new WeeklySchedule();
+		d1.setOn(DayOfWeek.Days.MONDAY);
+		WeeklySchedule d2 = new WeeklySchedule();
+		d2.setOn(DayOfWeek.Days.WEDNESDAY);
 
 		ScheduleList s1 = new ScheduleList();
 		s1.setSchedules(new Schedule[] { d1, d2 });
 		
-		DayOfYearSchedule s2 = new DayOfYearSchedule();
-		s2.setFrom("02-15");
-		s2.setTo("02-25");
+		YearlySchedule s2 = new YearlySchedule();
+		s2.setFromDate("02-15");
+		s2.setToDate("02-25");
 		
 		BrokenSchedule b = new BrokenSchedule();
 		b.setSchedule(s1);
@@ -54,7 +58,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		IntervalTo[] results = roller.resultsFrom(DateHelper.parseDate("2003-02-01"));
+		Interval[] results = roller.resultsFrom(DateHelper.parseDate("2003-02-01"));
 
 		expected = new IntervalTo(
 				DateHelper.parseDate("2003-02-03"),
@@ -101,7 +105,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		IntervalTo[] results = roller.resultsFrom(
+		Interval[] results = roller.resultsFrom(
 				DateHelper.parseDate("2003-02-15"));
 
 		expected = new IntervalTo(
@@ -125,7 +129,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		IntervalTo[] results = roller.resultsFrom(
+		Interval[] results = roller.resultsFrom(
 				DateHelper.parseDate("2003-02-26"));
 
 		expected = new IntervalTo(
@@ -142,10 +146,45 @@ public class BrokenScheduleTest extends TestCase {
 
 	}
 	
+	/** 
+	 * If a schedule spans the break, the break is ignored.
+	 * (because the schedule start before the break).
+	 * 
+	 * @throws ParseException
+	 */
+	public void testScheduleSpansBreaks() throws ParseException {
+		
+		MonthlySchedule schedule = new MonthlySchedule();
+		
+		MonthlySchedule breaks = new MonthlySchedule();
+		breaks.setOnDay(new DayOfMonth.Number(13));
+		
+		BrokenSchedule test = new BrokenSchedule();
+		test.setBreaks(breaks);
+		test.setSchedule(schedule);
+		
+		ScheduleRoller roller = new ScheduleRoller(test);
+		
+		Interval[] results = roller.resultsFrom(
+				DateHelper.parseDate("2011-09-10"));
+		
+		IntervalTo expected = new IntervalTo(
+				DateHelper.parseDate("2011-09-01"),
+				DateHelper.parseDate("2011-10-01"));
+		
+		assertEquals(expected, results[0]);
+		
+	}
+	
+	/**
+	 * Test when a time overlaps into the break.
+	 * 
+	 * @throws ParseException
+	 */
 	public void testOverlappingSchedule() throws ParseException {
 		
-		DayOfWeekSchedule dayOfWeekSchedule = new DayOfWeekSchedule();
-		dayOfWeekSchedule.setOn(4);
+		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
+		dayOfWeekSchedule.setOn(DayOfWeek.Days.THURSDAY);
 		
 		TimeSchedule time = new TimeSchedule();
 		time.setFrom("22:00");
@@ -154,8 +193,8 @@ public class BrokenScheduleTest extends TestCase {
 		dayOfWeekSchedule.setRefinement(time);
 		
 		DateSchedule aBreak = new DateSchedule();
-		aBreak.setFrom("2009-02-27");
-		aBreak.setTo("2009-03-09");
+		aBreak.setFrom("2009-02-27"); // A Friday
+		aBreak.setTo("2009-03-09"); // A week Monday
 
 		BrokenSchedule test = new BrokenSchedule();
 		
@@ -169,7 +208,7 @@ public class BrokenScheduleTest extends TestCase {
 		ScheduleContext scheduleContext = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-24 12:00"));
 		
-		IntervalTo result = test.nextDue(scheduleContext);
+		ScheduleResult result = test.nextDue(scheduleContext);
 		
 		assertEquals(expected, result);
 
@@ -214,8 +253,8 @@ public class BrokenScheduleTest extends TestCase {
 	 */
 	public void testOverlappingIntervalSchedule() throws ParseException {
 		
-		DayOfWeekSchedule dayOfWeekSchedule = new DayOfWeekSchedule();
-		dayOfWeekSchedule.setOn(4);
+		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
+		dayOfWeekSchedule.setOn(DayOfWeek.Days.THURSDAY);
 		
 		TimeSchedule time = new TimeSchedule();
 		time.setFrom("22:00");
@@ -240,7 +279,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 		ScheduleRoller roller = new ScheduleRoller(test);
 		
-		IntervalTo[] results = roller.resultsFrom(
+		Interval[] results = roller.resultsFrom(
 				DateHelper.parseDateTime("2009-02-26 23:30"));
 		
 		expected = new IntervalTo(
@@ -271,7 +310,7 @@ public class BrokenScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	IntervalTo next = schedule.nextDue(new ScheduleContext(
+    	ScheduleResult next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2011-12-24 11:00")));
     	
     	IntervalTo expected = new IntervalTo(

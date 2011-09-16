@@ -1,0 +1,24 @@
+<schedules:broken xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <schedule>
+        <schedules:monthly onDay="LAST">
+                <refinement>
+                    <schedules:time at="17:00"/>
+                </refinement>
+        </schedules:monthly>
+    </schedule>
+    <breaks>
+        <schedules:list>
+            <schedules>
+                <schedules:weekly from="SATURDAY" to="SUNDAY"/>
+                <value value="${holidays}"/>
+            </schedules>
+        </schedules:list>        
+    </breaks>
+    <alternative>
+        <schedules:day-before>
+            <refinement>
+                <schedules:time at="21:00"/>
+            </refinement>
+        </schedules:day-before>
+    </alternative>
+</schedules:broken>

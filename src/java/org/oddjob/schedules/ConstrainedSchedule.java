@@ -13,7 +13,6 @@ import org.oddjob.schedules.schedules.ParentChildSchedule;
  * 
  * @author Rob Gordon
  */
-
 abstract public class ConstrainedSchedule extends AbstractSchedule {
 
     private static final long serialVersionUID = 20050226;
@@ -60,27 +59,25 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	
 		Calendar fromCal = fromCalendar(context.getDate(), context.getTimeZone());
 		Calendar toCal = toCalendar(context.getDate(), context.getTimeZone());
-
-		CalendarUnit unit = intervalBetween();
 		
 		Calendar  nowCal = Calendar.getInstance(context.getTimeZone());
 		nowCal.setTime(context.getDate());
 		
 	    if (fromCal.after(toCal)) {
 	        if (nowCal.before(toCal)) {
-	        	fromCal.add(unit.getField(), -1 * unit.getValue());
+	        	fromCal = shiftFromCalendar(fromCal, -1);
 	        }
 	    } 
 	    else {
 	        if (nowCal.compareTo(toCal) >= 0) {
-	        	fromCal.add(unit.getField(), unit.getValue());
+	        	fromCal = shiftFromCalendar(fromCal, 1);
 	        }
 	    }
 
         if (nowCal.compareTo(toCal) >= 0) {
         	// Need to re-get from time because of leap years.
         	// - The end of February might change.
-        	toCal.add(unit.getField(), unit.getValue());
+        	toCal = shiftToCalendar(toCal, 1);
         	ScheduleContext shiftedContext = context.move(
         			DateUtils.oneMillisBefore(toCal.getTime()));
         	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
@@ -100,29 +97,27 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 		Calendar fromCal = fromCalendar(context.getDate(), context.getTimeZone());
 		Calendar toCal = toCalendar(context.getDate(), context.getTimeZone());
 
-		CalendarUnit unit = intervalBetween();
-		
 		Calendar  nowCal = Calendar.getInstance(context.getTimeZone());
 		nowCal.setTime(context.getDate());
 		
 	    if (fromCal.after(toCal)) {
 	        if (nowCal.before(toCal)) {
-	        	fromCal.add(unit.getField(), -2 * unit.getValue());
+	        	fromCal = shiftFromCalendar(fromCal, -2);
 	        }
 	        else {
-	        	fromCal.add(unit.getField(), -1 * unit.getValue());	        	
+	        	fromCal = shiftFromCalendar(fromCal, -1);
 	        }
 	    } 
 	    else {
 	        if (nowCal.before(toCal)) {
-	        	fromCal.add(unit.getField(), -1 * unit.getValue());
+	        	fromCal = shiftFromCalendar(fromCal, -1);
 	        }
 	    }
 
         if (nowCal.before(toCal)) {
         	// Need to re-get from time because of leap years.
         	// - The end of February might change.
-        	toCal.add(unit.getField(), -1 * unit.getValue());
+        	toCal = shiftToCalendar(toCal, -1);
         	ScheduleContext shiftedContext = context.move(
         			DateUtils.oneMillisBefore(toCal.getTime()));
         	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
@@ -131,11 +126,27 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	    return new IntervalTo(fromCal.getTime(), toCal.getTime());
 	}
 	
+	protected Calendar shiftFromCalendar(Calendar calendar, int intervals) {
+		return shiftCalendar(calendar, intervals);
+	}
+	
+	protected Calendar shiftToCalendar(Calendar calendar, int intervals) {
+		return shiftCalendar(calendar, intervals);
+	}
+	
+	private Calendar shiftCalendar(Calendar calendar, int intervals) {
+		CalendarUnit unit = intervalBetween();
+		
+    	calendar.add(unit.getField(), intervals * unit.getValue());
+		
+    	return calendar;
+	}
+	
 	/*
 	 *  (non-Javadoc)
 	 * @see org.treesched.Schedule#nextDue(java.util.Date)
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {
+	public ScheduleResult nextDue(ScheduleContext context) {
 		
 		Date now = context.getDate();
 		
@@ -150,13 +161,16 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 				}
 			}, getRefinement());
 		
-		IntervalTo nextInterval = parentChild.nextDue(context);		
+		ScheduleResult nextResult = parentChild.nextDue(context);		
 		
-		if (nextInterval == null) {
+		if (nextResult == null) {
 			return null;
 		}
 		
-		if (now.before(nextInterval.getFromDate())) {
+		// If we are before the next interval we need to check we
+		// aren't still in the last (because a child interval
+		// could extend beyond the limit of it's parent).
+		if (now.before(nextResult.getFromDate())) {
 			
 			parentChild = 
 				new ParentChildSchedule(new Schedule() {
@@ -165,19 +179,20 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 					}
 				}, getRefinement());
 			
-			IntervalTo previous = parentChild.nextDue(context);
+			ScheduleResult previous = parentChild.nextDue(context);
 
-			if (previous != null && now.before(previous.getUpToDate())) {
-				return nextInterval = previous;
+			if (previous != null && now.before(previous.getToDate())) {
+				nextResult = previous;
 			}				
 		}
 		
 		logger.debug(ConstrainedSchedule.this + ": in date is " + now + 
-				", next interval is " + nextInterval);
+				", next interval is " + nextResult);
 
-		return nextInterval;
+		return nextResult;
 	}
 
+	
 	/**
 	 * Force sub classes to override toString.
 	 * 

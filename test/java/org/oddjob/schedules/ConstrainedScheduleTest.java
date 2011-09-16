@@ -5,24 +5,25 @@ import java.text.ParseException;
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.schedules.schedules.DayOfWeekSchedule;
+import org.oddjob.schedules.schedules.WeeklySchedule;
+import org.oddjob.schedules.units.DayOfWeek;
 
 public class ConstrainedScheduleTest extends TestCase {
 
 	public void testLastDayOfWeek() throws ParseException {
 		
-		DayOfWeekSchedule test = new DayOfWeekSchedule();
-		test.setFrom(1);
-		test.setTo(5);
+		WeeklySchedule test = new WeeklySchedule();
+		test.setFrom(DayOfWeek.Days.MONDAY);
+		test.setTo(DayOfWeek.Days.FRIDAY);
 		
-		Interval expected = new IntervalTo(
+		IntervalBase expected = new IntervalTo(
         		DateHelper.parseDateTime("2009-02-16 00:00"), 
         		DateHelper.parseDateTime("2009-02-21 00:00"));
 		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-21 00:00"));
     	
-		Interval result = test.lastInterval(context);
+		IntervalBase result = test.lastInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -44,18 +45,18 @@ public class ConstrainedScheduleTest extends TestCase {
 	
 	public void testLastDayOfWeekOverllaping() throws ParseException {
 		
-		DayOfWeekSchedule test = new DayOfWeekSchedule();
-		test.setFrom(5);
-		test.setTo(1);
+		WeeklySchedule test = new WeeklySchedule();
+		test.setFrom(DayOfWeek.Days.FRIDAY);
+		test.setTo(DayOfWeek.Days.MONDAY);
 		
-		Interval expected = new IntervalTo(
+		IntervalBase expected = new IntervalTo(
         		DateHelper.parseDateTime("2009-02-27 00:00"), 
         		DateHelper.parseDateTime("2009-03-03 00:00"));
 		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-03-03"));
     	
-		Interval result = test.lastInterval(context);
+		IntervalBase result = test.lastInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -77,18 +78,18 @@ public class ConstrainedScheduleTest extends TestCase {
 	
 	public void testNextDayOfWeek() throws ParseException {
 		
-		DayOfWeekSchedule test = new DayOfWeekSchedule();
-		test.setFrom(1);
-		test.setTo(5);
+		WeeklySchedule test = new WeeklySchedule();
+		test.setFrom(DayOfWeek.Days.MONDAY);
+		test.setTo(DayOfWeek.Days.FRIDAY);
 		
-		Interval expected = new IntervalTo(
+		IntervalBase expected = new IntervalTo(
         		DateHelper.parseDateTime("2009-02-23 00:00"), 
         		DateHelper.parseDateTime("2009-02-28 00:00"));
 		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-21 00:00"));
     	
-		Interval result = test.nextInterval(context);
+		IntervalBase result = test.nextInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -110,18 +111,18 @@ public class ConstrainedScheduleTest extends TestCase {
 	
 	public void testNextDayOfWeekOverllaping() throws ParseException {
 		
-		DayOfWeekSchedule test = new DayOfWeekSchedule();
-		test.setFrom(5);
-		test.setTo(1);
+		WeeklySchedule test = new WeeklySchedule();
+		test.setFrom(DayOfWeek.Days.FRIDAY);
+		test.setTo(DayOfWeek.Days.MONDAY);
 		
-		Interval expected = new IntervalTo(
+		IntervalBase expected = new IntervalTo(
         		DateHelper.parseDateTime("2009-03-06 00:00"), 
         		DateHelper.parseDateTime("2009-03-10 00:00"));
 		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-03-03"));
     	
-		Interval result = test.nextInterval(context);
+		IntervalBase result = test.nextInterval(context);
 		
 		assertEquals(expected, result);
 		

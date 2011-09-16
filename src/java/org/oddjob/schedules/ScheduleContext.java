@@ -25,7 +25,7 @@ public class ScheduleContext {
 	 */
 	private final Map<Object, Object> data;
 		
-	private final IntervalTo parentInterval;
+	private final Interval parentInterval;
 	
 	/**
 	 * Constructor for a new context with a date to evaluate from, and using 
@@ -70,7 +70,7 @@ public class ScheduleContext {
 	 * @param data The data map.
 	 */
 	public ScheduleContext(Date now, TimeZone timeZone, 
-			Map<Object, Object> data, IntervalTo parentInterval) {
+			Map<Object, Object> data, Interval parentInterval) {
 
 		if (now == null) {
 			throw new NullPointerException("Date is Null.");
@@ -126,7 +126,15 @@ public class ScheduleContext {
 		return data.get(key);
 	}
 	
-	public IntervalTo getParentInterval() {
+	/**
+	 * The parent interval will be defined by a schedule and
+	 * passed to it's child. Schedules may use this interval
+	 * to limit themselves.
+	 * 
+	 * 
+	 * @return
+	 */
+	public Interval getParentInterval() {
 		return parentInterval;
 	}
 	
@@ -139,7 +147,7 @@ public class ScheduleContext {
 	 * 
 	 * @return A new context. Never null.
 	 */
-	public ScheduleContext spawn(IntervalTo parentInterval) {
+	public ScheduleContext spawn(Interval parentInterval) {
 		ScheduleContext newContext = new ScheduleContext(this.date, 
 				this.timeZone, this.data, parentInterval); 
 		return newContext;
@@ -155,7 +163,7 @@ public class ScheduleContext {
 	 * 
 	 * @return A new context. Never null.
 	 */
-	public ScheduleContext spawn(Date date, IntervalTo parentInterval) {
+	public ScheduleContext spawn(Date date, Interval parentInterval) {
 		ScheduleContext newContext = new ScheduleContext(date, 
 				this.timeZone, this.data, parentInterval); 
 		return newContext;

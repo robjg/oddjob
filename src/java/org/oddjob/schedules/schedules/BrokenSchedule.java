@@ -4,9 +4,12 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.IntervalHelper;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 
 
 
@@ -58,6 +61,13 @@ public class BrokenSchedule implements Serializable, Schedule{
 	private Schedule breaks;
 
 	/**
+	 * @oddjob.property
+	 * @oddjob.description The breaks. 
+	 * @oddjob.required Yes.
+	 */
+	private Schedule alternative;
+	
+	/**
 	 * Set the schedule to break up.
 	 * 
 	 * @param schedule The schedule to break up.
@@ -94,10 +104,18 @@ public class BrokenSchedule implements Serializable, Schedule{
 		return this.breaks;
 	}
 
+	public Schedule getAlternative() {
+		return alternative;
+	}
+
+	public void setAlternative(Schedule alternative) {
+		this.alternative = alternative;
+	}
+
 	/**
 	 * Implement the schedule.
 	 */
-	public IntervalTo nextDue(ScheduleContext context) {		
+	public ScheduleResult nextDue(ScheduleContext context) {		
 		Date now = context.getDate();
 
 		logger.debug(this + ": in interval is " + now);
@@ -119,33 +137,67 @@ public class BrokenSchedule implements Serializable, Schedule{
 				return null;
 			}
 
-			IntervalTo next = schedule.nextDue(context.move(use));	
+			ScheduleResult next = schedule.nextDue(context.move(use));	
 			// if the next schedule is never due return.
 			if (next == null) {
 				return null;
 			}
 
 			// find the first exclusion interval
-			IntervalTo exclude = breaks.nextDue(context.move(next.getFromDate()));
+			Interval exclude = mergeBreaks(context.move(next.getFromDate()));
 				
 			if (exclude == null) {
 			    return next;
 			}
 			// if this interval is before the break
-			if (next.isBefore(exclude)) {
+			if (new IntervalHelper(next).isBefore(exclude)) {
 				return next;				
 			}
 			
-			// if we got here the last interval is blocked by an exclude so move
-			// the interval on.			
-			use = next.getUpToDate();
+			// if we got here the last interval is blocked by an exclude.
+			
+			// first see if there is an alternative.
+			if (alternative != null) {
+				return alternative.nextDue(context.spawn(use, exclude));
+			}
+			
+			// otherwise move the interval on.
+
+			use = next.getToDate();
 		}
 	}
 
+	private Interval mergeBreaks(ScheduleContext context) {
+		
+		ScheduleContext useContext = context;
+		
+		Interval merged = null;
+		while (true) {
+			Interval exclude = breaks.nextDue(useContext);
+			if (exclude == null) {
+				return merged;
+			}
+			if (merged == null) {
+				merged = exclude;
+			}
+			else {
+				if (exclude.getFromDate().after(merged.getToDate())) {
+					return merged;
+				}
+				
+				merged = new IntervalTo(merged.getFromDate(), exclude.getToDate());
+			}
+			
+			useContext = useContext.move(merged.getToDate());
+		}
+	}
+	
+	
+	
 	/**
 	 * Provide a simple string description.
 	 */	
 	public String toString() {
-		return "Broken Schedule";
+		return "Broken Schedule " + schedule + " with breaks " + breaks;
 	}
 }

@@ -3,6 +3,6 @@
         <schedules:time at="10:00"/>
     </schedule>
     <breaks>
-        <schedules:dayofyear from="12-25" to="12-26"/>
+        <schedules:yearly fromDate="12-25" toDate="12-26"/>
     </breaks>
 </schedules:broken>

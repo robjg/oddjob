@@ -1,0 +1,19 @@
+<schedules:after xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <refinement>
+        <schedules:broken>
+            <schedule>
+                <schedules:weekly from="MONDAY" to="FRIDAY">
+                    <refinement>
+                        <schedules:time/>
+                    </refinement>
+                </schedules:weekly>
+            </schedule>
+            <breaks>
+                <schedules:date on="2011-05-02"/>
+            </breaks>
+        </schedules:broken>
+    </refinement>
+    <apply>
+        <schedules:time from="08:00"/>
+    </apply>
+</schedules:after>

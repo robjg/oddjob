@@ -341,6 +341,13 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		oddjob1.run();
 
+		assertEquals(ParentState.ACTIVE, oddjob1.lastStateEvent().getState());
+		
+//		OddjobExplorer explorer = new OddjobExplorer();
+//		explorer.setOddjob(oddjob1);
+//		explorer.setArooaSession(new StandardArooaSession());
+//		explorer.run();
+		
 		OddjobLookup lookup1 = new OddjobLookup(oddjob1);
 		
 		while (!DateHelper.parseDateTime("2010-07-12 07:00").equals(
@@ -355,11 +362,6 @@ public class TimerRetryCombinationTest extends TestCase {
 		assertEquals(1, hards1);
 		assertEquals(1, softs1);
 		assertEquals(1, executions1);
-		
-//		OddjobExplorer explorer = new OddjobExplorer();
-//		explorer.setOddjob(oddjob1);
-//		explorer.setArooaSession(new StandardArooaSession());
-//		explorer.run();
 		
 		oddjob1.destroy();
 		

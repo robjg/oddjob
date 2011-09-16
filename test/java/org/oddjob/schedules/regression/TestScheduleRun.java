@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -78,7 +79,7 @@ public class TestScheduleRun {
 		}
 
 //		DateFormat format = new SimpleDateFormat("dd-MMM-yy HH:mm:ss:SSS");
-		IntervalTo nextDue = schedule.nextDue(
+		Interval nextDue = schedule.nextDue(
 				new ScheduleContext(date));
 		
 		IntervalTo expected = getExpected();

@@ -37,10 +37,10 @@ public class ScheduleCalculator {
 	private Schedule currentSchedule;
 				
 	/** The current/last interval in which schedule is due */
-	private IntervalTo currentInterval;
+	private ScheduleResult currentInterval;
 
 	/** last normal interval from the regular schedule */
-	private IntervalTo normalInterval;
+	private ScheduleResult normalInterval;
 
 	/** Initialised */
 	private boolean initialised;
@@ -139,7 +139,7 @@ public class ScheduleCalculator {
 	/**
 	 * Initialize the scheduler.
 	 */
-	synchronized public void initialise(IntervalTo lastComplete, Map<Object, Object> contextData) {
+	synchronized public void initialise(Interval lastComplete, Map<Object, Object> contextData) {
 		if (initialised) {
 			throw new IllegalStateException("Already initialised.");
 		}
@@ -152,7 +152,7 @@ public class ScheduleCalculator {
 		if (lastComplete != null) {
 			// work with a time that is one millisecond after the lastComplete
 			// interval.
-			Date useTime = lastComplete.getUpToDate(); 
+			Date useTime = lastComplete.getToDate(); 
 			normalContext = new ScheduleContext(
 					useTime, timeZone, contextData);
 		    currentInterval = currentSchedule.nextDue(normalContext);
@@ -201,9 +201,9 @@ public class ScheduleCalculator {
 		
 		logger.debug("Calculate Complete");
 		currentSchedule(normalSchedule);
-		IntervalTo lastComplete = normalInterval;
+		Interval lastComplete = normalInterval;
 		normalContext = normalContext.move(
-				DateUtils.oneMillisAfter(currentInterval.getToDate()));
+				currentInterval.getToDate());
 		// calculate the next due time.
 		currentInterval = currentSchedule.nextDue(
 				normalContext);
@@ -229,7 +229,7 @@ public class ScheduleCalculator {
 						timeZone);
 				
 				// add parent limits to the context. Used by Interval.
-			    if (!normalInterval.isPoint()) {
+			    if (!new IntervalHelper(normalInterval).isPoint()) {
 			    	retryContext = retryContext.spawn(normalInterval);
 			    }
 			    
@@ -237,14 +237,14 @@ public class ScheduleCalculator {
 			} 
 			else {
 				// no retry
-				normalContext = normalContext.move(normalInterval.getUpToDate());
+				normalContext = normalContext.move(normalInterval.getToDate());
 		        currentInterval = normalSchedule.nextDue(normalContext);
 		        normalInterval = currentInterval;
 		        fireFailed();
 			}
 	    }
 	  	else {
-	  		retryContext = retryContext.move(currentInterval.getUpToDate());
+	  		retryContext = retryContext.move(currentInterval.getToDate());
 	  		
 	  		retryAndFail();
 	  	}	  	
@@ -255,20 +255,25 @@ public class ScheduleCalculator {
 		
         currentInterval = retrySchedule.nextDue(retryContext);
         
-        // if the normal interval isn't a point then use it to
-        // limit the retry schedule.
-	    if (!normalInterval.isPoint()) {
-	    	currentInterval = normalInterval.limit(currentInterval);
-	    }
 	    
         if (currentInterval != null) {
-        	// there is a retry
-	        fireRetry();
+        	
+        	Interval retryInterval = currentInterval;
+        	
+            // if the normal interval isn't a point then use it to
+            // limit the retry schedule.
+            IntervalHelper helper = new IntervalHelper(retryInterval);
+            
+    	    if (!helper.isPoint()) {
+    	    	retryInterval = helper.limit(currentInterval);
+    	    }
+    	    
+	        fireRetry(retryInterval);
         } 
         else {
         	// else fail
 			currentSchedule(normalSchedule);
-			normalContext = normalContext.move(normalInterval.getUpToDate());
+			normalContext = normalContext.move(normalInterval.getUseNext());
 	        currentInterval = normalSchedule.nextDue(normalContext);
 	        normalInterval = currentInterval;
             logger.debug("Switched back to normal schedule and next interval is [" + currentInterval + "]");	        
@@ -301,7 +306,7 @@ public class ScheduleCalculator {
 		}
 	}
 	    
-	protected void fireComplete(IntervalTo lastComplete) {
+	protected void fireComplete(Interval lastComplete) {
 		Date scheduleDate;
 	    if (normalInterval == null) {
 	        scheduleDate = null;
@@ -316,21 +321,17 @@ public class ScheduleCalculator {
 		}		
 	}
 	
-	protected void fireRetry() {
-		Date scheduleDate;
+	protected void fireRetry(Interval limits) {
 	    if (normalInterval == null) {
 	        throw new IllegalStateException("Can't retry without have a normal interval!");
 	    }
-	    else {
-	        scheduleDate = normalInterval.getFromDate();
-	    }
-		Date retryDate;
-	    if (currentInterval == null) {
+	    if (limits == null) {
 	        throw new IllegalStateException("Can't retry without have an interval!");
 	    }
-	    else {
-	        retryDate = currentInterval.getUpToDate();
-	    }
+
+	    Date scheduleDate = normalInterval.getFromDate();
+		Date retryDate = limits.getToDate();
+	        
 		for (Iterator<ScheduleListener> it = listeners.iterator(); it.hasNext(); ) {
 			ScheduleListener l = (ScheduleListener) it.next();
 			l.retry(scheduleDate, retryDate);

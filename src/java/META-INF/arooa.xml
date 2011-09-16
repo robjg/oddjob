@@ -8,7 +8,7 @@
                 <value value='org.oddjob.values.types.FormatType$Conversions'/>
                 <value value='org.oddjob.values.types.TokenizerType$Conversions'/>
                 <value value='org.oddjob.script.InvokeType$Conversions'/>
-                <value value='org.oddjob.values.types.NowType$Conversions'/>
+                <value value='org.oddjob.schedules.ScheduleType$Conversions'/>
                 <value value='org.oddjob.values.types.PropertyType$Conversions'/>
                 <value value='org.oddjob.values.properties.PropertiesType$Conversions'/>
                 <value value='org.oddjob.sql.SQLConversions'/>
@@ -80,7 +80,7 @@
                 <is element='input-confirm' className='org.oddjob.input.requests.InputConfirm'/>
                 <is element='input-message' className='org.oddjob.input.requests.InputMessage'/>
                 <is element='logout' className='org.oddjob.logging.log4j.LogoutType'/>
-                <is element='now' className='org.oddjob.values.types.NowType'/>
+                <is element='schedule' className='org.oddjob.schedules.ScheduleType'/>
                 <is element='oddballs'
                     className='org.oddjob.oddballs.OddballsDescriptorFactory'/>
                 <is element='properties'

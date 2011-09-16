@@ -38,15 +38,15 @@ import org.oddjob.arooa.life.ArooaSessionAware;
  * 
  * {@oddjob.xml.resource org/oddjob/script/InvokeMethod.xml}
  * 
- * The clock reference for the now type is there so that it can be injected
- * during a test, and there for get a guaranteed result. When this is example
- * is run as is, the null clock reference causes the system clock to be used
- * there by giving a real time greeting.
+ * The ${date} reference is there so that it can be injected
+ * during a test, to get a guaranteed result. When this is example
+ * is run as is, this is null so the system clock to be used
+ * there by giving a real time based greeting.
  * <p>
  * One subtle point to note about Oddjob configuration that this example
  * highlights is to do with when types are resolved. 
  * The {@code invoke} type will be resolved when the 
- * {@code echo} job is run. The {@code now} type will be resolved when the 
+ * {@code echo} job is run. The {@code schedule} type will be resolved when the 
  * {@code variables} job is
  * run. If the {@code echo} job were scheduled to run several hours after 
  * the {@code variables} job had run it would not give the correct greeting!

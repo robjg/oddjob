@@ -17,13 +17,14 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
-import org.oddjob.schedules.IntervalTo;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
 
@@ -82,7 +83,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * schedule.
 	 * @oddjob.required Set automatically.
 	 */ 
-	private volatile IntervalTo current;
+	private volatile ScheduleResult current;
 	
 	@ArooaHidden
 	@Inject
@@ -261,7 +262,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * 
 	 * @return The interval, null if not due again. 
 	 */
-	public IntervalTo getCurrent() {
+	public ScheduleResult getCurrent() {
 		return current;
 	}
 
@@ -281,7 +282,7 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 	
 	
-	abstract protected IntervalTo getLimits();
+	abstract protected Interval getLimits();
 	
 	abstract protected void rescheduleOn(State state) 
 	throws ComponentPersistException;

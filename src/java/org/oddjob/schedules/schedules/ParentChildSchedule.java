@@ -1,8 +1,11 @@
 package org.oddjob.schedules.schedules;
 
-import org.oddjob.schedules.IntervalTo;
+import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.IntervalHelper;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * A help class for resolving a single parent/child schedule.
@@ -20,25 +23,28 @@ public class ParentChildSchedule implements Schedule {
 		this.child = child;
 	}
 	
-	public IntervalTo nextDue(ScheduleContext context) {
-		IntervalTo parentInterval = limitedParentInterval(context);
+	/**
+	 * Provides the next due interval for the parent and child.
+	 */
+	public ScheduleResult nextDue(ScheduleContext context) {
+		Interval parentInterval = limitedParentInterval(context);
 		
 		if (parentInterval == null) {
 			return null;
 		}
 				
 		if (child == null) {
-			return parentInterval;
+			return new SimpleScheduleResult(parentInterval);
 		}
 		
-		IntervalTo childInterval = childInterval(context, parentInterval);
+		ScheduleResult childInterval = childInterval(context, parentInterval);
 		
 		if (childInterval != null) {
 			return childInterval;
 		}
 		
 		parentInterval = limitedParentInterval(context.move(
-				parentInterval.getUpToDate()));
+				parentInterval.getToDate()));
 		
 		if (parentInterval == null) {
 			return null;
@@ -47,9 +53,17 @@ public class ParentChildSchedule implements Schedule {
 		return childInterval(context, parentInterval);
 	}
 	
-	private IntervalTo limitedParentInterval(ScheduleContext context) {
+	/**
+	 * Find the next due parent interval for the current context
+	 * and if one exists check it isn't limited by the context.
+	 * 
+	 * @param context
+	 * 
+	 * @return The next parent interval.
+	 */
+	private Interval limitedParentInterval(ScheduleContext context) {
 		
-		IntervalTo parentInterval = parent.nextDue(context);
+		Interval parentInterval = parent.nextDue(context);
 		
 		if (parentInterval == null) {
 			return null;
@@ -57,19 +71,24 @@ public class ParentChildSchedule implements Schedule {
 
 		if (context.getParentInterval() != null) {
 		
-			if (context.getParentInterval().limit(parentInterval) == null) {
+			IntervalHelper contextParentIntervalHelper =
+				new IntervalHelper(
+						context.getParentInterval());
+						
+			if (contextParentIntervalHelper.limit(
+							parentInterval) == null) {
 				
 				// One more try. Maybe the child interval was an eager refinement. 
 				// I.e. one that spans midnight - so we want to give it a chance
 				// to be an extended refinement.
 				parentInterval = parent.nextDue(context.move(
-						parentInterval.getUpToDate()));
+						parentInterval.getToDate()));
 				
 				if (parentInterval == null) {
 					return null;
 				}
 				
-				if (context.getParentInterval().limit(parentInterval) == null) {
+				if (contextParentIntervalHelper.limit(parentInterval) == null) {
 					return null;
 				}
 			}
@@ -78,11 +97,20 @@ public class ParentChildSchedule implements Schedule {
 		return parentInterval;
 	}
 	
-	private IntervalTo childInterval(ScheduleContext context, 
-			IntervalTo parentInterval) {
+	/**
+	 * Calculate the next child interval.
+	 * 
+	 * @param context The current context.
+	 * @param parentInterval The parent interval.
+	 * 
+	 * @return The next child interval.
+	 */
+	private ScheduleResult childInterval(ScheduleContext context, 
+			Interval parentInterval) {
 		
 		// if now is before the start of the next interval
-		// pass the start of the next interval to the child.
+		// pass the start of the next interval to the child,
+		// otherwise use now to find the next child interval.
 		if (context.getDate().compareTo(parentInterval.getFromDate()) < 0) {
 		    return child.nextDue(
 		    		context.spawn(

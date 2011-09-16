@@ -40,7 +40,7 @@ class CountScheduleDesign extends ParentSchedule {
 	
 	public Form detail() {
 		return new StandardForm(this).addFormItem(
-				new BorderedGroup("Properties")
+				new BorderedGroup()
 			.add(count.view().setTitle("Count"))
 			.add(getRefinement().view().setTitle("Refinement"))
 			);
@@ -49,11 +49,6 @@ class CountScheduleDesign extends ParentSchedule {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { count, getRefinement() };
-	}
-	
-	public String toString() {
-		return "Count " + (count.attribute() == null 
-				? "" : count.attribute());
 	}
 	
 }

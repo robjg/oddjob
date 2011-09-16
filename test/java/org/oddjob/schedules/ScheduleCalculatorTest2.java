@@ -40,7 +40,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		boolean failed;
 		
 		@Override
-		public void complete(Date scheduleDate, IntervalTo lastComplete) {
+		public void complete(Date scheduleDate, Interval lastComplete) {
 			throw new RuntimeException("Unexpected.");
 		}
 		
@@ -146,7 +146,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		Date scheduleDate;
 		
 		@Override
-		public void complete(Date scheduleDate, IntervalTo lastComplete) {
+		public void complete(Date scheduleDate, Interval lastComplete) {
 			this.scheduleDate = scheduleDate;
 		}
 		

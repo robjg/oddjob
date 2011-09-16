@@ -1,14 +1,14 @@
 <schedules:list xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
     <schedules>
-        <schedules:month from="4" to="9">
+        <schedules:yearly fromMonth="4" toMonth="9">
             <refinement>
                 <schedules:time at="10:00"/>
             </refinement>
-        </schedules:month>
-        <schedules:month from="10" to="3">
+        </schedules:yearly>
+        <schedules:yearly fromMonth="10" toMonth="3">
             <refinement>
                 <schedules:time at="11:00"/>
             </refinement>
-        </schedules:month>
+        </schedules:yearly>
     </schedules>
 </schedules:list>

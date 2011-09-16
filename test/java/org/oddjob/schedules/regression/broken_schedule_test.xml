@@ -27,7 +27,7 @@
 					<breaks>
 						<ft:list>
 							<schedules>
-								<ft:dayofweek from="6" to="7"/>
+								<ft:weekly from="6" to="7"/>
 								<ft:time from="12:00" to="13:00"/>
 							</schedules>
 						</ft:list>
@@ -54,11 +54,11 @@
 			<schedule>
 				<ft:broken>	
 					<schedule>
-						<ft:dayofweek from="1" to="5">
+						<ft:weekly from="1" to="5">
 							<refinement>
 								<ft:time from="09:00" to="17:00"/>
 							</refinement>
-						</ft:dayofweek>
+						</ft:weekly>
 					</schedule>
 					<breaks>
 						<ft:list>

@@ -8,6 +8,7 @@ import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
+import org.oddjob.arooa.design.screem.FieldGroup;
 import org.oddjob.arooa.design.screem.FieldSelection;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
@@ -44,16 +45,15 @@ class TimeScheduleDesign extends ParentSchedule {
 	}
 	
 	public Form detail() {
-		return new StandardForm(this).addFormItem(
-				new BorderedGroup(toString())
-			.add(new FieldSelection()
-					.add(new BorderedGroup()
+		return new StandardForm(this)
+			.addFormItem(new BorderedGroup()
+				.add(new FieldSelection()
+					.add(new FieldGroup()
 						.add(from.view().setTitle("From"))
 						.add(to.view().setTitle("To")))
-					.add(at.view().setTitle("At"))
-					)
-		    .add(getRefinement().view().setTitle("Refinement"))			
-		);				
+					.add(at.view().setTitle("At"))))
+			.addFormItem(new BorderedGroup()
+				.add(getRefinement().view().setTitle("Refinement")));				
 	}
 
 	@Override

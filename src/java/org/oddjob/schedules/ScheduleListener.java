@@ -23,7 +23,7 @@ public interface ScheduleListener {
 	 * @param scheduleDate The new schedule date.
 	 * @param lastComplete The interval of the last schedule.
 	 */
-	public void complete(Date scheduleDate, IntervalTo lastComplete);
+	public void complete(Date scheduleDate, Interval lastComplete);
 	
 	/**
 	 * The job has failed an the retry schedule is in

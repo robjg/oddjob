@@ -8,7 +8,7 @@ import java.util.Date;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.schedules.IntervalTo;
+import org.oddjob.schedules.Interval;
 import org.oddjob.state.CompleteOrNotOp;
 import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
@@ -49,7 +49,7 @@ public class Retry extends TimerBase {
 	
 	private static final long serialVersionUID = 2009091400L; 
 	
-	private IntervalTo limits;
+	private Interval limits;
 	
 	@Override
 	protected StateOperator getStateOp() {
@@ -68,7 +68,7 @@ public class Retry extends TimerBase {
 		// This logic is required because we might be running with a Timer 
 		// that is not missing skipped runs.
 		if (getLimits() != null && 
-				use.compareTo(getLimits().getUpToDate()) >= 0) {
+				use.compareTo(getLimits().getToDate()) >= 0) {
 			use = getLimits().getFromDate();
 		}
 		
@@ -77,12 +77,12 @@ public class Retry extends TimerBase {
 		
 
 	@ArooaAttribute
-	public void setLimits(IntervalTo limits) {
+	public void setLimits(Interval limits) {
 		this.limits = limits;
 	}
 
 	@Override
-	public IntervalTo getLimits() {
+	public Interval getLimits() {
 		return limits;
 	}
 		
@@ -93,7 +93,7 @@ public class Retry extends TimerBase {
 	    	setNextDue(null);
 	    }
 	    else {
-	    	Date use = getCurrent().getUpToDate();
+	    	Date use = getCurrent().getUseNext();
 	    	Date now = getClock().getDate();
 	    	if (use.before(now)) {
 	    		use = now;

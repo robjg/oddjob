@@ -8,6 +8,7 @@ import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
+import org.oddjob.arooa.design.screem.FieldGroup;
 import org.oddjob.arooa.design.screem.FieldSelection;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
@@ -47,16 +48,16 @@ class DayOfWeekScheduleDesign extends ParentSchedule {
 	}
 	
 	public Form detail() {
-		return new StandardForm(this).addFormItem(
-				new BorderedGroup(toString())
-			.add(new FieldSelection()
-					.add(new BorderedGroup()
+		return new StandardForm(this)
+			.addFormItem(new BorderedGroup()
+				.add(new FieldSelection()
+					.add(new FieldGroup()
 						.add(from.view().setTitle("From"))
 						.add(to.view().setTitle("To")))
 					.add(on.view().setTitle("On"))
-					)
-			.add(getRefinement().view().setTitle("Refinement"))
-		);				
+					))
+			.addFormItem(new BorderedGroup()
+				.add(getRefinement().view().setTitle("Refinement")));				
 	}
 
 	@Override

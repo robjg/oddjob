@@ -15,9 +15,11 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.units.Month;
 
 /**
  *
@@ -31,9 +33,9 @@ public class MonthScheduleTest extends TestCase {
 	}
 	
     public void testFromAndTo() throws ParseException {
-        MonthSchedule schedule = new MonthSchedule();
-        schedule.setFrom(2);
-        schedule.setTo(4);
+        YearlySchedule schedule = new YearlySchedule();
+        schedule.setFromMonth(Month.Months.FEBRUARY);
+        schedule.setToMonth(Month.Months.APRIL);
         
         Date now1 = DateHelper.parseDateTime("2003-02-10 12:30");
         
@@ -41,16 +43,16 @@ public class MonthScheduleTest extends TestCase {
         		DateHelper.parseDate("2003-02-01"),
         		DateHelper.parseDate("2003-05-01"));
         
-        IntervalTo result = schedule.nextDue(
+        Interval result = schedule.nextDue(
         		new ScheduleContext(now1));
         
         assertEquals(expected, result);
     }
     
     public void testAfter() throws ParseException {
-        MonthSchedule schedule = new MonthSchedule();
-        schedule.setFrom(2);
-        schedule.setTo(4);
+        YearlySchedule schedule = new YearlySchedule();
+        schedule.setFromMonth(Month.Months.FEBRUARY);
+        schedule.setToMonth(Month.Months.APRIL);
         
         Date now1 = DateHelper.parseDateTime("2003-06-21 12:30");
         
@@ -58,7 +60,7 @@ public class MonthScheduleTest extends TestCase {
         		DateHelper.parseDate("2004-02-01"),
         		DateHelper.parseDate("2004-05-01"));
         
-        IntervalTo result = schedule.nextDue(
+        Interval result = schedule.nextDue(
         		new ScheduleContext(now1));
 
         assertEquals(expected, result);
@@ -66,9 +68,9 @@ public class MonthScheduleTest extends TestCase {
     }
     
     public void testOverBoundry() throws ParseException {
-        MonthSchedule schedule = new MonthSchedule();
-        schedule.setFrom(11);
-        schedule.setTo(2);
+        YearlySchedule schedule = new YearlySchedule();
+        schedule.setFromMonth(Month.Months.NOVEMBER);
+        schedule.setToMonth(Month.Months.FEBRUARY);
         
         Date now1 = DateHelper.parseDateTime("2003-12-25 12:30");
                 
@@ -79,7 +81,7 @@ public class MonthScheduleTest extends TestCase {
         		DateHelper.parseDateTime("2003-11-01 00:00"), 
         		DateHelper.parseDateTime("2004-03-01 00:00"));
         
-        IntervalTo result1 = schedule.nextDue(context1);
+        Interval result1 = schedule.nextDue(context1);
         
         assertEquals(expected, result1);
         
@@ -87,7 +89,7 @@ public class MonthScheduleTest extends TestCase {
         
         ScheduleContext context2 = new ScheduleContext(now2);
 
-        IntervalTo result2 = schedule.nextDue(context2);
+        Interval result2 = schedule.nextDue(context2);
         
         assertEquals(expected, result2);
 
@@ -95,15 +97,15 @@ public class MonthScheduleTest extends TestCase {
 
         ScheduleContext context3 = new ScheduleContext(now3);
         
-        IntervalTo result3 = schedule.nextDue(context3);
+        Interval result3 = schedule.nextDue(context3);
 
         assertEquals(expected, result3);
     }
     
     public void testWithTime() throws ParseException {
 
-    	MonthSchedule test = new MonthSchedule();
-    	test.setIn(1);
+    	YearlySchedule test = new YearlySchedule();
+    	test.setInMonth(Month.Months.JANUARY);
     	
     	TimeSchedule time = new TimeSchedule();
     	time.setAt("20:00");
@@ -113,7 +115,7 @@ public class MonthScheduleTest extends TestCase {
     	ScheduleContext context = new ScheduleContext(
     			DateHelper.parseDateTime("2004-01-31 20:01"));
 
-    	IntervalTo result = test.nextDue(context);
+    	Interval result = test.nextDue(context);
     	
     	IntervalTo expected = new IntervalTo(
     			DateHelper.parseDateTime("2005-01-01 20:00"));
@@ -136,7 +138,7 @@ public class MonthScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	IntervalTo next = schedule.nextDue(new ScheduleContext(
+    	Interval next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDate("2010-02-15")));
     	
     	IntervalTo expected = new IntervalTo(

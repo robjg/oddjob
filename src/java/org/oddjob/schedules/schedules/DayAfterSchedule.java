@@ -6,8 +6,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 
 import org.oddjob.schedules.AbstractSchedule;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 
 /**
  * @oddjob.description A schedule that returns the day after when a 
@@ -36,28 +38,51 @@ final public class DayAfterSchedule extends AbstractSchedule implements Serializ
      *  (non-Javadoc)
      * @see org.treesched.Schedule#nextDue(java.util.Date)
      */
-	public IntervalTo nextDue(ScheduleContext context) {
-		Date now = context.getDate();
-		if (now == null) {
+	public ScheduleResult nextDue(ScheduleContext context) {
+		Date use = null;
+		
+		Interval interval = context.getParentInterval();
+		if (interval != null) {
+			use = new Date(interval.getToDate().getTime() - 1L);
+		}
+		else {
+			use = context.getDate();
+		}
+		if (use == null) {
 			return null;
 		}
+						
+		Calendar useCal = Calendar.getInstance(context.getTimeZone());
+		useCal.setTime(use);
 		
-		if (getRefinement() == null) {
-		    throw new IllegalStateException("DayAfter must have a child schedule.");
-		}
-
-		IntervalTo childInterval = getRefinement().nextDue(context);
-
-		Calendar startCal = new GregorianCalendar();
-		startCal.setTime(childInterval.getFromDate());
-		startCal.add(Calendar.DATE, 1);
-		Date dayAfterStart = startCal.getTime();
-		
+		Calendar startCal = Calendar.getInstance(context.getTimeZone());
+		startCal.clear();
+		startCal.set(
+				useCal.get(Calendar.YEAR), 
+				useCal.get(Calendar.MONTH), 
+				useCal.get(Calendar.DATE) + 1);
+				
 		Calendar endCal = new GregorianCalendar();
-		endCal.setTime(childInterval.getFromDate());
-		endCal.add(Calendar.DATE, 2);
+		endCal.clear();
+		endCal.set(
+				useCal.get(Calendar.YEAR), 
+				useCal.get(Calendar.MONTH), 
+				useCal.get(Calendar.DATE) + 2);
 		
-		return new IntervalTo(dayAfterStart, endCal.getTime());
+		IntervalTo newInterval = new IntervalTo(
+				startCal.getTime(), endCal.getTime());
+		
+		if (getRefinement() != null) {
+			
+			ScheduleContext shiftedContext = context.spawn(
+					startCal.getTime(), 
+					newInterval);
+			
+			return getRefinement().nextDue(shiftedContext);
+		}
+		else {
+			return newInterval;
+		}
 	}
 	
 	/**
@@ -66,6 +91,11 @@ final public class DayAfterSchedule extends AbstractSchedule implements Serializ
 	
 	public String toString() {
 		
-		return "Day After Schedule";
+		String description = "";
+		
+		if (getRefinement() != null) {
+			description = " with refinement " + getRefinement();
+		}
+		return "Day After" + description;
 	}
 }
