@@ -33,12 +33,12 @@ public class AfterScheduleDETest extends TestCase {
 		
 		String xml =  
 				"<schedules:after xmlns:schedules='http://rgordon.co.uk/oddjob/schedules'>" +
-				" <refinement>" +
+				" <schedule>" +
 				"  <schedules:interval interval='00:15:00'/>" +
-				" </refinement>" +
-				" <apply>" +
+				" </schedule>" +
+				" <refinement>" +
 				"  <schedules:count count='3'/>" +
-				" </apply>" +
+				" </refinement>" +
 				"</schedules:after>";
 	
     	ArooaDescriptor descriptor = 
@@ -58,8 +58,8 @@ public class AfterScheduleDETest extends TestCase {
 		AfterSchedule test = (AfterSchedule) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals(IntervalSchedule.class, test.getRefinement().getClass());
-		assertEquals(CountSchedule.class, test.getApply().getClass());
+		assertEquals(IntervalSchedule.class, test.getSchedule().getClass());
+		assertEquals(CountSchedule.class, test.getRefinement().getClass());
 	}
 	
 	public static void main(String args[]) throws ArooaParseException {

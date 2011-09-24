@@ -1,0 +1,10 @@
+<schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+    from="Monday" to="Friday">
+    <refinement>
+        <schedules:time from="08:00" toLast="18:00">
+            <refinement>
+                <schedules:interval interval="02:00"/>
+            </refinement>
+        </schedules:time>
+    </refinement>
+</schedules:weekly>

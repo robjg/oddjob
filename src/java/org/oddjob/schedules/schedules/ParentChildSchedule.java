@@ -27,30 +27,44 @@ public class ParentChildSchedule implements Schedule {
 	 * Provides the next due interval for the parent and child.
 	 */
 	public ScheduleResult nextDue(ScheduleContext context) {
-		Interval parentInterval = limitedParentInterval(context);
+		ScheduleResult parentResult = limitedParentResult(context);
 		
-		if (parentInterval == null) {
+		if (parentResult == null) {
 			return null;
 		}
 				
 		if (child == null) {
-			return new SimpleScheduleResult(parentInterval);
+			return parentResult;
 		}
 		
-		ScheduleResult childInterval = childInterval(context, parentInterval);
+		ScheduleResult childResult = childResult(context, parentResult);
 		
-		if (childInterval != null) {
-			return childInterval;
+		if (childResult != null) {
+			if (childResult.getUseNext() == null) {
+				return new SimpleScheduleResult(
+						childResult, childResult.getToDate());
+			}
+			else {
+				return childResult;
+			}
 		}
 		
-		parentInterval = limitedParentInterval(context.move(
-				parentInterval.getToDate()));
+		parentResult = limitedParentResult(context.move(
+				parentResult.getToDate()));
 		
-		if (parentInterval == null) {
+		if (parentResult == null) {
 			return null;
 		}
 
-		return childInterval(context, parentInterval);
+		childResult = childResult(context, parentResult);
+		
+		if (childResult != null && childResult.getUseNext() == null) {
+				return new SimpleScheduleResult(
+						childResult, childResult.getToDate());
+		}
+		else {
+			return childResult;
+		}
 	}
 	
 	/**
@@ -61,9 +75,9 @@ public class ParentChildSchedule implements Schedule {
 	 * 
 	 * @return The next parent interval.
 	 */
-	private Interval limitedParentInterval(ScheduleContext context) {
+	private ScheduleResult limitedParentResult(ScheduleContext context) {
 		
-		Interval parentInterval = parent.nextDue(context);
+		ScheduleResult parentInterval = parent.nextDue(context);
 		
 		if (parentInterval == null) {
 			return null;
@@ -105,7 +119,7 @@ public class ParentChildSchedule implements Schedule {
 	 * 
 	 * @return The next child interval.
 	 */
-	private ScheduleResult childInterval(ScheduleContext context, 
+	private ScheduleResult childResult(ScheduleContext context, 
 			Interval parentInterval) {
 		
 		// if now is before the start of the next interval

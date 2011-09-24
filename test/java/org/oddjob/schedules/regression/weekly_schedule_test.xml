@@ -31,11 +31,11 @@
 							<refinement>
 								<ft:list>
 									<schedules>
-										<ft:time from="10:00" to="17:00">
+										<ft:daily from="10:00" to="17:00">
 											<refinement>
 												<ft:interval interval="05:00"/>
 											</refinement>
-										</ft:time>
+										</ft:daily>
 										<ft:time from="18:00" to="01:00"/>
 									</schedules>
 								</ft:list>
@@ -82,7 +82,7 @@
 			<schedule>
 				<ft:weekly from="3" to="5">
 					<refinement>
-						<ft:time at="14:02"/>
+						<ft:daily at="14:02"/>
 					</refinement>
 				</ft:weekly>
 			</schedule>

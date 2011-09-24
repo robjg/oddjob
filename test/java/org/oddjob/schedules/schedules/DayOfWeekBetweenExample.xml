@@ -1,6 +1,6 @@
 <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
     from="Friday" to="Monday">
     <refinement>
-        <schedules:time at="15:45"/>
+        <schedules:daily at="15:45"/>
     </refinement>
 </schedules:weekly>

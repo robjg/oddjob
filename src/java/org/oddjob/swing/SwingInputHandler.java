@@ -396,4 +396,9 @@ public class SwingInputHandler implements InputHandler {
 		}
 
 	}	
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName();
+	}
 }

@@ -6,23 +6,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.apache.log4j.Logger;
 import org.oddjob.OddjobException;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.ConstrainedSchedule;
 import org.oddjob.schedules.DateUtils;
+import org.oddjob.schedules.Interval;
+import org.oddjob.schedules.Schedule;
+import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleInterval;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
- * @oddjob.description A schedule for the times of the day. This schedule
- * enables job to be schedule at a paticular time or a from/to time which 
- * could be used to constrain a sub schedule.
- * <p>
- * Please note the property 'on' is used instead of at, this is due to a
- * lazy developer sharing logic with other constrained schedules such as
- * {@link YearlySchedule}.
- * <p>
- * If the 'to' time is less than the 'from' time it is assumed that the 'to'
- * time is the next day. 
+ * @oddjob.description  
  * 
  * 
  * @oddjob.example
@@ -42,16 +41,23 @@ import org.oddjob.schedules.DateUtils;
  * @author Rob Gordon
  */
 
-final public class TimeSchedule extends ConstrainedSchedule implements Serializable {
-    private static final long serialVersionUID = 20050226;
+final public class TimeSchedule extends AbstractSchedule implements Serializable {
+
+	private static Logger logger = Logger.getLogger(ConstrainedSchedule.class);
+	
+    private static final long serialVersionUID = 200502262011092000L;
     	
 	private String from;
+	
 	private String to;
+	
+	private String toLast;
 	
     /**
      * @oddjob.property from
      * @oddjob.description The from time.
-     * @oddjob.required No. Default to the start of the day.
+     * @oddjob.required No. Defaults to the start of any parent interval
+     * or the beginning of time.
      * 
      * @param from The from date.
      */
@@ -69,8 +75,10 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 		
     /**
      * @oddjob.property to
-     * @oddjob.description The to time.
-     * @oddjob.required No. Default to the end of the day.
+     * @oddjob.description The to time. If specified, this is the
+     * time on the first day of the parent interval.
+     * @oddjob.required No. Defaults to the end of the last day of the
+     * parent interval, or the end of time.
      * 
      * @param to The to date.
      * 
@@ -100,8 +108,24 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 		this.setTo(at);
 	}
 	
-    @Override
-    protected CalendarUnit intervalBetween() {
+    public String getToLast() {
+		return toLast;
+	}
+
+    /**
+     * @oddjob.property to
+     * @oddjob.description The to time for the end of the parent interval.
+     * If this property
+     * @oddjob.required No. The to property, or it's default value
+     * will be used instead.
+     * 
+     * @param toLast The to last time of the interval.
+     */
+	public void setToLast(String toLast) {
+		this.toLast = toLast;
+	}
+
+	protected CalendarUnit intervalBetween() {
     	return new CalendarUnit(Calendar.DATE, 1);
     }
 
@@ -116,30 +140,247 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 		}
 	}	
 
-	protected Calendar fromCalendar(Date referenceDate, TimeZone timeZone) {
+	protected Calendar fromCalendar(ScheduleContext context) {
+		
+		TimeZone timeZone = context.getTimeZone();
+		
 		Calendar fromCal = Calendar.getInstance(timeZone);
+		
+		Interval parentInterval = context.getParentInterval();
+		
 		if (from == null) {
-    		fromCal.setTime(DateUtils.startOfDay(referenceDate, timeZone));
+			if (parentInterval == null) {
+				fromCal.setTime(Interval.START_OF_TIME);
+			}
+			else {
+				fromCal.setTime(DateUtils.startOfDay(parentInterval.getFromDate(), timeZone));
+			}
 		}
 		else {
-			fromCal.setTime(parseTime(from, referenceDate, timeZone, "from"));
+			if (parentInterval == null) {
+				fromCal.setTime(parseTime(from, context.getDate(), timeZone, "from"));
+			}
+			else {
+				fromCal.setTime(parseTime(from, parentInterval.getFromDate(), timeZone, "from"));
+			}
 		}
+		
 		return fromCal;
 	}
 	
-	protected Calendar toCalendar(Date referenceDate, TimeZone timeZone) {
+	protected Calendar toCalendar(ScheduleContext context) {
+		
+		TimeZone timeZone = context.getTimeZone();
+		
 		Calendar toCal = Calendar.getInstance(timeZone);
-	    if (to == null) {
-	    	toCal.setTime(DateUtils.endOfDay(referenceDate, timeZone));
+		
+		Interval parentInterval = context.getParentInterval();
+		
+		if (toLast != null) {
+	    	if (parentInterval == null) {
+		    	toCal.setTime(parseTime(to, context.getDate(), timeZone, "to"));
+	    	}
+	    	else {
+		    	toCal.setTime(parseTime(to, DateUtils.oneMillisBefore(parentInterval.getToDate()), timeZone, "to"));	    		
+	    	}
+		}
+	    if (to != null) {
+	    	if (parentInterval == null) {
+		    	toCal.setTime(parseTime(to, context.getDate(), timeZone, "to"));
+	    	}
+	    	else {
+		    	toCal.setTime(parseTime(to, parentInterval.getFromDate(), timeZone, "to"));	    		
+	    	}
 	    }
 	    else {
-	    	toCal.setTime(parseTime(to, referenceDate, timeZone, "to"));
-	    	if (to.equals(from)) {
-	    		toCal.add(Calendar.MILLISECOND, 1);
+	    	if (parentInterval == null) {
+	    		toCal.setTime(Interval.END_OF_TIME);
 	    	}
+	    	else {
+	    		toCal.setTime(DateUtils.endOfDay(
+	    				DateUtils.oneMillisBefore(parentInterval.getToDate()), timeZone));
+	    	};
 	    }
 	    
 		return toCal;
+	}
+	
+	/**
+	 * @param context
+	 * @return
+	 */
+	protected Calendar nowCalendar(ScheduleContext context) {
+		
+		Calendar  nowCal = Calendar.getInstance(context.getTimeZone());
+		nowCal.setTime(context.getDate());
+		
+		Interval parentInterval = context.getParentInterval();
+		if (parentInterval != null) {
+			
+			if (parentInterval.getToDate().compareTo(context.getDate()) <= 0) {
+				nowCal.setTime(DateUtils.oneMillisBefore(parentInterval.getToDate()));
+			}
+			else if (parentInterval.getFromDate().compareTo(context.getDate()) > 0) {
+				nowCal.setTime(parentInterval.getFromDate());
+			}
+		}
+		
+		return nowCal;
+	}
+	
+	/**
+	/**
+	 * Calculate the next interval, without children.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	protected final Interval nextInterval(ScheduleContext context) {
+	
+		Calendar fromCal = fromCalendar(context);
+		Calendar toCal = toCalendar(context);
+				
+		if (fromCal.getTime().equals(toCal.getTime())) {
+			toCal.add(Calendar.MILLISECOND, 1);
+		}
+		
+		Calendar  nowCal = nowCalendar(context);
+		
+	    if (fromCal.after(toCal)) {
+	        toCal = shiftFromCalendar(toCal, 1);
+	    }
+
+	    if (nowCal.compareTo(toCal) >= 0) {
+	    	return null;
+	    }	    
+        
+	    return new SimpleInterval(fromCal.getTime(), toCal.getTime());
+	}
+
+	/**
+	 * Calculate the last interval.
+	 * 
+	 * @param context
+	 * @return
+	 */
+	protected final Interval lastInterval(ScheduleContext context) {
+		
+		Calendar fromCal = fromCalendar(context);
+		Calendar toCal = toCalendar(context);
+				
+		if (fromCal.getTime().equals(toCal.getTime())) {
+			toCal.add(Calendar.MILLISECOND, 1);
+		}
+
+		Calendar  nowCal = nowCalendar(context);
+		
+	    if (fromCal.after(toCal)) {
+	        fromCal = shiftFromCalendar(fromCal, -1);	        
+	    }
+
+	    if (nowCal.compareTo(toCal) < 0) {
+	    	return null;
+	    }	    
+        
+	    return new SimpleInterval(fromCal.getTime(), toCal.getTime());		
+	}
+
+	
+	protected Calendar shiftFromCalendar(Calendar calendar, int intervals) {
+		if (calendar.getTime().equals(Interval.START_OF_TIME)) {
+			return calendar;
+		}
+		else {
+			return shiftCalendar(calendar, intervals);
+		}
+	}
+	
+	protected Calendar shiftToCalendar(Calendar calendar, int intervals) {
+		if (calendar.getTime().equals(Interval.END_OF_TIME)) {
+			return calendar;
+		}
+		else {
+			return shiftCalendar(calendar, intervals);
+		}
+	}
+	
+	private Calendar shiftCalendar(Calendar calendar, int intervals) {
+		CalendarUnit unit = intervalBetween();
+		
+    	calendar.add(unit.getField(), intervals * unit.getValue());
+		
+    	return calendar;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.schedules.Schedule#nextDue(org.oddjob.schedules.ScheduleContext)
+	 */
+	public ScheduleResult nextDue(ScheduleContext context) {
+		
+		Date now = context.getDate();
+		
+		if (now == null) {
+			return null;
+		}
+		
+		final Interval thisNextInterval = nextInterval(context);
+		
+		Interval thisInterval = thisNextInterval;
+		ScheduleResult nextResult = null;
+		
+		if (thisNextInterval != null) {
+		
+			ParentChildSchedule parentChild = 
+				new ParentChildSchedule(new Schedule() {
+					public ScheduleResult nextDue(ScheduleContext context) {
+						return new SimpleScheduleResult(thisNextInterval);
+					}
+				}, getRefinement());
+			
+			nextResult = parentChild.nextDue(context);
+		}
+		
+		
+		// Maybe we are beyond the interval but still in the interval of 
+		// a child (because a child interval could extend beyond the limit 
+		// of it's parent).
+		if ((nextResult == null || now.before(nextResult.getFromDate())) &&
+				// We need this extra check because time intervals can extend forever.
+				(to != null && getRefinement() != null)) {
+
+			final Interval thisPreviousInterval = lastInterval(context);
+
+			if (thisPreviousInterval != null) {
+				ParentChildSchedule parentChild = 
+					new ParentChildSchedule(new Schedule() {
+						public ScheduleResult nextDue(ScheduleContext context) {
+							return new SimpleScheduleResult(thisPreviousInterval);
+						}
+					}, getRefinement());
+	
+				ScheduleResult previous = parentChild.nextDue(context);
+	
+				if (previous != null && now.before(previous.getToDate())) {
+					nextResult = previous;
+					thisInterval = thisPreviousInterval;
+				}
+			}
+		}
+				
+		if (nextResult == null) {
+			return null;
+		}
+		
+		if (!thisInterval.getToDate().after(nextResult.getToDate())) {
+			// time is a once only schedule.
+		 	nextResult = new SimpleScheduleResult(nextResult, null);		
+		}
+	 	
+	 	logger.debug(this + ": in date is " + now + 
+				", next interval is " + nextResult);
+
+		return nextResult;
 	}
 	
 	/**
@@ -152,30 +393,37 @@ final public class TimeSchedule extends ConstrainedSchedule implements Serializa
 		String from;
 		
 		if (this.from == null) {
-			from = "the start of the day";
+			from = null;
 		} else {
 			from = this.from;
 		}
 		
 		String to;
 		
-		if (this.to == null) {
-			to = "the end of the day";
+		if (this.toLast != null) {
+			to = "last " + this.toLast;
+		}
+		if (this.to != null) {
+			to = this.to;
 		}
 		else {
-			to = this.to;
+			to = null;
 		}
 		
 		StringBuilder description = new StringBuilder();
-		if (from.equals(to)) {
+		if (from != null && from.equals(to)) {
 			description.append(" at ");
 			description.append(from);
 		}
 		else {
-			description.append(" from ");
-			description.append(from);
-			description.append(" to ");
-			description.append(to);
+			if (from != null) {
+				description.append(" from ");
+				description.append(from);
+			}
+			if (to != null) {
+				description.append(" to ");
+				description.append(to);
+			}
 		}
 		
 		if (getRefinement() != null) {

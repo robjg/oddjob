@@ -5,7 +5,7 @@
             <schedule>
                 <schedules:weekly from="Monday" to="Friday">
                     <refinement>
-                        <schedules:time at="10:00"/>
+                        <schedules:daily at="10:00"/>
                     </refinement>
                 </schedules:weekly>
             </schedule>

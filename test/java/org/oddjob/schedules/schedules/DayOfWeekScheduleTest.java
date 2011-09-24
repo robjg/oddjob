@@ -96,7 +96,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         WeeklySchedule schedule = new WeeklySchedule();
         schedule.setOn(DayOfWeek.Days.FRIDAY);
         
-    	TimeSchedule time = new TimeSchedule();
+    	DailySchedule time = new DailySchedule();
     	time.setAt("10:00");
     	schedule.setRefinement(time);
     	
@@ -177,7 +177,7 @@ public class DayOfWeekScheduleTest extends TestCase {
 
 		test.setOn(DayOfWeek.Days.WEDNESDAY);
 
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 
 		time.setFrom("23:00");
 

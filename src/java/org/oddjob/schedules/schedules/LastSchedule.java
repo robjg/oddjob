@@ -5,12 +5,9 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.Interval;
-import org.oddjob.schedules.IntervalHelper;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
-import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * @oddjob.description This schedule will return it's last due nested 
@@ -57,8 +54,16 @@ final public class LastSchedule extends AbstractSchedule implements Serializable
 			if (candidate == null) {
 			    break;
 			}
-			last = candidate;
-			use = candidate.getToDate();
+			
+			if (last == null || candidate.getFromDate().after(last.getFromDate())) {
+				last = candidate;
+			}
+			
+			use = last.getUseNext();
+			
+			if (use == null) {
+				break;
+			}
 		}
 		
 		return last;

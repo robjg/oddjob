@@ -4,9 +4,6 @@
 package org.oddjob.schedules.schedules;
 
 import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -15,7 +12,11 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.SimpleInterval;
+import org.oddjob.schedules.SimpleScheduleResult;
+import org.oddjob.schedules.units.DayOfMonth;
 import org.oddjob.schedules.units.DayOfWeek;
 
 /**
@@ -34,17 +35,25 @@ public class TimeScheduleTest extends TestCase {
 		test.setFrom("10:00");
 		test.setTo("11:00");
 
+		ScheduleResult result, expected;
+		
+		// before
+		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 09:00"));
 		
-		Interval result = test.nextDue(context);
+		result = test.nextDue(context);
 		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-02 10:00"),
-				DateHelper.parseDateTime("2006-03-02 11:00")); 
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2006-03-02 10:00"),
+					DateHelper.parseDateTime("2006-03-02 11:00")),
+				null); 
 		
 		assertEquals(expected, result);
-				
+		
+		// during
+		
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 10:30"));
 		
@@ -52,67 +61,33 @@ public class TimeScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 
+		// after
+		
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 11:30"));
 		
 		result = test.nextDue(context);
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-03 10:00"),
-				DateHelper.parseDateTime("2006-03-03 11:00"));
+		expected = null;
 		
 		assertEquals(expected, result);
 	}
-	
-	public void testStandardIntervalRollingNext() throws ParseException {
 		
-		TimeSchedule test = new TimeSchedule();
-		test.setFrom("10:00");
-		test.setTo("11:00");
-
-		ScheduleContext context = new ScheduleContext(
-				DateHelper.parseDateTime("2006-03-02 09:00"));
-		
-		Interval result = test.nextDue(context);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-02 10:00"),
-				DateHelper.parseDateTime("2006-03-02 11:00")); 
-		
-		assertEquals(expected, result);
-				
-		context = context.move(result.getToDate());
-		
-		result = test.nextDue(context);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-03 10:00"),
-				DateHelper.parseDateTime("2006-03-03 11:00"));
-		
-		assertEquals(expected, result);
-		
-		context = context.move(result.getToDate());
-		
-		result = test.nextDue(context);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-04 10:00"),
-				DateHelper.parseDateTime("2006-03-04 11:00"));
-		
-		assertEquals(expected, result);
-	}
-	
 	public void testForwardInterval() throws ParseException {
 		
 		TimeSchedule s = new TimeSchedule();
 		s.setFrom("11:00");
 		s.setTo("10:00");
 
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-01 11:00"),
-				DateHelper.parseDateTime("2006-03-02 10:00"));
+		ScheduleResult expected, result;
 		
-		Interval result = s.nextDue(new ScheduleContext(
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2006-03-02 11:00"),
+					DateHelper.parseDateTime("2006-03-03 10:00")),
+				null);
+		
+		result = s.nextDue(new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 09:00")));
 		
 		assertEquals(expected, result);
@@ -120,9 +95,11 @@ public class TimeScheduleTest extends TestCase {
 		result = s.nextDue(new ScheduleContext(
 				DateHelper.parseDateTime("2006-03-02 10:00")));
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-03-02 11:00"),
-				DateHelper.parseDateTime("2006-03-03 10:00"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2006-03-02 11:00"),
+					DateHelper.parseDateTime("2006-03-03 10:00")),
+				null);
 		
 		assertEquals(expected, result);
 
@@ -130,237 +107,73 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2006-03-02 11:30")));
 		
 		assertEquals(expected, result);
-	}
-
-	
-	public void testSimple() throws ParseException {
-		
-		TimeSchedule s = new TimeSchedule();
-		s.setFrom("10:00");
-		s.setTo("11:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		on = DateHelper.parseDateTime("2005-06-21 9:56");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo( 
-				DateHelper.parseDateTime("2005-06-21 10:00"),
-				DateHelper.parseDateTime("2005-06-21 11:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		on = DateHelper.parseDateTime("2005-06-21 10:30");
-		context = new ScheduleContext(on);
-
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-06-21 10:00"),
-				DateHelper.parseDateTime("2005-06-21 11:00"));
-
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-
-		on = DateHelper.parseDateTime("2005-06-21 12:30");
-		context = new ScheduleContext(on);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-06-22 10:00"),
-				DateHelper.parseDateTime("2005-06-22 11:00"));
-
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-	}
-	
-	public void testOverMidnight() throws ParseException {
-		
-		TimeSchedule s = new TimeSchedule();
-		s.setFrom("23:00");
-		s.setTo("01:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		// before.
-		on = DateHelper.parseDateTime("2005-06-21 2:56");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-06-21 23:00"),
-				DateHelper.parseDateTime("2005-06-22 01:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-
-		// during.
-		on = DateHelper.parseDateTime("2005-06-22 0:30");
-		context = new ScheduleContext(on);
-
-		expected = new IntervalTo (
-				DateHelper.parseDateTime("2005-06-21 23:00"),
-				DateHelper.parseDateTime("2005-06-22 01:00"));
-
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-
-		// after
-		on = DateHelper.parseDateTime("2005-06-22 01:00");
-		context = new ScheduleContext(on);
-
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-06-22 23:00"),
-				DateHelper.parseDateTime("2005-06-23 01:00"));
-
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-	}
+	}	
 	
 	public void testOn() throws ParseException {
 		
 		TimeSchedule s = new TimeSchedule();
 		s.setAt("12:00");
 
-		Date on;
 		ScheduleContext context;
 		
-		on = DateHelper.parseDateTime("2005-06-21 8:00");
-		context = new ScheduleContext(on);
+		ScheduleResult expected, result;
 		
-		IntervalTo expected = new IntervalTo(
-					DateHelper.parseDateTime("2005-06-21 12:00"));
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2005-06-21 8:00"));
+		
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2005-06-21 12:00")),
+				null);
 
-		Interval result = s.nextDue(context);
+		result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 		
-		on = DateHelper.parseDateTime("2005-06-21 12:00");
-		context = new ScheduleContext(on);
-
-		expected = new IntervalTo(
+		context = new ScheduleContext(
 				DateHelper.parseDateTime("2005-06-21 12:00"));
+
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2005-06-21 12:00")),
+				null);
 		
 		result = s.nextDue(context);
 		
 		assertEquals(expected, result);
 
-		on = DateHelper.parseDateTime("2005-06-21 12:30");
-		context = new ScheduleContext(on);
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2005-06-21 12:30"));
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-06-22 12:00"));
+		expected = null;
 
 		result = s.nextDue(context);
 		
 		assertEquals(expected, result);
-	}
-	
-	/**
-	 * How does a Calendar behave at daylight saving time?
-	 * change 02:00 to 01:00 and the test fails - but which is right?
-	 */
-	public void testCalendarAssuptions() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		Date sample = DateHelper.parseDateTime("2005-10-29 02:00");
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/London"));
-		cal.setTime(sample);
-		
-		cal.add(Calendar.DATE, 1);
-		
-		assertEquals(DateHelper.parseDateTime("2005-10-30 02:00"), cal.getTime());
-		
-		TimeZone.setDefault(null);
-	}
-	
-	public void testDayLightSavingChangeForward() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		TimeSchedule s = new TimeSchedule();
-		s.setAt("02:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		on = DateHelper.parseDateTime("2005-10-29 12:00");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-10-30 02:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		on = expected.getToDate();
-		context = new ScheduleContext(on);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-10-31 02:00"));
-		
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		TimeZone.setDefault(null);
-	}
-	
-	public void testDayLightSavingChangeBack() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		TimeSchedule s = new TimeSchedule();
-		s.setAt("02:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		on = DateHelper.parseDateTime("2005-03-26 12:00");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-03-27 02:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		on = result.getToDate();
-		context = new ScheduleContext(on);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-03-28 02:00"));
-		
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		TimeZone.setDefault(null);
-	}
+	}	
 	
 	public void testWithLimits() throws ParseException {
+		
 		TimeSchedule test = new TimeSchedule();
 		test.setAt("12:00");
 		
-		Date on;
 		ScheduleContext context;
 		
-		on = DateHelper.parseDateTime("2020-06-21 12:00");
-		context = new ScheduleContext(on);
+		ScheduleResult expected, result;
 		
-		context.spawn(new IntervalTo(
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2020-06-20 12:00"));
+		
+		context = context.spawn(new IntervalTo(
 				DateHelper.parseDate("2020-06-21"), 
 				DateHelper.parseDate("2020-06-22")));
 		
-		Interval result = test.nextDue(context);
+		result = test.nextDue(context);
 		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2020-06-21 12:00"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2020-06-21 12:00")),
+				null);
 		
 		assertEquals(expected, result);
 	}
@@ -377,42 +190,41 @@ public class TimeScheduleTest extends TestCase {
 		
 		logger.debug("result " + result);
 		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-12-25 10:00"),
-				DateHelper.parseDateTime("2005-12-26 00:00"));
+		Interval expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2005-12-25 10:00"),
+						Interval.END_OF_TIME),
+				null);
 		
 		assertEquals(expected, result);
 		
-		context = context.move(result.getToDate());
-		
-		result = test.nextDue(context);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-12-26 10:00"),
-				DateHelper.parseDateTime("2005-12-27 00:00"));
 	}
 	
 	// with just a to time
 	public void testDefaultFrom() throws Exception {
+		
 		TimeSchedule s = new TimeSchedule();
 		s.setTo("10:00");
 		
 		ScheduleContext context = new ScheduleContext(
-				DateHelper.parseDateTime("2005-12-25 11:00"));		
+				DateHelper.parseDateTime("2005-12-25 09:00"));		
 		
 		Interval result = s.nextDue(context);
 		logger.debug("result " + result);
 				
-		assertEquals(new IntervalTo(		
-				DateHelper.parseDateTime("2005-12-26 00:00"),
-				DateHelper.parseDateTime("2005-12-26 10:00")),
-				result);
+		Interval expected = new SimpleScheduleResult(
+				new IntervalTo(		
+						Interval.START_OF_TIME,
+						DateHelper.parseDateTime("2005-12-25 10:00")),
+				null);
+		
+		assertEquals(expected, result);		
 	}
 	
 	public void testWithInterval() throws Exception {
 		TimeSchedule timeSchedule = new TimeSchedule();
 		timeSchedule.setFrom("08:00");
-		timeSchedule.setTo("11:59");
+		timeSchedule.setTo("11:57");
 		
 		IntervalSchedule intervalSchedule = new IntervalSchedule();
 		intervalSchedule.setInterval("00:15");
@@ -421,48 +233,54 @@ public class TimeScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 00:07"));
 		
-		Interval result = timeSchedule.nextDue(context);
+		ScheduleResult result = timeSchedule.nextDue(context);
 		
 		logger.debug("result " + result);
 
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-02-23 08:00"),
-				DateHelper.parseDateTime("2006-02-23 08:15"));
+		ScheduleResult expected = (
+				new IntervalTo(
+						DateHelper.parseDateTime("2006-02-23 08:00"),
+						DateHelper.parseDateTime("2006-02-23 08:15")));
 		
 		assertEquals(expected, result);
 		
 		result = timeSchedule.nextDue(
-				context.move(result.getToDate()));
+				context.move(result.getUseNext()));
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-02-23 08:15"),
-				DateHelper.parseDateTime("2006-02-23 08:30"));
+		expected = 
+				new IntervalTo(
+						DateHelper.parseDateTime("2006-02-23 08:15"),
+						DateHelper.parseDateTime("2006-02-23 08:30"));
 		
 		assertEquals(expected, result);
 		
 		// In the last interval.
 		
 		context = new ScheduleContext(
-				DateHelper.parseDateTime("2006-02-23 11:58"));
+				DateHelper.parseDateTime("2006-02-23 11:55"));
 		
 		result = timeSchedule.nextDue(context);
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-02-23 11:45"),
-				DateHelper.parseDateTime("2006-02-23 12:00"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2006-02-23 11:45"),
+						DateHelper.parseDateTime("2006-02-23 12:00")),
+				null);
 		
 		assertEquals(expected, result);
 		
 		// Past the to date, but still in the last interval.
 		
 		context = new ScheduleContext(
-				DateHelper.parseDateTime("2006-02-23 11:59:05"));
+				DateHelper.parseDateTime("2006-02-23 11:59"));
 		
 		result = timeSchedule.nextDue(context);
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-02-23 11:45"),
-				DateHelper.parseDateTime("2006-02-23 12:00"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2006-02-23 11:45"),
+						DateHelper.parseDateTime("2006-02-23 12:00")),
+				null);
 		
 		assertEquals(expected, result);
 		
@@ -473,9 +291,305 @@ public class TimeScheduleTest extends TestCase {
 		
 		result = timeSchedule.nextDue(context);
 		
+		expected = null;
+		
+		assertEquals(expected, result);
+	}
+	
+	public void testWithIntervalOverMidnight() throws Exception {
+		TimeSchedule timeSchedule = new TimeSchedule();
+		timeSchedule.setFrom("23:00");
+		timeSchedule.setTo("01:50");
+		
+		IntervalSchedule intervalSchedule = new IntervalSchedule();
+		intervalSchedule.setInterval("00:15");
+		timeSchedule.setRefinement(intervalSchedule);
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2006-02-23 01:55"));
+		
+		ScheduleResult result = timeSchedule.nextDue(context);
+		
+		ScheduleResult expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2006-02-23 01:45"),
+						DateHelper.parseDateTime("2006-02-23 02:00")),
+				null);
+		
+		assertEquals(expected, result);
+		
+	}
+	
+	public void testNextIntervalWithParent() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setFrom("10:00");
+		test.setTo("17:00");
+		
+		// Test before
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 14:00"));
+		
+		context = context.spawn(new IntervalTo(
+				DateHelper.parseDate("2003-05-26"),
+				DateHelper.parseDate("2003-05-27")));
+		
+		Interval result = test.nextInterval(context);
+		
+		Interval expected = new IntervalTo(
+				DateHelper.parseDateTime("2003-05-26 10:00"),
+				DateHelper.parseDateTime("2003-05-26 17:00"));
+		
+		
+		assertEquals(expected, result);
+				
+		// Test during last.
+		
+		context = context.move(
+				DateHelper.parseDateTime("2003-05-25 14:00"));
+		
+		result = test.nextInterval(context);
+		
 		expected = new IntervalTo(
-				DateHelper.parseDateTime("2006-02-24 08:00"),
-				DateHelper.parseDateTime("2006-02-24 08:15"));
+				DateHelper.parseDateTime("2003-05-26 10:00"),
+				DateHelper.parseDateTime("2003-05-26 17:00"));
+		
+		
+		assertEquals(expected, result);
+				
+		// Test during current.
+		
+		context = context.move(
+				DateHelper.parseDateTime("2003-05-26 14:00"));
+		
+		result = test.nextInterval(context);
+		
+		expected = new IntervalTo(
+				DateHelper.parseDateTime("2003-05-26 10:00"),
+				DateHelper.parseDateTime("2003-05-26 17:00"));
+		
+		
+		assertEquals(expected, result);
+		
+		// Test after parent interval.
+		
+		context = context.move(
+				DateHelper.parseDateTime("2003-05-27 14:00"));
+		
+		result = test.nextInterval(context);
+		
+		expected = null;		
+		
+		assertEquals(expected, result);		
+	}
+	
+	public void testLastInterval() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setFrom("10:00");
+		test.setTo("17:00");
+		
+		Interval expected, result;
+		
+		// before
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 09:00"));
+		
+		result = test.lastInterval(context);
+		
+		expected = null;
+		
+		assertEquals(expected, result);		
+		
+		// during
+		
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 12:00"));
+
+		result = test.lastInterval(context);
+		
+		expected = null;
+		
+		assertEquals(expected, result);		
+		
+		// after
+		
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 17:00"));
+
+		result = test.lastInterval(context);
+		
+		expected = new IntervalTo(
+				DateHelper.parseDateTime("2003-05-24 10:00"),
+				DateHelper.parseDateTime("2003-05-24 17:00"));
+		
+		assertEquals(expected, result);						
+	}
+	
+	public void testLastIntervalOverMidnight() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setFrom("22:00");
+		test.setTo("07:00");
+		
+		Interval expected, result;
+		
+		// during
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 06:00"));
+		
+		result = test.lastInterval(context);
+		
+		expected = null;
+				
+		assertEquals(expected, result);		
+		
+		// after
+		
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 12:00"));
+
+		result = test.lastInterval(context);
+		
+		expected = new IntervalTo(
+				DateHelper.parseDateTime("2003-05-23 22:00"),
+				DateHelper.parseDateTime("2003-05-24 07:00"));
+				
+		
+		assertEquals(expected, result);		
+		
+		// during
+		
+		context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 23:00"));
+
+		result = test.lastInterval(context);
+		
+		expected = new IntervalTo(
+				DateHelper.parseDateTime("2003-05-23 22:00"),
+				DateHelper.parseDateTime("2003-05-24 07:00"));
+						
+		assertEquals(expected, result);		
+	}
+	
+	public void testWithParent() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setFrom("10:00");
+		test.setTo("17:00");
+		
+		WeeklySchedule weekly = new WeeklySchedule();
+		weekly.setOn(DayOfWeek.Days.MONDAY);
+		
+		weekly.setRefinement(test);
+		
+		// A Saturday.
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 14:00"));
+		
+		
+		ScheduleResult result = weekly.nextDue(context);
+				
+		ScheduleResult expected;
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-05-26 10:00"),
+						DateHelper.parseDateTime("2003-05-26 17:00")));
+		
+		assertEquals(expected, result);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-06-02 10:00"),
+						DateHelper.parseDateTime("2003-06-02 17:00")));		
+		
+		result = weekly.nextDue(context.move(result.getUseNext()));
+		
+		assertEquals(expected, result);
+	}
+	
+	public void testAtWithParentWeekly() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setAt("17:00");
+		
+		WeeklySchedule weekly = new WeeklySchedule();
+		weekly.setOn(DayOfWeek.Days.MONDAY);
+		
+		weekly.setRefinement(test);
+		
+		// A Saturday.
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 14:00"));
+		
+		
+		ScheduleResult result = weekly.nextDue(context);
+				
+		ScheduleResult expected;
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-05-26 17:00")));
+		
+		assertEquals(expected, result);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-06-02 17:00")));		
+		
+		result = weekly.nextDue(context.move(result.getUseNext()));
+		
+		assertEquals(expected, result);
+	}
+	
+	public void testAtWithParentMonthly() throws ParseException {
+		
+		TimeSchedule test = new TimeSchedule();
+		test.setAt("17:00");
+		
+		MonthlySchedule monthly = new MonthlySchedule();
+		monthly.setFromDay(new DayOfMonth.Number(17));
+		monthly.setToDay(new DayOfMonth.Number(22));
+		
+		monthly.setRefinement(test);
+		
+		ScheduleResult result, expected;
+		
+		// before 
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-24 14:00"));
+				
+		result = monthly.nextDue(context);
+						
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-06-17 17:00")));
+		
+		assertEquals(expected, result);
+		
+		// during
+		
+		context = context.move(
+				DateHelper.parseDateTime("2003-06-20 14:00"));
+		
+		result = monthly.nextDue(context);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-07-17 17:00")));		
+		
+		
+		assertEquals(expected, result);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2003-08-17 17:00")));		
+		
+		result = monthly.nextDue(context.move(result.getUseNext()));
 		
 		assertEquals(expected, result);
 	}
@@ -488,40 +602,105 @@ public class TimeScheduleTest extends TestCase {
 		IntervalSchedule intervalSchedule = new IntervalSchedule();
 		intervalSchedule.setInterval("05:00");
 
-		WeeklySchedule dayOfWeek = new WeeklySchedule();
-		dayOfWeek.setOn(DayOfWeek.Days.MONDAY);
+		WeeklySchedule weekly = new WeeklySchedule();
+		weekly.setOn(DayOfWeek.Days.MONDAY);
 		
 		test.setRefinement(intervalSchedule);
-		dayOfWeek.setRefinement(test);
+		weekly.setRefinement(test);
 		
-		
-		ScheduleRoller roller = new ScheduleRoller(dayOfWeek);
-		
-		Interval[] results = roller.resultsFrom(
+		// A Saturday.
+		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2003-05-24 14:00"));
-				
-		IntervalTo expected;
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2003-05-26 10:00"),
-				DateHelper.parseDateTime("2003-05-26 15:00"));
+		
+		ScheduleResult result = weekly.nextDue(context);
+				
+		ScheduleResult expected;
+		
+		expected = 
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-05-26 10:00"),
+						DateHelper.parseDateTime("2003-05-26 15:00"));
+		
+		assertEquals(expected, result);
+		
+		context = context.move(result.getUseNext());
+		
+		result = weekly.nextDue(context);
+		
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-05-26 15:00"),
+						DateHelper.parseDateTime("2003-05-26 20:00")));		
+		
+		assertEquals(expected, result);
+	}
+
+	public void testAsChildOverMidnightWithInterval() throws Exception {
+		TimeSchedule test = new TimeSchedule();
+		test.setFrom("22:00");
+		test.setTo("05:00");
+		
+		IntervalSchedule intervalSchedule = new IntervalSchedule();
+		intervalSchedule.setInterval("05:00");
+
+		WeeklySchedule weekly = new WeeklySchedule();
+		weekly.setOn(DayOfWeek.Days.MONDAY);
+		
+		test.setRefinement(intervalSchedule);
+		weekly.setRefinement(test);
+		
+		// A Saturday.
+		ScheduleResult[] results = new ScheduleRoller(weekly).resultsFrom(
+				DateHelper.parseDateTime("2003-05-24 14:00"));		
+		
+		ScheduleResult expected;
+		
+		expected = 
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-05-26 22:00"),
+						DateHelper.parseDateTime("2003-05-27 03:00"));
 		
 		assertEquals(expected, results[0]);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2003-05-26 15:00"),
-				DateHelper.parseDateTime("2003-05-26 20:00"));
+				
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-05-27 03:00"),
+						DateHelper.parseDateTime("2003-05-27 08:00")));		
 		
 		assertEquals(expected, results[1]);
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2003-06-02 10:00"),
-				DateHelper.parseDateTime("2003-06-02 15:00"));
-		
+		expected = 
+			new IntervalTo(
+					DateHelper.parseDateTime("2003-06-02 22:00"),
+					DateHelper.parseDateTime("2003-06-03 03:00"));
+	
 		assertEquals(expected, results[2]);
+				
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-06-03 03:00"),
+						DateHelper.parseDateTime("2003-06-03 08:00")));		
 		
+		assertEquals(expected, results[3]);
+	
+		// Check last interval is used.		
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2003-05-27 07:00"));
+		
+		ScheduleResult result;
+		
+		result = weekly.nextDue(context);
+		
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2003-05-27 03:00"),
+						DateHelper.parseDateTime("2003-05-27 08:00")));		
+		
+		assertEquals(expected, result);
 	}
-
+	
 	/**
 	 * Weird things happen with more than 24 hours in a day...
 	 */
@@ -538,9 +717,11 @@ public class TimeScheduleTest extends TestCase {
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-27"));
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2009-02-26 10:00"),
-				DateHelper.parseDateTime("2009-02-28 01:00"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDateTime("2009-02-27 10:00"),
+					DateHelper.parseDateTime("2009-02-28 01:00")),
+				null);
 		
 		result = test.nextDue(context);
 		
@@ -594,16 +775,18 @@ public class TimeScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2009-02-15 13:51"));
 				
 		context = context.spawn(
-				new IntervalTo(
+				new SimpleInterval(
 						DateHelper.parseDateTime("2009-02-15 07:00"),
 						DateHelper.parseDateTime("2009-02-16 00:00")));
 		
 		Interval expected;
 		Interval result;
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2009-02-15 13:45"),
-				DateHelper.parseDateTime("2009-02-15 14:00"));
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2009-02-15 13:45"),
+						DateHelper.parseDateTime("2009-02-15 14:00")),
+				null);
 		
 		result = retry.nextDue(context);
 		
@@ -623,19 +806,11 @@ public class TimeScheduleTest extends TestCase {
 		
 		Interval result = test.nextDue(context);
 		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2011-06-30 00:00"),
-				DateHelper.parseDateTime("2011-07-01 00:00"));
-		
-		assertEquals(expected, result);
-		
-		context = context.move(result.getToDate());
-		
-		result = test.nextDue(context);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2011-07-01 00:00"),
-				DateHelper.parseDateTime("2011-07-02 00:00"));
+		Interval expected = new SimpleScheduleResult(
+				new IntervalTo(
+						Interval.START_OF_TIME,
+						Interval.END_OF_TIME),
+				null);
 		
 		assertEquals(expected, result);
 	}

@@ -1,9 +1,8 @@
 package org.oddjob.schedules;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.oddjob.arooa.ArooaConstants;
+import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * An Interval that extends to, but does not include the to date.
@@ -15,12 +14,6 @@ public class IntervalTo extends IntervalBase implements ScheduleResult {
 	
 	private static final long serialVersionUID = 2009022700L;
 
-	private static final String DATE_FORMAT_SECONDS =
-		ArooaConstants.DATE_FORMAT + " " + ArooaConstants.TIME_FORMAT2;
-	
-	private static final String DATE_FORMAT_MILLISECONDS =
-		ArooaConstants.DATE_FORMAT + " " + ArooaConstants.TIME_FORMAT1;
-	
 	/**
 	 * Create a point interval.
 	 * 
@@ -129,10 +122,17 @@ public class IntervalTo extends IntervalBase implements ScheduleResult {
 			return false;
 		}
 		
-		Interval interval = (Interval) other;
-		
-		return this.getToDate().equals(interval.getToDate()) 
-				&& this.getFromDate().equals(interval.getFromDate());
+		if (other instanceof ScheduleResult
+				&& !getUseNext().equals(
+						((ScheduleResult) other).getUseNext())) {
+			return false;
+		}
+		else {
+			Interval interval = (Interval) other;
+			
+			return this.getToDate().equals(interval.getToDate()) 
+					&& this.getFromDate().equals(interval.getFromDate());
+		}
 	}
 	
 	/**
@@ -141,25 +141,14 @@ public class IntervalTo extends IntervalBase implements ScheduleResult {
 	public String toString() {
 
 		if (getFromDate().equals(getEndDate())) {
-			return "at " + formatDate(getFromDate());
+			return "at " + 
+				DateHelper.formatDateTimeInteligently(getFromDate());
 		}
 		else {
-			return formatDate(getFromDate())+ " up to " + 
-					formatDate(getToDate());	
-		}
-	}
-
-	private String formatDate(Date date) {
-		if (date.getTime() % 1000 == 0) {
-			// no milliseconds - then miss them off.
-			return new SimpleDateFormat(
-					DATE_FORMAT_SECONDS).format(date);
-		}
-		else {
-			return new SimpleDateFormat(
-					DATE_FORMAT_MILLISECONDS).format(date);
-		}
-		
+			return DateHelper.formatDateTimeInteligently(getFromDate()) + 
+				" up to " + 
+				DateHelper.formatDateTimeInteligently(getToDate());	
+		}		
 	}
 	
 	@Override

@@ -67,7 +67,7 @@ public class Timer extends TimerBase {
 		super.begin();
 		
 		if (getCurrent() != null && !skipMissedRuns) {
-			setNextDue(getCurrent().getFromDate());
+			setNextDue(getCurrent().getUseNext());
 		}
 		else {
 			scheduleFrom(getClock().getDate());
@@ -115,9 +115,9 @@ public class Timer extends TimerBase {
 				lastComplete = getCurrent();			
 	    	}
 	    	
-	    	Date use = getCurrent().getToDate();
+	    	Date use = getCurrent().getUseNext();
 	    	Date now = getClock().getDate();
-	    	if (skipMissedRuns && use.before(now)) {
+	    	if (use != null &&  skipMissedRuns && use.before(now)) {
 	    		use = now;
 	    	}
 	    	

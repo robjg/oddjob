@@ -3,7 +3,6 @@
  */
 package org.oddjob.schedules.schedules;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +10,6 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.oddjob.Helper;
-import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;

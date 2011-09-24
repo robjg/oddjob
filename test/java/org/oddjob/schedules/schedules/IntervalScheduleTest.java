@@ -184,7 +184,7 @@ public class IntervalScheduleTest extends TestCase {
 		WeeklySchedule day = new WeeklySchedule();
 		day.setOn(DayOfWeek.Days.WEDNESDAY);
 
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("23:00");
 		time.setTo("02:00");
 		

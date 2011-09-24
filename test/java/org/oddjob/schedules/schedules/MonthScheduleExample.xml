@@ -2,12 +2,12 @@
     <schedules>
         <schedules:yearly fromMonth="4" toMonth="9">
             <refinement>
-                <schedules:time at="10:00"/>
+                <schedules:daily at="10:00"/>
             </refinement>
         </schedules:yearly>
         <schedules:yearly fromMonth="10" toMonth="3">
             <refinement>
-                <schedules:time at="11:00"/>
+                <schedules:daily at="11:00"/>
             </refinement>
         </schedules:yearly>
     </schedules>

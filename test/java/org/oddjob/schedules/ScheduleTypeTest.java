@@ -1,5 +1,8 @@
 package org.oddjob.schedules;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -30,7 +33,7 @@ public class ScheduleTypeTest extends TestCase {
 		assertEquals("ScheduleType-Date-String", path.toString());
 	}	
    
-    public void testInOddjob() throws Exception {
+    public void testNowExample() throws Exception {
     	        
         Oddjob oddjob = new Oddjob();
         oddjob.setExport("date", new ArooaObject(
@@ -40,6 +43,8 @@ public class ScheduleTypeTest extends TestCase {
 				getClass().getClassLoader()));
         
         oddjob.run();
+        
+        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
         
         OddjobLookup lookup = new OddjobLookup(oddjob);
         
@@ -67,6 +72,59 @@ public class ScheduleTypeTest extends TestCase {
         oddjob.destroy();
     }
 
+    public void testWithTimeZone() throws Exception {
+        
+        Oddjob oddjob = new Oddjob();
+        oddjob.setExport("date", new ArooaObject(
+        		DateHelper.parseDateTime("2009-07-25 12:15")));
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/schedules/ScheduleTypeWithTimeZone.xml", 
+				getClass().getClassLoader()));
+        
+        oddjob.run();
+        
+        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+        
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+        
+        String typeToText = lookup.lookup("time.now", String.class);
+        
+        Date date = DateHelper.parseDate("2009-07-26", "Asia/Hong_Kong");
+        
+        assertEquals(DateHelper.formatDateTime(date), typeToText);
+        
+        String echoText = lookup.lookup("echo-time.text", String.class);
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("hh:mm a");
+        assertEquals("Tomorrow in Hong Kong starts at " + 
+        		sdf.format(date) + " our time.", echoText);
+        
+        oddjob.destroy();
+    }
+    
+    public void testNextBusinessDateExample() throws Exception {
+        
+        Oddjob oddjob = new Oddjob();
+        oddjob.setExport("date", new ArooaObject(
+        		DateHelper.parseDateTime("2011-12-23 12:15")));
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/schedules/ScheduleTypeNextBusinessDay.xml", 
+				getClass().getClassLoader()));
+        
+        oddjob.run();
+        
+        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+        
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+        
+        String echoText = lookup.lookup("echo-time.text", String.class);
+        
+        assertEquals("The next business date is 2011-12-28 00:00:00.000", 
+        		echoText);
+        
+        oddjob.destroy();
+    }
+
     public void testScheduleTypeForEach() throws Exception {
         
         Oddjob oddjob = new Oddjob();
@@ -81,6 +139,8 @@ public class ScheduleTypeTest extends TestCase {
 		
         oddjob.run();
         
+        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+        
         console.close();
         
         console.dump(logger);
@@ -91,7 +151,7 @@ public class ScheduleTypeTest extends TestCase {
         
         assertEquals(5, lines.length);
         
-        assertEquals("2011-09-20 10:30:00 up to 2011-09-21 00:00:00", 
+        assertEquals("Next due: 2011-09-20 10:30:00 up to 2011-09-21 00:00:00", 
         		lines[4].trim());
         
         oddjob.destroy();

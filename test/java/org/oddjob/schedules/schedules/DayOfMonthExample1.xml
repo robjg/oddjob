@@ -1,6 +1,6 @@
 <schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
                       fromDay="17" toDay="22">
      <refinement>
-        <schedules:time at="10:00"/>
+        <schedules:daily at="10:00"/>
      </refinement>
 </schedules:monthly>

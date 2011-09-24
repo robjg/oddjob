@@ -31,8 +31,8 @@ public class DateScheduleTest extends TestCase {
 		ScheduleContext scheduleContext = new ScheduleContext(new Date());
 
 		IntervalTo expected = new IntervalTo(
-				new Date(IntervalTo.START_OF_TIME),
-				new Date(IntervalTo.END_OF_TIME));
+				Interval.START_OF_TIME,
+				Interval.END_OF_TIME);
 		
 		Interval result = test.nextDue(scheduleContext);
 				
@@ -101,7 +101,7 @@ public class DateScheduleTest extends TestCase {
 		DateSchedule test = new DateSchedule();
 		test.setOn("2003-12-25");
 		
-		TimeSchedule timeSchedule = new TimeSchedule();
+		DailySchedule timeSchedule = new DailySchedule();
 		timeSchedule.setAt("12:00");
 		
 		test.setRefinement(timeSchedule);

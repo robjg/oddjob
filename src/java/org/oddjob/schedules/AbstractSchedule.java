@@ -2,10 +2,8 @@ package org.oddjob.schedules;
 
 import java.io.Serializable;
 
-
-
 /**
- * Proved a basis of common functionality for schedules.
+ * Provide a basis of common functionality for schedules.
  * 
  * @author Rob Gordon
  */

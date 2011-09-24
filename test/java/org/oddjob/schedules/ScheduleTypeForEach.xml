@@ -27,17 +27,17 @@
                                                         <schedule>
                                                             <schedules:weekly from="Monday" to="Friday" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
                                                                 <refinement>
-                                                                    <schedules:time from="10:30"/>
+                                                                    <schedules:daily from="10:30"/>
                                                                 </refinement>
                                                             </schedules:weekly>
                                                         </schedule>
                                                     </schedule>
                                                 </schedule>
                                             </variables>
-                                            <echo text="${time.schedule.current}"/>
+                                            <echo text="Next due: ${time.schedule.result}"/>
                                             <set>
                                                 <values>
-                                                    <value key="vars.date" value="${time.schedule.current.useNext}"/>
+                                                    <value key="vars.date" value="${time.schedule.result.useNext}"/>
                                                 </values>
                                             </set>
                                         </jobs>

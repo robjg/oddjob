@@ -26,17 +26,17 @@
 			<schedule>
 					<ft:list>
 						<schedules>
-							<ft:time from="10:00" to="11:03">
+							<ft:daily from="10:00" to="11:03">
 								<refinement>
 									<ft:interval interval="00:05"/>
 								</refinement>
-							</ft:time>
-							<ft:time from="17:00" to="17:30">
+							</ft:daily>
+							<ft:daily from="17:00" to="17:30">
 								<refinement>
 									<ft:interval interval="01:00"/>
 								</refinement>
-							</ft:time>
-							<ft:time from="22:00"/>
+							</ft:daily>
+							<ft:daily from="22:00"/>
 						</schedules>
 					</ft:list>
 			</schedule>
@@ -55,11 +55,11 @@
 					expectedTo="2002-03-13 01:00"/>
 			</runs>
 			<schedule>
-				<ft:time from="22:00" to="02:00">
+				<ft:daily from="22:00" to="02:00">
 					<refinement>
 						<ft:interval interval="01:30"/>
 					</refinement>
-				</ft:time>
+				</ft:daily>
 			</schedule>
 		</is>	
 
@@ -76,7 +76,7 @@
 					expectedTo="2002-03-14 23:59"/>
 			</runs>
 			<schedule>
-				<ft:time from="00:00" to="23:59"/>
+				<ft:daily from="00:00" to="23:59"/>
 			</schedule>
 		</is>	
 
@@ -90,7 +90,7 @@
 					expectedFrom="2002-03-14 15:23"/>
 			</runs>
 			<schedule>
-				<ft:time at="15:23"/>
+				<ft:daily at="15:23"/>
 			</schedule>
 		</is>	
 	

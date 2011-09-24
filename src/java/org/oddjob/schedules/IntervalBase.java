@@ -12,14 +12,7 @@ import java.util.Date;
 
 class IntervalBase implements Serializable {
     private static final long serialVersionUID = 20050226;
-    
-    /** The end of time. */
-    public static final long END_OF_TIME = Long.MAX_VALUE;
-    
-    /** The start of time. */
-    public static final long START_OF_TIME = Long.MIN_VALUE;
-    
-    
+        
 	private final Date fromDate;
 	private final Date toDate;
 	

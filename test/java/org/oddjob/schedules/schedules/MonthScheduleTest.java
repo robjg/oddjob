@@ -107,7 +107,7 @@ public class MonthScheduleTest extends TestCase {
     	YearlySchedule test = new YearlySchedule();
     	test.setInMonth(Month.Months.JANUARY);
     	
-    	TimeSchedule time = new TimeSchedule();
+    	DailySchedule time = new DailySchedule();
     	time.setAt("20:00");
     	
     	test.setRefinement(time);

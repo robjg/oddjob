@@ -30,25 +30,26 @@ public class AfterScheduleDE implements DesignFactory {
 
 class AfterScheduleDesign extends ParentSchedule {
 
-	private final SimpleDesignProperty apply;
+	private final SimpleDesignProperty schedule;
 	
 
 	public AfterScheduleDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
-		apply = new SimpleDesignProperty(
-				"apply", this);
+		schedule = new SimpleDesignProperty(
+				"schedule", this);
 	}
 	
 	public DesignProperty[] children() {
-		return new DesignProperty[] { getRefinement(), apply };
+		return new DesignProperty[] { getRefinement(), schedule };
 	}
 	
 	public Form detail() {
 		return new StandardForm(this)
 			.addFormItem(new BorderedGroup()
+				.add(schedule.view().setTitle("Schedule"))
 				.add(getRefinement().view().setTitle("Refinement"))
-				.add(apply.view().setTitle("Apply")));
+			);
 	}
 	
 }

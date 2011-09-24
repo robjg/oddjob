@@ -186,7 +186,7 @@ public class BrokenScheduleTest extends TestCase {
 		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
 		dayOfWeekSchedule.setOn(DayOfWeek.Days.THURSDAY);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("22:00");
 		time.setTo("02:00");
 
@@ -256,7 +256,7 @@ public class BrokenScheduleTest extends TestCase {
 		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
 		dayOfWeekSchedule.setOn(DayOfWeek.Days.THURSDAY);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("22:00");
 		time.setTo("02:00");
 

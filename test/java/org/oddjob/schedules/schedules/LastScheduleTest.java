@@ -73,7 +73,7 @@ public class LastScheduleTest extends TestCase {
 		YearlySchedule month = new YearlySchedule();
 		month.setInMonth(Month.Months.APRIL);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("00:00");
 		time.setTo("23:59");
 

@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.schedules.CountSchedule;
+import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.DateSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
@@ -31,12 +32,12 @@ public class ScheduleCalculatorTest extends TestCase {
 
     DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-	TimeSchedule schedule;
+	DailySchedule schedule;
 	Schedule retrySchedule;
 	
 	String scheduleDate;
 	String nextDue;
-	Interval lastComplete;
+	ScheduleResult lastComplete;
 	boolean failed;
 	boolean retry;
 	
@@ -58,7 +59,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		 * @see org.oddjob.treesched.ScheduleListener#complete(java.util.Date, java.util.Date)
 		 */
 		@Override
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		public void complete(Date scheduleDate, ScheduleResult lastComplete) {
 			if (scheduleDate == null) {
 				ScheduleCalculatorTest.this.scheduleDate = null; 
 				ScheduleCalculatorTest.this.nextDue = null;				
@@ -112,7 +113,7 @@ public class ScheduleCalculatorTest extends TestCase {
 				TimeZone.getDefault().getDisplayName());
 		
 		// set schedule
-		schedule = new TimeSchedule();
+		schedule = new DailySchedule();
 		schedule.setFrom("12:00");
 		schedule.setTo("14:00");
 

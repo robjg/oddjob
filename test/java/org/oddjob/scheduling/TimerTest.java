@@ -37,6 +37,7 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.schedules.CountSchedule;
+import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.DateSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.NowSchedule;
@@ -166,7 +167,7 @@ public class TimerTest extends TestCase {
 		FlagState job = new FlagState();
 		job.setState(JobState.COMPLETE);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("14:45");
 		time.setTo("14:55");
 		
@@ -204,7 +205,7 @@ public class TimerTest extends TestCase {
 		FlagState job = new FlagState();
 		job.setState(JobState.COMPLETE);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setAt("12:00");
 		
 		OurClock clock = new OurClock();
@@ -243,7 +244,7 @@ public class TimerTest extends TestCase {
 		FlagState job = new FlagState();
 		job.setState(JobState.COMPLETE);
 		
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setAt("12:00");
 		
 		OurClock clock = new OurClock();
@@ -316,9 +317,9 @@ public class TimerTest extends TestCase {
 		
 		DateSchedule schedule = new DateSchedule();
 		schedule.setOn("2020-06-21");
-		TimeSchedule ts = new TimeSchedule();
-		ts.setAt("10:00");
-		schedule.setRefinement(ts);
+		DailySchedule daily = new DailySchedule();
+		daily.setAt("10:00");
+		schedule.setRefinement(daily);
 		
 		OurJob ourJob = new OurJob();
 		

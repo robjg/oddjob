@@ -40,6 +40,10 @@ public class ScheduleRoller {
 			
 			results[i] = result;
 			
+			if (result.getUseNext() == null) {
+				break;
+			}
+			
 			context = context.move(result.getUseNext());
 		}
 		

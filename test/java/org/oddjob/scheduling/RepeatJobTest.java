@@ -23,6 +23,7 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.schedules.CountSchedule;
+import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.state.FlagState;
@@ -88,7 +89,7 @@ public class RepeatJobTest extends TestCase {
 		job.addIconListener(new MyIconListener());
 
 		// set schedule
-		TimeSchedule schedule = new TimeSchedule();
+		DailySchedule schedule = new DailySchedule();
 		schedule.setAt("12:00");
 		
 	    Clock clock = new Clock() {

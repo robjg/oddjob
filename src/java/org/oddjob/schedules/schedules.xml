@@ -16,6 +16,9 @@
 		<is element='count' 
 			className='org.oddjob.schedules.schedules.CountSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.CountScheduleDE'/>
+        <is element='daily' 
+            className='org.oddjob.schedules.schedules.DailySchedule'
+            designFactory='org.oddjob.designer.elements.schedule.TimeScheduleDE'/>
 		<is element='date' 
 			className='org.oddjob.schedules.schedules.DateSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.DateScheduleDE'/>

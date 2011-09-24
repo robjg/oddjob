@@ -10,6 +10,8 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.ScheduleType;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 
 
@@ -21,21 +23,38 @@ import org.oddjob.schedules.ScheduleResult;
  * <p>
  * This schedule works by moving the schedule forward if the start time of the
  * next interval falls within the next interval defined by the break. In the
- * example below for a time of 12:00 on 24-dec-04 the logic is as follows:
+ * example below for a time of Midday on 24th of December the logic is as follows:
  * <ul>
- *   <li>The schedule is next due at 10:00 on the 25-dec-04.</li>
- *   <li>This schedule is within the break, move the schedule on.</li>
- *   <li>The schedule is next due at 10:00 on the 26-dec-04.</li>
- *   <li>This schedule is within the break, move the schedule on.</li>
- *   <li>The schedule is next due at 10:00 on the 27-dec-04.</li>
+ *   <li>The schedule is next due at 10:00 on the 25th of December.</li>
+ *   <li>This is within the break, move the schedule on.</li>
+ *   <li>The schedule is next due at 10:00 on the 26th of December.</li>
+ *   <li>This is within the break, move the schedule on.</li>
+ *   <li>The schedule is next due at 10:00 on the 27th of December.</li>
  *   <li>This schedule is outside the break, use this result.</li>
  * </ul>
+ * <p>
+ * The optional alternative property defines a schedule to be used during the
+ * breaks, instead of simply moving the interval forward.
  * 
  * @oddjob.example
  * 
  * A schedule that breaks for Christmas.
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/BrokenScheduleExample.xml}
+ * 
+ * The logic is explained above.
+ * 
+ * @oddjob.example
+ * 
+ * Examples elsewhere.
+ * <ul>
+ *  <li>The {@link AfterSchedule} documentation has an example that uses the 
+ *  <code>broken</code> schedule to calculate the day after the next
+ *  working day.</li>
+ *  <li>The {@link ScheduleType} documentation shows a <code>broken</code>
+ *  schedule being used to calculate the next working day.</li>
+ * </ul>
+ * 
  * 
  * @author Rob Gordon
  */
@@ -149,6 +168,7 @@ public class BrokenSchedule implements Serializable, Schedule{
 			if (exclude == null) {
 			    return next;
 			}
+			
 			// if this interval is before the break
 			if (new IntervalHelper(next).isBefore(exclude)) {
 				return next;				
@@ -156,14 +176,27 @@ public class BrokenSchedule implements Serializable, Schedule{
 			
 			// if we got here the last interval is blocked by an exclude.
 			
-			// first see if there is an alternative.
-			if (alternative != null) {
-				return alternative.nextDue(context.spawn(use, exclude));
+			// move the interval on.
+			if (next.getUseNext() == null) {
+				use = null;
+			}
+			else {
+				if (exclude.getToDate().after(next.getUseNext())) {
+					use = exclude.getToDate();
+				}
+				else {
+					use = next.getUseNext();
+				}
 			}
 			
-			// otherwise move the interval on.
-
-			use = next.getToDate();
+			// see if there is an alternative.
+			if (alternative != null) {
+				ScheduleResult alternativeResult = alternative.nextDue(context.spawn(use, exclude));
+				if (alternativeResult == null) {
+					return null;
+				}
+				return new SimpleScheduleResult(alternativeResult, use);
+			}			
 		}
 	}
 

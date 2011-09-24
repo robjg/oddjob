@@ -1,0 +1,47 @@
+<oddjob xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id='time'>
+                    <tomorrow>
+                        <schedule>
+                            <date>
+                                <value value='${date}'/>
+                            </date>
+                            <schedule>
+                                <schedules:day-after/>
+                            </schedule>
+                        </schedule>
+                    </tomorrow>
+                    <nextBusinessDay>                    
+                        <schedule>
+                            <date>
+                                <value value='${time.tomorrow}'/>
+                            </date>
+                            <schedule>
+                                <schedules:broken>
+                                    <schedule>
+                                        <schedules:weekly from="Monday" to="Friday">
+                                            <refinement>
+                                                <schedules:daily/>
+                                            </refinement>
+                                        </schedules:weekly>
+                                    </schedule>
+                                    <breaks>
+                                        <schedules:list>
+                                            <schedules>
+                                                <schedules:date on="2011-12-26"/>
+                                                <schedules:date on="2011-12-27"/>
+                                            </schedules>
+                                        </schedules:list>
+                                    </breaks>
+                                </schedules:broken>
+                            </schedule>
+                        </schedule>
+                    </nextBusinessDay>
+                </variables>
+                <echo id='echo-time' text="The next business date is ${time.nextBusinessDay}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

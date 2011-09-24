@@ -3,6 +3,14 @@ package org.oddjob.schedules;
 import java.io.Serializable;
 import java.util.Date;
 
+import org.oddjob.arooa.utils.DateHelper;
+
+/**
+ * A simple {@link ScheduleResult}
+ * 
+ * @author rob
+ *
+ */
 public class SimpleScheduleResult implements ScheduleResult, Serializable {
 	
 	private static final long serialVersionUID = 2011091500L;
@@ -16,7 +24,11 @@ public class SimpleScheduleResult implements ScheduleResult, Serializable {
 	}
 	
 	public SimpleScheduleResult(Interval interval, Date useNext) {
-		this.interval = interval;
+		if (interval == null) {
+			throw new NullPointerException("No Interval.");
+		}
+		
+		this.interval = new SimpleInterval(interval);
 		this.useNext = useNext;
 	}
 	
@@ -41,7 +53,7 @@ public class SimpleScheduleResult implements ScheduleResult, Serializable {
 	 * 
 	 */
 	public int hashCode() {
-		return interval.hashCode() + useNext.hashCode();
+		return interval.hashCode();
 	}
 
 	/**
@@ -62,14 +74,31 @@ public class SimpleScheduleResult implements ScheduleResult, Serializable {
 			return other.equals(this);
 		}
 		
-		ScheduleResult interval = (ScheduleResult) other;
+		ScheduleResult result = (ScheduleResult) other;
 		
-		return this.interval.equals(other)
-				&& this.getUseNext().equals(interval.getUseNext());
+		if (useNext == null) {
+			if (result.getUseNext() != null) {
+				return false;
+			}
+		}
+		else {
+			if (!useNext.equals(result.getUseNext())) {
+				return false;
+			}
+		}
+		
+		return interval.getToDate().equals(result.getToDate()) 
+			&& interval.getFromDate().equals(result.getFromDate());
 	}
 	
 	@Override
 	public String toString() {
-		return interval.toString();
+		String useNextText = "";
+		if (!interval.getToDate().equals(useNext)) {
+			useNextText = ", use next " + 
+			DateHelper.formatDateTimeInteligently(useNext);
+		}
+		
+		return interval.toString() + useNextText;
 	}
 }

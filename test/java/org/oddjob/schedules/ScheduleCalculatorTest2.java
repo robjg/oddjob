@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.schedules.IntervalSchedule;
-import org.oddjob.schedules.schedules.TimeSchedule;
+import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.scheduling.ManualClock;
 import org.oddjob.util.Clock;
 
@@ -40,7 +40,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		boolean failed;
 		
 		@Override
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		public void complete(Date scheduleDate, ScheduleResult lastComplete) {
 			throw new RuntimeException("Unexpected.");
 		}
 		
@@ -67,10 +67,10 @@ public class ScheduleCalculatorTest2 extends TestCase {
 	
 	public void testUserGuideScheduleExample() throws ParseException {
 		
-		TimeSchedule schedule = new TimeSchedule();
+		DailySchedule schedule = new DailySchedule();
 		schedule.setFrom("07:00");
 		
-		TimeSchedule retry = new TimeSchedule();
+		DailySchedule retry = new DailySchedule();
 		retry.setFrom("07:00");
 		retry.setTo("14:00");
 		
@@ -109,10 +109,10 @@ public class ScheduleCalculatorTest2 extends TestCase {
 	
 	public void testUserGuideScheduleExampleLateStart() throws ParseException {
 		
-		TimeSchedule schedule = new TimeSchedule();
+		DailySchedule schedule = new DailySchedule();
 		schedule.setFrom("07:00");
 		
-		TimeSchedule retry = new TimeSchedule();
+		DailySchedule retry = new DailySchedule();
 		retry.setFrom("07:00");
 		retry.setTo("14:00");
 		
@@ -146,7 +146,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		Date scheduleDate;
 		
 		@Override
-		public void complete(Date scheduleDate, Interval lastComplete) {
+		public void complete(Date scheduleDate, ScheduleResult lastComplete) {
 			this.scheduleDate = scheduleDate;
 		}
 		

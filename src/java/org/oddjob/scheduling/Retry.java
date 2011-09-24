@@ -93,11 +93,13 @@ public class Retry extends TimerBase {
 	    	setNextDue(null);
 	    }
 	    else {
+
 	    	Date use = getCurrent().getUseNext();
 	    	Date now = getClock().getDate();
-	    	if (use.before(now)) {
+	    	if (use != null && use.before(now)) {
 	    		use = now;
 	    	}
+	    	
 	    	scheduleFrom(use);
 	    }
 	}

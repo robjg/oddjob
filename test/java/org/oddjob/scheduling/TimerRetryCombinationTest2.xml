@@ -3,7 +3,7 @@
     <job>
         <scheduling:timer id="timer" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
             <schedule>
-                <schedules:time from="07:00"  xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                <schedules:daily from="07:00"  xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
             </schedule>
             <clock>
             	<value value="${clock}"/>

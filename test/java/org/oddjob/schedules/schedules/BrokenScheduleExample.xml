@@ -1,6 +1,6 @@
 <schedules:broken xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
     <schedule>
-        <schedules:time at="10:00"/>
+        <schedules:daily at="10:00"/>
     </schedule>
     <breaks>
         <schedules:yearly fromDate="12-25" toDate="12-26"/>

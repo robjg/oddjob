@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.DateUtils;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -103,7 +104,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 */	
 	Date getStartDate(ScheduleContext context) {
 	    if (startDate == null) {
-	        return new Date(IntervalTo.START_OF_TIME);
+	        return Interval.START_OF_TIME;
 	    }
 	    
 	    TimeZone timeZone = context.getTimeZone();
@@ -124,7 +125,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 */
 	Date getEndDate(ScheduleContext context) {
 	    if (endDate == null) {
-	    	return new Date(IntervalTo.END_OF_TIME);
+	    	return Interval.END_OF_TIME;
 	    }
 	    
 	    TimeZone timeZone = context.getTimeZone();

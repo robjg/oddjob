@@ -14,8 +14,8 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.WeeklySchedule;
-import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.schedules.units.DayOfWeek;
 
 /**
@@ -31,11 +31,11 @@ public class ScheduleListTest extends TestCase {
 	
 	public void testTwoTimes() throws ParseException {
 		
-		TimeSchedule s1 = new TimeSchedule();
+		DailySchedule s1 = new DailySchedule();
 		s1.setFrom("10:00");
 		s1.setTo("11:00");
 		
-		TimeSchedule s2 = new TimeSchedule();
+		DailySchedule s2 = new DailySchedule();
 		s2.setFrom("22:00");
 		s2.setTo("02:00");
 		
@@ -67,11 +67,11 @@ public class ScheduleListTest extends TestCase {
 	
 	public void testTwoTimesAsRefinement() throws ParseException {
 		
-		TimeSchedule s1 = new TimeSchedule();
+		DailySchedule s1 = new DailySchedule();
 		s1.setFrom("10:00");
 		s1.setTo("11:00");
 		
-		TimeSchedule s2 = new TimeSchedule();
+		DailySchedule s2 = new DailySchedule();
 		s2.setFrom("22:00");
 		s2.setTo("02:00");
 		

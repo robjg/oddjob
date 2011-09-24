@@ -13,8 +13,7 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
- * @oddjob.description Schedule at a point in time immediately
- * after the nested schedule. 
+ * @oddjob.description Schedule something after the given schedule. 
  * <p>
  * This can be useful when wanting a schedule to begin at the end of an
  * interval instead of the beginning.
@@ -28,28 +27,47 @@ import org.oddjob.schedules.SimpleScheduleResult;
  * This would schedule a job to run once after 20 minutes. It could be
  * used to stop a long running job for instance.
  * 
+ * @oddjob.example
+ * 
+ * A schedule for the day after a the current business day.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/AfterBusinessDays.xml}
+ * 
+ * Normally this will schedule something from 08:00 am Tuesday to Saturday, 
+ * but for the week where Monday 2nd of May was a public holiday the schedule
+ * will be from Wednesday to Saturday.
+ * <p>
+ * The after schedule differs from the {@link DayAfterSchedule} in that
+ * day-after is designed to narrow it's parent interval but this schedule 
+ * applies a refinement to it child schedule. The difference is subtle
+ * but hopefully the examples demonstrate how each should be used. 
+ * 
  * @author Rob Gordon
  */
 final public class AfterSchedule extends AbstractSchedule implements Serializable {
     
-    private static final long serialVersionUID = 20050226;
+    private static final long serialVersionUID = 200902262011092000L;
     
     private static final Logger logger = Logger.getLogger(AfterSchedule.class);
     
-    private Schedule apply;
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The schedule to be after.
+	 * @oddjob.required Yes.
+	 */
+    private Schedule schedule;
     
 	public ScheduleResult nextDue(ScheduleContext context) {
 				
-		Schedule child = getRefinement();
-		if (child == null) {
-		    throw new IllegalStateException("After must have a child schedule.");
+		if (schedule == null) {
+		    throw new IllegalStateException("After must have a schedule to be after.");
 		}
 		
 		Date now = context.getDate();
 		
 		logger.debug(this + ": in date is " + now);
 		
-		ScheduleResult next = child.nextDue(context);
+		ScheduleResult next = schedule.nextDue(context);
 				
 		if (next == null) {
 		    return null;
@@ -57,12 +75,12 @@ final public class AfterSchedule extends AbstractSchedule implements Serializabl
 		
 		Date from = next.getToDate();
 		
-		ScheduleResult following = child.nextDue(context.move(from));
+		ScheduleResult following = schedule.nextDue(context.move(from));
 		
 		Date to;
 		
 		if (following == null) {
-			to = new Date(IntervalTo.END_OF_TIME);
+			to = Interval.END_OF_TIME;
 		}
 		else {
 			to = following.getToDate();
@@ -70,12 +88,13 @@ final public class AfterSchedule extends AbstractSchedule implements Serializabl
 		
 		IntervalTo afterInterval = new IntervalTo(from, to); 
 		
+		Schedule refinement = getRefinement();  
 		Interval result; 
-		if (apply == null) {
+		if (refinement == null) {
 			result = afterInterval;
 		}
 		else {
-			result = apply.nextDue(context.spawn(
+			result = refinement.nextDue(context.spawn(
 					afterInterval.getFromDate(), afterInterval));
 		}
 		
@@ -86,11 +105,11 @@ final public class AfterSchedule extends AbstractSchedule implements Serializabl
 		return new SimpleScheduleResult(result, from);
 	}
 	
-	public Schedule getApply() {
-		return apply;
+	public Schedule getSchedule() {
+		return schedule;
 	}
 
-	public void setApply(Schedule apply) {
-		this.apply = apply;
+	public void setSchedule(Schedule schedule) {
+		this.schedule = schedule;
 	}
 }

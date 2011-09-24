@@ -6,7 +6,7 @@
                 <value value="${clock}"/>
             </clock>
             <schedule>
-                <schedules:time from="05:30" to="06:30" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                <schedules:daily from="05:30" to="06:30" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
             </schedule>
             <job>
                 <echo id="scheduled-job" 

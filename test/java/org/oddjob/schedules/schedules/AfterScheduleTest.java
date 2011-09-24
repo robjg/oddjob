@@ -23,6 +23,8 @@ import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.SimpleInterval;
+import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  *
@@ -40,23 +42,51 @@ public class AfterScheduleTest extends TestCase {
         IntervalSchedule interval = new IntervalSchedule();
         interval.setInterval("00:10");
         
-        after.setRefinement(interval);
+        after.setSchedule(interval);
 
-        Interval[] results = new ScheduleRoller(
+        ScheduleResult[] results = new ScheduleRoller(
         		after).resultsFrom(
         				DateHelper.parseDateTime("2000-01-01 12:00"));
 
-        IntervalTo expected = new IntervalTo(
-        		DateHelper.parseDateTime("2000-01-01 12:10"),
-        		DateHelper.parseDateTime("2000-01-01 12:20"));
+        ScheduleResult expected = new SimpleScheduleResult(
+        		new SimpleInterval(
+	        		DateHelper.parseDateTime("2000-01-01 12:10"),
+	        		DateHelper.parseDateTime("2000-01-01 12:20")),
+	        	DateHelper.parseDateTime("2000-01-01 12:10"));
 
         assertEquals(expected, results[0]);        
         
-        expected = new IntervalTo(
-        		DateHelper.parseDateTime("2000-01-01 12:20"),
-        		DateHelper.parseDateTime("2000-01-01 12:30"));
+        expected = new SimpleScheduleResult(
+        		new SimpleInterval(
+	        		DateHelper.parseDateTime("2000-01-01 12:20"),
+	        		DateHelper.parseDateTime("2000-01-01 12:30")),
+	        	DateHelper.parseDateTime("2000-01-01 12:20"));
 
         assertEquals(expected, results[1]);        
+    }
+   
+    public void testAfterEndOfSchedule() throws ParseException {
+    	
+        AfterSchedule after = new AfterSchedule();
+        
+        DateSchedule interval = new DateSchedule();
+        interval.setOn("2011-09-20");
+        
+        after.setSchedule(interval);
+
+        Interval[] results = new ScheduleRoller(
+        		after).resultsFrom(
+        				DateHelper.parseDateTime("2011-09-20 12:00"));
+
+        ScheduleResult expected = new SimpleScheduleResult(
+        	new IntervalTo(
+        		DateHelper.parseDateTime("2011-09-21 00:00"),
+        		IntervalTo.END_OF_TIME),
+        	DateHelper.parseDateTime("2011-09-21 00:00"));
+
+        assertEquals(expected, results[0]);        
+        
+        assertEquals(null, results[1]);        
     }
     
     public void testAfterExample() throws ArooaParseException, ParseException {
@@ -79,9 +109,11 @@ public class AfterScheduleTest extends TestCase {
     	
     	ScheduleResult next = schedule.nextDue(context);
     	
-    	IntervalTo expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-12 11:20"),
-    			DateHelper.parseDateTime("2011-04-12 11:40"));
+    	ScheduleResult expected = new SimpleScheduleResult(
+    			new IntervalTo(
+	    			DateHelper.parseDateTime("2011-04-12 11:20"),
+	    			DateHelper.parseDateTime("2011-04-12 11:40")),
+	    		DateHelper.parseDateTime("2011-04-12 11:20"));
     	
     	assertEquals(expected, next);
     	
@@ -103,42 +135,54 @@ public class AfterScheduleTest extends TestCase {
     	
     	Schedule schedule = (Schedule)	parser.getRoot();
     	
-    	Interval[] results = new ScheduleRoller(schedule).resultsFrom(
+    	ScheduleResult[] results = new ScheduleRoller(schedule).resultsFrom(
     			DateHelper.parseDateTime("2011-04-27 12:00"));
     	    	
-    	IntervalTo expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-28 08:00"),
-    			DateHelper.parseDateTime("2011-04-29 00:00"));
+    	Interval expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+	    			DateHelper.parseDateTime("2011-04-28 08:00"),
+	    			DateHelper.parseDateTime("2011-04-29 00:00")),
+    			DateHelper.parseDateTime("2011-04-28 00:00"));
     	
     	assertEquals(expected, results[0]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-29 08:00"),
-    			DateHelper.parseDateTime("2011-04-30 00:00"));
+    	expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+    					DateHelper.parseDateTime("2011-04-29 08:00"),
+    					DateHelper.parseDateTime("2011-04-30 00:00")),
+    			DateHelper.parseDateTime("2011-04-29 00:00"));
     	
     	assertEquals(expected, results[1]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-30 08:00"),
-    			DateHelper.parseDateTime("2011-04-31 00:00"));
+    	expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+    					DateHelper.parseDateTime("2011-04-30 08:00"),
+    					DateHelper.parseDateTime("2011-05-04 00:00")),
+    			DateHelper.parseDateTime("2011-04-30 00:00"));
     	
     	assertEquals(expected, results[2]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-05-04 08:00"),
-    			DateHelper.parseDateTime("2011-05-05 00:00"));
+    	expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+    					DateHelper.parseDateTime("2011-05-04 08:00"),
+    					DateHelper.parseDateTime("2011-05-05 00:00")),
+    			DateHelper.parseDateTime("2011-05-04 00:00"));
     	
     	assertEquals(expected, results[3]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-05-05 08:00"),
-    			DateHelper.parseDateTime("2011-05-06 00:00"));
+    	expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+    					DateHelper.parseDateTime("2011-05-05 08:00"),
+    					DateHelper.parseDateTime("2011-05-06 00:00")),
+    			DateHelper.parseDateTime("2011-05-05 00:00"));
     	
     	assertEquals(expected, results[4]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-05-06 08:00"),
-    			DateHelper.parseDateTime("2011-05-07 00:00"));
+    	expected = new SimpleScheduleResult(
+    			new SimpleInterval(
+    					DateHelper.parseDateTime("2011-05-06 08:00"),
+    					DateHelper.parseDateTime("2011-05-07 00:00")),
+    			DateHelper.parseDateTime("2011-05-06 00:00"));
     	
     	assertEquals(expected, results[5]);
 	}

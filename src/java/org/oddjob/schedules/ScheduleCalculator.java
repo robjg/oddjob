@@ -139,7 +139,7 @@ public class ScheduleCalculator {
 	/**
 	 * Initialize the scheduler.
 	 */
-	synchronized public void initialise(Interval lastComplete, Map<Object, Object> contextData) {
+	synchronized public void initialise(ScheduleResult lastComplete, Map<Object, Object> contextData) {
 		if (initialised) {
 			throw new IllegalStateException("Already initialised.");
 		}
@@ -149,10 +149,10 @@ public class ScheduleCalculator {
 		// always start on a normal schedule.
 		currentSchedule(normalSchedule);
 		// if the last complete time was persisted.
-		if (lastComplete != null) {
+		if (lastComplete != null && lastComplete.getUseNext() != null) {
 			// work with a time that is one millisecond after the lastComplete
 			// interval.
-			Date useTime = lastComplete.getToDate(); 
+			Date useTime = lastComplete.getUseNext(); 
 			normalContext = new ScheduleContext(
 					useTime, timeZone, contextData);
 		    currentInterval = currentSchedule.nextDue(normalContext);
@@ -201,7 +201,7 @@ public class ScheduleCalculator {
 		
 		logger.debug("Calculate Complete");
 		currentSchedule(normalSchedule);
-		Interval lastComplete = normalInterval;
+		ScheduleResult lastComplete = normalInterval;
 		normalContext = normalContext.move(
 				currentInterval.getToDate());
 		// calculate the next due time.
@@ -306,7 +306,7 @@ public class ScheduleCalculator {
 		}
 	}
 	    
-	protected void fireComplete(Interval lastComplete) {
+	protected void fireComplete(ScheduleResult lastComplete) {
 		Date scheduleDate;
 	    if (normalInterval == null) {
 	        scheduleDate = null;

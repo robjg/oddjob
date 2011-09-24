@@ -16,7 +16,9 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleList;
+import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.units.DayOfWeek;
 import org.oddjob.schedules.units.Month;
 
@@ -27,15 +29,18 @@ public class DayBeforeScheduleTest extends TestCase {
 		DayBeforeSchedule test = new DayBeforeSchedule();
 		
 		ScheduleContext context = new ScheduleContext(new Date());
+		
 		context = context.spawn(new Date(), new IntervalTo(
 				DateHelper.parseDate("2011-09-15"), 
 				DateHelper.parseDate("2011-09-16")));
 		
 		Interval result = test.nextDue(context);
 		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDate("2011-09-14"), 
-				DateHelper.parseDate("2011-09-15"));
+		ScheduleResult expected = new SimpleScheduleResult(
+				new IntervalTo(
+					DateHelper.parseDate("2011-09-14"), 
+					DateHelper.parseDate("2011-09-15")),
+				DateHelper.parseDate("2011-09-16"));
 		
 		assertEquals(expected, result);
 	}
@@ -49,23 +54,30 @@ public class DayBeforeScheduleTest extends TestCase {
 
 		weekly.setRefinement(test);
 
-		TimeSchedule time = new TimeSchedule();
+		DailySchedule time = new DailySchedule();
 		time.setFrom("14:00");
 		
 		test.setRefinement(time);
 
-		Interval[] results = new ScheduleRoller(weekly).resultsFrom(
+		// 14th and 21st were Wednesday.
+		
+		ScheduleResult[] results = new ScheduleRoller(
+					weekly).resultsFrom(
 				DateHelper.parseDateTime("2011-09-14 12:00"));
 				
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2011-09-13 14:00"), 
-				DateHelper.parseDate("2011-09-14"));
+		ScheduleResult expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2011-09-13 14:00"), 
+						DateHelper.parseDate("2011-09-14")),
+				DateHelper.parseDate("2011-09-15"));
 		
 		assertEquals(expected, results[0]);
 		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2011-09-20 14:00"), 
-				DateHelper.parseDate("2011-09-21"));
+		expected = new SimpleScheduleResult(
+				new IntervalTo(
+						DateHelper.parseDateTime("2011-09-20 14:00"), 
+						DateHelper.parseDate("2011-09-21")),
+				DateHelper.parseDateTime("2011-09-22"));
 		
 		assertEquals(expected, results[1]);
 	}
@@ -97,33 +109,42 @@ public class DayBeforeScheduleTest extends TestCase {
     	Interval[] results = new ScheduleRoller(schedule).resultsFrom(
     			DateHelper.parseDateTime("2011-04-12 11:00"));
     	    	
-    	IntervalTo expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-04-29 21:00"));
+    	ScheduleResult expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-04-29 21:00")),
+    			DateHelper.parseDateTime("2011-05-02"));
     	
     	assertEquals(expected, results[0]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-05-31 17:00"));
+    	expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-05-31 17:00")));
     	
     	assertEquals(expected, results[1]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-06-30 17:00"));
+    	expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-06-30 17:00")));
     	
     	assertEquals(expected, results[2]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-07-29 21:00"));
+    	expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-07-29 21:00")),
+    			DateHelper.parseDateTime("2011-09-01"));
     	
     	assertEquals(expected, results[3]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-09-29 21:00"));
+    	expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-09-29 21:00")),
+    			DateHelper.parseDateTime("2011-10-03"));
     	
     	assertEquals(expected, results[4]);
     	
-    	expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-10-31 17:00"));
+    	expected = new SimpleScheduleResult(
+    			new IntervalTo(
+    					DateHelper.parseDateTime("2011-10-31 17:00")));
     	
     	assertEquals(expected, results[5]);
 	}

@@ -91,9 +91,9 @@ public class TestScheduleRun {
 			return;
 		}
 
-		if (!expected.equals(nextDue)) {
+		if (!expected.getFromDate().equals(nextDue.getFromDate())
+				|| !expected.getToDate().equals(nextDue.getToDate())) {
 			throw new Exception("For date: " + date + ", Expected: " + expected + ", Actual: " + nextDue); 
 		}
-
 	}
 }

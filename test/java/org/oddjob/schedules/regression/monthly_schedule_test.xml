@@ -38,7 +38,7 @@
 			<schedule>
 				<ft:yearly inMonth="1">
 					<refinement>
-						<ft:time at="20:00"/>
+						<ft:daily at="20:00"/>
 					</refinement>
 				</ft:yearly>
 			</schedule>
@@ -118,7 +118,7 @@
 							<refinement>
 								<ft:last>
 									<refinement>
-										<ft:time from="00:00" to="23:59"/>
+										<ft:daily from="00:00" to="23:59"/>
 									</refinement>
 								</ft:last>
 							</refinement>
@@ -130,7 +130,7 @@
 									<refinement>
 										<ft:last>
 											<refinement>
-												<ft:time from="00:00" to="23:59"/>
+												<ft:daily from="00:00" to="23:59"/>
 											</refinement>
 										</ft:last>
 									</refinement>
@@ -162,7 +162,7 @@
 							<refinement>
 								<ft:broken>
 									<schedule>
-										<ft:time from="00:00" to="23:59" />
+										<ft:daily from="00:00" to="23:59" />
 									</schedule>
 									<breaks>
 										<ft:list>
@@ -196,14 +196,14 @@
 			</runs>
 			<schedule>
 				<ft:after>
-					<refinement>
+                    <schedule>
 						<ft:monthly fromDay="-3" toDay="0">
 							<refinement>
 								<ft:last>
 									<refinement>
 										<ft:broken>
 											<schedule>
-												<ft:time/>
+												<ft:daily/>
 											</schedule>
 											<breaks>
 												<ft:list>
@@ -218,10 +218,10 @@
 								</ft:last>
 							</refinement>
 						</ft:monthly>
+                    </schedule>
+                    <refinement>
+                        <ft:daily from="02:00" to="06:00"/>
 					</refinement>
-                    <apply>
-                        <ft:time from="02:00" to="06:00"/>
-                    </apply>
 				</ft:after>
 			</schedule>
 		</is>
@@ -250,7 +250,7 @@
 					<schedules>
 						<ft:yearly inMonth="1">
 							<refinement>
-								<ft:time at="20:00"/>
+								<ft:daily at="20:00"/>
 							</refinement>
 						</ft:yearly>
 						<ft:yearly fromMonth="7" toMonth="9">
