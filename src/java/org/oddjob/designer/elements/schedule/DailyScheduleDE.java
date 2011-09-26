@@ -19,23 +19,22 @@ import org.oddjob.arooa.parsing.ArooaElement;
  * Time Schedule
  *
  */
-public class TimeScheduleDE implements DesignFactory {
+public class DailyScheduleDE implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
 
-		return new TimeScheduleDesign(element, parentContext);
+		return new DailyScheduleDesign(element, parentContext);
 	}
 }
 
-class TimeScheduleDesign extends ParentSchedule {
+class DailyScheduleDesign extends ParentSchedule {
 	
 	private final SimpleTextAttribute at;
 	private final SimpleTextAttribute from;
 	private final SimpleTextAttribute to;
-	private final SimpleTextAttribute toLast;
 
-	public TimeScheduleDesign(ArooaElement element, ArooaContext context) {
+	public DailyScheduleDesign(ArooaElement element, ArooaContext context) {
 		super(element, context);
 		
 		at = new SimpleTextAttribute("at", this);
@@ -43,8 +42,6 @@ class TimeScheduleDesign extends ParentSchedule {
 		from = new SimpleTextAttribute("from", this);
 		
 		to = new SimpleTextAttribute("to", this);
-		
-		toLast = new SimpleTextAttribute("toLast", this);
 	}
 	
 	public Form detail() {
@@ -53,8 +50,7 @@ class TimeScheduleDesign extends ParentSchedule {
 				.add(new FieldSelection()
 					.add(new FieldGroup()
 						.add(from.view().setTitle("From"))
-						.add(to.view().setTitle("To"))
-						.add(toLast.view().setTitle("To Last")))
+						.add(to.view().setTitle("To")))
 					.add(at.view().setTitle("At"))))
 			.addFormItem(new BorderedGroup()
 				.add(getRefinement().view().setTitle("Refinement")));				
@@ -62,6 +58,6 @@ class TimeScheduleDesign extends ParentSchedule {
 
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { at, from, to, toLast, getRefinement() };
+		return new DesignProperty[] { at, from, to, getRefinement() };
 	}
 }

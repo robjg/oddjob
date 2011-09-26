@@ -33,15 +33,14 @@ public class DailyScheduleExamplesTest extends TestCase {
     	DailySchedule schedule = (DailySchedule)	parser.getRoot();
 
     	assertEquals("10:00", schedule.getFrom());
-    	assertEquals("14:00", schedule.getTo());
+    	assertEquals("10:00", schedule.getTo());
     	
     	
     	Interval next = schedule.nextDue(new ScheduleContext(
     			DateHelper.parseDateTime("2011-02-15 16:05")));
     	
     	IntervalTo expected = new IntervalTo(
-    			DateHelper.parseDateTime("2011-02-16 10:00"),
-    			DateHelper.parseDateTime("2011-02-16 14:00"));
+    			DateHelper.parseDateTime("2011-02-16 10:00"));
     	
     	assertEquals(expected, next);
     }

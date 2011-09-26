@@ -355,7 +355,7 @@ public class ScheduleCalculator {
 	private Schedule defaultSchedule() {
 		
 		CountSchedule count = new CountSchedule();
-		count.setCount("1");
+		count.setCount(1);
 		
 		count.setRefinement(new NowSchedule());
 		

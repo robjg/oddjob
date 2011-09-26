@@ -22,26 +22,9 @@ import org.oddjob.state.StateOperator;
  * 
  * @oddjob.example
  * 
- * Keep checking for a file.
+ * File Polling. Check every 5 seconds for a file.
  * 
- * <pre>
- * &lt;scheduling:retry xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
- *                 xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
- *                 name="File Polling Example"&gt;
- *   &lt;schedule&gt;
- *       &lt;schedules:interval interval="00:00:05"/&gt;
- *   &lt;/schedule&gt;
- *   &lt;job&gt;
- *       &lt;sequential&gt;
- *           &lt;jobs&gt;
- *               &lt;exists id="check"
- *                       file="work/*.foo"/&gt;
- *               &lt;echo text="Found ${check.exists[0]}"/&gt;
- *           &lt;/jobs&gt;
- *       &lt;/sequential&gt;
- *   &lt;/job&gt;
- * &lt;/scheduling:retry&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/scheduling/RetryExample.xml}
  * 
  * @author Rob Gordon.
  */

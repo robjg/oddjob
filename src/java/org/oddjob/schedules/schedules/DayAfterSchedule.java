@@ -12,27 +12,30 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 
 /**
- * @oddjob.description A schedule that returns the day after when a 
- * nested schedule is due.
+ * @oddjob.description A schedule that returns the day after when it's
+ * parent schedule is due.
  * <p>
- * This is designed to be used for processing which happens the
- * day after, i.e. processing previous business days data.
+ * This is designed to be used with the {@link BrokenSchedule}'s alternative
+ * property to move processing to the day after the holiday.
  * <p>
- * This is particularly useful for scheduling around holidays when a process
- * is still required to run on the holiday, but not the day after the holiday.
+ * An alternative to this schedule may be to use the {@link AfterSchedule}.
  * 
  * @oddjob.example
  * 
- * An example to run at 2am Tuesday to Saturday.
+ * A schedule for the last day of the month, or the next working day 
+ * if the last day of the month falls on a non working day.
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayAfterScheduleExample.xml}
  * 
+ * Note that the refinement schedules for a different time when the day after is 
+ * used. This reflects the situation where data is often available earlier after
+ * a weekend or holiday.
+ * 
  * @author Rob Gordon
  */
+public class DayAfterSchedule extends AbstractSchedule implements Serializable {
 
-final public class DayAfterSchedule extends AbstractSchedule implements Serializable {
-
-    private static final long serialVersionUID = 20050226;
+    private static final long serialVersionUID = 200502262011092200L;
     
     /*
      *  (non-Javadoc)

@@ -32,23 +32,28 @@ class CountScheduleDesign extends ParentSchedule {
 	
 	private final SimpleTextAttribute count;
 	
+	private final SimpleTextAttribute identifier;
+	
 	public CountScheduleDesign(ArooaElement element, ArooaContext context) {
 		super(element, context);
 		
 		count = new SimpleTextAttribute("count", this);
+		
+		identifier = new SimpleTextAttribute("identifier", this);
 	}
 	
 	public Form detail() {
 		return new StandardForm(this).addFormItem(
 				new BorderedGroup()
 			.add(count.view().setTitle("Count"))
+			.add(identifier.view().setTitle("Identifier"))
 			.add(getRefinement().view().setTitle("Refinement"))
 			);
 	}
 	
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { count, getRefinement() };
+		return new DesignProperty[] { count, identifier, getRefinement() };
 	}
 	
 }

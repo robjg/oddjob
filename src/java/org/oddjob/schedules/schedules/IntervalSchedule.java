@@ -17,7 +17,10 @@ import org.oddjob.schedules.SimpleScheduleResult;
 /**
  * @oddjob.description This schedule returns an interval 
  * from the given time to the interval time later.
- * Commonly used within a {@link TimeSchedule} schedule.
+ * <p>
+ * This schedule is commonly used as a refinement of another schedule 
+ * such as the {@link DailySchedule}, {@link TimeSchedule} or {@link CountSchedule}
+ * schedules.
  * 
  * @oddjob.example
  * 
@@ -25,9 +28,18 @@ import org.oddjob.schedules.SimpleScheduleResult;
  *
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/IntervalExample.xml}
  * 
+ * @oddjob.example
+ * 
+ * Examples Elsewhere.
+ * <ul>
+ *  <li>{@link TimeSchedule}</li>
+ *  <li>{@link DailySchedule}</li>
+ *  <li>{@link CountSchedule}</li>
+ * </ul>
+ * 
  * @author Rob Gordon
  */
-final public class IntervalSchedule implements Schedule, Serializable {
+public class IntervalSchedule implements Schedule, Serializable {
 
     private static final long serialVersionUID = 20050226;
     
@@ -38,16 +50,30 @@ final public class IntervalSchedule implements Schedule, Serializable {
 	 */
 	private long intervalMillis;
 
+	/**
+	 * Default bean constructor.
+	 */
 	public IntervalSchedule() {
 	}
 	
+	/**
+	 * Constructor with milliseconds.
+	 * 
+	 * @param millis
+	 */
 	public IntervalSchedule(long millis) {
 		intervalMillis = millis;
 	}
 
 	/**
 	 * @oddjob.property interval
-	 * @oddjob.description The interval time. 
+	 * @oddjob.description The interval time. The interval must be specified
+	 * in one of the formats:
+	 * <dl>
+	 * <dt>hh:mm</dt><dd>Hours and minutes.</dd>
+	 * <dt>hh:mm:ss</dt><dd>Hours, minutes and seconds.</dd>
+	 * <dt>hh.mm.ss.SSS</dt><dd>Hours, minutes, seconds and milliseconds.</dd>
+	 * </dl>
 	 * @oddjob.required No but defaults to no interval.
 	 * 
 	 * @param interval The interval.

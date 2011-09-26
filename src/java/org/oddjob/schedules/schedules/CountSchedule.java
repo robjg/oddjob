@@ -1,46 +1,51 @@
 package org.oddjob.schedules.schedules;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.AbstractSchedule;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.SimpleInterval;
 
 /**
  * @oddjob.description This schedule returns up to count 
  * number of child schedules. It is typically
- * used to count a number intervals for re-trying something, But could be 
- * used to count
- * the first n days of the month for instance.
+ * used to count a number intervals for re-trying something.
  * <p>
- * The count will be reset if the end interval changes, i.e. when counting 
- * n days of the month,
- * and the month moves on. However in the retry situation 
- * to reset the count schedule it would
- * need to be reset.
+ * If there is more than one count in a schedule a key must be provided
+ * to differentiate their internally store numbers, otherwise the count value
+ * would be shared.
  * <p>
  * If the nested schedule isn't specified it defaults to 
  * {@link org.oddjob.schedules.schedules.NowSchedule}
  * 
  * @oddjob.example
  * 
- * This would shcedule a job 5 times at intervals of 15 minutes.
+ * A schedule for 5 times at intervals of 15 minutes.
  * 
- * <pre>
- * &lt;schedules:count xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
- *           count="5"&gt;
- *   &lt;refinement&gt;
- *     &lt;schedules:interval interval="00:15"/&gt;
- *   &lt;/refinement&gt;
- * &lt;/schedules:count&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/CountExample.xml}
+ * 
+ * @oddjob.example
+ * 
+ * A schedule for 3 times each day at 5 minute intervals.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/CountDaily.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Nested count schedules. This slightly contrived example would cause a timer
+ * to run a job twice at 1 minute intervals for 3 days. Note that we need a
+ * key on one of the schedules to differentiate them.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/CountDifferentCounts.xml}
  * 
  * @author Rob Gordon
  */
-
 final public class CountSchedule extends AbstractSchedule 
 implements Serializable {
     private static final long serialVersionUID = 20050226;
@@ -48,7 +53,6 @@ implements Serializable {
     private static final Logger logger = Logger.getLogger(CountSchedule.class);
     
     private static final String COUNT_KEY = "countschedulecount";
-    private static final String LAST_KEY = "countschedulelast";
     
     /**
      * @oddjob.property count
@@ -57,10 +61,26 @@ implements Serializable {
      */
     private int countTo;
 	
+    /**
+     * @oddjob.property 
+     * @oddjob.description If there are more than one count schedules in a
+     * schedule then this key is required to differentiate them. It can be any
+     * text.
+     * @oddjob.required No.
+     */
+    private String identifier;
     
+    /**
+     * Bean constructor.
+     */
     public CountSchedule() {
 	}
     
+    /**
+     * Constructor with count.
+     * 
+     * @param countTo
+     */
     public CountSchedule(int countTo) {
     	this.countTo = countTo;
 	}
@@ -70,8 +90,8 @@ implements Serializable {
 	 * 
 	 * @param count The number to count to.
 	 */
-	public void setCount(String count) {	
-		this.countTo = Integer.parseInt(count);
+	public void setCount(int count) {	
+		this.countTo = count;
 	}
 
 	/**
@@ -79,17 +99,34 @@ implements Serializable {
 	 * 
 	 * @return The number to count to.
 	 */
-	public String getCount() {	
-		return Integer.toString(countTo);
+	public int getCount() {	
+		return countTo;
 	}
 	
+	/**
+	 * Getter for key.
+	 * 
+	 * @return
+	 */
+	public String getIdentifier() {
+		return identifier;
+	}
+
+	/**
+	 * Setter for key.
+	 * 
+	 * @param key
+	 */
+	public void setIdentifier(String key) {
+		this.identifier = key;
+	}
+
 	/*
 	 *  (non-Javadoc)
 	 * @see org.treesched.Schedule#nextDue(java.util.Date)
 	 */
 	public ScheduleResult nextDue(ScheduleContext context) {
-		Date now = context.getDate();
-		if (now == null) {
+		if (context.getDate() == null) {
 			return null;
 		}
 		
@@ -98,23 +135,27 @@ implements Serializable {
 		    child = new NowSchedule();
 		}
 
-		int counted = 0;
-		Integer storedCount = (Integer) context.getData(COUNT_KEY);
-		if (storedCount != null) {
-			counted = storedCount.intValue();
+		String countKey = COUNT_KEY;
+		if (identifier != null) {
+			countKey +=identifier;
 		}
 		
-		logger.debug(this + ": in date is " + now + ", count is " + counted);
+		IntervalCounts storedCount = (IntervalCounts) context.getData(countKey);
 		
-		Date last = (Date) context.getData(LAST_KEY);
-		
-		if (!now.equals(last)) {
-		    ++counted;
-		    last = now;
+		if (storedCount == null) {
+			storedCount = new IntervalCounts();
+			context.putData(countKey, storedCount);
 		}
+		
+		Interval parent = context.getParentInterval();
+		
+		int counted = storedCount.retrieve(parent);
+		
+		logger.debug(this + ", count is " + counted);
 
-		context.putData(COUNT_KEY, new Integer(counted));
-		context.putData(LAST_KEY, last);
+		++counted;
+		
+		storedCount.store(parent, counted);
 		
 		if ( counted <= countTo) {
 			return child.nextDue(context);
@@ -130,5 +171,49 @@ implements Serializable {
 
 	public String toString() {
 		return "Count Schedule, count to " + countTo;
+	}
+	
+	private static class IntervalCounts implements Serializable {
+
+		private static final long serialVersionUID = 2011092600L;
+		
+		private final static Interval NULL_INTERVAL = 
+			new SimpleInterval(Interval.START_OF_TIME, Interval.END_OF_TIME);
+		
+		private final Map<Interval, Integer> counts = 
+			new LinkedHashMap<Interval, Integer>(5);
+		
+		void store(Interval interval, int count) {
+			
+			if (interval == null) {
+				interval = NULL_INTERVAL;
+			}
+			
+			counts.put(interval, new Integer(count));
+			
+			// Stop keeping hundreds of past intervals which 
+			// would cause a memory leak
+			if (counts.size() > 10) {
+				Interval first = counts.keySet().iterator().next();
+				counts.remove(first);
+			}
+		}
+		
+		int retrieve(Interval interval) {
+			
+			if (interval == null) {
+				interval = NULL_INTERVAL;
+			}
+			
+			Integer retrieved = counts.get(interval);
+			
+			if (retrieved == null) {
+				return 0;
+			}
+			else {
+				return retrieved.intValue();
+			}
+		}
+		
 	}
 }

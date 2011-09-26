@@ -25,6 +25,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
@@ -350,7 +351,7 @@ public class TimerTest extends TestCase {
 		IntervalSchedule interval = new IntervalSchedule();
 		interval.setInterval("00:00:05");
 		CountSchedule count = new CountSchedule();
-		count.setCount("2");
+		count.setCount(2);
 		count.setRefinement(interval);
 		
 		OurClock clock = new OurClock();
@@ -637,4 +638,24 @@ public class TimerTest extends TestCase {
     	
 	}
 	
+	public void testTimerOnceExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/scheduling/TimerOnceExample.xml",
+    			getClass().getClassLoader()));
+    	
+    	
+    	StateSteps states = new StateSteps(oddjob);
+    	states.startCheck(ParentState.READY, 
+    			ParentState.EXECUTING, 
+    			ParentState.ACTIVE, 
+    			ParentState.COMPLETE);
+    	
+    	oddjob.run();
+    	
+    	states.checkWait();
+    	    	
+    	oddjob.destroy();
+	}
 }

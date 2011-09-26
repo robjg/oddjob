@@ -1,0 +1,21 @@
+<oddjob id="this">
+    <job>
+    <scheduling:retry name="File Polling Example"
+        xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+        xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <schedule>
+        <schedules:interval interval="00:00:05"/>
+    </schedule>
+    <job>
+        <sequential id="look" name="Look for files">
+            <jobs>
+                <exists file="${this.dir}/work/*.foo" id="check"
+                    name="Check File Exists"/>
+                <echo name="Echo to Console" text="Found ${check.exists[0]}"/>
+            </jobs>
+        </sequential>
+    </job>
+</scheduling:retry>
+    
+    </job>
+</oddjob>

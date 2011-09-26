@@ -12,11 +12,14 @@ import org.oddjob.schedules.ConstrainedSchedule;
 import org.oddjob.schedules.units.DayOfWeek;
 
 /**
- * @oddjob.description A schedule for the days of the week. This schedule
+ * @oddjob.description A schedule for weekly intervals
+ * specified by days of the week. This schedule
  * will typically be used with a {@link TimeSchedule} refinement property.
  * <p>
  * The days of the week are specified according to the ISO 8601 standard
- * with Monday being day 1 and Sunday being day 7.
+ * with Monday being day 1 and Sunday being day 7, or as one of
+ * MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY (case
+ * insensitive).
  * 
  * @oddjob.example A schedule for all day Tuesday. This schedule defines an
  * interval between midnight Tuesday morning and up to midnight Tuesday night.

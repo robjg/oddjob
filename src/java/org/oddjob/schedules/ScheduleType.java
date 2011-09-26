@@ -28,14 +28,14 @@ import org.oddjob.arooa.utils.DateHelper;
  * the testing of this example so the time can be fixed, but run as is it
  * will be null and so the current time will be displayed.
  *
- * {@oddjob.xml.resource org/oddjob/schedules/ScheduleType/ScheduleTypeExample.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/ScheduleTypeExample.xml}
  * 
  * @oddjob.example
  * 
  * Use a schedule with a time zone. This example displays when tomorrow starts
  * in Hong Kong in the local time. 
  *
- * {@oddjob.xml.resource org/oddjob/schedules/ScheduleType/ScheduleTypeWithTimeZone.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/ScheduleTypeWithTimeZone.xml}
  * 
  * Note that to display the current time in Hong Kong
  * we would use a Time Zone on the format type, not on the now schedule because
@@ -48,14 +48,14 @@ import org.oddjob.arooa.utils.DateHelper;
  * the next day, the next takes this and applies it to a schedule that defines the 
  * business days. The result will be the next business day.
  *
- * {@oddjob.xml.resource org/oddjob/schedules/ScheduleType/ScheduleTypeNextBusinessDay.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/ScheduleTypeNextBusinessDay.xml}
  * 
  * @oddjob.example
  * 
  * Display the due dates for a recurring schedule. This would be useful for 
  * experimenting with schedules.
  *
- * {@oddjob.xml.resource org/oddjob/schedules/ScheduleType/ScheduleTypeForEachExample.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/ScheduleTypeForEach.xml}
  * 
  * @author Rob
  */

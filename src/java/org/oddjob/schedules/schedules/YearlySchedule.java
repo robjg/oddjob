@@ -15,10 +15,15 @@ import org.oddjob.schedules.DateUtils;
 import org.oddjob.schedules.units.Month;
 
 /**
- * @oddjob.description A schedule for the days of the year. 
- * This will most frequently be used to define annual holidays. 
+ * @oddjob.description A schedule for the periods of the year. 
+ * The periods may be specified either as the dates of days of the year 
+ * or as months.
  * <p>
- * The form is MM-dd, i.e. 03-02 is The second of February.
+ * The format for dates is MM-dd, i.e. 03-02 is The second of March.
+ * <p>
+ * The format for months is either the month number, 1 to 12 or one of 
+ * JANUARY, FEBRUARY, MARCH, APRIL, MAY, JUNE, JULY, AUGUST, SEPTEMBER,
+ * OCTOBER, NOVEMBER, DECEMBER (case insensitive).
  * 
  * @oddjob.description A schedule for a range of months, or a month. The month
  * is specified as an integer between 1 and 12 where 1 is January and 
@@ -34,15 +39,15 @@ import org.oddjob.schedules.units.Month;
  * 
  * @oddjob.example 
  * 
- * A From To Example.
+ * A from day of year to day of year example.
  * 
- * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfYearScheduleFromTo.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfYearFromTo.xml}
  * 
  * @oddjob.example 
  * 
- * An On Example.
+ * An on day of year example.
  * 
- * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfYearScheduleOn.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfYearOn.xml}
  * 
  * @author Rob Gordon
  */
@@ -85,9 +90,9 @@ final public class YearlySchedule extends ConstrainedSchedule implements Seriali
 	}
 	
 	/**
-     * @oddjob.property in
+     * @oddjob.property inMonth
      * @oddjob.description The month in which this schedule is for. 
-     * This has the same effect as setting from and to to the same thing.
+     * This has the same effect as setting fromMonth and toMonth to the same thing.
      * @oddjob.required No.
 	 * 
 	 * @param in The in month.
@@ -130,9 +135,9 @@ final public class YearlySchedule extends ConstrainedSchedule implements Seriali
 	}
 
 	/**
-     * @oddjob.property on
+     * @oddjob.property onDate
      * @oddjob.description The day on which this schedule is for. 
-     * This has the same effect as setting from and to to the same thing.
+     * This has the same effect as setting fromDate and toDate to the same thing.
      * @oddjob.required No.
 	 * 
 	 * @param on The day on which this schedule is for.

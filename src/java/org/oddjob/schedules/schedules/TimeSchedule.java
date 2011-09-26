@@ -19,16 +19,31 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.SimpleScheduleResult;
+import org.oddjob.scheduling.Timer;
 
 /**
- * @oddjob.description  
- * 
+ * @oddjob.description Provide a schedule for an interval of time. When used as a
+ * refinement this schedule will narrow the parent interval down to an interval of 
+ * time on the first day of the parent interval, or if the <code>toLast</code>
+ * property is specified, from the first day to the last day of the parent interval. When used as the 
+ * topmost definition for a schedule then this schedule specifies a single interval
+ * of time starting on the current day.
+ * <p>
+ * To provide a schedule for each day at a certain time see the {@link DailySchedule}
+ * schedules.
  * 
  * @oddjob.example
  * 
  * A simple time example.
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/TimeScheduleSimpleExample.xml}
+ * 
+ * When used with a {@link Timer} this would run a job just once at 10am, and
+ * never again. If the
+ * timer was started after 10am, then the job would run the following day at 10am.
+ * If it was required that the job would run any time the timer was started 
+ * after 10am then the <code>
+ * from</code> property should be used instead of the <code>at</code> property.
  * 
  * @oddjob.example
  * 
@@ -37,6 +52,16 @@ import org.oddjob.schedules.SimpleScheduleResult;
  * 03:45 to 04:00 because the interval starts before the end time.
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/TimeAndIntervalExample.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Schedule something over a whole week between two times. This demonstrates
+ * how the <code>toLast</code> property works.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/TimeOverWeekExample.xml}
+ * 
+ * The schedule would be due every two hours all day and all night from 8am 
+ * Monday morning until 6pm Friday afternoon.
  * 
  * @author Rob Gordon
  */
@@ -113,10 +138,11 @@ final public class TimeSchedule extends AbstractSchedule implements Serializable
 	}
 
     /**
-     * @oddjob.property to
+     * @oddjob.property toLast
      * @oddjob.description The to time for the end of the parent interval.
-     * If this property
-     * @oddjob.required No. The to property, or it's default value
+     * This differs from the to property in that the to property is for the first
+     * day of the parent interval.
+     * @oddjob.required No. The to property, or it's default value,
      * will be used instead.
      * 
      * @param toLast The to last time of the interval.

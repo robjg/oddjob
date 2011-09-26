@@ -120,7 +120,7 @@ public class ScheduleCalculatorTest extends TestCase {
         IntervalSchedule interval= new IntervalSchedule();
 		interval.setInterval("00:10");
 		CountSchedule count = new CountSchedule();
-		count.setCount("2");
+		count.setCount(2);
 		count.setRefinement(interval);
 		retrySchedule = count;
 		
@@ -402,7 +402,7 @@ public class ScheduleCalculatorTest extends TestCase {
     	
 		
 		CountSchedule countSchedule = new CountSchedule();
-		countSchedule.setCount("1");
+		countSchedule.setCount(1);
 		DateSchedule dateSchedule = new DateSchedule();
 		dateSchedule.setOn("2020-12-25");
 		

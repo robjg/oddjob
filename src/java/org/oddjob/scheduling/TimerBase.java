@@ -74,7 +74,12 @@ abstract public class TimerBase extends ScheduleBase {
 	protected final Map<Object, Object> contextData = 
 			Collections.synchronizedMap(new HashMap<Object, Object>());
 	
-	/** The next due date. */
+	/**
+	 * @oddjob.property 
+	 * @oddjob.description The time the next execution is due. This property
+	 * is updated when the timer starts or after each execution.
+	 * @oddjob.required Read Only.
+	 */
 	private volatile transient Date nextDue;
 	
 	/**
@@ -178,15 +183,20 @@ abstract public class TimerBase extends ScheduleBase {
 	protected void scheduleFrom(Date date) throws ComponentPersistException {
 	    logger().debug("[" + this + "] Scheduling from [" + date + "]");
 
-	    ScheduleContext context = new ScheduleContext(
-	    		date, timeZone, contextData, getLimits());
-
-	    current = schedule.nextDue(context);
-	    if (current == null) {
+	    if (date == null) {
 	    	setNextDue(null);
 	    }
 	    else {
-	    	setNextDue(current.getFromDate());
+		    ScheduleContext context = new ScheduleContext(
+		    		date, timeZone, contextData, getLimits());
+	
+		    current = schedule.nextDue(context);
+		    if (current == null) {
+		    	setNextDue(null);
+		    }
+		    else {
+		    	setNextDue(current.getFromDate());
+		    }
 	    }
 	}
 

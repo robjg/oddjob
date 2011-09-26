@@ -15,9 +15,13 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.MockOddjobServices;
 import org.oddjob.MockStateful;
+import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.SequenceJob;
@@ -396,7 +400,7 @@ public class RetryTest extends TestCase {
 				ParentState.ACTIVE, ParentState.INCOMPLETE);
 				
 		CountSchedule count = new CountSchedule();
-		count.setCount("3");
+		count.setCount(3);
 		count.setRefinement(new NowSchedule());
 		test.setSchedule(count);
 		
@@ -719,4 +723,42 @@ public class RetryTest extends TestCase {
 		
 		assertEquals(null, test.getNextDue());
 	}
+	
+	public void testFilePollingExample() throws FailedToStopException, InterruptedException {
+		
+	    	Oddjob oddjob = new Oddjob();
+	    	oddjob.setConfiguration(new XMLConfiguration(
+	    			"org/oddjob/scheduling/RetryExample.xml",
+	    			getClass().getClassLoader()));
+	    	
+	    	
+	    	oddjob.load();
+	    	
+	    	OddjobLookup lookup = new OddjobLookup(oddjob);
+	    	
+	    	Stateful exists = (Stateful) lookup.lookup("check");
+	    	
+	    	StateSteps oddjobStates = new StateSteps(oddjob);
+	    	oddjobStates.startCheck(ParentState.READY, 
+	    			ParentState.EXECUTING, 
+	    			ParentState.ACTIVE);
+	    	
+	    	StateSteps existsStates = new StateSteps(exists);
+	    	existsStates.startCheck(JobState.READY, 
+	    			JobState.EXECUTING, 
+	    			JobState.INCOMPLETE);
+	    		    	
+	    	oddjob.run();
+	    	
+	    	oddjobStates.checkNow();
+	    	existsStates.checkWait();
+	    	
+	    	oddjobStates.startCheck(ParentState.ACTIVE, ParentState.INCOMPLETE);
+	    	
+	    	oddjob.stop();
+	    	
+	    	oddjobStates.checkNow();
+	    	
+	    	oddjob.destroy();
+	}	    	
 }

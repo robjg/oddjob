@@ -177,6 +177,31 @@ public class BrokenScheduleTest extends TestCase {
 	}
 	
 	/**
+	 * Check the time isn't moved.
+	 * 
+	 * @throws ParseException
+	 */
+	public void testWithTimeThatIsMaskedByBreak() throws ParseException {
+		
+		DateSchedule date = new DateSchedule();
+		date.setOn("2010-05-03");
+
+		TimeSchedule time = new TimeSchedule();
+		time.setAt("07:00");
+		
+		BrokenSchedule broken = new BrokenSchedule();
+		broken.setSchedule(time);
+		broken.setBreaks(date);
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDateTime("2010-05-02 20:00"));
+		
+		ScheduleResult result = broken.nextDue(context);
+		
+		assertEquals(null, result);		
+	}
+	
+	/**
 	 * Test when a time overlaps into the break.
 	 * 
 	 * @throws ParseException
@@ -317,5 +342,50 @@ public class BrokenScheduleTest extends TestCase {
     			DateHelper.parseDateTime("2011-12-27 10:00"));
     	
     	assertEquals(expected, next);
+    }
+    
+    public void testBrokenScheduleAlternative() throws ArooaParseException, ParseException {
+    	
+    	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
+    	
+    	ArooaDescriptor descriptor = df.createDescriptor(
+    			getClass().getClassLoader());
+    	
+    	StandardFragmentParser parser = new StandardFragmentParser(descriptor);
+    	
+    	parser.parse(new XMLConfiguration(
+    			"org/oddjob/schedules/schedules/BrokenScheduleAlternative.xml", 
+    			getClass().getClassLoader()));
+    	
+    	Schedule schedule = (Schedule)	parser.getRoot();
+    	
+    	ScheduleResult[] results = new ScheduleRoller(schedule).resultsFrom(
+    			DateHelper.parseDateTime("2011-12-23 11:00"));
+
+    	ScheduleResult expected;
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-12-23 10:00"),
+    			DateHelper.parseDateTime("2011-12-24 00:00"));
+    	
+    	assertEquals(expected, results[0]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-12-24 11:00"),
+    			DateHelper.parseDateTime("2011-12-28 00:00"));
+    	
+    	assertEquals(expected, results[1]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-12-28 10:00"),
+    			DateHelper.parseDateTime("2011-12-29 00:00"));
+    	
+    	assertEquals(expected, results[2]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDateTime("2011-12-29 10:00"),
+    			DateHelper.parseDateTime("2011-12-30 00:00"));
+    	
+    	assertEquals(expected, results[3]);
     }
 }

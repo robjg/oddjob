@@ -13,15 +13,34 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
- * @oddjob.description 
+ * @oddjob.description A schedule that returns the day before when it's
+ * parent schedule is due.
+ * <p>
+ * This is designed to be used with the {@link BrokenSchedule}'s alternative
+ * property to move processing to the day before the holiday.
+ * <p>
+ * 
+ * @oddjob.example
+ * 
+ * A schedule for the last day of the month, or the previous working day
+ * if the last day falls on a non working day.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayBeforeScheduleExample.xml}
+ * 
+ * Note that the refinement schedules for a different time when the day before is 
+ * used. This reflects the situation where data is often available later before
+ * a weekend or holiday.
  * 
  * @author Rob Gordon
  */
+public class DayBeforeSchedule extends AbstractSchedule implements Serializable {
 
-final public class DayBeforeSchedule extends AbstractSchedule implements Serializable {
-
-    private static final long serialVersionUID = 20050226;
+    private static final long serialVersionUID = 2011092200L;
     
+    /*
+     * (non-Javadoc)
+     * @see org.oddjob.schedules.Schedule#nextDue(org.oddjob.schedules.ScheduleContext)
+     */
 	public ScheduleResult nextDue(ScheduleContext context) {
 		Date use = null;
 		Date useNext = null;

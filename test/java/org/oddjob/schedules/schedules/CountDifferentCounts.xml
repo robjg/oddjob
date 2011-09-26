@@ -1,0 +1,14 @@
+<schedules:count xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+    identifier="outer" count="6">
+    <refinement>
+        <schedules:daily from="11:00">
+            <refinement>
+                <schedules:count count="2">
+                    <refinement>
+                        <schedules:interval interval="00:01"/>
+                    </refinement>
+                </schedules:count>
+            </refinement>
+        </schedules:daily>
+    </refinement>
+</schedules:count>

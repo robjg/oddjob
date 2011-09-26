@@ -9,10 +9,16 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.ScheduleType;
 import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
  * @oddjob.description Schedule something now. 
+ * 
+ * @oddjob.example
+ * 
+ * Examples elsewhere. The {@link ScheduleType} examples show's <code>now</code>
+ * being used to get the current date.
  * 
  * @author Rob Gordon.
  */

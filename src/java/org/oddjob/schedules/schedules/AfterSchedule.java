@@ -16,7 +16,14 @@ import org.oddjob.schedules.SimpleScheduleResult;
  * @oddjob.description Schedule something after the given schedule. 
  * <p>
  * This can be useful when wanting a schedule to begin at the end of an
- * interval instead of the beginning.
+ * interval instead of the beginning, or for scheduling around holidays when 
+ * a process is still required to run on the holiday, but not the day after 
+ * the holiday.
+ * <p>
+ * The after schedule differs from the {@link DayAfterSchedule} in that
+ * day-after is designed to narrow it's parent interval but this schedule 
+ * applies a refinement to it child schedule. The difference is subtle
+ * but hopefully the examples demonstrate how each should be used. 
  * 
  * @oddjob.example
  * 
@@ -36,11 +43,6 @@ import org.oddjob.schedules.SimpleScheduleResult;
  * Normally this will schedule something from 08:00 am Tuesday to Saturday, 
  * but for the week where Monday 2nd of May was a public holiday the schedule
  * will be from Wednesday to Saturday.
- * <p>
- * The after schedule differs from the {@link DayAfterSchedule} in that
- * day-after is designed to narrow it's parent interval but this schedule 
- * applies a refinement to it child schedule. The difference is subtle
- * but hopefully the examples demonstrate how each should be used. 
  * 
  * @author Rob Gordon
  */

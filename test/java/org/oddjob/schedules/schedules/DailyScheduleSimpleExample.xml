@@ -1,2 +1,2 @@
 <schedules:daily xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
-           from="10:00" to="14:00"/>
+           at="10:00"/>

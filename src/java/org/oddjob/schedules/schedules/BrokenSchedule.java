@@ -13,8 +13,6 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleType;
 import org.oddjob.schedules.SimpleScheduleResult;
 
-
-
 /**
  * @oddjob.description This schedule allows a normal schedule 
  * to be broken by the results of another
@@ -46,6 +44,15 @@ import org.oddjob.schedules.SimpleScheduleResult;
  * 
  * @oddjob.example
  * 
+ * A schedule with an alternative. The schedule breaks at weekends and for 
+ * Christmas. During the break the schedule will be due once at 11am the
+ * first day of the break, instead of the usual 10am.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/BrokenScheduleAlternative.xml}
+ * 
+ * 
+ * @oddjob.example
+ * 
  * Examples elsewhere.
  * <ul>
  *  <li>The {@link AfterSchedule} documentation has an example that uses the 
@@ -53,6 +60,8 @@ import org.oddjob.schedules.SimpleScheduleResult;
  *  working day.</li>
  *  <li>The {@link ScheduleType} documentation shows a <code>broken</code>
  *  schedule being used to calculate the next working day.</li>
+ *  <li>The {@link DayAfterSchedule} and {@link DayBeforeSchedule} documentation 
+ *  shows a <code>broken</code> schedule being used to move the last day of the month.</li>
  * </ul>
  * 
  * 
@@ -75,14 +84,15 @@ public class BrokenSchedule implements Serializable, Schedule{
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The breaks. 
-	 * @oddjob.required Yes.
+	 * @oddjob.required No, but this schedule is pointless if none are provided.
 	 */
 	private Schedule breaks;
 
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The breaks. 
-	 * @oddjob.required Yes.
+	 * @oddjob.description An alternative schedule to apply during a break.
+	 * The alternative schedule will be passed the interval that is the break.
+	 * @oddjob.required No.
 	 */
 	private Schedule alternative;
 	
@@ -176,6 +186,8 @@ public class BrokenSchedule implements Serializable, Schedule{
 			
 			// if we got here the last interval is blocked by an exclude.
 			
+			Date lastUse = use;
+			
 			// move the interval on.
 			if (next.getUseNext() == null) {
 				use = null;
@@ -191,7 +203,8 @@ public class BrokenSchedule implements Serializable, Schedule{
 			
 			// see if there is an alternative.
 			if (alternative != null) {
-				ScheduleResult alternativeResult = alternative.nextDue(context.spawn(use, exclude));
+				ScheduleResult alternativeResult = alternative.nextDue(
+						context.spawn(lastUse, exclude));
 				if (alternativeResult == null) {
 					return null;
 				}

@@ -26,7 +26,7 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * A schedule for Christmas.
  * 
- * {@oddjob.xml.resource org/oddjob/schedules/schedules/DateScheduleExamples.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DateScheduleExample.xml}
  * 
  * @author Rob Gordon
  */
@@ -40,7 +40,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	/**
 	 * @oddjob.property from
 	 * @oddjob.description The from date for the schedule. Defaults to 
-	 * along time ago (292 million and something B.C.).
+	 * along time ago.
 	 * @oddjob.required No.
 	 * 
 	 * @param startDateString The from date. May be null.
@@ -64,7 +64,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 * @oddjob.description The to date for the schedule. This date is
 	 * inclusive, the defined interval is up to and including the last
 	 * millisecond of this date. This defaults to
-	 * a long time away (292 million and something A.D.).
+	 * a long time away.
 	 * @oddjob.required No.
 	 * 
 	 * @param endDateString The end date. May be null.

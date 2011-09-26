@@ -14,10 +14,28 @@ import org.oddjob.schedules.units.DayOfWeek;
 import org.oddjob.schedules.units.WeekOfMonth;
 
 /**
- * @oddjob.description Implement a schedule based on days of the month. The day of the month is given
- * as an integer, but unlike the java GregorianCalander, 0 and negative numbers are taken to be
- * this month, not the previous month. i.e. on="0" is the last day of the month.
+ * @oddjob.description A schedule for monthly intervals. The intervals
+ * can be specified as days of the month, a day of the week in a week of the month,
+ * or less usefully as weeks of the month. 
  * <p>
+ * The day of the month is given
+ * as an number, normally 1 to 31. 0 and negative numbers can be used to specify
+ * days from the end of the month. The words LAST and PENULTIMATE 
+ * (case insensitive) can also be
+ * used as a convenience. Note that unlike the java 
+ * <code>GregorianCalander</code>, 0 and negative numbers are taken to be
+ * this month, not the previous month. i.e. on="0" is the last day of the month and
+ * is equivalent to on="LAST".
+ * <p>
+ * Days and week of the month are given as the day number, 1 to 7, or as one
+ * of MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY 
+ * (case insensitive). The week of 
+ * the month is specified as a number, typically 1 to 5, or using one of FIRST,
+ * SECOND, THIRD, FOURTH, FITH, PENULTIMATE, or LAST (case insensitive).
+ * <p>
+ * If the week of the month is specified on it's own then the first week is
+ * taken to be the first complete week of the month.
+ * 
  * 
  * @oddjob.example
  * 
@@ -26,7 +44,7 @@ import org.oddjob.schedules.units.WeekOfMonth;
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfMonthExample1.xml}
  * 
  * This would schedule a job to run every day from the 17th of each month to
- * the 25th of each mont at 10am.
+ * the 25th of each month at 10am.
  * 
  * @oddjob.example
  * 
@@ -34,12 +52,16 @@ import org.oddjob.schedules.units.WeekOfMonth;
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/DayOfMonthExample2.xml}
  * 
- * This will run a job on the 15ht of every month.
+ * This will run a job on the 15th of every month.
+ * 
+ * @oddjob.example
+ * 
+ * On the last Friday of the month.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/LastFridayOfMonth.xml}
  * 
  * @author Rob Gordon
  */
-
-
 final public class MonthlySchedule extends ConstrainedSchedule implements Serializable {
 
     private static final long serialVersionUID = 20050226;
@@ -59,7 +81,7 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
     private WeekOfMonth toWeek;
     
     /**
-     * @oddjob.property from
+     * @oddjob.property fromDay
      * @oddjob.description The from day of the month.
      * @oddjob.required No. Defaults to 1.
      * 
@@ -75,7 +97,7 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
     }
     
     /**
-     * @oddjob.property to
+     * @oddjob.property toDay
      * @oddjob.description The to day of the month.
      * @oddjob.required No. Defaults to the last day of the month.
      * 
@@ -91,9 +113,10 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
     }
 
 	/**
-     * @oddjob.property on
+     * @oddjob.property onDay
      * @oddjob.description The day on which this schedule is for. 
-     * This has the same effect as setting from and to to the same thing.
+     * This has the same effect as setting <code>fromDay</code>
+     * and <code>toDay</code> to the same thing.
      * @oddjob.required No.
 	 * 
 	 * @param on The day on which this schedule is for.
@@ -108,6 +131,14 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
 		return fromDayOfWeek;
 	}
 
+    /**
+     * @oddjob.property fromDayOfWeek
+     * @oddjob.description The from day of the week. Used in conjunction with
+     * <code>fromWeekOfMonth</code>.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
 	public void setFromDayOfWeek(DayOfWeek fromDayOfWeek) {
 		this.fromDayOfWeek = fromDayOfWeek;
@@ -117,11 +148,28 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
 		return toDayOfWeek;
 	}
 
+    /**
+     * @oddjob.property toDayOfWeek
+     * @oddjob.description The to day of the week. Used in conjunction with
+     * <code>toDayOfWeek</code>.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
 	public void setToDayOfWeek(DayOfWeek toDayOfWeek) {
 		this.toDayOfWeek = toDayOfWeek;
 	}
 
+    /**
+     * @oddjob.property onDayOfWeek
+     * @oddjob.description The on day of the week. This is equivalent to 
+     * setting <code>fromDayOfWeek</code> and  <code>toDayOfWeek</code>
+     * to the same thing.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
     public void setOnDayOfWeek(DayOfWeek onDayOfWeek) {
     	this.setFromDayOfWeek(onDayOfWeek);
@@ -132,6 +180,13 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
 		return fromWeek;
 	}
 
+    /**
+     * @oddjob.property fromWeek
+     * @oddjob.description The from week of the month.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
 	public void setFromWeek(WeekOfMonth fromWeek) {
 		this.fromWeek = fromWeek;
@@ -141,11 +196,26 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
 		return toWeek;
 	}
 
+    /**
+     * @oddjob.property toWeek
+     * @oddjob.description The to week of the month.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
 	public void setToWeek(WeekOfMonth toWeek) {
 		this.toWeek = toWeek;
 	}
 
+    /**
+     * @oddjob.property inWeek
+     * @oddjob.description The in week of the month. This is equivalent to 
+     * setting <code>fromWeek</code> and <code>toWeek</code> to the same thing.
+     * @oddjob.required No.
+     * 
+     * @param from The from date.
+     */
     @ArooaAttribute
     public void setInWeek(WeekOfMonth inWeek) {
     	this.setFromWeek(inWeek);

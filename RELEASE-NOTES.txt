@@ -35,7 +35,17 @@ Changes in 1.0.0
   inline editing and saving back into the original configuration that
   the xml property of the arooa:configuration type did not.
 - foreach supports execution of it's children in parallel.
-
+- Schedules have been refactored. Element names have changed and merged:
+    dayOfYear -> yearly
+    monthOfYear -> yearly
+    dayOfMonth -> monthly, which now has weekOfMonth and dayOfWeek to allow
+      things like the last Friday of the month to be specified more easily.
+    dayOfWeek ->  weekly
+    time -> daily, also introduced a new time schedule that is a single
+      once only time.
+    dayAfter -> day-after, also introduced day-before to improve scheduling
+     around holidays.
+    
 Still Todo for 1.0.0
 -------------------- 
 - Add a 'forceComplete' action that will force a job to be complete.

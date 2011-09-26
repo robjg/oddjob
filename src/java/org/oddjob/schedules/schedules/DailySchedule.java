@@ -11,33 +11,31 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.ConstrainedSchedule;
 import org.oddjob.schedules.DateUtils;
+import org.oddjob.scheduling.Timer;
 
 /**
- * @oddjob.description A schedule for the times of the day. This schedule
- * enables job to be schedule at a paticular time or a from/to time which 
+ * @oddjob.description A schedule for each day at, or from a given time. 
+ * This schedule
+ * enables job to be scheduled daily at a particular time or a from/to time which 
  * could be used to constrain a sub schedule.
- * <p>
- * Please note the property 'on' is used instead of at, this is due to a
- * lazy developer sharing logic with other constrained schedules such as
- * {@link YearlySchedule}.
  * <p>
  * If the 'to' time is less than the 'from' time it is assumed that the 'to'
  * time is the next day. 
  * 
+ * @oddjob.example
+ * 
+ * A simple daily schedule. Used with a {@link Timer} this would run a job
+ * every day at 10am. 
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DailyScheduleSimpleExample.xml}
  * 
  * @oddjob.example
  * 
- * A simple time example.
- * 
- * {@oddjob.xml.resource org/oddjob/schedules/schedules/TimeScheduleSimpleExample.xml}
- * 
- * @oddjob.example
- * 
- * Using an interval with time to schedule something every 15 minutes between 
- * 10pm and 4am the next day. The end time is 03:50 yet the last interval is
+ * Using an interval with a daily schedule to schedules something every 15 minutes 
+ * between 10pm and 4am. The end time is 03:50 yet the last interval is
  * 03:45 to 04:00 because the interval starts before the end time.
  * 
- * {@oddjob.xml.resource org/oddjob/schedules/schedules/TimeAndIntervalExample.xml}
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/DailyWithIntervalExample.xml}
  * 
  * @author Rob Gordon
  */

@@ -18,7 +18,7 @@
 			designFactory='org.oddjob.designer.elements.schedule.CountScheduleDE'/>
         <is element='daily' 
             className='org.oddjob.schedules.schedules.DailySchedule'
-            designFactory='org.oddjob.designer.elements.schedule.TimeScheduleDE'/>
+            designFactory='org.oddjob.designer.elements.schedule.DailyScheduleDE'/>
 		<is element='date' 
 			className='org.oddjob.schedules.schedules.DateSchedule'
 			designFactory='org.oddjob.designer.elements.schedule.DateScheduleDE'/>

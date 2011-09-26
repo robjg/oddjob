@@ -39,6 +39,14 @@ import org.oddjob.state.WorstStateOp;
  * 
  * @oddjob.example
  * 
+ * A trigger that runs once two other jobs have completed.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExample.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Examples Elsewhere.
+ * <p>
  * The scheduling example uses a trigger to send an email if one
  * of the transfers fail.
  * 

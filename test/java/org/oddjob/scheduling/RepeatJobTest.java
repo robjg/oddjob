@@ -204,7 +204,7 @@ public class RepeatJobTest extends TestCase {
 		interval.setInterval("00:00:02");
 		
 		CountSchedule count = new CountSchedule();
-		count.setCount("1");
+		count.setCount(1);
 		count.setRefinement(interval);
 		return count;
     }
@@ -244,7 +244,7 @@ public class RepeatJobTest extends TestCase {
 	// simple count test.
 	public void testSimpleCount() {
 		CountSchedule count = new CountSchedule();
-		count.setCount("10");
+		count.setCount(10);
 		
 		Counter counter = new Counter();
 		
