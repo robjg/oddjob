@@ -45,6 +45,9 @@ Changes in 1.0.0
       once only time.
     dayAfter -> day-after, also introduced day-before to improve scheduling
      around holidays.
+- Removed Ids from Values. This is because they over complicated 
+  configuration via the GUI. Introduced a new IdentifiableValueType, 
+  with tag <identify>, that can used to register a value if required.
     
 Still Todo for 1.0.0
 -------------------- 
@@ -54,8 +57,6 @@ Still Todo for 1.0.0
   it's been loaded from a non modifiable resource, i.e. class path or text.
 - Improve the file rename job.
 - Document conversions. Possibly include conversions in the Reference.
-- Rework SQLJob so working with results are simpler.
-- Remove Ids from Values. Introduce an Identifiable type.
 
 Changes in 0.30.0
 -----------------

@@ -3,10 +3,7 @@ package org.oddjob.sql;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.beanbus.BadBeanException;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusAware;
@@ -92,9 +89,8 @@ import org.oddjob.beanbus.CrashBusException;
  *
  */
 public class SQLResultsBean 
-implements SQLResultsProcessor, BusAware, ArooaSessionAware {
-
-	private static final Logger logger = Logger.getLogger(SQLResultsProcessor.class);
+implements SQLResultsProcessor, BusAware {
+	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The results of the query. This property allows
@@ -114,13 +110,6 @@ implements SQLResultsProcessor, BusAware, ArooaSessionAware {
 	
 	private int updateCount;
 	
-	private ArooaSession session;
-	
-	@ArooaHidden
-	@Override
-	public void setArooaSession(ArooaSession session) {
-		this.session = session;
-	}
 	
 	@ArooaHidden
 	@Override
@@ -128,25 +117,7 @@ implements SQLResultsProcessor, BusAware, ArooaSessionAware {
 		bus.addBusListener(new BusListener() {
 			
 			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {
-				if (session == null) {
-					logger.debug("Being used outside of Oddjob. " +
-							"Ignoring id check.");
-				}
-				else {
-					String id = session.getBeanRegistry().getIdFor(
-							SQLResultsBean.this);
-					
-					if (id == null) {
-						logger.warn("No id to capture results with. " +
-								"Results won't be accessable.");
-					}
-					else {
-						logger.info("Capturing results with id of [" + 
-								id + "].");
-					}
-				}
-				
+			public void busStarting(BusEvent event) throws CrashBusException {				
 				rowSets.clear();
 				updateCounts.clear();
 				rowCount = 0;

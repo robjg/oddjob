@@ -4,6 +4,7 @@
 package org.oddjob.persist;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -163,11 +164,11 @@ public class FilePersisterTest extends TestCase {
 		}
 	}
 	
-	public void testPersistExample() throws ArooaPropertyException, ArooaConversionException {
+	public void testPersistExample() throws ArooaPropertyException, ArooaConversionException, URISyntaxException {
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/persist/FilePersisterExample.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI().getPath());
     	        
 		Properties props = new Properties();
 		props.setProperty("important.stuff", "Important Stuff!");

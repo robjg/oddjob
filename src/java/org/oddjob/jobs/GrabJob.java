@@ -14,6 +14,7 @@ import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
+import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -351,10 +352,14 @@ implements
 				checkStop();
 			}
 			else {
-				throw new IllegalStateException("Don't know what to do with " + state);
+				stateChanger.setStateException(new JobDestroyedException(child), time);
+				checkStop();
 			}
 		}
 	
+		/**
+		 * shared check to see if listener should remove itself.
+		 */
 		private void checkStop() {
 			if (stop) {
 				stopListening();

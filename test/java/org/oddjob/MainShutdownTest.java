@@ -113,15 +113,18 @@ public class MainShutdownTest extends TestCase {
 		ConsoleCapture console = new ConsoleCapture();
 		
 		ExecJob exec = new ExecJob();
-		exec.setCommand("java" +
-				" -D" + OddjobRunner.KILLER_TIMEOUT_PROPERTY + "=1" +
-				" -jar " + dirs.relative("run-oddjob.jar").getPath() +
-				" -cp " + testClasses.getPath() +
-				" -f " + dirs.relative(
-						"test/conf/test-killer.xml").getPath() //+
-//				" -l " + dirs.relative(
-//						"src/log4j.properties").getPath()
-				);
+		
+		exec.setArgs(new String[] {
+				"java", 
+				"-D" + OddjobRunner.KILLER_TIMEOUT_PROPERTY + "=1",
+				"-jar",
+				dirs.relative("run-oddjob.jar").getPath(),
+				"-cp",
+				testClasses.getPath(),
+				"-f",
+				dirs.relative(
+						"test/conf/test-killer.xml").getPath()
+		});
 		
 		console.capture(exec.consoleLog());
 		

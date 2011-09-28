@@ -2,11 +2,16 @@
     <job>
         <sequential>
             <jobs>
-                <sql name="Create table">
+                <variables id="vars">
                     <connection>
                         <connection driver="org.hsqldb.jdbcDriver"
-                            id="connection" url="jdbc:hsqldb:mem:test"
+                            url="jdbc:hsqldb:mem:test"
                             username="sa" />
+                    </connection>
+                </variables>
+                <sql name="Create table">
+                    <connection>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <input>
                         <buffer>
@@ -21,9 +26,9 @@ insert into GREETINGS values('gumpy', 'Bah Humbug')
                         </buffer>
                     </input>
                 </sql>
-                <sql>
+                <sql id="query">
                     <connection>
-                        <value value="${connection}" />
+                        <value value="${vars.connection}" />
                     </connection>
                     <input>
                         <buffer>
@@ -36,11 +41,11 @@ select TEXT from GREETINGS where STYLE = ?
                         <value value='nice' />
                     </parameters>
                     <results>
-                        <sql-results-bean id="query" />
+                        <sql-results-bean />
                     </results>
                 </sql>
-                <echo name="Single Row Result" text="${query.row.TEXT}" />
-                <echo name="Result By Row Index" text="${query.rows[0].TEXT}" />
+                <echo name="Single Row Result" text="${query.results.row.TEXT}" />
+                <echo name="Result By Row Index" text="${query.results.rows[0].TEXT}" />
             </jobs>
         </sequential>
     </job>

@@ -121,8 +121,9 @@ public class BeanReportTest extends TestCase {
 	public void testInOddjob() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("Resource",
-				getClass().getResourceAsStream("BeanReportTest.xml")));
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/BeanReportTest.xml",
+				getClass().getClassLoader()));
 
 		oddjob.run();
 		

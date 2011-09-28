@@ -58,10 +58,10 @@ public class PathParserLaunchTest extends TestCase {
 			"<oddjob id='this'>" +
 			" <job>" +
 			"  <exec id='exec'>" +
-			" java -jar " + new File(dirs.base(), RUN_JAR) + 
-			" -cp ${this.args[0]}/build/test" +
-			" -l ${this.args[0]}/test/launch/log4j.properties" +
-			" -f ${this.args[0]}/test/launch/classpath-test1.xml" +
+			" java -jar \"" + new File(dirs.base(), RUN_JAR).getPath() + "\"" +
+			" -cp \"${this.args[0]}/build/test\"" +
+			" -l \"${this.args[0]}/test/launch/log4j.properties\"" +
+			" -f \"${this.args[0]}/test/launch/classpath-test1.xml\"" +
 			"  </exec>" +
 			" </job>" +
 			"</oddjob>";

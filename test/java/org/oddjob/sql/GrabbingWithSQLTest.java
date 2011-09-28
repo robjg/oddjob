@@ -62,10 +62,10 @@ public class GrabbingWithSQLTest extends TestCase {
 		
 		oddjob.run();
 		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
-		
 		assertEquals(ParentState.ACTIVE, 
 				oddjob.lastStateEvent().getState());
+				
+		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);
 		
@@ -120,6 +120,9 @@ public class GrabbingWithSQLTest extends TestCase {
 				getClass().getClassLoader()));		
 		
 		oddjob.run();
+		
+		assertEquals(ParentState.ACTIVE, 
+				oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 
@@ -181,6 +184,9 @@ public class GrabbingWithSQLTest extends TestCase {
 		
 		oddjob.run();
 		
+		assertEquals(ParentState.ACTIVE, 
+				oddjob.lastStateEvent().getState());
+		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 
 		Stateful grabber1 = lookup.lookup("grabber1", Stateful.class);
@@ -241,6 +247,9 @@ public class GrabbingWithSQLTest extends TestCase {
 				getClass().getClassLoader()));		
 		
 		oddjob.run();
+		
+		assertEquals(ParentState.ACTIVE, 
+				oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 

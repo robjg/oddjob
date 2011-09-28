@@ -188,7 +188,11 @@ public class BufferTypeTest extends TestCase {
 			"      <value value='Some Text'/>" +
 			"     </input>" +
 			"     <output>" +
-			"      <buffer id='result'/>" +
+			"      <identify id='result'>" +
+			"       <value>" +
+			"        <buffer />" +
+			"       </value>" +
+			"      </identify>" +
 			"     </output>" +
 			"     </copy>" +
 			" </job>" +
@@ -223,7 +227,11 @@ public class BufferTypeTest extends TestCase {
 			"      <value value='${v.buff}'/>" +
 			"     </input>" +
 			"     <output>" +
-			"      <buffer id='result'/>" +
+			"      <identify  id='result'>" +
+			"       <value>" +
+			"        <buffer/>" +
+			"       </value>" +
+			"      </identify>" +
 			"     </output>" +
 			"    </copy>" +
 			"   </jobs>" +
@@ -305,7 +313,11 @@ public class BufferTypeTest extends TestCase {
 			"      </buffer>" +
 			"     </input>" +
 			"     <output>" +
-			"      <buffer id='result'/>" +
+			"      <identify id='result'>" +
+			"       <value>" +
+			"        <buffer/>" +
+			"       </value>" +
+			"      </identify>" +
 			"     </output>" +
 			"    </copy>" +
 			"   </jobs>" +

@@ -1,0 +1,19 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <test>
+                        <identify id="our-value">
+                            <value>
+                                <value value="Apples"/>
+                            </value>
+                        </identify>
+                    </test>
+                </variables>
+                <echo text="Checking ${vars.test} is ${our-value}"/>
+                <check value="${vars.test}" eq="${our-value}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

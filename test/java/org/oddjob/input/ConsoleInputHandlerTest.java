@@ -21,8 +21,8 @@ public class ConsoleInputHandlerTest extends TestCase {
 		File example = dirs.relative(
 				"test/java/org/oddjob/input/InputHandlerExample.xml");
 
-		String command = "java -jar " + dirs.relative("run-oddjob.jar"
-				).getPath() + " -f " + example;
+		String command = "java -jar \"" + dirs.relative("run-oddjob.jar"
+				).getPath() + "\" -f \"" + example + "\"";
 		
 		String input = "\n" +
 				"robbo\n" +

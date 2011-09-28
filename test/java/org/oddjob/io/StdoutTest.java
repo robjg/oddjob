@@ -76,7 +76,11 @@ public class StdoutTest extends TestCase {
 			"   <jobs>" +
 			"    <copy>" +
 			"     <input>" +
-			"      <buffer id='hello'>Hello" + EOL + "</buffer>" + 
+			"      <identify id='hello'>" +
+			"       <value>" +
+			"        <buffer>Hello" + EOL + "</buffer>" +
+			"       </value>" + 
+			"      </identify>" + 
 			"     </input>" + 
 			"     <output>" +
 			"      <stdout/>" +

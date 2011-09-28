@@ -81,8 +81,12 @@ public class LogoutTypeTest extends TestCase {
 			"   <jobs>" +
 			"    <copy>" +
 			"     <input>" +
-			"      <buffer id='hello'>Hello" + EOL + "</buffer>" + 
-			"     </input>" + 
+			"      <identify id='hello'>" +
+			"       <value>" +
+			"        <buffer>Hello" + EOL + "</buffer>" +
+			"       </value>" +
+			"      </identify>" +
+			"     </input>" +
 			"     <output>" +
 			"      <logout/>" +
 			"     </output>" +
@@ -110,6 +114,9 @@ public class LogoutTypeTest extends TestCase {
 		
 		oddjob.run();
 		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+
 		logger.removeAppender(results);
 		
 		String sanityCheck = new OddjobLookup(oddjob).lookup("hello", String.class);

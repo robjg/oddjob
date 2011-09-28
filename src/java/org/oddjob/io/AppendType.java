@@ -21,7 +21,9 @@ import org.oddjob.arooa.convert.ConvertletException;
  * 
  * @oddjob.example
  * 
- * Set the {@link CopyJob} file copy example.
+ * Append a line to a file.
+ * 
+ * {@oddjob.xml.resource org/oddjob/io/AppendExample.xml}
  * 
  * 
  * @author Rob Gordon.

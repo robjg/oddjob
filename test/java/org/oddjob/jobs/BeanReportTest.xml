@@ -5,7 +5,11 @@
             <jobs>
                 <sql>
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <identify id="connection">
+                            <value>
+                                <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                            </value>
+                        </identify>
                     </connection>
                     <input>
                         <buffer><![CDATA[create table TEST (
@@ -18,7 +22,7 @@ insert into TEST values ('Apple', 'Cox', 'Red And Green', 7.6);
 insert into TEST values ('Orange', 'Jaffa', 'Orange', 9.245);]]></buffer>
                     </input>
                 </sql>
-                <sql name="Sql Query">
+                <sql  id="sql" name="Sql Query">
                     <connection>
                         <value value="${connection}"/>
                     </connection>
@@ -27,18 +31,22 @@ insert into TEST values ('Orange', 'Jaffa', 'Orange', 9.245);]]></buffer>
                     </buffer>
                     </input>
                     <results>
-                     <sql-results-bean id="sql" />
+                     <sql-results-bean />
                     </results>
                    </sql>
                 <bean-report>
                     <beans>
-                        <value value="${sql.rows}"/>
+                        <value value="${sql.results.rows}"/>
                     </beans>
                     <output>
                         <tee>
                             <outputs>
                                 <stdout/>
-                                <buffer id="results-buffer"/>
+                                <identify id="results-buffer">
+                                    <value>
+                                        <buffer/>
+                                    </value>
+                                </identify>
                             </outputs>
                         </tee>
                     </output>

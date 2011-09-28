@@ -32,6 +32,12 @@ public class Retry extends TimerBase {
 	
 	private static final long serialVersionUID = 2009091400L; 
 	
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Used to limit the schedule. Usually this
+	 * will be configured to be a parent timer's current interval.
+	 * @oddjob.required No.
+	 */
 	private Interval limits;
 	
 	@Override

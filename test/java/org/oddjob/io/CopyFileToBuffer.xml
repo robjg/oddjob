@@ -8,7 +8,12 @@
                             file='${this.args[0]}/test/io/reference/test1.txt'/>
                     </from>
                     <output>
-                        <buffer id='buff'/>
+                        <identify id='buff'>
+                            <value>
+                                <buffer/>
+                            </value>
+                        </identify>
+
                     </output>
                 </copy>
                 <echo id='e' name="What's in the file?" text='${buff}'/>

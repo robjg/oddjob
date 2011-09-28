@@ -46,9 +46,9 @@ public class OddballsLaunchTest extends TestCase {
 		OurDirs dirs = new OurDirs();
 		
 		ExecJob exec = new ExecJob();
-		exec.setCommand("java -jar " + dirs.base() + File.separator + RUN_JAR + 
-				" -ob " + dirs.base() + "/test/oddballs" +
-				" -f " + dirs.base() + "/test/launch/oddballs-launch.xml");
+		exec.setCommand("java -jar \"" + dirs.relative(RUN_JAR).getPath() + "\"" + 
+				" -ob \"" + dirs.relative("/test/oddballs").getPath() + "\"" +
+				" -f \"" + dirs.relative("/test/launch/oddballs-launch.xml") + "\"");
 		
 		exec.consoleLog().addListener(console, LogLevel.INFO, -1, 1000);
 		

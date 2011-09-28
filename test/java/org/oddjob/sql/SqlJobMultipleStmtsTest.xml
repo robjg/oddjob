@@ -3,15 +3,15 @@
     <job>
         <sequential>
             <jobs>
-                <sql name="Lots Of Statemenets">
+                <sql name="Lots Of Statemenets" id="sql">
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
                     </connection>
                     <input>
         	            <resource resource="org/oddjob/sql/SqlJobMultipleStatements.sql"/>
                     </input>
                     <results>
-                    	<sql-results-bean id="result"/>
+                    	<sql-results-bean/>
                     </results>
                 </sql>
             </jobs>

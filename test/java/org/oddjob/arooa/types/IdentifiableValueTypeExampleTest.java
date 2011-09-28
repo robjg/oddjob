@@ -1,4 +1,4 @@
-package org.oddjob.values.types;
+package org.oddjob.arooa.types;
 
 import junit.framework.TestCase;
 
@@ -11,13 +11,13 @@ import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class IdentifiableValueTypeTest extends TestCase {
+public class IdentifiableValueTypeExampleTest extends TestCase {
 
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/values/types/IdentifiableValueTypeExample.xml",
+				"org/oddjob/arooa/types/IdentifiableValueTypeExample.xml",
 				getClass().getClassLoader()));
 		
 		oddjob.run();
@@ -30,7 +30,7 @@ public class IdentifiableValueTypeTest extends TestCase {
 
 		assertEquals(ValueType.class, result.getClass());
 
-		assertEquals("Apple", lookup.lookup("our-value", String.class));
+		assertEquals("Apples", lookup.lookup("our-value", String.class));
 		
 		oddjob.destroy();
 	}

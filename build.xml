@@ -57,6 +57,8 @@
 		<property name="build.javadocs" value="${build.docs}/api"/>
 		<property name="build.xjavadocs" value="${build.dir}/xjavadocs"/>
 
+		<property name="test.reports" value="${build.test}/reports"/>
+			
 		<property name="jar.name"       value="${name}-${build.version}.jar"/>
 		<property name="launch.jar.name"       value="run-${name}.jar"/>
 
@@ -383,8 +385,10 @@
 
 	<target name="all-tests" depends="compile-tests, jar" description="Perform jUnit tests">
 		<mkdir dir="${work.dir}"/>
+		<mkdir dir="${test.reports}"/>
 		
-		<junit printsummary="yes" haltonfailure="yes" fork="yes">
+		<junit printsummary="no" haltonfailure="no" 
+				failureproperty="junit.failure" fork="yes">
 			<classpath>
 				<pathelement location="${build.test}" />
 			</classpath>
@@ -392,8 +396,7 @@
 				<pathelement location="${java.home}/../lib/tools.jar"/>
 			</classpath>
 			<classpath refid="test-classpath"/>
-			<formatter type="plain" usefile="no" />
-			<batchtest>
+			<batchtest fork="yes" todir="${test.reports}">
 				<fileset dir="${build.test}">
 					<include name="**/test/*TestCase.class"/>
 					<include name="**/*Test.class" />
@@ -401,10 +404,20 @@
 					<exclude name="**/*$$*Test.class" />
 				</fileset>
 			</batchtest>
+			<formatter type="xml" />
 			<sysproperty key="basedir" value="${basedir}"/>
 			<sysproperty key="oddjob.home" value="${oddjob.home}"/>
 			<sysproperty key="ant.file" value="${ant.file}"/>
 		</junit>
+		
+		<junitreport todir="${test.reports}">
+			<fileset dir="${test.reports}">
+		    	<include name="TEST-*.xml" />
+			</fileset>
+		    <report todir="${test.reports}" />
+		</junitreport>
+		
+		<fail if="junit.failure" message="Unit test(s) failed. See reports in ${test.reports}."/>	
 	</target>
 
 	<target name="single-test" depends="jar" description="Single JUnit test">

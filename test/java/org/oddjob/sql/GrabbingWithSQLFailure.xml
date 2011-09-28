@@ -3,9 +3,17 @@
     <job>
         <sequential>
             <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                    <state>
+                        <value value="INCOMPLETE"/>
+                    </state>
+                </variables>
                 <sql>
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <input>
                         <buffer><![CDATA[CREATE TABLE oddjob_grabbable(key VARCHAR(128),
@@ -17,18 +25,13 @@
                 </sql>
                 <sql-keeper-service id="keeper-service">
                     <connection>
-                        <value value="${connection}"/>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <pollSchedule>
                         <schedules:interval interval="00:00:01:500" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
                     </pollSchedule>
                 </sql-keeper-service>
                 <sequence id="sequence"/>
-                <variables id="vars">
-                    <state>
-                        <value value="INCOMPLETE"/>
-                    </state>
-                </variables>
                 <parallel id="grabbers">
                     <jobs>
                         <grab id="grabber1" identifier="grabber-1" onLoosing="WAIT">

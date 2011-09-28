@@ -3,9 +3,14 @@
     <job>
         <sequential>
             <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                </variables>
                 <sql name="Create table">
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <input>
         	            <buffer>
@@ -13,12 +18,12 @@
     	                </buffer>
                     </input>
                 </sql>
-                <sql name="Get Results">
+                <sql name="Get Results" id="query">
                     <connection>
-                        <value value="${connection}"/>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <results>
-                    	<sql-results-bean id="result"/>
+                    	<sql-results-bean/>
                     </results>
                     <input>
                     	<buffer>
@@ -28,7 +33,7 @@
                  </sql>
                 <sql name="Shutdown">
                     <connection>
-                        <value value="${connection}"/>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <input>
 	                    <buffer>

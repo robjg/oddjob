@@ -2,11 +2,16 @@
     <job>
         <sequential>
             <jobs>
-                <sql callable='true' delimiterType='ROW'>
+                <variables id='vars'>
                     <connection>
                         <connection driver="org.hsqldb.jdbcDriver"
-                            id="connection" url="jdbc:hsqldb:mem:test"
+                            url="jdbc:hsqldb:mem:test"
                             username="sa" />
+                    </connection>
+                </variables>
+                <sql callable='true' delimiterType='ROW'>
+                    <connection>
+                        <value value="${vars.connection}"/>
                     </connection>
                     <input>
                         <buffer>
@@ -21,11 +26,19 @@ create procedure TEST (out a int, inout b int, in c int)
                 </sql>
                 <sql id='sql-call' callable='true'>
                     <connection>
-                        <value value='${connection}' />
+                        <value value='${vars.connection}' />
                     </connection>
                     <parameters>
-                        <value id='a' />
-                        <value id='b' value='2' />
+                        <identify id='a'>
+                            <value>
+                                <value/>
+                            </value>
+                        </identify>
+                        <identify id='b'>
+                            <value>
+                                <value value='2' />
+                            </value>
+                        </identify>
                         <value value='3' />
                     </parameters>
                     <input>

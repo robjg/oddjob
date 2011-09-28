@@ -645,6 +645,13 @@ public class TimerTest extends TestCase {
     			"org/oddjob/scheduling/TimerOnceExample.xml",
     			getClass().getClassLoader()));
     	
+    	oddjob.load();
+    	
+    	assertEquals(ParentState.READY, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	Timer timer = (Timer) new OddjobLookup(oddjob).lookup("timer");
+    	timer.setClock(new ManualClock("2011-09-28 09:59:59.999"));
     	
     	StateSteps states = new StateSteps(oddjob);
     	states.startCheck(ParentState.READY, 

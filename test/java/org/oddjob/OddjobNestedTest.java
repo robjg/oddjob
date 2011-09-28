@@ -1,6 +1,7 @@
 package org.oddjob;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import junit.framework.TestCase;
@@ -19,13 +20,14 @@ public class OddjobNestedTest extends TestCase {
     /**
      * Test a nested Oddjob.
      * @throws ArooaParseException 
+     * @throws URISyntaxException 
      *
      */
-    public void testNestedOddjob() throws ArooaParseException {
+    public void testNestedOddjob() throws ArooaParseException, URISyntaxException {
     	
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjob.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI().getPath());
     	
     	Oddjob oj = new Oddjob();
 		oj.setFile(file);
@@ -67,11 +69,11 @@ public class OddjobNestedTest extends TestCase {
         oj.destroy();
     }
 
-    public void testSetNestedWithArg() {
+    public void testSetNestedWithArg() throws URISyntaxException {
 
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjobWithArg.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI().getPath());
     	        
         Oddjob oj = new Oddjob();
 		oj.setFile(file);
@@ -88,7 +90,7 @@ public class OddjobNestedTest extends TestCase {
     	    	    	
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjobWithProperty.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI().getPath());
     	        
         Oddjob oj = new Oddjob();
 		oj.setFile(file);

@@ -33,13 +33,23 @@ public class FlagState extends SerializableJob {
 	}
 	
 	protected int execute() throws Exception {
+		if (state == null) {
+			throw new IllegalStateException("No State to Flag!");
+		}
+		
 		if (state.equals(JobState.COMPLETE)) {
 			return 0;
 		}
 		if (state.equals(JobState.INCOMPLETE)) {
 			return 1;
 		}
-		throw new Exception("Flagged Exception.");
+		if (state.equals(JobState.EXCEPTION)) {
+			throw new Exception("Flagged Exception.");
+		}
+		else {
+			throw new IllegalStateException(
+					"State must be one of the termination states, not " + state);
+		}
 	}
 
 	/**

@@ -5,7 +5,11 @@
             <jobs>
                 <sql>
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" id="connection" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <identify id="connection">
+                            <value>
+                                <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                            </value>
+                        </identify>
                     </connection>
                     <input>
                         <buffer><![CDATA[CREATE TABLE oddjob_silhouettes(
@@ -20,8 +24,7 @@
                         <value value="${connection}"/>
                     </connection>
                     <serializationFactory>
-                    	<bean class='org.oddjob.sql.HSQLSerializationFactory'
-                    		table='oddjob_silhouettes'/>
+                        <bean class="org.oddjob.sql.HSQLSerializationFactory" table="oddjob_silhouettes"/>
                     </serializationFactory>
                 </sql-persister-service>
                 <parallel>

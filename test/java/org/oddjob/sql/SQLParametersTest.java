@@ -11,6 +11,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
@@ -49,8 +50,8 @@ public class SQLParametersTest extends TestCase {
 			"        <value value='27'/>" +
 			"     </parameters>" +
 			"     <input>" +
-			"      <buffer id='insert-sql'>" +
-			"insert into TEST values (?, ?)" +
+			"      <buffer>" +
+			"${insert-sql}" +
 			"      </buffer>" +
 			"     </input>" +
 			"    </sql>" +
@@ -68,12 +69,12 @@ public class SQLParametersTest extends TestCase {
 			"      </buffer>" +
 			"     </input>" +
 			"    </sql>" +
-			"    <sql>" +
+			"    <sql id='query'>" +
 			"	  <connection>" +
 			"      <value value='${c}'/>" +
 			"     </connection>" +
 			"     <results>" +
-			"      <sql-results-bean id='result'/>" +
+			"      <sql-results-bean/>" +
 			"     </results>" +
 			"     <input>" +
 			"      <buffer>" +
@@ -89,12 +90,12 @@ public class SQLParametersTest extends TestCase {
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
 		oddjob.setExport("c", connection);
-
+		oddjob.setExport("insert-sql", new ArooaObject("insert into TEST values (?, ?)"));
 		oddjob.run();
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		int count = new OddjobLookup(oddjob).lookup("result.row.C", Integer.class);
+		int count = new OddjobLookup(oddjob).lookup("query.results.row.C", Integer.class);
 		
 		assertEquals(2, count);
 		
@@ -115,7 +116,7 @@ public class SQLParametersTest extends TestCase {
 			" <job>" +
 			"  <sequential>" +
 			"   <jobs>" +
-			"    <sql>" +
+			"    <sql id='sql'>" +
 			"	  <connection>" +
 			"      <value value='${c}'/>" +
 			"     </connection>" +
@@ -134,7 +135,7 @@ public class SQLParametersTest extends TestCase {
 			"      </buffer>" +
 			"     </input>" +
 			"     <results>" +
-			"      <sql-results-bean id='result'/>" +
+			"      <sql-results-bean/>" +
 			"     </results>" +
 			"    </sql>" +
 			"   </jobs>" +
@@ -150,11 +151,11 @@ public class SQLParametersTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		int count = new OddjobLookup(oddjob).lookup("result.row.C", Integer.class);
+		int count = new OddjobLookup(oddjob).lookup("sql.results.row.C", Integer.class);
 		
 		assertEquals(3, count);
 		
-		int sum = new OddjobLookup(oddjob).lookup("result.row.S", Integer.class);
+		int sum = new OddjobLookup(oddjob).lookup("sql.results.row.S", Integer.class);
 		
 		assertEquals(8, sum);
 		
@@ -179,14 +180,23 @@ public class SQLParametersTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		int a = new OddjobLookup(oddjob).lookup("a", Integer.class);
-		int b = new OddjobLookup(oddjob).lookup("b", Integer.class);
+		OddjobLookup lookup = new OddjobLookup(oddjob); 
 		
-		assertEquals(2, a);
-		assertEquals(3, b);
+		Integer a = lookup.lookup("a", Integer.class);
+		Integer b = lookup.lookup("b", Integer.class);
 		
+		assertEquals(new Integer(2), a);
+		assertEquals(new Integer(3), b);
+		
+		a = lookup.lookup("sql-call.parameters[0]", Integer.class);
+		b = lookup.lookup("sql-call.parameters[1]", Integer.class);
+		
+		// Why - This is a bug in the RunnableWRapper!
+		assertNull(a);
+		assertNull(b);
+				
 		Connection connection = new OddjobLookup(oddjob).lookup(
-				"connection", Connection.class);
+				"vars.connection", Connection.class);
 		
 		SQLJob shutdown = new SQLJob();
 		shutdown.setArooaSession(new StandardArooaSession());

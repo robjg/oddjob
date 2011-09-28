@@ -291,7 +291,12 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 	}
 
 	public ValueType getParameters(int index) {
-		return parameters.get(index);
+		if (parameters == null) {
+			return null;
+		}
+		else {
+			return parameters.get(index);
+		}
 	}
 
 	public void setParameters(int index, ValueType parameter) {

@@ -113,8 +113,8 @@ public class ExecJobTest extends TestCase {
 
 		String classPath = converter.convert(cpFiles, String.class);
 		
-		job.setCommand("java -cp " + classPath + " org.oddjob.Main -f " +
-				new File(dirs.base(), "test/conf/wait.xml"));
+		job.setCommand("java -cp \"" + classPath + "\" org.oddjob.Main -f \"" +
+				dirs.relative("test/conf/wait.xml").getPath() + "\"");
 
 		job.setStdout(buf.toOutputStream());
 		job.setRedirectStderr(true);

@@ -5,8 +5,8 @@ package org.oddjob.io;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * Utility methods for dealing with files.
@@ -17,13 +17,13 @@ public class Files {
 
 	/**
 	 * Expand an array of files which could contain wildcards into 
-	 * an actual array of files.
+	 * an actual array of files. The array will be sorted.
 	 * 
 	 * @param files The in files.
 	 * @return The expanded files
 	 */
 	public static File[] expand(File[] files) {
-		Set<File> results = new HashSet<File>();
+		SortedSet<File> results = new TreeSet<File>();
 		for (int i = 0; i < files.length; ++i) {
 			results.addAll(Arrays.asList(new WildcardSpec(files[i]).findFiles()));
 		}

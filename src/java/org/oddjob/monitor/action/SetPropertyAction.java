@@ -177,7 +177,6 @@ public class SetPropertyAction extends JobAction implements FormAction {
 		
 		public Form detail() {
 			return new StandardForm("Set Property", this)
-				.supressId(true)
 				.addFormItem(
 					new BorderedGroup("Property")
 						.add(new TextField("Name", name))

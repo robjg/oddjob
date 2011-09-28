@@ -158,6 +158,13 @@ public class BufferType implements ArooaValue, ArooaLifeAware {
 		}
 	}	
 	
+	/**
+	 * @oddjob.property lines
+	 * @oddjob.description The buffer contents as an array of lines. Either set the contents to be the array
+	 * or read the contents of the buffer as an array.
+	 * @oddjob.required No.
+	 * 
+	 */
 	public void setLines(String[] lines) {
 		this.lines = lines;
 	}
