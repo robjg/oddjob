@@ -86,7 +86,7 @@ public class DefaultExecutors implements OddjobExecutors {
 	
 	private synchronized ExecutorService startPoolExecutorOnFirstRequest() {
 		if (poolExecutorService == null) {
-			logger.info("Starting Poole Executor.");
+			logger.info("Starting Pool Executor.");
 			poolExecutorService = Executors.newCachedThreadPool();
 		}
 		return poolExecutorService;		

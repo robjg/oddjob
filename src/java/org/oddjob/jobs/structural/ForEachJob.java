@@ -308,7 +308,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		
 		ArooaSession existingSession = getArooaSession();
 		
-		PsudoRegistry psudoRegistry = new PsudoRegistry(
+		PseudoRegistry psudoRegistry = new PseudoRegistry(
 				existingSession.getBeanRegistry(),
 				existingSession.getTools().getPropertyAccessor(),
 				existingSession.getTools().getArooaConverter());
@@ -593,7 +593,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
     			BeanRegistry registry) {
     		this.existingSession = exsitingSession;
     		this.beanDirectory = registry;
-    		this.componentPool = new PsudoComponentPool(
+    		this.componentPool = new PseudoComponentPool(
     				exsitingSession.getComponentPool());
     		this.propertyManager = new StandardPropertyManager(
     				existingSession.getPropertyManager());
@@ -635,10 +635,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	}
     }
     
-    class PsudoRegistry extends SimpleBeanRegistry {
+    class PseudoRegistry extends SimpleBeanRegistry {
     	private final BeanDirectory existingDirectory;    	
     	    	
-    	PsudoRegistry(BeanDirectory existingDirectory,
+    	PseudoRegistry(BeanDirectory existingDirectory,
     			PropertyAccessor propertyAccessor,
     			ArooaConverter converter) {
     		super(propertyAccessor, converter);
@@ -690,11 +690,11 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		}
     }
     
-    class PsudoComponentPool extends SimpleComponentPool {
+    class PseudoComponentPool extends SimpleComponentPool {
     	
     	private final ComponentPool existingPool;
     	
-    	public PsudoComponentPool(ComponentPool existingPool) {
+    	public PseudoComponentPool(ComponentPool existingPool) {
     		this.existingPool = existingPool;
 		}
     	

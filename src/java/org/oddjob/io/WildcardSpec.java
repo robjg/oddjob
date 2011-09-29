@@ -6,9 +6,9 @@ package org.oddjob.io;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -32,7 +32,7 @@ public class WildcardSpec {
     }
     
     public File[] findFiles(final DirectorySplit split) {
-    	Set<File> results = new HashSet<File>();
+    	Set<File> results = new TreeSet<File>();
     	if (split.getParentFile() == null) {
     		// should only happen with the "/" spec.
     		results.add(new File(split.getName()));

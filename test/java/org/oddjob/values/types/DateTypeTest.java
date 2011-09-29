@@ -117,7 +117,7 @@ public class DateTypeTest extends TestCase {
 		
 		Date result = test.toDate();
 		
-		assertEquals(DateHelper.parseDate("2009-01-01"), result);		
+		assertEquals(DateHelper.parseDate("2009-01-01", "GMT"), result);		
 	}
 	
 	public void testSimpleDateExample() throws ArooaParseException, ParseException {

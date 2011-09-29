@@ -5,7 +5,7 @@ package org.oddjob.designer.view;
 
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
-import org.oddjob.arooa.design.screem.TextPsudoForm;
+import org.oddjob.arooa.design.screem.TextPseudoForm;
 
 /**
  * 
@@ -18,9 +18,9 @@ public class DummyFormViewFactory {
 			return new DummyStandardFormView(
 					(StandardForm) form);
 		}
-		else if (form instanceof TextPsudoForm) {
-			return new TextPsudoFormDummy(
-					(TextPsudoForm) form);
+		else if (form instanceof TextPseudoForm) {
+			return new TextPseudoFormDummy(
+					(TextPseudoForm) form);
 		}
 		
 		throw new RuntimeException("Unexpected: " + form);

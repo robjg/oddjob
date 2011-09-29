@@ -49,14 +49,32 @@ Changes in 1.0.0
   configuration via the GUI. Introduced a new IdentifiableValueType, 
   with tag <identify>, that can used to register a value if required.
     
-Still Todo for 1.0.0
--------------------- 
+Still to do for 1.0.0
+--------------------- 
+- Change Echo text property to be XML text rather than an attribute to allow
+  multiline echos in one echo job.
+- Structural jobs should COMPLETE when they have no child. Need to look at what 
+  happens when they are destroyed to ensure they don't complete as their children 
+  are removed.
+- Make Parallel completely asynchronous so that it doesn't wait for it's children.
+  Waiting for children can still be achieved by nesting in a <state:join> job.
+  Ensure state transitions are predictable (seen release notes for version 0.30.0). 
+- Improve Designer. Sizing should be more intelligent. Shortcut keys need to work.
+  Maybe allow the designer form not to be Modal. Tabs and focus need to be improved
+  to ease navigation.
+- Fix cut and paste in <state:cascade> that intermittently causes an NPE. 
+ 
+Deferred to A Later Version
+---------------------------
 - Add a 'forceComplete' action that will force a job to be complete.
-- Positioning of Designer dialog. Maybe allow designer not to be Modal. 
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. class path or text.
-- Improve the file rename job.
+- Check a configuration hasn't been modified by someone else before a 
+  modification is saved back from designer.
 - Document conversions. Possibly include conversions in the Reference.
+- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
+  copy some of it's feature including; overwrite, force, failonerror, verbose,
+  preservelastmodified. Add the ability to back up the moved files like Linux does.
 
 Changes in 0.30.0
 -----------------

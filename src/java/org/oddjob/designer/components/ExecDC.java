@@ -92,7 +92,7 @@ class ExecDesign extends BaseDC {
 						.add(new TextField("Working Directory", dir))
 					)			
 					.add(new FieldGroup("Environment")
-						.add(newEnvironment.view().setTitle("New Environemnt"))
+						.add(newEnvironment.view().setTitle("New Environment"))
 						.add(environment.view().setTitle("Variables"))
 					)
 					.add(new FieldGroup("I/O")

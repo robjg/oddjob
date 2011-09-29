@@ -85,7 +85,7 @@ public class SQLPersisterTest extends TestCase {
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/sql/SqlPersisterTest.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI());
     	        		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setFile(file);

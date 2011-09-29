@@ -198,7 +198,7 @@ public class ForEachJobTest extends TestCase {
 		
 	}
 	
-	public void testPsudoRegistry() {
+	public void testPseudoRegistry() {
 		
 		String findMe = new String("Fruit is Healthy.");
 		

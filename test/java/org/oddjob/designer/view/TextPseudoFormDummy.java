@@ -1,12 +1,12 @@
 package org.oddjob.designer.view;
 
-import org.oddjob.arooa.design.screem.TextPsudoForm;
+import org.oddjob.arooa.design.screem.TextPseudoForm;
 
-public class TextPsudoFormDummy implements DummyFormView {
+public class TextPseudoFormDummy implements DummyFormView {
 
-	private TextPsudoForm textForm;
+	private TextPseudoForm textForm;
 	
-	public TextPsudoFormDummy(TextPsudoForm textForm) {
+	public TextPseudoFormDummy(TextPseudoForm textForm) {
 		this.textForm = textForm;
 	}
 	

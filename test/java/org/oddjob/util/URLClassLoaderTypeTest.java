@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		}
 	}
 
-	public void testInOddjob() {
+	public void testInOddjob() throws URISyntaxException {
 	
 		OurDirs dirs = new OurDirs();
 		
@@ -129,7 +130,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/util/URLClassLoader.xml");
     	
-    	File file = new File(url.getFile());
+    	File file = new File(url.toURI());
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setArgs(new String[] { dirs.base().getAbsolutePath() });

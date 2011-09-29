@@ -102,7 +102,7 @@ public class LogArchiveImpl implements LogArchive, LogEventSink {
 	 * 
 	 * @return The events.
 	 */
-	public LogEvent[] retieveEvents(long from, int max) {
+	public LogEvent[] retrieveEvents(long from, int max) {
 		synchronized (events) {
 			List<LogEvent> missed = new ArrayList<LogEvent>();
 			int count = 0;

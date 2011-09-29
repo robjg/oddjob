@@ -27,7 +27,7 @@ public interface LogArchive {
 	 * 
 	 * @return The events.
 	 */
-	public LogEvent[] retieveEvents(long from, int max);
+	public LogEvent[] retrieveEvents(long from, int max);
 	
 	/**
 	 * Add a listener.

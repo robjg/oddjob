@@ -19,7 +19,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * Test LogArchiverCache
  */
-public class StructuralArchiverCahceTest extends TestCase {
+public class StructuralArchiverCacheTest extends TestCase {
 
 	public class Thing implements LogEnabled {
 		public String loggerName() {
