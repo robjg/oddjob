@@ -45,8 +45,8 @@ public class XMLResourceLoader implements IncludeLoader {
 			
 			XSLTJob transform = new XSLTJob();
 			transform.setStylesheet(stylesheet);
-			transform.setFrom(new ByteArrayInputStream(xml.getBytes()));
-			transform.setTo(result);
+			transform.setInput(new ByteArrayInputStream(xml.getBytes()));
+			transform.setOutput(result);
 			
 			transform.run();
 			

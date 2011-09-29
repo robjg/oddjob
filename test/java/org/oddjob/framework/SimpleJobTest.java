@@ -7,11 +7,16 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.images.IconHelper;
+import org.oddjob.state.JobState;
 
 public class SimpleJobTest extends TestCase {
 
@@ -114,5 +119,63 @@ public class SimpleJobTest extends TestCase {
 		assertEquals("Set element property: null", results.get(8));
 		
 		assertEquals(9, results.size());
+	}
+	
+	private class SleepyJob extends SimpleJob {
+		
+		long sleep;
+		
+		@Override
+		protected int execute() throws Throwable {
+			sleep(sleep);
+			
+			return 0;
+		}
+	}
+		
+	public void testSleepAndComplete() throws InterruptedException, FailedToStopException {
+		
+		SleepyJob test = new SleepyJob();
+		test.sleep = 1;
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING, IconHelper.EXECUTING,
+				IconHelper.COMPLETE);
+		
+		StateSteps state = new StateSteps(test);		
+		state.startCheck(JobState.READY, JobState.EXECUTING,
+				JobState.COMPLETE);
+		
+		test.run();
+
+		state.checkNow();
+		icons.checkNow();
+	}
+	
+	public void testSleepAndStop() throws InterruptedException, FailedToStopException {
+		
+		SleepyJob test = new SleepyJob();
+
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING);
+		
+		StateSteps state = new StateSteps(test);		
+		state.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		new Thread(test).start();
+
+		state.checkWait();
+		icons.checkWait();
+
+		icons.startCheck(IconHelper.SLEEPING,
+				IconHelper.STOPPING,
+				IconHelper.COMPLETE);
+		
+		test.stop();
+		
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
+
+		icons.checkNow();
 	}
 }

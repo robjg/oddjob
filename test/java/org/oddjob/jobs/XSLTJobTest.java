@@ -25,12 +25,36 @@ public class XSLTJobTest extends XMLTestCase {
 		
 		XSLTJob test = new XSLTJob();
 		test.setStylesheet(getClass().getResourceAsStream("styles.xsl"));
-		test.setFrom(new ByteArrayInputStream(xml.getBytes()));
-		test.setTo(result.toOutputStream());
+		test.setInput(new ByteArrayInputStream(xml.getBytes()));
+		test.setOutput(result.toOutputStream());
 		
 		test.run();
 				
 		assertXMLEqual(xml, result.getText());
 	}
 	
+	
+	public void testParmeter() throws SAXException, IOException {
+		
+		String xml = 
+			"<oddjob>" + EOL + 
+			"  <job>" + EOL +
+			"    <echo text='Hello'/>" + EOL +
+			"  </job>" + EOL +
+			"</oddjob>" + EOL;
+		
+		BufferType result = new BufferType();
+		result.configured();
+		
+		XSLTJob test = new XSLTJob();
+		test.setStylesheet(getClass().getResourceAsStream(
+				"styles-with-param.xsl"));
+		test.setInput(new ByteArrayInputStream(xml.getBytes()));
+		test.setOutput(result.toOutputStream());
+		test.setParameters("text", "Hello");
+		
+		test.run();
+				
+		assertXMLEqual(xml, result.getText());
+	}
 }

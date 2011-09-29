@@ -21,7 +21,6 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.Trigger;
 import org.oddjob.state.FlagState;
-import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
@@ -40,13 +39,13 @@ public class ArchiveJobTest extends TestCase {
 
 		WaitJob wait = new WaitJob();
 
+		StateSteps states = new StateSteps(wait);
+		states.startCheck(JobState.READY, JobState.EXECUTING);
+		
 		Thread t = new Thread(wait);
 		t.start();
 		
-		WaitJob checkExecuting = new WaitJob();
-		checkExecuting.setFor(wait);
-		checkExecuting.setState(new IsStoppable());
-		checkExecuting.run();
+		states.checkWait();
 		
 		ArchiveJob test = new ArchiveJob();
 		test.setArchiver(persister);
@@ -63,7 +62,8 @@ public class ArchiveJobTest extends TestCase {
 		t.join();
 		
 		ComponentPersister cp = persister.persisterFor("test");
-		Stateful stateful = (Stateful) cp.restore("1", getClass().getClassLoader(), null);
+		Stateful stateful = (Stateful) cp.restore(
+				"1", getClass().getClassLoader(), null);
 		
 		assertNotNull(stateful);
 		

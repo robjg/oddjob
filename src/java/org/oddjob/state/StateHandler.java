@@ -243,6 +243,10 @@ implements Stateful, StateLock {
 		}
 	}
 	
+	/**
+	 * Wake any threads that are sleeping via {@link #sleep(long)}.
+	 * 
+	 */
 	public void wake() {
 		assertLockHeld();
 

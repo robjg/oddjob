@@ -173,7 +173,8 @@ public class SQLResultsSheetTest extends TestCase {
 		assertEquals(expected.length, lines.length);
 		
 		for (int i = 0; i < expected.length; ++i) {
-			assertTrue(expected[i], lines[i].trim().matches(expected[i].trim()));	
+			assertTrue(expected[i] + " regexp does not match " + lines[i], 
+					lines[i].trim().matches(expected[i].trim()));	
 		}
 		
 		oddjob.destroy();

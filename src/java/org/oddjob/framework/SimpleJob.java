@@ -1,6 +1,9 @@
 package org.oddjob.framework;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
@@ -83,28 +86,29 @@ implements  Runnable, Resetable, Stateful {
 			
 			logger().info("[" + SimpleJob.this + "] Executing.");
 
-			final int[] result = new int[1];
-			final Throwable[] exception = new Throwable[1];
+			final AtomicInteger result = new AtomicInteger();
+			final AtomicReference<Throwable> exception = 
+				new AtomicReference<Throwable>();
 			
 			try {			
 				configure();
 				
-				result[0] = execute();
+				result.set(execute());
 				
 				logger().info("[" + SimpleJob.this + "] Finished, result " + 
-						result[0]);
+						result.get());
 			}
 			catch (Throwable e) {
 				logger().error("[" + SimpleJob.this + "] Exception executing job.", e);
-				exception[0] = e;
+				exception.set(e);
 			}
 			
 			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
-					if (exception[0] != null) {
-						getStateChanger().setStateException(exception[0]);
+					if (exception.get() != null) {
+						getStateChanger().setStateException(exception.get());
 					}
-					else if (result[0] == 0) {
+					else if (result.get() == 0) {
 		            	getStateChanger().setState(JobState.COMPLETE);
 					}
 					else {						
@@ -146,7 +150,10 @@ implements  Runnable, Resetable, Stateful {
 					logger().debug("Sleep interupted.");
 				}
 				
-				iconHelper.changeIcon(IconHelper.EXECUTING);
+				// Stop should already have set Icon to Stopping.
+				if (!stop) {
+					iconHelper.changeIcon(IconHelper.EXECUTING);
+				}
 			}
 		})) {
 			throw new IllegalStateException("Can't sleep unless EXECUTING.");
@@ -167,6 +174,7 @@ implements  Runnable, Resetable, Stateful {
 			public void run() {
 				stop = true;
 				stateHandler.wake();
+				iconHelper.changeIcon(IconHelper.STOPPING);
 			}
 		})) {
 			return;
@@ -174,7 +182,6 @@ implements  Runnable, Resetable, Stateful {
 		
 		logger().info("[" + this + "] Stop requested.");
 		
-		iconHelper.changeIcon(IconHelper.STOPPING);
 		try {
 			onStop();
 			

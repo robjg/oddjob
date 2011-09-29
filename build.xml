@@ -387,7 +387,7 @@
 		<mkdir dir="${work.dir}"/>
 		<mkdir dir="${test.reports}"/>
 		
-		<junit printsummary="no" haltonfailure="no" 
+		<junit printsummary="yes" haltonfailure="no" 
 				failureproperty="junit.failure" fork="yes">
 			<classpath>
 				<pathelement location="${build.test}" />
