@@ -20,23 +20,25 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
+import org.oddjob.IconSteps;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
-import org.oddjob.jobs.WaitJob;
+import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.DateSchedule;
@@ -44,13 +46,10 @@ import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.state.FlagState;
-import org.oddjob.state.IsNot;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
-import org.oddjob.util.Clock;
 
 /**
  * 
@@ -65,7 +64,7 @@ public class TimerTest extends TestCase {
 	private class OurJob extends MockStateful
 	implements Runnable, Resetable {
 
-		boolean reset;
+		int resets;
 		
 		final List<StateListener> listeners = new ArrayList<StateListener>();
 		
@@ -82,12 +81,13 @@ public class TimerTest extends TestCase {
 		public void run() {
 			List<StateListener> copy = new ArrayList<StateListener>(listeners);
 			for (StateListener listener: copy) {
+				listener.jobStateChange(new StateEvent(this, JobState.EXECUTING));
 				listener.jobStateChange(new StateEvent(this, JobState.COMPLETE));
 			}
 		}
 		
 		public boolean hardReset() {
-			reset = true;
+			++resets;
 			return true;
 		}
 		
@@ -111,59 +111,112 @@ public class TimerTest extends TestCase {
 		}
 	};
 	
-	public void testSimpleSchedule() 
+	public void testSimpleNonRepeatingSchedule() 
 	throws Exception {
+		
 		DateSchedule schedule = new DateSchedule();
 		schedule.setOn("2020-12-25");
 		
 		OurJob ourJob = new OurJob();
-				
+
+		ManualClock clock = new ManualClock("2020-12-24");
+		
 		Timer test = new Timer();
 		test.setSchedule(schedule);
 		test.setJob(ourJob);
 		test.setHaltOnFailure(true);
+		test.setClock(clock);
 		
 		OurOddjobServices oddjobServices = new OurOddjobServices();		
 		test.setScheduleExecutorService(oddjobServices);
 
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING);
+		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, 
-				test.lastStateEvent().getState());
-		
+		state.checkNow();
+		icons.checkNow();
+				
 		Date expected = DateHelper.parseDate("2020-12-25");
 		
 		assertEquals(expected, test.getNextDue());
 		assertEquals(expected, test.getCurrent().getFromDate());
+		assertEquals(24 * 60 * 60 * 1000L, oddjobServices.delay);
 
-		oddjobServices.delay = -1;
+		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		icons.startCheck(IconHelper.SLEEPING, IconHelper.EXECUTING, 
+				IconHelper.COMPLETE);
 		
+		// Time passes... Executor runs job.
+		oddjobServices.delay = -1;		
 		oddjobServices.runnable.run();
+		oddjobServices.runnable = null;
 		
 		assertNull(null, test.getNextDue());	
 		assertEquals(-1, oddjobServices.delay);
 
-		assertTrue(ourJob.reset);
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		assertEquals(1, ourJob.resets);
+		state.checkNow();
+		icons.checkNow();
+		
+		//
+		// Check reset and run again works as expected.
+		
+		clock.setDate("2020-12-25 00:00:01");
+		
+		state.startCheck(ParentState.COMPLETE, ParentState.READY);
+		icons.startCheck(IconHelper.COMPLETE, IconHelper.READY);
+		
+		test.hardReset();
+		
+		state.checkNow();
+		icons.checkNow();
+		
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING);
+		
+		test.run();
+		
+		state.checkNow();
+		icons.checkNow();
+		
+		assertEquals(expected, test.getNextDue());
+		assertEquals(expected, test.getCurrent().getFromDate());
+		assertEquals(0L, oddjobServices.delay);
 
+		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		icons.startCheck(IconHelper.SLEEPING, IconHelper.EXECUTING, 
+				IconHelper.COMPLETE);
+		
+		// Time has passed... Executor would run job immediately.
+		oddjobServices.delay = -1;		
+		oddjobServices.runnable.run();
+		oddjobServices.runnable = null;
+		
+		assertNull(null, test.getNextDue());	
+		assertEquals(-1, oddjobServices.delay);
+
+		assertEquals(3, ourJob.resets);
+		state.checkNow();
+		icons.checkNow();
+		
+		
+		//
+		// Destroy
 		test.setJob(null);
 		
 		test.destroy();
 		
 		assertEquals(0, ourJob.listeners.size());
-
 	}
 
-	private class OurClock implements Clock {
-
-		Date date;
-		public Date getDate() {
-			
-			return date;
-		}
-	}
-	
-	public void testAnotherSchedule() throws ParseException {
+	public void testRecurringScheduleWhenStopped() throws ParseException {
 	
 		FlagState job = new FlagState();
 		job.setState(JobState.COMPLETE);
@@ -172,9 +225,7 @@ public class TimerTest extends TestCase {
 		time.setFrom("14:45");
 		time.setTo("14:55");
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-02-10 14:50");
-
+		ManualClock clock = new ManualClock("2009-02-10 14:50");
 		
 		Timer test = new Timer();
 		test.setSchedule(time);
@@ -197,7 +248,7 @@ public class TimerTest extends TestCase {
 		
 		assertEquals(expectedNextDue, test.getNextDue());
 		
-		assertEquals(expectedNextDue.getTime() -clock.date.getTime(),
+		assertEquals(expectedNextDue.getTime() -clock.getDate().getTime(),
 				oddjobServices.delay);
 	}
 	
@@ -209,8 +260,7 @@ public class TimerTest extends TestCase {
 		DailySchedule time = new DailySchedule();
 		time.setAt("12:00");
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-03-02 14:00");
+		ManualClock clock = new ManualClock("2009-03-02 14:00");
 
 		Timer test = new Timer();
 		test.setSchedule(time);
@@ -227,18 +277,17 @@ public class TimerTest extends TestCase {
 		assertEquals(22 * 60 * 60 * 1000, oddjobServices.delay);
 		
 		// simulate job longer than next due;
-		clock.date = DateHelper.parseDateTime("2009-03-04 13:00");
+		clock.setDate("2009-03-04 13:00");
 		oddjobServices.runnable.run();
 
 		assertEquals(0, oddjobServices.delay);
 		
 		// next one runs quick.
-		clock.date = DateHelper.parseDateTime("2009-03-04 18:00");
+		clock.setDate("2009-03-04 18:00");
 		oddjobServices.runnable.run();
 
 		assertEquals(18 * 60 * 60 * 1000, oddjobServices.delay);
 	}
-	
 	
 	public void testSkipMissedSchedule() throws ParseException {
 		
@@ -248,8 +297,7 @@ public class TimerTest extends TestCase {
 		DailySchedule time = new DailySchedule();
 		time.setAt("12:00");
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-03-02 14:00");
+		ManualClock clock = new ManualClock("2009-03-02 14:00");
 
 		Timer test = new Timer();
 		test.setSchedule(time);
@@ -267,12 +315,11 @@ public class TimerTest extends TestCase {
 		assertEquals(22 * 60 * 60 * 1000, oddjobServices.delay);
 		
 		// simulate job longer than next due;
-		clock.date = DateHelper.parseDateTime("2009-03-04 13:00");
+		clock.setDate("2009-03-04 13:00");
 		oddjobServices.runnable.run();
 
 		// next one runs the next day.
 		assertEquals(23 * 60 * 60 * 1000, oddjobServices.delay);
-		
 	}
 	
 	public void testHaltOnFailure() throws ParseException {
@@ -284,8 +331,7 @@ public class TimerTest extends TestCase {
 		time.setFrom("14:45");
 		time.setTo("14:55");
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-02-10 14:50");
+		ManualClock clock = new ManualClock("2009-02-10 14:50");
 
 		Timer test = new Timer();
 		test.setSchedule(time);
@@ -354,8 +400,7 @@ public class TimerTest extends TestCase {
 		count.setCount(2);
 		count.setRefinement(interval);
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-02-10 14:30");
+		ManualClock clock = new ManualClock("2009-02-10 14:30");
 		
 		test.setSchedule(count);
 		test.setJob(sample);
@@ -398,8 +443,7 @@ public class TimerTest extends TestCase {
 
 		Timer test = new Timer();
 		
-		OurClock clock = new OurClock();
-		clock.date = DateHelper.parseDateTime("2009-02-10 14:30");
+		ManualClock clock = new ManualClock("2009-02-10 14:30");
 		
 		test.setSchedule(new NowSchedule());
 		test.setJob(sample);
@@ -439,7 +483,7 @@ public class TimerTest extends TestCase {
 		}
 	};
 	
-	public void testStop() throws ParseException {
+	public void testStop() throws ParseException, InterruptedException {
 		
 		final Timer test = new Timer();
 		test.setSchedule(new NowSchedule());
@@ -470,45 +514,98 @@ public class TimerTest extends TestCase {
 		test.setScheduleExecutorService(services);
 		retry.setScheduleExecutorService(services);
 		
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.READY);
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING, IconHelper.EXECUTING, IconHelper.STOPPING,
+				IconHelper.READY);
+		
 		test.run();
 		
-		WaitJob wait = new WaitJob();
-		wait.setFor(test);
-		wait.setState(new IsNot(StateConditions.EXECUTING));
-		wait.run();
+		state.checkWait();
+		icons.checkNow();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
-		
+		test.setJob(null);
 		retry.destroy();
 		test.destroy();
 		
 	}
 
+	
+	
 	public void testStopBeforeTriggered() throws FailedToStopException {
-		
-		Timer test = new Timer();
-		test.setScheduleExecutorService(new MockScheduledExecutorService() {
+
+		class Executor extends MockScheduledExecutorService {
+			
+			boolean canceled;
+			Runnable job;
+			
 			@Override
 			public ScheduledFuture<?> schedule(Runnable command, long delay,
 					TimeUnit unit) {
-				return null;
+				job = command;
+				return new MockScheduledFuture<Void>() {
+					@Override
+					public boolean cancel(boolean mayInterruptIfRunning) {
+						assertEquals(false, mayInterruptIfRunning);
+						canceled = true;
+						job = null;
+						return true;
+					}
+				};
 			}
-		});
-		test.setJob(new SimpleJob() {
-			@Override
-			protected int execute() throws Throwable {
-				throw new Exception();
-			}
-		});
-		test.setSchedule(new NowSchedule());
+		}
+		Executor executor = new Executor();
+		
+		Timer test = new Timer();
+		test.setClock(new ManualClock("2011-09-30 00:10"));
+		test.setScheduleExecutorService(executor);
+		
+		test.setJob(new FlagState());
+		
+		TimeSchedule schedule = new TimeSchedule();
+		test.setSchedule(schedule);
+		
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING);
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		state.checkNow();
+		icons.checkNow();
+		
+		state.startCheck(ParentState.ACTIVE, ParentState.READY);
+		icons.startCheck(IconHelper.SLEEPING, IconHelper.STOPPING,
+				IconHelper.READY);
 		
 		test.stop();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		state.checkNow();
+		icons.checkNow();
+		
+		assertEquals(true, executor.canceled);
+		
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		
+		test.run();
+
+		state.checkNow();
+		
+		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		executor.job.run();
+		
+		state.checkNow();
+
+		test.destroy();
+		
 	}
 	
 	/**
@@ -540,60 +637,78 @@ public class TimerTest extends TestCase {
 			FileUtils.forceDelete(persistDir);
 		}
 	
-		Oddjob oddjob = new Oddjob();
-		oddjob.setFile(dirs.relative("test/conf/persisted-schedule.xml"));
+		Oddjob oddjob1 = new Oddjob();
+		oddjob1.setFile(dirs.relative("test/conf/persisted-schedule.xml"));
 		
-		oddjob.setExport("clock", new ArooaObject(
+		oddjob1.setExport("clock", new ArooaObject(
 				new ManualClock("2011-03-09 06:30")));
-		oddjob.setExport("work-dir", new ArooaObject( 
+		oddjob1.setExport("work-dir", new ArooaObject( 
 				dirs.relative("work")));
 		
-		oddjob.run();
+		oddjob1.run();
+				
+		oddjob1.run();
 		
 		assertEquals(ParentState.ACTIVE, 
-				oddjob.lastStateEvent().getState());
+				oddjob1.lastStateEvent().getState());
+				
+		assertEquals(new SimpleInterval(
+				DateHelper.parseDateTime("2011-03-10 05:30"),
+				DateHelper.parseDateTime("2011-03-10 06:30")), 
+				new OddjobLookup(oddjob1).lookup("persisted-schedule/schedule1.current"));
+		assertEquals(DateHelper.parseDateTime("2011-03-10 05:30"), 
+				new OddjobLookup(oddjob1).lookup("persisted-schedule/schedule1.nextDue"));
 		
-		oddjob.stop();
+		oddjob1.stop();
 		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
+		assertEquals(ParentState.READY, oddjob1.lastStateEvent().getState());
 		
-		String text = lookup.lookup("persisted-schedule/scheduled-job.text", 
-				String.class);
+		oddjob1.destroy();
 		
-		assertEquals(null, text);
+		//
+		// Second run
 		
-		Date nextDue = lookup.lookup("persisted-schedule/schedule1.nextDue",
-				Date.class);
+		Oddjob oddjob2 = new Oddjob();
+		oddjob2.setFile(dirs.relative("test/conf/persisted-schedule.xml"));
 		
-		assertEquals(DateHelper.parseDateTime("2011-03-10 05:30"), nextDue);
-		
-		oddjob.setExport("clock", new ArooaObject(
+		oddjob2.setExport("clock", new ArooaObject(
 				new ManualClock("2011-03-10 07:00")));
+		oddjob2.setExport("work-dir", new ArooaObject( 
+				dirs.relative("work")));
 		
-		oddjob.hardReset();
-		oddjob.run();
+		oddjob2.load();
 		
-		while (true) {
-			text = lookup.lookup("persisted-schedule/scheduled-job.text", 
-					String.class);
-			if (text != null) {
-				break;
-			}
-			logger.info("Waiting for scheduled job to run.");
-			
-			Thread.sleep(500);
-		}
+		Oddjob innerOddjob = new OddjobLookup(oddjob2).lookup("persisted-schedule",
+				Oddjob.class);
+
+		innerOddjob.load();
+		
+		Stateful scheduledJob = new OddjobLookup(innerOddjob).lookup("scheduled-job", 
+				Stateful.class);
+		
+		StateSteps scheduledJobState = new StateSteps(scheduledJob);
+		
+		scheduledJobState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+				
+		oddjob2.run();
+
+		scheduledJobState.checkWait();
+		
+		String text = new OddjobLookup(oddjob2).lookup(
+				"persisted-schedule/scheduled-job.text", String.class);
 
 		assertEquals("Job schedule at 2011-03-10 05:30:00.000 " +
 				"but running at 2011-03-10 07:00:00.000", 
 				text);
 		
-		oddjob.stop();
+		oddjob2.stop();
 		
-		oddjob.destroy();
+		assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
+		
+		oddjob2.destroy();
 	}
 	
-	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException, ParseException {
 		
     	Oddjob oddjob = new Oddjob();
     	oddjob.setConfiguration(new XMLConfiguration(
@@ -608,34 +723,42 @@ public class TimerTest extends TestCase {
     	
     	Timer timer = lookup.lookup("timer", Timer.class);
     	
-    	timer.setClock(new ManualClock("2011-04-08 09:59:59.750"));
+    	ManualClock clock = new ManualClock("2011-04-08 09:59:59.750"); 
+    	timer.setClock(clock);
+    	
+    	Stateful work = lookup.lookup("work", Stateful.class);
+
+    	StateSteps workState = new StateSteps(work);
+    	workState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
     	
     	oddjob.run();
     	
-    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+    	workState.checkWait();
     	
-    	String result = null;
+    	assertEquals(DateHelper.parseDateTime("2011-04-11 10:00"), 
+    			timer.getNextDue());
     	
-    	while (true) {
-    		result = lookup.lookup("work.text", String.class);
-    		if (result != null) {
-    			break;
-    		}
-    		
-			logger.info("Waiting for scheduled job to run.");
-			
-    		Thread.sleep(500);
-    	}
-    	
+    	String result = lookup.lookup("work.text", String.class);
+	
     	assertEquals("Doing some work at 2011-04-08 10:00:00.000",
     			result);
     	
     	oddjob.stop();
     	
-    	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
     	
-    	oddjob.destroy();
+    	//
+    	// Run again.
     	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+    	assertEquals(JobState.COMPLETE, work.lastStateEvent().getState());
+    	
+    	assertEquals(DateHelper.parseDateTime("2011-04-11 10:00"), 
+    			timer.getNextDue());
+    	
+    	oddjob.destroy();    	
 	}
 	
 	public void testTimerOnceExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {

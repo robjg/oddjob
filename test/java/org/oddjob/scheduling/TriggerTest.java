@@ -286,7 +286,7 @@ public class TriggerTest extends TestCase {
 		services.stop();
 	}
 	
-	public void stopBeforeTriggered() throws FailedToStopException {
+	public void testStopBeforeTriggered() throws FailedToStopException {
 		
 		class NeverRun extends SimpleJob {
 			@Override
@@ -300,13 +300,19 @@ public class TriggerTest extends TestCase {
 		test.setJob(new NeverRun());
 		test.setExecutorService(new MockExecutorService());
 		
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		
 		test.run();
 		
-		assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
+		state.checkNow();
+				
+		state.startCheck(ParentState.ACTIVE, ParentState.READY);
 		
 		test.stop();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		state.checkNow();
 	}
 	
 	private class OurOddjobServices extends MockScheduledExecutorService {

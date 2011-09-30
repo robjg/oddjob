@@ -11,6 +11,7 @@ import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.job.StopJob;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -42,7 +43,7 @@ public class TimerStopTest extends TestCase {
 		test.setSchedule(new Schedule() {
 			
 			public IntervalTo nextDue(ScheduleContext context) {
-				return new IntervalTo(new Date(Long.MAX_VALUE));
+				return new IntervalTo(Interval.END_OF_TIME);
 			}
 		});
 		
@@ -57,8 +58,9 @@ public class TimerStopTest extends TestCase {
 		assertEquals(JobState.READY, 
 				job.lastStateEvent().getState());
 		
-		assertEquals(ParentState.COMPLETE, 
-				test.lastStateEvent().getState());
+		assertEquals(ParentState.READY, 
+				test.lastStateEvent().getState());		
+		
 		
 		services.stop();
 	}
@@ -120,7 +122,7 @@ public class TimerStopTest extends TestCase {
 
 		assertFalse(Thread.interrupted());
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.READY, 
 				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
@@ -152,7 +154,7 @@ public class TimerStopTest extends TestCase {
 					return new IntervalTo(new Date());
 				}
 				else {
-					return new IntervalTo(new Date(Long.MAX_VALUE));					
+					return new IntervalTo(Interval.END_OF_TIME);					
 				}
 			}
 		});
@@ -174,7 +176,7 @@ public class TimerStopTest extends TestCase {
 		StateSteps state = new StateSteps(test);
 		
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.READY);
 		
 		test.run();
 		

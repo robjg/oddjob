@@ -38,8 +38,8 @@ public class IconSteps {
 		
 		@Override
 		public void iconEvent(IconEvent event) {
-			logger.info("Received " + event.getIconId() + 
-					" from [" + event.getSource() + "]");
+			logger.info("Received Icon Id [" + event.getIconId() + 
+					"] from [" + event.getSource() + "]");
 			
 			if (index >= steps.length) {
 				failureMessage = 

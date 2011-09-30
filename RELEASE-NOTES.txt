@@ -48,6 +48,9 @@ Changes in 1.0.0
 - Removed Ids from Values. This is because they over complicated 
   configuration via the GUI. Introduced a new IdentifiableValueType, 
   with tag <identify>, that can used to register a value if required.
+- Scheduling jobs (Timer, Retry, Trigger) that are still ACTIVE go to READY
+  if stopped. This ensures they can be restarted without a reset, which had caused
+  their schedules to be reset, instead of picking up where they left off.
     
 Still to do for 1.0.0
 --------------------- 

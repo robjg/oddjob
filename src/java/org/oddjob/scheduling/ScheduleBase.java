@@ -13,7 +13,6 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
-import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
@@ -24,20 +23,19 @@ import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.OrderedStateChanger;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ParentStateChanger;
+import org.oddjob.state.ParentStateHandler;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ParentStateChanger;
-import org.oddjob.state.ParentStateHandler;
 import org.oddjob.state.StructuralStateHelper;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
 /**
- * An abstract implementation of a job which provides common functionality to
- * concrete sub classes.
+ * Common functionality for jobs that schedule things.
  * 
  * @author Rob Gordon
  */
@@ -48,22 +46,32 @@ implements
 		Resetable, Stateful, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
+	/** Fires state events. */
 	private transient ParentStateHandler stateHandler;
 	
+	/** Used to state change states and icons. */
 	private transient ParentStateChanger stateChanger;
 	
+	/** Track the child. */
 	protected transient ChildHelper<Runnable> childHelper; 
 			
 	protected transient StructuralStateHelper structuralState;
 			
 	protected transient StateExchange childStateReflector;
 		
+	/** Stop flag. */
 	protected transient volatile boolean stop;
 	
+	/**
+	 * Default Constructor.
+	 */
 	public ScheduleBase() {
 		completeConstruction();
 	}
 	
+	/**
+	 * Common construction.
+	 */
 	private void completeConstruction() {
 		stateHandler = new ParentStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
@@ -90,14 +98,20 @@ implements
 		return stateChanger;
 	}
 		
+	/**
+	 * Sub classes provide the state operator that is used to calculate the subclasses 
+	 * completion state.
+	 *  
+	 * @return The operator. Must not be null.
+	 */
 	abstract protected StateOperator getStateOp();
 	
 	/**
-	 * Execute this job.
+	 * Sub classes must override this to submit the first execution.
 	 * 
-	 * @throws Exception If the unexpected occurs.
+	 * @throws ComponentPerisistException If the scheduled time can't be saved.
 	 */
-	abstract protected void begin() throws Throwable;
+	abstract protected void begin() throws ComponentPersistException;
 
 	/**
 	 * Implement the main execute method for a job. This surrounds the 
@@ -108,10 +122,10 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
+					stop = false;
 					childStateReflector.stop();
 					
-					getStateChanger().setState(ParentState.EXECUTING);
-					
+					getStateChanger().setState(ParentState.EXECUTING);					
 				}
 			})) {
 				return;
@@ -174,26 +188,27 @@ implements
 		
 		logger().info("[" + this + "] Stop requested.");
 		
+		String lastIcon = iconHelper.currentId();
 		iconHelper.changeIcon(IconHelper.STOPPING);
 		
-		try {
-			childHelper.stopChildren();
+		// cancel future executions for timer. remove listener for trigger.
+		onStop();
 		
-			onStop();
+		// then stop children
+		try {
+			childHelper.stopChildren();		
 		}
 		catch (FailedToStopException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
+			iconHelper.changeIcon(lastIcon);
 			logger().warn(e);
 		}
 		
-		// Order is important, stop children first.
-		childStateReflector.start();
-		
-		synchronized (this) {
-			notifyAll();
-		}
-		
-		new StopWait(this).run();
+		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+			@Override
+			public void run() {
+				getStateChanger().setState(ParentState.READY);
+			}
+		});
 		
 		logger().info("[" + this + "] Stopped.");
 	}
@@ -214,7 +229,6 @@ implements
 				childHelper.softResetChildren();
 				
 				onReset();
-				stop = false;
 				
 				getStateChanger().setState(ParentState.READY);
 				
@@ -236,7 +250,6 @@ implements
 				childHelper.hardResetChildren();
 				
 				onReset();
-				stop = false;
 				
 				getStateChanger().setState(ParentState.READY);
 	

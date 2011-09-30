@@ -94,7 +94,7 @@ public class Trigger extends ScheduleBase {
 	}
 	
 	@Override
-	protected void begin() throws Throwable {
+	protected void begin() {
 			if (on == null) {
 				throw new NullPointerException("Nothing to trigger on.");
 			}
@@ -147,10 +147,10 @@ public class Trigger extends ScheduleBase {
 				};
 			};
 			
-			on.addStateListener(listener);
-			
 			iconHelper.changeIcon(IconHelper.SLEEPING);
 	
+			on.addStateListener(listener);
+			
 			logger().info("Wating for [" + on + "] to have state [" +
 					state + "]");
 	}
@@ -165,12 +165,15 @@ public class Trigger extends ScheduleBase {
 		}
 		
 		if (future != null) {
-			future.cancel(true);
+			future.cancel(false);
 		}
 		
 		removeListener();
 	}
 	
+	/**
+	 * Remove the state listener from the job we're triggering on.
+	 */
 	private void removeListener() {
 
 		StateListener listener = null;

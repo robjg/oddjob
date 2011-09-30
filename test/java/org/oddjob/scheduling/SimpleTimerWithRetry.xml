@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+        xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+        xmlns:state="http://rgordon.co.uk/oddjob/state">
+    <job>
+        <scheduling:timer id="timer" >
+            <schedule>
+                <schedules:daily from="08:00"/>
+            </schedule>
+            <job>
+                <scheduling:retry id="retry">
+                    <schedule>
+                        <schedules:count count="2"/>
+                    </schedule>
+                    <job>
+                        <state:flag id="flag-job" state="EXCEPTION"/>
+                    </job>
+                </scheduling:retry>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

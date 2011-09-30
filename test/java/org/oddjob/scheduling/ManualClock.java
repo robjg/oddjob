@@ -41,4 +41,9 @@ public class ManualClock implements Clock {
     public Date getDate() {
         return date;
     }
+    
+    @Override
+    public String toString() {
+    	return getClass().getSimpleName() + " " + date;
+    }
 }

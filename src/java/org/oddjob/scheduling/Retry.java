@@ -26,6 +26,12 @@ import org.oddjob.state.StateOperator;
  * 
  * {@oddjob.xml.resource org/oddjob/scheduling/RetryExample.xml}
  * 
+ * @oddjob.example
+ * 
+ * Using Retry with a Timer. A daily job retries twice.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/SimpleTimerWitRetryExample.xml}
+ * 
  * @author Rob Gordon.
  */
 public class Retry extends TimerBase {
@@ -46,7 +52,7 @@ public class Retry extends TimerBase {
 	}
 	
 	@Override
-	protected void begin() throws Throwable {
+	protected void begin() throws ComponentPersistException {
 
 		super.begin();
 	

@@ -14,7 +14,10 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -23,6 +26,7 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
@@ -372,7 +376,6 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		clock.date = DateHelper.parseDateTime("2010-07-15 07:00");
 		
-		oddjob2.hardReset();
 		oddjob2.run();
 		
 		OddjobLookup lookup2 = new OddjobLookup(oddjob2);
@@ -386,7 +389,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		int softs2 = lookup2.lookup("results.soft", Integer.TYPE);
 		int executions2 = lookup2.lookup("results.executions", Integer.TYPE);
 		
-		assertEquals(6, hards2);
+		assertEquals(5, hards2);
 		assertEquals(5, softs2);
 		assertEquals(5, executions2);
 		
@@ -407,4 +410,57 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		oddjob2.destroy();
 	}
+	
+	public void testSimpleTimerRetryExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, ParseException, FailedToStopException {
+		
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/scheduling/SimpleTimerWithRetry.xml",
+				getClass().getClassLoader()));
+		
+		oddjob.load();
+		
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Timer timer = lookup.lookup("timer", Timer.class);
+		
+		timer.setClock(new ManualClock("2011-09-30 12:00"));
+
+		Stateful flagJob = lookup.lookup("flag-job", Stateful.class);
+		
+		StateSteps states = new StateSteps(flagJob);
+		
+		states.startCheck(JobState.READY, JobState.EXECUTING, JobState.EXCEPTION,
+				JobState.READY, JobState.EXECUTING, JobState.EXCEPTION);
+		
+		oddjob.run();
+		
+		states.checkWait();
+		
+		assertEquals(DateHelper.parseDateTime("2011-10-01 08:00"),
+				timer.getNextDue());		
+		
+		oddjob.stop();
+		
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		
+		timer.setClock(new ManualClock("2011-10-01 07:59:59.990"));
+		
+		states.startCheck(JobState.EXCEPTION, JobState.READY, 
+				JobState.EXECUTING, JobState.EXCEPTION,
+				JobState.READY, JobState.EXECUTING, JobState.EXCEPTION);
+		
+		oddjob.run();
+		
+		states.checkWait();
+		
+		assertEquals(DateHelper.parseDateTime("2011-10-02 08:00"),
+				timer.getNextDue());		
+		
+		oddjob.destroy();
+	}
+	
 }

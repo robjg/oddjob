@@ -136,12 +136,12 @@ public class Timer extends TimerBase {
 	}
 	
 	@Override
-	protected void begin() throws Throwable {
+	protected void begin() throws ComponentPersistException {
 
 		super.begin();
 		
 		if (getCurrent() != null && !skipMissedRuns) {
-			setNextDue(getCurrent().getUseNext());
+			setNextDue(getCurrent().getFromDate());
 		}
 		else {
 			scheduleFrom(getClock().getDate());
@@ -197,6 +197,13 @@ public class Timer extends TimerBase {
 	    	
 	    	scheduleFrom(use);
 	    }
+	}
+	
+	
+	protected void onReset() {
+		super.onReset();
+		
+		lastComplete = null;
 	}
 	
 	protected void reset(Resetable job) {

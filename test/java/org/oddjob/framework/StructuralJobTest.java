@@ -359,6 +359,8 @@ public class StructuralJobTest extends TestCase {
 		state.checkNow();
 	}
 	
+	
+	
 	public void testBothDestroyed() throws FailedToStopException {
 		
 		SimpleJob component = new SimpleJob() {
@@ -392,12 +394,16 @@ public class StructuralJobTest extends TestCase {
 		
 		StateSteps state = new StateSteps(test);
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.COMPLETE, 
-				ParentState.DESTROYED);
+				ParentState.EXECUTING, ParentState.COMPLETE);
 		
 		test.setChild(component);
 		
 		test.run();
+		
+		state.checkNow();
+		
+		state.startCheck(ParentState.COMPLETE, 
+				ParentState.DESTROYED);
 		
 		structuralContext.listener.beforeDestroy(null);
 		childContext.listener.beforeDestroy(null);

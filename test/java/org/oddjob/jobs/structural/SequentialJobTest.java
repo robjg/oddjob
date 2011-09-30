@@ -3,24 +3,23 @@
  */
 package org.oddjob.jobs.structural;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
+import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.MirrorState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -31,7 +30,6 @@ public class SequentialJobTest extends TestCase {
 
 		@Override
 		protected int execute() throws Throwable {
-			// TODO Auto-generated method stub
 			return 0;
 		}
 	}
@@ -199,29 +197,48 @@ public class SequentialJobTest extends TestCase {
 		SequentialJob test = new SequentialJob();
 		test.setJobs(0, j1);
 
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		StateSteps sequentialState = new StateSteps(test);
+		sequentialState.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.COMPLETE);
+		
 		test.run();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
-
-		final List<State> results = new ArrayList<State>();
-		
-		class OurListener implements StateListener {
-			
-			public void jobStateChange(StateEvent event) {
-				results.add(event.getState());
-			}
-		}
-		OurListener l = new OurListener();
-		test.addStateListener(l);
-		
-		assertEquals(ParentState.COMPLETE, results.get(0));	
-		assertEquals(1, results.size());
+		sequentialState.checkNow();
+				
+		sequentialState.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
 		
 		test.destroy();
 
-		assertEquals(ParentState.DESTROYED, results.get(1));	
-		assertEquals(2, results.size());
+		sequentialState.checkNow();
+	}
+	
+	public void testStatesWhenOddjobDestroyed() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml = 
+			"<oddjob>" +
+			" <job>" +
+			"  <sequential id='sequential'>" +
+			"   <jobs>" +
+			"    <state:flag xmlns:state='http://rgordon.co.uk/oddjob/state'/>" +
+			"   </jobs>" +
+			"  </sequential>" +
+			" </job>" +
+			"</oddjob>";
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		
+		oddjob.run();
+		
+		Stateful sequential = new OddjobLookup(oddjob).lookup(
+				"sequential", Stateful.class);
+		
+		StateSteps state = new StateSteps(sequential);
+		state.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
+		
+		oddjob.destroy();
+		
+		state.checkNow();
 	}
 	
 	public static class MyService {

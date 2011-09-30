@@ -97,7 +97,7 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 	
 	@Override
-	protected void begin() throws Throwable {
+	protected void begin() throws ComponentPersistException {
 		if (schedule == null) {
 			throw new NullPointerException("No Schedule.");
 		}
@@ -123,13 +123,15 @@ abstract public class TimerBase extends ScheduleBase {
 	
 	protected void onReset() {
 		contextData.clear();
+		nextDue = null;
+		current = null;
 	}
 	
 
 	/**
 	 * Get the time zone id to use in this schedule.
 	 * 
-	 * @return The time zone idbeing used.
+	 * @return The time zone id being used.
 	 */
 	public String getTimeZone() {
 		if (timeZone == null) {

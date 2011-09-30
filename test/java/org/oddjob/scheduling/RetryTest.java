@@ -633,7 +633,7 @@ public class RetryTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
 	public void testStopLast() throws FailedToStopException {
@@ -656,7 +656,7 @@ public class RetryTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
 	public void testWithLimitsLongOverDue() throws ParseException {
@@ -753,7 +753,7 @@ public class RetryTest extends TestCase {
 	    	oddjobStates.checkNow();
 	    	existsStates.checkWait();
 	    	
-	    	oddjobStates.startCheck(ParentState.ACTIVE, ParentState.INCOMPLETE);
+	    	oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY);
 	    	
 	    	oddjob.stop();
 	    	

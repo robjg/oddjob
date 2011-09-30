@@ -36,16 +36,18 @@ public class MapPersister extends PersisterBase {
 	
 	@Override
 	protected Object restore(Path path, String id, ClassLoader classLoader) {
-		logger.info("Restoring [" + path + "], [" + id + "]");
 		Map<String, byte[]> inner = cache.get(path);
 		if (inner == null) {
+			logger.info("Restore Failed. No cache for path [" + path + "]");
 			return null;
 		}
 		byte[] buffer = inner.get(id);
 		if (buffer == null) {
+			logger.info("Restore Failed. Nothing saved for [" + path + "], [" + id + "]");
 			return null;
 		}
 		
+		logger.info("Restoring [" + path + "], [" + id + "]");
 		return new SerializeWithBytes().fromBytes(buffer, classLoader);
 	}
 	
