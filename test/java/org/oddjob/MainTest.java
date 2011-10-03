@@ -194,7 +194,7 @@ public class MainTest extends TestCase {
 		
 	}
 	
-	public void testOddjobDestroyOnComlete() throws IOException {
+	public void testOddjobDestroyOnComplete() throws IOException {
 		
 		File f = new OurDirs().relative("test/conf/simple-echo.xml");
 	
@@ -209,7 +209,7 @@ public class MainTest extends TestCase {
 				oddjob.lastStateEvent().getState());		
 	}
 	
-	public void testOddjobDestroyOnComleteWithServices() throws IOException {
+	public void testOddjobDestroyOnComleteWithServices() throws IOException, InterruptedException {
 		
 		File f = new OurDirs().relative("test/conf/testflow2.xml");
 	
@@ -218,9 +218,12 @@ public class MainTest extends TestCase {
 		Oddjob oddjob = test.init(new String[] { 
 				"-f", f.toString() }).getOddjob();
 	
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
 		oddjob.run();
 
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());		
+		state.checkWait();		
 	}
 }

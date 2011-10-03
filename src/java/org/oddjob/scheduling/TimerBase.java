@@ -22,6 +22,7 @@ import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.state.IsAnyState;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -119,6 +120,16 @@ abstract public class TimerBase extends ScheduleBase {
 			future.cancel(false);
 			future = null;
 		}	
+	}
+	
+	@Override
+	protected void postStop() {
+		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+			@Override
+			public void run() {
+				getStateChanger().setState(ParentState.READY);
+			}
+		});
 	}
 	
 	protected void onReset() {

@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.convert.ConversionFailedException;
@@ -171,8 +172,15 @@ public class TogetherTest extends TestCase {
 //		Thread t = new Thread(e);
 //		t.start();
 		
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		
 		oddjob.run();
 
+		state.checkWait();
+		
 //		t.join();
 		
 		Object test1 = new OddjobLookup(oddjob).lookup("test1");
@@ -234,6 +242,8 @@ public class TogetherTest extends TestCase {
 		
 		serverOddjob.run();
 	
+		assertEquals(ParentState.ACTIVE, serverOddjob.lastStateEvent().getState());
+		
 		String serverAddress = (String) new OddjobLookup(
 				serverOddjob).lookup("server.address");
 		

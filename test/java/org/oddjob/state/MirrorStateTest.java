@@ -222,7 +222,7 @@ public class MirrorStateTest extends TestCase {
 
 	}
 	
-	public void testInOddjob() {
+	public void testInOddjob() throws InterruptedException {
 		
 		String xml = 
 			"<oddjob xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
@@ -239,9 +239,14 @@ public class MirrorStateTest extends TestCase {
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		
 		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());	
+		state.checkWait();	
 
 		oddjob.destroy();
 	}

@@ -48,24 +48,22 @@ Changes in 1.0.0
 - Removed Ids from Values. This is because they over complicated 
   configuration via the GUI. Introduced a new IdentifiableValueType, 
   with tag <identify>, that can used to register a value if required.
-- Scheduling jobs (Timer, Retry, Trigger) that are still ACTIVE go to READY
+- Scheduling jobs (Timer and Retry) that are still ACTIVE go to READY
   if stopped. This ensures they can be restarted without a reset, which had caused
   their schedules to be reset, instead of picking up where they left off.
+- Parallel is now completely asynchronous so that it doesn't wait for it's children.
+  Waiting for children can still be achieved by nesting in a <state:join> job.
+  State transitions are now predictable (seen release notes for version 0.30.0). 
+- Fixed problems in <state:cascade> that cause an exception when attempting
+  to drag and drop children. 
     
 Still to do for 1.0.0
 --------------------- 
 - Change Echo text property to be XML text rather than an attribute to allow
   multiline echos in one echo job.
-- Structural jobs should COMPLETE when they have no child. Need to look at what 
-  happens when they are destroyed to ensure they don't complete as their children 
-  are removed.
-- Make Parallel completely asynchronous so that it doesn't wait for it's children.
-  Waiting for children can still be achieved by nesting in a <state:join> job.
-  Ensure state transitions are predictable (seen release notes for version 0.30.0). 
 - Improve Designer. Sizing should be more intelligent. Shortcut keys need to work.
   Maybe allow the designer form not to be Modal. Tabs and focus need to be improved
   to ease navigation.
-- Fix cut and paste in <state:cascade> that intermittently causes an NPE. 
  
 Deferred to A Later Version
 ---------------------------
@@ -78,6 +76,9 @@ Deferred to A Later Version
 - Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
   copy some of it's feature including; overwrite, force, failonerror, verbose,
   preservelastmodified. Add the ability to back up the moved files like Linux does.
+- Should structural jobs COMPLETE when they have no child? Need to look at what 
+  happens when they are destroyed to ensure they don't complete as their children 
+  are removed.
 
 Changes in 0.30.0
 -----------------

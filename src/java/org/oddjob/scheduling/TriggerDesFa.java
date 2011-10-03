@@ -35,6 +35,8 @@ class TriggerDesign extends BaseDC {
 	
 	private final SimpleTextAttribute state;
 
+	private final SimpleTextAttribute newOnly;
+	
 	private final SimpleDesignProperty job;
 	
 	public TriggerDesign(ArooaElement element, ArooaContext parentContext) {
@@ -44,12 +46,14 @@ class TriggerDesign extends BaseDC {
 		
 		state = new SimpleTextAttribute("state", this);
 		
+		newOnly = new SimpleTextAttribute("newOnly", this);
+		
 		job = new SimpleDesignProperty(
 				"job", this);
 	}
 
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, on, state, job };
+		return new DesignProperty[] { name, on, state, newOnly, job };
 	}
 	
 	public Form detail() {
@@ -59,6 +63,7 @@ class TriggerDesign extends BaseDC {
 					new BorderedGroup("Trigger Details")
 						.add(new TextField("On Job", on))
 						.add(new TextField("State", state))
+						.add(new TextField("New Only", state))
 						.add(job.view().setTitle("Job"))
 				);
 	}

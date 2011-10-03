@@ -120,13 +120,9 @@ public class JobTreeModel implements TreeModel {
 		if (SwingUtilities.isEventDispatchThread()) {
 			r.run();
 		} else {
-			try {
-				SwingUtilities.invokeAndWait(r);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
+			// Tree nodes changed is mainly for icon changes so we invoke later
+			// Note that invoking now was causing Deadlock problems with designer.
+			SwingUtilities.invokeLater(r);
 		}
 	}
 

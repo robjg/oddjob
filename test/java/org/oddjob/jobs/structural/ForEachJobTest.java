@@ -731,11 +731,15 @@ public class ForEachJobTest extends TestCase {
     	String forEachConfig =
     		"<foreach id='test'>" +
     		" <job>" +
+    		"	<state:join xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
+    		"    <job>" +
     		"  <parallel>" +
     		"   <jobs>" +
     		"    <echo text='Hello'/>" +
     		"   </jobs>" +
     		"  </parallel>" +
+    		"    </job>" +
+    		"   </state:join>" +
     		" </job>" +
     		"</foreach>";
     	

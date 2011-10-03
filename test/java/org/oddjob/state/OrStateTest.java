@@ -6,6 +6,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.oddjob.Helper;
+import org.oddjob.StateSteps;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
@@ -134,7 +135,7 @@ public class OrStateTest extends TestCase {
 		
 	}
 	
-	public void testSerialize() throws IOException, ClassNotFoundException {
+	public void testSerialize() throws IOException, ClassNotFoundException, InterruptedException {
 		
 		DefaultExecutors services = new DefaultExecutors();
 		SimpleJob notSerializable = new SimpleJob() {
@@ -147,11 +148,15 @@ public class OrStateTest extends TestCase {
 		OrState test = new OrState();
 		test.setExecutorService(services.getPoolExecutor());
 		test.setJobs(0, notSerializable);
+
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
 		
 		test.run();
 		
-		assertEquals(ParentState.COMPLETE, 
-				test.lastStateEvent().getState());
+		state.checkWait();
 		
 		services.stop();
 		

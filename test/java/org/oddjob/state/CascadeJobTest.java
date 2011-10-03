@@ -9,6 +9,7 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.Resetable;
@@ -16,11 +17,8 @@ import org.oddjob.StateSteps;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
+import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -51,17 +49,20 @@ public class CascadeJobTest extends TestCase {
 	// which must also be ready when reset and empty.
 	// this is really a bug in StatefulChildHelper. An empty sequence should
 	// be ready until run and then be complete. I think.
-	public void testEmpty() {
+	public void testEmpty() throws InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.READY);
 		
 		test.run();
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
+		steps.checkWait();
 		
 		executors.stop();
 	}
@@ -211,7 +212,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
-	public void testDestroyed() throws FailedToStopException {
+	public void testDestroyed() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
 		FlagState job1 = new FlagState();
@@ -224,11 +225,13 @@ public class CascadeJobTest extends TestCase {
 
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
+		StateSteps state = new StateSteps(test);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+
 		test.run();
 		
-		new StopWait(test).run();
-		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
+		state.checkWait();
 
 		final List<State> results = new ArrayList<State>();
 		
@@ -329,4 +332,96 @@ public class CascadeJobTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
+	
+	public void testStop() throws InterruptedException, FailedToStopException {
+	
+		DefaultExecutors executors = new DefaultExecutors();
+		
+		CascadeJob test = new CascadeJob();
+		test.setExecutorService(executors.getPoolExecutor());
+		
+		WaitJob wait1 = new WaitJob();
+		WaitJob wait2 = new WaitJob();
+		
+		test.setJobs(0, wait1);
+		test.setJobs(1, wait2);
+		
+		StateSteps testState = new StateSteps(test);		
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		
+		StateSteps wait1State = new StateSteps(wait1);		
+		StateSteps wait2State = new StateSteps(wait2);		
+		
+		wait1State.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		test.run();
+		
+		testState.checkNow();
+		
+		wait1State.checkWait();
+		
+		testState.startCheck(ParentState.ACTIVE, ParentState.READY);
+		
+		test.stop();
+		
+		testState.checkNow();
+		
+		assertEquals(JobState.READY, wait2.lastStateEvent().getState());
+		
+		//
+		// Second run.
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		
+		wait2State.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		test.run();
+		
+		testState.checkNow();
+		
+		wait2State.checkWait();
+		
+		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		test.stop();
+		
+		testState.checkNow();
+		
+		executors.stop();
+	}
+	
+	public void testExample() throws InterruptedException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/state/CascadeExample.xml",
+				getClass().getClassLoader()));
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);		
+		
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		oddjobStates.checkWait();
+
+		console.close();
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(2, lines.length);
+		assertEquals("This runs first.", lines[0].trim());
+		assertEquals("Then this.", lines[1].trim());
+		
+		oddjob.destroy();
+	}
+	
 }

@@ -32,6 +32,7 @@ public class TriggerDesFaTest extends TestCase {
 			"				   id='this'" +
 			"                  on='${this}'" +
 			"                  state='EXCEPTION'" +
+			"                  newOnly='true'" +
 			"                  >" +
 			"   <job>" +
 			"    <echo text='Do Something Useful'/>" +
@@ -54,6 +55,7 @@ public class TriggerDesFaTest extends TestCase {
 		
 		assertEquals(trigger, trigger.getOn());
 		assertEquals(StateConditions.EXCEPTION, trigger.getState());
+		assertEquals(true, trigger.isNewOnly());
 		assertEquals(1, Helper.getChildren(trigger).length);
 	}
 

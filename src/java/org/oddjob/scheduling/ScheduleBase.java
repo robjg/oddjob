@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
@@ -47,7 +48,7 @@ implements
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Fires state events. */
-	private transient ParentStateHandler stateHandler;
+	protected transient ParentStateHandler stateHandler;
 	
 	/** Used to state change states and icons. */
 	private transient ParentStateChanger stateChanger;
@@ -134,7 +135,7 @@ implements
 
 			try {
 				configure();
-				
+								
 				// set icon to sleeping now because begin might
 				// set it to executing and we don't want to override
 				// this.
@@ -176,20 +177,23 @@ implements
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
+		final AtomicReference<String> lastIcon = new AtomicReference<String>();
+		
 		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 			@Override
 			public void run() {
 				stop = true;
 				stateHandler.wake();
+				
+				lastIcon.set(iconHelper.currentId());
+				iconHelper.changeIcon(IconHelper.STOPPING);
+				
 			}
 		})) {
 			return;
 		}
 		
 		logger().info("[" + this + "] Stop requested.");
-		
-		String lastIcon = iconHelper.currentId();
-		iconHelper.changeIcon(IconHelper.STOPPING);
 		
 		// cancel future executions for timer. remove listener for trigger.
 		onStop();
@@ -199,21 +203,20 @@ implements
 			childHelper.stopChildren();		
 		}
 		catch (FailedToStopException e) {
-			iconHelper.changeIcon(lastIcon);
+			iconHelper.changeIcon(lastIcon.get());
 			logger().warn(e);
 		}
 		
-		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-			@Override
-			public void run() {
-				getStateChanger().setState(ParentState.READY);
-			}
-		});
+		postStop();
 		
 		logger().info("[" + this + "] Stopped.");
 	}
 	
 	protected void onStop() {
+		
+	}
+	
+	protected void postStop() {
 		
 	}
 	

@@ -491,11 +491,26 @@ public class TimerTest extends TestCase {
 		IntervalSchedule interval = new IntervalSchedule();
 		interval.setInterval("00:15");
 		
+		final IconSteps checkFirstThreadFinished = new IconSteps(test);
+		checkFirstThreadFinished.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING, IconHelper.EXECUTING, IconHelper.SLEEPING);
+		
 		StopJob stop = new StopJob();
 		stop.setExecutorService(new MockExecutorService() {
 			@Override
-			public Future<?> submit(Runnable task) {
-				new Thread(task).start();
+			public Future<?> submit(final Runnable task) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						// need to guarantee order of states.
+						try {
+							checkFirstThreadFinished.checkWait();
+						} catch (InterruptedException e) {
+							throw new RuntimeException(e);
+						}
+						task.run();
+					}
+				}).start();
 				return null;
 			}
 		});
@@ -519,7 +534,8 @@ public class TimerTest extends TestCase {
 				ParentState.ACTIVE, ParentState.READY);
 		IconSteps icons = new IconSteps(test);
 		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
-				IconHelper.SLEEPING, IconHelper.EXECUTING, IconHelper.STOPPING,
+				IconHelper.SLEEPING, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING, IconHelper.STOPPING,
 				IconHelper.READY);
 		
 		test.run();

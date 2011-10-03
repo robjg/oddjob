@@ -1,8 +1,6 @@
 package org.oddjob.jobs.structural;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 
@@ -17,11 +15,10 @@ import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.scheduling.MockScheduledFuture;
@@ -30,14 +27,61 @@ import org.oddjob.state.IsAnyState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateEvent;
+import org.oddjob.state.ServiceState;
 import org.oddjob.state.StateListener;
 
 public class ParallelJobTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(ParallelJobTest.class);
 	
-	public void testThreeJobs() {
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("--------------------  " + getName()  + "  ----------------");
+	}
+	
+	private class LaterExecutor extends MockScheduledExecutorService {
+
+		private Runnable runnable;
+		
+		public Future<?> submit(Runnable runnable) {
+			this.runnable = runnable;
+			return new MockScheduledFuture<Void>();
+		}
+	}
+	
+	public void testStepByStepOneJob() {
+		
+		FlagState job1 = new FlagState(JobState.COMPLETE);
+
+		LaterExecutor executor = new LaterExecutor();
+		
+		ParallelJob test = new ParallelJob();
+		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		test.setExecutorService(executor);
+
+		test.setJobs(0, job1);
+		
+		test.run();
+	
+		steps.checkNow();
+		
+		assertNotNull(executor.runnable);
+		
+		steps.startCheck(ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
+		executor.runnable.run();
+		
+		steps.checkNow();
+	}
+	
+	public void testThreeJobs() throws InterruptedException {
 	
 		FlagState job1 = new FlagState(JobState.COMPLETE);
 		FlagState job2 = new FlagState(JobState.COMPLETE);
@@ -49,7 +93,8 @@ public class ParallelJobTest extends TestCase {
 		
 		StateSteps steps = new StateSteps(test);
 		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
 		
 		test.setExecutorService(defaultServices.getPoolExecutor());
 
@@ -59,11 +104,11 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 	
+		steps.checkWait();
+		
 		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
-		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
-		
-		steps.checkNow();
+		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());		
 		
 		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
 		
@@ -76,20 +121,21 @@ public class ParallelJobTest extends TestCase {
 		steps.checkNow();
 		
 		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
 		
 		test.run();
+		
+		steps.checkWait();
 		
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
 		
-		steps.checkNow();
-	
 		defaultServices.stop();
 	}
 	
-	public void testThrottledExecution() {
+	public void testThrottledExecution() throws InterruptedException {
 		
 		FlagState job1 = new FlagState(JobState.COMPLETE);
 		FlagState job2 = new FlagState(JobState.COMPLETE);
@@ -102,7 +148,8 @@ public class ParallelJobTest extends TestCase {
 		
 		StateSteps steps = new StateSteps(test);
 		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
 		
 		test.setExecutorService(defaultServices.getPoolExecutor());
 
@@ -112,67 +159,56 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 	
+		steps.checkWait();		
+		
 		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+	}
+	
+	public void testStop() throws InterruptedException, FailedToStopException {
 		
-		steps.checkNow();		
-	}
-	
-	private class OurJob extends SimpleJob 
-	implements Stoppable {
-		
-		@Override
-		protected int execute() throws Throwable {
-			new Thread() {
-				public void run() {
-					try {
-						OurJob.this.stop();
-					} catch (FailedToStopException e) {
-						e.printStackTrace();
-					}
-				};
-			}.start();
-			while(!stop) {
-				try {
-					synchronized (this) {
-						wait(1000);					
-					}
-				} catch (InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
-			return 0;
-		}
-	}
-	
-	private class OurPoolExecutor extends MockScheduledExecutorService {
-
-		public Future<?> submit(Runnable runnable) {
-					runnable.run();
-			return new MockScheduledFuture<Void>() {
-				@Override
-				public Void get() {
-					return null;
-				}
-			};
-		}
-	}
-	
-	public void testStop() {
+		DefaultExecutors defaultServices = new DefaultExecutors();
 		
 		ParallelJob test = new ParallelJob();
-		test.setExecutorService(new OurPoolExecutor());
+		test.setExecutorService(defaultServices.getPoolExecutor());
 
-		OurJob job = new OurJob();
+		WaitJob job = new WaitJob();
 		
 		test.setJobs(0, job);
 		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		StateSteps waitState = new StateSteps(job);
+		waitState.startCheck(JobState.READY, 
+				JobState.EXECUTING);
+
 		test.run();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		steps.checkWait();		
+		waitState.checkWait();
+		
+		steps.startCheck( 
+				ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
+		test.stop();
+		
+		steps.checkNow();		
 		
 		test.destroy();
+		
+		defaultServices.stop();
+	}
+	
+	private class NowExecutor extends MockScheduledExecutorService {
+
+		public Future<?> submit(Runnable runnable) {
+			runnable.run();
+			return new MockScheduledFuture<Void>();
+		}
 	}
 	
 	private class DestroyJob extends MockStateful 
@@ -207,81 +243,44 @@ public class ParallelJobTest extends TestCase {
 	}
 	
 	/**
-	 * Child state changes before null is set as the child. Parrallel job
+	 * Child state changes before null is set as the child. Parallel job
 	 * shouln't get that state.
+	 * @throws InterruptedException 
 	 */
-	public void testChildDestroyed() {
+	public void testChildDestroyed() throws InterruptedException {
 		
 		ParallelJob test = new ParallelJob();
-		test.setExecutorService(new OurPoolExecutor());
+		test.setExecutorService(new NowExecutor());
 
 		DestroyJob destroy = new DestroyJob();
 		
 		test.setJobs(0, destroy);
 		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
 		test.run();
 		
-		StateEvent event = test.lastStateEvent();
-		assertEquals(ParentState.COMPLETE, event.getState());
+		steps.checkWait();		
+		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		
+		steps.startCheck(
+				ParentState.COMPLETE, ParentState.DESTROYED);
+		
+		test.destroy();
+		
+		test.setJobs(0, null);
 		
 		destroy.destroy();
 		
-		assertEquals(event, test.lastStateEvent());
+		steps.checkNow();
 		
 	}
-	
-	private class RecordingStateListener implements StateListener {
 		
-		List<StateEvent> events = new ArrayList<StateEvent>();
-		
-		public void jobStateChange(StateEvent event) {
-			events.add(event);
-		}
-	}
-	
-	public void testStateNotifications() {
-		
-		FlagState job1 = new FlagState(JobState.COMPLETE);
-		FlagState job2 = new FlagState(JobState.COMPLETE);
-		FlagState job3 = new FlagState(JobState.COMPLETE);
-
-		DefaultExecutors defaultServices = new DefaultExecutors();
-		
-		ParallelJob test = new ParallelJob();
-		
-		RecordingStateListener recorder = new RecordingStateListener();
-		test.addStateListener(recorder);
-		
-		assertEquals(1, recorder.events.size());
-		assertEquals(ParentState.READY, recorder.events.get(0).getState());
-		
-		test.setExecutorService(defaultServices.getPoolExecutor());
-
-		test.setJobs(0, job1);
-		test.setJobs(1, job2);
-		test.setJobs(2, job3);
-		
-		test.run();
-
-		assertEquals(3, recorder.events.size());
-		assertEquals(ParentState.EXECUTING, recorder.events.get(1).getState());
-		assertEquals(ParentState.COMPLETE, recorder.events.get(2).getState());
-		
-		test.hardReset();
-		
-		assertEquals(4, recorder.events.size());
-		assertEquals(ParentState.READY, recorder.events.get(3).getState());
-		
-		test.run();
-		
-		assertEquals(6, recorder.events.size());
-		assertEquals(ParentState.EXECUTING, recorder.events.get(4).getState());
-		assertEquals(ParentState.COMPLETE, recorder.events.get(5).getState());
-	
-		defaultServices.stop();
-	}
-	
-	public void testInOddjob() {
+	public void testInOddjob() throws InterruptedException {
 				
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -291,7 +290,14 @@ public class ParallelJobTest extends TestCase {
 		ConsoleCapture console = new ConsoleCapture();
 		console.capture(Oddjob.CONSOLE);
 		
-		oddjob.run();
+		StateSteps steps = new StateSteps(oddjob);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);		
+		
+		oddjob.run();		
+		
+		steps.checkWait();
 		
 		console.close();
 		
@@ -309,9 +315,6 @@ public class ParallelJobTest extends TestCase {
 		assertTrue(results.contains("This runs in parallel"));
 		assertTrue(results.contains("With this which could be displayed first!"));
 				
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
 		oddjob.destroy();
 	}
 	
@@ -334,17 +337,28 @@ public class ParallelJobTest extends TestCase {
 		
 		oddjob.load();
 		
-		StateSteps wait2State = new StateSteps(new OddjobLookup(oddjob).lookup(
+		StateSteps oddjobState = new StateSteps(oddjob);
+		
+		oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
+		
+		StateSteps wait1State = new StateSteps(new OddjobLookup(oddjob).lookup(
 				"wait1", Stateful.class));
+		wait1State.startCheck(JobState.READY, JobState.EXECUTING);
+		StateSteps wait2State = new StateSteps(new OddjobLookup(oddjob).lookup(
+				"wait2", Stateful.class));
 		wait2State.startCheck(JobState.READY, JobState.EXECUTING);
 		
 		Thread t = new Thread(oddjob);
 		t.start();
 	
+		wait1State.checkWait();
 		wait2State.checkWait();
 		
-		StateSteps oddjobState = new StateSteps(oddjob);
-		oddjobState.startCheck(ParentState.EXECUTING, ParentState.COMPLETE);
+		oddjobState.checkWait();
+		
+		oddjobState.startCheck(ParentState.ACTIVE,
+				ParentState.COMPLETE);
 		
 		oddjob.stop();
 
@@ -360,7 +374,7 @@ public class ParallelJobTest extends TestCase {
 		public void stop() {}
 	}
 	
-	public void testParallelServices() throws FailedToStopException {
+	public void testParallelServices() throws FailedToStopException, InterruptedException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
 		
@@ -381,9 +395,21 @@ public class ParallelJobTest extends TestCase {
 		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
 				ParentState.ACTIVE);
 		
+		StateSteps service1State = new StateSteps((Stateful) service1);
+		service1State.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		StateSteps service2State = new StateSteps((Stateful) service2);
+		service2State.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		
 		test.run();
 		
 		steps.checkNow();
+		
+		service1State.checkWait();
+		service2State.checkWait();
 		
 		steps.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
@@ -393,4 +419,23 @@ public class ParallelJobTest extends TestCase {
 		
 		defaultServices.stop();
 	}	
+	
+	public void testEmpty() throws InterruptedException {
+
+		ParallelJob test = new ParallelJob();
+		test.setExecutorService(new NowExecutor());
+		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.READY);
+		
+		test.run();
+		
+		steps.checkWait();
+		
+		test.destroy();
+		
+		
+	}
 }

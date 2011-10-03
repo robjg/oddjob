@@ -9,9 +9,9 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.StateSteps;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.scheduling.DefaultExecutors;
@@ -32,18 +32,25 @@ public class WaitJobTest extends TestCase {
 	
 	public void testInOddjob() throws Exception {
 	
-		Oddjob oj = new Oddjob();
+		Oddjob oddjob = new Oddjob();
 		
-		oj.setConfiguration(
+		oddjob.setConfiguration(
 				new XMLConfiguration("Resource",
 						this.getClass().getResourceAsStream("wait.xml")));
 
-		oj.run();
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
 		
-		Object result =  new OddjobLookup(oj).lookup("test");
+		oddjob.run();
+
+		state.checkWait();
+		
+		Object result =  new OddjobLookup(oddjob).lookup("test");
 		assertEquals("hello", PropertyUtils.getProperty(result, "text"));
 		
-		oj.destroy();
+		oddjob.destroy();
 	}
 
 	public void testStateWait() {
@@ -71,16 +78,23 @@ public class WaitJobTest extends TestCase {
 	
 	public void testStateWaitInOJ() throws Exception {
 		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("Resource",
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("Resource",
 				WaitJobTest.class.getResourceAsStream("wait2.xml")));
 
-		oj.run();
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
 		
-		Object result =  new OddjobLookup(oj).lookup("test");
+		oddjob.run();
+
+		state.checkWait();
+
+		Object result =  new OddjobLookup(oddjob).lookup("test");
 		assertEquals("hello", PropertyUtils.getProperty(result, "text"));
 		
-		oj.destroy();
+		oddjob.destroy();
 	}
 	
 	public void testNotStateWait() {
@@ -152,7 +166,7 @@ public class WaitJobTest extends TestCase {
 		services.stop();
 	}
 	
-	public void testStateStop() throws PropertyVetoException {
+	public void testStateStop() throws PropertyVetoException, InterruptedException {
 
 		String xml = 
 			"<oddjob xmlns:s='http://rgordon.co.uk/oddjob/schedules'" +
@@ -180,9 +194,14 @@ public class WaitJobTest extends TestCase {
 //		explorer.setOddjob(oddjob);
 //		explorer.run();
 		
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		
 		oddjob.run();
 
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(oddjob));
+		state.checkWait();
 		
 		assertNotNull(new OddjobLookup(oddjob).lookup("wait.for"));
 		

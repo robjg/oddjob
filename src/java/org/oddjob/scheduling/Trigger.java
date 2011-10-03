@@ -71,8 +71,18 @@ public class Trigger extends ScheduleBase {
 	 */
 	private StateCondition state = StateConditions.COMPLETE;
 	
-	/** The last time the trigger fired. */
+	/** The last time on the event that caused the trigger. */
 	private Date lastTime;
+
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Fire trigger on new events only. If set the time on 
+	 * the event will be compared with the last that this trigger received and
+	 * only a new event will cause the trigger to fire.
+	 * @oddjob.required No, defaults to false.
+	 */
+	private boolean newOnly;
+	
 	
 	/** The scheduler to schedule on. */
 	private transient ExecutorService executors;
@@ -108,7 +118,7 @@ public class Trigger extends ScheduleBase {
 				@Override
 				public synchronized void jobStateChange(StateEvent event) {
 					logger().debug("Trigger on [" + on + "] has state [" + 
-							event.getState() + "] + at " +
+							event.getState() + "] at " +
 							event.getTime());
 					
 					if (event.getState().isDestroyed()) {
@@ -129,7 +139,7 @@ public class Trigger extends ScheduleBase {
 					}
 					
 					// don't fire if event time hasn't changed.
-					if (event.getTime().equals(lastTime)) {
+					if (newOnly && event.getTime().equals(lastTime)) {
 						logger().info("Already had event for time " +
 								event.getTime() + ", not triggering.");
 						return;
@@ -147,8 +157,6 @@ public class Trigger extends ScheduleBase {
 				};
 			};
 			
-			iconHelper.changeIcon(IconHelper.SLEEPING);
-	
 			on.addStateListener(listener);
 			
 			logger().info("Wating for [" + on + "] to have state [" +
@@ -169,6 +177,11 @@ public class Trigger extends ScheduleBase {
 		}
 		
 		removeListener();
+	}
+	
+	@Override
+	protected void postStop() {
+	    childStateReflector.start();
 	}
 	
 	/**
@@ -212,6 +225,14 @@ public class Trigger extends ScheduleBase {
 	}
 		
 	
+	public boolean isNewOnly() {
+		return newOnly;
+	}
+
+	public void setNewOnly(boolean newEventOnly) {
+		this.newOnly = newEventOnly;
+	}
+
 	public Stateful getOn() {
 		return on;
 	}

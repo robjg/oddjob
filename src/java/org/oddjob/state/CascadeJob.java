@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.scheduling.Trigger;
@@ -23,7 +25,7 @@ import org.oddjob.structural.StructuralListener;
  * This job differs from a {@link SequentialJob} task in that the latter
  * follows the thread of execution, and only checks state to ensure
  * it can continue. This job's thread of execution passes onwards after the
- * cascade had been set up. This job will complete asynchronously once all
+ * cascade has been set up. This job will complete asynchronously once all
  * it's children have completed.
  * <p>
  * 
@@ -31,14 +33,7 @@ import org.oddjob.structural.StructuralListener;
  * 
  * A cascade of two jobs.
  * 
- * <pre>
- * &lt;state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state"&gt;
- *  &lt;jobs&gt;
- *   &lt;echo message="This runs first."&gt;/>
- *   &lt;echo message="Then this."&gt;/>
- *  &lt;/jobs&gt;
- * &lt;/state:cascade&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/state/CascadeExample.xml}
  * 
  * @author Rob Gordon
  */
@@ -50,7 +45,11 @@ public class CascadeJob extends StructuralJob<Runnable> {
 	/** The executor to use. */
 	private volatile transient ExecutorService executors;
 
-	private ChildHelper<Runnable> actualChildren;
+	/** The actual jobs. Structural Jobs contain the triggers. */
+	private transient ChildHelper<Runnable> actualChildren;
+	
+	/** The first job. */
+	private transient Future<?> future;
 	
 	public CascadeJob() {
 		completeConstruction();
@@ -80,19 +79,27 @@ public class CascadeJob extends StructuralJob<Runnable> {
 	 * @param child A child
 	 */
 	@ArooaComponent
-	public void setJobs(int index, Runnable child) {
+	public synchronized void setJobs(int index, Runnable child) {
 	    logger().debug(
 	    		"Adding child [" + 
 	    		child + "], index [" + 
 	    		index + "]");
 	    
 		if (child == null) {
-			childHelper.removeChildAt(index);
+			Object maybeTrigger = childHelper.removeChildAt(index);
+			if (index > 0) {
+				((Trigger) maybeTrigger).setJob(null);
+				((Trigger) maybeTrigger).destroy();
+			}
+			
 			actualChildren.removeChildAt(index);
-			if (index == 0 && childHelper.size() > 0) {
-				Trigger trigger = (Trigger) childHelper.removeChildAt(0);
+			
+			if (childHelper.size() > index) {
+				Trigger trigger = (Trigger) childHelper.removeChildAt(index);
+				trigger.setJob(null);
 				trigger.destroy();
-				childHelper.insertChild(0, actualChildren.getChildAt(0));
+	
+				insertTrigger(index, actualChildren.getChildAt(index));
 			}
 		}
 		else {
@@ -101,17 +108,42 @@ public class CascadeJob extends StructuralJob<Runnable> {
 			}
 			
 			actualChildren.insertChild(index, child);
-			if (index == 0) {
-				childHelper.insertChild(index, child);
-			}
-			else {
-				Trigger trigger = new Trigger();
-				trigger.setOn((Stateful) childHelper.getChildAt(index -1));
-				trigger.setJob(child);
-				trigger.setExecutorService(executors);
+			insertTrigger(index, child);
+			
+			// Cope with a paste into an existing sequence.
+			if (actualChildren.size() > index + 1) {
+				Object maybeTrigger = childHelper.removeChildAt(index + 1);
 				
-				childHelper.insertChild(index, trigger);
+				if (index + 1 > 1) {
+					Trigger trigger = (Trigger) maybeTrigger;
+					trigger.setJob(null);
+					trigger.destroy();
+				}
+				
+				insertTrigger(index + 1, actualChildren.getChildAt(index + 1));				
 			}
+		}
+	}
+	
+	/**
+	 * Inserts a trigger for a child.
+	 * 
+	 * @param index
+	 * @param child
+	 */
+	private final void insertTrigger(int index, Runnable child) {
+		
+		if (index == 0) {
+			childHelper.insertChild(0, child);
+		}
+		else {
+			Trigger trigger = new Trigger();
+			trigger.setOn((Stateful) actualChildren.getChildAt(index -1));
+			trigger.setJob(child);
+			trigger.setExecutorService(executors);
+			trigger.setName("Cascade trigger for " + child.toString());
+			
+			childHelper.insertChild(index, trigger);
 		}
 	}
 
@@ -124,12 +156,52 @@ public class CascadeJob extends StructuralJob<Runnable> {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-		Runnable[] children = childHelper.getChildren(new Runnable[0]);
+		final Runnable[] children = childHelper.getChildren(new Runnable[0]);
 		
-		for (int i = 0; i < children.length; ++i) {
+		for (int i = 1; i < children.length; ++i) {
+			((Trigger) children[i]).setExecutorService(executors);
 			children[i].run();
+		}
+		
+		ExecutionWatcher executionWatcher = 
+			new ExecutionWatcher(new Runnable() {
+				public void run() {
+					CascadeJob.super.startChildStateReflector();
+				}
+		});
+		
+		if (children.length > 0) {
+			
+			Runnable wrapper = executionWatcher.addJob(children[0]);
+			
+			future = executors.submit(wrapper);
+			
 		}		
+		
+		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(ParentState.ACTIVE);
+			}
+		});
+
+		executionWatcher.start();
 	}		
+	
+	@Override
+	protected void onStop() {
+		
+		Future<?> future = null;
+		synchronized (this) {
+			future = this.future;
+			this.future = null;
+		}
+		
+		if (future != null) {
+			future.cancel(false);
+		}
+		
+		super.startChildStateReflector();
+	}
 	
 	@Override
 	protected StateOperator getStateOp() {
@@ -145,20 +217,12 @@ public class CascadeJob extends StructuralJob<Runnable> {
 	public void removeStructuralListener(StructuralListener listener) {
 		actualChildren.removeStructuralListener(listener);
 	}
-	
-	@Override
-	protected void onConfigured() {
-		if (executors == null) {
-			throw new NullPointerException("No ExecutorsService.");
-		}
 		
-		Object[] children = childHelper.getChildren(
-				new Runnable[childHelper.size()]);
-		for (int i = 1; i < children.length; ++i) {
-			((Trigger) children[i]).setExecutorService(executors);
-		}
+	@Override
+	protected void startChildStateReflector() {
+		// This is started by us so override and do nothing.
 	}
-	
+
 	/**
 	 * Custom serialisation.
 	 */

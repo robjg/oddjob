@@ -359,6 +359,7 @@ public class TriggerTest extends TestCase {
 		test.setExecutorService(new OurOddjobServices());
 		test.setOn(on);
 		test.setJob(sample);
+		test.setNewOnly(true);
 
 		test.run();
 		
@@ -409,7 +410,7 @@ public class TriggerTest extends TestCase {
 		test.setOn(on);
 		test.setJob(sequence);
 		test.setState(StateConditions.INCOMPLETE);
-		
+		test.setNewOnly(true);
 		test.run();
 		
 		assertEquals(null, sequence.getCurrent());
@@ -596,5 +597,38 @@ public class TriggerTest extends TestCase {
 		services.stop();
 		
 		oddjob.destroy();
+	}
+	
+	public void testStop() throws InterruptedException, FailedToStopException {
+	
+		DefaultExecutors services = new DefaultExecutors(); 
+		
+		Trigger test = new Trigger();
+		test.setExecutorService(services.getPoolExecutor());
+		
+		WaitJob wait = new WaitJob();
+
+		FlagState on = new FlagState();
+		
+		test.setOn(on);
+		test.setJob(wait);
+		
+		StateSteps waitState = new StateSteps(wait);
+		waitState.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		test.run();
+		
+		on.run();
+		
+		waitState.checkWait();
+		
+		StateSteps testState = new StateSteps(test);
+		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+
+		test.stop();
+		
+		testState.checkNow();
+		
+		services.stop();
 	}
 }

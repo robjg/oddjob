@@ -2,8 +2,6 @@ package org.oddjob.framework;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -12,6 +10,8 @@ import javax.inject.Inject;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.state.IsStoppable;
+import org.oddjob.state.ParentState;
 
 /**
  * An abstract base class for Structural jobs where all child jobs
@@ -31,16 +31,6 @@ implements Stoppable {
 	/** The job threads. */
 	private volatile transient List<Future<?>> jobThreads;
 	
-	/**
-	 * @oddjob.property continue
-	 * @oddjob.description If true the this job won't wait for all it's
-	 * child threads to complete.
-	 * @oddjob.required No. Defaults to false;
-	 * 
-	 * @param child A child
-	 */
-	private boolean continue_ = false;
-
 	/**
 	 * Set the {@link ExecutorService}.
 	 * 
@@ -91,35 +81,32 @@ implements Stoppable {
 		
 		Runnable[] children = childHelper.getChildren(new Runnable[0]);
 
+		ExecutionWatcher executionWatcher = 
+			new ExecutionWatcher(new Runnable() {
+				public void run() {
+					SimultaneousStructural.super.startChildStateReflector();
+				}
+		});
+		
 		jobThreads = new ArrayList<Future<?>>();
 		
-		for (int i = 0; i < children.length; ++i) {
-			Future<?> future = executorService.submit(children[i]);
+		for (int i = 0; i < children.length && !stop; ++i) {
+			Future<?> future = executorService.submit(
+					executionWatcher.addJob(children[i]));
 			jobThreads.add(future);
 		}
 		
-		if (!continue_) {
-			for (Future<?> future : jobThreads) {
-				try {
-					future.get();
-				} catch (CancellationException e) {
-					logger().debug("Child cancelled.");
-				} catch (ExecutionException e) {
-					logger().error("Child Excecution Failed.", e);
+		if (stop) {
+			stop = false;
+		}
+		else {
+			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ParentState.ACTIVE);
 				}
-			}
-			jobThreads = null;
-			
-			if (stop) {
-				// Slight bodge. Cancel returns CancelException before
-				// things have actually finished.
-				try {
-					new StopWait(structuralState).run();
-				}
-				catch (FailedToStopException e) {
-					throw new RuntimeException(e);
-				}
-			}
+			});
+
+			executionWatcher.start();
 		}
 	}
 
@@ -135,13 +122,13 @@ implements Stoppable {
 		for (Future<?> future : jobThreads) {
 			future.cancel(false);
 		}
+		
+		super.startChildStateReflector();
 	}
 	
-	public boolean isContinue() {
-		return continue_;
+	@Override
+	protected void startChildStateReflector() {
+		// This is started by us so override and do nothing.
 	}
-
-	public void setContinue(boolean continue_) {
-		this.continue_ = continue_;
-	}		
+	
 }

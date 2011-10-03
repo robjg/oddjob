@@ -17,6 +17,9 @@ import org.oddjob.structural.StructuralListener;
  */
 public class StructuralStateHelper implements Stateful {
 
+	/** The structural we're helping. */
+	private final Structural structural;
+	
 	/** Used to capture state into. */
 	private final ParentStateHandler stateHandler = 
 		new ParentStateHandler(this);
@@ -57,6 +60,11 @@ public class StructuralStateHelper implements Stateful {
 			
 			checkStates();
 		};
+		
+		@Override
+		public String toString() {
+			return getClass().getName() + " for [" + structural + "]";
+		}
 	};
 	
 	/**
@@ -66,6 +74,7 @@ public class StructuralStateHelper implements Stateful {
 	 * @param operator
 	 */
 	public StructuralStateHelper(Structural structural, StateOperator operator) {
+		this.structural = structural;
 		this.operator = operator;
 		
 		// Add a listener that tracks child changes.

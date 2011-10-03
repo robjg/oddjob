@@ -266,7 +266,7 @@ implements Stateful, StateLock {
 		waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
 			public void run() {
-				// setting pending event stops the listener chaning state.
+				// setting pending event stops the listener chaining state.
 				listeners.add(listener);
 				fireing = true;
 				try {

@@ -160,9 +160,10 @@ public class ChildHelper<E> implements Structural {
 		Object [] children = getChildren();
 		FailedToStopException failed = null;
 		for (int i = children.length - 1; i > -1; --i) {
-			if (children[i] instanceof Stoppable) {
+			Object child = children[i];
+			if (child instanceof Stoppable) {
 				try {
-					((Stoppable)children[i]).stop();
+					((Stoppable) child).stop();
 				} catch (FailedToStopException e) {
 					failed = e;
 				}
@@ -404,5 +405,10 @@ public class ChildHelper<E> implements Structural {
 		structural.addStructuralListener(cc);
 		structural.removeStructuralListener(cc);		
 		return cc.results.toArray();
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " for " + source;
 	}
 }

@@ -88,28 +88,19 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		StateSteps oddjobState = new StateSteps(oddjob);
 		
 		oddjobState.startCheck(ParentState.READY, 
-				ParentState.EXECUTING);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
-		new Thread(oddjob).start();
+		oddjob.run();
 		
-		oddjobState.checkWait();
+		oddjobState.checkNow();
 		
-		oddjobState.startCheck(ParentState.EXECUTING, 
+		oddjobState.startCheck(ParentState.ACTIVE, 
 				ParentState.COMPLETE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		Structural parallel = null;
-		
-		while (true) {
-			parallel = lookup.lookup("parallel", Structural.class);
-			if (parallel != null) {
-				break;
-			}
-			logger.info("Waiting for parallel to be created.");
-			Thread.sleep(500);
-		}
-		
+		Structural parallel = lookup.lookup("parallel", Structural.class);
+				
 		Capture capture = new Capture();
 		
 		parallel.addStructuralListener(capture);
@@ -173,26 +164,17 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		StateSteps oddjobState = new StateSteps(oddjob);
 		
 		oddjobState.startCheck(ParentState.READY, 
-				ParentState.EXECUTING);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
-		new Thread(oddjob).start();
+		oddjob.run();
 		
-		oddjobState.checkWait();
+		oddjobState.checkNow();
 		
-		oddjobState.startCheck(ParentState.EXECUTING, ParentState.READY);
+		oddjobState.startCheck(ParentState.ACTIVE, ParentState.READY);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		Structural parallel = null;
-		
-		while (true) {
-			parallel = lookup.lookup("parallel", Structural.class);
-			if (parallel != null) {
-				break;
-			}
-			logger.info("Waiting for parallel to be created.");
-			Thread.sleep(500);
-		}
+		Structural parallel = lookup.lookup("parallel", Structural.class);
 		
 		Capture capture = new Capture();
 		

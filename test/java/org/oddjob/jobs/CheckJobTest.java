@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaTools;
@@ -300,17 +301,20 @@ public class CheckJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
-	public void testTextIncompleteExample() throws ArooaPropertyException, ArooaConversionException {
+	public void testTextIncompleteExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/jobs/CheckTextIncompleteExample.xml", 
 				getClass().getClassLoader()));
 		
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
+		
 		oddjob.run();
 		
-		assertEquals(ParentState.INCOMPLETE, 
-				oddjob.lastStateEvent().getState());
+		state.checkWait();
 		
 		Structural structural = new OddjobLookup(oddjob).lookup(
 				"all-checks", Structural.class);
