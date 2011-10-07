@@ -15,7 +15,7 @@
                         <value value='${v.buff}'/>
                     </output>
                 </copy>
-                <echo id='e' text='${v.buff}'/>
+                <echo id='e'>${v.buff}</echo>
             </jobs>
         </sequential>
     </job>

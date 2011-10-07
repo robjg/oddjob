@@ -310,9 +310,9 @@ public class CascadeJobTest extends TestCase {
 			" <job>" +
 			"  <state:cascade>" +
 			"   <jobs>" +
-			"    <echo text='one'/>" +
-			"    <echo text='two'/>" +
-			"    <echo text='three'/>" +
+			"    <echo>one</echo>" +
+			"    <echo>two</echo>" +
+			"    <echo>three</echo>" +
 			"   </jobs>" +
 			"  </state:cascade>" +
 			" </job>" +

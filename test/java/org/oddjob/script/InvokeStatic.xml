@@ -14,7 +14,7 @@
                         </invoke>
                     </message>
                 </variables>
-                <echo id="echo-greeting" text="${vars.message}"/>
+                <echo id="echo-greeting">${vars.message}</echo>
             </jobs>
         </sequential>
     </job>

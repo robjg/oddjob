@@ -10,7 +10,7 @@
                     <job>
                         <sequential>
                             <jobs>
-                                <echo id="local-job" text="Server Job Ran!"/>
+                                <echo id="local-job">Server Job Ran!</echo>
                                 <stop job="${freds-pc}"/>
                             </jobs>
                         </sequential>

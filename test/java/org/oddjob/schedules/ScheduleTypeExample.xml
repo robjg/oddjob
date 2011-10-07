@@ -17,7 +17,7 @@
                         <format date='${time.now}' format="hh:mm a"/>
                     </formatted>
                 </variables>
-                <echo id='echo-time' text="The time now is ${time.formatted}"/>
+                <echo id='echo-time'>The time now is ${time.formatted}</echo>
             </jobs>
         </sequential>
     </job>

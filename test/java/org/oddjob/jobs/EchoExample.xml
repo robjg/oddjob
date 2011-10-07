@@ -1,0 +1,5 @@
+<oddjob>
+    <job>
+        <echo name="Greeting Job">Hello World</echo>
+    </job>
+</oddjob>

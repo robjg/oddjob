@@ -18,8 +18,7 @@
                     </requests>
                 </input>
                 <check value="${config.agree}" eq="true"/>
-                <echo
-                    text="Password for ${config.username} is ${config.password}"/>
+                <echo>Password for ${config.username} is ${config.password}</echo>
                 <input>
                     <requests>
                         <input-message>Logging On to ${config.system} Now!</input-message>

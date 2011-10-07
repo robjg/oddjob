@@ -16,7 +16,7 @@
 
                     </output>
                 </copy>
-                <echo id='e' name="What's in the file?" text='${buff}'/>
+                <echo id='e' name="What's in the file?">${buff}</echo>
             </jobs>
         </sequential>
     </job>

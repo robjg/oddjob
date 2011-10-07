@@ -51,7 +51,7 @@ public class TimerDesFaTest extends TestCase {
 			"    </s:weekly>" +
 			"   </schedule>" +
 			"   <job>" +
-			"    <echo text='Do Something Useful'/>" +
+			"    <echo>Do Something Useful</echo>" +
 			"   </job>" +
 			"</scheduling:timer>";
 		

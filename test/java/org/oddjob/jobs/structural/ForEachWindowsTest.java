@@ -25,7 +25,7 @@ public class ForEachWindowsTest extends TestCase {
     	String xml =
 			"<foreach id='test'>" +
 			" <job>" +
-    		"  <echo text='${test.current}'/>" +
+    		"  <echo>${test.current}</echo>" +
     		" </job>" +
     		"</foreach>";
 
@@ -59,7 +59,7 @@ public class ForEachWindowsTest extends TestCase {
     	String xml = 
 			"<foreach id='test'>" +
 			" <job>" +
-    		"  <echo text='${test.current}'/>" +
+    		"  <echo>${test.current}</echo>" +
     		" </job>" +
     		"</foreach>";
 
@@ -93,7 +93,7 @@ public class ForEachWindowsTest extends TestCase {
     	String xml = 
 			"<foreach id='test'>" +
 			" <job>" +
-			"  <echo text='${test.current}'/>" +
+			"  <echo>${test.current}</echo>" +
 			" </job>" +
 			"</foreach>";
 

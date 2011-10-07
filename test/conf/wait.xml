@@ -2,7 +2,7 @@
 	<job>
 		<sequential>
 			<jobs>
-				<echo text="About to begin wait."/>
+				<echo>About to begin wait.</echo>
 				<wait name="Wait Forever"/>
 			</jobs>
 		</sequential>

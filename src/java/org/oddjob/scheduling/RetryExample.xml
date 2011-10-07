@@ -11,7 +11,7 @@
                     <jobs>
                         <exists file="${this.dir}/work/*.foo" id="check"
                             name="Check File Exists"/>
-                        <echo name="Echo to Console" text="Found ${check.exists[0]}"/>
+                        <echo name="Echo to Console">Found ${check.exists[0]}</echo>
                     </jobs>
                 </sequential>
             </job>

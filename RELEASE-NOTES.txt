@@ -57,11 +57,11 @@ Changes in 1.0.0
 - Fixed problems in <state:cascade> that cause an exception when attempting
   to drag and drop children. 
 - Problems with scheduling around Daylight Saving Times have been fixed.
+- Changed Echo text property to be XML text rather than an attribute to allow
+  multiline echos in one echo job.
     
 Still to do for 1.0.0
 --------------------- 
-- Change Echo text property to be XML text rather than an attribute to allow
-  multiline echos in one echo job.
 - Improve Designer. Sizing should be more intelligent. Shortcut keys need to work.
   Maybe allow the designer form not to be Modal. Tabs and focus need to be improved
   to ease navigation.

@@ -205,7 +205,7 @@ public class JMXServerJobTest extends TestCase {
 			"        <xml>" + EOL +
 			"         <oddjob>" + EOL +
 			"          <job>" + EOL +
-			"           <echo name='Test' id='echo' text='Hello'/>" + EOL +
+			"           <echo name='Test' id='echo'>Hello</echo>" + EOL +
 			"          </job>" + EOL +
 			"         </oddjob>" + EOL +
 			"        </xml>" + EOL +
@@ -405,7 +405,7 @@ public class JMXServerJobTest extends TestCase {
 			"        <xml>" + EOL +
 			"         <oddjob>" + EOL +
 			"          <job>" + EOL +
-			"           <echo name='Test' id='echo' text='Hello'/>" + EOL +
+			"           <echo name='Test' id='echo'>Hello</echo>" + EOL +
 			"          </job>" + EOL +
 			"         </oddjob>" + EOL +
 			"        </xml>" + EOL +

@@ -133,7 +133,7 @@ public class OddjobModulesTest extends TestCase {
         	"      <value value='${inner-config}'/>" +
         	"     </configuration>" +
         	"    </oddjob>" +
-        	"    <echo text='Colour As String: ${inner1/apple.colour}'/>" +
+        	"    <echo>Colour As String: ${inner1/apple.colour}</echo>" +
         	"   </jobs>" + 
 			"  </sequential>" +
 			" </job>" +

@@ -36,7 +36,7 @@ public class PropertiesJobSystemTest extends TestCase {
 		String xml=
 			"<oddjob>" +
 			" <job>" +
-			"  <echo id='echo' text='${oddjob.test}'/>" +
+			"  <echo id='echo'>${oddjob.test}</echo>" +
 			" </job>" +
 			"</oddjob>";
 		
@@ -66,7 +66,7 @@ public class PropertiesJobSystemTest extends TestCase {
 			"      <value key='oddjob.test' value='Different'/>" +
 			"     </values>" +
 			"    </properties>" +
-			"    <echo id='echo' text='Result: ${oddjob.test}'/>" +
+			"    <echo id='echo'>Result: ${oddjob.test}</echo>" +
 			"   </jobs>" +
 			"  </sequential>" +
 			" </job>" +

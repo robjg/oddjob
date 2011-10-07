@@ -15,7 +15,7 @@ public class OddjobSerializeTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <echo id='e' text='Apples'/>" +
+			"  <echo id='e'>Apples</echo>" +
 			" </job>" +
 			"</oddjob>";
 		
@@ -48,7 +48,7 @@ public class OddjobSerializeTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <echo id='e' text='Apples'/>" +
+			"  <echo id='e'>Apples</echo>" +
 			" </job>" +
 			"</oddjob>";
 		

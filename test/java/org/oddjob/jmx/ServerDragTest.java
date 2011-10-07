@@ -28,7 +28,7 @@ public class ServerDragTest extends XMLTestCase {
 	XMLConfiguration configuration = new XMLConfiguration(
 			"TEST", "<oddjob id='apples'>" +
 					"<job>" +
-					" <echo id='colour' text='red'/>" +
+					" <echo id='colour'>red</echo>" +
 					"</job>" +
 					"</oddjob>");
 		
@@ -167,8 +167,7 @@ public class ServerDragTest extends XMLTestCase {
 		String replacement =  
 			"<oddjob id=\"oranges\">" + EOL +
 			"    <job>" + EOL +
-			"        <echo id=\"colour\"" + EOL +
-			"              text=\"orange\"/>" + EOL +
+			"        <echo id=\"colour\"><![CDATA[orange]]></echo>" + EOL +
 			"    </job>" + EOL +
 			"</oddjob>" + EOL;
 
@@ -197,8 +196,7 @@ public class ServerDragTest extends XMLTestCase {
 		DragPoint dragPoint = remoteOddjob.provideConfigurationSession().dragPointFor(pastePoint);
 		
 		String paste = 
-			"<echo id=\"colour\"" +
-			"      text=\"orange\"/>";
+			"<echo id=\"colour\"><![CDATA[orange]]></echo>";
 
 		DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
 		dragPoint.paste(0, paste);
@@ -209,8 +207,7 @@ public class ServerDragTest extends XMLTestCase {
 		String expected =  
 			"<oddjob id=\"apples\">" + EOL +
 			"    <job>" + EOL +
-			"        <echo id=\"colour\"" + EOL +
-			"              text=\"orange\"/>" + EOL +
+			"        <echo id=\"colour\"><![CDATA[orange]]></echo>" + EOL +
 			"    </job>" + EOL +
 			"</oddjob>" + EOL;
 		

@@ -1,7 +1,6 @@
 <foreach id="colours">
 <job>
 <echo id="echo-colour" 
-    name="${colours.current}" 
-    text="I'm number ${colours.index} and my name is ${echo-colour.name}"/>
+    name="${colours.current}">I'm number ${colours.index} and my name is ${echo-colour.name}</echo>
 </job>
 </foreach>

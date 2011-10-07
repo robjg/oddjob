@@ -34,7 +34,7 @@
                                                     </schedule>
                                                 </schedule>
                                             </variables>
-                                            <echo text="Next due: ${time.schedule.result}"/>
+                                            <echo>Next due: ${time.schedule.result}</echo>
                                             <set>
                                                 <values>
                                                     <value key="vars.date" value="${time.schedule.result.useNext}"/>

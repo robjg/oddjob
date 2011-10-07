@@ -254,7 +254,7 @@ public class PropertiesJobTest extends TestCase {
 			"      </properties>" +
 			"     </sets>" +
 			"    </properties>" +
-			"    <echo id='echo' text='${snack.favourite}'/>" +
+			"    <echo id='echo'>${snack.favourite}</echo>" +
 			"   </jobs>" +
 			"  </sequential>" +
 			" </job>" +

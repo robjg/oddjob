@@ -2,7 +2,7 @@
     <job>
         <folder>
             <jobs>
-                <echo id="greeting" text="Hello World"/>
+                <echo id="greeting">Hello World</echo>
             </jobs>
         </folder>
     </job>

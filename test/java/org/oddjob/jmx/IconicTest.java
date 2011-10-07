@@ -39,7 +39,7 @@ public class IconicTest extends TestCase {
 			"    <jmx:server id='server1'" +
 			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
 			"            root='${fruit}' />" +
-			" 	 <echo id='fruit' text='apples' />" +
+			" 	 <echo id='fruit'>apples</echo>" +
 			"   </jobs>" +
 			"  </sequential>" +
 			" </job>" +

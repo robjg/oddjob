@@ -2,9 +2,9 @@
 	<job>
 		<sequential>
 			<jobs>
-				<echo text='${this.args[0]}' />
+				<echo>${this.args[0]}</echo>
 				<jmx:client id='client' url='${this.args[0]}' />
-				<echo id='echo' text='${client/fruit.text}' />
+				<echo id='echo'>${client/fruit.text}</echo>
 			</jobs>
 		</sequential>
 	</job>

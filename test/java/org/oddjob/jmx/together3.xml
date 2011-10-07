@@ -12,7 +12,7 @@
 				<jmx:server id='server1' url='service:jmx:rmi://' root='${oj}' />
 				<jmx:client id='client1' url='${server1.address}' />
 		
-				<echo text='${client1/oj/fruit.text}' />
+				<echo>${client1/oj/fruit.text}</echo>
 				<set>
 					<values>
 						<value key='client1/oj/result.echo' value='${client1/oj/fruit.text}' />

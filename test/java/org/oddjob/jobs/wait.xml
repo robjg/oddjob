@@ -15,7 +15,7 @@
 				<sequential>
 					<jobs>
 						<wait for="${vars.text}"/>
-						<echo id="test" text="${vars.text}"/>
+						<echo id="test">${vars.text}</echo>
 					</jobs>
 				</sequential>
 			</jobs>

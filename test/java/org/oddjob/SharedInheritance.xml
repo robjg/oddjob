@@ -19,8 +19,8 @@
                         <value key="favourite.snack" value="pizza"/>
                     </values>
                 </properties>
-                <echo id="snack-text" text="Favourite snack: ${favourite.snack}"/>
-                <echo id="connection-text" text="Connection is: ${vars.connection}"/>
+                <echo id="snack-text">Favourite snack: ${favourite.snack}</echo>
+                <echo id="connection-text">Connection is: ${vars.connection}</echo>
             </jobs>
         </sequential>
     </job>

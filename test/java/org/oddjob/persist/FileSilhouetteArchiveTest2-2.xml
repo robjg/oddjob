@@ -3,7 +3,7 @@
     <job>
         <sequential id="seq">
             <jobs>
-                <echo id="world" text="World"/>
+                <echo id="world">World</echo>
             </jobs>
         </sequential>
     </job>

@@ -1,6 +1,6 @@
 <oddjob id='this'>
 	<job>
-		<echo text='Launcher Worked'>
+		<echo><![CDATA[Launcher Worked]]>
 			<output>
 				<file file="${this.args[0]}/work/launcher.result"/>
 			</output>

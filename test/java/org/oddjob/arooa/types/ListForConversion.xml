@@ -32,8 +32,7 @@
                                             <xml>
                                                 <foreach id="inner">
                                                     <job>
-                                                        <echo
-                                                            text="${inner.current}"/>
+                                                        <echo>${inner.current}</echo>
                                                     </job>
                                                 </foreach>
                                             </xml>

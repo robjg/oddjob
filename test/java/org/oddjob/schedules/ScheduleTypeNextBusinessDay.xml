@@ -40,7 +40,7 @@
                         </schedule>
                     </nextBusinessDay>
                 </variables>
-                <echo id='echo-time' text="The next business date is ${time.nextBusinessDay}"/>
+                <echo id='echo-time'>The next business date is ${time.nextBusinessDay}</echo>
             </jobs>
         </sequential>
     </job>

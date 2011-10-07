@@ -2,8 +2,8 @@
 	<job>
 		<sequential>
 			<jobs>
-				<echo text="${java.class.path}"/>
-				<echo text="${oddjob.home}"/>
+				<echo>${java.class.path}</echo>
+				<echo>${oddjob.home}</echo>
 				<bean class='org.oddjob.launch.PathParserLaunchTest$Test'/>
 			</jobs>
 		</sequential>

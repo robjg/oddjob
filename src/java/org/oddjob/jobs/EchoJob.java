@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
 
+import org.oddjob.arooa.deploy.annotations.ArooaText;
+
 /**
  * @oddjob.description Echo text to the console.
  * 
@@ -11,22 +13,22 @@ import java.io.Serializable;
  * 
  * Hello World.
  * 
- * <pre>
- * &lt;echo name="Greeting Job" text="Hello World"/&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/jobs/EchoExample.xml}
  * 
  * @oddjob.example
  *
  * Hello World Twice.
  * 
- * <pre>
- * &lt;sequential&gt;
- *  &lt;jobs&gt;
- *   &lt;echo id="first" text="Hello World Twice!"/&gt;
- *   &lt;echo text="${first.text}"/&gt;
- *  &lt;/jobs&gt;
- * &lt;/sequential&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/jobs/EchoTwice.xml}
+ * 
+ * @oddjob.example
+ *
+ * Echo a file list.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/EchoLinesTest.xml}
+ * 
+ * 
+ * @author rob
  */
 public class EchoJob  
 implements Runnable, Serializable {
@@ -95,6 +97,7 @@ implements Runnable, Serializable {
 	 * 
 	 * @param The text.
 	 */
+	@ArooaText
 	public void setText(String text) {
 		this.text = text;
 	}

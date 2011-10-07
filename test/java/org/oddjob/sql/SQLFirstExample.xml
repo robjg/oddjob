@@ -44,8 +44,8 @@ select TEXT from GREETINGS where STYLE = ?
                         <sql-results-bean />
                     </results>
                 </sql>
-                <echo name="Single Row Result" text="${query.results.row.TEXT}" />
-                <echo name="Result By Row Index" text="${query.results.rows[0].TEXT}" />
+                <echo name="Single Row Result">${query.results.row.TEXT}</echo>
+                <echo name="Result By Row Index">${query.results.rows[0].TEXT}</echo>
             </jobs>
         </sequential>
     </job>

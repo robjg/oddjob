@@ -2,8 +2,8 @@
     <job>
         <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
             <jobs>
-                <echo text="This runs first."/>
-                <echo text="Then this."/>
+                <echo>This runs first.</echo>
+                <echo>Then this.</echo>
             </jobs>
         </state:cascade>
     </job>

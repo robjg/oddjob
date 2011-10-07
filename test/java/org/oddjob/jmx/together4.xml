@@ -25,18 +25,18 @@
 					<jobs>
 						<sequential id='stuff1'>
 							<jobs>
-								<echo id='fruit1' text='apples' />
+								<echo id='fruit1'>apples</echo>
 								<jmx:client id='client2' name="Client 2" url='${server2.address}' />
 								<wait for="${client2/fruit2.text}" />
-								<echo id="test1" text='${client2/fruit2.text}' />
+								<echo id="test1">${client2/fruit2.text}</echo>
 							</jobs>
 						</sequential>
 						<sequential id='stuff2'>
 							<jobs>
-								<echo id='fruit2' text='oranges' />
+								<echo id='fruit2'>oranges</echo>
 								<jmx:client id='client1' name="Client 1" url='${server1.address}' />
 								<wait for="${client1/fruit1.text}" />
-								<echo id="test2" text='${client1/fruit1.text}' />
+								<echo id="test2">${client1/fruit1.text}</echo>
 							</jobs>
 						</sequential>
 						<sequential id="bothRan">

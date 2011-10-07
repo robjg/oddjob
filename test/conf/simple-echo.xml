@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-    	<echo text='Hello World'/>
+    	<echo>Hello World</echo>
     </job>
 </oddjob>

@@ -2,8 +2,8 @@
 	<job>
 		<sequential>
 			<jobs>
-				<variables id='result' />
-				<echo id='fruit' text='apples' />
+				<variables id='result'/>
+				<echo id='fruit'>apples</echo>
 			</jobs>
 		</sequential>
 	</job>

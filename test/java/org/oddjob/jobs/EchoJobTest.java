@@ -25,7 +25,7 @@ public class EchoJobTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <echo id='e' text='Hello' />" +
+			"  <echo id='e'>Hello</echo>" +
 			" </job>" +
 			"</oddjob>";
 		
@@ -78,6 +78,65 @@ public class EchoJobTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		assertEquals(3, lines.length);
+		
+		oddjob.destroy();
+	}
+	
+	public void testExample1() throws Exception {
+		
+		Oddjob oddjob = new Oddjob();
+		
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/EchoExample.xml",
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		console.close();
+
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals("Hello World", lines[0].trim());
+		
+		assertEquals(1, lines.length);
+		
+		oddjob.destroy();
+	}
+	
+	public void testExample2() throws Exception {
+		
+		Oddjob oddjob = new Oddjob();
+		
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/EchoTwice.xml",
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		console.close();
+
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals("Hello World Twice!", lines[0].trim());
+		assertEquals("Hello World Twice!", lines[1].trim());
+		
+		assertEquals(2, lines.length);
 		
 		oddjob.destroy();
 	}

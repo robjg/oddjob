@@ -478,12 +478,12 @@ public class TriggerTest extends TestCase {
 //			"               root='${this}'/>" +
 			"    <si:trigger on='${thing1}' id='trigger'>" +
 			"     <job>" +
-            "      <echo id='stop' text='Now you can stop.'/>" +
+            "      <echo id='stop'>Now you can stop.</echo>" +
 			"     </job>" +
 			"    </si:trigger>" +
 			"    <folder>" +
 			"     <jobs>" +
-            "      <echo text='Triggered!' id='thing1'/>" +
+            "      <echo id='thing1'>Triggered!</echo>" +
             "     </jobs>" +
             "    </folder>" +
             "   </jobs>" +
@@ -525,12 +525,12 @@ public class TriggerTest extends TestCase {
 			"	<jobs>" +
 			"    <si:trigger on='${thing1}' id='trigger'>" +
 			"     <job>" +
-            "      <echo id='stop' text='Now you can stop.'/>" +
+            "      <echo id='stop'>Now you can stop</echo>" +
 			"     </job>" +
 			"    </si:trigger>" +
 			"    <folder>" +
 			"     <jobs>" +
-            "      <echo text='Triggered!' id='thing1'/>" +
+            "      <echo id='thing1'>Triggered!</echo>" +
             "     </jobs>" +
             "    </folder>" +
             "   </jobs>" +

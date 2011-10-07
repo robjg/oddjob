@@ -27,7 +27,7 @@
                         <xml>
                             <foreach id="loop">
                                 <job>
-                                    <echo text="${loop.current}"/>
+                                    <echo>${loop.current}</echo>
                                 </job>
                             </foreach>
                         </xml>

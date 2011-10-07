@@ -10,7 +10,7 @@
 				<jmx:server id='server2'
 					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server2' root='${client1}' />
 				<jmx:client id='client2' url='${server2.address}' />
-				<echo id='fruit' text='apples' />
+				<echo id='fruit'>apples</echo>
 				<wait for='${client2/client1/fruit}' />
 				<set>
 					<values>

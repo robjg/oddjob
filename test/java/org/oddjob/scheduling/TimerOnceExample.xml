@@ -3,13 +3,13 @@
     <job>
         <sequential>
             <jobs>
-                <echo id="big-report" name="Pretend this is a Long Running Report" text="Meaning of Life: 42"/>
+                <echo id="big-report" name="Pretend this is a Long Running Report">Meaning of Life: 42</echo>
                 <scheduling:timer id="timer" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                     <schedule>
                         <schedules:time from="10:00" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
                     </schedule>
                     <job>
-                        <echo name="Pretend this Forwards the Long Running Report" text="Emailing: ${big-report.text}"/>
+                        <echo name="Pretend this Forwards the Long Running Report">Emailing: ${big-report.text}</echo>
                     </job>
                 </scheduling:timer>
             </jobs>

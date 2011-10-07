@@ -398,7 +398,7 @@ public class ForEachJobTest extends TestCase {
     	String config = 
     		"<foreach id='e'>" +
     		" <job>" +
-    		"  <echo text='${e.current}'/>" +
+    		"  <echo>${e.current}</echo>" +
     		" </job>" +
     		"</foreach>";
     	 
@@ -486,7 +486,7 @@ public class ForEachJobTest extends TestCase {
     	String config = 
     		"<foreach>" +
     		" <job>" +
-    		"  <echo id='x' text='${fe.current}'/>" +
+    		"  <echo id='x'>${fe.current}</echo>" +
     		" </job>" +
     		"</foreach>";
     	 
@@ -612,7 +612,7 @@ public class ForEachJobTest extends TestCase {
     		"      <value key='my.fruit' value='${fe.current}'/>" +
     		"     </values>" +
     		"    </properties>" +
-    		"    <echo text='${my.fruit}'/>" +
+    		"    <echo>${my.fruit}</echo>" +
     		"   </jobs>" +
     		"  </sequential>" +
     		" </job>" +
@@ -735,7 +735,7 @@ public class ForEachJobTest extends TestCase {
     		"    <job>" +
     		"  <parallel>" +
     		"   <jobs>" +
-    		"    <echo text='Hello'/>" +
+    		"    <echo>Hello</echo>" +
     		"   </jobs>" +
     		"  </parallel>" +
     		"    </job>" +

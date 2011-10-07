@@ -7,7 +7,7 @@
       <fruit:colour colour='RED' shiny='true'/>
      </colour>
     </fruit:apple>
-    <echo text='Colour As String: ${apple.colour}'/>
+    <echo>Colour As String: ${apple.colour}</echo>
     <fruit:orange id='orange'>
      <flavour>
       <fruit:flavour description='Sharp'/>

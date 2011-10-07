@@ -182,7 +182,7 @@ public class RepeatJobTest extends TestCase {
         	"    </scheduling:trigger>" +
         	"    <repeat id='whatever'>" +
         	"     <job>" +
-        	"      <echo id='echo' text='Hello'/>" +
+        	"      <echo id='echo'>Hello</echo>" +
         	"     </job>" +
             "    </repeat>" +
         	"   </jobs>" +

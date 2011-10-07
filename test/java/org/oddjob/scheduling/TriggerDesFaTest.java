@@ -35,7 +35,7 @@ public class TriggerDesFaTest extends TestCase {
 			"                  newOnly='true'" +
 			"                  >" +
 			"   <job>" +
-			"    <echo text='Do Something Useful'/>" +
+			"    <echo>Do Something Useful</echo>" +
 			"   </job>" +
 			"</scheduling:trigger>";
 		

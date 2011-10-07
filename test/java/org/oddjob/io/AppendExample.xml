@@ -11,12 +11,12 @@
                         </append>
                     </myFile>
                 </variables>
-                <echo text="Hello World">
+                <echo><![CDATA[Hello World]]>
                     <output>
                         <value value="${vars.myFile}" />
                     </output>
                 </echo>
-                <echo text="Goodbye World">
+                <echo><![CDATA[Goodbye World]]>
                     <output>
                         <value value="${vars.myFile}" />
                     </output>

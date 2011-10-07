@@ -16,11 +16,11 @@
 				<sequential id='stuff'>
 					<jobs>
 						<variables id='result' />
-						<echo name="Server Echo" id='fruit' text='apples' />
+						<echo name="Server Echo" id='fruit'>apples</echo>
 					</jobs>
 				</sequential>
 				<wait for='${client2/client1/fruit.text}' />
-				<echo name="Client Echo" text='${client2/client1/fruit.text}' />
+				<echo name="Client Echo">${client2/client1/fruit.text}</echo>
 				<set>
 					<values>
 						<value key='client2/client1/result.echo' value='${client2/client1/fruit.text}' />

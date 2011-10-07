@@ -3,8 +3,8 @@
     <job>
         <sequential id="seq">
             <jobs>
-                <echo id="hello" text="Hello"/>
-                <echo id="world" text="World"/>
+                <echo id="hello">Hello</echo>
+                <echo id="world">World</echo>
                 <bean class="org.oddjob.persist.FileSilhouettesTest$SessionCapture" id="capture"/>
             </jobs>
         </sequential>

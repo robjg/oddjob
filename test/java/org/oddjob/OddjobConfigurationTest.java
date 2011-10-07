@@ -86,7 +86,7 @@ public class OddjobConfigurationTest extends XMLTestCase {
 		DragPoint dragPoint = oddjob.provideConfigurationSession().dragPointFor(oddjob);
 
 		String paste = 
-			"<echo id='simple' text='Hello'/>";
+			"<echo id='simple'>Hello</echo>";
 		
 		DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
 		dragPoint.paste(0, paste);
@@ -97,7 +97,7 @@ public class OddjobConfigurationTest extends XMLTestCase {
 		String expected = 
 			"<oddjob>" +
 			"    <job>" +
-			"        <echo id='simple' text='Hello'/>" + 
+			"        <echo id='simple'><![CDATA[Hello]]></echo>" + 
 			"    </job>" + 
 			"</oddjob>";
 		

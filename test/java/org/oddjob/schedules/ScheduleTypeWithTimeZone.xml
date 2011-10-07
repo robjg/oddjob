@@ -17,7 +17,7 @@
                         <format date='${time.now}' format="hh:mm a"/>
                     </formatted>
                 </variables>
-                <echo id='echo-time' text="Tomorrow in Hong Kong starts at ${time.formatted} our time."/>
+                <echo id='echo-time'>Tomorrow in Hong Kong starts at ${time.formatted} our time.</echo>
             </jobs>
         </sequential>
     </job>

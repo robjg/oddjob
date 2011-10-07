@@ -229,7 +229,7 @@ public class MirrorStateTest extends TestCase {
 			" <job>" +
 			"  <state:and>" +
 			"   <jobs>" +
-			"    <echo id='e' text='hello'/>" +
+			"    <echo id='e'>hello</echo>" +
 			"    <state:mirror job='${e}'/>" +
 			"   </jobs>" +
 			"  </state:and>" +
@@ -260,7 +260,7 @@ public class MirrorStateTest extends TestCase {
 			"   <jobs>" +
 			"    <folder>" +
 			"     <jobs>" +
-			"      <echo id='e' text='hello'/>" +
+			"      <echo id='e'>hello</echo>" +
 			"     </jobs>" +
 			"    </folder>" +
 			"    <state:mirror job='${e}'/>" +

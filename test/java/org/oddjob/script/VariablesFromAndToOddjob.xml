@@ -12,7 +12,7 @@ var snack = fruit;
     <value key='fruit' value='apple'/>
    </beans>
   </script>
-  <echo id='e' text="${s.variables(fruit)}"/>
+  <echo id='e'>${s.variables(fruit)}</echo>
  </jobs>
  </sequential>
  </job> 

@@ -125,7 +125,7 @@ public class OddjobPersisterTest extends TestCase {
     	String xml = 
     		"<oddjob>" +
     		" <job>" +
-    		"  <echo id='e' text='Hello'/>" +
+    		"  <echo id='e'>Hello</echo>" +
     		" </job>" +
     		"</oddjob>";
     		
@@ -172,7 +172,7 @@ public class OddjobPersisterTest extends TestCase {
 		"             <xml>" +
 		"              <oddjob>" +
 		"               <job>" +
-		"                <echo id='e' text='Hello'/>" +
+		"                <echo id='e'>Hello</echo>" +
 		"               </job>" +
 		"              </oddjob>" +
 		"             </xml>" +

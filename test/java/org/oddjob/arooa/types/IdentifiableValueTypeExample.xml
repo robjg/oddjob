@@ -11,7 +11,7 @@
                         </identify>
                     </test>
                 </variables>
-                <echo text="Checking ${vars.test} is ${our-value}"/>
+                <echo>Checking ${vars.test} is ${our-value}</echo>
                 <check value="${vars.test}" eq="${our-value}"/>
             </jobs>
         </sequential>

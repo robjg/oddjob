@@ -47,7 +47,7 @@ call TEST (?, ?, ?)
                         </buffer>
                     </input>
                 </sql>
-                <echo text="a=${a}, b=${b}." />
+                <echo>a=${a}, b=${b}.</echo>
             </jobs>
         </sequential>
     </job>

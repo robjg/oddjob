@@ -8,17 +8,17 @@
                         <buffer/>
                     </buff>
                 </variables>
-                <echo text="apples">
+                <echo><![CDATA[apples]]>
                     <output>
                         <value value="${v.buff}"/>
                     </output>
                 </echo>
-                <echo text="oranges">
+                <echo><![CDATA[oranges]]>
                     <output>
                         <value value="${v.buff}"/>
                     </output>
                 </echo>
-                <echo text="${v.buff}"/>
+                <echo>${v.buff}</echo>
             </jobs>
         </sequential>
     </job>

@@ -7,8 +7,7 @@
                                     on="${watch-both}">
                     <job>
                         <echo id="notify"
-                              name="Triggered Job"
-                              text="You ran two things!"/>
+                              name="Triggered Job">You ran two things!</echo>
                     </job>
                 </scheduling:trigger>
                 <state:and id="watch-both"
@@ -23,11 +22,9 @@
                 <folder name="A Folder of Jobs">
                     <jobs>
                         <echo id="thing1"
-                              name="Run me!"
-                              text="Thank you"/>
+                              name="Run me!">Thank you</echo>
                         <echo id="thing2"
-                              name="Run me!"
-                              text="Thank you"/>
+                              name="Run me!">Thank you</echo>
                     </jobs>
                 </folder>
             </jobs>

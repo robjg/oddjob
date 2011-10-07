@@ -12,13 +12,13 @@
        <value key="fruit.favourite" value="pear"/>
       </values>
      </properties>
-     <echo id="echo1" text="$${fruit.favourite} is ${fruit.favourite}" />
+     <echo id="echo1">$${fruit.favourite} is ${fruit.favourite}</echo>
      <properties override='true'>
       <values>
        <value key="fruit.favourite" value="banana"/>
       </values>
      </properties>
-     <echo id="echo2" text="$${fruit.favourite} is ${fruit.favourite}" />
+     <echo id="echo2">$${fruit.favourite} is ${fruit.favourite}</echo>
     </jobs>
    </sequential>
   </job>

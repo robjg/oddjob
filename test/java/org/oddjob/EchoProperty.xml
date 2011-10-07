@@ -1,5 +1,5 @@
 <oddjob id='this'>
     <job>
-        <echo id='echo' text='${our.greeting}'/>
+        <echo id='echo'>${our.greeting}</echo>
     </job>
 </oddjob>

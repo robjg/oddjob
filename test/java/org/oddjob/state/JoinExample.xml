@@ -15,19 +15,19 @@
                             <jobs>
                                 <scheduling:trigger on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                                     <job>
-                                        <echo text="Apples"/>
+                                        <echo>Apples</echo>
                                     </job>
                                 </scheduling:trigger>
                                 <scheduling:trigger on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                                     <job>
-                                        <echo text="Oranges"/>
+                                        <echo>Oranges</echo>
                                     </job>
                                 </scheduling:trigger>
                             </jobs>
                         </sequential>
                     </job>
                 </state:join>
-                <echo id="last-job" text="And that's that!"/>
+                <echo id="last-job">And that's that!</echo>
             </jobs>
         </sequential>
     </job>

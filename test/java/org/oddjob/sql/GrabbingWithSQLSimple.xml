@@ -33,7 +33,7 @@
                         		<value value="${sequence.current}"/>
                         	</instance>
                             <job>
-                                <echo id="echo1" text="Grabbed By 1"/>
+                                <echo id="echo1">Grabbed By 1</echo>
                             </job>
                             <keeper>
                                 <value value="${keeper-service.keeper(simple)}"/>
@@ -44,7 +44,7 @@
                         		<value value="${sequence.current}"/>
                         	</instance>
                             <job>
-                                <echo id="echo2" text="Grabbed By 2"/>
+                                <echo id="echo2">Grabbed By 2</echo>
                             </job>
                             <keeper>
                                 <value value="${keeper-service.keeper(simple)}"/>

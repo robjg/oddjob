@@ -5,13 +5,13 @@
 				<sequential>
 					<jobs>
 						<wait pause="2000"/>
-						<echo id="e" text="hello"/>
+						<echo id="e">hello</echo>
 					</jobs>
 				</sequential>
 				<sequential>
 					<jobs>
 						<wait for="${e}" state="complete"/>
-						<echo id="test" text="${e.text}"/>
+						<echo id="test">${e.text}</echo>
 					</jobs>
 				</sequential>
 			</jobs>

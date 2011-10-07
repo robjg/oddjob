@@ -348,7 +348,7 @@ public class OddjobLoadTest extends TestCase {
     	String nested = 
     		"<oddjob>" +
     		" <job>" +
-    		"  <echo id='fruits' text='apple'/>" +
+    		"  <echo id='fruits'>apple</echo>" +
     		" </job>" +
     		"</oddjob>";
         
@@ -543,7 +543,7 @@ public class OddjobLoadTest extends TestCase {
     	String xml = 
     		"<oddjob>" +
     		" <job>" +
-    		"  <echo id='echo' text='Hello'/>" +
+    		"  <echo id='echo'>Hello</echo>" +
     		" </job>" +
     		"</oddjob>";
     	

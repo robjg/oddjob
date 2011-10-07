@@ -2,9 +2,10 @@
     <job>
         <sequential>
             <jobs>
-                <echo id='e'>Hello</echo>
-                <echo id='2'>${e.text}</echo>
+                <echo id="first">Hello World Twice!</echo>
+                <echo>${first.text}</echo>
             </jobs>
         </sequential>
     </job>
-</oddjob>
+</oddjob> 
+ 

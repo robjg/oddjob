@@ -2,7 +2,7 @@
 	<job>
 		<sequential>
 			<jobs>
-				<echo id='fruit' text='apple' />
+				<echo id='fruit'>apple</echo>
 				<jmx:server id='server' url='service:jmx:rmi://' root='${fruit}' />
 			</jobs>
 		</sequential>

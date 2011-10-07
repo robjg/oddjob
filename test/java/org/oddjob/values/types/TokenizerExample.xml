@@ -9,7 +9,7 @@
                 <xml>
                     <foreach id="test">
                         <job>
-                            <echo name="Echo ${test.current}" text="I'm ${test.current}"/>
+                            <echo name="Echo ${test.current}">I'm ${test.current}</echo>
                         </job>
                     </foreach>
                 </xml>

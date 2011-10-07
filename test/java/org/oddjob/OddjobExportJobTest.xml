@@ -4,7 +4,7 @@
             <jobs>
                 <folder>
                     <jobs>
-                        <echo id="secret" text="I'm a secret job."/>
+                        <echo id="secret">I'm a secret job</echo>
                     </jobs>
                 </folder>
                 <oddjob id="inner">

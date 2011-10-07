@@ -21,8 +21,8 @@ public class JobFolderTest extends TestCase {
 			" <job>" +
 			"  <folder>" +
 			"   <jobs>" +
-			"	 <echo id='job1' text='Job1'/>" +
-			"	 <echo id='job2' text='Job2'/>" +
+			"	 <echo id='job1'>Job1</echo>" +
+			"	 <echo id='job2'>Job2</echo>" +
 			"   </jobs>" +
 			"  </folder>" +
 			" </job>" +

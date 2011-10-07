@@ -40,7 +40,7 @@ public class EchoDCTest extends TestCase {
 		File testFile = dirs.relative("work/test.txt");
 		
 		String xml =  
-				"<echo name='Test' text='Hello'>" +
+				"<echo name='Test' ><![CDATA[Hello]]>" +
 				" <output>" +
 				"  <file file='" + testFile.getPath() + "'/>" +
 				" </output>" +

@@ -17,8 +17,7 @@ oranges]]></buffer>
                         <xml>
                             <foreach id="f">
                                 <job>
-                                    <echo
-                                        text="Line ${f.index} is ${f.current}."/>
+                                    <echo>Line ${f.index} is ${f.current}.</echo>
                                 </job>
                             </foreach>
                         </xml>

@@ -7,7 +7,7 @@ import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleDesignProperty;
-import org.oddjob.arooa.design.SimpleTextAttribute;
+import org.oddjob.arooa.design.SimpleTextProperty;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.FieldSelection;
 import org.oddjob.arooa.design.screem.Form;
@@ -30,7 +30,7 @@ public class EchoDC implements DesignFactory {
 
 class EchoDesign extends BaseDC {
 
-	private final SimpleTextAttribute text;
+	private final SimpleTextProperty text;
 	
 	private final SimpleDesignProperty lines;
 	
@@ -39,7 +39,7 @@ class EchoDesign extends BaseDC {
 	public EchoDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
-		text = new SimpleTextAttribute("text", this);
+		text = new SimpleTextProperty("text");
 		
 		lines = new SimpleDesignProperty("lines", this);
 		

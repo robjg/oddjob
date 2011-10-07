@@ -21,7 +21,7 @@
                     	    		format="mm_ss_SSS"/>
                     	    </archiveIdentifier>
                     		<job>
-		                        <echo text="Run at ${the-timer.current.fromDate}"/>
+		                        <echo>Run at ${the-timer.current.fromDate}</echo>
                         	</job>
                         </archive>
                     </job>

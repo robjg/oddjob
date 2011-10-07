@@ -127,7 +127,7 @@ public class ExplorerEditActionsTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			"  <job>" +
-			"   <echo text='Hello' id='simple'/>" +
+			"   <echo id='simple'>Hello</echo>" +
 			"  </job>" +
 			"</oddjob>";
 		

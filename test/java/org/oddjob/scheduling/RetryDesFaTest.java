@@ -37,7 +37,7 @@ public class RetryDesFaTest extends TestCase {
 			"    <schedules:interval interval='00:15'/>" +
 			"   </schedule>" +
 			"   <job>" +
-			"    <echo text='Do Something Useful'/>" +
+			"    <echo>Do Something Useful</echo>" +
 			"   </job>" +
 			"</scheduling:retry>";
 		

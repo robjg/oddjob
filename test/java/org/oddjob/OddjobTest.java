@@ -445,7 +445,7 @@ public class OddjobTest extends TestCase {
     	String xml = 
     		"<oddjob>" +
     		" <job>" +
-    		"  <echo id='echo' text='Hello'/>" +
+    		"  <echo id='echo'>Hello</echo>" +
     		" </job>" +
     		"</oddjob>";
     	

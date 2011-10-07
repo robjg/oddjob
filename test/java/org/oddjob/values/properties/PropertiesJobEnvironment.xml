@@ -3,7 +3,7 @@
         <sequential>
             <jobs>
                 <properties environment='env'/>
-                <echo id='echo-path' text='Path is ${env.PATH}'/>
+                <echo id='echo-path'>Path is ${env.PATH}</echo>
             </jobs>
         </sequential>
     </job>

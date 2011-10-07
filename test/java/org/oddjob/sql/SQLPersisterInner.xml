@@ -11,7 +11,7 @@
                                     number="${seqnum.current}"/>
                             </seqnum>
                         </variables>
-                        <echo id="e" text="${vars.seqnum}"/>
+                        <echo id="e">${vars.seqnum}</echo>
                     </jobs>
                 </sequential>
             </job>

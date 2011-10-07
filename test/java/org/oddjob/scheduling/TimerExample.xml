@@ -10,8 +10,7 @@
                 </schedules:weekly>
             </schedule>
             <job>
-                <echo id="work"
-                     text="Doing some work at ${timer.current.fromDate}"/>
+                <echo id="work">Doing some work at ${timer.current.fromDate}</echo>
             </job>
         </scheduling:timer>
     </job>

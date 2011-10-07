@@ -8,7 +8,7 @@
                             resource='org/oddjob/values/properties/PropertiesJobTest1.properties'/>
                     </input>
                 </properties>
-                <echo id='echo' text='${someones.name}'/>
+                <echo id='echo'>${someones.name}</echo>
             </jobs>
         </sequential>
     </job>
