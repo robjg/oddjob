@@ -317,7 +317,7 @@ final public class MonthlySchedule extends ConstrainedSchedule implements Serial
 	@Override
 	protected Calendar shiftToCalendar(Calendar calendar, int intervals) {
 		
-    	calendar = super.shiftFromCalendar(calendar, intervals);
+    	calendar = super.shiftToCalendar(calendar, intervals);
     	
 	    if (toWeek == null) {
 	    	return calendar;

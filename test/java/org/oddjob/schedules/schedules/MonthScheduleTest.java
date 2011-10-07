@@ -19,6 +19,9 @@ import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
+import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.units.DayOfMonth;
 import org.oddjob.schedules.units.Month;
 
 /**
@@ -145,5 +148,94 @@ public class MonthScheduleTest extends TestCase {
     			DateHelper.parseDateTime("2010-02-15 11:00"));
     	
     	assertEquals(expected, next);
+    }
+    
+    public void testYearlyInFebuaryIncludingLeapYears() throws ParseException {
+    	
+    	YearlySchedule test = new YearlySchedule();
+    	test.setInMonth(Month.Months.FEBRUARY);
+    	
+    	ScheduleRoller roller = new ScheduleRoller(test);
+    	ScheduleResult[] results = roller.resultsFrom(
+    			DateHelper.parseDate("2006-01-01"));
+    	
+    	ScheduleResult expected;
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2006-02-01"),
+    			DateHelper.parseDate("2006-03-01"));
+    	
+    	assertEquals(expected, results[0]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2007-02-01"),
+    			DateHelper.parseDate("2007-03-01"));
+    	
+    	assertEquals(expected, results[1]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2008-02-01"),
+    			DateHelper.parseDate("2008-03-01"));
+    	
+    	assertEquals(expected, results[2]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2009-02-01"),
+    			DateHelper.parseDate("2009-03-01"));
+    	
+    	assertEquals(expected, results[3]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2010-02-01"),
+    			DateHelper.parseDate("2010-03-01"));
+    	
+    	assertEquals(expected, results[4]);
+    }
+    
+    public void testLastDayInFebuaryIncludingLeapYears() throws ParseException {
+    	
+    	YearlySchedule test = new YearlySchedule();
+    	test.setInMonth(Month.Months.FEBRUARY);
+    	
+    	MonthlySchedule monthly = new MonthlySchedule();
+    	monthly.setOnDay(DayOfMonth.Shorthands.LAST);
+    	
+    	test.setRefinement(monthly);
+    	
+    	ScheduleRoller roller = new ScheduleRoller(test);
+    	ScheduleResult[] results = roller.resultsFrom(
+    			DateHelper.parseDate("2006-01-01"));
+    	
+    	ScheduleResult expected;
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2006-02-28"),
+    			DateHelper.parseDate("2006-03-01"));
+    	
+    	assertEquals(expected, results[0]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2007-02-28"),
+    			DateHelper.parseDate("2007-03-01"));
+    	
+    	assertEquals(expected, results[1]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2008-02-29"),
+    			DateHelper.parseDate("2008-03-01"));
+    	
+    	assertEquals(expected, results[2]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2009-02-28"),
+    			DateHelper.parseDate("2009-03-01"));
+    	
+    	assertEquals(expected, results[3]);
+    	
+    	expected = new IntervalTo(
+    			DateHelper.parseDate("2010-02-28"),
+    			DateHelper.parseDate("2010-03-01"));
+    	
+    	assertEquals(expected, results[4]);
     }
 }

@@ -136,16 +136,122 @@ public class MonthlyScheduleTest extends TestCase {
         
         assertTrue("interval as expected", interval1.equals(expected1));
 
-        schedule.setToDay(DayOfMonth.Shorthands.PENULTIMATE);
         Interval interval2 = schedule.nextDue(
         		new ScheduleContext(now1));
         
         IntervalTo expected2 = new IntervalTo(
         		DateHelper.parseDateTime("2003-03-05"),
-                DateHelper.parseDateTime("2003-03-31"));
+                DateHelper.parseDateTime("2003-04-01"));
         
         assertEquals(expected2, interval2);        
     }
+    
+    public void testPenultimateDayOfMonth() throws ParseException {
+    	
+        MonthlySchedule schedule = new MonthlySchedule();
+        schedule.setFromDay(new DayOfMonth.Number(5));
+        schedule.setToDay(DayOfMonth.Shorthands.PENULTIMATE);
+        
+        ScheduleResult[] results = new ScheduleRoller(
+        		schedule).resultsFrom(
+        				DateHelper.parseDateTime("2008-01-15 12:30"));
+                
+        ScheduleResult expected = new IntervalTo(
+                DateHelper.parseDateTime("2008-01-05"),
+                DateHelper.parseDateTime("2008-01-31"));
+        
+        assertEquals(expected, results[0]);
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-02-05"),
+                DateHelper.parseDateTime("2008-02-29"));
+        
+        assertEquals(expected, results[1]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-03-05"),
+                DateHelper.parseDateTime("2008-03-31"));
+        
+        assertEquals(expected, results[2]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-04-05"),
+                DateHelper.parseDateTime("2008-04-30"));
+        
+        assertEquals(expected, results[3]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-05-05"),
+                DateHelper.parseDateTime("2008-05-31"));
+        
+        assertEquals(expected, results[4]);        
+    }
+    
+    public void testLastDayOfMonthWithTimeOverMidnight() throws ParseException {
+    	
+        MonthlySchedule test = new MonthlySchedule();
+        test.setOnDay(DayOfMonth.Shorthands.LAST);
+        
+        TimeSchedule time = new TimeSchedule();
+        time.setFrom("23:00");
+        time.setTo("01:00");
+        
+        test.setRefinement(time);
+        
+        ScheduleResult[] results = new ScheduleRoller(
+        		test).resultsFrom(
+        				DateHelper.parseDateTime("2008-01-15 12:30"));
+                
+        ScheduleResult expected = new IntervalTo(
+                DateHelper.parseDateTime("2008-01-31 23:00"),
+                DateHelper.parseDateTime("2008-02-01 01:00"));
+        
+        assertEquals(expected, results[0]);
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-02-29 23:00"),
+                DateHelper.parseDateTime("2008-03-01 01:00"));
+        
+        assertEquals(expected, results[1]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-03-31 23:00"),
+                DateHelper.parseDateTime("2008-04-01 01:00"));
+        
+        assertEquals(expected, results[2]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-04-30 23:00"),
+                DateHelper.parseDateTime("2008-05-01 01:00"));
+        
+        assertEquals(expected, results[3]);        
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-05-31 23:00"),
+                DateHelper.parseDateTime("2008-06-01 01:00"));
+        
+        assertEquals(expected, results[4]); 
+        
+        // Check the last interval is tested.
+        
+        results = new ScheduleRoller(
+        		test).resultsFrom(
+        				DateHelper.parseDateTime("2008-03-01 00:30"));
+                
+        expected = new IntervalTo(
+                DateHelper.parseDateTime("2008-02-29 23:00"),
+                DateHelper.parseDateTime("2008-03-01 01:00"));
+        
+        assertEquals(expected, results[0]);
+        
+        expected = new IntervalTo(
+        		DateHelper.parseDateTime("2008-03-31 23:00"),
+                DateHelper.parseDateTime("2008-04-01 01:00"));
+        
+        assertEquals(expected, results[1]);        
+                
+    }
+    
     
     public void testDefaultFrom() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();

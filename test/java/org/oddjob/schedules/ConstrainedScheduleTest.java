@@ -23,7 +23,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-21 00:00"));
     	
-		IntervalBase result = test.lastInterval(context);
+		Interval result = test.lastInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -56,7 +56,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-03-03"));
     	
-		IntervalBase result = test.lastInterval(context);
+		Interval result = test.lastInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -89,7 +89,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-02-21 00:00"));
     	
-		IntervalBase result = test.nextInterval(context);
+		Interval result = test.nextInterval(context);
 		
 		assertEquals(expected, result);
 		
@@ -122,7 +122,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2009-03-03"));
     	
-		IntervalBase result = test.nextInterval(context);
+		Interval result = test.nextInterval(context);
 		
 		assertEquals(expected, result);
 		

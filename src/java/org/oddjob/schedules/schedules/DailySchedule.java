@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.oddjob.OddjobException;
-import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.arooa.utils.SpringSafeCalendar;
+import org.oddjob.arooa.utils.TimeParser;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.ConstrainedSchedule;
 import org.oddjob.schedules.DateUtils;
@@ -105,9 +106,12 @@ final public class DailySchedule extends ConstrainedSchedule implements Serializ
 
 	static Date parseTime(String textField, Date referenceDate, 
 			TimeZone timeZone, String fieldName) {
-		String dateText = DateHelper.formatDate(referenceDate);
+		
+		TimeParser timeFormatter = new TimeParser(
+				new SpringSafeCalendar(referenceDate, timeZone));		
 		try {
-			return DateHelper.parseDateTime(dateText + " " + textField, timeZone);
+			Date now = timeFormatter.parse(textField);
+			return now;
 		} catch (ParseException e) {
 			throw new OddjobException("Failed to parse " + fieldName
 					+ "[" + textField + "]");
@@ -132,10 +136,13 @@ final public class DailySchedule extends ConstrainedSchedule implements Serializ
 	    }
 	    else {
 	    	toCal.setTime(parseTime(to, referenceDate, timeZone, "to"));
-	    	if (to.equals(from)) {
-	    		toCal.add(Calendar.MILLISECOND, 1);
-	    	}
 	    }
+	    
+	    Calendar fromCal = fromCalendar(referenceDate, timeZone);
+    	if (toCal.equals(fromCal)) {
+    		// For 'at' times.
+    		toCal.add(Calendar.MILLISECOND, 1);
+    	}
 	    
 		return toCal;
 	}

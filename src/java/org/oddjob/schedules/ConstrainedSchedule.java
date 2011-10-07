@@ -55,15 +55,15 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	 * @param context
 	 * @return
 	 */
-	protected final IntervalTo nextInterval(ScheduleContext context) {
+	protected final Interval nextInterval(ScheduleContext context) {
 	
 		Calendar fromCal = fromCalendar(context.getDate(), context.getTimeZone());
 		Calendar toCal = toCalendar(context.getDate(), context.getTimeZone());
-		
+
 		Calendar  nowCal = Calendar.getInstance(context.getTimeZone());
 		nowCal.setTime(context.getDate());
 		
-	    if (fromCal.after(toCal)) {
+	    if (toCal.before(fromCal)) {
 	        if (nowCal.before(toCal)) {
 	        	fromCal = shiftFromCalendar(fromCal, -1);
 	        }
@@ -75,15 +75,10 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	    }
 
         if (nowCal.compareTo(toCal) >= 0) {
-        	// Need to re-get from time because of leap years.
-        	// - The end of February might change.
         	toCal = shiftToCalendar(toCal, 1);
-        	ScheduleContext shiftedContext = context.move(
-        			DateUtils.oneMillisBefore(toCal.getTime()));
-        	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
         }
 	    
-	    return new IntervalTo(fromCal.getTime(), toCal.getTime());
+    	return new SimpleInterval(fromCal.getTime(), toCal.getTime());
 	}
 
 	/**
@@ -92,7 +87,7 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	 * @param context
 	 * @return
 	 */
-	protected final IntervalTo lastInterval(ScheduleContext context) {
+	protected final Interval lastInterval(ScheduleContext context) {
 		
 		Calendar fromCal = fromCalendar(context.getDate(), context.getTimeZone());
 		Calendar toCal = toCalendar(context.getDate(), context.getTimeZone());
@@ -100,7 +95,7 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 		Calendar  nowCal = Calendar.getInstance(context.getTimeZone());
 		nowCal.setTime(context.getDate());
 		
-	    if (fromCal.after(toCal)) {
+	    if (toCal.before(fromCal)) {
 	        if (nowCal.before(toCal)) {
 	        	fromCal = shiftFromCalendar(fromCal, -2);
 	        }
@@ -115,23 +110,48 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 	    }
 
         if (nowCal.before(toCal)) {
-        	// Need to re-get from time because of leap years.
-        	// - The end of February might change.
         	toCal = shiftToCalendar(toCal, -1);
-        	ScheduleContext shiftedContext = context.move(
-        			DateUtils.oneMillisBefore(toCal.getTime()));
-        	toCal = toCalendar(shiftedContext.getDate(), context.getTimeZone());
         }
 	    
-	    return new IntervalTo(fromCal.getTime(), toCal.getTime());
+        return new SimpleInterval(fromCal.getTime(), toCal.getTime());
 	}
 	
+	/**
+	 * Shift the from Calendar by an interval. The subclass fromCalendar
+	 * is used to re-adjust the shifted calendar. This is needed
+	 * in at least these situations:
+	 * <ul>
+	 *  <li>A yearly schedule for the month of February that returned
+	 *  a toDate in the year before a leap year of the 28th would shift 
+	 *  to the 28th as the last day of February in the leap year without 
+	 *  re-adjustment.</li>
+	 *  <li>A last day of the month schedule that returned 28th in
+	 *  February would shift to the 28th of March without re-adjustment.
+	 *  </li>
+	 * <ul>
+	 * 
+	 * @param calendar
+	 * @param interval.
+	 * @return
+	 */
 	protected Calendar shiftFromCalendar(Calendar calendar, int intervals) {
-		return shiftCalendar(calendar, intervals);
+		calendar = shiftCalendar(calendar, intervals);
+		return fromCalendar(calendar.getTime(), calendar.getTimeZone());
 	}
 	
+	/**
+	 * Shift the to Calendar by an interval. The subclass toCalendar
+	 * is used to re-adjust the shifted calendar for the reasons given
+	 * in {@link #shiftFromCalendar(Calendar, int)}
+	 * 
+	 * @param calendar
+	 * @param intervals
+	 * @return
+	 */
 	protected Calendar shiftToCalendar(Calendar calendar, int intervals) {
-		return shiftCalendar(calendar, intervals);
+		calendar = shiftCalendar(calendar, intervals);
+		calendar.add(Calendar.MILLISECOND, -1);
+		return toCalendar(calendar.getTime(), calendar.getTimeZone());
 	}
 	
 	private Calendar shiftCalendar(Calendar calendar, int intervals) {
@@ -156,8 +176,8 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 		
 		ParentChildSchedule parentChild = 
 			new ParentChildSchedule(new Schedule() {
-				public IntervalTo nextDue(ScheduleContext context) {
-					return nextInterval(context);
+				public ScheduleResult nextDue(ScheduleContext context) {
+					return new SimpleScheduleResult(nextInterval(context));
 				}
 			}, getRefinement());
 		
@@ -174,8 +194,8 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 			
 			parentChild = 
 				new ParentChildSchedule(new Schedule() {
-					public IntervalTo nextDue(ScheduleContext context) {
-						return lastInterval(context);
+					public ScheduleResult nextDue(ScheduleContext context) {
+						return new SimpleScheduleResult(lastInterval(context));
 					}
 				}, getRefinement());
 			

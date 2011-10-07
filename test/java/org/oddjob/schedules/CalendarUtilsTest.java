@@ -325,4 +325,28 @@ public class CalendarUtilsTest extends TestCase {
 				DateHelper.parseDate("2011-07-01"),
 				result.getTime());		
 	}
+	
+	public void testStartOfDay() throws ParseException {
+		
+		CalendarUtils test = new CalendarUtils(
+				DateHelper.parseDateTime("2011-06-15 12:45"), 
+				TimeZone.getDefault());
+		
+		Calendar result = test.startOfDay();
+		
+		assertEquals(DateHelper.parseDateTime("2011-06-15 00:00"),
+				result.getTime());
+	}
+		
+	public void testEndOfDay() throws ParseException {
+		
+		CalendarUtils test = new CalendarUtils(
+				DateHelper.parseDateTime("2011-06-15 12:45"), 
+				TimeZone.getDefault());
+		
+		Calendar result = test.endOfDay();
+		
+		assertEquals(DateHelper.parseDateTime("2011-06-16 00:00"),
+				result.getTime());		
+	}
 }

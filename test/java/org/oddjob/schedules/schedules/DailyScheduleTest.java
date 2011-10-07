@@ -4,9 +4,7 @@
 package org.oddjob.schedules.schedules;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -186,7 +184,7 @@ public class DailyScheduleTest extends TestCase {
 		ScheduleContext context;
 		
 		// before.
-		on = DateHelper.parseDateTime("2005-06-21 2:56");
+		on = DateHelper.parseDateTime("2005-06-21 02:56");
 		context = new ScheduleContext(on);
 		
 		IntervalTo expected = new IntervalTo(
@@ -261,88 +259,6 @@ public class DailyScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
-	/**
-	 * How does a Calendar behave at daylight saving time?
-	 * change 02:00 to 01:00 and the test fails - but which is right?
-	 */
-	public void testCalendarAssuptions() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		Date sample = DateHelper.parseDateTime("2005-10-29 02:00");
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/London"));
-		cal.setTime(sample);
-		
-		cal.add(Calendar.DATE, 1);
-		
-		assertEquals(DateHelper.parseDateTime("2005-10-30 02:00"), cal.getTime());
-		
-		TimeZone.setDefault(null);
-	}
-	
-	public void testDayLightSavingChangeForward() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		DailySchedule s = new DailySchedule();
-		s.setAt("02:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		on = DateHelper.parseDateTime("2005-10-29 12:00");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-10-30 02:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		on = expected.getToDate();
-		context = new ScheduleContext(on);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-10-31 02:00"));
-		
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		TimeZone.setDefault(null);
-	}
-	
-	public void testDayLightSavingChangeBack() throws ParseException {
-		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
-		
-		DailySchedule s = new DailySchedule();
-		s.setAt("02:00");
-
-		Date on;
-		ScheduleContext context;
-		
-		on = DateHelper.parseDateTime("2005-03-26 12:00");
-		context = new ScheduleContext(on);
-		
-		IntervalTo expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-03-27 02:00"));
-
-		Interval result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		on = result.getToDate();
-		context = new ScheduleContext(on);
-		
-		expected = new IntervalTo(
-				DateHelper.parseDateTime("2005-03-28 02:00"));
-		
-		result = s.nextDue(context);
-		
-		assertEquals(expected, result);
-		
-		TimeZone.setDefault(null);
-	}
-	
 	public void testWithLimits() throws ParseException {
 		DailySchedule test = new DailySchedule();
 		test.setAt("12:00");
@@ -410,18 +326,19 @@ public class DailyScheduleTest extends TestCase {
 	}
 	
 	public void testWithInterval() throws Exception {
-		DailySchedule timeSchedule = new DailySchedule();
-		timeSchedule.setFrom("08:00");
-		timeSchedule.setTo("11:59");
+		
+		DailySchedule test = new DailySchedule();
+		test.setFrom("08:00");
+		test.setTo("11:59");
 		
 		IntervalSchedule intervalSchedule = new IntervalSchedule();
 		intervalSchedule.setInterval("00:15");
-		timeSchedule.setRefinement(intervalSchedule);
+		test.setRefinement(intervalSchedule);
 		
 		ScheduleContext context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 00:07"));
 		
-		Interval result = timeSchedule.nextDue(context);
+		Interval result = test.nextDue(context);
 		
 		logger.debug("result " + result);
 
@@ -431,7 +348,7 @@ public class DailyScheduleTest extends TestCase {
 		
 		assertEquals(expected, result);
 		
-		result = timeSchedule.nextDue(
+		result = test.nextDue(
 				context.move(result.getToDate()));
 		
 		expected = new IntervalTo(
@@ -445,7 +362,7 @@ public class DailyScheduleTest extends TestCase {
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 11:58"));
 		
-		result = timeSchedule.nextDue(context);
+		result = test.nextDue(context);
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-02-23 11:45"),
@@ -458,7 +375,7 @@ public class DailyScheduleTest extends TestCase {
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 11:59:05"));
 		
-		result = timeSchedule.nextDue(context);
+		result = test.nextDue(context);
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-02-23 11:45"),
@@ -471,7 +388,7 @@ public class DailyScheduleTest extends TestCase {
 		context = new ScheduleContext(
 				DateHelper.parseDateTime("2006-02-23 12:00:00"));
 		
-		result = timeSchedule.nextDue(context);
+		result = test.nextDue(context);
 		
 		expected = new IntervalTo(
 				DateHelper.parseDateTime("2006-02-24 08:00"),
@@ -524,6 +441,8 @@ public class DailyScheduleTest extends TestCase {
 
 	/**
 	 * Weird things happen with more than 24 hours in a day...
+	 * So we don't support this!!
+	 * 
 	 */
 	public void testTimeAfter24() throws ParseException {
 		

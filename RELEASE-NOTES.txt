@@ -56,6 +56,7 @@ Changes in 1.0.0
   State transitions are now predictable (seen release notes for version 0.30.0). 
 - Fixed problems in <state:cascade> that cause an exception when attempting
   to drag and drop children. 
+- Problems with scheduling around Daylight Saving Times have been fixed.
     
 Still to do for 1.0.0
 --------------------- 

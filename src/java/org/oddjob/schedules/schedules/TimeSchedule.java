@@ -8,7 +8,8 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobException;
-import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.arooa.utils.SpringSafeCalendar;
+import org.oddjob.arooa.utils.TimeParser;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.ConstrainedSchedule;
@@ -157,9 +158,11 @@ final public class TimeSchedule extends AbstractSchedule implements Serializable
 
 	static Date parseTime(String textField, Date referenceDate, 
 			TimeZone timeZone, String fieldName) {
-		String dateText = DateHelper.formatDate(referenceDate);
+		TimeParser timeFormatter = new TimeParser(
+				new SpringSafeCalendar(referenceDate, timeZone));		
 		try {
-			return DateHelper.parseDateTime(dateText + " " + textField, timeZone);
+			Date now = timeFormatter.parse(textField);
+			return now;
 		} catch (ParseException e) {
 			throw new OddjobException("Failed to parse " + fieldName
 					+ "[" + textField + "]");

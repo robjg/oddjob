@@ -25,7 +25,62 @@ public class CalendarUtils {
 		baseCalendar = Calendar.getInstance(timeZone);
 		baseCalendar.setTime(inDate);
 	}
+
+	/**
+	 * Constructor base on an existing calendar.
+	 * 
+	 * @param baseCalendar
+	 */
+	public CalendarUtils(Calendar baseCalendar) {
+		this(baseCalendar.getTime(), baseCalendar.getTimeZone());
+	}
+
+	/**
+	 * Return a new calendar with the base calendar time zone
+	 * but a different date.
+	 * 
+	 * @param date The date.
+	 * @return The new calendar.
+	 */
+	public Calendar forDate(Date date) {
+
+		Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
+		c2.setTime(date);
+
+		return c2;		
+	}
 	
+	/**
+	 * Calculate the start of day date time (i.e. at 00:00) for a given date.
+	 * 
+	 * @return The Calendar at the start of the day.
+	 */
+	public Calendar startOfDay() {
+		
+		Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
+		c2.clear();
+		c2.set(baseCalendar.get(Calendar.YEAR), 
+				baseCalendar.get(Calendar.MONTH),
+				baseCalendar.get(Calendar.DATE));
+
+		return c2;		
+	}
+		
+	/**
+	 * Calculate start of the day after.
+	 * 
+	 * @return The Calendar at the start of the next day.
+	 */
+	public Calendar endOfDay() {
+		
+		Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
+		c2.clear();
+		c2.set(baseCalendar.get(Calendar.YEAR), 
+				baseCalendar.get(Calendar.MONTH),
+				baseCalendar.get(Calendar.DATE) + 1);
+
+		return c2;		
+	}
 	
 	/**
 	 * Set the calendar to the end of day.
