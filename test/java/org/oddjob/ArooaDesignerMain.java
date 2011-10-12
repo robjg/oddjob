@@ -1,7 +1,5 @@
 package org.oddjob;
 
-import java.io.File;
-
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -24,8 +22,6 @@ public class ArooaDesignerMain {
 						descriptor);
 		
 		designer.setArooaSession(session);		
-		designer.setFile(
-				new File("c:/rob/projects/ojobs/oddjobbuild.xml"));
 				
 		designer.setDocumentElement(new ArooaElement("oddjob"));
 		designer.setArooaType(ArooaType.COMPONENT);

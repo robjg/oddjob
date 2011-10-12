@@ -3,6 +3,7 @@ package org.oddjob.jmx.handlers;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanNotificationInfo;
@@ -49,17 +50,17 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 public class ComponentOwnerHandlerFactory 
 implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 	
 	public static final String MODIFIED_NOTIF_TYPE = "oddjob.config.modified";
 	
 	public static final String CHANGE_NOTIF_TYPE = "oddjob.config.changed";
 	
-	private static final JMXOperationPlus<Boolean> SESSION_AVAILABLE = 
-		new JMXOperationPlus<Boolean>(
+	private static final JMXOperationPlus<Integer> SESSION_AVAILABLE = 
+		new JMXOperationPlus<Integer>(
 				"ConfigurationOwner.sessionAvailable",
 				"",
-				Boolean.TYPE,
+				Integer.class,
 				MBeanOperationInfo.INFO
 			);
 	
@@ -180,6 +181,9 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		}
 	}
 	
+	/**
+	 *  The Client {@link ConfigurationOwner}
+	 */
 	static class ClientCompontOwnerHandler implements ConfigurationOwner {
 
 		private final ClientSideToolkit clientToolkit;
@@ -190,10 +194,12 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final ArooaElement rootElement;
 		
+		private volatile boolean listening;
+		
 		private final NotificationListener listener = new NotificationListener() {
 			public void handleNotification(Notification notification,
 					Object handback) {
-				updateSession();
+				updateSession((ConfigOwnerEvent.Change) notification.getUserData());
 			};
 		};
 		
@@ -201,15 +207,20 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			this.clientToolkit = toolkit;
 			
 			ownerSupport = new ConfigurationOwnerSupport(proxy);
-			updateSession();
+			updateSession(null);
+			
 			ownerSupport.setOnFirst(new Runnable() {
 				public void run() {
+					updateSession(null);
 					toolkit.registerNotificationListener(
 							CHANGE_NOTIF_TYPE, listener);
+					listening = true;
 				}
 			});
+			
 			ownerSupport.setOnEmpty(new Runnable() {
 				public void run() {
+					listening = false;
 					toolkit.removeNotificationListener(
 							CHANGE_NOTIF_TYPE, listener);
 				}
@@ -226,21 +237,52 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		}
 		
 		public ConfigurationSession provideConfigurationSession() {
+			if (!listening) {
+				updateSession(null);
+			}
 			return ownerSupport.provideConfigurationSession();
 		}
 		
-		private void updateSession() {
-			try {
-				if (clientToolkit.invoke(
-								SESSION_AVAILABLE)) {
-					ownerSupport.setConfigurationSession(
-							new ClientConfigurationSessionHandler(clientToolkit));
+		/**
+		 * Lots of complicated logic to see if the server 
+		 * configuration session has changed.
+		 * 
+		 * @param change
+		 */
+		private void updateSession(ConfigOwnerEvent.Change change) {
+			if (change == null || 
+					change == ConfigOwnerEvent.Change.SESSION_CREATED) {
+					
+				Integer newId = null;
+				try {						
+					newId = clientToolkit.invoke(SESSION_AVAILABLE);
 				}
-				else {
+				catch (InstanceNotFoundException e) {
+					// Server Object no longer with us.
+					newId = null;
+				} 
+				catch (Throwable e) {
+					throw new UndeclaredThrowableException(e);
+				}
+					
+				if (newId == null) {
 					ownerSupport.setConfigurationSession(null);
 				}
-			} catch (Throwable e) {
-				throw new UndeclaredThrowableException(e);
+				else {
+					ClientConfigurationSessionHandler existing = 
+						(ClientConfigurationSessionHandler)
+						ownerSupport.provideConfigurationSession();
+					
+					if (existing == null || existing.id != newId.intValue()) {
+						ownerSupport.setConfigurationSession(null);
+						ownerSupport.setConfigurationSession(
+								new ClientConfigurationSessionHandler(
+										clientToolkit, newId.intValue()));
+					}
+				}
+			}
+			else {
+				ownerSupport.setConfigurationSession(null);
 			}
 		}
 
@@ -263,12 +305,17 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		}
 	}
 	
+	/**
+	 * The client {@link ConfigurationSession}.
+	 */
 	static class ClientConfigurationSessionHandler 
 	implements ConfigurationSession {
 		
 		private final ClientSideToolkit clientToolkit;
 		
 		private final ConfigurationSessionSupport sessionSupport;
+		
+		private final int id;
 		
 		private final NotificationListener listener =
 			new NotificationListener() {
@@ -283,7 +330,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				}
 			};
 		
-		public ClientConfigurationSessionHandler(final ClientSideToolkit clientToolkit) {
+		public ClientConfigurationSessionHandler(final ClientSideToolkit clientToolkit, 
+				int id) {
+			
+			this.id = id;
 			this.clientToolkit = clientToolkit;
 			sessionSupport = new ConfigurationSessionSupport(this);
 			sessionSupport.setOnFirst(new Runnable() {
@@ -482,7 +532,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		private final OwnerStateListener configurationListener 
 				= new OwnerStateListener() {
 
-			public void sessionChanged(ConfigOwnerEvent event) {
+			public void sessionChanged(final ConfigOwnerEvent event) {
 				ConfigurationSession session = configurationOwner.provideConfigurationSession();
 				if (session != null) {
 					session.addSessionStateListener(modifiedListener);
@@ -492,6 +542,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					public void run() {
 						Notification notification = 
 							toolkit.createNotification(CHANGE_NOTIF_TYPE);
+						notification.setUserData(event.getChange());
 						toolkit.sendNotification(notification);					
 					}
 				});
@@ -518,7 +569,12 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 			
 			if (SESSION_AVAILABLE.equals(operation)) {
-				return (configSession != null);
+				if (configSession == null) {
+					return null;
+				}
+				else {
+					return new Integer(System.identityHashCode(configSession));
+				}
 			}
 			
 			if (configSession == null) {

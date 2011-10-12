@@ -6,9 +6,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Helper;
+import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
 
 public class ForEachWindowsTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ForEachWindowsTest.class);
@@ -121,5 +123,24 @@ public class ForEachWindowsTest extends TestCase {
     	assertEquals(3, children.length);
     	
     	test.destroy();
+	}
+	
+	public void testForEachWithExecutionWindowExample() {
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/jobs/structural/ForEachExecutionWindow.xml",
+    			getClass().getClassLoader()));
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+    	
+    	Object[] children = Helper.getChildren(Helper.getChildren(oddjob)[0]);
+
+    	assertEquals(3, children.length);
+    	    	
+    	oddjob.destroy();
+    	
 	}
 }

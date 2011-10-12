@@ -59,12 +59,15 @@ Changes in 1.0.0
 - Problems with scheduling around Daylight Saving Times have been fixed.
 - Changed Echo text property to be XML text rather than an attribute to allow
   multiline echos in one echo job.
-    
+- Explorer and Designer have been tidied up. Shortcut keys now work.
+  Escape and Ctrl-Enter accelerator keys have been added to dialogs. Node
+  selection is more intelligent after a selected node is removed or modified.
+  The root node is automatically in focus when the job tree is loaded.
+      
 Still to do for 1.0.0
 --------------------- 
-- Improve Designer. Sizing should be more intelligent. Shortcut keys need to work.
-  Maybe allow the designer form not to be Modal. Tabs and focus need to be improved
-  to ease navigation.
+- Look at if Services should have a COMPLETE and INCOMPLETE state or if
+  they should just return to READY when stopped.
  
 Deferred to A Later Version
 ---------------------------

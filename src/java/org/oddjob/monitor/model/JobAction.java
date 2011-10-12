@@ -121,13 +121,17 @@ abstract public class JobAction implements ExplorerAction {
 	
 	abstract protected void doAction() throws Exception;
 	
-	@Override
-	public final void action() throws Exception {
+	protected final boolean checkPrepare() {
 		if (!prepared) {
 			doPrepare(explorerContext);
 			prepared = true;
 		}
-		if (enabled) {
+		return enabled;
+	}
+	
+	@Override
+	public final void action() throws Exception {
+		if (checkPrepare()) {
 			doAction();
 		}
 	}	

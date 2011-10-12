@@ -244,8 +244,10 @@ implements Iconic, Stateful,
 	/**
 	 * When running a job embedded in code, it may be necessary
 	 * to call this method to initialise the job.
+	 * 
+	 * @throws JobDestroyedException 
 	 */
-	public void initialise() {
+	public void initialise() throws JobDestroyedException {
 		stateHandler().assertAlive();
 		onInitialised();
 		onConfigured();
@@ -254,8 +256,10 @@ implements Iconic, Stateful,
 	/**
 	 * When running a job embedded in code, this method should always
 	 * be called to clear up resources.
+	 * 
+	 * @throws JobDestroyedException 
 	 */
-	public void destroy() { 
+	public void destroy() throws JobDestroyedException { 
 		stateHandler().assertAlive();
 		onDestroy();
 		fireDestroyedState();

@@ -57,6 +57,7 @@ import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.IsStoppable;
@@ -102,10 +103,21 @@ import org.oddjob.state.WorstStateOp;
  * 
  * Unlike other jobs, a job in a for each has it's name configured when it is 
  * loaded, before it is run. The job references its self using its id.
+ * <p>
+ * This example will display the following on the console:
+ * <pre>
+ * I'm number 0 and my name is Red
+ * I'm number 1 and my name is Blue
+ * I'm number 2 and my name is Green
+ * </pre>
  * 
  * @oddjob.example
  * 
- * For each of 3 files.
+ * For each of 3 files. The 3 files <code>test1.txt</code>, 
+ * <code>test2.txt</code> and <code>test3.txt</code> are 
+ * copied to the <code>work/foreach directory</code>. The oddjob argument 
+ * <code>${this.args[0]}</code> is so that a base directory can be passed
+ * in as part of the unit test for this example.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachFilesExample.xml}
  * 
@@ -113,9 +125,19 @@ import org.oddjob.state.WorstStateOp;
  * 
  * @oddjob.example
  * 
- * Executing children in parallel.
+ * Executing children in parallel. This example uses a 
+ * {@link ExecutorThrottleType} to limit the number of parallel 
+ * executions to three.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachParallelExample.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Using an execution window. Only the configuration for two jobs will be 
+ * pre-loaded, and only the last three complete jobs will remain loaded.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachExecutionWindow.xml}
+ * 
  */
 public class ForEachJob extends StructuralJob<Runnable>
 implements Stoppable, Loadable, ConfigurationOwner {
@@ -140,6 +162,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
      * @oddjob.description The number of values to pre-load configurations for. 
      * This property can be used with large sets of values to ensure that only a 
      * certain number are pre-loaded before execution starts.
+     * <p>This property won't work correctly when parallel is true.
      * @oddjob.required No. Defaults to all configurations being loaded first.
      */
 	private int preLoad;
@@ -149,6 +172,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
      * @oddjob.description The number of completed jobs to keep. Oddjob configurations
      * can be quite memory intensive, mainly due to logging, purging complete jobs
      * will stop too much memory being taken. 
+     * <p>This property won't work correctly when parallel is true.
  	 *
      * @oddjob.required No. Defaults to no complete jobs being purged.
      */
@@ -717,6 +741,8 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			return;
 		}
 		
+		configurationOwnerSupport.setConfigurationSession(null);
+		
 		try {
 			childHelper.stopChildren();
 		} catch (FailedToStopException e) {
@@ -736,7 +762,6 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		this.stop = false;
 		this.jobThreads = null;
 		
-		configurationOwnerSupport.setConfigurationSession(null);		
 	}
 
 	@Override

@@ -36,7 +36,8 @@ implements ActionContributor, SelectedContextAware {
 		this.actions = actions;
 		this.swingActions = new JobSwingAction[actions.length];
 		for (int i = 0; i < actions.length; ++i) {
-			this.swingActions[i] = new JobSwingAction(actions[i]);
+			this.swingActions[i] = new JobSwingAction(
+					actions[i]);
 		}		
 	}
 

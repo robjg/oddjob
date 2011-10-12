@@ -11,7 +11,7 @@ import javax.swing.KeyStroke;
 /**
  *  
  */
-public class Standards {
+public class Standards extends org.oddjob.arooa.design.view.Standards {
 
 	// file actions 
 	public static final Integer NEW_MNEMONIC_KEY = new Integer(KeyEvent.VK_N);
@@ -32,9 +32,6 @@ public class Standards {
 	public static final Integer SAVEAS_MNEMONIC_KEY = new Integer(KeyEvent.VK_A);
 	public static final KeyStroke SAVEAS_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.CTRL_MASK);
 	
-	public static final Integer EXPLORER_MNEMONIC_KEY = new Integer(KeyEvent.VK_E);
-	public static final KeyStroke EXPLORER_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK);
-	
 	// explorer job actions
 	public static final Integer RUN_MNEMONIC_KEY = new Integer(KeyEvent.VK_R);
 	public static final KeyStroke RUN_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK);
@@ -54,20 +51,16 @@ public class Standards {
 	public static final Integer LOAD_MNEMONIC_KEY = new Integer(KeyEvent.VK_L);  
 	public static final KeyStroke LOAD_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK);
 
-	public static final Integer UNLOAD_MNEMONIC_KEY = new Integer(KeyEvent.VK_D);  
+	public static final Integer UNLOAD_MNEMONIC_KEY = new Integer(KeyEvent.VK_U);  
 	public static final KeyStroke UNLOAD_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK);
 	
-	public static final Integer DESIGNER_MNEMONIC_KEY = new Integer(KeyEvent.VK_G);
+	public static final Integer DESIGNER_MNEMONIC_KEY = new Integer(KeyEvent.VK_D);
+	public static final KeyStroke DESIGNER_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK);
+	
+	public static final Integer DESIGN_INSIDE_MNEMONIC_KEY = new Integer(KeyEvent.VK_I);
+	public static final KeyStroke DESIGNER_INSIDE_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK);
 	
 	public static final Integer ADD_JOB_MNEMONIC_KEY = new Integer(KeyEvent.VK_B);
 	public static final KeyStroke ADD_JOB_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK);
-	
-	
-	// designer component actions
-	public static final Integer VIEW_XML_MNEMONIC_KEY = new Integer(KeyEvent.VK_X);
-	public static final KeyStroke VIEW_XML_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK);
-
-	public static final Integer VIEW_COMP_MNEMONIC_KEY = new Integer(KeyEvent.VK_C);
-	public static final KeyStroke VIEW_COMP_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK);
-	
+		
 }

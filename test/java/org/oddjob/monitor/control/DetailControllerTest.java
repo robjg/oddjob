@@ -71,7 +71,7 @@ public class DetailControllerTest extends TestCase {
 		JobTreeNode root = new JobTreeNode(explorerModel, model);
 		model.setRootTreeNode(root);
 		
-		JTree tree = new JTree(model);
+		final JTree tree = new JTree(model);
 		tree.setShowsRootHandles(true);
 
 		DetailModel detailModel = new DetailModel();
@@ -85,8 +85,12 @@ public class DetailControllerTest extends TestCase {
 		assertNull(detailModel.getSelectedJob());
 		assertEquals(false, tree.isExpanded(0));
 		
-		tree.expandRow(0);
-		tree.setSelectionRow(1);
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				tree.expandRow(0);
+				tree.setSelectionRow(1);
+			}
+		});
 		
 		Object x = detailModel.getSelectedJob();
 		assertNotNull(x);
@@ -106,6 +110,12 @@ public class DetailControllerTest extends TestCase {
 					trn.rollback();
 					er.set(e);
 				}
+			}
+		});
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				// Wait for queue to drain.
 			}
 		});
 		

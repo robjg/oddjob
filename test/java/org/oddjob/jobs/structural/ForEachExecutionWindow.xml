@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <foreach preLoad="2" purgeAfter="3">
+            <values>
+                <tokenizer text="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15"/>
+            </values>
+            <configuration>
+                <xml>
+                    <foreach id="loop">
+                        <job>
+                            <wait name="Wait ${loop.current} " pause="1"/>
+                        </job>
+                    </foreach>
+                </xml>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

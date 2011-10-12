@@ -531,7 +531,6 @@ public class ForEachJobTest extends TestCase {
     	
     	OurDirs dirs = new OurDirs();
     	
-    	File fromDir = dirs.relative("test/io/reference");
     	File toDir = dirs.relative("work/foreach");
     	
     	if (toDir.exists()) {
@@ -544,7 +543,7 @@ public class ForEachJobTest extends TestCase {
     			"org/oddjob/jobs/structural/ForEachFilesExample.xml",
     			getClass().getClassLoader()));
     	
-    	oddjob.setArgs(new String[] {fromDir.toString(), toDir.toString() });
+    	oddjob.setArgs(new String[] { dirs.base().getPath() });
     	
     	oddjob.run();
     	

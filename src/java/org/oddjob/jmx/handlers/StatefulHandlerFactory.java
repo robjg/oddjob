@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.management.InstanceNotFoundException;
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanNotificationInfo;
@@ -19,6 +20,7 @@ import javax.management.NotificationListener;
 import javax.management.ReflectionException;
 
 import org.oddjob.Stateful;
+import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
@@ -76,7 +78,11 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	public ServerInterfaceHandler createServerHandler(Stateful stateful, 
 			ServerSideToolkit ojmb) {
 		ServerStateHandler stateHelper = new ServerStateHandler(stateful, ojmb);
-		stateful.addStateListener(stateHelper);
+		try {
+			stateful.addStateListener(stateHelper);
+		} catch (JobDestroyedException e) {
+			stateHelper.jobStateChange(stateful.lastStateEvent());
+		}
 		return stateHelper;
 	}
 
@@ -156,7 +162,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		 * 
 		 * @param listener The job state listener.
 		 */
-		public void addStateListener(StateListener listener) {	
+		public void addStateListener(StateListener listener) throws JobDestroyedException {	
 			synchronized (this) {
 				if (synchronizer == null) {
 					
@@ -174,11 +180,19 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 					Notification[] lastNotifications = null;
 					try {
 						lastNotifications = (Notification[]) toolkit.invoke(SYNCHRONIZE);
-					} catch (Throwable e) {
+					}
+					catch (InstanceNotFoundException e) {
+						throw new JobDestroyedException(owner);
+					}
+					catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
 					
 					synchronizer.synchronize(lastNotifications);
+				}
+				
+				if (lastEvent.getState().isDestroyed()) {
+					throw new JobDestroyedException(owner);
 				}
 				
 				StateEvent nowEvent = lastEvent;
@@ -254,10 +268,6 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			throw new ReflectionException(
 					new IllegalStateException("invoked for an unknown method."), 
 							operation.toString());
-		}
-		
-		public Notification[] getLastNotifications() {
-			return null;
 		}
 		
 		public void destroy() {

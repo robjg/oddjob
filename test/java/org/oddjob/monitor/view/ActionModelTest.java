@@ -24,6 +24,7 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.MockConfigurationOwner;
 import org.oddjob.arooa.parsing.MockConfigurationSession;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
+import org.oddjob.monitor.actions.ExplorerAction;
 import org.oddjob.monitor.actions.ResourceActionProvider;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextInialiser;
@@ -106,10 +107,12 @@ public class ActionModelTest extends TestCase {
 		OurExplorerContext econ = new OurExplorerContext();
 		econ.thisComponent = object;
 		
+		ExplorerAction[] actions = new ResourceActionProvider(
+				new OddjobSessionFactory(
+				).createSession()).getExplorerActions(); 
+		
 		final ExplorerJobActions test = new ExplorerJobActions(
-				new ResourceActionProvider(
-						new OddjobSessionFactory(
-								).createSession()).getExplorerActions());
+				actions);
 		
 		ConfigurableMenus menus = new ConfigurableMenus();
 		
@@ -207,10 +210,12 @@ public class ActionModelTest extends TestCase {
 		RootContext econ = new RootContext();
 		econ.thisComponent = oj;
 
+		ExplorerAction[] actions = new ResourceActionProvider(
+				new OddjobSessionFactory(
+				).createSession()).getExplorerActions(); 
+		
 		final ExplorerJobActions test = new ExplorerJobActions(
-				new ResourceActionProvider(
-						new OddjobSessionFactory(
-								).createSession()).getExplorerActions());
+				actions);
 
 		ConfigurableMenus menus = new ConfigurableMenus();
 		

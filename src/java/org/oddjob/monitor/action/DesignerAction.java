@@ -20,13 +20,13 @@ import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
-import org.oddjob.monitor.model.JobAction;
+import org.oddjob.monitor.model.JobFormAction;
 
 /**
  * The action that corresponds to the Oddjob Designer action.
  *
  */
-public class DesignerAction extends JobAction implements FormAction {
+public class DesignerAction extends JobFormAction implements FormAction {
 	private static final long serialVersionUID = 2008120400;
 	
 	private ArooaConfiguration config;
@@ -48,7 +48,7 @@ public class DesignerAction extends JobAction implements FormAction {
 	}
 	
 	public KeyStroke getAcceleratorKey() {
-		return null;
+		return Standards.DESIGNER_ACCELERATOR_KEY;
 	}
 	
 	@Override
@@ -93,7 +93,8 @@ public class DesignerAction extends JobAction implements FormAction {
 		configHandle.save();
 	}
 	
-	public Form form() {
+	@Override	
+	protected Form doForm() {
 		
 		ArooaSession session = new StandardArooaSession(descriptor);
 		

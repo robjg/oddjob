@@ -204,6 +204,14 @@ public class OddjobExplorerTest extends XMLTestCase {
 				}
 			}
 		});
+
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Wait for event queue to drain.
+				
+			}
+		});
 		
 		if (er.get() != null) {
 			throw er.get();

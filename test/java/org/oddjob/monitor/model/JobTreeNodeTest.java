@@ -1,12 +1,12 @@
 package org.oddjob.monitor.model;
 
+import junit.framework.TestCase;
+
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
-
-import junit.framework.TestCase;
 
 public class JobTreeNodeTest extends TestCase {
 
@@ -47,7 +47,13 @@ public class JobTreeNodeTest extends TestCase {
 		OurModel explorerModel = new OurModel();
 		explorerModel.oddjob = oddjob;
 		
-		JobTreeModel treeModel = new JobTreeModel();
+		JobTreeModel treeModel = new JobTreeModel(new BaseTreeEventDispatcher() {
+			
+			@Override
+			protected void dispatch(Runnable runnable) {
+				runnable.run();
+			}
+		});
 		
 		JobTreeNode test = new JobTreeNode(
 				explorerModel, treeModel);

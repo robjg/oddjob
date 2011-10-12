@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeNode;
 
 import org.oddjob.Iconic;
@@ -58,38 +59,26 @@ public class JobTreeNode
 		 *  (non-Javadoc)
 		 * @see org.oddjob.structural.StructuralListener#childAdded(org.oddjob.structural.StructuralEvent)
 		 */
-		public void childAdded(StructuralEvent e) {
+		public void childAdded(final StructuralEvent e) {
 
-			int index = e.getIndex();
-			JobTreeNode child = new JobTreeNode(JobTreeNode.this, e.getChild());
-
-			// If this node is visible, then this must be the result of a
-			// external insert (paste), so our child will be visible to.
-			if (visible) {
-				child.setVisible(true);
-			}
-			
-			synchronized (nodeList) {
-				nodeList.add(index, child);
-			}
-
-			model.fireTreeNodesInserted(JobTreeNode.this, child, index);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					addChild(e.getIndex(), e.getChild());
+				}
+			});
 		}
 		
 		/*
 		 *  (non-Javadoc)
 		 * @see org.oddjob.structural.StructuralListener#childRemoved(org.oddjob.structural.StructuralEvent)
 		 */
-		public void childRemoved(StructuralEvent e) {
+		public void childRemoved(final StructuralEvent e) {
 			
-			int index = e.getIndex();
-			JobTreeNode child = null;
-			synchronized (nodeList) {
-				child = nodeList.remove(index);
-			}
-			child.destroy();
-
-			model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					removeChild(e.getIndex());
+				}
+			});
 		}
 
 	};
@@ -141,6 +130,28 @@ public class JobTreeNode
 		this.visible = visible;
 	}
 
+	public void addChild(int index, Object childJob) {
+		JobTreeNode childNode = new JobTreeNode(this, childJob);
+
+		// If this node is visible, then this must be the result of a
+		// external insert (paste), so our child will be visible to.
+		if (visible) {
+			childNode.setVisible(true);
+		}
+		
+		nodeList.add(index, childNode);
+
+		model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);		
+	}
+	
+	public void removeChild(int index) {
+		
+		JobTreeNode child = nodeList.remove(index);
+		child.destroy();
+
+		model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
+	}
+	
 	public boolean isVisible() {
 		return visible;
 	}
@@ -149,7 +160,12 @@ public class JobTreeNode
 	    synchronized (this) {
 	        this.iconTip = iconTip;
 	    }
-		model.fireTreeNodesChanged(this);
+	    SwingUtilities.invokeLater(new Runnable() {			
+			@Override
+			public void run() {
+				model.fireTreeNodesChanged(JobTreeNode.this);
+			}
+		});
 	}
 	
 	public Object getComponent() {

@@ -17,9 +17,10 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.monitor.model.JobAction;
+import org.oddjob.monitor.model.JobFormAction;
 
 /**
  * The action that Designs the inside of a 
@@ -27,7 +28,7 @@ import org.oddjob.monitor.model.JobAction;
  *
  * @author rob
  */
-public class DesignInsideAction extends JobAction implements FormAction {
+public class DesignInsideAction extends JobFormAction implements FormAction {
 	private static final long serialVersionUID = 2008120400;
 	
 	private ArooaConfiguration config;
@@ -45,11 +46,11 @@ public class DesignInsideAction extends JobAction implements FormAction {
 	}
 	
 	public Integer getMnemonicKey() {
-		return null;
+		return Standards.DESIGN_INSIDE_MNEMONIC_KEY;
 	}
 	
 	public KeyStroke getAcceleratorKey() {
-		return null;
+		return Standards.DESIGNER_INSIDE_ACCELERATOR_KEY;
 	}
 
 	@Override
@@ -109,7 +110,8 @@ public class DesignInsideAction extends JobAction implements FormAction {
 		configHandle.save();
 	}
 	
-	public Form form() {
+	@Override
+	protected Form doForm() {
 		
 		try {
 			configHandle = parser.parse(config);			

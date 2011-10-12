@@ -3,6 +3,7 @@ package org.oddjob.state;
 import java.util.Date;
 
 import org.oddjob.Stateful;
+import org.oddjob.framework.JobDestroyedException;
 
 /**
  * Pass on state. Generally used to reflect the state of children.
@@ -45,7 +46,7 @@ public class StateExchange {
 		this.recipient = recipient;
 	}
 	
-	public void start() {
+	public void start() throws JobDestroyedException {
 		synchronized (this) {
 			if (running) {
 				return;

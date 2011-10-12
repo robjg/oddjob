@@ -110,7 +110,7 @@ implements Stateful, StateLock {
 	 * (non-Javadoc)
 	 * @see org.oddjob.state.StateChanger#setJobState(org.oddjob.state.JobState, java.util.Date)
 	 */
-	public void setState(S state, Date date) {
+	public void setState(S state, Date date) throws JobDestroyedException {
 		setLastJobStateEvent(new StateEvent(source, state, date, null));
 	}
 	
@@ -118,7 +118,7 @@ implements Stateful, StateLock {
 	 * (non-Javadoc)
 	 * @see org.oddjob.state.StateChanger#setJobState(org.oddjob.state.JobState)
 	 */
-	public void setState(S state) {
+	public void setState(S state) throws JobDestroyedException {
 		setLastJobStateEvent(new StateEvent(source, state, null));
 	}
 	
@@ -126,7 +126,7 @@ implements Stateful, StateLock {
 	 * (non-Javadoc)
 	 * @see org.oddjob.state.StateChanger#setJobStateException(java.lang.Throwable, java.util.Date)
 	 */
-	public void setStateException(S state, Throwable t, Date date) {
+	public void setStateException(S state, Throwable t, Date date) throws JobDestroyedException {
 		setLastJobStateEvent(
 				new StateEvent(source, state, date, t));
 	}
@@ -135,11 +135,11 @@ implements Stateful, StateLock {
 	 * (non-Javadoc)
 	 * @see org.oddjob.state.StateChanger#setJobStateException(java.lang.Throwable)
 	 */
-	public void setStateException(State state, Throwable ex) {
+	public void setStateException(State state, Throwable ex) throws JobDestroyedException {
 		setLastJobStateEvent(new StateEvent(source, state, ex));
 	}	
 
-	private void setLastJobStateEvent(StateEvent event) {
+	private void setLastJobStateEvent(StateEvent event) throws JobDestroyedException {
 		assertAlive();
 		assertLockHeld();
 		
@@ -259,8 +259,9 @@ implements Stateful, StateLock {
 	 * notification twice. 
 	 * 
 	 * @param listener The listener.
+	 * @throws JobDestroyedException 
 	 */			
-	public void addStateListener(final StateListener listener) {
+	public void addStateListener(final StateListener listener) throws JobDestroyedException {
 		assertAlive();
 		
 		waitToWhen(new IsAnyState(), new Runnable() {

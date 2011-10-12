@@ -30,7 +30,7 @@ import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
-import org.oddjob.monitor.model.JobAction;
+import org.oddjob.monitor.model.JobFormAction;
 
 /**
  * An action that sets a property on a job.
@@ -38,7 +38,7 @@ import org.oddjob.monitor.model.JobAction;
  * @author Rob Gordon 
  */
 
-public class SetPropertyAction extends JobAction implements FormAction {
+public class SetPropertyAction extends JobFormAction implements FormAction {
 	private static final Logger logger = Logger.getLogger(SetPropertyAction.class);
 	
 	/** The job */
@@ -109,7 +109,8 @@ public class SetPropertyAction extends JobAction implements FormAction {
 	protected void doFree(ExplorerContext explorerContext) {
 	}
 	
-	public Form form() {
+	@Override
+	public Form doForm() {
 		return propertyForm.detail(); 
 	}
 

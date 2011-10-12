@@ -9,6 +9,7 @@ import java.beans.PropertyChangeSupport;
 import java.util.Observable;
 
 import org.oddjob.Stateful;
+import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.PropertyChangeNotifier;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
@@ -113,7 +114,13 @@ public class DetailModel implements PropertyChangeNotifier {
 		this.tabSelected = tabSelected;
 		
 		if (selectedContext != null) {
-			engageTab(tabSelected);
+			try {
+				engageTab(tabSelected);
+			} catch (JobDestroyedException e) {
+				// This is highly unlikely. An can only be caused if a user clicks a tab 
+				// of a destroyed job before the job tree has caught up with structural
+				// changes.
+			}
 		}
 		
 		propertySupport.firePropertyChange(event);
@@ -161,7 +168,7 @@ public class DetailModel implements PropertyChangeNotifier {
 		}
 	}
 	
-	private void engageTab(int index) {
+	private void engageTab(int index) throws JobDestroyedException {
 		
 		Object selectedJob = selectedContext.getThisComponent();
 		
@@ -200,14 +207,22 @@ public class DetailModel implements PropertyChangeNotifier {
 			freeTab(tabSelected);
 		}
 		
-		PropertyChangeEvent event = new PropertyChangeEvent(
-				this, SELECTED_CONTEXT_PROPERTY, selectedContext, newContext);
+		ExplorerContext oldContext = selectedContext;
 		
 		selectedContext = newContext;
 		
 		if (selectedContext != null) {
-			engageTab(tabSelected);
+			try {
+				engageTab(tabSelected);
+			} catch (JobDestroyedException e) {
+				// Caused when the window event thread is behind
+				// The structural changes.
+				selectedContext = null;
+			}			
 		}
+		
+		PropertyChangeEvent event = new PropertyChangeEvent(
+				this, SELECTED_CONTEXT_PROPERTY, oldContext, selectedContext);
 		
 		propertySupport.firePropertyChange(event);
 	}

@@ -630,7 +630,7 @@ implements Stoppable {
 			    JTree tree = explorerComponent.getTree();
 			    tree.addTreeSelectionListener(new ChangeFocus());
 			    tree.getModel().addTreeModelListener(new TrackConfigurationOwners());
-			    
+			    			    
 				frame.getContentPane().add(explorerComponent);
 //				frame.pack();
 				

@@ -1,17 +1,16 @@
 package org.oddjob.monitor.view;
 
 import java.awt.BorderLayout;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.DropMode;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.ToolTipManager;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -19,6 +18,8 @@ import org.oddjob.arooa.design.designer.ArooaTransferHandler;
 import org.oddjob.arooa.design.designer.ArooaTree;
 import org.oddjob.arooa.design.designer.TransferEvent;
 import org.oddjob.arooa.design.designer.TransferEventListener;
+import org.oddjob.arooa.design.view.TreeChangeFollower;
+import org.oddjob.arooa.design.view.TreePopup;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.monitor.control.DetailController;
 import org.oddjob.monitor.control.NodeControl;
@@ -51,6 +52,9 @@ public class ExplorerComponent extends JPanel {
 	private final PropertyPolling propertyPolling;
 	
 	private final JSplitPane split;
+	
+	private final TreeChangeFollower treeChangeFollower;
+
 	/**
 	 * Constructor. Create the main Explorer Component.
 	 * 
@@ -101,14 +105,36 @@ public class ExplorerComponent extends JPanel {
 			(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
 		tree.addTreeSelectionListener(detailControl);
-		tree.addMouseListener(new PopupListener());
-
+		
 		tree.setCellRenderer(new JobTreeCellRenderer());
 		ToolTipManager.sharedInstance().registerComponent(tree);
 		
 		tree.setDragEnabled(true);		
 		tree.setDropMode(DropMode.ON_OR_INSERT);
+
+		treeChangeFollower = new TreeChangeFollower(tree);
+		
+		tree.addAncestorListener(new AncestorListener() {
+			
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+				tree.removeAncestorListener(this);
+			}
+			
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+			}
+			
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
 				
+				// This must happen after the bindTo method has been called.
+				tree.setSelectionPath(new TreePath(tree.getModel().getRoot()));
+				
+				tree.requestFocusInWindow();
+			}
+		});
+		
 		ArooaTransferHandler transferHandler = new ArooaTransferHandler();
 		transferHandler.addTransferEventListener(new TransferEventListener() {			
 			public void transferException(TransferEvent event, String message, Exception exception) {
@@ -129,7 +155,6 @@ public class ExplorerComponent extends JPanel {
 		
 		setLayout(new BorderLayout());
 		treeScroll = new JScrollPane();
-//		treeScroll.setPreferredSize(new Dimension(200, 350));
 		
 		treeScroll.setViewportView(tree);
 
@@ -137,6 +162,7 @@ public class ExplorerComponent extends JPanel {
 			treeScroll, detailView);
 		
 		add(split);
+		
 	}
 	
 	/**
@@ -156,6 +182,8 @@ public class ExplorerComponent extends JPanel {
 		menuBar.setSession(jobActions, detailModel);
 		
 		jobActions.addKeyStrokes(this);
+		
+		new TreePopup(tree, menuBar);
 	}
 
 	/**
@@ -165,38 +193,11 @@ public class ExplorerComponent extends JPanel {
 	public void destroy() {
 		detailModel.removePropertyChangeListener(
 				propertyPolling);
+		treeChangeFollower.close();
 	}
 	
 	public void balance() {
 		split.setDividerLocation((int) (0.33 * split.getPreferredSize().getWidth()));
-	}
-	
-	/**
-	 * Listen to mouse events to trigger the popup.
-	 *
-	 */
-	class PopupListener extends MouseAdapter {
-		public void mousePressed(MouseEvent e) {
-			maybeShowPopup(e);
-		}
-		public void mouseClicked(MouseEvent e) {
-			maybeShowPopup(e);
-		}
-		public void mouseReleased(MouseEvent e) {
-			maybeShowPopup(e);
-		}
-		
-		private void maybeShowPopup(MouseEvent e) {
-			if (!e.isPopupTrigger()) {
-				return;
-			}
-			TreePath path = tree.getPathForLocation(e.getX(), e.getY());
-			tree.setSelectionPath(path);
-			JPopupMenu menu = menuBar.getPopupMenu();
-			if (menu != null) {
-				menu.show(e.getComponent(), e.getX(), e.getY());
-			}
-		}
 	}
 	
 	public JTree getTree() {

@@ -2,6 +2,8 @@ package org.oddjob.state;
 
 import java.util.Date;
 
+import org.oddjob.framework.JobDestroyedException;
+
 /**
  * Implementations provide the ability to change something's
  * {@link JobState}.
@@ -16,7 +18,7 @@ public interface StateChanger<S extends State> {
 	 * 
 	 * @param state
 	 */
-	public void setState(S state);
+	public void setState(S state) throws JobDestroyedException;
 	
 	/**
 	 * Set the state to the given state with the
@@ -25,14 +27,14 @@ public interface StateChanger<S extends State> {
 	 * @param state
 	 * @param date
 	 */
-	public void setState(S state, Date date);
+	public void setState(S state, Date date) throws JobDestroyedException;
 
 	/**
 	 * Set the state to an EXCEPTION state.
 	 * 
 	 * @param t The Exception.
 	 */
-	public void setStateException(Throwable t);
+	public void setStateException(Throwable t) throws JobDestroyedException;
 	
 	/**
 	 * Set the state to an EXCEPTION state with
@@ -40,5 +42,5 @@ public interface StateChanger<S extends State> {
 	 * 
 	 * @param t The Exception.
 	 */
-	public void setStateException(Throwable t, Date date);
+	public void setStateException(Throwable t, Date date) throws JobDestroyedException;
 }

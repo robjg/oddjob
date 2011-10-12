@@ -722,6 +722,8 @@ implements Loadable,
 			return;
 		}
 		
+		configurationOwnerSupport.setConfigurationSession(null);
+		
 		try {
 			childHelper.stopChildren();
 		} catch (FailedToStopException e) {
@@ -743,7 +745,6 @@ implements Loadable,
 
 		oddjobRoot = null;
 		setOurSession(null);
-		configurationOwnerSupport.setConfigurationSession(null);		
 	}
 
 	/**

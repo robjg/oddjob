@@ -35,7 +35,7 @@ import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
-import org.oddjob.monitor.model.JobAction;
+import org.oddjob.monitor.model.JobFormAction;
 
 /**
  * An action that adds a child job to a job.
@@ -43,7 +43,7 @@ import org.oddjob.monitor.model.JobAction;
  * @author Rob Gordon 
  */
 
-public class AddJobAction extends JobAction implements FormAction {
+public class AddJobAction extends JobFormAction implements FormAction {
 	
 	static {
 		
@@ -136,7 +136,8 @@ public class AddJobAction extends JobAction implements FormAction {
 	protected void doFree(ExplorerContext explorerContext) {
 	}
 	
-	public Form form() {
+	@Override
+	protected Form doForm() {
 		return form; 
 	}
 

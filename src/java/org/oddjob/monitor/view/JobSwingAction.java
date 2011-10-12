@@ -23,6 +23,7 @@ import org.oddjob.monitor.actions.FormAction;
 public class JobSwingAction extends AbstractArooaAction {
 	private static final long serialVersionUID = 20051116;
 	private static final Logger logger = Logger.getLogger(JobSwingAction.class);
+	
 	private final ExplorerAction jobAction;
 
 	public JobSwingAction(ExplorerAction jobAction) {

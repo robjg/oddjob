@@ -1,13 +1,5 @@
 package org.oddjob.monitor.model;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-
-import javax.swing.SwingUtilities;
-import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -21,12 +13,22 @@ import javax.swing.tree.TreePath;
  */
 public class JobTreeModel implements TreeModel {
 
-	/** Tree model listeners. */
-	private final List<TreeModelListener> tmListeners = 
-		Collections.synchronizedList(new ArrayList<TreeModelListener>());
+	private final TreeEventDispatcher eventDispatcher;
 	
 	/** The root node. */
 	private JobTreeNode root;
+	
+	public JobTreeModel() {
+		this(new EventThreadOnlyDispatcher());
+	}
+		
+	public JobTreeModel(TreeEventDispatcher eventDispatcher) {
+		if (eventDispatcher == null) {
+			throw new NullPointerException("No EventDispatcher.");
+		}
+		
+		this.eventDispatcher = eventDispatcher;
+	}
 	
 	/**
 	 * Set the root tree node.
@@ -42,7 +44,15 @@ public class JobTreeModel implements TreeModel {
 	 * @see javax.swing.tree.TreeModel#addTreeModelListener(javax.swing.event.TreeModelListener)
 	 */
 	public void addTreeModelListener(TreeModelListener tml) {
-		tmListeners.add(tml);
+		eventDispatcher.addTreeModelListener(tml);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see javax.swing.tree.TreeModel#removeTreeModelListener(javax.swing.event.TreeModelListener)
+	 */
+	public void removeTreeModelListener(TreeModelListener tml) {
+		eventDispatcher.removeTreeModelListener(tml);
 	}
 
 	/*
@@ -85,10 +95,6 @@ public class JobTreeModel implements TreeModel {
 		return root;
 	}
 
-	public void removeTreeModelListener(TreeModelListener tml) {
-		tmListeners.remove(tml);
-	}
-
 	/*
 	 *  (non-Javadoc)
 	 * @see javax.swing.tree.TreeModel#valueForPathChanged(javax.swing.tree.TreePath, java.lang.Object)
@@ -99,106 +105,16 @@ public class JobTreeModel implements TreeModel {
 
 	public void fireTreeNodesChanged(TreeNode changed) {
 
-		LinkedList<TreeNode> list = new LinkedList<TreeNode>();
-		for (TreeNode i = changed; i != null; i = i.getParent()) {	
-			list.addFirst(i);		
-		}
-
-		final TreeModelEvent event = new TreeModelEvent(changed, list.toArray());		
-
-		Runnable r = new Runnable() {
-			public void run() {		
-				Iterable<TreeModelListener> copy = 
-					new ArrayList<TreeModelListener>(tmListeners);
-				
-				for (final TreeModelListener tml : copy) {
-					tml.treeNodesChanged(event);
-				}
-			}
-		};
-		
-		if (SwingUtilities.isEventDispatchThread()) {
-			r.run();
-		} else {
-			// Tree nodes changed is mainly for icon changes so we invoke later
-			// Note that invoking now was causing Deadlock problems with designer.
-			SwingUtilities.invokeLater(r);
-		}
+		eventDispatcher.fireTreeNodesChanged(changed);		
 	}
 
 	public void fireTreeNodesInserted(TreeNode changed, JobTreeNode child, int index) {
 
-		LinkedList<TreeNode> list = new LinkedList<TreeNode>();
-		
-		for (TreeNode i = changed; i != null; i = i.getParent()) {
-			list.addFirst(i);		
-		}
-
-		int childIndecies[] = { index };
-		Object children [] = { child };
-
-		final TreeModelEvent event = new TreeModelEvent(changed, list.toArray(), 
-				childIndecies, children);
-
-		Runnable r = new Runnable() {
-			public void run() {
-				Iterable<TreeModelListener> copy = 
-					new ArrayList<TreeModelListener>(tmListeners);
-				
-				for (final TreeModelListener tml : copy) {
-					tml.treeNodesInserted(event);
-				}
-			}
-		};
-				
-		if (SwingUtilities.isEventDispatchThread()) {
-			r.run();
-		} else {
-			try {
-				SwingUtilities.invokeAndWait(r);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		eventDispatcher.fireTreeNodesInserted(changed, child, index);
 	}
 
 	public void fireTreeNodesRemoved(TreeNode changed, JobTreeNode child, int index) {
 
-		LinkedList<TreeNode> list = new LinkedList<TreeNode>();
-		
-		for (TreeNode i = changed; i != null; i = i.getParent()) {	
-			list.addFirst(i);		
-		}
-
-		int childIndecies[] = { index };
-		Object children [] = { child };
-
-		final TreeModelEvent event = new TreeModelEvent(changed, list.toArray(), 
-				childIndecies, children);
-
-		Runnable r = new Runnable() {
-			public void run() {		
-				Iterable<TreeModelListener> copy = 
-					new ArrayList<TreeModelListener>(tmListeners);
-				
-				for (final TreeModelListener tml : copy) {
-					tml.treeNodesRemoved(event);
-				}
-			}
-		};
-		
-		if (SwingUtilities.isEventDispatchThread()) {
-			r.run();
-		} else {
-			try {
-				SwingUtilities.invokeAndWait(r);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			}
-		}
+		eventDispatcher.fireTreeNodesRemoved(changed, child, index);
 	}
 }

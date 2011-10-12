@@ -632,8 +632,10 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		public void setSession(ConfigurationSession session) {
+			assertNotNull(session);
 			this.session = session;
-			this.listener.sessionChanged(new ConfigOwnerEvent(this));
+			this.listener.sessionChanged(new ConfigOwnerEvent(this, 
+					ConfigOwnerEvent.Change.SESSION_CREATED));
 		}
 		
 		@Override

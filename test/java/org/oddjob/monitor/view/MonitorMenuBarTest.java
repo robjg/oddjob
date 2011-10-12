@@ -22,9 +22,9 @@ public class MonitorMenuBarTest extends TestCase {
 		
 		DetailModel detailModel = new DetailModel();
 		
-		ExplorerJobActions jobActions = new ExplorerJobActions(new ExplorerAction[] {
-			new HardResetAction()
-		});
+		ExplorerJobActions jobActions = new ExplorerJobActions(
+				new ExplorerAction[] {
+			new HardResetAction() });
 		
 		test.setSession(jobActions, detailModel);
 		

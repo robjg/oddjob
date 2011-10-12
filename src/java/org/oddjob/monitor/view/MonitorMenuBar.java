@@ -13,6 +13,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 
 import org.oddjob.arooa.design.actions.ConfigurableMenus;
+import org.oddjob.arooa.design.designer.PopupMenuProvider;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.DetailModel;
 import org.oddjob.monitor.model.SelectedContextAware;
@@ -23,8 +24,8 @@ import org.oddjob.monitor.model.SelectedContextAware;
  * @author Rob Gordon 
  */
 
-public class MonitorMenuBar extends JMenuBar {
-	private static final long serialVersionUID = 0;
+public class MonitorMenuBar extends JMenuBar implements PopupMenuProvider {
+	private static final long serialVersionUID = 2011101000L;
 
 	public static final String JOB_MENU_ID = "Job";
 	

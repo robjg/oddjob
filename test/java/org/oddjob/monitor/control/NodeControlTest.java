@@ -28,6 +28,7 @@ import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.model.JobTreeModel;
 import org.oddjob.monitor.model.JobTreeNode;
 import org.oddjob.monitor.model.MockExplorerModel;
+import org.oddjob.state.ParentState;
 import org.oddjob.util.ThreadManager;
 
 public class NodeControlTest extends TestCase {
@@ -98,6 +99,8 @@ public class NodeControlTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		oddjob.run();
 		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
 		explorerModel.oddjob = oddjob;
 		
 		JobTreeModel model = new JobTreeModel();
@@ -105,7 +108,7 @@ public class NodeControlTest extends TestCase {
 		JobTreeNode root = new JobTreeNode(explorerModel, model);
 		model.setRootTreeNode(root);
 		
-		JTree tree = new JTree(model);
+		final JTree tree = new JTree(model);
 		tree.setShowsRootHandles(true);
 		
 		NodeControl test = new NodeControl();
@@ -115,7 +118,12 @@ public class NodeControlTest extends TestCase {
 		tree.addTreeWillExpandListener(test);
 		
 		assertEquals(false, tree.isExpanded(0));
-		tree.expandRow(0);
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				tree.expandRow(0);
+			}
+		});
+		
 		
 		TreePath path = tree.getPathForRow(1);
 		
@@ -162,6 +170,14 @@ public class NodeControlTest extends TestCase {
 			}
 		});
 		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				// Wait for queue to drain.
+			}
+		});
+		
 		assertEquals(false, tree.isExpanded(0));
 		tree.expandRow(0);
 		
@@ -186,6 +202,12 @@ public class NodeControlTest extends TestCase {
 					trn.rollback();
 					er.set(e);
 				}
+			}
+		});
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				// Wait for queue to drain.
 			}
 		});
 		
@@ -239,6 +261,14 @@ public class NodeControlTest extends TestCase {
 			}
 		});
 		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				// Wait for queue to drain.
+			}
+		});
+		
 		tree.expandRow(0);
 		tree.expandRow(1);
 		
@@ -257,6 +287,12 @@ public class NodeControlTest extends TestCase {
 				} catch (ArooaParseException e) {
 					throw new RuntimeException(e);
 				}
+			}
+		});
+		
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				// Wait for queue to drain.
 			}
 		});
 		

@@ -1,5 +1,6 @@
 package org.oddjob;
 
+import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateEvent;
 
@@ -22,7 +23,7 @@ public interface Stateful {
 	 * @param listener The listener.
 	 */
 
-	public void addStateListener(StateListener listener);
+	public void addStateListener(StateListener listener) throws JobDestroyedException;
 
 	/**
 	 * Remove a job state listener.
