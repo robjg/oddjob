@@ -4,8 +4,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.Executor;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeNode;
 
 import org.oddjob.Iconic;
@@ -27,6 +27,9 @@ import org.oddjob.structural.StructuralListener;
 public class JobTreeNode 
 		implements TreeNode {
 
+	/** How to dispatch tree model changes. */
+	private final Executor executor;
+	
 	/** For list of children */
 	private final Vector<JobTreeNode> nodeList = 
 		new Vector<JobTreeNode>();
@@ -61,7 +64,7 @@ public class JobTreeNode
 		 */
 		public void childAdded(final StructuralEvent e) {
 
-			SwingUtilities.invokeLater(new Runnable() {
+			executor.execute(new Runnable() {
 				public void run() {
 					addChild(e.getIndex(), e.getChild());
 				}
@@ -74,7 +77,7 @@ public class JobTreeNode
 		 */
 		public void childRemoved(final StructuralEvent e) {
 			
-			SwingUtilities.invokeLater(new Runnable() {
+			executor.execute(new Runnable() {
 				public void run() {
 					removeChild(e.getIndex());
 				}
@@ -90,10 +93,26 @@ public class JobTreeNode
 	 * @param model The JobTreeModel.
 	 */
 	public JobTreeNode(ExplorerModel explorerModel, JobTreeModel model) {
+		this(explorerModel, model, new EventThreadLaterExecutor(),
+				ExplorerContextImpl.FACTORY);
+	}
+	
+	/**
+	 * Constructor for testing so we can change the {@link Executor} and
+	 * {@link ExplorerContextFactory}.
+	 * 
+	 * @param explorerModel
+	 * @param model
+	 * @param executor
+	 * @param contextFactory
+	 */
+	public JobTreeNode(ExplorerModel explorerModel, JobTreeModel model, 
+			Executor executor, ExplorerContextFactory contextFactory) {
 		this.parent = null;
 		this.model = model;
 		this.component = explorerModel.getOddjob(); 		
-		this.explorerContext = new ExplorerContextImpl(explorerModel);
+		this.explorerContext = contextFactory.createFrom(explorerModel);
+		this.executor = executor;
 	}
 	
 	/**
@@ -109,9 +128,16 @@ public class JobTreeNode
 		this.parent = parent;
 		this.model = parent.model;
 		this.component = node;
-		this.explorerContext = parent.explorerContext.addChild(node); 
+		this.explorerContext = parent.explorerContext.addChild(node);
+		this.executor = parent.executor;
 	}
 	
+	/**
+	 * Called when a node is made visible. This is to reduce the
+	 * amount of listeners added to the job tree.
+	 * 
+	 * @param visible True if visible.
+	 */
 	public void setVisible(boolean visible) {
 		if (this.visible == visible) {
 			return;
@@ -160,7 +186,7 @@ public class JobTreeNode
 	    synchronized (this) {
 	        this.iconTip = iconTip;
 	    }
-	    SwingUtilities.invokeLater(new Runnable() {			
+	    executor.execute(new Runnable() {			
 			@Override
 			public void run() {
 				model.fireTreeNodesChanged(JobTreeNode.this);
@@ -223,12 +249,16 @@ public class JobTreeNode
 	}
 		
 	public void destroy() {
-		while (nodeList.size() > 0) {			
-			int index= nodeList.size() - 1;
-			JobTreeNode child = (JobTreeNode)nodeList.remove(index);
-			child.destroy();
-			model.fireTreeNodesRemoved(this, child, index);
-		}
+		
+		// This was causing index out of bounds exceptions because
+		// the tree was being destroyed in two directions.
+		// Why did I think it was a good idea in 2003?
+//		while (nodeList.size() > 0) {			
+//			int index= nodeList.size() - 1;
+//			JobTreeNode child = (JobTreeNode)nodeList.remove(index);
+//			child.destroy();
+//			model.fireTreeNodesRemoved(this, child, index);
+//		}
 	
 		if (component instanceof Structural) {
 			((Structural)component).removeStructuralListener(structuralListner);	

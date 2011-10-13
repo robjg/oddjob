@@ -1,5 +1,7 @@
 package org.oddjob.monitor.model;
 
+import java.util.concurrent.Executor;
+
 import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
@@ -47,11 +49,11 @@ public class JobTreeNodeTest extends TestCase {
 		OurModel explorerModel = new OurModel();
 		explorerModel.oddjob = oddjob;
 		
-		JobTreeModel treeModel = new JobTreeModel(new BaseTreeEventDispatcher() {
+		JobTreeModel treeModel = new JobTreeModel(new Executor() {
 			
 			@Override
-			protected void dispatch(Runnable runnable) {
-				runnable.run();
+			public void execute(Runnable command) {
+				command.run();
 			}
 		});
 		

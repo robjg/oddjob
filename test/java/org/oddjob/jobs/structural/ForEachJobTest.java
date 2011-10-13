@@ -5,10 +5,14 @@ package org.oddjob.jobs.structural;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+
+import javax.swing.SwingUtilities;
 
 import junit.framework.TestCase;
 
@@ -39,6 +43,14 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.monitor.context.ExplorerContext;
+import org.oddjob.monitor.model.EventThreadLaterExecutor;
+import org.oddjob.monitor.model.ExplorerContextFactory;
+import org.oddjob.monitor.model.ExplorerModel;
+import org.oddjob.monitor.model.JobTreeModel;
+import org.oddjob.monitor.model.JobTreeNode;
+import org.oddjob.monitor.model.MockExplorerContext;
+import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.persist.MockPersisterBase;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
@@ -778,5 +790,102 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(2, lines.length);
     	
     	oddjob.destroy();
-    }    
+    }
+    
+    private class RunNowExecutor implements Executor {
+    	@Override
+    	public void execute(Runnable command) {
+    		command.run();
+    	}
+    }
+    
+    /**
+     * Tracking down a bug where complicated structures cause an exception in explorer.
+     * @throws InvocationTargetException 
+     * @throws InterruptedException 
+     */
+    public void testDestroyWithComplicateStructure() throws InterruptedException, InvocationTargetException {
+    	
+    	String forEachConfig =
+    		"<foreach id='test'>" +
+    		" <job>" +
+    		"	<sequential>" +
+    		"    <jobs>" +
+    		"  <echo/>" +
+    		"  <echo/>" +
+    		"   </jobs>" +
+    		"  </sequential>" +
+    		" </job>" +
+    		"</foreach>";
+    	
+    	String ojConfig = 
+    		"<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
+    		" <job>" +
+    		"  <foreach>" +
+    		"   <values>" +
+    		"    <list>" +
+    		"     <values>" +
+    		"      <value value='1'/>" +
+    		"      <value value='2'/>" +
+    		"     </values>" +
+    		"    </list>" +
+    		"   </values>" +
+    		"   <configuration>" +
+    		"    <arooa:configuration>" +
+    		"     <xml>" +
+    		"      <xml>" + forEachConfig + "</xml>" +
+    		"     </xml>" +
+    		"    </arooa:configuration>" +
+    		"   </configuration>" +
+    		"  </foreach>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	final Oddjob oddjob = new Oddjob();
+    	
+    	oddjob.setConfiguration(new XMLConfiguration("XML" , ojConfig));
+    	
+		JobTreeModel model = new JobTreeModel(new RunNowExecutor());
+
+		JobTreeNode root = new JobTreeNode(
+				new MockExplorerModel() {
+					@Override
+					public Oddjob getOddjob() {
+						return oddjob;
+					}
+				}, 
+				model, 
+				new EventThreadLaterExecutor(), 
+				new ExplorerContextFactory() {
+					@Override
+					public ExplorerContext createFrom(ExplorerModel explorerModel) {
+						return new MockExplorerContext() {
+							@Override
+							public ExplorerContext addChild(Object child) {
+								return this;
+							}
+						};
+					}
+				});
+		
+		root.setVisible(true);
+    	
+    	oddjob.run();
+    	
+    	SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Clear out queue.				
+			}
+		});
+    	
+    	oddjob.destroy();
+    	
+    	SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Clear out queue.				
+			}
+		});
+    }
 }

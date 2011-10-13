@@ -3,20 +3,28 @@ package org.oddjob.monitor.model;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeNode;
 
 /**
- * Common implementation for different {@link TreeEventDispatcher}s.
+ * An implementation of a {@link TreeEventDispatcher} that uses
+ * an Executor.
  * 
  * @author rob
  */
-abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
+public class ExecutorTreeEventDispatcher implements TreeEventDispatcher {
 
 	private final List<TreeModelListener> listeners =
 		new CopyOnWriteArrayList<TreeModelListener>();
+
+	private final Executor executor;
+	
+	public ExecutorTreeEventDispatcher(Executor executor) {
+		this.executor = executor;
+	}
 
 	@Override
 	public void addTreeModelListener(TreeModelListener tml) {
@@ -28,8 +36,6 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 		listeners.remove(tml);
 	}
 	
-	abstract protected void dispatch(Runnable runnable);
-		
 	private Object[] pathToRoot(TreeNode changed) {
 		LinkedList<TreeNode> list = new LinkedList<TreeNode>();
 		for (TreeNode i = changed; i != null; i = i.getParent()) {	
@@ -43,7 +49,7 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 		final TreeModelEvent event = new TreeModelEvent(
 				changed, pathToRoot(changed));		
 
-		Runnable r = new Runnable() {
+		Runnable runnable = new Runnable() {
 			public void run() {		
 				for (final TreeModelListener tml : listeners) {
 					tml.treeNodesChanged(event);
@@ -51,7 +57,7 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 			}
 		};
 		
-		dispatch(r);
+		executor.execute(runnable);
 	}
 
 	public synchronized void fireTreeNodesInserted(TreeNode changed, JobTreeNode child, int index) {
@@ -63,7 +69,7 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 				pathToRoot(changed), 
 				childIndecies, children);
 
-		Runnable r = new Runnable() {
+		Runnable runnable = new Runnable() {
 			public void run() {
 				for (final TreeModelListener tml : listeners) {
 					tml.treeNodesInserted(event);
@@ -71,7 +77,7 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 			}
 		};
 				
-		dispatch(r);
+		executor.execute(runnable);
 	}
 
 	public synchronized void fireTreeNodesRemoved(TreeNode changed, JobTreeNode child, int index) {
@@ -83,7 +89,7 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 				pathToRoot(changed), 
 				childIndecies, children);
 
-		Runnable r = new Runnable() {
+		Runnable runnable = new Runnable() {
 			public void run() {		
 				for (final TreeModelListener tml : listeners) {
 					tml.treeNodesRemoved(event);
@@ -91,6 +97,6 @@ abstract public class BaseTreeEventDispatcher implements TreeEventDispatcher {
 			}
 		};
 		
-		dispatch(r);
+		executor.execute(runnable);
 	}
 }

@@ -1,5 +1,7 @@
 package org.oddjob.monitor.model;
 
+import java.util.concurrent.Executor;
+
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
@@ -19,9 +21,13 @@ public class JobTreeModel implements TreeModel {
 	private JobTreeNode root;
 	
 	public JobTreeModel() {
-		this(new EventThreadOnlyDispatcher());
+		this(new ExecutorTreeEventDispatcher(new EventThreadOnlyDispatcher()));
 	}
 		
+	public JobTreeModel(Executor executor) {
+		this(new ExecutorTreeEventDispatcher(executor));
+	}
+	
 	public JobTreeModel(TreeEventDispatcher eventDispatcher) {
 		if (eventDispatcher == null) {
 			throw new NullPointerException("No EventDispatcher.");

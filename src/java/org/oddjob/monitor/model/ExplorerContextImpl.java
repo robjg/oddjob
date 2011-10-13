@@ -23,6 +23,15 @@ import org.oddjob.util.ThreadManager;
  */
 public class ExplorerContextImpl implements ExplorerContext {
 
+	public static final ExplorerContextFactory FACTORY = 
+		new ExplorerContextFactory() {
+		
+		@Override
+		public ExplorerContext createFrom(ExplorerModel explorerModel) {
+			return new ExplorerContextImpl(explorerModel);
+		}
+	};
+	
 	private final ContextInitialiser initialiser;
 	
 	/** The component who's context this is. */
