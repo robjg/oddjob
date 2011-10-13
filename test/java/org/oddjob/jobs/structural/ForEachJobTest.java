@@ -9,10 +9,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 
 import junit.framework.TestCase;
 
@@ -792,11 +796,76 @@ public class ForEachJobTest extends TestCase {
     	oddjob.destroy();
     }
     
-    private class RunNowExecutor implements Executor {
+    private static class RunNowExecutor implements Executor {
     	@Override
     	public void execute(Runnable command) {
     		command.run();
     	}
+    }
+    
+    public static class SlowToDestroyJob extends SimpleJob {
+    	@Override
+    	protected int execute() throws Throwable {
+    		return 0;
+    	}
+    	
+    	@Override
+    	protected void onDestroy() {
+    		try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+    	}
+    }
+    
+    // Make sure the bug fix doesn't leave Old Jobs lying around
+    private static class JobCounter implements StructuralListener {
+    	
+    	private Set<Object> jobs = new HashSet<Object>();
+
+		@Override
+		public void childAdded(StructuralEvent event) {
+			Object child = event.getChild();
+			jobs.add(child);
+			if (child instanceof Structural) {
+				((Structural) child).addStructuralListener(this);
+			}
+		}
+
+		@Override
+		public void childRemoved(StructuralEvent event) {
+			Object child = event.getChild();
+			jobs.remove(child);			
+		}
+    }
+    
+    // Ditto the JobTreeModel.
+    private static class NodeCounter implements TreeModelListener {
+    	
+    	private Set<Object> jobs = new HashSet<Object>();
+
+    	@Override
+    	public void treeNodesChanged(TreeModelEvent e) {
+    		// Don't care about Icon notifications.
+    	}
+
+    	@Override
+    	public void treeStructureChanged(TreeModelEvent e) {
+    		throw new RuntimeException("Unexpected!");
+    	}
+
+    	@Override
+    	public void treeNodesInserted(TreeModelEvent e) {
+    		assertEquals(1, e.getChildren().length);
+			jobs.add(e.getChildren()[0]);
+    	}
+
+    	@Override
+    	public void treeNodesRemoved(TreeModelEvent e) {
+    		assertEquals(1, e.getChildren().length);
+			jobs.remove(e.getChildren()[0]);
+		}
     }
     
     /**
@@ -811,8 +880,11 @@ public class ForEachJobTest extends TestCase {
     		" <job>" +
     		"	<sequential>" +
     		"    <jobs>" +
-    		"  <echo/>" +
-    		"  <echo/>" +
+    		"  <bean class='" + SlowToDestroyJob.class.getName() + "'/>" +
+    		"  <bean class='" + SlowToDestroyJob.class.getName() + "'/>" +
+    		"  <bean class='" + SlowToDestroyJob.class.getName() + "'/>" +
+    		"  <bean class='" + SlowToDestroyJob.class.getName() + "'/>" +
+    		"  <bean class='" + SlowToDestroyJob.class.getName() + "'/>" +
     		"   </jobs>" +
     		"  </sequential>" +
     		" </job>" +
@@ -821,7 +893,7 @@ public class ForEachJobTest extends TestCase {
     	String ojConfig = 
     		"<oddjob xmlns:arooa='http://rgordon.co.uk/oddjob/arooa'>" +
     		" <job>" +
-    		"  <foreach>" +
+    		"  <foreach id='foreach'>" +
     		"   <values>" +
     		"    <list>" +
     		"     <values>" +
@@ -844,9 +916,15 @@ public class ForEachJobTest extends TestCase {
     	final Oddjob oddjob = new Oddjob();
     	
     	oddjob.setConfiguration(new XMLConfiguration("XML" , ojConfig));
+    
+    	JobCounter jobCounter = new JobCounter();
+    	oddjob.addStructuralListener(jobCounter);
     	
 		JobTreeModel model = new JobTreeModel(new RunNowExecutor());
 
+		NodeCounter nodeCounter = new NodeCounter();
+		model.addTreeModelListener(nodeCounter);
+		
 		JobTreeNode root = new JobTreeNode(
 				new MockExplorerModel() {
 					@Override
@@ -879,6 +957,9 @@ public class ForEachJobTest extends TestCase {
 			}
 		});
     	
+    	assertEquals(13, jobCounter.jobs.size());
+    	assertEquals(13, nodeCounter.jobs.size());
+    	
     	oddjob.destroy();
     	
     	SwingUtilities.invokeAndWait(new Runnable() {
@@ -887,5 +968,8 @@ public class ForEachJobTest extends TestCase {
 				// Clear out queue.				
 			}
 		});
+    	
+    	assertEquals(0, jobCounter.jobs.size());
+    	assertEquals(0, nodeCounter.jobs.size());
     }
 }

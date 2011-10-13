@@ -77,9 +77,14 @@ public class JobTreeNode
 		 */
 		public void childRemoved(final StructuralEvent e) {
 			
+			final int index = e.getIndex();
+			
+			JobTreeNode child = nodeList.elementAt(index);
+			child.destroy();
+			
 			executor.execute(new Runnable() {
 				public void run() {
-					removeChild(e.getIndex());
+					removeChild(index);
 				}
 			});
 		}
@@ -156,7 +161,7 @@ public class JobTreeNode
 		this.visible = visible;
 	}
 
-	public void addChild(int index, Object childJob) {
+	private void addChild(int index, Object childJob) {
 		JobTreeNode childNode = new JobTreeNode(this, childJob);
 
 		// If this node is visible, then this must be the result of a
@@ -170,11 +175,11 @@ public class JobTreeNode
 		model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);		
 	}
 	
-	public void removeChild(int index) {
-		
+	
+	private void removeChild(int index) {
+				
 		JobTreeNode child = nodeList.remove(index);
-		child.destroy();
-
+		
 		model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
 	}
 	
@@ -250,18 +255,22 @@ public class JobTreeNode
 		
 	public void destroy() {
 		
-		// This was causing index out of bounds exceptions because
-		// the tree was being destroyed in two directions.
-		// Why did I think it was a good idea in 2003?
-//		while (nodeList.size() > 0) {			
-//			int index= nodeList.size() - 1;
-//			JobTreeNode child = (JobTreeNode)nodeList.remove(index);
-//			child.destroy();
-//			model.fireTreeNodesRemoved(this, child, index);
-//		}
-	
 		if (component instanceof Structural) {
 			((Structural)component).removeStructuralListener(structuralListner);	
+		}
+		
+		while (nodeList.size() > 0) {			
+			
+			final int index = nodeList.size() - 1;
+			final JobTreeNode child = (JobTreeNode) nodeList.remove(index);
+			
+			child.destroy();
+			
+			executor.execute(new Runnable() {
+				public void run() {
+					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);				
+				}
+			});
 		}
 		
 		iconListener.dont();

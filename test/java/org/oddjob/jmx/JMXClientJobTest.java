@@ -4,6 +4,14 @@
 package org.oddjob.jmx;
 
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Executor;
+
+import javax.swing.SwingUtilities;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
@@ -28,15 +36,25 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.client.ComponentTransportable;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
+import org.oddjob.jobs.structural.ForEachJobTest;
 import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
+import org.oddjob.monitor.context.ExplorerContext;
+import org.oddjob.monitor.model.EventThreadLaterExecutor;
+import org.oddjob.monitor.model.ExplorerContextFactory;
+import org.oddjob.monitor.model.ExplorerModel;
+import org.oddjob.monitor.model.JobTreeModel;
+import org.oddjob.monitor.model.JobTreeNode;
+import org.oddjob.monitor.model.MockExplorerContext;
+import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.structural.ChildHelper;
+import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
 /**
@@ -591,4 +609,175 @@ public class JMXClientJobTest extends TestCase {
 		client.stop();
 		server.stop();
 	}
+	
+    private static class RunNowExecutor implements Executor {
+    	@Override
+    	public void execute(Runnable command) {
+    		command.run();
+    	}
+    }
+    
+    // Make sure the bug fix doesn't leave Old Jobs lying around
+    private static class JobCounter implements StructuralListener {
+    	
+    	private Set<Object> jobs = new HashSet<Object>();
+
+		@Override
+		public void childAdded(StructuralEvent event) {
+			Object child = event.getChild();
+			jobs.add(child);
+			if (child instanceof Structural) {
+				((Structural) child).addStructuralListener(this);
+			}
+		}
+
+		@Override
+		public void childRemoved(StructuralEvent event) {
+			Object child = event.getChild();
+			jobs.remove(child);			
+		}
+    }
+    
+    // Ditto the JobTreeModel.
+    private static class NodeCounter implements TreeModelListener {
+    	
+    	private Set<Object> jobs = new HashSet<Object>();
+
+    	@Override
+    	public void treeNodesChanged(TreeModelEvent e) {
+    		// Don't care about Icon notifications.
+    	}
+
+    	@Override
+    	public void treeStructureChanged(TreeModelEvent e) {
+    		throw new RuntimeException("Unexpected!");
+    	}
+
+    	@Override
+    	public void treeNodesInserted(TreeModelEvent e) {
+    		assertEquals(1, e.getChildren().length);
+    		JobTreeNode child = (JobTreeNode) e.getChildren()[0];
+    		child.setVisible(true);
+			jobs.add(child);
+    	}
+
+    	@Override
+    	public void treeNodesRemoved(TreeModelEvent e) {
+    		assertEquals(1, e.getChildren().length);
+			jobs.remove(e.getChildren()[0]);
+		}
+    }
+    
+    /**
+     * Tracking down a bug where complicated structures cause an exception in explorer.
+     * <p>
+     * This is the flip side of fixing the bug {@link ForEachJobTest#testDestroyWithComplicateStructure()}
+     * because fixing that caused a bug in the JMXClient.
+     * @throws Exception 
+     */
+    public void testDestroyWithComplicateStructure() throws Exception {
+    	
+    	String serverConfig = 
+    		"<oddjob>" +
+    		" <job>" +
+    		"  <sequential>" +
+    		"   <jobs>" +
+    		"    <echo/>" +
+    		"    <echo/>" +
+    		"    <echo/>" +
+    		"   </jobs>" +
+    		"  </sequential>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	Oddjob serverOddjob = new Oddjob();
+    	
+    	serverOddjob.setConfiguration(new XMLConfiguration("XML" , serverConfig));
+    
+		JMXServerJob server = new JMXServerJob();
+		server.setRoot(serverOddjob);
+		server.setArooaSession(new OurSession());
+				
+		server.setUrl("service:jmx:rmi://");
+		server.start();
+
+    	serverOddjob.run();
+    	
+    	String clientConfig = 
+    		"<oddjob>" +
+    		" <job>" +
+    		"  <jmx:client xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " + 
+    		" id='client' url='${server-address}'/>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	final Oddjob clientOddjob = new Oddjob();
+    	
+    	clientOddjob.setConfiguration(new XMLConfiguration("XML" , clientConfig));
+    	clientOddjob.setExport("server-address", new ArooaObject(server.getAddress()));
+
+		clientOddjob.run();
+		assertEquals(ParentState.ACTIVE, clientOddjob.lastStateEvent().getState());
+				    	    	
+		JobTreeModel model = new JobTreeModel(new RunNowExecutor());
+
+		NodeCounter nodeCounter = new NodeCounter();
+		model.addTreeModelListener(nodeCounter);
+		
+		JobTreeNode root = new JobTreeNode(
+				new MockExplorerModel() {
+					@Override
+					public Oddjob getOddjob() {
+						return clientOddjob;
+					}
+				}, 
+				model, 
+				new EventThreadLaterExecutor(), 
+				new ExplorerContextFactory() {
+					@Override
+					public ExplorerContext createFrom(ExplorerModel explorerModel) {
+						return new MockExplorerContext() {
+							@Override
+							public ExplorerContext addChild(Object child) {
+								return this;
+							}
+						};
+					}
+				});
+		
+		root.setVisible(true);
+    	
+    	JobCounter jobCounter = new JobCounter();
+    	clientOddjob.addStructuralListener(jobCounter);
+    	
+    	SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Clear out queue.				
+			}
+		});
+    	
+    	assertEquals(6, jobCounter.jobs.size());    	
+    	assertEquals(6, nodeCounter.jobs.size());
+
+		JMXClientJob client = new OddjobLookup(
+			clientOddjob).lookup("client", JMXClientJob.class);    	
+    	client.stop();
+    	
+    	SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Clear out queue.				
+			}
+		});
+    	
+    	// Only the top node is removed.
+    	assertEquals(5, jobCounter.jobs.size());
+    	// But all Job Nodes must be destroyed.
+    	assertEquals(1, nodeCounter.jobs.size());
+    	
+    	serverOddjob.destroy();
+    	server.stop();
+    	clientOddjob.destroy();
+    }
 }
