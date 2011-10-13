@@ -5,7 +5,6 @@ package org.oddjob.designer.components;
 
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.ArrayList;
@@ -45,7 +44,6 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.FormItem;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.design.view.DesignViewException;
-import org.oddjob.arooa.design.view.Looks;
 import org.oddjob.arooa.design.view.SwingFormFactory;
 import org.oddjob.arooa.design.view.SwingFormView;
 import org.oddjob.arooa.design.view.SwingItemFactory;
@@ -443,8 +441,6 @@ class VariablesGrid implements FormItem {
 
 class VariablesTableView implements SwingItemView {
 
-	private static final int DEFAULT_TABLE_ROWS = 12;
-	
 	public static final QTag NULL_TAG = new QTag("");
 	
 	private final VariablesTableModel tableModel = new VariablesTableModel();
@@ -540,9 +536,7 @@ class VariablesTableView implements SwingItemView {
 	private Component component() {
 		JTable table = new JTable(tableModel);
 		table.setRowHeight(new JTextField().getPreferredSize().height);
-		
-		setPreferredTableSize(table);
-		
+				
 		TableColumn typeCol = table.getColumnModel().getColumn(1);
 		
 		JComboBox comboBox = new JComboBox();
@@ -561,16 +555,6 @@ class VariablesTableView implements SwingItemView {
 		return jsp;
 	}
 		
-	private void setPreferredTableSize(JTable table){ 
-	    int height = 0; 
-	    for(int row=0; row < DEFAULT_TABLE_ROWS; row++) 
-	        height += table.getRowHeight(row); 
-	 
-	    table.setPreferredScrollableViewportSize(new Dimension( 
-	            Looks.DETAIL_USABLE_WIDTH - 100,
-	            height)); 
-	}
-			
 	class VariablesTableModel extends AbstractTableModel {
 		private static final long serialVersionUID = 2008100100;
 

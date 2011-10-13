@@ -80,6 +80,8 @@ Deferred to A Later Version
 - Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
   copy some of it's feature including; overwrite, force, failonerror, verbose,
   preservelastmodified. Add the ability to back up the moved files like Linux does.
+- Introduce a FilterType that can filter files by modified date, created date,
+  or match against a regular expression.
 - Should structural jobs COMPLETE when they have no child? Need to look at what 
   happens when they are destroyed to ensure they don't complete as their children 
   are removed.

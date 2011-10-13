@@ -20,13 +20,14 @@ import org.oddjob.logging.log4j.Log4jArchiver;
 
 public class OddjobNDC {
 	
-	private static InheritableThreadLocal local = new InheritableThreadLocal() {
-		protected Object initialValue() {
-			return new Stack();
+	private static InheritableThreadLocal<Stack<String>> local = new InheritableThreadLocal<Stack<String>>() {
+		protected Stack<String> initialValue() {
+			return new Stack<String>();
 		}
-		protected Object childValue(Object parentValue) {
+		@SuppressWarnings("unchecked")
+		protected Stack<String> childValue(Stack<String> parentValue) {
 			if (parentValue != null) {
-				return ((Stack) parentValue).clone();
+				return (Stack<String>)parentValue.clone();
 			}
 			else {
 				return null;
@@ -49,7 +50,7 @@ public class OddjobNDC {
 	 * 
 	 */
 	public static String pop() {
-		Stack stack = (Stack) local.get();
+		Stack<String> stack = local.get();
 		String result = (String) stack.pop();
 		if (stack.isEmpty()) {
 			MDC.remove(Log4jArchiver.MDC);
@@ -71,7 +72,7 @@ public class OddjobNDC {
 	 * 
 	 */
 	public static String peek() {
-		Stack stack = (Stack) local.get();		
+		Stack<String> stack = local.get();		
 		if (stack.isEmpty()) {
 			return null;
 		}
@@ -89,7 +90,7 @@ public class OddjobNDC {
 		if (loggerName == null) {
 			throw new NullPointerException("Can't push null logger name.");
 		}
-		Stack stack = (Stack) local.get();
+		Stack<String> stack = local.get();
 		stack.push(loggerName);
 		MDC.put(Log4jArchiver.MDC, loggerName);
 	}

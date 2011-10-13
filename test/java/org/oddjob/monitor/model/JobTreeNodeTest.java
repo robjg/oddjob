@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ContextInitialiser;
+import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
@@ -32,6 +33,26 @@ public class JobTreeNodeTest extends TestCase {
 		}
 	}
 	
+	class InlineExecutor implements Executor {
+		
+		@Override
+		public void execute(Runnable command) {
+			command.run();
+		}		
+	}
+	
+	class OurContextFactory implements ExplorerContextFactory {
+		@Override
+		public ExplorerContext createFrom(ExplorerModel explorerModel) {
+			return new MockExplorerContext() {
+				@Override
+				public ExplorerContext addChild(Object child) {
+					return this;
+				}
+			};
+		}
+	}
+	
 	public void testChildren() {
 		
 		String xml = 
@@ -49,16 +70,12 @@ public class JobTreeNodeTest extends TestCase {
 		OurModel explorerModel = new OurModel();
 		explorerModel.oddjob = oddjob;
 		
-		JobTreeModel treeModel = new JobTreeModel(new Executor() {
-			
-			@Override
-			public void execute(Runnable command) {
-				command.run();
-			}
-		});
+		JobTreeModel treeModel = new JobTreeModel(new InlineExecutor());
 		
 		JobTreeNode test = new JobTreeNode(
-				explorerModel, treeModel);
+				explorerModel, treeModel, 
+				new InlineExecutor(), 
+				new OurContextFactory());
 		
 		assertEquals(0, test.getChildCount());
 		
