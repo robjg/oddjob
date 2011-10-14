@@ -64,9 +64,22 @@ public class JobTreeNode
 		 */
 		public void childAdded(final StructuralEvent e) {
 
+			final int index = e.getIndex();
+			Object childJob = e.getChild();
+
+			final JobTreeNode childNode = new JobTreeNode(JobTreeNode.this, childJob);
+
+			// If this node is visible, then this must be the result of a
+			// external insert (paste), so our child will be visible to.
+			if (visible) {
+				childNode.setVisible(true);
+			}
+			
+			nodeList.add(index, childNode);
+
 			executor.execute(new Runnable() {
 				public void run() {
-					addChild(e.getIndex(), e.getChild());
+					model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);							
 				}
 			});
 		}
@@ -79,12 +92,14 @@ public class JobTreeNode
 			
 			final int index = e.getIndex();
 			
-			JobTreeNode child = nodeList.elementAt(index);
+			final JobTreeNode child = nodeList.remove(index);
+
 			child.destroy();
 			
 			executor.execute(new Runnable() {
 				public void run() {
-					removeChild(index);
+					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
+
 				}
 			});
 		}
@@ -159,28 +174,6 @@ public class JobTreeNode
 			
 		}
 		this.visible = visible;
-	}
-
-	private void addChild(int index, Object childJob) {
-		JobTreeNode childNode = new JobTreeNode(this, childJob);
-
-		// If this node is visible, then this must be the result of a
-		// external insert (paste), so our child will be visible to.
-		if (visible) {
-			childNode.setVisible(true);
-		}
-		
-		nodeList.add(index, childNode);
-
-		model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);		
-	}
-	
-	
-	private void removeChild(int index) {
-				
-		JobTreeNode child = nodeList.remove(index);
-		
-		model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
 	}
 	
 	public boolean isVisible() {

@@ -122,7 +122,7 @@ public class RenameJob implements Runnable, Serializable {
 		}
 		if (!from.renameTo(to)) {
 			throw new RuntimeException("Rename from " + from + " to " +
-					to + "failed.");
+					to + " failed.");
 		}
 		else {
 			logger.info("Renamed " + from + " to " +

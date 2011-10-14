@@ -6,9 +6,11 @@ package org.oddjob;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -21,6 +23,8 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.input.InputHandler;
+import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.EchoJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -32,6 +36,8 @@ import org.oddjob.structural.StructuralListener;
  * @author Rob Gordon.
  */
 public class OddjobTest extends TestCase {
+	
+	private static final Logger logger = Logger.getLogger(OddjobTest.class);
 	
 	/**
 	 * Test resetting Oddjob
@@ -331,16 +337,77 @@ public class OddjobTest extends TestCase {
     		" </job>" +
     		"</oddjob>";
     	
-        Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("XML", config));
-        oj.setArgs(new String[] { "apple" });
-        oj.run();
+        Oddjob test = new Oddjob();
+		test.setConfiguration(new XMLConfiguration("XML", config));
+		
+		// Test without arg.
+		
+        test.run();
+
+        assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
         
-        String fruit = new OddjobLookup(oj).lookup("fruits.fruit", String.class);
+        OddjobLookup lookup = new OddjobLookup(test);
+        
+        String fruit = lookup.lookup("fruits.fruit", String.class);
+        assertEquals(null, fruit);
+        
+        test.hardReset();
+        
+        // And with arg.
+        
+        test.setArgs(new String[] { "apple" });
+        
+        test.run();
+        
+        fruit = lookup.lookup("fruits.fruit", String.class);
         assertEquals("apple", fruit);
         
-        oj.destroy();
+        test.destroy();
     }    
+    
+	private class OurInputHandler implements InputHandler {
+		
+		@Override
+		public Properties handleInput(InputRequest[] requests) {
+			
+			Properties properties = new Properties();
+			
+			properties.setProperty("our.file.name", "Fruit.txt");
+			
+			return properties;
+		}
+	}
+	
+    public void testOptionalArgumentExample() {
+    
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/OptionalFileNameArg.xml",
+    			getClass().getClassLoader()));
+    	oddjob.setInputHandler(new OurInputHandler());
+    	
+    	ConsoleCapture console = new ConsoleCapture();
+    	console.capture(Oddjob.CONSOLE);
+    	
+    	oddjob.run();
+
+    	oddjob.hardReset();
+    	oddjob.setArgs(new String[] { "Pizzas.txt" } );
+    	
+    	oddjob.run();
+    	
+    	console.close();
+    	
+    	console.dump(logger);
+    	
+    	String[] lines = console.getLines();
+    	
+    	assertEquals("File Name is Fruit.txt", lines[0].trim());    	
+    	assertEquals("File Name is Pizzas.txt", lines[1].trim());
+    	assertEquals(2, lines.length);
+    	
+    	oddjob.destroy();
+    }
     
     public void testInheritedProperties() throws Exception {
     	

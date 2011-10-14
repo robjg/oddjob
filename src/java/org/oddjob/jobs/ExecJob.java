@@ -343,12 +343,13 @@ implements Stoppable, ConsoleOwner {
 		if (theArgs == null && command != null) {
 			
 			theArgs = commandTokenizer().parse(command.trim());
+			logger().info("Command: " + command);
 		} 
 		if (theArgs == null || theArgs.length == 0) {
 				throw new OddjobConfigException("No command given.");
 		}
 		
-		logger().info(displayArgs(theArgs));
+		logger().info("Args: " + displayArgs(theArgs));
 		
 		processBuilder = new ProcessBuilder(theArgs);
 		
@@ -509,7 +510,9 @@ implements Stoppable, ConsoleOwner {
 				if (builder.length() > 0) {
 					builder.append(' ');
 				}
+				builder.append('[');
 				builder.append(arg);
+				builder.append(']');
 			}
 		return builder.toString();
 	}

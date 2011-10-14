@@ -3,6 +3,9 @@
         <oddjob name="Explorer with Persister"
                 file="${this.dir}/explorer.xml"
                 id="explorer">
+            <args>
+                <value value="${this.args}"/>
+            </args>
             <persister>
                 <file-persister dir="${this.dir}"/>
             </persister>

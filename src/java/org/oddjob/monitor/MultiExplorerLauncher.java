@@ -22,7 +22,7 @@ import org.oddjob.state.WorstStateOp;
  */
 public class MultiExplorerLauncher extends StructuralJob<Runnable> 
 implements Stoppable  {
-	private static final long serialVersionUID = 2011090600L;
+	private static final long serialVersionUID = 2011101400L;
 	
 	@Override
 	protected StateOperator getStateOp() {
@@ -44,6 +44,13 @@ implements Stoppable  {
      * @oddjob.required No. 
      */
 	private File dir;
+
+    /** 
+     * @oddjob.property
+     * @oddjob.description A file to load when the explorer starts.
+     * @oddjob.required No. 
+     */
+	private File file;
 
     /**
      * @oddjob.property
@@ -107,6 +114,11 @@ implements Stoppable  {
 				explorer.setOddjobServices(oddjobServices);
 				explorer.setArooaSession(getArooaSession());
 				
+				if (original == null) {
+					// Only set the file for the first explorer.
+					explorer.setFile(getFile());
+				}
+				
 				childHelper.insertChild(childHelper.size(), explorer);
 				
 				oddjobServices.getOddjobExecutors().getPoolExecutor().execute(explorer);
@@ -130,6 +142,18 @@ implements Stoppable  {
 	@ArooaAttribute
 	public void setDir(File dir) {
 		this.dir = dir;
+	}
+
+	/**
+	 * @return the file
+	 */
+	public File getFile() {
+		return file;
+	}
+	
+	@ArooaAttribute
+	public void setFile(File file) {
+		this.file = file;
 	}
 
 	public long getPollingInterval() {

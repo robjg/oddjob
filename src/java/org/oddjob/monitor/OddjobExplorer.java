@@ -92,7 +92,7 @@ import org.oddjob.util.ThreadManager;
 public class OddjobExplorer extends SerializableJob
 implements Stoppable {
 	
-    private static final long serialVersionUID = 2011090600L;
+    private static final long serialVersionUID = 2011101400L;
 
     private static final Logger logger = Logger.getLogger(OddjobExplorer.class);
 
@@ -136,6 +136,13 @@ implements Stoppable {
 	 */
 	private transient String logFormat;
 	
+    /** 
+     * @oddjob.property
+     * @oddjob.description A file to show when the explorer starts.
+     * @oddjob.required No. 
+     */
+	private File file;
+
 	/** The frame */
 	private volatile transient JFrame frame;
 		
@@ -681,7 +688,7 @@ implements Stoppable {
 		createView();
 		
 		// In case Explorer was started with an Oddjob.
-		Oddjob oddjob = this.oddjob;
+		final Oddjob oddjob = this.oddjob;
 		this.oddjob = null;
 		
 		VetoableChangeListener checkStop = new CheckOddjobStopped();
@@ -695,8 +702,6 @@ implements Stoppable {
 		addPropertyChangeListener(changeView);
 		addPropertyChangeListener(changeTitle);
 
-		setOddjob(oddjob);
-		
 		frame.setVisible(true);
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
@@ -706,6 +711,22 @@ implements Stoppable {
 			@Override
 			public void componentResized(ComponentEvent e) {
 				screen = new ScreenPresence(e.getComponent());
+			}
+		});
+		
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					if(oddjob != null) {
+						setOddjob(oddjob);
+					} else if(getFile() != null) {
+						open(getFile());
+					}
+				} catch (PropertyVetoException e) {
+					// Ignore
+				}
 			}
 		});
 		
@@ -1011,26 +1032,7 @@ implements Stoppable {
 				return;
 			}
 			
-			File file = chooser.getSelectedFile();
-			
-			
-			try {
-	
-				Oddjob newJob = newOddjob();
-				
-				newJob.setFile(file);
-				
-				newJob.load();
-				
-				setOddjob(newJob);
-			}
-			catch (PropertyVetoException e1) {
-				// Ignore;
-			}
-			catch (RuntimeException ex) {
-				logger().warn("Exception opening file [" + file + "]", ex);
-				JOptionPane.showMessageDialog(frame, ex.getMessage(), "Exception!", JOptionPane.ERROR_MESSAGE);
-			}
+			open(chooser.getSelectedFile());
 		}
 
 	}
@@ -1178,4 +1180,33 @@ implements Stoppable {
 	public void setLogFormat(String logFormat) {
 		this.logFormat = logFormat;
 	}
+	
+	private void open(File file) {
+		try {
+			Oddjob newJob = newOddjob();
+			
+			newJob.setFile(file);
+			
+			newJob.load();
+			
+			setOddjob(newJob);
+		}
+		catch (PropertyVetoException e1) {
+			logger.info("Why?");			
+		}
+		catch (RuntimeException ex) {
+			logger().warn("Exception opening file [" + file + "]", ex);
+			JOptionPane.showMessageDialog(frame, ex.getMessage(), "Exception!", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public File getFile() {
+		return file;
+	}
+	
+	@ArooaAttribute
+	public void setFile(File file) {
+		this.file = file;
+	}
+
 }

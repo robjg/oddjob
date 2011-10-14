@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <state:if xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <jobs>
+                        <check value="${this.args[0]}"/>
+                        <properties>
+                            <values>
+                                <value key="our.file.name" value="${this.args[0]}"/>
+                            </values>
+                        </properties>
+                        <input>
+                            <requests>
+                                <input-text prompt="File Name?" property="our.file.name"/>
+                            </requests>
+                        </input>
+                    </jobs>
+                </state:if>
+                <echo><![CDATA[File Name is ${our.file.name}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

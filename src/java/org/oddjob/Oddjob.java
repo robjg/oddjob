@@ -149,6 +149,12 @@ import org.oddjob.values.properties.PropertiesType;
  * 
  * @oddjob.example
  * 
+ * Using an argument passed into Oddjob that may or may not be set.
+ * 
+ * {@oddjob.xml.resource org/oddjob/OptionalFileNameArg.xml
+ * 
+ * @oddjob.example
+ * 
  * Nesting Oddjob. Note how the <code>dir</code> property of the
  * Oddjob root is used as the path of the nested configuration file.
  * 
@@ -1087,7 +1093,15 @@ implements Loadable,
 		 * @return Returns the args.
 		 */
 		public Object[] getArgs() {
-			return args;
+			if (args == null) {
+				// Oddjob Main will always set an empty String array when
+				// no args are passed in. We want the same behaviour when 
+				// Oddjob is used embedded.
+				return new String[0];
+			}
+			else {
+				return args;
+			}
 		}
 
 		public Services getServices() {
