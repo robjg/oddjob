@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 
 import javax.swing.tree.TreeNode;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Iconic;
 import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
@@ -27,11 +28,17 @@ import org.oddjob.structural.StructuralListener;
 public class JobTreeNode 
 		implements TreeNode {
 
+	private static final Logger logger = Logger.getLogger(JobTreeNode.class);
+	
 	/** How to dispatch tree model changes. */
 	private final Executor executor;
 	
-	/** For list of children */
+	/** For list of children from the AWT Event Thread perspective. */
 	private final Vector<JobTreeNode> nodeList = 
+		new Vector<JobTreeNode>();
+
+	/** From the Job perspective. */	
+	private final Vector<JobTreeNode> currentList = 
 		new Vector<JobTreeNode>();
 
 	/** Parent node */
@@ -62,23 +69,29 @@ public class JobTreeNode
 		 *  (non-Javadoc)
 		 * @see org.oddjob.structural.StructuralListener#childAdded(org.oddjob.structural.StructuralEvent)
 		 */
-		public void childAdded(final StructuralEvent e) {
+		public synchronized void childAdded(final StructuralEvent e) {
 
 			final int index = e.getIndex();
 			Object childJob = e.getChild();
 
 			final JobTreeNode childNode = new JobTreeNode(JobTreeNode.this, childJob);
 
+			logger.debug("Received add event for [" + childNode.getComponent() + "]");
+			
 			// If this node is visible, then this must be the result of a
 			// external insert (paste), so our child will be visible to.
 			if (visible) {
 				childNode.setVisible(true);
 			}
 			
-			nodeList.add(index, childNode);
-
+			currentList.add(index, childNode);
+			
 			executor.execute(new Runnable() {
 				public void run() {
+					logger.debug("Adding node for [" + childNode.getComponent() + "]");
+					
+					nodeList.add(index, childNode);
+
 					model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);							
 				}
 			});
@@ -88,16 +101,24 @@ public class JobTreeNode
 		 *  (non-Javadoc)
 		 * @see org.oddjob.structural.StructuralListener#childRemoved(org.oddjob.structural.StructuralEvent)
 		 */
-		public void childRemoved(final StructuralEvent e) {
+		public synchronized void childRemoved(final StructuralEvent e) {
+			
 			
 			final int index = e.getIndex();
 			
-			final JobTreeNode child = nodeList.remove(index);
+			final JobTreeNode child = currentList.remove(index);
 
+			logger.debug("Received remove event for [" + child.getComponent() + "]");
+			
 			child.destroy();
 			
 			executor.execute(new Runnable() {
 				public void run() {
+					
+					logger.debug("Removing node for [" + child.getComponent() + "]");
+					
+					JobTreeNode child = nodeList.remove(index);
+					
 					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
 
 				}
@@ -246,27 +267,40 @@ public class JobTreeNode
 		}
 	}
 		
+	/**
+	 * Destroy the node. Remove listeners and destroy any remaining child
+	 * nodes. Child node will remain in situations where a child is removed 
+	 * from it's parent before being destroyed This happens with both the
+	 * {@link org.oddjob.jobs.structural.ForEachJob} and the 
+	 * {@link org.oddjob.jmx.JMXClientJob} jobs.
+	 */
 	public void destroy() {
+		
+		logger.debug("Destroying node for [" + getComponent() + "]");
 		
 		if (component instanceof Structural) {
 			((Structural)component).removeStructuralListener(structuralListner);	
 		}
 		
-		while (nodeList.size() > 0) {			
+		iconListener.dont();
+		
+		for (int i = currentList.size(); i > 0; --i) {			
 			
-			final int index = nodeList.size() - 1;
-			final JobTreeNode child = (JobTreeNode) nodeList.remove(index);
+			final int index = i - 1;
+			final JobTreeNode child = currentList.remove(index);
 			
 			child.destroy();
 			
 			executor.execute(new Runnable() {
 				public void run() {
+					logger.debug("Removing node for [" + child.getComponent() + "]");
+					
+					JobTreeNode child = nodeList.remove(index);
+					
 					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);				
 				}
 			});
 		}
-		
-		iconListener.dont();
 	}
 
 	class OurIconListener implements IconListener {
