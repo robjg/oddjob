@@ -5,7 +5,6 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -19,15 +18,16 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
-import org.oddjob.state.ParentState;
 
 public class GrabbingWithSQLTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(GrabbingWithSQLTest.class);
 
 	@Override
 	protected void setUp() throws Exception {
+		logger.info("-----------------  " + getName() + "  --------------------");
 	}
 	
 	@Override
@@ -77,11 +77,14 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful echo1 = lookup.lookup("echo1", Stateful.class);
 		Stateful echo2 = lookup.lookup("echo2", Stateful.class);
 		
-		assertTrue(Helper.getJobState(echo1) == JobState.COMPLETE && 
-				Helper.getJobState(echo2) == JobState.READY
+		State echo1State = echo1.lastStateEvent().getState();
+		State echo2State = echo2.lastStateEvent().getState();
+		
+		assertTrue(echo1State == JobState.COMPLETE && 
+				echo2State == JobState.READY
 				|| 
-				Helper.getJobState(echo1) == JobState.READY && 
-				Helper.getJobState(echo2) == JobState.COMPLETE); 
+				echo1State == JobState.READY && 
+				echo2State == JobState.COMPLETE); 
 		
 		((Resetable) grabbers).hardReset();
 		((Runnable) grabbers).run();
@@ -89,8 +92,11 @@ public class GrabbingWithSQLTest extends TestCase {
 		wait.hardReset();
 		wait.run();
 		
-		assertTrue(Helper.getJobState(echo1) == JobState.READY && 
-				Helper.getJobState(echo2) == JobState.READY);
+		echo1State = echo1.lastStateEvent().getState();
+		echo2State = echo2.lastStateEvent().getState();
+		
+		assertTrue(echo1State == JobState.READY && 
+				echo2State == JobState.READY);
 		
 		Object sequenceJob = lookup.lookup("sequence");
 		((Resetable) sequenceJob).hardReset();
@@ -102,11 +108,14 @@ public class GrabbingWithSQLTest extends TestCase {
 		wait.hardReset();
 		wait.run();
 		
-		assertTrue(Helper.getJobState(echo1) == JobState.COMPLETE && 
-				Helper.getJobState(echo2) == JobState.READY
+		echo1State = echo1.lastStateEvent().getState();
+		echo2State = echo2.lastStateEvent().getState();
+		
+		assertTrue(echo1State == JobState.COMPLETE && 
+				echo2State == JobState.READY
 				|| 
-				Helper.getJobState(echo1) == JobState.READY && 
-				Helper.getJobState(echo2) == JobState.COMPLETE); 
+				echo1State == JobState.READY && 
+				echo2State == JobState.COMPLETE); 
 		
 		oddjob.destroy();
 	}
@@ -129,34 +138,31 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabber1 = lookup.lookup("grabber1", Stateful.class);
 		Stateful grabber2 = lookup.lookup("grabber2", Stateful.class);
 
-		Object winner = null;
-		Object looser = null;
+		Stateful winner = null;
 
 		while (true) {
 
-			State grabber1State = Helper.getJobState(grabber1);
-			State grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = grabber1.lastStateEvent().getState();
+			State grabber2State = grabber2.lastStateEvent().getState();
 			
-			if (grabber1State == JobState.INCOMPLETE) {
+			if (grabber1State == JobState.INCOMPLETE
+					&& grabber2State == JobState.EXECUTING) {
 				winner = grabber1;
-				looser = grabber2;
 				break;
 			}
 
 			
-			if (grabber2State == JobState.INCOMPLETE) {
+			if (grabber2State == JobState.INCOMPLETE 
+					&& grabber1State == JobState.EXECUTING) {
 				winner = grabber2;
-				looser = grabber1;
 				break;
 			}
 			
-			logger.info("Sleeping, state " + grabber1State + 
+			logger.info("Sleeping, states are still " + grabber1State + 
 					" and " + grabber2State);
 			
-			Thread.sleep(1000);
+			Thread.sleep(200);
 		}
-		
-		assertEquals(JobState.EXECUTING, Helper.getJobState(looser));
 		
 		DynaBean variables = lookup.lookup("vars", DynaBean.class);		
 		variables.set("state", new ArooaObject("COMPLETE"));
@@ -192,33 +198,35 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabber1 = lookup.lookup("grabber1", Stateful.class);
 		Stateful grabber2 = lookup.lookup("grabber2", Stateful.class);
 
-		Object looser = null;
+		Stateful looser = null;
 
 		while (true) {
 
-			State grabber1State = Helper.getJobState(grabber1);
-			State grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = grabber1.lastStateEvent().getState();
+			State grabber2State = grabber2.lastStateEvent().getState();
 			
-			if (grabber1State == JobState.INCOMPLETE) {
+			int looserPollingCount = lookup.lookup("keeper-service.pollerCount", int.class);
+			
+			if (grabber1State == JobState.INCOMPLETE 
+					&& looserPollingCount == 1) {
 				looser = grabber2;
 				break;
 			}
 
 			
-			if (grabber2State == JobState.INCOMPLETE) {
+			if (grabber2State == JobState.INCOMPLETE
+					&& looserPollingCount == 1) {
 				looser = grabber1;
 				break;
 			}
 			
-			logger.info("Sleeping, state " + grabber1State + 
+			logger.info("Sleeping, states are still " + grabber1State + 
 					" and " + grabber2State);
 			
-			Thread.sleep(1000);
+			Thread.sleep(100);
 		}
 		
-		assertEquals(JobState.EXECUTING, Helper.getJobState(looser));
-		
-		assertEquals(1, lookup.lookup("keeper-service.pollerCount"));
+		assertEquals(JobState.EXECUTING, looser.lastStateEvent().getState());
 		
 		((Stoppable) looser).stop();
 		
@@ -231,7 +239,7 @@ public class GrabbingWithSQLTest extends TestCase {
 				
 		assertEquals(0, lookup.lookup("keeper-service.pollerCount"));
 		
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(looser));
+		assertEquals(JobState.INCOMPLETE, looser.lastStateEvent().getState());
 		
 		oddjob.stop();
 		
@@ -256,33 +264,34 @@ public class GrabbingWithSQLTest extends TestCase {
 		Stateful grabber1 = lookup.lookup("grabber1", Stateful.class);
 		Stateful grabber2 = lookup.lookup("grabber2", Stateful.class);
 
-		Object looser = null;
+		Stateful looser = null;
 
 		while (true) {
 
-			State grabber1State = Helper.getJobState(grabber1);
-			State grabber2State = Helper.getJobState(grabber2);
+			State grabber1State = grabber1.lastStateEvent().getState();
+			State grabber2State = grabber2.lastStateEvent().getState();
 			
-			if (grabber1State == JobState.INCOMPLETE) {
+			int looserPollingCount = lookup.lookup("keeper-service.pollerCount", int.class);
+			
+			if (grabber1State == JobState.INCOMPLETE &&
+					looserPollingCount == 1) {
 				looser = grabber2;
 				break;
 			}
-
 			
-			if (grabber2State == JobState.INCOMPLETE) {
+			if (grabber2State == JobState.INCOMPLETE &&
+					looserPollingCount == 1) {
 				looser = grabber1;
 				break;
 			}
 			
-			logger.info("Sleeping, state " + grabber1State + 
+			logger.info("Sleeping, states are still " + grabber1State + 
 					" and " + grabber2State);
 			
-			Thread.sleep(1000);
+			Thread.sleep(200);
 		}
 		
-		assertEquals(JobState.EXECUTING, Helper.getJobState(looser));
-		
-		assertEquals(1, lookup.lookup("keeper-service.pollerCount"));
+		assertEquals(JobState.EXECUTING, looser.lastStateEvent().getState());
 		
 		Stoppable keeperService = lookup.lookup("keeper-service", 
 				Stoppable.class);
@@ -298,7 +307,7 @@ public class GrabbingWithSQLTest extends TestCase {
 				
 		assertEquals(0, lookup.lookup("keeper-service.pollerCount"));
 		
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(looser));
+		assertEquals(JobState.INCOMPLETE, looser.lastStateEvent().getState());
 		
 		oddjob.stop();
 		

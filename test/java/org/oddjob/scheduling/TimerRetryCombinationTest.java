@@ -47,7 +47,7 @@ public class TimerRetryCombinationTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		logger.debug("--------------------- " + getName() + " --------------");
+		logger.info("---------------------  " + getName() + "  --------------");
 	}
 	
 	public static class Results extends SerializableJob {
@@ -354,8 +354,14 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		OddjobLookup lookup1 = new OddjobLookup(oddjob1);
 		
-		while (!DateHelper.parseDateTime("2010-07-12 07:00").equals(
-				lookup1.lookup("timer.nextDue", Date.class))) {
+		Date waitForDate = DateHelper.parseDateTime("2010-07-12 07:00"); 
+		while (true) {
+			Date isNow = lookup1.lookup("timer.nextDue", Date.class); 
+			if (waitForDate.equals(isNow)) {
+				break;
+			}			
+			logger.info("Waiting for next due to be " + waitForDate + 
+					" is now " + isNow);
 			Thread.sleep(100);
 		}
 		
@@ -380,8 +386,14 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		OddjobLookup lookup2 = new OddjobLookup(oddjob2);
 		
-		while (!DateHelper.parseDateTime("2010-07-16 07:00").equals(
-				lookup2.lookup("timer.nextDue", Date.class))) {
+		waitForDate = DateHelper.parseDateTime("2010-07-16 07:00"); 
+		while (true) {			
+			Date isNow = lookup2.lookup("timer.nextDue", Date.class);  
+			if (waitForDate.equals(isNow)) {
+				break;
+			}
+			logger.info("Waiting for next due to be " + waitForDate + 
+					" is now " + isNow);
 			Thread.sleep(100);
 		}
 		

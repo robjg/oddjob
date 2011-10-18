@@ -98,7 +98,7 @@ public class SQLKeeperService {
 	private String table;
 	
 	/** 
-	 * @oddjob.property
+	 * @oddjob.property scheduleExecutorService
 	 * @oddjob.description The scheduling service for polling.
 	 * @oddjob.required No - provided by Oddjob. 
 	 */
@@ -106,8 +106,8 @@ public class SQLKeeperService {
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The scheduling service for polling.
-	 * @oddjob.required No - provided by Oddjob. 
+	 * @oddjob.description The schedule to provide the polling interval.
+	 * @oddjob.required No - defaults to a 5 second {@link IntervalSchedule}. 
 	 */
 	private Schedule pollSchedule;
 	
@@ -524,8 +524,9 @@ public class SQLKeeperService {
 	}
 
 	/**
-	 * The number of outstanding polling's of the database that
-	 * are still in progress.
+	 * @oddjob.property pollerCount
+	 * @oddjob.description The number of outstanding loosing outcome's 
+	 * polling of the database that are still in progress.
 	 * 
 	 * @return The number.
 	 */
