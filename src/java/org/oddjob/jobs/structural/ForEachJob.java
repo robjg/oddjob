@@ -503,7 +503,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			
 			if (ready.size() > 0) {
 				
-				Runnable child = ready.removeFirst();
+				Runnable child = ready.peekFirst();
 				
 				Runnable job = executionWatcher.addJob(child);	
 				
@@ -519,7 +519,9 @@ implements Stoppable, Loadable, ConfigurationOwner {
 						logger().info("Job [" + child + "] failed. Can't continue.");
 						break;
 					}				
-				}				
+				}
+				// Only remove if execution is continuing.
+				ready.removeFirst();
 			}
 			else {
 				break;

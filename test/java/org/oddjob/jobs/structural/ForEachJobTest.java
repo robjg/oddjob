@@ -972,4 +972,124 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(0, jobCounter.jobs.size());
     	assertEquals(0, nodeCounter.jobs.size());
     }
+    
+    public static class EvenNumberHater extends SimpleJob {
+
+    	private int number;
+    	
+    	private boolean failedOnce;
+    	
+    	@Override
+    	protected int execute() throws Throwable {
+    		if (number % 2 == 0 && !failedOnce) {
+    			failedOnce = true;
+    			return 1;
+    		}
+    		
+    		System.out.println(number);
+    		
+    		return 0;
+    	}
+    	
+    	public void setNumber(int number) {
+			this.number = number;
+		}
+    }
+    
+    /**
+     * Fixing a problem where resetting after a failure would cause
+     * execution to start after the failure, not to re-run it.
+     */
+    public void testRetryRetriesFromCorrectValue() {
+    	
+    	ChildCatcher childs = new ChildCatcher();
+    	
+    	String xml =
+    			"<foreach id='loop'>" +
+    			" <job>" +
+    			"  <bean class='" + EvenNumberHater.class.getName() + "' number='${loop.current}'/>" +
+    			" </job>" +
+    			"</foreach>";
+    	
+    	ForEachJob test = new ForEachJob();
+    	test.setArooaSession(new StandardArooaSession());
+    	test.setConfiguration(new XMLConfiguration("XML", xml));
+    	test.setValues(Arrays.asList(8, 9, 10));
+    	
+    	test.addStructuralListener(childs);
+  
+    	ConsoleCapture console = new ConsoleCapture();
+    	console.capture(Oddjob.CONSOLE);
+    	
+    	test.run();
+    	
+    	Stateful child1 = (Stateful) childs.children.get(0); 
+    	Stateful child2 = (Stateful) childs.children.get(1); 
+    	Stateful child3 = (Stateful) childs.children.get(2); 
+    	
+    	assertEquals(JobState.INCOMPLETE, 
+    			child1.lastStateEvent().getState());
+    	assertEquals(JobState.READY,  
+    			child2.lastStateEvent().getState());
+    	assertEquals(JobState.READY,  
+    			child3.lastStateEvent().getState());
+    	assertEquals(ParentState.INCOMPLETE,  
+    			test.lastStateEvent().getState());
+    	
+    	test.softReset();
+    	
+    	assertEquals(JobState.READY, 
+    			child1.lastStateEvent().getState());
+    	assertEquals(JobState.READY,  
+    			child2.lastStateEvent().getState());
+    	assertEquals(JobState.READY,  
+    			child3.lastStateEvent().getState());
+    	assertEquals(ParentState.READY,  
+    			test.lastStateEvent().getState());
+        	
+    	test.run();
+    	
+    	assertEquals(JobState.COMPLETE, 
+    			child1.lastStateEvent().getState());
+    	assertEquals(JobState.COMPLETE,  
+    			child2.lastStateEvent().getState());
+    	assertEquals(JobState.INCOMPLETE,  
+    			child3.lastStateEvent().getState());
+    	assertEquals(ParentState.INCOMPLETE,  
+    			test.lastStateEvent().getState());
+    	
+    	test.softReset();
+    	
+    	assertEquals(JobState.COMPLETE, 
+    			child1.lastStateEvent().getState());
+    	assertEquals(JobState.COMPLETE,  
+    			child2.lastStateEvent().getState());
+    	assertEquals(JobState.READY,  
+    			child3.lastStateEvent().getState());
+    	assertEquals(ParentState.READY,  
+    			test.lastStateEvent().getState());
+    	
+    	test.run();
+    	
+    	assertEquals(JobState.COMPLETE, 
+    			child1.lastStateEvent().getState());
+    	assertEquals(JobState.COMPLETE,  
+    			child2.lastStateEvent().getState());
+    	assertEquals(JobState.COMPLETE,  
+    			child3.lastStateEvent().getState());
+    	assertEquals(ParentState.COMPLETE,  
+    			test.lastStateEvent().getState());
+    	
+    	console.close();
+    	console.dump(logger);
+    	
+    	String[] lines = console.getLines();
+    	assertEquals(3, lines.length);
+    	
+    	assertEquals("8", lines[0].trim());
+    	assertEquals("9", lines[1].trim());
+    	assertEquals("10", lines[2].trim());
+    	
+    	test.destroy();    	
+     }
 }
