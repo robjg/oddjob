@@ -5,6 +5,8 @@ package org.oddjob.jobs.structural;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
@@ -26,6 +28,8 @@ import org.oddjob.state.ParentState;
  */
 public class SequentialJobTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(SequentialJobTest.class);
+	
 	public static class OurJob extends SimpleJob {
 
 		@Override
@@ -160,6 +164,61 @@ public class SequentialJobTest extends TestCase {
 		test.run();
 		
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());	
+		
+		test.hardReset();
+
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
+		
+	}
+	
+	public void testDependentProgression() {
+		FlagState j1 = new FlagState();
+		j1.setState(JobState.INCOMPLETE);
+		
+		FlagState j2 = new FlagState();
+		j2.setState(JobState.COMPLETE);
+		
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, j1);
+		test.setJobs(1, j2);
+
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
+		
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());	
+		assertEquals(JobState.INCOMPLETE, j1.lastStateEvent().getState());
+		
+		// j2 should not be attempted in dependent sequential job
+		assertEquals(JobState.READY, j2.lastStateEvent().getState());	
+		
+		test.hardReset();
+
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
+		
+	}
+	
+	public void testIndependentProgression() {
+		FlagState j1 = new FlagState();
+		j1.setState(JobState.INCOMPLETE);
+		
+		FlagState j2 = new FlagState();
+		j2.setState(JobState.COMPLETE);
+		
+		SequentialJob test = new SequentialJob();
+		
+		test.setIndependent(true);
+		
+		test.setJobs(0, j1);
+		test.setJobs(1, j2);
+		
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		test.run();
+		
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());	
+		assertEquals(JobState.INCOMPLETE, j1.lastStateEvent().getState());
+		
+		// j2 should be attempted and complete in independent sequential job
+		assertEquals(JobState.COMPLETE, j2.lastStateEvent().getState());	
 		
 		test.hardReset();
 
@@ -310,4 +369,38 @@ public class SequentialJobTest extends TestCase {
 		
 		states.checkNow();		
 	}
+	
+	public void testExample() {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/SimpleSequentialExample.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		StateSteps steps = new StateSteps(oddjob);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING,
+				ParentState.COMPLETE);		
+		
+		oddjob.run();		
+		
+		steps.checkNow();
+		
+		console.close();
+		
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(2, lines.length);
+				
+		assertEquals("This runs first.", lines[0].trim());
+		assertEquals("This runs after.", lines[1].trim());
+				
+		oddjob.destroy();	
+	}
+
 }

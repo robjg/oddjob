@@ -16,13 +16,13 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.structural.JobFolder;
+import org.oddjob.jobs.structural.SequentialJob;
 
 /**
  *
  */
-public class FolderDCTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(FolderDCTest.class);
+public class SequentialDCTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(SequentialDCTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -33,12 +33,12 @@ public class FolderDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<folder name='Test'>" +
+				"<sequential name='Test' independent='true'>" +
 				" <jobs>" +
 				"  <echo/>" +
 				"  <echo/>" +
 				" </jobs>" +
-				"</folder>";
+				"</sequential>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -52,22 +52,22 @@ public class FolderDCTest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		assertEquals(FolderDesign.class, design.getClass());
+		assertEquals(SequentialDesign.class, design.getClass());
 		
-		JobFolder test = (JobFolder) Helper.createComponentFromConfiguration(
+		SequentialJob test = (SequentialJob) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
+		assertEquals(true, test.isIndependent());
 		
 		Object[] children = Helper.getChildren(test);
 
 		assertEquals(2, children.length);
-		
 	}
 
 	public static void main(String args[]) throws ArooaParseException {
 
-		FolderDCTest test = new FolderDCTest();
+		SequentialDCTest test = new SequentialDCTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);

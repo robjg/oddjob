@@ -24,14 +24,7 @@ import org.oddjob.state.WorstStateOp;
  * 
  * A simple sequence of two jobs.
  * 
- * <pre>
- * &lt;sequential id="trigger-on-me" name="A sequence of two jobs"&gt;
- *  &lt;jobs&gt;
- *   &lt;echo text="This runs first" /&gt;
- *   &lt;echo text="This runs after" /&gt;
- *  &lt;/jobs&gt;
- * &lt;/sequential&gt;
- * <pre>
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/SimpleSequentialExample.xml}
  * 
  * 
  * @author Rob Gordon 
@@ -39,7 +32,9 @@ import org.oddjob.state.WorstStateOp;
 
 public class SequentialJob extends StructuralJob<Object>
 			implements Structural, Stoppable {
-	private static final long serialVersionUID = 20051206;
+	private static final long serialVersionUID = 20111017;
+	
+	private boolean independent;
 	
 	@Override
 	protected StateOperator getStateOp() {
@@ -86,10 +81,28 @@ public class SequentialJob extends StructuralJob<Object>
 			}
 			
 			// Test we can still continue children.
-			if (!new SequentialHelper().canContinueAfter(child)) {						
+			if (!(independent || new SequentialHelper().canContinueAfter(child))) {						
 				logger().info("Child [" + child + "] failed. Can't continue.");
 				break;
 			}
 		}
-	}	
+	}
+	
+	public boolean isIndependent() {
+		return independent;
+	}
+	
+	/**
+	 * Set whether children are considered dependent (false, default)
+	 * or independent (true).
+	 * 
+	 * @oddjob.property independent
+	 * @oddjob.description Whether the child jobs are independent or not.
+	 * @oddjob.required Default is dependent child jobs.
+	 * 
+	 * @param independent flag value to set
+	 */
+	public void setIndependent(boolean independent) {
+		this.independent = independent;
+	}
 }

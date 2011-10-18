@@ -55,7 +55,7 @@
                 <is element='sequence' className='org.oddjob.jobs.SequenceJob'/>
                 <is element='sequential'
                     className='org.oddjob.jobs.structural.SequentialJob'
-                    designFactory='org.oddjob.designer.components.FolderDC'/>
+                    designFactory='org.oddjob.designer.components.SequentialDC'/>
                 <is element='services' className='org.oddjob.framework.ServicesJob'/>
                 <is element='set' className='org.oddjob.values.SetJob'/>
                 <is element='sql' className='org.oddjob.sql.SQLJob'

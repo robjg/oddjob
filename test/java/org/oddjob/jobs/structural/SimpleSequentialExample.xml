@@ -1,0 +1,10 @@
+<oddjob>
+    <job>
+        <sequential name="A sequence of two jobs">
+            <jobs>
+                <echo>This runs first.</echo>
+                <echo>This runs after.</echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
