@@ -627,7 +627,7 @@ public class TriggerTest extends TestCase {
 
 		test.stop();
 		
-		testState.checkNow();
+		testState.checkWait();
 		
 		services.stop();
 	}

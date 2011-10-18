@@ -38,8 +38,16 @@ public class IconSteps {
 		
 		@Override
 		public void iconEvent(IconEvent event) {
+			String position;
+			if (failureMessage != null) {
+				position = "(failure pending)";
+			}
+			else {
+				position = "for index [" + index + "]";
+			}
+			
 			logger.info("Received Icon Id [" + event.getIconId() + 
-					"] from [" + event.getSource() + "]");
+					"] " + position + " from [" + event.getSource() + "]");
 			
 			if (index >= steps.length) {
 				failureMessage = 

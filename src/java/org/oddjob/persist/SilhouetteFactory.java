@@ -19,12 +19,27 @@ import org.oddjob.images.IconTip;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
-import org.oddjob.state.StateEvent;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
+/**
+ * Capture the as much serializable information about a job 
+ * hierarchy as possible. This serialized form of the hierarchy
+ * is know as it's silhouette.
+ * 
+ * @author rob
+ *
+ */
 public class SilhouetteFactory {
 	
+	/**
+	 * Create a silhouette of the subject and it's children.
+	 * 
+	 * @param subject
+	 * @param session
+	 * 
+	 * @return
+	 */
 	public Object create(Object subject, ArooaSession session) {
 		
 		String name = subject.toString();
@@ -38,16 +53,14 @@ public class SilhouetteFactory {
 		
 		if (subject instanceof Stateful) {
 			Stateful stateful = (Stateful) subject;
-			StateTrap stateTrap = new StateTrap();
-			stateful.addStateListener(stateTrap);
-			stateful.removeStateListener(stateTrap);
-			lastJobStateEvent = stateTrap.getLastJobStateEvent();
+			lastJobStateEvent = stateful.lastStateEvent();
 			interfaces.add(Stateful.class);
 		}
 		
 		Object[] children = null;
 		
-		if (subject instanceof Structural) {
+		// Session will only be null in tests.
+		if (subject instanceof Structural && session != null) {
 			Structural structural = (Structural) subject;
 			ChildCatcher childCatcher = new ChildCatcher(session);
 			structural.addStructuralListener(childCatcher);
@@ -103,6 +116,10 @@ public class SilhouetteFactory {
 	}
 }
 
+/**
+ * The serialized form.
+ *
+ */
 class Silhouette implements InvocationHandler, Serializable,
 		Describeable, Structural, Stateful, Iconic {
 	private static final long serialVersionUID = 2010040900L;
@@ -196,7 +213,12 @@ class Silhouette implements InvocationHandler, Serializable,
 	}
 }
 
-
+/**
+ * For catching child events.
+ * 
+ * @author rob
+ *
+ */
 class ChildCatcher implements StructuralListener {
 
 	private final ArooaSession session;
@@ -239,20 +261,10 @@ class ChildCatcher implements StructuralListener {
 	}
 }
 
-class StateTrap implements StateListener {
-	
-	private StateEvent lastJobStateEvent;
-	
-	public StateEvent getLastJobStateEvent() {
-		return lastJobStateEvent;
-	}
-	
-	@Override
-	public void jobStateChange(StateEvent event) {
-		this.lastJobStateEvent = event;
-	}
-}
-
+/**
+ * For capturing Icon info.
+ *
+ */
 class IconInfo {
 	
 	private final String iconId;
@@ -272,6 +284,9 @@ class IconInfo {
 	}
 }
 
+/**
+ * For capturing Icon info.
+ */
 class IconCapture implements IconListener {
 	
 	private IconInfo iconInfo;

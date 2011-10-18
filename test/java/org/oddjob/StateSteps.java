@@ -39,8 +39,16 @@ public class StateSteps {
 		
 		@Override
 		public void jobStateChange(StateEvent event) {
-			logger.info("Received " + event.getState() + 
-					" from [" + event.getSource() + "]");
+			String position;
+			if (failureMessage != null) {
+				position = "(failure pending)";
+			}
+			else {
+				position = "for index [" + index + "]";
+			}
+			
+			logger.info("Received [" + event.getState() + 
+					"] " + position + " from [" + event.getSource() + "]");
 			
 			if (index >= steps.length) {
 				failureMessage = 

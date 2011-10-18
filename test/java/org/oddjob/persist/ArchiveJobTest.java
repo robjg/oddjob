@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
+import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.StateSteps;
@@ -33,19 +34,50 @@ public class ArchiveJobTest extends TestCase {
 		logger.info("----------------  " + getName() + "  -----------------");
 	}
 	
+	public void testWithSimpleJob() throws ComponentPersistException {
+		
+		final MapPersister persister = new MapPersister();
+
+		FlagState job = new FlagState();
+		
+		ArchiveJob test = new ArchiveJob();
+		
+		test.setArchiver(persister);
+		test.setArchiveIdentifier("1");
+		test.setArchiveName("test");
+		test.setJob(job);
+
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
+		test.run();
+		
+		states.checkNow();
+		
+		ComponentPersister cp = persister.persisterFor("test");
+		
+		Stateful stateful = (Stateful) cp.restore(
+				"1", getClass().getClassLoader(), null);
+		
+		assertEquals(JobState.COMPLETE, stateful.lastStateEvent().getState());
+		
+		test.destroy();		
+	}
+	
 	public void testState() throws FailedToStopException, ComponentPersistException, InterruptedException {
 
 		final MapPersister persister = new MapPersister();
 
 		WaitJob wait = new WaitJob();
 
-		StateSteps states = new StateSteps(wait);
-		states.startCheck(JobState.READY, JobState.EXECUTING);
+		StateSteps waitStates = new StateSteps(wait);
+		waitStates.startCheck(JobState.READY, JobState.EXECUTING);
 		
 		Thread t = new Thread(wait);
 		t.start();
 		
-		states.checkWait();
+		waitStates.checkWait();
 		
 		ArchiveJob test = new ArchiveJob();
 		test.setArchiver(persister);
@@ -55,7 +87,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(JobState.EXECUTING, test.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
 		
 		wait.stop();
 
@@ -68,7 +100,7 @@ public class ArchiveJobTest extends TestCase {
 		assertNotNull(stateful);
 		
 		assertEquals(IconHelper.COMPLETE, Helper.getIconId(stateful));
-		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, stateful.lastStateEvent().getState());
 	}
 
@@ -85,8 +117,8 @@ public class ArchiveJobTest extends TestCase {
 		test.setJob(job);
 		
 		StateSteps testStates = new StateSteps(test);
-		testStates.startCheck(JobState.READY, 
-				JobState.EXECUTING, JobState.INCOMPLETE);
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.INCOMPLETE);
 		
 		test.run();
 
@@ -98,7 +130,7 @@ public class ArchiveJobTest extends TestCase {
 		assertNotNull(stateful);
 		
 		assertEquals(IconHelper.NOT_COMPLETE, Helper.getIconId(stateful));
-		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
+		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		assertEquals(JobState.INCOMPLETE, stateful.lastStateEvent().getState());
 	}
 	
@@ -124,15 +156,15 @@ public class ArchiveJobTest extends TestCase {
 		test.setJob(trigger);
 
 		StateSteps testStates = new StateSteps(test);
-		testStates.startCheck(JobState.READY, 
-				JobState.EXECUTING);
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
 		test.run();
 
 		testStates.checkWait();
 
-		testStates.startCheck(JobState.EXECUTING, 
-				JobState.READY);
+		testStates.startCheck(ParentState.ACTIVE, 
+				ParentState.READY);
 		
 		test.stop();		
 		
@@ -175,5 +207,47 @@ public class ArchiveJobTest extends TestCase {
 		String[] archives = thePersister.list();
 		
 		assertEquals(3, archives.length);
+	}
+	
+	public void testStateChangesForAsynchronousJobs() throws InterruptedException {
+		
+		DefaultExecutors executors = new DefaultExecutors();
+		
+		FlagState depends = new FlagState();
+		
+		FlagState toTrigger = new FlagState();
+		
+		Trigger trigger = new Trigger();
+		trigger.setOn(depends);
+		trigger.setJob(toTrigger);
+		trigger.setExecutorService(executors.getPoolExecutor());
+		
+		final MapPersister persister = new MapPersister();
+
+		ArchiveJob test = new ArchiveJob();
+		test.setJob(trigger);
+		test.setArchiver(persister);
+		test.setArchiveIdentifier("Client_Report");
+		
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.ACTIVE);
+		test.run();
+		
+		states.checkNow();
+		icons.checkNow();
+		
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		icons.startCheck(IconHelper.ACTIVE, IconHelper.COMPLETE);
+		
+		depends.run();
+		
+		states.checkWait();
+		icons.checkWait();
+		
+		executors.stop();
+		
+		
 	}
 }

@@ -319,9 +319,23 @@ abstract public class TimerBase extends ScheduleBase {
 	 */
 	class RescheduleStateListener implements StateListener {
 		
+		private final Thread executionThread;
+		
+		private State state;
+		
+		RescheduleStateListener(Thread executionThread) {
+			this.executionThread = executionThread;
+		}
+		
+		synchronized void changeToActive() {
+			if (state.isStoppable()) {
+				iconHelper.changeIcon(IconHelper.ACTIVE);
+			}
+		}
+		
 		@Override
 		public void jobStateChange(StateEvent event) {
-			final State state = event.getState();
+			state = event.getState();
 			
 			if (stop) {
 			    event.getSource().removeStateListener(this);
@@ -331,11 +345,22 @@ abstract public class TimerBase extends ScheduleBase {
 			if (state.isReady()) {
 				return;
 			}
-						
 			if (state.isStoppable()) {
 				iconHelper.changeIcon(IconHelper.EXECUTING);
 				return;
 			}
+			
+			// Get this far and it's a completion state.
+			
+			synchronized (this) {
+				// If the child job was executing asynchronously
+				// we need to ensure the ACTIVE icon has been broadcast
+				// so that icon progression is always predictable.
+				if (Thread.currentThread() != executionThread) {
+					iconHelper.changeIcon(IconHelper.ACTIVE);
+				}
+			}
+
 
 			// Order is important! Must remove this before scheduling again.
 		    event.getSource().removeStateListener(this);
@@ -363,33 +388,40 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
+		    Runnable job = childHelper.getChild();
+		    
 			if (stop) {
 				logger().info("[" + TimerBase.this + 
-		    		"] Not Executing child as we have now stopped.");
+		    		"] Not Executing [" + job + "] + as we have now stopped.");
 				return;
 			}
 			
 		    logger().info("[" + TimerBase.this + 
-		    		"] Executing child at [" + new Date()+ "]");
-		    
-		    Runnable job = childHelper.getChild();
+		    		"] Executing [" + job + " ] due at " + nextDue);
+		    logger().info("[" + TimerBase.this + 
+		    		"] Current date and time is [" + new Date()+ "]");
 		    
 		    if (job != null) {
 		    
 				try {
-				    if (job instanceof Resetable) {
+					RescheduleStateListener rescheduleListner = 
+						new RescheduleStateListener(Thread.currentThread());
+							
+					if (job instanceof Resetable) {
 				    	reset((Resetable) job);
 			        }
 				    
 			    	if (job instanceof Stateful) {
 			    		
-			    		((Stateful) job).addStateListener(
-			    				new RescheduleStateListener());
+			    		((Stateful) job).addStateListener(rescheduleListner);
 			    	}
 
-				    logger().debug("Running job [" + job + "]");
-				    
 					job.run();
+					
+					rescheduleListner.changeToActive();
+					
+				    logger().info("[" + TimerBase.this + "] finished running [" + 
+				    		job + "]");
 				}
 				catch (final Exception t) {
 					logger().error("Failed running scheduled job.", t);

@@ -486,14 +486,15 @@ public class TimerTest extends TestCase {
 	public void testStop() throws ParseException, InterruptedException {
 		
 		final Timer test = new Timer();
-		test.setSchedule(new NowSchedule());
+		test.setSchedule(new CountSchedule(2));
 		
 		IntervalSchedule interval = new IntervalSchedule();
 		interval.setInterval("00:15");
 		
 		final IconSteps checkFirstThreadFinished = new IconSteps(test);
-		checkFirstThreadFinished.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
-				IconHelper.SLEEPING, IconHelper.EXECUTING, IconHelper.SLEEPING);
+		checkFirstThreadFinished.startCheck(IconHelper.READY, 
+				IconHelper.EXECUTING, IconHelper.SLEEPING, 
+				IconHelper.EXECUTING, IconHelper.ACTIVE, IconHelper.SLEEPING);
 		
 		StopJob stop = new StopJob();
 		stop.setExecutorService(new MockExecutorService() {
@@ -533,10 +534,10 @@ public class TimerTest extends TestCase {
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
 				ParentState.ACTIVE, ParentState.READY);
 		IconSteps icons = new IconSteps(test);
-		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
-				IconHelper.SLEEPING, IconHelper.EXECUTING, 
-				IconHelper.SLEEPING, IconHelper.STOPPING,
-				IconHelper.READY);
+		icons.startCheck(IconHelper.READY, 
+				IconHelper.EXECUTING, IconHelper.SLEEPING, 
+				IconHelper.EXECUTING, IconHelper.ACTIVE, IconHelper.SLEEPING, 
+				IconHelper.STOPPING, IconHelper.READY);
 		
 		test.run();
 		

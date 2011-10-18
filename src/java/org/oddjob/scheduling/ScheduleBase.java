@@ -14,6 +14,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
+import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.OddjobNDC;
@@ -141,14 +142,15 @@ implements
 				// this.
 				iconHelper.changeIcon(IconHelper.SLEEPING);
 				
-				begin();
-				
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
 						stateHandler.setState(ParentState.ACTIVE);
 						stateHandler.fireEvent();
 					}
 				});
+				
+				begin();
+				
 			}
 			catch (final Throwable e) {
 				logger().warn("[" + ScheduleBase.this + "] Job Exception:", e);
@@ -201,13 +203,16 @@ implements
 		// then stop children
 		try {
 			childHelper.stopChildren();		
+			
+			postStop();
+			
+			new StopWait(this).run();
 		}
 		catch (FailedToStopException e) {
 			iconHelper.changeIcon(lastIcon.get());
 			logger().warn(e);
 		}
 		
-		postStop();
 		
 		logger().info("[" + this + "] Stopped.");
 	}

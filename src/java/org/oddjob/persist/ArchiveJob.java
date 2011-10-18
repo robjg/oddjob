@@ -24,13 +24,14 @@ import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateChanger;
-import org.oddjob.state.JobStateConverter;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.ParentStateChanger;
+import org.oddjob.state.ParentStateConverter;
+import org.oddjob.state.ParentStateHandler;
+import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -54,9 +55,9 @@ implements
 	Runnable, Serializable, 
 	Stoppable, Resetable, Stateful, Structural {
 
-	private transient JobStateHandler stateHandler;
+	private transient ParentStateHandler stateHandler;
 	
-	private transient JobStateChanger stateChanger;
+	private transient ParentStateChanger stateChanger;
 	
 	private static final long serialVersionUID = 2010032500L;
 	
@@ -86,9 +87,10 @@ implements
 	 */
 	private transient OddjobPersister archiver;
 	
-	
-	private volatile transient StateListener listener;
-	
+	/** Listener that does the archiving. */
+	private volatile transient PersistingStateListener listener;
+
+	/** Stop flag. */
 	protected transient volatile boolean stop;
 	
 	/**
@@ -99,9 +101,9 @@ implements
 	}
 	
 	private void completeConstruction() {
-		stateHandler = new JobStateHandler(this);
+		stateHandler = new ParentStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
-		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
+		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
 					public void persist() throws ComponentPersistException {
@@ -111,11 +113,11 @@ implements
 	}
 
 	@Override
-	protected JobStateHandler stateHandler() {
+	protected ParentStateHandler stateHandler() {
 		return stateHandler;
 	}
 	
-	protected StateChanger<JobState> getStateChanger() {
+	protected StateChanger<ParentState> getStateChanger() {
 		return stateChanger;
 	}
 	
@@ -128,7 +130,7 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
-					getStateChanger().setState(JobState.EXECUTING);
+					getStateChanger().setState(ParentState.EXECUTING);
 				}					
 			})) {
 				return;
@@ -157,6 +159,108 @@ implements
 		}
 	}
 	
+	/**
+	 * Listen for state state changes. Persist when in finished state. 
+	 * Reflect state for this job.
+	 */
+	private class PersistingStateListener implements StateListener {
+
+		private final Stateful child;
+		
+		private final ComponentPersister componentPersister;
+		
+		private volatile StateEvent event;
+		
+		private volatile boolean reflect;
+		
+		public PersistingStateListener(Stateful child,
+				ComponentPersister componentPersister) {
+			this.child = child;
+			this.componentPersister = componentPersister;
+		}
+		
+		void startReflecting() {
+			reflect = true;
+			reflectState();
+		}
+		
+		void reflectState() {
+			if (event.getState().isDestroyed()) {
+				stopListening(event.getSource());
+			}
+			else {
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						if (event.getState().isException()) {
+							getStateChanger().setStateException(
+									event.getException());
+						}
+						else {
+							getStateChanger().setState(
+									new ParentStateConverter(
+											).toStructuralState(
+													event.getState()));
+						}
+					}
+				});
+			}
+		}
+		
+		@Override
+		public void jobStateChange(final StateEvent event) {
+
+			this.event = event;
+			
+			if (reflect) {
+				reflectState();
+			}
+			
+			if (stop) {
+				// don't persist when stopping.
+				return;
+			}
+			
+			State state = event.getState();
+			
+			if (new IsDone().test(state)) {
+				
+				if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						logger().info("[" + ArchiveJob.this + 
+								"] Archiving [" + event.getSource() + 
+								"] as [" + archiveIdentifier + 
+								"] because " + event.getState() + ".");
+						
+						try {
+							persist(event.getSource());							
+						}
+						catch (ComponentPersistException e) {
+							logger().error("Failed to persist.", e);
+							getStateChanger().setStateException(e);
+						}
+						
+					}
+				})) {
+				}
+			}
+		}
+		
+		private void persist(Stateful source) throws ComponentPersistException {
+			OddjobNDC.push(loggerName());
+			try {
+				Object silhouette = new SilhouetteFactory().create(
+						child, ArchiveJob.this.getArooaSession());
+				
+				componentPersister.persist(archiveIdentifier.toString(), 
+						silhouette, getArooaSession());
+			}
+			finally {
+				OddjobNDC.pop();					
+			}
+		}
+		
+	}
+	
 	protected void execute() throws Throwable {
 		
 		OddjobPersister archiver = this.archiver;
@@ -179,15 +283,15 @@ implements
 			throw new NullPointerException("No ArchiveIdentifier.");
 		}
 		
-		final ComponentPersister finalArchiver = 
+		final ComponentPersister componentPersister = 
 			archiver.persisterFor(archiveName);
 		
-		if (finalArchiver == null) {
+		if (componentPersister == null) {
 			throw new NullPointerException("No Persister for [" + 
 					archiveName + "]");
 		}
 		
-		final Runnable child = childHelper.getChild();
+		Runnable child = childHelper.getChild();
 		
 		if (child == null) {
 			return;
@@ -197,94 +301,15 @@ implements
 			throw new IllegalArgumentException("Child must be stateful to be archived.");
 		}
 		
-		listener = new StateListener() {
-
-			@Override
-			public void jobStateChange(final StateEvent event) {
-				
-				if (stop) {
-					if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-						public void run() {
-							if (event.getState().isException()) {
-								getStateChanger().setStateException(
-										event.getException());
-							}
-							else {
-								getStateChanger().setState(new JobStateConverter().toJobState(
-										event.getState()));
-							}
-						}
-					})) {
-						logger().info("[" + ArchiveJob.this + 
-								"] Stopping and reflecting child state [" +
-								event.getState() + "].");
-					}
-					// don't persist when stopping.
-					return;
-				}
-				
-				if (new IsDone().test(event.getState())) {
-					
-					if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-						public void run() {
-							logger().info("[" + ArchiveJob.this + 
-									"] Archiving [" + event.getSource() + 
-									"] as [" + archiveIdentifier + 
-									"] because " + event.getState() + ".");
-							
-							try {
-								persist(event.getSource());
-								
-								if (event.getState().isException()) {
-									getStateChanger().setStateException(
-											event.getException());
-								}
-								else {
-									getStateChanger().setState(new JobStateConverter().toJobState(
-											event.getState()));
-								}
-							}
-							catch (ComponentPersistException e) {
-								logger().error("Failed to persist.", e);
-								getStateChanger().setStateException(e);
-							}
-							
-						}
-					})) {
-						logger().info("[" + ArchiveJob.this + 
-								"] Not archiving as no longer executing.");
-					}
-				}
-				else if (event.getState().isDestroyed()) {
-					stopListening(event.getSource());
-				}
-			}
-			
-			private void persist(Stateful source) throws ComponentPersistException {
-				OddjobNDC.push(loggerName());
-				try {
-					Object silhouette = new SilhouetteFactory().create(
-							child, ArchiveJob.this.getArooaSession());
-					
-					finalArchiver.persist(archiveIdentifier.toString(), 
-							silhouette, getArooaSession());
-				}
-				finally {
-					OddjobNDC.pop();					
-				}
-				stopListening(source);
-			}
-			
-			private void stopListening(Stateful source) {
-				source.removeStateListener(this);
-				listener = null;
-				logger().debug("Listener removed.");				
-			}
-		};
-		
-		((Stateful) child).addStateListener(listener);
+		if (listener == null) {
+			listener = new PersistingStateListener((Stateful) child, 
+					componentPersister);		
+			((Stateful) child).addStateListener(listener);
+		}
 		
 		child.run();
+		
+		listener.startReflecting();
 	}
 
 	/**
@@ -323,7 +348,7 @@ implements
 		
 		new StopWait(this).run();
 		
-		stopListening();
+		stopListening((Stateful) childHelper.getChild());
 		
 		logger().info("[" + this + "] Stopped.");
 	}
@@ -337,10 +362,10 @@ implements
 			
 				logger().debug("[" + ArchiveJob.this + "] Propergating Soft Reset to children.");			
 				
-				stopListening();
+				stopListening((Stateful) childHelper.getChild());
 				childHelper.softResetChildren();
 				stop = false;
-				getStateChanger().setState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				
 				logger().info("[" + ArchiveJob.this + "] Soft Reset.");
 			}
@@ -356,24 +381,27 @@ implements
 			public void run() {
 				logger().debug("[" + ArchiveJob.this + "] Propergating Hard Reset to children.");			
 				
-				stopListening();
+				stopListening((Stateful) childHelper.getChild());
 				childHelper.hardResetChildren();
 				stop = false;
-				getStateChanger().setState(JobState.READY);
+				getStateChanger().setState(ParentState.READY);
 				
 				logger().info("[" + ArchiveJob.this + "] Hard Reset.");
 			}
 		});
 	}
 
-	private void stopListening() {
+	private void stopListening(Stateful to) {
+		
+		if (to == null) {
+			return;
+		}
 		
 		StateListener listener = this.listener;
 		this.listener = null;
 		
 		if (listener != null) {
-			Stateful child = (Stateful) childHelper.getChild();
-			child.removeStateListener(listener);
+			to.removeStateListener(listener);
 			logger().debug("Archiving Listener removed from child");
 		}		
 	}
@@ -481,7 +509,7 @@ implements
 		
 		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				stateHandler().setState(JobState.DESTROYED);
+				stateHandler().setState(ParentState.DESTROYED);
 				stateHandler().fireEvent();
 			}
 		})) {
