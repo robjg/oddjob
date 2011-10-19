@@ -24,13 +24,9 @@ import org.apache.log4j.Logger;
 
 /**
  * Display Diagnostics about the ClassLoader.
- * <pre>
- * &lt;class class='org.oddjob.util.ClassLoaderDiagnostics
- *     resource="/log4j.properties"
- *   &lt;classLoader&gt;
- *    &lt;contextClassLoader/&gt;
- *   &lt;/classLoader&gt;
- * </pre>
+ * <p>
+ * See test/java/org/oddjob/util/ClassLoaderDiagnostics.xml for an example.
+ * 
  * 
  * @author Rob, Based heavily on WhichResource from Ant.
  * 

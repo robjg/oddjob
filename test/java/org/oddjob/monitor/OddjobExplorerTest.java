@@ -11,6 +11,7 @@ import javax.swing.Action;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 
+import org.apache.log4j.Logger;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.oddjob.Oddjob;
@@ -36,6 +37,15 @@ import org.xml.sax.SAXException;
 
 public class OddjobExplorerTest extends XMLTestCase {
 
+	private Logger logger = Logger.getLogger(OddjobExplorerTest.class);
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("----------------  " + getName() + "  --------------");
+	}
+	
 	public void testSave() throws SAXException, IOException, PropertyVetoException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
@@ -47,7 +57,7 @@ public class OddjobExplorerTest extends XMLTestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <echo text='Hello'/>" +
+			"  <echo><![CDATA[Hello]]></echo>" +
 			" </job>" +
 			"</oddjob>";
 		
@@ -167,12 +177,22 @@ public class OddjobExplorerTest extends XMLTestCase {
 		
 		assertEquals("Oddjob Explorer - apples", test.getTitle());
 				
-		JTree tree = component.getTree();
+		final JTree tree = component.getTree();
 
 		assertEquals(false, tree.isExpanded(0));
-		tree.expandRow(0);
 		
-		tree.setSelectionRow(1);
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				tree.expandRow(0);
+				tree.setSelectionRow(1);		
+			}
+		});
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Wait for event queue to drain.
+			}
+		});
 
 		assertEquals(false, tree.isSelectionEmpty());
 		
@@ -209,7 +229,6 @@ public class OddjobExplorerTest extends XMLTestCase {
 			@Override
 			public void run() {
 				// Wait for event queue to drain.
-				
 			}
 		});
 		

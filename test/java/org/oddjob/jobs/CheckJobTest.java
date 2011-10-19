@@ -310,11 +310,11 @@ public class CheckJobTest extends TestCase {
 		
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.INCOMPLETE);
 		
 		oddjob.run();
 		
-		state.checkWait();
+		state.checkNow();
 		
 		Structural structural = new OddjobLookup(oddjob).lookup(
 				"all-checks", Structural.class);

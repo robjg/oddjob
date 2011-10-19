@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bean class="org.oddjob.util.ClassLoaderDiagnostics" className="org.oddjob.Main" id="for-class"/>
+                <bean class="org.oddjob.util.ClassLoaderDiagnostics" id="for-resource" resource="META-INF/arooa.xml"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
