@@ -74,7 +74,7 @@ implements  Runnable, Resetable, Stateful {
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -84,7 +84,7 @@ implements  Runnable, Resetable, Stateful {
 				return;			
 			}
 			
-			logger().info("[" + SimpleJob.this + "] Executing.");
+			logger().info("Executing.");
 
 			final AtomicInteger result = new AtomicInteger();
 			final AtomicReference<Throwable> exception = 
@@ -95,11 +95,11 @@ implements  Runnable, Resetable, Stateful {
 				
 				result.set(execute());
 				
-				logger().info("[" + SimpleJob.this + "] Finished, result " + 
+				logger().info("Finished, result " + 
 						result.get());
 			}
 			catch (Throwable e) {
-				logger().error("[" + SimpleJob.this + "] Exception executing job.", e);
+				logger().error("Exception executing job.", e);
 				exception.set(e);
 			}
 			
@@ -133,13 +133,12 @@ implements  Runnable, Resetable, Stateful {
 		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 			public void run() {
 				if (stop) {
-					logger().debug("[" + SimpleJob.this + 
-					"] Stop request detected. Not sleeping.");
+					logger().debug("Stop request detected. Not sleeping.");
 					
 					return;
 				}
 				
-				logger().debug("[" + SimpleJob.this + "] Sleeping for " + ( 
+				logger().debug("Sleeping for " + ( 
 						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
 				
 				iconHelper.changeIcon(IconHelper.SLEEPING);
@@ -170,36 +169,41 @@ implements  Runnable, Resetable, Stateful {
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				stop = true;
-				stateHandler.wake();
-				iconHelper.changeIcon(IconHelper.STOPPING);
-			}
-		})) {
-			return;
-		}
-		
-		logger().info("[" + this + "] Stop requested.");
-		
+		OddjobNDC.push(loggerName(), this);
 		try {
-			onStop();
-			
-			synchronized (this) {
-				notifyAll();
+			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					stop = true;
+					stateHandler.wake();
+					iconHelper.changeIcon(IconHelper.STOPPING);
+				}
+			})) {
+				return;
 			}
 			
-			new StopWait(this).run();
+			logger().info("Stopping.");
 			
-			logger().info("[" + this + "] Stopped.");
-			
-		} catch (RuntimeException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
-		}
-		catch (FailedToStopException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
+			try {
+				onStop();
+				
+				synchronized (this) {
+					notifyAll();
+				}
+				
+				new StopWait(this).run();
+				
+				logger().info("Stopped.");
+				
+			} catch (RuntimeException e) {
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+				throw e;
+			}
+			catch (FailedToStopException e) {
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+				throw e;
+			}
+		} finally {
+			OddjobNDC.pop();
 		}
 	}
 	
@@ -212,34 +216,44 @@ implements  Runnable, Resetable, Stateful {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				onReset();
-				
-				getStateChanger().setState(JobState.READY);
-				
-				stop = false;
-				
-				logger().info("[" + SimpleJob.this + "] Soft Reset.");
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					onReset();
+					
+					getStateChanger().setState(JobState.READY);
+					
+					stop = false;
+					
+					logger().info("Soft Reset complete.");
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				onReset();
-				
-				getStateChanger().setState(JobState.READY);
-		
-				stop = false;
-				
-				logger().info("[" + SimpleJob.this + "] Hard Reset.");
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					onReset();
+					
+					getStateChanger().setState(JobState.READY);
+			
+					stop = false;
+					
+					logger().info("Hard Reset complete.");
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
  	/**
@@ -271,8 +285,8 @@ implements  Runnable, Resetable, Stateful {
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + SimpleJob.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + SimpleJob.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + SimpleJob.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

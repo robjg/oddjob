@@ -16,7 +16,9 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.images.IconHelper;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -194,7 +196,7 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 	
 	protected void scheduleFrom(Date date) throws ComponentPersistException {
-	    logger().debug("[" + this + "] Scheduling from [" + date + "]");
+	    logger().debug("Scheduling from [" + date + "]");
 
 	    if (date == null) {
 	    	setNextDue(null);
@@ -251,20 +253,18 @@ abstract public class TimerBase extends ScheduleBase {
 	 */
 	protected void setNextDue(Date nextDue) throws ComponentPersistException {
 		
-		logger().debug("[" + this + "] Setting next due to : " + nextDue);
 		Date oldNextDue = this.nextDue;
 		this.nextDue = nextDue;	
 		firePropertyChange("nextDue", oldNextDue, nextDue);
 		
 		if (nextDue == null) {
-			logger().info("[" + this + "] Schedule finished.");
+			logger().info("Schedule finished.");
 			childStateReflector.start();
 			return;
 		}
-		else {
-			iconHelper.changeIcon(IconHelper.SLEEPING);
-		}
-
+		
+		iconHelper.changeIcon(IconHelper.SLEEPING);
+		
 		// save the last complete.
 		save();
 		
@@ -276,8 +276,8 @@ abstract public class TimerBase extends ScheduleBase {
 	    future = scheduler.schedule(
 	    		new Execution(), delay, TimeUnit.MILLISECONDS);
 	    
-		logger().info("[" + this + "] scheduled for execution at " + 
-				nextDue + " in " + delay + "ms");
+		logger().info("Next due at " + nextDue +
+				" in " + DateHelper.formatMilliseconds(delay) + ".");
 	}
 
 	/**
@@ -365,7 +365,7 @@ abstract public class TimerBase extends ScheduleBase {
 			// Order is important! Must remove this before scheduling again.
 		    event.getSource().removeStateListener(this);
 		    
-			logger().debug("[" + TimerBase.this + "] Rescheduling based on state [" + state + "]");
+			logger().debug("Rescheduling based on state [" + state + "]");
 			
 			try {
 				rescheduleOn(state);
@@ -388,53 +388,54 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
-		    Runnable job = childHelper.getChild();
-		    
-			if (stop) {
-				logger().info("[" + TimerBase.this + 
-		    		"] Not Executing [" + job + "] + as we have now stopped.");
-				return;
-			}
-			
-		    logger().info("[" + TimerBase.this + 
-		    		"] Executing [" + job + " ] due at " + nextDue);
-		    logger().info("[" + TimerBase.this + 
-		    		"] Current date and time is [" + new Date()+ "]");
-		    
-		    if (job != null) {
-		    
-				try {
-					RescheduleStateListener rescheduleListner = 
-						new RescheduleStateListener(Thread.currentThread());
-							
-					if (job instanceof Resetable) {
-				    	reset((Resetable) job);
-			        }
-				    
-			    	if (job instanceof Stateful) {
-			    		
-			    		((Stateful) job).addStateListener(rescheduleListner);
-			    	}
+			OddjobNDC.push(loggerName(), this);
+			try {
+				Runnable job = childHelper.getChild();
 
-					job.run();
-					
-					rescheduleListner.changeToActive();
-					
-				    logger().info("[" + TimerBase.this + "] finished running [" + 
-				    		job + "]");
+				if (stop) {
+					logger().info("Not Executing [" + job + "] + as we have now stopped.");
+					return;
 				}
-				catch (final Exception t) {
-					logger().error("Failed running scheduled job.", t);
-					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-						public void run() {
-							getStateChanger().setStateException(t);
+
+				logger().info("Executing [" + job + "] due at " + nextDue);
+
+				if (job != null) {
+
+					try {
+						RescheduleStateListener rescheduleListner = 
+							new RescheduleStateListener(Thread.currentThread());
+
+						if (job instanceof Resetable) {
+							reset((Resetable) job);
 						}
-					});
+
+						if (job instanceof Stateful) {
+
+							((Stateful) job).addStateListener(rescheduleListner);
+						}
+
+						job.run();
+
+						rescheduleListner.changeToActive();
+
+						logger().info("Finished running [" + 
+								job + "]");
+					}
+					catch (final Exception t) {
+						logger().error("Failed running scheduled job.", t);
+						stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+							public void run() {
+								getStateChanger().setStateException(t);
+							}
+						});
+					}
 				}
-		    }
-		    else {
-			    logger().warn("Nothing to run.");
-		    }
+				else {
+					logger().warn("Nothing to run.");
+				}
+			} finally {
+				OddjobNDC.pop();
+			}
 		}
 		
 		@Override

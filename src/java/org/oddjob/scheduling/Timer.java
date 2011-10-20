@@ -207,7 +207,7 @@ public class Timer extends TimerBase {
 	}
 	
 	protected void reset(Resetable job) {
-	    logger().debug("[" + this + "] Sending Hard Reset to [" + job + "]");
+	    logger().debug("Sending Hard Reset to [" + job + "]");
 	    
     	job.hardReset();
 	}

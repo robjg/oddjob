@@ -12,6 +12,5 @@ public class OJConstants {
 	
 	public static final String SUBSTITUTION_POLICY_ANTLIKE = "ANTLIKE";
 	
-    public static final String DEFAULT_LOG_FORMAT = "%-5p %d{dd-MMM-yy HH:mm:ss}: %m%n";
-	
+    public static final String DEFAULT_LOG_FORMAT = "%d{dd-MMM-yy HH:mm:ss}: %m%n";
 }

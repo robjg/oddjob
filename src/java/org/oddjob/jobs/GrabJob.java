@@ -164,7 +164,7 @@ implements
 	 */
 	public final void run() {
 		
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -177,7 +177,7 @@ implements
 				return;
 			}
 			
-			logger().info("[" + GrabJob.this + "] Executing.");
+			logger().info("Executing.");
 
 			try {
 				configure();
@@ -185,7 +185,7 @@ implements
 				execute();
 			}
 			catch (final Throwable e) {
-				logger().error("[" + GrabJob.this + "] Job Exception.", e);
+				logger().error("Job Exception.", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
@@ -193,7 +193,7 @@ implements
 					}
 				});
 			}	
-			logger().info("[" + GrabJob.this + "] Execution finished.");
+			logger().info("Execution finished.");
 		}
 		finally {
 			OddjobNDC.pop();
@@ -383,61 +383,70 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		logger().debug("[" + this + "] Thread [" + 
-				Thread.currentThread().getName() + "] requested  stop, " +
-						"state is [" + lastStateEvent().getState() + "]");
-		
-		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				stop = true;
-			}
-		})) {
-			return;			
-		}
-		
-		logger().info("[" + this + "] Stop requested.");
-		
-		iconHelper.changeIcon(IconHelper.STOPPING);
-		
+		OddjobNDC.push(loggerName(), this);
 		try {
-			if (listener != null) {
-				listener.stop();					
-				listener = null;
+			logger().debug("Stop requested.");
+
+			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					stop = true;
+				}
+			})) {
+				logger().debug("Not in a stoppable state.");
+				return;			
 			}
 
-			childHelper.stopChildren();
-			
- 			new StopWait(this).run();
+			logger().info("Stopping.");
+
+			iconHelper.changeIcon(IconHelper.STOPPING);
+
+			try {
+				if (listener != null) {
+					listener.stop();					
+					listener = null;
+				}
+
+				childHelper.stopChildren();
+
+				new StopWait(this).run();
+			}
+			catch (FailedToStopException e) {
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+				throw e;
+			}
+
+			logger().info("Stopped.");		
+		} finally {
+			OddjobNDC.pop();
 		}
-		catch (FailedToStopException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
-		}
-		
-		logger().info("[" + this + "] Stopped.");		
 	}
 	
 	/**
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-			
-				logger().debug("[" + GrabJob.this + "] Propergating Soft Reset to children.");			
-				
-				if (listener != null) {
-					listener.stopListening();
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+
+					logger().debug("Propergating Soft Reset to children.");			
+
+					if (listener != null) {
+						listener.stopListening();
+					}
+
+					childHelper.softResetChildren();
+					reset();
+					getStateChanger().setState(JobState.READY);
+					stop = false;
+
+					logger().info("Soft reset complete.");
 				}
-				
-				childHelper.softResetChildren();
-				reset();
-				getStateChanger().setState(JobState.READY);
-				stop = false;
-				
-				logger().info("[" + GrabJob.this + "] Soft Reset.");
-			}
-		});	
+			});	
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
@@ -445,22 +454,27 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				logger().debug("[" + GrabJob.this + "] Propergating Hard Reset to children.");			
-				
-				if (listener != null) {
-					listener.stopListening();
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					logger().debug("Propergating Hard Reset to children.");			
+
+					if (listener != null) {
+						listener.stopListening();
+					}
+
+					childHelper.hardResetChildren();
+					reset();
+					getStateChanger().setState(JobState.READY);
+					stop = false;
+
+					logger().info("Hard reset complete.");
 				}
-				
-				childHelper.hardResetChildren();
-				reset();
-				getStateChanger().setState(JobState.READY);
-				stop = false;
-				
-				logger().info("[" + GrabJob.this + "] Hard Reset.");
-			}
-		});
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	private void reset() {
@@ -586,8 +600,8 @@ implements
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + GrabJob.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + GrabJob.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + GrabJob.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

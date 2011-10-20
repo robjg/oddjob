@@ -71,7 +71,7 @@ import org.oddjob.monitor.model.FileHistory;
 import org.oddjob.monitor.model.JobTreeNode;
 import org.oddjob.monitor.view.ExplorerComponent;
 import org.oddjob.monitor.view.MonitorMenuBar;
-import org.oddjob.state.JobState;
+import org.oddjob.state.State;
 import org.oddjob.swing.SwingInputHandler;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
@@ -262,7 +262,7 @@ implements Stoppable {
 		vetoableChangeSupport.fireVetoableChange(ODDJOB_PROPERTY, oldValue, oddjob);
 		
 		if (this.oddjob != null) {
-			addFileHistory(this.oddjob.getFile());
+			addFileHistory(this.oddjob.getFile());			
 			this.oddjob.destroy();
 		}
 		
@@ -358,8 +358,11 @@ implements Stoppable {
 				return;
 			}
 			
-			if (oddjob.lastStateEvent().getState() == JobState.EXECUTING) {
-				throw new PropertyVetoException("Oddjob Not Stopped.", evt);
+			State state = oddjob.lastStateEvent().getState();
+			if (state.isStoppable()) {
+				String message = "Oddjob is not stopped. Current state is " + state; 
+				JOptionPane.showMessageDialog(frame, message, "Oddjob Running!", JOptionPane.ERROR_MESSAGE);
+				throw new PropertyVetoException(message, evt);
 			}
 			
 			String[] active = threadManager.activeDescriptions();
@@ -768,7 +771,7 @@ implements Stoppable {
 		try {
 			setOddjob(null);
 		} catch (PropertyVetoException e) {
-			// Can't close...
+			logger.info("Can't close: " + e.getMessage());
 			return;
 		}
 		

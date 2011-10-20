@@ -21,6 +21,7 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsStoppable;
 
 /**
@@ -127,30 +128,36 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
-    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-    		public void run() {    			
-    		}
-    	})) {
-    		return;
-    	}
-    	
-		logger().info("[" + this + "] Stop requested.");
-		
-		iconHelper.changeIcon(IconHelper.STOPPING);
+		OddjobNDC.push(loggerName(), this);
 		try {
-			onStop();
+	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+	    		public void run() {    			
+	    		}
+	    	})) {
+	    		return;
+	    	}
+	    	
+			logger().info("Stop requested.");
 			
-			new StopWait(this).run();
-			
-			logger().info("[" + this + "] Stopped.");
-			
-		} catch (RuntimeException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
-		}
-		catch (FailedToStopException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
+			String icon = iconHelper.currentId();
+			iconHelper.changeIcon(IconHelper.STOPPING);
+			try {
+				onStop();
+				
+				new StopWait(this).run();
+				
+				logger().info("Stopped.");
+				
+			} catch (RuntimeException e) {
+				iconHelper.changeIcon(icon);
+				throw e;
+			}
+			catch (FailedToStopException e) {
+				iconHelper.changeIcon(icon);
+				throw e;
+			}
+		} finally {
+			OddjobNDC.pop();
 		}
 	}
 	

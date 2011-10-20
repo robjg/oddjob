@@ -63,11 +63,13 @@ Changes in 1.0.0
   Escape and Ctrl-Enter accelerator keys have been added to dialogs. Node
   selection is more intelligent after a selected node is removed or modified.
   The root node is automatically in focus when the job tree is loaded.
+- Logging messages have been tidied up. The job name has been removed from log
+  messages and added to the Log4j Mapped Diagnostic Context instead with the
+  key 'ojname'.
       
 Still to do for 1.0.0
---------------------- 
-- Look at if Services should have a COMPLETE and INCOMPLETE state or if
-  they should just return to READY when stopped.
+---------------------
+
  
 Deferred to A Later Version
 ---------------------------

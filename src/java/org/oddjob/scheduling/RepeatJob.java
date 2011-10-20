@@ -315,13 +315,12 @@ implements Stoppable {
 		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 			public void run() {
 				if (stop) {
-					logger().debug("[" + RepeatJob.this + 
-					"] Stop request detected. Not sleeping.");
+					logger().debug("Stop request detected. Not sleeping.");
 					
 					return;
 				}
 				
-				logger().debug("[" + RepeatJob.this + "] Sleeping for " + ( 
+				logger().debug("Sleeping for " + ( 
 						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
 				
 				iconHelper.changeIcon(IconHelper.SLEEPING);

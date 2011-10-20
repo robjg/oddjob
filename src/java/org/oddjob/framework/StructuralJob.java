@@ -105,7 +105,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -117,7 +117,7 @@ implements
 				return;
 			}
 			
-			logger().info("[" + StructuralJob.this + "] Executing.");
+			logger().info("Executing.");
 
 			try {
 				configure();
@@ -129,7 +129,7 @@ implements
 				startChildStateReflector();
 			}
 			catch (final Throwable e) {
-				logger().error("[" + StructuralJob.this + "] Job Exception.", e);
+				logger().error("Job Exception.", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
@@ -137,7 +137,7 @@ implements
 					}
 				});
 			}	
-			logger().info("[" + StructuralJob.this + "] Execution finished.");
+			logger().info("Execution finished.");
 		}
 		finally {
 			OddjobNDC.pop();
@@ -160,53 +160,59 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stop = true;
-				
-				logger().info("[" + StructuralJob.this + "] Stop requested.");
-				
-				stateHandler.wake();
-				
-				iconHelper.changeIcon(IconHelper.STOPPING);
-			}					
-		})) {
-			throw new IllegalStateException();
-		}
-
-		FailedToStopException failedToStopException = null;
+		OddjobNDC.push(loggerName(), this);
 		try {
-			// Order is here for SimultaneousStructural to cancel jobs first.
-			
-			onStop();
-			
-			childHelper.stopChildren();
-			
-		} catch (FailedToStopException e) {
-			failedToStopException = e;
-		} catch (RuntimeException e) {
-			failedToStopException =
-				new FailedToStopException(StructuralJob.this, e);
-		}				
-		
-		try {
-			if (failedToStopException == null) {				
 
-				new StopWait(this).run();
-				
-				logger().info("[" + StructuralJob.this + "] Stopped.");		
-			}
-			else {
-				throw failedToStopException;
-			}
-		}	finally {	
-			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+			if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
-					iconHelper.changeIcon(
-							StateIcons.iconFor(stateHandler.getState()));
+					stop = true;
+					
+					logger().info("Stopping.");
+					
+					stateHandler.wake();
+					
+					iconHelper.changeIcon(IconHelper.STOPPING);
 				}					
-			});
-		}		
+			})) {
+				throw new IllegalStateException();
+			}
+	
+			FailedToStopException failedToStopException = null;
+			try {
+				// Order is here for SimultaneousStructural to cancel jobs first.
+				
+				onStop();
+				
+				childHelper.stopChildren();
+				
+			} catch (FailedToStopException e) {
+				failedToStopException = e;
+			} catch (RuntimeException e) {
+				failedToStopException =
+					new FailedToStopException(StructuralJob.this, e);
+			}				
+			
+			try {
+				if (failedToStopException == null) {				
+	
+					new StopWait(this).run();
+					
+					logger().info("Stopped.");		
+				}
+				else {
+					throw failedToStopException;
+				}
+			}	finally {	
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						iconHelper.changeIcon(
+								StateIcons.iconFor(stateHandler.getState()));
+					}					
+				});
+			}		
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
@@ -219,20 +225,25 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-			
-				logger().debug("[" + StructuralJob.this + "] Propergating Soft Reset to children.");			
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
 				
-				childStateReflector.stop();
-				childHelper.softResetChildren();
-				stop = false;
-				onReset();
-				getStateChanger().setState(ParentState.READY);
-				
-				logger().info("[" + StructuralJob.this + "] Soft Reset.");
-			}
-		});	
+					logger().debug("Propergating Soft Reset to children.");			
+					
+					childStateReflector.stop();
+					childHelper.softResetChildren();
+					stop = false;
+					onReset();
+					getStateChanger().setState(ParentState.READY);
+					
+					logger().info("Soft Reset complete.");
+				}
+			});	
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
@@ -240,19 +251,24 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				logger().debug("[" + StructuralJob.this + "] Propergating Hard Reset to children.");			
-				
-				childStateReflector.stop();
-				childHelper.hardResetChildren();
-				onReset();
-				stop = false;
-				getStateChanger().setState(ParentState.READY);
-				
-				logger().info("[" + StructuralJob.this + "] Hard Reset.");
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					logger().debug("Propergating Hard Reset to children.");			
+					
+					childStateReflector.stop();
+					childHelper.hardResetChildren();
+					onReset();
+					stop = false;
+					getStateChanger().setState(ParentState.READY);
+					
+					logger().info("Hard Reset complete.");
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	/**
@@ -341,8 +357,8 @@ implements
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + StructuralJob.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + StructuralJob.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + StructuralJob.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

@@ -598,7 +598,7 @@ implements Loadable,
 	 * Load Oddjob from the configuration file.
 	 */
 	private void doLoad(OddjobServices oddjobServices) throws Exception {
-        logger().info("[" + this + "] Loading from configuration " +
+        logger().info("Loading from configuration " +
         		configuration);
 
 		
@@ -628,7 +628,7 @@ implements Loadable,
         	setOurSession(null);
         	throw e;
         }
-        logger().debug("[" + this + "] Loaded.");
+        logger().debug("Loaded.");
 	}
 
 	/**
@@ -646,7 +646,7 @@ implements Loadable,
 	 */
 	@Override
 	public void load() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
 				public void run() {
@@ -662,7 +662,7 @@ implements Loadable,
 						doLoad(services);
 				    } 
 				    catch (Exception e) {
-						logger().error("[" + Oddjob.this + "] Exception executing job.", e);
+						logger().error("Exception executing job.", e);
 						getStateChanger().setStateException(e);
 				    }
 				}
@@ -779,26 +779,31 @@ implements Loadable,
 	@Override
 	public boolean softReset() {
 		
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
 
-				logger().debug("[" + Oddjob.this + "] Soft reset requested.");
-				if (ourSession == null) {					
-					if (lastReset == null) {
-						lastReset = Reset.SOFT;
-						if (!saveLastReset()) {
-							return;
+					logger().debug("Soft reset requested.");
+					if (ourSession == null) {					
+						if (lastReset == null) {
+							lastReset = Reset.SOFT;
+							if (!saveLastReset()) {
+								return;
+							}
 						}
 					}
+					else {
+						lastReset = null;
+					}
+
+					superSoftReset();
+					restored = false;
 				}
-				else {
-					lastReset = null;
-				}
-				
-				superSoftReset();
-				restored = false;
-			}
-		});
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	/**
@@ -835,30 +840,35 @@ implements Loadable,
 	 * so as not to reset the child but destroy them.
 	 */
 	public boolean hardReset() {
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				
-				logger().debug("[" + Oddjob.this + "] Hard reset requested.");
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
 
-				if (ourSession == null) {
-					lastReset = Reset.HARD;
-					if (!saveLastReset()) {
-						return;
+					logger().debug("Hard Reset requested.");
+
+					if (ourSession == null) {
+						lastReset = Reset.HARD;
+						if (!saveLastReset()) {
+							return;
+						}
 					}
+					else {
+						lastReset = null;
+					}	
+
+					childStateReflector.stop();
+					childHelper.hardResetChildren();
+					reset();
+					stop = false;
+					restored = false;
+					getStateChanger().setState(ParentState.READY);
+					logger().info("Hard Reset complete.");
 				}
-				else {
-					lastReset = null;
-				}	
-									
-				childStateReflector.stop();
-				childHelper.hardResetChildren();
-				reset();
-				stop = false;
-				restored = false;
-				getStateChanger().setState(ParentState.READY);
-				logger().info("[" + Oddjob.this + "] Hard Reset.");
-			}
-		});
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
@@ -968,9 +978,14 @@ implements Loadable,
 			export.remove(key);
 		}
 		else {
-			logger().debug("Adding value to export: " + 
+			OddjobNDC.push(loggerName(), this);
+			try {
+				logger().debug("Adding value to export: " + 
 					key + "=" + value);
-			export.put(key, value);
+				export.put(key, value);
+			} finally {
+				OddjobNDC.pop();
+			}
 		}
 	}
 	

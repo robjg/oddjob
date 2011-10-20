@@ -12,11 +12,10 @@ abstract public class StateReflector extends SimultaneousStructural {
 			return;
 		}
 		
-		logger().info("[" + this + "] Stop requested.");
-		
+		logger().info("Stopping.");		
 		
 		childHelper.stopChildren();
 		
-		logger().info("[" + this + "] Message sent to stop children.");
+		logger().info("Message sent to stop children.");
 	}
 }

@@ -166,7 +166,7 @@ implements InvocationHandler {
     }
     
     public void run() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
         try {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
@@ -176,14 +176,14 @@ implements InvocationHandler {
         		return;
         	}
         	
-			logger().info("[" + wrapped + "] Starting.");
+			logger().info("Starting.");
 			
         	try {
         		configure();
         		
         		service.start();
 
-    	        logger().info("[" + wrapped + "] Started.");
+    	        logger().info("Started.");
     	        
             	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
             		public void run() {
@@ -192,7 +192,7 @@ implements InvocationHandler {
             	});
     	    } 
         	catch (final Throwable t) {
-    	    	logger().error("[" + wrapped + "] Exception:", t);
+    	    	logger().error("Exception:", t);
     			
     	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     	    		public void run() {
@@ -214,15 +214,15 @@ implements InvocationHandler {
     	
 		final AtomicInteger result = new AtomicInteger();
 		
-		OddjobNDC.push(loggerName());
-        try {
-    		service.stop();
-            result.set(getResult());
-    	} catch (RuntimeException e) {
-    		throw e;
-    	} catch (Exception e) {
-    		throw new FailedToStopException(service, e);
-    	}
+		OddjobNDC.push(loggerName(), this);
+		try {
+			service.stop();
+			result.set(getResult());
+		} catch (RuntimeException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new FailedToStopException(service, e);
+		}
         finally {
         	OddjobNDC.pop();
         }
@@ -247,7 +247,7 @@ implements InvocationHandler {
 			public void run() {
 				getStateChanger().setState(ServiceState.READY);
 				
-				logger().info("[" + getWrapped() + "] Soft Reset.");
+				logger().info("Soft Reset complete.");
 			}
 		});
 	}
@@ -261,7 +261,7 @@ implements InvocationHandler {
 			public void run() {
 				getStateChanger().setState(ServiceState.READY);
 
-				logger().info("[" + getWrapped() + "] Hard Reset.");
+				logger().info("Hard Reset complete.");
 			}
 		});
 	}
@@ -277,8 +277,8 @@ implements InvocationHandler {
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + ServiceWrapper.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + ServiceWrapper.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + ServiceWrapper.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

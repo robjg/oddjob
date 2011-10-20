@@ -328,7 +328,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 */
 	protected void loadConfigFor(Object value) throws ArooaParseException {
 		
-		logger().debug("creating child for [" + value + "]");
+		logger().debug("Creating child for [" + value + "]");
 		
 		ArooaSession existingSession = getArooaSession();
 		
@@ -444,7 +444,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 	
 	public void load() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
 				public void run() {
@@ -457,7 +457,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 				    	preLoad();
 				    }
 				    catch (Exception e) {
-				    	logger().error("[" + ForEachJob.this + "] Exception executing job.", e);
+				    	logger().error("Exception executing job.", e);
 				    	getStateChanger().setStateException(e);
 				    }
 				}
@@ -777,16 +777,21 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				childStateReflector.stop();
-				
-				reset();
-				
-				getStateChanger().setState(ParentState.READY);
-				logger().info("[" + ForEachJob.this + "] Hard Reset." );
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					childStateReflector.stop();
+					
+					reset();
+					
+					getStateChanger().setState(ParentState.READY);
+					logger().info("Hard Reset complete." );
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	/**

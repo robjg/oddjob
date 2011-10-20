@@ -120,7 +120,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -132,7 +132,8 @@ implements
 			})) {
 				return;
 			}
-			logger().info("Executing job [" + ScheduleBase.this + "]");
+			
+			logger().info("Executing.");
 
 			try {
 				configure();
@@ -153,7 +154,7 @@ implements
 				
 			}
 			catch (final Throwable e) {
-				logger().warn("[" + ScheduleBase.this + "] Job Exception:", e);
+				logger().warn("Job Exception:", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
@@ -179,42 +180,46 @@ implements
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		final AtomicReference<String> lastIcon = new AtomicReference<String>();
-		
-		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-			@Override
-			public void run() {
-				stop = true;
-				stateHandler.wake();
-				
-				lastIcon.set(iconHelper.currentId());
-				iconHelper.changeIcon(IconHelper.STOPPING);
-				
-			}
-		})) {
-			return;
-		}
-		
-		logger().info("[" + this + "] Stop requested.");
-		
-		// cancel future executions for timer. remove listener for trigger.
-		onStop();
-		
-		// then stop children
+		OddjobNDC.push(loggerName(), this);
 		try {
-			childHelper.stopChildren();		
+			final AtomicReference<String> lastIcon = new AtomicReference<String>();
 			
-			postStop();
+			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				@Override
+				public void run() {
+					stop = true;
+					stateHandler.wake();
+					
+					lastIcon.set(iconHelper.currentId());
+					iconHelper.changeIcon(IconHelper.STOPPING);
+					
+				}
+			})) {
+				return;
+			}
 			
-			new StopWait(this).run();
+			logger().info("Stopping.");
+			
+			// cancel future executions for timer. remove listener for trigger.
+			onStop();
+			
+			// then stop children
+			try {
+				childHelper.stopChildren();		
+				
+				postStop();
+				
+				new StopWait(this).run();
+			}
+			catch (FailedToStopException e) {
+				iconHelper.changeIcon(lastIcon.get());
+				logger().warn(e);
+			}
+			
+			logger().info("Stopped.");
+		} finally {
+			OddjobNDC.pop();
 		}
-		catch (FailedToStopException e) {
-			iconHelper.changeIcon(lastIcon.get());
-			logger().warn(e);
-		}
-		
-		
-		logger().info("[" + this + "] Stopped.");
 	}
 	
 	protected void onStop() {
@@ -229,41 +234,51 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				logger().debug("[" + ScheduleBase.this + "] Propergating Soft Reset to children.");			
-				
-				childStateReflector.stop();
-				childHelper.softResetChildren();
-				
-				onReset();
-				
-				getStateChanger().setState(ParentState.READY);
-				
-				logger().info("[" + ScheduleBase.this + "] Soft Reset.");			
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					logger().debug("Propergating Soft Reset to children.");			
+
+					childStateReflector.stop();
+					childHelper.softResetChildren();
+
+					onReset();
+
+					getStateChanger().setState(ParentState.READY);
+
+					logger().info("Soft Reset complete.");			
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				
-				logger().debug("[" + ScheduleBase.this + "] Propergating Hard Reset to children.");			
-				
-				childStateReflector.stop();
-				childHelper.hardResetChildren();
-				
-				onReset();
-				
-				getStateChanger().setState(ParentState.READY);
-	
-				logger().info("[" + ScheduleBase.this + "] Hard Reset.");			
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					
+					logger().debug("Propergating Hard Reset to children.");			
+					
+					childStateReflector.stop();
+					childHelper.hardResetChildren();
+					
+					onReset();
+					
+					getStateChanger().setState(ParentState.READY);
+		
+					logger().info("Hard Reset complete.");			
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	protected void onReset() {
@@ -349,8 +364,8 @@ implements
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + ScheduleBase.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + ScheduleBase.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + ScheduleBase.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

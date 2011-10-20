@@ -40,8 +40,8 @@ import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateEvent;
 
 /**
- * Creates a proxy for any java.lang.Runnable to allow it to be controlled and
- * monitored withing Oddjob.
+ * Creates a proxy for any {@link java.lang.Runnable} to allow it to be controlled and
+ * monitored within Oddjob.
  * 
  * @author Rob Gordon.
  */
@@ -201,7 +201,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	 */
 	public void run() {
 		
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
@@ -212,7 +212,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 				return;			
 			}
 			
-			logger().info("[" + wrapped + "] Executing.");
+			logger().info("Executing.");
 			
 			final AtomicReference<Throwable> exception = 
 				new AtomicReference<Throwable>();;
@@ -221,13 +221,13 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 				configure();
 				wrapped.run();
 			} catch (Throwable t) {
-				logger().error("[" + wrapped + "] Exception:", t);
+				logger().error("Exception:", t);
 				exception.set(t);
 			} finally {
 				thread = null;
 			}
 			
-			logger().info("[" + wrapped + "] Finished.");
+			logger().info("Finished.");
 					
 			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
@@ -270,7 +270,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			public void run() {
 				getStateChanger().setState(JobState.READY);
 				
-				logger().info("[" + getWrapped() + "] Soft Reset.");
+				logger().info("Soft Reset complete.");
 			}
 		});
 	}
@@ -284,7 +284,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			public void run() {
 				getStateChanger().setState(JobState.READY);
 
-				logger().info("[" + getWrapped() + "] Hard Reset.");
+				logger().info("Hard Reset complete.");
 			}
 		});
 	}
@@ -321,8 +321,9 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + RunnableWrapper.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + RunnableWrapper.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + RunnableWrapper.this + "] destroyed.");				
+		
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

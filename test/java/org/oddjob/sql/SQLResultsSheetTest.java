@@ -29,6 +29,13 @@ public class SQLResultsSheetTest extends TestCase {
 	
 	String EOL = System.getProperty("line.separator");
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("-----------------------------  " + getName() + "  ----------------");
+	}
+		
 	private class OurBus implements BeanBus {
 
 		BusListener busListener;

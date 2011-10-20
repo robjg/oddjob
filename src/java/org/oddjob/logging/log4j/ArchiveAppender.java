@@ -3,13 +3,14 @@ package org.oddjob.logging.log4j;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
+import org.oddjob.logging.LoggingConstants;
 import org.oddjob.logging.cache.LogArchiverCache;
 
 /**
  * A Log4j appender which logs to LogArchiver.
  */
-
-public class ArchiveAppender extends AppenderSkeleton {
+public class ArchiveAppender extends AppenderSkeleton
+implements LoggingConstants {
 
 	private final LogArchiverCache logArchiver; 
 	
@@ -30,7 +31,7 @@ public class ArchiveAppender extends AppenderSkeleton {
 	public void append(LoggingEvent event) {
 		String archive = event.getLoggerName();
 		if (!logArchiver.hasArchive(archive)) {
-			archive = (String) event.getMDC(Log4jArchiver.MDC);
+			archive = (String) event.getMDC(MDC_LOGGER);
 		}		
 		if (!logArchiver.hasArchive(archive)) {
 			return;

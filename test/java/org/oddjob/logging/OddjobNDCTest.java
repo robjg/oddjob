@@ -17,14 +17,20 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		
 		String loggerName1 = "org.oddjob.TestLogger1";
 		String loggerName2 = "org.oddjob.TestLogger2";
+
+		Object job1 = new Object();
+		Object job2 = new Object();
+				
+		OddjobNDC.push(loggerName1, job1);
+		assertEquals(loggerName1, OddjobNDC.peek().getLogger());
+		assertEquals(job1, OddjobNDC.peek().getJob());
 		
-		OddjobNDC.push(loggerName1);
-		assertEquals(loggerName1, OddjobNDC.peek());
-		OddjobNDC.push(loggerName2);
-		assertEquals(loggerName2, OddjobNDC.peek());
+		OddjobNDC.push(loggerName2, job2);
+		assertEquals(loggerName2, OddjobNDC.peek().getLogger());
+		assertEquals(job2, OddjobNDC.peek().getJob());
 		
-		assertEquals(loggerName2, OddjobNDC.pop());
-		assertEquals(loggerName1, OddjobNDC.pop());		
+		assertEquals(loggerName2, OddjobNDC.pop().getLogger());
+		assertEquals(loggerName1, OddjobNDC.pop().getLogger());		
 	}
 
 	public void testEmptyPeek() {
@@ -55,7 +61,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		
 		assertNull(ll.message);
 		
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), new Object());
 
 		logger.info("Will be archived!");
 		assertEquals("Will be archived!" + Helper.LS, ll.message);
@@ -65,12 +71,14 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 
 	public void testChildThread() throws InterruptedException {
 		
-		Log4jArchiver archiver = new Log4jArchiver(this, "%m%n");
+		String job = "My Important Job";
+		
+		Log4jArchiver archiver = new Log4jArchiver(this, "[%X{ojname}] %m%n");
 		
 		MyLL ll = new MyLL();
 		archiver.addLogListener(ll, this, LogLevel.INFO, -1, 100);
 		
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), job);
 
 		Thread t = new Thread(new Runnable() {
 			public void run() {
@@ -86,7 +94,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		
 		t.join();
 		
-		assertEquals("Child Thread Message." + Helper.LS, ll.message);
+		assertEquals("[My Important Job] Child Thread Message." + Helper.LS, ll.message);
 		
 
 	}

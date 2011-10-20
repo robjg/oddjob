@@ -98,7 +98,7 @@ implements Iconic, Stateful,
 			@Override
 			public void beforeDestroy(RuntimeEvent event) throws ArooaException {
 				stateHandler().assertAlive();
-				logger().debug("[" + BaseComponent.this + "] destroying.");
+				logger().debug("Destroying.");
 				onDestroy();
 			}
 			
@@ -133,12 +133,12 @@ implements Iconic, Stateful,
 	 * 
 	 * @return true if successful. False if not.
 	 */
-	protected void configure(Object o) 
+	protected void configure(Object component) 
 	throws ArooaConfigurationException {
 		
 		if (session != null) {
-			logger().debug("Configuring job [" + o + "]");
-			session.getComponentPool().configure(o);
+			logger().debug("Configuringing.");
+			session.getComponentPool().configure(component);
 		}
 	}
 	

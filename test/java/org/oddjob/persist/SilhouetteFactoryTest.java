@@ -24,6 +24,34 @@ import org.oddjob.state.JobState;
 
 public class SilhouetteFactoryTest extends TestCase {
 
+	/**
+	 * Needed for storing in hash sets.
+	 * @throws ClassNotFoundException 
+	 * @throws IOException 
+	 */
+	public void testEqualsAndHashCode() throws IOException, ClassNotFoundException {
+		
+		String a = new String("A");
+		
+		String b = new String("B");
+		
+		
+		ArooaSession session = new StandardArooaSession();
+		
+		Object silhouetteA = Helper.copy(
+				new SilhouetteFactory().create(a, session));
+		Object silhouetteB = Helper.copy(
+				new SilhouetteFactory().create(b, session));
+		
+		assertEquals(silhouetteA, silhouetteA);
+		assertEquals(silhouetteB, silhouetteB);
+		assertFalse(silhouetteA.equals(silhouetteB));
+		
+		assertEquals(silhouetteA.hashCode(), silhouetteA.hashCode());
+		assertEquals(silhouetteB.hashCode(), silhouetteB.hashCode());
+		assertFalse(silhouetteA.hashCode() == silhouetteB.hashCode());
+	}
+	
 	public void testSimple() throws IOException, ClassNotFoundException {
 		
 		EchoJob echo = new EchoJob();
@@ -101,6 +129,13 @@ public class SilhouetteFactoryTest extends TestCase {
 		assertEquals(JobState.COMPLETE, Helper.getJobState(children[0]));
 	}
 	
+	/**
+	 * Test we don't try and include children not in our session. So no 
+	 * nested Oddjobs or remote nodes.
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
 	public void testNotOurChildren() throws IOException, ClassNotFoundException {
 		
 		SequentialJob sequential = new SequentialJob();

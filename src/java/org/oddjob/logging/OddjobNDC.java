@@ -7,7 +7,6 @@ package org.oddjob.logging;
 import java.util.Stack;
 
 import org.apache.log4j.MDC;
-import org.oddjob.logging.log4j.Log4jArchiver;
 
 /**
  * An OddjobNDC is a Nested Diagnostic Context for Oddjob. It provides a way of
@@ -15,19 +14,24 @@ import org.oddjob.logging.log4j.Log4jArchiver;
  * <p>
  * It is very crude wrapper for the Log4j MDC class. One day it would be nice to work
  * out how to apply this to other logging utilities.
+ * <p>
+ * Note that this is a thread based nested diagnostic context that does not 
+ * interfere with Log4j's own. It populates log4j's mapped diagnostic context instead.
  * 
+ * @author rob
  */
-
-public class OddjobNDC {
+public class OddjobNDC implements LoggingConstants {
 	
-	private static InheritableThreadLocal<Stack<String>> local = new InheritableThreadLocal<Stack<String>>() {
-		protected Stack<String> initialValue() {
-			return new Stack<String>();
+	/** The stack of contexts. */
+	private static InheritableThreadLocal<Stack<LoggerAndJob>> local = 
+			new InheritableThreadLocal<Stack<LoggerAndJob>>() {
+		protected Stack<LoggerAndJob> initialValue() {
+			return new Stack<LoggerAndJob>();
 		}
 		@SuppressWarnings("unchecked")
-		protected Stack<String> childValue(Stack<String> parentValue) {
+		protected Stack<LoggerAndJob> childValue(Stack<LoggerAndJob> parentValue) {
 			if (parentValue != null) {
-				return (Stack<String>)parentValue.clone();
+				return (Stack<LoggerAndJob>)parentValue.clone();
 			}
 			else {
 				return null;
@@ -46,16 +50,20 @@ public class OddjobNDC {
 	 * The returned value is the value that was pushed last. If no context is
 	 * available, then the empty string "" is returned.
 	 * 
-	 * @return String The innermost diagnostic context.
+	 * @return LoggerAndJob The innermost diagnostic context.
 	 * 
 	 */
-	public static String pop() {
-		Stack<String> stack = local.get();
-		String result = (String) stack.pop();
+	public static LoggerAndJob pop() {
+		Stack<LoggerAndJob> stack = local.get();
+		LoggerAndJob result = stack.pop();
 		if (stack.isEmpty()) {
-			MDC.remove(Log4jArchiver.MDC);
+			MDC.remove(MDC_LOGGER);
+			MDC.remove(MDC_JOB_NAME);
 		} else {
-			MDC.put(Log4jArchiver.MDC, stack.peek());
+			LoggerAndJob peek = stack.peek();
+			
+			MDC.put(MDC_LOGGER, peek.getLogger());
+			MDC.put(MDC_JOB_NAME, peek.getJob().toString());
 		}
 		return result; 
 	}
@@ -68,15 +76,15 @@ public class OddjobNDC {
 	 * The returned value is the value that was pushed last. If no context is
 	 * available, then the empty string "" is returned.
 	 * 
-	 * @return String The innermost diagnostic context.
+	 * @return LoggerAndJob The innermost diagnostic context.
 	 * 
 	 */
-	public static String peek() {
-		Stack<String> stack = local.get();		
+	public static LoggerAndJob peek() {
+		Stack<LoggerAndJob> stack = local.get();		
 		if (stack.isEmpty()) {
 			return null;
 		}
-		return (String) stack.peek();
+		return stack.peek();
 	}
 
 	/**
@@ -86,13 +94,45 @@ public class OddjobNDC {
 	 *            The new diagnostic context information.
 	 * 
 	 */
-	public static void push(String loggerName) {
+	public static void push(String loggerName, Object job) {
 		if (loggerName == null) {
 			throw new NullPointerException("Can't push null logger name.");
 		}
-		Stack<String> stack = local.get();
-		stack.push(loggerName);
-		MDC.put(Log4jArchiver.MDC, loggerName);
+		if (job == null) {
+			throw new NullPointerException("Can't push null job.");
+		}
+		
+		Stack<LoggerAndJob> stack = local.get();
+		stack.push(new LoggerAndJob(loggerName, job));
+		
+		MDC.put(MDC_LOGGER, loggerName);
+		MDC.put(MDC_JOB_NAME, job.toString());
 	}
 
+	/**
+	 * Holds Logger and Job information for the Stack.
+	 */
+	public static class LoggerAndJob implements Cloneable {
+		
+		private final String logger;
+		
+		private final Object job;
+		
+		public LoggerAndJob(String logger, Object job) {
+			this.logger = logger;
+			this.job = job;
+		}
+		
+		public Object getJob() {
+			return job;
+		}
+		
+		public String getLogger() {
+			return logger;
+		}
+		
+		public Object clone() throws CloneNotSupportedException {
+			return super.clone();
+		}
+	}
 }

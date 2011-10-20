@@ -15,6 +15,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateCondition;
@@ -150,7 +151,7 @@ public class Trigger extends ScheduleBase {
 					// We won't fire again until run again.
 					removeListener();
 					
-					logger().debug("[" + Trigger.this + "] submitting [" + 
+					logger().debug("Submitting [" + 
 							childHelper.getChild() + "] for immediate execution.");
 
 					future = executors.submit(new Execution());
@@ -247,33 +248,38 @@ public class Trigger extends ScheduleBase {
 	class Execution implements Runnable {
 		public void run() {
 			
-		    logger().debug("[" + Trigger.this + 
-		    		"] Executing child at [" + new Date()+ "]");
+			OddjobNDC.push(loggerName(), this);
+			try {
 
-		    // check job state here because it guarantees all other
-		    // state listeners have been notified.
-		    on.lastStateEvent();
-			
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-		    
-		    Runnable job = childHelper.getChild();
-		    
-		    if (job != null) {
-		    
-		    	// Note reset isn't necessary because this is a
-		    	// single execution only.
-		    	
-				try {
-					job.run();
-					save();
+				logger().info("Executing child.");
+
+				// check job state here because it guarantees all other
+				// state listeners have been notified.
+				on.lastStateEvent();
+
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+
+				Runnable job = childHelper.getChild();
+
+				if (job != null) {
+
+					// Note reset isn't necessary because this is a
+					// single execution only.
+
+					try {
+						job.run();
+						save();
+					}
+					catch (Throwable t) {
+						logger().error("Failed running triggered job.", t);
+					}
 				}
-				catch (Throwable t) {
-					logger().error("Failed running triggered job.", t);
-				}
-		    }
-		    
-		    childStateReflector.start();
+
+				childStateReflector.start();
+			}
+			finally {
+				OddjobNDC.pop();
+			} 
 		}
 	}
-		
 }

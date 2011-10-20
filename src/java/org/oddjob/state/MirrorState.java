@@ -8,6 +8,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
 import org.oddjob.framework.JobDestroyedException;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 
 
@@ -63,38 +64,42 @@ implements Runnable, Stoppable, Resetable {
 	
 	synchronized public void run() {
 				
-		stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
-			public void run() {
-				if (listener != null) {
-					// still mirroring.
-					return;
-				}
-				
-				logger().info("[" + MirrorState.this + "] Starting.");
-				
-				try {
-					configure();
-				} catch (ArooaConfigurationException e) {
-					getStateChanger().setStateException(
-							e);
-					logger().error("[" + MirrorState.this + 
-							"] Exception configuring.", e);
-					return;
-				}
+		OddjobNDC.push(loggerName(), this);
+		try {
+			stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
+				public void run() {
+					if (listener != null) {
+						// still mirroring.
+						return;
+					}
 
-				if (job == null) {
-					getStateChanger().setStateException(
-							new NullPointerException("No Job."));
-					return;
+					logger().info("Starting.");
+
+					try {
+						configure();
+					} catch (ArooaConfigurationException e) {
+						getStateChanger().setStateException(
+								e);
+						logger().error("Exception configuring.", e);
+						return;
+					}
+
+					if (job == null) {
+						getStateChanger().setStateException(
+								new NullPointerException("No Job."));
+						return;
+					}
+
+					logger().info("Starting to mirror [" + job + "]");
+
+					listener = new MirrorListener();
+
+					job.addStateListener(listener);
 				}
-
-				logger().info("Starting to mirror [" + job + "]");
-
-				listener = new MirrorListener();
-					
-				job.addStateListener(listener);
-			}
-		});
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	class MirrorListener implements StateListener {
@@ -138,17 +143,22 @@ implements Runnable, Stoppable, Resetable {
 	}
 	
 	public synchronized void stop() {
-		if (listener != null) {
-			job.removeStateListener(listener);
-			listener = null;
-			logger().info("Stopped mirroring [" + job + "]");
-			stateHandler.waitToWhen(new IsStoppable(), 
-					new Runnable() {
-				public void run() {
-					getStateChanger().setState(JobState.READY);
-				}
-			});
-			job = null;
+		OddjobNDC.push(loggerName(), this);
+		try {
+			if (listener != null) {
+				job.removeStateListener(listener);
+				listener = null;
+				logger().info("Stopped mirroring [" + job + "]");
+				stateHandler.waitToWhen(new IsStoppable(), 
+						new Runnable() {
+					public void run() {
+						getStateChanger().setState(JobState.READY);
+					}
+				});
+				job = null;
+			}
+		} finally {
+			OddjobNDC.pop();
 		}
 	}
 	
@@ -192,8 +202,8 @@ implements Runnable, Stoppable, Resetable {
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + MirrorState.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + MirrorState.this + "] Failed to set state DESTROYED");
 		}
-		logger().debug("[" + MirrorState.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

@@ -126,7 +126,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName());
+		OddjobNDC.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -136,7 +136,7 @@ implements
 				return;
 			}
 			
-			logger().info("[" + ArchiveJob.this + "] Executing.");
+			logger().info("Executing.");
 
 			try {
 				configure();
@@ -144,7 +144,7 @@ implements
 				execute();
 			}
 			catch (final Throwable e) {
-				logger().error("[" + ArchiveJob.this + "] Job Exception.", e);
+				logger().error("Job Exception.", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
@@ -152,7 +152,7 @@ implements
 					}
 				});
 			}	
-			logger().info("[" + ArchiveJob.this + "] Execution finished.");
+			logger().info("Execution finished.");
 		}
 		finally {
 			OddjobNDC.pop();
@@ -209,44 +209,48 @@ implements
 		@Override
 		public void jobStateChange(final StateEvent event) {
 
-			this.event = event;
-			
-			if (reflect) {
-				reflectState();
-			}
-			
-			if (stop) {
-				// don't persist when stopping.
-				return;
-			}
-			
-			State state = event.getState();
-			
-			if (new IsDone().test(state)) {
-				
-				if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						logger().info("[" + ArchiveJob.this + 
-								"] Archiving [" + event.getSource() + 
-								"] as [" + archiveIdentifier + 
-								"] because " + event.getState() + ".");
-						
-						try {
-							persist(event.getSource());							
-						}
-						catch (ComponentPersistException e) {
-							logger().error("Failed to persist.", e);
-							getStateChanger().setStateException(e);
-						}
-						
-					}
-				})) {
+			OddjobNDC.push(loggerName(), this);
+			try {
+				this.event = event;
+
+				if (reflect) {
+					reflectState();
 				}
+
+				if (stop) {
+					// don't persist when stopping.
+					return;
+				}
+
+				State state = event.getState();
+
+				if (new IsDone().test(state)) {
+
+					if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+						public void run() {
+							logger().info("Archiving [" + event.getSource() + 
+									"] as [" + archiveIdentifier + 
+									"] because " + event.getState() + ".");
+
+							try {
+								persist(event.getSource());							
+							}
+							catch (ComponentPersistException e) {
+								logger().error("Failed to persist.", e);
+								getStateChanger().setStateException(e);
+							}
+
+						}
+					})) {
+					}
+				}
+			} finally {
+				OddjobNDC.pop();
 			}
 		}
 		
 		private void persist(Stateful source) throws ComponentPersistException {
-			OddjobNDC.push(loggerName());
+			OddjobNDC.push(loggerName(), this);
 			try {
 				Object silhouette = new SilhouetteFactory().create(
 						child, ArchiveJob.this.getArooaSession());
@@ -324,52 +328,62 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				stop = true;
-			}					
-		})) {
-			return;
+		OddjobNDC.push(loggerName(), this);
+		try {		
+			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					stop = true;
+				}					
+			})) {
+				return;
+			}
+	
+			logger().info("Stopping.");
+			
+			iconHelper.changeIcon(IconHelper.STOPPING);
+			try {
+				childHelper.stopChildren();			
+			} catch (RuntimeException e) {
+				iconHelper.changeIcon(IconHelper.EXECUTING);
+				throw e;
+			}
+			
+			synchronized (this) {
+				notifyAll();
+			}
+			
+			new StopWait(this).run();
+			
+			stopListening((Stateful) childHelper.getChild());
+			
+			logger().info("Stopped.");
+		} finally {
+			OddjobNDC.pop();
 		}
-
-		logger().info("[" + this + "] Stop requested.");
-		
-		iconHelper.changeIcon(IconHelper.STOPPING);
-		try {
-			childHelper.stopChildren();			
-		} catch (RuntimeException e) {
-			iconHelper.changeIcon(IconHelper.EXECUTING);
-			throw e;
-		}
-		
-		synchronized (this) {
-			notifyAll();
-		}
-		
-		new StopWait(this).run();
-		
-		stopListening((Stateful) childHelper.getChild());
-		
-		logger().info("[" + this + "] Stopped.");
 	}
 		
 	/**
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-			
-				logger().debug("[" + ArchiveJob.this + "] Propergating Soft Reset to children.");			
-				
-				stopListening((Stateful) childHelper.getChild());
-				childHelper.softResetChildren();
-				stop = false;
-				getStateChanger().setState(ParentState.READY);
-				
-				logger().info("[" + ArchiveJob.this + "] Soft Reset.");
-			}
-		});	
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+
+					logger().debug("Propergating Soft Reset to children.");			
+
+					stopListening((Stateful) childHelper.getChild());
+					childHelper.softResetChildren();
+					stop = false;
+					getStateChanger().setState(ParentState.READY);
+
+					logger().info("Soft Reset complete.");
+				}
+			});	
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
@@ -377,18 +391,23 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				logger().debug("[" + ArchiveJob.this + "] Propergating Hard Reset to children.");			
-				
-				stopListening((Stateful) childHelper.getChild());
-				childHelper.hardResetChildren();
-				stop = false;
-				getStateChanger().setState(ParentState.READY);
-				
-				logger().info("[" + ArchiveJob.this + "] Hard Reset.");
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					logger().debug("Propergating Hard Reset to children.");			
+					
+					stopListening((Stateful) childHelper.getChild());
+					childHelper.hardResetChildren();
+					stop = false;
+					getStateChanger().setState(ParentState.READY);
+					
+					logger().info("Hard Reset complete.");
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	private void stopListening(Stateful to) {
@@ -513,8 +532,8 @@ implements
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + ArchiveJob.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + ArchiveJob.this + "] Failed set state DESTROYED");
 		}
-		logger().debug("[" + ArchiveJob.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

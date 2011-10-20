@@ -101,7 +101,7 @@ public class Retry extends TimerBase {
 	
 	@Override
 	protected void reset(Resetable job) {
-	    logger().debug("[" + this + "] Sending Soft Reset to [" + job + "]");
+	    logger().debug("Sending Soft Reset to [" + job + "]");
 	    
     	job.softReset();
 	}

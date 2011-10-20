@@ -23,9 +23,6 @@ import org.oddjob.logging.cache.StructuralArchiverCache;
  */
 public class Log4jArchiver implements LogArchiver {
 
-	/** The MDC to use */
-	public static final String MDC = "ojmdc";
-	
 	private final LogArchiverCache logArchiver;
 
 	private final Appender appender;

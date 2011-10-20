@@ -380,7 +380,7 @@ implements Runnable, Stateful, Resetable,
 	
 	
 	public void run() {
-		OddjobNDC.push(logger().getName());
+		OddjobNDC.push(logger().getName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -390,7 +390,7 @@ implements Runnable, Stateful, Resetable,
 			})) {
 				return;
 			}
-			logger().info("[" + JMXClientJob.this + "] Starting.");
+			logger().info("Starting.");
 			
 			try {
 				configure(JMXClientJob.this);
@@ -404,7 +404,7 @@ implements Runnable, Stateful, Resetable,
             	});				
 			}
 			catch (final Throwable e) {
-				logger().warn("[" + JMXClientJob.this + "] Exception starting:", e);
+				logger().warn("Exception starting:", e);
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
@@ -484,17 +484,16 @@ implements Runnable, Stateful, Resetable,
 	}
 
 	public void stop() {
-		OddjobNDC.push(logger().getName());
+		OddjobNDC.push(logger().getName(), this);
 		try {
-			logger().debug("[" + this + "] Thread [" + 
-					Thread.currentThread().getName() + "] requested  stop, " +
-							"state is [" + lastStateEvent().getState() + "]");
+			logger().debug("Stop requested.");
 			
 			if (!stateHandler.waitToWhen(new IsStoppable(), 
 					new Runnable() {
 						public void run() {
 						}
 			})) {
+				logger().debug("Not in a stoppable state.");
 				return;
 			}
 	
@@ -549,18 +548,15 @@ implements Runnable, Stateful, Resetable,
 				switch (why) {
 				case HEARTBEAT_FAILURE:
 					getStateChanger().setStateException(cause);
-					logger().error("[" + JMXClientJob.this + 
-							"] Stopped because of heartbeat Failure.", cause);
+					logger().error("Stopped because of heartbeat Failure.", cause);
 					break;
 				case SERVER_STOPPED:
 					getStateChanger().setState(ServiceState.INCOMPLETE);
-					logger().info("[" + JMXClientJob.this + 
-							"] Stopped because server Stopped.");
+					logger().info("Stopped because server Stopped.");
 					break;
 				default:
 					getStateChanger().setState(ServiceState.COMPLETE);
-					logger().info("[" + JMXClientJob.this + 
-							"] Stopped.");
+					logger().info("Stopped.");
 				}
 			}
 		});
@@ -591,26 +587,36 @@ implements Runnable, Stateful, Resetable,
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setState(ServiceState.READY);
-
-				logger().info("[" + JMXClientJob.this + "] Soft Reset." );
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ServiceState.READY);
+	
+					logger().info("Soft Reset complete." );
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 	
 	/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setState(ServiceState.READY);
-
-				logger().info("[" + JMXClientJob.this + "] Hard Reset." );
-			}
-		});
+		OddjobNDC.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ServiceState.READY);
+	
+					logger().info("Hard Reset complete." );
+				}
+			});
+		} finally {
+			OddjobNDC.pop();
+		}
 	}
 
 	public int getMaxConsoleLines() {
@@ -675,8 +681,8 @@ implements Runnable, Stateful, Resetable,
 				stateHandler().fireEvent();
 			}
 		})) {
-			throw new IllegalStateException("[" + JMXClientJob.this + " Failed set state DESTROYED");
+			throw new IllegalStateException("[" + JMXClientJob.this + "[ Failed set state DESTROYED");
 		}
-		logger().debug("[" + JMXClientJob.this + "] destroyed.");				
+		logger().debug("[" + this + "] Destroyed.");				
 	}
 }

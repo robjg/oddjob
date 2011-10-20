@@ -11,5 +11,5 @@ Orange  Jaffa    Orange         9.245
 
 \[2 rows, \d+ ms.\]
 
-\[0 rows affected, \d ms.\]
+\[0 rows affected, \d+ ms.\]
 

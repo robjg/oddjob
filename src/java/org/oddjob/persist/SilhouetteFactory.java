@@ -23,7 +23,7 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
 /**
- * Capture the as much serializable information about a job 
+ * Capture as much serializable information about a job 
  * hierarchy as possible. This serialized form of the hierarchy
  * is know as it's silhouette.
  * 
@@ -211,6 +211,15 @@ class Silhouette implements InvocationHandler, Serializable,
 	public String toString() {
 		return name;
 	}
+	
+	public boolean equals(Object other) {
+		if (!(other instanceof Proxy)) {
+			return false;
+		}
+		
+		return this == Proxy.getInvocationHandler(other);
+	}
+
 }
 
 /**

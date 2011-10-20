@@ -1,9 +1,9 @@
 package org.oddjob;
 
 import org.apache.log4j.Logger;
-import org.oddjob.state.IsDone;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.IsStoppable;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * A Wrapper for running Oddjob that ensures a smooth shutdown.
@@ -65,7 +65,7 @@ public class OddjobRunner {
 			if (!destroying) {
 			    oddjob.addStateListener(new StateListener() {
 			    	public void jobStateChange(StateEvent event) {
-			    		if (new IsDone().test(event.getState())) {
+			    		if (!new IsStoppable().test(event.getState())) {
 			    				oddjob.removeStateListener(this);
 			    				oddjob.stopExecutors();
 			    		}
