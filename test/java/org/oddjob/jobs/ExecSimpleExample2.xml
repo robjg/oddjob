@@ -1,0 +1,4 @@
+<exec name="Batch Example">
+cmd /C "${oddjob.dir}\bin\greeting.bat" Hello
+</exec>
+ 

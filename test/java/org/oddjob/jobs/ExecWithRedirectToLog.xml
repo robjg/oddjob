@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <exec>
+            <stdout>
+                <logout level="INFO"/>
+            </stdout>
+            <stderr>
+                <logout level="WARN"/>
+            </stderr>
+            <![CDATA[java -jar ${oddjob.run.jar} -f Missing.xml]]>
+        </exec>
+    </job>
+</oddjob>

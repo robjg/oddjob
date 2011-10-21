@@ -1,0 +1,13 @@
+<exec name="Batch Example">
+    <args>
+        <list>
+            <values>
+                <value value="cmd"/>
+                <value value="/C"/>
+                <value value="${oddjob.dir}\bin\greeting.bat"/>
+                <value value="Hello"/>
+            </values>
+        </list>
+    </args>
+</exec>
+ 

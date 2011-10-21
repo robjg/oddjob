@@ -162,13 +162,20 @@ public class PropertiesBase implements ArooaContextAware {
 	private Properties loadInput() throws IOException {
 		
 		Properties props = new Properties();
-		if (fromXML) {
-			props.loadFromXML(input);
+		
+		try {
+			if (fromXML) {
+				props.loadFromXML(input);
+			}
+			else {
+				props.load(input);
+			}
+			
+			return props;
 		}
-		else {
-			props.load(input);
+		finally {
+			input.close();
 		}
-		return props;
 	}
 	
     /**

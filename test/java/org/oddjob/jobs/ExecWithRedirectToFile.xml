@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <exec redirectStderr="true">
+            <stdout>
+                <file file="${work.dir}/ExecOutput.log"/>
+            </stdout>
+            <![CDATA[java -jar "${oddjob.run.jar}" -h]]>
+        </exec>
+    </job>
+</oddjob>

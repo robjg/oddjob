@@ -32,35 +32,43 @@ import org.oddjob.util.OddjobConfigException;
  * otherwise it will flag not complete.
  * <p>
  * Processes may behave differently on different operating systems - for
- * instance stop doesn't alway kill the process. Please see
+ * instance stop doesn't always kill the process. Please see
  * <a href="http://bugs.sun.com/bugdatabase/view_bug.do;:YfiG?bug_id=4109888">
  * http://bugs.sun.com/bugdatabase/view_bug.do;:YfiG?bug_id=4109888</a>
- * for addtional information.
+ * for additional information.
  * 
  * @oddjob.example
  * 
  * A simple example.
  * 
- * <pre>
- * &lt;exec name="Batch Example"&gt;
- *   &lt;args&gt;
- *    &lt;list&gt;
- *     &lt;values&gt;
- *      &lt;value value="cmd"/&gt;
- *      &lt;value value="/C"/&gt;
- *      &lt;value value="${oddjob.dir}\bin\greeting.bat"/&gt;
- *      &lt;value value="Hello"/&gt;
- *     &lt;/values&gt;
- *    &lt;/list&gt;
- *   &lt;/args&gt;
- * &lt;/exec&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/jobs/ExecSimpleExample2.xml}
+ * 
+ * Oddjob will treat arguments in quotes as single program argument and allows
+ * them to be escaped with backslash. If this is too confusing it is sometimes 
+ * easier to specify the command as individual arguments. The
+ * above is equivalent to:
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/ExecSimpleExample.xml}
  * 
  * @oddjob.example
  * 
  * Using the existing environment with an additional environment variable.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/ExecJobEnvironmentExample.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Capturing console output to a file. The output is Oddjob's command
+ * line help.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/ExecWithRedirectToFile.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Capturing console output to the logger. Note how the logger output
+ * can be defined with different log levels for stdout and sterr.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/ExecWithRedirectToLog.xml}
  * 
  * @oddjob.example
  *

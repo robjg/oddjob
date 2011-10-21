@@ -507,6 +507,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 		private final ServerSideToolkit toolkit;
 		
+		private ConfigurationSession configurationSession;
+		
 		private final SessionStateListener modifiedListener = new SessionStateListener() {
 
 			public void sessionModifed(ConfigSessionEvent event) {
@@ -533,9 +535,9 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				= new OwnerStateListener() {
 
 			public void sessionChanged(final ConfigOwnerEvent event) {
-				ConfigurationSession session = configurationOwner.provideConfigurationSession();
-				if (session != null) {
-					session.addSessionStateListener(modifiedListener);
+				configurationSession = configurationOwner.provideConfigurationSession();
+				if (configurationSession != null) {
+					configurationSession.addSessionStateListener(modifiedListener);
 				}
 				
 				toolkit.runSynchronized(new Runnable() {
@@ -553,15 +555,13 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			this.configurationOwner = configurationOwner;
 			this.toolkit = serverToolkit;
 			configurationOwner.addOwnerStateListener(configurationListener);
-			ConfigurationSession session = configurationOwner.provideConfigurationSession();
-			if (session != null) {
-				session.addSessionStateListener(modifiedListener);
+			configurationSession = configurationOwner.provideConfigurationSession();
+			if (configurationSession != null) {
+				configurationSession.addSessionStateListener(modifiedListener);
 			}
 		}
 		
 		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
-
-			ConfigurationSession configSession = configurationOwner.provideConfigurationSession();
 
 			if (INFO.equals(operation)) {
 
@@ -569,15 +569,15 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 			
 			if (SESSION_AVAILABLE.equals(operation)) {
-				if (configSession == null) {
+				if (configurationSession == null) {
 					return null;
 				}
 				else {
-					return new Integer(System.identityHashCode(configSession));
+					return new Integer(System.identityHashCode(configurationSession));
 				}
 			}
 			
-			if (configSession == null) {
+			if (configurationSession == null) {
 				throw new MBeanException(new IllegalStateException("No Config Session - Method " + 
 						operation + " should not have been called!"));
 			}
@@ -585,7 +585,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			if (SAVE.equals(operation)) {
 
 				try {
-					configSession.save();
+					configurationSession.save();
 					return null;
 				}
 				catch (ArooaParseException e) {
@@ -595,14 +595,14 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 			if (IS_MODIFIED.equals(operation)) {
 
-				return configSession.isModified();
+				return configurationSession.isModified();
 			}
 			
 			DragPoint dragPoint = null;
 			if (params != null && params.length > 0) {
 				
 				Object component = params[0];
-				dragPoint = configSession.dragPointFor(component);
+				dragPoint = configurationSession.dragPointFor(component);
 			}
 			
 			if (DRAG_POINT_INFO.equals(operation)) {
@@ -679,9 +679,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		public void destroy() {
 			configurationOwner.removeOwnerStateListener(configurationListener);
-			ConfigurationSession session = configurationOwner.provideConfigurationSession();
-			if (session != null) {
-				session.removeSessionStateListener(modifiedListener);
+			if (configurationSession != null) {
+				configurationSession.removeSessionStateListener(modifiedListener);
 			}
 
 		}
