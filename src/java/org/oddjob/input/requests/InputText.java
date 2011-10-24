@@ -5,6 +5,10 @@ import org.oddjob.input.InputMedium;
 /**
  * @oddjob.description A request for a simple line of input.
  * 
+ * @oddjob.xml.example
+ * 
+ * See {@link org.oddjob.input.InputJob} for an example.
+ * 
  * @author rob
  *
  */

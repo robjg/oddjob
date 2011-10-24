@@ -23,19 +23,11 @@ import org.oddjob.structural.StructuralListener;
  * 
  * A folder of jobs.
  * 
- * <pre>
- * &lt;folder name="My Jobs"&gt;
- *  &lt;jobs&gt;
- *   &lt;exec name="Morning Job" command="etc..." &gt;/>
- *   &lt;exec name="Afternoon Job" command="etc..." &gt;/>
- *   &lt;exec name="Manual Cleanup" command="etc..." &gt;/>
- *  &lt;/jobs&gt;
- * &lt;/folder&gt;
- * </pre>
+ * {@oddjob.xm.resource org/oddjob/jobs/structural/JobFolderExample.xml}
+ * 
  * 
  * @author Rob Gordon 
  */
-
 public class JobFolder 
 			implements Structural, Iconic {
 

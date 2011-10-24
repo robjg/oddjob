@@ -384,6 +384,7 @@
 	</target>
 
 	<target name="all-tests" depends="compile-tests, jar" description="Perform jUnit tests">
+		<delete dir="${work.dir}"/>
 		<mkdir dir="${work.dir}"/>
 		<mkdir dir="${test.reports}"/>
 		

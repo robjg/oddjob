@@ -2,6 +2,7 @@ package org.oddjob.state;
 
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.framework.StructuralJob;
+import org.oddjob.io.ExistsJob;
 
 /**
  * 
@@ -13,10 +14,17 @@ import org.oddjob.framework.StructuralJob;
  * <p>
  * Execute and Stop actions are cascaded as normal to the child job.
  * <p> 
+ * See also the {@link org.oddjob.jobs.ResetJob} job.
  * 
  * @oddjob.example
  * 
- * See the scheduling example.
+ * Examples elsewhere.
+ * <ul>
+ *  <li>See the {@link EqualsState} example. The resets are 
+ *  required because retry only sends a soft reset on retry
+ *  and it must be hardened to reset the {@link ExistsJob}.
+ *  </li>
+ * </ul>
  * 
  * @author Rob Gordon
  */
@@ -25,15 +33,15 @@ public class Resets extends StructuralJob<Object>{
 
 	/**
 	 * @oddjob.property
-	 * @oddjob.description Harden soft resets.
-	 * @oddjob.required No.
+	 * @oddjob.description Harden soft resets. True/False.
+	 * @oddjob.required No, defaults to false.
 	 */
 	private boolean harden;
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description Soften hard resets.
-	 * @oddjob.required No, defaults to COMPLETE.
+	 * @oddjob.description Soften hard resets. True/False
+	 * @oddjob.required No, defaults to false.
 	 */
 	private boolean soften;
 	

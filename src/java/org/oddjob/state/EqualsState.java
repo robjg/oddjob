@@ -18,18 +18,16 @@ import org.oddjob.framework.StructuralJob;
  * 
  * @oddjob.example
  * 
- * COMPLETE when the child job isn't complete.
+ * COMPLETE when the child job isn't complete. This example 
+ * demonstrates how the <code>state:equals</code> job can be used to reverse
+ * the meaning of the <code>exists</code> job. A request to 
+ * shutdown a database may complete asynchronously, and the only
+ * way to tell if shutdown is complete is to check that the Database's
+ * lock file has be removed. This example demonstrates how Oddjob 
+ * can check for this situation
+ * before attempting to back up the database.
  * 
- * &lt;sequential xmlns:state="http://rgordon.co.uk/oddjob/state"&gt;
- *  &lt;jobs&gt;
- *   &lt;state:equals not="true"&gt;
- *    &lt;job&gt;
- *     &lt;exists file="mydb.lck"/&gt;
- *    &lt;/job&gt;
- *   &lt;/state:equals&gt;
- *  &lt;echo text="Backing up the Database..."/&gt;
- *  &lt;/jobs&gt;
- * &lt;/sequential&gt;
+ * {@oddjob.xml.resource org/oddjob/state/EqualsStateExample.xml}
  * 
  * @author Rob Gordon
  */

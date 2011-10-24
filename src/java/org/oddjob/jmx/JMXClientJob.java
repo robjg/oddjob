@@ -65,12 +65,8 @@ import org.oddjob.structural.StructuralListener;
  * @oddjob.example
  * 
  * To create a connection to a remote server.
- * <pre>
- * &lt;jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
- *            id="freds-pc"
- *            name="Connection to Freds PC" 
- *            url="service:jmx:rmi:///jndi/rmi://pcfred/public-jobs"/&gt;
- * </pre>
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/ClientExample.xml}
  * 
  * @oddjob.example
  * 
@@ -84,15 +80,8 @@ import org.oddjob.structural.StructuralListener;
  * @oddjob.example
  * 
  * Connect using a username and password to a secure server.
- * <pre>
- * &lt;jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
- *             url="service:jmx:rmi:///jndi/rmi://localhost/my-oddjob" &gt;
- *  &lt;environment&gt;
- *   &lt;jmx:client-credentials username="username"
- *                           password="password" /&gt;
- *  &lt;/environment&gt;
- * &lt;/jmx:client&gt;
- * </pre>
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/SecureClientExample.xml}
  * 
  * @oddjob.example
  * 
@@ -100,9 +89,9 @@ import org.oddjob.structural.StructuralListener;
  * 
  * {@oddjob.xml.resource org/oddjob/jmx/ClientTrigger.xml}
  * 
+ * 
  * @author Rob Gordon
  */
-
 public class JMXClientJob extends BaseComponent
 implements Runnable, Stateful, Resetable,
 		Stoppable, Structural, 

@@ -19,6 +19,14 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.log4j.Logger;
 
+/**
+ * @oddjob.description A job that performs XSLT transformations.
+ * <p>
+ * Still a work in progress.
+ * 
+ * @author rob
+ *
+ */
 public class XSLTJob implements Runnable {
 
 	private static final Logger logger = Logger.getLogger(XSLTJob.class);

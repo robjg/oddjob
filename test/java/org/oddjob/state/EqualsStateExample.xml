@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <scheduling:retry name="Database Backup" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+            <schedule>
+                <schedules:interval interval="00:00:02" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+            </schedule>
+            <job>
+                <sequential id="db-backup">
+                    <jobs>
+                        <state:equals state="!COMPLETE" xmlns:state="http://rgordon.co.uk/oddjob/state">
+                            <job>
+                                <state:resets harden="true">
+                                    <job>
+                                        <exists file="${db.lock.file}"/>
+                                    </job>
+                                </state:resets>
+                            </job>
+                        </state:equals>
+                        <echo>Backing up the Database...</echo>
+                    </jobs>
+                </sequential>
+            </job>
+        </scheduling:retry>
+    </job>
+</oddjob>

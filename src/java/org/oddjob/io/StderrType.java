@@ -15,16 +15,7 @@ import org.oddjob.arooa.types.ValueFactory;
  * 
  * Copy a buffer to stderr.
  * 
- * <pre><code>
- * &lt;copy&gt;
- *  &lt;input&gt;
- *   &lt;buffer&gt;It's all going wrong!&lt;/buffer&gt;
- *  &lt;/input&gt;
- *  &lt;output&gt;
- *   &lt;stderr/&gt;
- *  &lt;/output&gt;
- * &lt;/copy&gt;
- * </code></pre>
+ * {@oddjob.xml.resource org/oddjob/io/StderrTypeExample.xml}
  */
 public class StderrType implements ValueFactory<OutputStream> {
 

@@ -22,30 +22,19 @@ import org.oddjob.arooa.convert.ConversionRegistry;
  * 
  * A single file.
  * 
- * <pre>
- * &lt;files files="onefile.txt" /&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple1.xml}
  * 
  * @oddjob.example
  * 
  * Using a wildcard expression.
  * 
- * <pre>
- * &lt;files files="reports/*.txt" /&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple2.xml}
  * 
  * @oddjob.example
  * 
  * Specifying a list of files.
  * 
- * <pre>
- * &lt;files&gt;
- *  &lt;list&gt;
- *   &lt;files files="onefile.txt" /&gt;
- *   &lt;files files="reports/*.txt" /&gt;
- *  &lt;/list&gt;
- * &lt;/files&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple3.xml}
  * 
  * @oddjob.example
  * 

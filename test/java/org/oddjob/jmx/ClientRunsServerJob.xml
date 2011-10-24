@@ -4,7 +4,7 @@
             <jobs>
                 <jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
                     id="freds-pc" name="Oddjob Client"
-                    url="service:jmx:rmi:///jndi/rmi://${hosts.freds-pc}/fred-oddjob-server"/>
+                    url="service:jmx:rmi:///jndi/rmi://${hosts.freds-pc}/freds-oddjob-server"/>
                  <run job="${freds-pc/server-jobs/greeting}"/>
                  <stop job="${freds-pc}"/>
             </jobs>

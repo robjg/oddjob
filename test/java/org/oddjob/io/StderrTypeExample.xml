@@ -1,0 +1,10 @@
+<copy>
+    <input>
+        <buffer><![CDATA[It's all going wrong!
+]]>
+        </buffer>
+    </input>
+    <output>
+        <stderr/>
+    </output>
+</copy>

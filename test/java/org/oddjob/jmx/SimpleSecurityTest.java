@@ -2,20 +2,29 @@ package org.oddjob.jmx;
 
 import java.io.File;
 
+import javax.security.auth.DestroyFailedException;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
+import org.oddjob.FragmentHelper;
 import org.oddjob.Helper;
 import org.oddjob.Iconic;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.client.UsernamePassword;
 import org.oddjob.jmx.server.SimpleServerSecurity;
 import org.oddjob.jobs.EchoJob;
+import org.oddjob.rmi.RMIRegistryJob;
+import org.oddjob.state.ServiceState;
 
 /**
  * For these tests to work you need to download  
@@ -170,5 +179,47 @@ public class SimpleSecurityTest extends TestCase {
 				
 		client.stop();
 		server.stop();
+	}
+	
+	public void testClientAndServerExamples() throws ArooaParseException, DestroyFailedException, FailedToStopException {
+		
+		FragmentHelper helper = new FragmentHelper();
+		
+		Object server = helper.createComponentFromResource(
+				"org/oddjob/jmx/SecureServerExample.xml");
+		helper.getSession().getBeanRegistry().register("some-job", 
+				new Object());
+			
+		JMXClientJob client = (JMXClientJob) helper.createComponentFromResource(
+				"org/oddjob/jmx/SecureClientExample.xml");
+		
+		
+		String param = System.getProperty("oddjob.jmx.test.security.config");
+		if (param == null) {
+			return;
+		}	
+		
+		RMIRegistryJob registry = new RMIRegistryJob();
+		registry.run();
+		
+		StateSteps serverStates = new StateSteps((Stateful) server);
+		serverStates.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		((Runnable) server).run();
+		
+		serverStates.checkNow();
+		
+		StateSteps clientStates = new StateSteps(client);
+		clientStates.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		client.run();
+		
+		clientStates.checkNow();
+		
+		client.destroy();
+		
+		((Stoppable) server).stop();
 	}
 }

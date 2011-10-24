@@ -1,0 +1,14 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <greeting>
+                        <value value="Hello World"/>
+                    </greeting>
+                </variables>
+                <echo name="Echo a Greeting">${vars.greeting}</echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

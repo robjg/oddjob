@@ -36,22 +36,11 @@ import org.oddjob.framework.SimpleJob;
  * 
  * A simple variable.
  * 
- * <pre>
- * &lt;oddjob&gt;
- *  &lt;job&gt;
- *   &lt;sequential&gt;
- *     &lt;variables id="vars" &gt;
- *      &lt;greeting&gt;
- *       &lt;value value="Hello World"/&gt;
- *      &lt;/greeting&gt;
- *     &lt;/variables&gt;
- *     &lt;echo name="Issue a greeting." text="${vars.greeting}" /&gt;
- *   &lt;/sequential&gt;
- *  &lt;/job&gt;
- * &lt;/oddjob&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/values/VariablesExample.xml}
+ * 
+ * 
+ * @author rob
  */
-
 public class VariablesJob extends SimpleJob
 		implements DynaBean {
 	

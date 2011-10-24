@@ -9,14 +9,29 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.SerializableJob;
+import org.oddjob.jmx.JMXClientJob;
 import org.oddjob.logging.OddjobNDC;
 
 /**
- * @oddjob.description A job which stops another job.
+ * @oddjob.description A job which stops another job. 
+ * <p>
+ * Normally The stop job will not complete until the job it is
+ * stopping is in a not executing state. Therefore if the
+ * stop job is attempting to stop a parent job the stop
+ * job will block indefinitely. To resolve this problem the
+ * <code>async</code> property was introduced.
+ * 
+ * @oddjob.example
+ * 
+ * Examples elsewhere.
+ * <ul>
+ *  <li>{@link JMXClientJob} has an example where the stop
+ *  job is used to stop a client once the connection is no 
+ *  longer needed.</li>
+ * </ul>
  * 
  * @author Rob Gordon
  */
-
 public class StopJob extends SerializableJob {
     private static final long serialVersionUID = 20050806;
 

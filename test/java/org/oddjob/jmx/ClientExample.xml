@@ -1,0 +1,4 @@
+<jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx" 
+            id="freds-pc"
+            name="Connection to Freds PC" 
+            url="service:jmx:rmi:///jndi/rmi://${hosts.freds-pc}/freds-oddjob-server"/>

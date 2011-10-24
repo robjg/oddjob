@@ -1,0 +1,11 @@
+<jmx:server xmlns:jmx="http://rgordon.co.uk/oddjob/jmx" root="${some-job}"
+    url="service:jmx:rmi://ignored/jndi/rmi://localhost/my-oddjob">
+    <environment>
+        <jmx:server-security>
+            <passwordFile>
+                <file
+                    file="C:\rob\java\jmx_examples\Security\simple\config\password.properties"/>
+            </passwordFile>
+        </jmx:server-security>
+    </environment>
+</jmx:server>

@@ -14,16 +14,7 @@ import org.oddjob.arooa.types.ValueFactory;
  * 
  * Copy from stdin to a file.
  * 
- * <code><pre>
- * &lt;copy&gt;
- *  &lt;input&gt;
- *   &lt;stdin/&gt;
- *  &lt;/input&gt;
- *  &lt;output&gt;
- *   &lt;file file="foo.txt"/&gt;
- *  &lt;/output&gt;
- * &lt;/copy&gt;
- * </pre></code>
+ * {@oddjob.xml.resource org/oddjob/io/StdinTypeExample.xml}
  * 
  */
 public class StdinType implements ValueFactory<InputStream> {

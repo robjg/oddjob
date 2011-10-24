@@ -1,0 +1,8 @@
+<copy>
+    <input>
+        <stdin/>
+    </input>
+    <output>
+        <file file="foo.txt"/>
+    </output>
+</copy>

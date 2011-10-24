@@ -16,6 +16,8 @@ import org.oddjob.persist.FilePersister;
  * <p>
  * This job is not Serializable and so won't be persisted
  * itself.
+ * <p>
+ * See also the {@link org.oddjob.state.Resets} job.
  *
  *
  * @oddjob.example 

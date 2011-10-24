@@ -1,10 +1,20 @@
 package org.oddjob.state;
 
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
 import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
+import org.oddjob.OurDirs;
+import org.oddjob.StateSteps;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.jobs.structural.SequentialJob;
 
 public class EqualsStateTest extends TestCase {
 
@@ -97,4 +107,43 @@ public class EqualsStateTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 	
+	public void testExample() throws InterruptedException, IOException, ArooaPropertyException, ArooaConversionException {
+		
+		OurDirs dirs = new OurDirs();
+		
+		File pretendLockFile = dirs.relative("work/pretend.lck");
+		pretendLockFile.createNewFile();
+		
+		Properties properties = new Properties();
+		properties.setProperty("db.lock.file", pretendLockFile.getPath());
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/state/EqualsStateExample.xml",
+    			getClass().getClassLoader()));
+    	oddjob.setProperties(properties);
+    	
+    	oddjob.load();
+    	
+    	SequentialJob sequential = new OddjobLookup(oddjob).lookup(
+    			"db-backup", SequentialJob.class);
+    	
+    	StateSteps sequentialStates = new StateSteps(sequential);
+    	sequentialStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+    			ParentState.INCOMPLETE);
+    	
+    	oddjob.run();
+
+    	sequentialStates.checkWait();
+    	
+    	StateSteps oddjobStates = new StateSteps(oddjob);
+    	oddjobStates.startCheck( 
+    			ParentState.ACTIVE, ParentState.COMPLETE);
+    	
+    	pretendLockFile.delete();
+    	
+    	oddjobStates.checkWait();
+    	
+    	oddjob.destroy();
+	}
 }

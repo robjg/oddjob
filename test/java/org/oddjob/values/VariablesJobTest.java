@@ -10,6 +10,7 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
@@ -298,4 +299,26 @@ public class VariablesJobTest extends TestCase {
         assertEquals("Job state", JobState.COMPLETE, Helper.getJobState(check));
     }
     
+    public void testExample() {
+    	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/values/VariablesExample.xml",
+    			getClass().getClassLoader()));
+    	ConsoleCapture console = new ConsoleCapture();
+    	console.capture(Oddjob.CONSOLE);
+    	
+    	oddjob.run();
+    	
+    	console.close();
+    	
+    	console.dump(logger);
+    	
+    	String[] lines = console.getLines();
+    	
+    	assertEquals("Hello World", lines[0].trim());    	
+    	assertEquals(1, lines.length);
+    	
+    	oddjob.destroy();
+    }
 }

@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
+import org.oddjob.FragmentHelper;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -373,5 +374,18 @@ public class FilesTypeTest extends TestCase {
 		assertEquals("e.jar", lines[4].trim());
 		
 		oddjob.destroy();
+    }
+    
+    public void testSimpleExamples() throws ArooaParseException {
+    	
+    	// Just test the xml for now.
+    	
+    	FragmentHelper helper = new FragmentHelper();
+    	
+    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple1.xml");
+
+    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple2.xml");
+
+    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple3.xml");
     }
 }

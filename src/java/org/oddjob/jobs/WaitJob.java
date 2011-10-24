@@ -27,15 +27,7 @@ import org.oddjob.state.StateCondition;
  * This example waits for a variable 'text' to be set. The value could be set
  * across the network or by a another job running in parallel.  
  * 
- * <pre><code>
- * &lt;sequential name="Waiting For a Property"&gt;
- *  &lt;jobs&gt;
- *   &lt;variables id="waitvars"/&gt;
- *   &lt;wait for="${waitvars.text}" pause="5000" name="Wait for Variable"/&gt;
- *   &lt;echo text="${waitvars.text}" name="Echo Text"/&gt;
- *  &lt;jobs&gt;
- * &lt;/sequential&gt;
- * </code></pre>
+ * {@oddjob.xml.resource org/oddjob/io/WaitForExample.xml}
  * 
  * @author Rob Gordon
  *

@@ -1,0 +1,6 @@
+<files>
+    <list>
+        <files files="onefile.txt"/>
+        <files files="reports/*.txt"/>
+    </list>
+</files>

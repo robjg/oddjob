@@ -1,0 +1,8 @@
+<folder name="My Jobs">
+    <jobs>
+        <exec name="Morning Job">echo "Good Morning"</exec>
+        <exec name="Afternoon Job">echo "Good Afternoon"</exec>
+        <exec name="Evening Job">echo "Good Evening"</exec>
+    </jobs>
+</folder>
+ 

@@ -8,22 +8,14 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.types.ValueFactory;
 
 /**
- * @oddjob.description Provide an input from the console.
+ * @oddjob.description Provide an output to stdout stream of 
+ * the console.
  * 
  * @oddjob.example
  * 
  * Copy from a file to stdout.
  * 
- * <code><pre>
- * &lt;copy&gt;
- *  &lt;input&gt;
- *   &lt;file file="foo.txt"/&gt;
- *  &lt;/input&gt;
- *  &lt;output&gt;
- *   &lt;stdout/&gt;
- *  &lt;/output&gt;
- * &lt;/copy&gt;
- * </pre><code>
+ * {@oddjob.xml.resource org/oddjob/io/StdoutTypeExample.xml}
  * 
  */
 public class StdoutType implements ValueFactory<OutputStream> {

@@ -42,7 +42,7 @@ import org.oddjob.util.ThreadManager;
  * interface from the client side proxy if any of it's methods are write.
  * One affect of this is that a read only account can't access properties of
  * the remote job with the ${server/remote-job} syntax because this functionality
- * is provided by the same interface (BeanUtils <code>DynaBean</code) that allows
+ * is provided by the same interface (BeanUtils <code>DynaBean</code>) that allows
  * a remote job's properties to be written.
  * <p> 
  * For more information on JMX Security see
@@ -66,19 +66,7 @@ import org.oddjob.util.ThreadManager;
  * 
  * Creating a secure server.
  * 
- * <pre>
- * &lt;jmx:server xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
- *          root="${some-job}" 
- *          url="service:jmx:rmi://ignored/jndi/rmi://localhost/my-oddjob" &gt;
- *  &lt;environment&gt;
- *   &lt;jmx:server-security&gt;
- *    &lt;passwordFile&gt;
- *     &lt;file file="C:\rob\java\jmx_examples\Security\simple\config\password.properties"/&gt;
- *    &lt;/passwordFile&gt;
- *   &lt;/jmx:server-security&gt;
- *  &lt;/environment&gt;
- * &lt;/jmx:server&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/jmx/SecureServerExample.xml}
  * 
  * @author Rob Gordon
  */

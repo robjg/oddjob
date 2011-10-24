@@ -4,14 +4,20 @@
 package org.oddjob.jobs;
 
 import java.beans.PropertyVetoException;
+import java.lang.reflect.InvocationTargetException;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.FragmentHelper;
+import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
+import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.scheduling.DefaultExecutors;
@@ -206,5 +212,37 @@ public class WaitJobTest extends TestCase {
 		assertNotNull(new OddjobLookup(oddjob).lookup("wait.for"));
 		
 		oddjob.destroy();		
+	}
+	
+	public void testWaitExample() throws InterruptedException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ArooaParseException {
+		
+		FragmentHelper helper = new FragmentHelper();
+		Object sequential = helper.createComponentFromResource(
+				"org/oddjob/jobs/WaitForExample.xml");
+		
+		Object[] children = Helper.getChildren(sequential);
+		
+		Object wait = children[1];
+		
+		StateSteps waitStates = new StateSteps((Stateful) wait);
+		
+		waitStates.startCheck(JobState.READY, JobState.EXECUTING);
+	
+		new Thread((Runnable) sequential).start();
+		
+		waitStates.checkWait();
+		
+		StateSteps echoStates = new StateSteps((Stateful) children[2]);
+		
+		echoStates.startCheck(JobState.READY, JobState.EXECUTING,
+				JobState.COMPLETE);
+
+		BeanUtils.setProperty(children[0], "text", "Hello");
+		
+		echoStates.checkWait();
+		
+		String text = (String) BeanUtils.getProperty(children[2], "text");
+		
+		assertEquals("Hello", text);
 	}
 }

@@ -2,6 +2,7 @@ package org.oddjob.jobs.structural;
 
 import junit.framework.TestCase;
 
+import org.oddjob.FragmentHelper;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -93,5 +94,14 @@ public class JobFolderTest extends TestCase {
 		assertNull(new OddjobLookup(oddjob).lookup("folder"));
 		
 		oddjob.destroy();
+	}
+	
+	public void testExample() throws ArooaParseException {
+		
+		// Just parse XML.
+		
+		FragmentHelper helper = new FragmentHelper();
+		helper.createComponentFromResource(
+				"org/oddjob/jobs/structural/JobFolderExample.xml");
 	}
 }

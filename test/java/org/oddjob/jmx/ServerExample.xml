@@ -5,7 +5,7 @@
             <jobs>
                 <rmireg/>
                 <jmx:server id="server1" root="${server-jobs}" 
-                    url="service:jmx:rmi://ignored/jndi/rmi://localhost/fred-oddjob-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                    url="service:jmx:rmi://ignored/jndi/rmi://localhost/freds-oddjob-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
                 <oddjob file="${this.dir}/ServerJobs.xml" id="server-jobs"/>
             </jobs>
         </sequential>
