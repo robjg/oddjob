@@ -12,14 +12,7 @@ package org.oddjob.state;
  * 
  * COMPLETE if both files exist, INCOMPLETE otherwise.
  * 
- * <pre>
- * &lt;state:and xmlns:state="http://rgordon.co.uk/oddjob/state"&gt;
- *  &lt;jobs&gt;
- *   &lt;exists file="doesntexist1"&gt;/>
- *   &lt;exists file="doesntexist2"&gt;/>
- *  &lt;/jobs&gt;
- * &lt;/state:and&gt;
- * </pre>
+ * {@oddjob.xml.resource org/oddjob/state/AndStateExample.xml}
  * 
  * @author Rob Gordon
  */

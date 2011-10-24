@@ -151,7 +151,7 @@ import org.oddjob.values.properties.PropertiesType;
  * 
  * Using an argument passed into Oddjob that may or may not be set.
  * 
- * {@oddjob.xml.resource org/oddjob/OptionalFileNameArg.xml
+ * {@oddjob.xml.resource org/oddjob/OptionalFileNameArg.xml}
  * 
  * @oddjob.example
  * 

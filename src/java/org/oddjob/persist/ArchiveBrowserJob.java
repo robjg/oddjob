@@ -21,7 +21,7 @@ public class ArchiveBrowserJob extends SimpleJob implements Structural {
 			
 	/**
 	 * @oddjob.property 
-	 * @oddjob.description The name of the acrhive to browse.
+	 * @oddjob.description The name of the archive to browse.
 	 * @oddjob.required Yes.
 	 */
 	private String archiveName;

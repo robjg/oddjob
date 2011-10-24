@@ -3,14 +3,19 @@
  */
 package org.oddjob.state;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
+import org.oddjob.OurDirs;
 import org.oddjob.StateSteps;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
@@ -538,5 +543,46 @@ public class IfJobTest extends TestCase {
 		
 		assertEquals(JobState.READY, then.lastStateEvent().getState());
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+	}
+	
+	public void testIfFileExists() throws IOException {
+	
+		OurDirs dirs = new OurDirs();
+		
+		File workDir = dirs.relative("work/if");
+		
+		workDir.mkdir();
+		
+		File theFile = new File(workDir, "important.txt");
+		
+		if (theFile.exists()) {
+			FileUtils.forceDelete(theFile);
+		}
+		
+		Properties properties = new Properties();
+		properties.setProperty("work.dir", workDir.getPath());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/state/IfFileExistsExample.xml", 
+				getClass().getClassLoader()));
+		oddjob.setProperties(properties);
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.run();
+	
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		console.close();
+		console.dump(logger);
+		
+		assertEquals(ParentState.COMPLETE,
+				oddjob.lastStateEvent().getState());
+		
+		assertEquals(1, console.getLines().length);
+
+		oddjob.destroy();
 	}
 }

@@ -1,0 +1,15 @@
+<oddjob xmlns:state="http://rgordon.co.uk/oddjob/state"
+        id="this">
+    <job>
+        <state:if>
+            <jobs>
+                <exists name="Check File Exists"
+                        file="${this.dir}/data/some.txt"/>
+                <echo id="then"
+                      name="Echo to Console">File Exists</echo>
+                <echo id="else"
+                      name="Echo to Console">File Doesn't Exist</echo>
+            </jobs>
+        </state:if>
+    </job>
+</oddjob>

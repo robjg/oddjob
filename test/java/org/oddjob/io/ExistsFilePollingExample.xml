@@ -1,0 +1,25 @@
+<oddjob xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+        xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
+        id="this">
+    <job>
+        <sequential name="The Classic File Polling Example">
+            <jobs>
+                <scheduling:retry limits="${timer.current}">
+                    <schedule>
+                        <schedules:interval interval="00:00:02"/>
+                    </schedule>
+                    <job>
+                        <sequential id="echo-when-file">
+                            <jobs>
+                                <exists id="check"
+                                        name="Check File Exists"
+                                        file="${work.dir}/done.flag"/>
+                                <echo>Found ${check.exists[0]}</echo>
+                            </jobs>
+                        </sequential>
+                    </job>
+                </scheduling:retry>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

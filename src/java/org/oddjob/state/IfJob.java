@@ -23,6 +23,12 @@ import org.oddjob.framework.StructuralJob;
  * 
  * @oddjob.example
  * 
+ * If a file exists. 
+ * 
+ * {@oddjob.xml.resource org/oddjob/state/IfFileExistsExample.xml}
+ * 
+ * @oddjob.example
+ * 
  * An example showing lots of if's. All these if's go to COMPLETE state 
  * when run.
  * 

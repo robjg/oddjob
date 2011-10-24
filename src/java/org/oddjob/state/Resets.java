@@ -14,7 +14,7 @@ import org.oddjob.io.ExistsJob;
  * <p>
  * Execute and Stop actions are cascaded as normal to the child job.
  * <p> 
- * See also the {@link org.oddjob.jobs.ResetJob} job.
+ * See also the {@link org.oddjob.jobs.job.ResetJob} job.
  * 
  * @oddjob.example
  * 

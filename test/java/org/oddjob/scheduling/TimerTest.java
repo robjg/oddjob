@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +23,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.IconSteps;
+import org.oddjob.MockOddjobExecutors;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -96,7 +99,7 @@ public class TimerTest extends TestCase {
 		}
 	}
 	
-	private class OurOddjobServices extends MockScheduledExecutorService {
+	private class OurScheduledExecutorService extends MockScheduledExecutorService {
 				
 		Runnable runnable;
 		long delay;
@@ -104,8 +107,8 @@ public class TimerTest extends TestCase {
 		public ScheduledFuture<?> schedule(Runnable runnable, long delay,
 				TimeUnit unit) {
 
-			OurOddjobServices.this.delay = delay;
-			OurOddjobServices.this.runnable = runnable;
+			OurScheduledExecutorService.this.delay = delay;
+			OurScheduledExecutorService.this.runnable = runnable;
 
 			return new MockScheduledFuture<Void>();
 		}
@@ -127,7 +130,7 @@ public class TimerTest extends TestCase {
 		test.setHaltOnFailure(true);
 		test.setClock(clock);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();		
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();		
 		test.setScheduleExecutorService(oddjobServices);
 
 		StateSteps state = new StateSteps(test);
@@ -232,7 +235,7 @@ public class TimerTest extends TestCase {
 		test.setClock(clock);
 		test.setJob(job);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 		
@@ -267,7 +270,7 @@ public class TimerTest extends TestCase {
 		test.setClock(clock);
 		test.setJob(job);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 		
@@ -305,7 +308,7 @@ public class TimerTest extends TestCase {
 		test.setJob(job);
 		test.setSkipMissedRuns(true);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 		
@@ -339,7 +342,7 @@ public class TimerTest extends TestCase {
 		test.setHaltOnFailure(true);
 		test.setJob(job);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 		
@@ -375,7 +378,7 @@ public class TimerTest extends TestCase {
 		test.setJob(ourJob);
 		test.setTimeZone("GMT+8");
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 		
@@ -406,7 +409,7 @@ public class TimerTest extends TestCase {
 		test.setJob(sample);
 		test.setClock(clock);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 
@@ -449,7 +452,7 @@ public class TimerTest extends TestCase {
 		test.setJob(sample);
 		test.setClock(clock);
 		
-		OurOddjobServices oddjobServices = new OurOddjobServices();
+		OurScheduledExecutorService oddjobServices = new OurScheduledExecutorService();
 		
 		test.setScheduleExecutorService(oddjobServices);
 
@@ -805,4 +808,64 @@ public class TimerTest extends TestCase {
     	    	
     	oddjob.destroy();
 	}
+	
+	private class OurOddjobExecutor extends MockOddjobExecutors {
+
+		OurScheduledExecutorService executor = 
+			new OurScheduledExecutorService();
+		
+		@Override
+		public ScheduledExecutorService getScheduledExecutor() {
+			return executor;
+		}
+		
+		@Override
+		public ExecutorService getPoolExecutor() {
+			return null;
+		}
+		
+	}
+	
+	public void testTimerStopJobExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+		
+		OurOddjobExecutor executors = new OurOddjobExecutor();
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/scheduling/TimerStopJobExample.xml",
+    			getClass().getClassLoader()));
+    	oddjob.setOddjobExecutors(executors);
+    	
+    	oddjob.load();
+    	
+    	Stateful wait = new OddjobLookup(oddjob).lookup(
+    			"long-job", Stateful.class);
+    	
+    	StateSteps waitStates = new StateSteps(wait);
+    	
+    	waitStates.startCheck( 
+    			JobState.READY, 
+    			JobState.EXECUTING);
+    	
+    	new Thread(oddjob).start();
+    	
+    	waitStates.checkWait();
+    	
+    	assertTrue(executors.executor.delay > 9000);
+    	
+    	StateSteps states = new StateSteps(oddjob);
+    	
+    	states.startCheck( 
+    			ParentState.EXECUTING, 
+    			ParentState.ACTIVE, 
+    			ParentState.COMPLETE);
+    	
+    	executors.executor.runnable.run();
+    	
+    	states.checkWait();
+    	
+    	oddjob.destroy();
+    	
+	}
+	
 }

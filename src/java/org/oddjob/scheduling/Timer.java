@@ -98,6 +98,15 @@ import org.oddjob.state.StateOperator;
  * If the report completes before 10am the timer will schedule it to be e-mailed
  * at 10am. If the report completes after 10am it is e-mailed immediately.
  * 
+ * @oddjob.example
+ * 
+ * Use a timer to stop a long running job.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TimerStopJobExample.xml}
+ * 
+ * The job will be stopped after 10 seconds. If the job has already completed
+ * the stop will have no affect.
+ * 
  * @author Rob Gordon.
  */
 public class Timer extends TimerBase {

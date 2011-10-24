@@ -1,0 +1,16 @@
+<oddjob>
+    <job>
+        <folder>
+            <jobs>
+                <rename id="from"
+                        name="Rename"
+                        from="${work.dir}/a.txt"
+                        to="${work.dir}/b.txt"/>
+                <rename id="back"
+                        name="Rename Back"
+                        from="${work.dir}/b.txt"
+                        to="${work.dir}/a.txt"/>
+            </jobs>
+        </folder>
+    </job>
+</oddjob>

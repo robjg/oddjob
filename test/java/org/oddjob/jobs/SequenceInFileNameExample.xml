@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this"
+        xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+        xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <job>
+        <scheduling:timer id="daily">
+            <schedule>
+                <schedules:daily/>
+            </schedule>
+            <job>
+                <scheduling:timer>
+                    <schedule>
+                        <schedules:count count="10"/>
+                    </schedule>
+                    <job>
+                        <sequential>
+                            <jobs>
+                                <sequence id="seqnum" watch="${daily.current}"/>
+                                <variables id="vars">
+                                    <seqnumFormatted>
+                                        <format format="0000" number="${seqnum.current}"/>
+                                    </seqnumFormatted>
+                                </variables>
+                                <copy name="Create file" to="${work.dir}/sequence${vars.seqnumFormatted}.txt">
+                                    <input>
+                                        <value value="This text will be in every file."/>
+                                    </input>
+                                </copy>
+                            </jobs>
+                        </sequential>
+                    </job>
+                </scheduling:timer>
+            </job>
+        </scheduling:timer>
+    </job>
+</oddjob>

@@ -9,17 +9,18 @@ import org.oddjob.util.OddjobConfigException;
  * local or or on a server.
  * <p>
  * This jobs completion state will reflect the success of the run 
- * operation, not the state of job being run.
+ * operation, not the state of the job being run.
  * <p>
  * 
  * @oddjob.example
  * 
- * If 'sales' is the id of a {@link org.oddjob.jmx.JMXClientJob}, then 
- * this would run the job fred on the corresponding server.
- * 
- * <pre>
- * &lt;run job="${sales.lookup(fred)}"/&gt;
- * </pre>
+ * Examples elsewhere.
+ * <ul>
+ *  <li>The {@link org.oddjob.jmx.JMXClient} job has an
+ *  example that uses <code>run</code> to start a job on a 
+ *  remote server.</li>
+ * </ul>
+ *  
  * 
  * @author Rob Gordon
  */

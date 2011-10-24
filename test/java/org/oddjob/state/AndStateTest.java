@@ -1,9 +1,20 @@
 package org.oddjob.state;
 
 
+import java.io.File;
+import java.util.Properties;
+import java.util.concurrent.Future;
+
 import junit.framework.TestCase;
 
+import org.oddjob.FragmentHelper;
+import org.oddjob.OurDirs;
+import org.oddjob.StateSteps;
+import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.framework.ServicesJob;
 import org.oddjob.scheduling.MockScheduledExecutorService;
+import org.oddjob.scheduling.MockScheduledFuture;
 
 public class AndStateTest extends TestCase {
 
@@ -130,4 +141,46 @@ public class AndStateTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, listener.result);
 	}
+	
+	private class NowExecutor extends MockScheduledExecutorService {
+
+		public Future<?> submit(Runnable runnable) {
+			runnable.run();
+			return new MockScheduledFuture<Void>();
+		}
+	}
+	
+	public void testExample() throws ArooaParseException {
+		
+		OurDirs dirs = new OurDirs();
+		
+		File file1 = dirs.relative("oddjob.xml");
+		File file2 = dirs.relative("explorer.xml");
+		
+		Properties properties = new Properties();
+		properties.setProperty("file.one", file1.getPath());
+		properties.setProperty("file.two", file2.getPath());
+		
+		FragmentHelper helper = new FragmentHelper();
+		helper.setProperties(properties);
+		AndState test = (AndState) helper.createComponentFromResource(
+				"org/oddjob/state/AndStateExample.xml");
+		ArooaSession session = helper.getSession();
+		
+		ServicesJob.ServiceDefinition def = new ServicesJob.ServiceDefinition();
+		def.setService(new NowExecutor());
+		
+		ServicesJob services = new ServicesJob();
+		services.setRegisteredServices(0, def);
+		
+		session.getBeanRegistry().register("services", services);
+		
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		test.run();
+		
+		states.checkNow();
+    }
 }

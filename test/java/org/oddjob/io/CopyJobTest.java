@@ -80,22 +80,14 @@ public class CopyJobTest extends TestCase {
 	public void testCopyDirectory() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
-		String xml = 
-			"<oddjob id='this'>" +
-			" <job>" +
-			"  <copy to='${this.args[0]}/work/io/copy'>" +
-			"	<from>" +
-			"    <file file='${this.args[0]}/test/io/reference/a'/>" +
-			"   </from>" +
-			"  </copy>" +
-			" </job>" +
-			"</oddjob>";
-
 		OurDirs dirs = new OurDirs();
 		
 		Oddjob oj = new Oddjob();
 		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
+		oj.setConfiguration(new XMLConfiguration(
+				"org/oddjob/io/CopyDirectory.xml", 
+				getClass().getClassLoader()));
+		
 		oj.run();
 		
 		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
@@ -107,22 +99,14 @@ public class CopyJobTest extends TestCase {
 		// directory doesn't exist this time.
 		// dir.mkdir();
 		
-		String xml = 
-			"<oddjob id='this'>" +
-			" <job>" +
-			"  <copy to='${this.args[0]}/work/io/copy'>" +
-			"   <from>" +
-			"    <file file='${this.args[0]}/test/io/reference/a'/>" +
-			"   </from> " +
-			"  </copy>" +
-			" </job>" +
-			"</oddjob>";
 
 		OurDirs dirs = new OurDirs();
 		
 		Oddjob oj = new Oddjob();
 		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
+		oj.setConfiguration(new XMLConfiguration(
+				"org/oddjob/io/CopyDirectory.xml", 
+				getClass().getClassLoader()));
 		oj.run();
 		
 		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());

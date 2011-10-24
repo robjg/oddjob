@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential name="Trigger Example">
+            <jobs>
+                <scheduling:trigger name="Alert Trigger" on="${important}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <job>
+                        <echo name="Alert">Important job has completed!</echo>
+                    </job>
+                </scheduling:trigger>
+                <folder name="A Folder of Jobs">
+                    <jobs>
+                        <echo id="important" name="Run Me">I'm important</echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -566,6 +566,29 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+	public void testSimpleExample() throws InterruptedException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/scheduling/TriggerSimple.xml",
+				getClass().getClassLoader()));
+		oddjob.run();
+		
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+
+		StateSteps states = new StateSteps(oddjob);
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Runnable important = (Runnable) lookup.lookup("important");
+		important.run();
+		
+		states.checkWait();
+		
+		oddjob.destroy();
+	}
+	
 	public void testExample() throws InterruptedException {
 		
 

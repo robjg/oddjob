@@ -1,0 +1,25 @@
+<oddjob>
+    <job>
+        <sequential id="main" name="Stop Overdue Job">
+            <jobs>
+                <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <schedule>
+                        <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                            <refinement>
+                                <schedules:after>
+                                    <schedule>
+                                        <schedules:interval interval="00:00:10"/>
+                                    </schedule>
+                                </schedules:after>
+                            </refinement>
+                        </schedules:count>
+                    </schedule>
+                    <job>
+                         <stop job="${long-job}" name="Stop Long Running Job"/>
+                    </job>
+                </scheduling:timer>
+                <wait id="long-job" name="A Long Running Job"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

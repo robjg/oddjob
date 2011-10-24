@@ -66,7 +66,8 @@ Changes in 1.0.0
 - Logging messages have been tidied up. The job name has been removed from log
   messages and added to the Log4j Mapped Diagnostic Context instead with the
   key 'ojname'.
-      
+- Upgraded Apache commons-io to be 2.1
+
 Still to do for 1.0.0
 ---------------------
 

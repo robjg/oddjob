@@ -4,19 +4,34 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
+import org.oddjob.StateSteps;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.state.ParentState;
 
 public class ExistsJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ExistsJobTest.class);
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("---------------------  " + getName() + "  --------------");
+	}
 	
 	public void testFile() {
 		OurDirs dirs = new OurDirs();
@@ -100,7 +115,7 @@ public class ExistsJobTest extends TestCase {
 		oj.destroy();
 	}
 	
-	public void existsWithFilesExamplesTest() {
+	public void testExistsWithFilesExample() {
 		
 		OurDirs dirs = new OurDirs();
 		
@@ -121,7 +136,64 @@ public class ExistsJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE,
 				oddjob.lastStateEvent().getState());
 		
-		assertEquals(2, console.getLines().length);
+		assertEquals(3, console.getLines().length);
+
+		oddjob.destroy();
+	}
+	
+	public void testExistsFilePollingExample() throws IOException, ArooaPropertyException, ArooaConversionException, InterruptedException {
+		
+		OurDirs dirs = new OurDirs();
+		
+		File workDir = dirs.relative("work/io");
+		
+		workDir.mkdir();
+		
+		File flagFile = new File(workDir, "done.flag");
+		
+		if (flagFile.exists()) {
+			FileUtils.forceDelete(flagFile);
+		}
+		
+		Properties properties = new Properties();
+		properties.setProperty("work.dir", workDir.getPath());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/io/ExistsFilePollingExample.xml", 
+				getClass().getClassLoader()));
+		oddjob.setProperties(properties);
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.load();
+		
+		SequentialJob sequential = new OddjobLookup(oddjob).lookup(
+				"echo-when-file", SequentialJob.class);
+		
+		StateSteps sequentialStates = new StateSteps(sequential);
+		sequentialStates.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.INCOMPLETE);
+		
+		oddjob.run();
+	
+		sequentialStates.checkWait();
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		FileUtils.touch(flagFile);
+		
+		oddjobStates.checkWait();
+		
+		console.close();
+		console.dump(logger);
+		
+		assertEquals(ParentState.COMPLETE,
+				oddjob.lastStateEvent().getState());
+		
+		assertEquals(1, console.getLines().length);
 
 		oddjob.destroy();
 	}

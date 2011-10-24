@@ -21,6 +21,12 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
  * 
  * @oddjob.example
  * 
+ * File polling.
+ * 
+ * {@oddjob.xml.resource org/oddjob/io/ExistsFilePollingExample.xml}
+ * 
+ * @oddjob.example
+ * 
  * Using exists and processing the files found.
  * 
  * {@oddjob.xml.resource org/oddjob/io/ExistsWithFilesExample.xml}

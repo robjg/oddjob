@@ -33,6 +33,12 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * @oddjob.example
  * 
+ * Copy a directory.
+ * 
+ * {@oddjob.xml.resource org/oddjob/io/CopyDirectory.xml}
+ * 
+ * @oddjob.example
+ * 
  * Copy from a file to a buffer.
  * 
  * {@oddjob.xml.resource org/oddjob/io/CopyFileToBuffer.xml}

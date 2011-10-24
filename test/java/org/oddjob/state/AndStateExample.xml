@@ -1,0 +1,6 @@
+<state:and xmlns:state="http://rgordon.co.uk/oddjob/state">
+    <jobs>
+        <exists file="${file.one}"/>
+        <exists file="${file.two}"/>
+    </jobs>
+</state:and>

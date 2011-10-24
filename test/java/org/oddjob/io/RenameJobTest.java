@@ -4,12 +4,14 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -61,25 +63,40 @@ public class RenameJobTest extends TestCase {
 		assertFalse(a.exists());
 	}
 	
-	public void testInOddjob() throws Exception {
-		File a = new File(dir, "a");
-		File b = new File(dir, "b");
+	public void testExample() throws Exception {
+		File a = new File(dir, "a.txt");
+		File b = new File(dir, "b.txt");
 		
 		FileUtils.touch(a);
-		
-		String xml = 
-			"<oddjob>" +
-			" <job>" +
-			"  <rename from='" + dir.getPath() + "/a' to='" + dir.getPath() + "/b'/>" +
-			" </job>" +
-			"</oddjob>";
 
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		oj.run();
+		Properties properties = new Properties();
+		properties.setProperty("work.dir", dir.getPath());
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/io/RenameExample.xml",
+				getClass().getClassLoader()));
+		oddjob.setProperties(properties);
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		oddjob.load();
+		
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Runnable rename1 = lookup.lookup("from", Runnable.class);
+		rename1.run();
+		
+		assertFalse(a.exists());		
 		assertTrue(b.exists());		
+		
+		Runnable rename2 = lookup.lookup("back", Runnable.class);
+		rename2.run();
+		
+		oddjob.destroy();
+		
+		assertTrue(a.exists());		
+		assertFalse(b.exists());		
 	}
 	
 	public void testSerialize() throws Exception {
@@ -102,5 +119,4 @@ public class RenameJobTest extends TestCase {
 		assertFalse(a.exists());
 	}
 
-	
 }

@@ -4,8 +4,8 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="src" path="tools/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="opt/lib/commons-io-1.1.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projects.arooa"/>
 	<classpathentry kind="lib" path="test/lib/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="opt/lib/commons-io-2.1.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

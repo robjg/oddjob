@@ -14,21 +14,14 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
  * 
  * Using a sequence in a file name.
  * 
- * <pre><code>
- * &lt;sequential name="Sequence of Files&gt;
- *  &lt;jobs&gt;
- *   &lt;sequence id="seqnum"/&gt;
- *   &lt;variables id="vars"&gt;
- *    &lt;seqnumFormatted&gt;
- *     &lt;format number="${seqnum.current}" format="0000"/&gt;
- *    &lt;/seqnumFormatted&gt;
- *   &lt;/variables&gt;  
- *   &lt;exists file="balances${vars.seqnumFormatted}"/&gt;
- *  &lt;/jobs&gt;
- * &lt;/sequential&gt;
- * </code>
+ * {@oddjob.xml.resource org/oddjob/jobs/SequenceInFileNameExample.xml}
+ * 
+ * The watch property is set to watch when the daily scheule move forward
+ * so the sequence is restarted.
+ * 
+ * 
+ * @author rob
  */
-
 public class SequenceJob implements Runnable, Serializable {
 	private static final long serialVersionUID=20060109;
 

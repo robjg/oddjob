@@ -40,6 +40,12 @@ import org.oddjob.state.WorstStateOp;
  * 
  * @oddjob.example
  * 
+ * A simple trigger.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TriggerSimple.xml}
+ * 
+ * @oddjob.example
+ * 
  * A trigger that runs once two other jobs have completed.
  * 
  * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExample.xml}
@@ -47,9 +53,11 @@ import org.oddjob.state.WorstStateOp;
  * @oddjob.example
  * 
  * Examples Elsewhere.
- * <p>
- * The scheduling example uses a trigger to send an email if one
- * of the transfers fail.
+ * <ul>
+ *  <li>The scheduling example (<code>examples/scheduling/dailyftp.xml</code>
+ *  uses a trigger to send an email if one of the FTP transfers fails.</li>
+ * </ul> 
+ * 
  * 
  * @author Rob Gordon.
  */

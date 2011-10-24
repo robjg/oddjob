@@ -15,14 +15,13 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
  * 
  * @oddjob.example
  * 
- * Rename a file.
+ * Rename a file and rename it back.
  * 
- * <pre><code>
- * &lt;rename from="data/some.txt" to="work/other.txt"/&gt;
- * </code><pre>
+ * {@oddjob.xml.resource org/oddjob/io/RenameExample.xml}
  * 
+ * 
+ * @author rob
  */
-
 public class RenameJob implements Runnable, Serializable {
 	private static final long serialVersionUID = 20060117;
 	

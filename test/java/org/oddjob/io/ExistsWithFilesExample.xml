@@ -9,14 +9,13 @@
                         <value value="${exists.exists}"/>
                     </values>
                     <configuration>
-                        <arooa:configuration
-                            xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
-                            <xml>
-                                <xml>
-                                    <echo text="found ${found.current}"/>
-                                </xml>
-                            </xml>
-                        </arooa:configuration>
+                        <xml>
+                            <foreach id="found">
+                                <job>
+                                    <echo>found ${found.current}</echo>
+                                </job>
+                            </foreach>
+                        </xml>
                     </configuration>
                 </foreach>
             </jobs>
