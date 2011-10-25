@@ -1,6 +1,7 @@
 package org.oddjob.doclet;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,9 +24,24 @@ public class ManualDocletTest extends TestCase {
 	protected void setUp() throws Exception {
 		logger.info("-------------------  " + getName() + "  -------------------");
 		
-		if (dest.exists()) {
-			logger.info("Deleting " + dest);
-			FileUtils.forceDelete(dest);
+		// try 3 times - why does this fail?
+		for (int i = 0; ; ++i) {
+			if (dest.exists()) {
+				logger.info("Deleting " + dest);
+				try {
+					FileUtils.forceDelete(dest);
+				} catch (IOException e) {
+					if (i < 3) {
+						logger.error("failed deleting " + dest, e);
+						Thread.sleep(200);
+						continue;
+					}
+					else {
+						throw e;
+					}
+				}
+			}
+			break;
 		}
 		
 		logger.info("Creating " + dest);

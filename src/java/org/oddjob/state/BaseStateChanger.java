@@ -2,6 +2,7 @@ package org.oddjob.state;
 
 import java.util.Date;
 
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -18,6 +19,8 @@ import org.oddjob.persist.Persistable;
  */
 public class BaseStateChanger<S extends State> implements StateChanger<S> {
 		
+	private static final Logger logger = Logger.getLogger(BaseStateChanger.class);
+	
 	private final StateHandler<S> stateHandler;
 	private final IconHelper iconHelper;
 	private final Persistable persistable;
@@ -54,6 +57,7 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
 				
 				
 			} catch (ComponentPersistException e) {
+				logger.error("Failed persisting state " + state, e);
 				setStateException(e);
 			}
 		}
@@ -75,6 +79,7 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
 				try {
 					persistable.persist();
 				} catch (ComponentPersistException e) {
+					logger.error("Failed persisting state " + exceptionState, e);
 					stateHandler.setStateException(exceptionState, e, date);
 				}
 			}

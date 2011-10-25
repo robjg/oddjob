@@ -6,7 +6,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 
 import junit.framework.TestCase;
 
@@ -34,7 +33,8 @@ public class HSQLAssumptionsTest extends TestCase {
 		BufferType buffer = new BufferType();
 		buffer.setText("CREATE TABLE test(" +
 				"key VARCHAR(128), " +
-				"job BLOB, " +
+				"job_as_stream BLOB, " +
+				"job_as_bytes BLOB, " +
 				"CONSTRAINT test_pk PRIMARY KEY (key))");
 		buffer.configured();
 		
@@ -69,12 +69,21 @@ public class HSQLAssumptionsTest extends TestCase {
 		byte[] bigArray = new byte[1000000];
 	}
 
+	/**
+	 * Tests because HSQL Version 2 didn't look to support blobs as expected.
+	 * <p>
+	 * - Looks like they've been fixed in version 2.2.5
+	 * 
+	 * @author rob
+	 *
+	 */
 	public void testBytes() throws SQLException, ArooaConversionException {
 		
 		Connection connection = ct.toValue();
 		
 		PreparedStatement insert = connection.prepareStatement(
-				"insert into test (key, job) values (?, ?)");
+				"insert into test (key, job_as_stream, job_as_bytes)" +
+				" values (?, ?, ?)");
 		
 		Object job = new BigThing();
 
@@ -85,19 +94,14 @@ public class HSQLAssumptionsTest extends TestCase {
 		
 		insert.setString(1, "a");
 	
-		try {
-			insert.setBlob(2, new SerializeWithBinaryStream().toStream(job));
-			fail("HSQL must now support setting blobs as stream.");
-		} catch (SQLFeatureNotSupportedException e) {
-			// currently expected.
-		}
+		insert.setBlob(2, new SerializeWithBinaryStream().toStream(job));
 		
-		insert.setBytes(2, bytes);
+		insert.setBytes(3, bytes);
 		
 		insert.executeUpdate();
 		
 		PreparedStatement select = connection.prepareStatement(
-				"select job from test where key = ?");
+				"select job_as_stream, job_as_bytes from test where key = ?");
 		
 		select.setString(1, "a");
 		
@@ -105,21 +109,21 @@ public class HSQLAssumptionsTest extends TestCase {
 		
 		assertTrue(rs.next());
 		
-		try {
-			rs.getBytes(1);
-			fail("HSQL must now support getting blobs as bytes.");
-		}
-		catch (SQLException e) {
-			// currently expected;
-		}
+		byte[] bytesCopy = rs.getBytes(1);
 		
-		Blob blob = rs.getBlob(1);
+		Object copy1 = new SerializeWithBytes().fromBytes(
+				bytesCopy, 
+				getClass().getClassLoader());
 		
-		Object copy = new SerializeWithBinaryStream().fromStream(
+		assertNotNull(copy1);
+		
+		Blob blob = rs.getBlob(2);
+		
+		Object copy2 = new SerializeWithBinaryStream().fromStream(
 				blob.getBinaryStream(), 
 				getClass().getClassLoader());
 		
-		assertNotNull(copy);
+		assertNotNull(copy2);
 		
 		insert.close();
 		select.close();
