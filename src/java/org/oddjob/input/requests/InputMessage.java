@@ -7,7 +7,7 @@ import org.oddjob.input.InputRequest;
 /**
  * @oddjob.description A Message with a prompt to continue. 
  * 
- * @oddjob.xml.example
+ * @oddjob.example
  * 
  * See {@link org.oddjob.input.InputJob} for an example.
  * 

@@ -5,7 +5,7 @@ import org.oddjob.input.InputMedium;
 /**
  * @oddjob.description An input request for a password.
  * 
- * @oddjob.xml.example
+ * @oddjob.example
  * 
  * See {@link org.oddjob.input.InputJob} for an example.
  * 

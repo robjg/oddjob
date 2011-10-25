@@ -150,6 +150,30 @@ public class MonthScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+    public void testMonthExample2() throws ArooaParseException, ParseException {
+    	
+    	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
+    	
+    	ArooaDescriptor descriptor = df.createDescriptor(
+    			getClass().getClassLoader());
+    	
+    	StandardFragmentParser parser = new StandardFragmentParser(descriptor);
+    	
+    	parser.parse(new XMLConfiguration(
+    			"org/oddjob/schedules/schedules/MonthScheduleExample2.xml", 
+    			getClass().getClassLoader()));
+    	
+    	Schedule schedule = (Schedule)	parser.getRoot();
+    	
+    	Interval next = schedule.nextDue(new ScheduleContext(
+    			DateHelper.parseDate("2010-02-15")));
+    	
+    	IntervalTo expected = new IntervalTo(
+    			DateHelper.parseDateTime("2010-02-15 11:00"));
+    	
+    	assertEquals(expected, next);
+    }
+    
     public void testYearlyInFebuaryIncludingLeapYears() throws ParseException {
     	
     	YearlySchedule test = new YearlySchedule();

@@ -16,7 +16,7 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * Examples elsewhere.
  * <ul>
- *  <li>The {@link org.oddjob.jmx.JMXClient} job has an
+ *  <li>The {@link org.oddjob.jmx.JMXClientJob} job has an
  *  example that uses <code>run</code> to start a job on a 
  *  remote server.</li>
  * </ul>

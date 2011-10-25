@@ -67,10 +67,7 @@ Changes in 1.0.0
   messages and added to the Log4j Mapped Diagnostic Context instead with the
   key 'ojname'.
 - Upgraded Apache commons-io to be 2.1
-
-Still to do for 1.0.0
----------------------
-
+- Upgraded HSQL to 2.2.5
  
 Deferred to A Later Version
 ---------------------------

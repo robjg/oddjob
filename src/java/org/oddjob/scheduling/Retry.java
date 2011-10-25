@@ -30,7 +30,7 @@ import org.oddjob.state.StateOperator;
  * 
  * Using Retry with a Timer. A daily job retries twice.
  * 
- * {@oddjob.xml.resource org/oddjob/scheduling/SimpleTimerWitRetryExample.xml}
+ * {@oddjob.xml.resource org/oddjob/scheduling/SimpleTimerWithRetry.xml}
  * 
  * @author Rob Gordon.
  */

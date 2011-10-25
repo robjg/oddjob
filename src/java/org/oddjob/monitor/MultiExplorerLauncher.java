@@ -169,7 +169,7 @@ implements Stoppable  {
 	}
 
     /**
-     * @oddjob.property
+     * @oddjob.property fileHistorySize
      * @oddjob.description How many lines to keep in file history.
      * @oddjob.required No.
      */

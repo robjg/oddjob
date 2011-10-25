@@ -1,0 +1,14 @@
+<schedules:list xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+    <schedules>
+        <schedules:yearly fromMonth="April" toMonth="September">
+            <refinement>
+                <schedules:daily at="10:00"/>
+            </refinement>
+        </schedules:yearly>
+        <schedules:yearly fromMonth="October" toMonth="March">
+            <refinement>
+                <schedules:daily at="11:00"/>
+            </refinement>
+        </schedules:yearly>
+    </schedules>
+</schedules:list>

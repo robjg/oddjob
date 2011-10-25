@@ -37,6 +37,11 @@ import org.oddjob.schedules.units.Month;
  * 
  * {@oddjob.xml.resource org/oddjob/schedules/schedules/MonthScheduleExample.xml}
  * 
+ * Instead of month numbers, English month names can be used. This is
+ * equivalent to the above.
+ * 
+ * {@oddjob.xml.resource org/oddjob/schedules/schedules/MonthScheduleExample2.xml}
+ * 
  * @oddjob.example 
  * 
  * A from day of year to day of year example.

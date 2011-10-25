@@ -23,7 +23,7 @@ import org.oddjob.structural.StructuralListener;
  * 
  * A folder of jobs.
  * 
- * {@oddjob.xm.resource org/oddjob/jobs/structural/JobFolderExample.xml}
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/JobFolderExample.xml}
  * 
  * 
  * @author Rob Gordon 

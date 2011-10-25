@@ -6,7 +6,7 @@ import org.oddjob.input.InputMedium;
  * @oddjob.description A request for a yes/no confirmation. The value
  * captured for this request is a boolean true/false value.
  * 
- * @oddjob.xml.example
+ * @oddjob.example
  * 
  * See {@link org.oddjob.input.InputJob} for an example.
  * 
