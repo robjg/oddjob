@@ -19,12 +19,20 @@ public class OddjobRunner {
 	
 	public static final long DEFAULT_KILLER_TIMEOUT = 15000L;
 	
+	/** The Oddjob we're running. */
 	private final Oddjob oddjob;
 	
+	/** Flag if Oddjob is being destroyed from the Shutdown Hook. */
 	private volatile boolean destroying = false;
 
+	/** The killer thread time out. */
 	private final long killerTimeout;
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param oddjob The Oddjob to run.
+	 */
 	public OddjobRunner(Oddjob oddjob) {
 		this.oddjob = oddjob;
 		
@@ -62,7 +70,13 @@ public class OddjobRunner {
 			// has completed and then we can destroy it. 
 			// mainly to close down executors, so the application
 			// can terminate.
-			if (!destroying) {
+			if (destroying) {
+				logger.debug("Oddjob execution thread complete via destroy from the shutdown hook.");
+			}
+			else {
+				logger.debug("Oddjob execution thread completed. " +
+						"Executers will be terminated when asynchronous jobs complete.");
+				
 			    oddjob.addStateListener(new StateListener() {
 			    	public void jobStateChange(StateEvent event) {
 			    		if (!new IsStoppable().test(event.getState())) {
@@ -81,10 +95,20 @@ public class OddjobRunner {
 		}
 	}
 	
+	/**
+	 * Oddjob's shutdown hook.
+	 *
+	 */
 	class ShutdownHook extends Thread {
 		
-		Thread killer;
+		/** Killer thread will forcibly halt Oddjob if it hasn't terminated
+		 * cleanly. */
+		private Thread killer;
 		
+		/*
+		 * (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
 		public void run() {
 			
 			logger.info("Shutdown Hook Executing.");
@@ -92,10 +116,13 @@ public class OddjobRunner {
 			// killer will just kill process if we can't stop in 15 sec
 			killer = new Thread(new Runnable() {
 				public void run() {
+					logger.debug("Killer thread started. Oddjob has " + 
+								killerTimeout + "ms to stop niceley.");
 					try {
 						Thread.sleep(killerTimeout);
 					}
 					catch (InterruptedException e) {
+						logger.debug("Killer thread interrupted and terminating.");
 						return;
 					}
 					logger.error("Failed to stop Oddjob nicely, using halt(-1)");
@@ -103,47 +130,50 @@ public class OddjobRunner {
 				}
 			});
 			
-			// start the killer
+			// start the killer. Not sure it really need to be daemon but
+			// it does no harm.
+			logger.debug("Starting killer thread.");
 			killer.setDaemon(true);
 			killer.start();
 			
-			// try stopping oddjob.
-			try {
-				oddjob.stop();
-			} catch (FailedToStopException e) {
-				logger.error(e.getMessage());
-			}
-
 			// remember the last job event because we can't get it once
 			// Oddjob is destroyed.
-			StateEvent lastJobStateEvent = oddjob.lastStateEvent();
+			StateEvent lastStateEvent = oddjob.lastStateEvent();
 
-			destroying = true;
-			oddjob.onDestroy();
-				
-			// determine exit status.
-			org.oddjob.state.State state = lastJobStateEvent.getState();
-			if (state.isException()) {
-				logger.error("Oddjob complete. State [" + state + "].", 
-					lastJobStateEvent.getException());
-			} else {
-				logger.info("Oddjob complete. State [" + state + "].");			
+			if (lastStateEvent.getState().isStoppable()) {
+				// Try stopping Oddjob. Do this even though destroy will also
+				// stop Oddjob, so we can capture the stopped state.
+				try {
+					oddjob.stop();
+					lastStateEvent = oddjob.lastStateEvent();
+				} catch (FailedToStopException e) {
+					logger.error(e.getMessage());
+				}
 			}
 			
-			if (!state.isComplete()) {
-				// really really bad but how else to get the state out.
-				if (state.isIncomplete()) {
-					Runtime.getRuntime().halt(1);
-				}
-				else {
-					Runtime.getRuntime().halt(-1);
-				}
+			logger.debug("Destroying Oddjob.");
+			destroying = true;
+			oddjob.destroy();
+			
+			// Nothing's hanging so we don't need our killer.
+			killer.interrupt();
+			
+			// determine exit status.
+			org.oddjob.state.State state = lastStateEvent.getState();
+			if (state.isException()) {
+				logger.error("Oddjob terminating JVM with status -1. Oddjob state [" + state + "].", 
+					lastStateEvent.getException());
+				// really really bad but how else to get the state out to the OS.
+				Runtime.getRuntime().halt(-1);
+				
+			} else if (state.isIncomplete()) {
+				logger.info("Oddjob terminating JVM with status 1. Oddjob state [" + state + "].");			
+				Runtime.getRuntime().halt(1);
+			}
+			else {
+				logger.info("Oddjob complete. Oddjob state [" + state + "].");			
 			}
 		}
 	}
 
-	
-	
-
-	
 }

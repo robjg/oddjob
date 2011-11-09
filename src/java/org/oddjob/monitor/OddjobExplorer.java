@@ -667,10 +667,13 @@ implements Stoppable {
 		 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
+				// Because we DO_NOTHING_ON_CLOSE it's up to us to 
+				// close the window.
 				maybeCloseWindow();
 			}
 
 			public void windowClosed(WindowEvent e) {
+				logger.debug("Explorer window closed.");
 			}
 		});
 
@@ -763,7 +766,9 @@ implements Stoppable {
 	}
 	
 	/**
-	 * Close.
+	 * Maybe close the window if it isn't vetoed be attempting to remove
+	 * Oddjob.
+	 * 
 	 * @throws PropertyVetoException 
 	 */
 	private void maybeCloseWindow() {
@@ -775,11 +780,20 @@ implements Stoppable {
 			return;
 		}
 		
-		frame.dispose();
+		final JFrame frame = this.frame;
+		SwingUtilities.invokeLater(new Runnable() {			
+			@Override
+			public void run() {
+				frame.dispose();
+			}
+		});
+		
 		stop = true;
+		
 		synchronized (OddjobExplorer.this) {
 			OddjobExplorer.this.notifyAll();
 		}
+		
 		logger().debug("Monitor closed.");
 	}
 

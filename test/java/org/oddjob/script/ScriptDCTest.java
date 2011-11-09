@@ -32,12 +32,16 @@ public class ScriptDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-			"<script name='Test Script' language='JavaScript'>" +
+			"<script name='Test Script' language='JavaScript'" +
+			"  resultVariable='result' resultForState='true'>" +
 			" <input>" +
 			"  <buffer>" +
-			"println Hello" +
+			"println(\"Hello\");" +
 			"  </buffer>" +
 			" </input>" +
+			" <beans>" +
+			"  <value key='fruit' value='apple'/>" +
+			" </beans>" +
 			"</script>";
 		
     	ArooaDescriptor descriptor = 
@@ -57,7 +61,9 @@ public class ScriptDCTest extends TestCase {
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("JavaScript", test.getLanguage());
-		
+		assertEquals("apple", test.getBeans("fruit"));
+		assertEquals("result", test.getResultVariable());
+		assertEquals(true, test.isResultForState());
 	}
 	
 	public static void main(String args[]) throws ArooaParseException {

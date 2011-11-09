@@ -27,9 +27,13 @@ public class SimpleThreadManager implements ThreadManager {
 		new HashMap<Runnable, Remember>();
 
 	private final ExecutorService executors;
-
+	
 	public SimpleThreadManager() {
-		this.executors = Executors.newCachedThreadPool();
+		this(Executors.newCachedThreadPool());
+	}
+	
+	public SimpleThreadManager(ExecutorService executors) {
+		this.executors = executors;
 	}
 	
 	/**

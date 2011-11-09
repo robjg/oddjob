@@ -137,7 +137,7 @@ implements Iconic, Stateful,
 	throws ArooaConfigurationException {
 		
 		if (session != null) {
-			logger().debug("Configuringing.");
+			logger().debug("Configuring.");
 			session.getComponentPool().configure(component);
 		}
 	}

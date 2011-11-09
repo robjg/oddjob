@@ -1,6 +1,7 @@
 package org.oddjob;
 
 import java.io.File;
+import java.util.concurrent.Exchanger;
 
 import junit.framework.TestCase;
 
@@ -28,22 +29,22 @@ public class MainShutdownTest extends TestCase {
 		
 		boolean stopped;
 		Thread t;
+		Exchanger<Void> exchanger = new Exchanger<Void>();
 		
 		@Override
-		protected int execute() throws Throwable {
+		protected synchronized int execute() throws Throwable {
 			t = Thread.currentThread();
-			synchronized (this) {
-				try {
-					while (true) {
-						wait();
-					}
-				} catch (InterruptedException e) {
-					logger.debug("OurSimpleJob interrupted.");
+			exchanger.exchange(null);
+			try {
+				while (true) {
+					wait();
 				}
+			} catch (InterruptedException e) {
+				logger.debug("OurSimpleJob interrupted.");
 			}
 			return 0;
 		}
-		public void onStop() {
+		public synchronized void onStop() {
 			stopped = true;
 			t.interrupt();
 		}
@@ -57,21 +58,23 @@ public class MainShutdownTest extends TestCase {
 				" </job>" +
 				"</oddjob>";
 		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("XML", xml));
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
-		Thread t = new Thread(oj);
+		oddjob.load();
+		
+		OurSimpleJob r = (OurSimpleJob) new OddjobLookup(oddjob).lookup("r");
+
+		assertNotNull(r);
+		
+		Thread t = new Thread(oddjob);
 		t.start();
 		
-		OurSimpleJob r = null;
-		while (r == null) {
-			Thread.sleep(1000);
-			r = (OurSimpleJob) new OddjobLookup(oj).lookup("r");
-		}
+		logger.info("Waiting for OurSimpleJob to be stoppable.");
+		r.exchanger.exchange(null);
 		
-		OddjobRunner.ShutdownHook hook = new OddjobRunner(oj). new ShutdownHook();
+		OddjobRunner.ShutdownHook hook = new OddjobRunner(oddjob). new ShutdownHook();
 		hook.run();
-		hook.killer.interrupt();
 		
 		assertTrue(r.stopped);
 	}
