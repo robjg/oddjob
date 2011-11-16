@@ -1,11 +1,40 @@
 Oddjob-1.0.0
 ============
 
-**********************************************************************
-* Please note that configuration files from previous versions will   *
-* require editing before they will work with this version.           *
-* Please see the reference guide for property descriptions.          *
-**********************************************************************
+Changes in 1.1.0
+----------------
+- Improved CSS style sheets and changed JSP to produce unordered lists instead
+  of using HTML tables.
+- Fixed bug whereby explorer wouldn't close when Oddjob is killed with Ctrl-C.
+
+Still To Do for 1.1.0
+--------------------
+- Move the Struts Web-App to a more up to date platform. (JSF/Wicket/Spring 
+  MVC - still to be decided).
+- Add Security to the WebApp (with a Read Only role).  
+- Remove Frames from the Web-App. Use some kind of Java Script split pane.
+- Use AJAX to update individual parts of the tree and detail panel instead of 
+  a whole screen refresh.
+- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
+  browser without the need for a separate Servlet Container.
+- Add a 'forceComplete' action that will force a job to be COMPLETE.
+
+Deferred to A Later Version
+---------------------------
+- Introduce the idea of Read only configuration that can't be modified if
+  it's been loaded from a non modifiable resource, i.e. from the class path.
+- Check a configuration hasn't been modified by someone else before a 
+  modification is saved back from designer.
+- Add Undo functionality to Oddjob configuration.
+- Document conversions. Possibly include conversions in the Reference.
+- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
+  copy some of it's feature including; overwrite, force, failonerror, verbose,
+  preservelastmodified. Add the ability to back up the moved files like Linux does.
+- Introduce a FilterType that can filter files by modified date, created date,
+  or match against a regular expression.
+- Should structural jobs COMPLETE when they have no child? Need to look at what 
+  happens when they are destroyed to ensure they don't complete as their children 
+  are removed.
 
 Changes in 1.0.0
 ----------------
@@ -69,22 +98,6 @@ Changes in 1.0.0
 - Upgraded Apache commons-io to be 2.1
 - Upgraded HSQL to 2.2.5
  
-Deferred to A Later Version
----------------------------
-- Add a 'forceComplete' action that will force a job to be complete.
-- Introduce the idea of Read only configuration that can't be modified if
-  it's been loaded from a non modifiable resource, i.e. class path or text.
-- Check a configuration hasn't been modified by someone else before a 
-  modification is saved back from designer.
-- Document conversions. Possibly include conversions in the Reference.
-- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
-  copy some of it's feature including; overwrite, force, failonerror, verbose,
-  preservelastmodified. Add the ability to back up the moved files like Linux does.
-- Introduce a FilterType that can filter files by modified date, created date,
-  or match against a regular expression.
-- Should structural jobs COMPLETE when they have no child? Need to look at what 
-  happens when they are destroyed to ensure they don't complete as their children 
-  are removed.
 
 Changes in 0.30.0
 -----------------
