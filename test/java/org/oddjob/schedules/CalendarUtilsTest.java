@@ -193,10 +193,15 @@ public class CalendarUtilsTest extends TestCase {
 
 	public void testDayOfYear() throws ParseException {
 		
-		assertEquals(DateHelper.parseDateTime("2006-03-08"), 
-				CalendarUtils.dayOfYear(
-						DateHelper.parseDateTime("2006-02-09 12:27"), 67, 
-						TimeZone.getDefault()).getTime());
+		CalendarUtils test = new CalendarUtils(
+				DateHelper.parseDateTime("2008-02-09 12:27"),
+				TimeZone.getDefault());
+		
+		Calendar result = test.dayOfYear(26, 5);
+		
+		Date expected = DateHelper.parseDateTime("2008-05-26");
+		
+		assertEquals(expected, result.getTime());
 	}
 	
 	public void testMonthOfYear() throws ParseException {

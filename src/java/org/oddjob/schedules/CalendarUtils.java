@@ -364,15 +364,13 @@ public class CalendarUtils {
 	 * @param dayOfYear The day of the year.
 	 * @return The calendar.
 	 */
-	public static Calendar dayOfYear(Date referenceDate, int dayOfYear, TimeZone timeZone) {
-		Calendar c1 = Calendar.getInstance();
-		c1.setTimeZone(timeZone);
-		c1.setTime(referenceDate);
+	public Calendar dayOfYear(int dayOfMonth, int month) {
 		
-	    Calendar c2 = Calendar.getInstance(timeZone);
+	    Calendar c2 = Calendar.getInstance(baseCalendar.getTimeZone());
 	    c2.clear();
-	    c2.set(Calendar.YEAR, c1.get(Calendar.YEAR));
-		c2.set(Calendar.DAY_OF_YEAR, dayOfYear);
+	    c2.set(Calendar.YEAR, baseCalendar.get(Calendar.YEAR));
+	    c2.set(Calendar.DATE, dayOfMonth);
+		c2.set(Calendar.MONTH, month - 1);
 		return c2;
 	}
 

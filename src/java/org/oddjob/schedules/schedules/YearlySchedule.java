@@ -2,16 +2,16 @@ package org.oddjob.schedules.schedules;
 
 import java.io.Serializable;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.schedules.CalendarUnit;
 import org.oddjob.schedules.CalendarUtils;
 import org.oddjob.schedules.ConstrainedSchedule;
-import org.oddjob.schedules.DateUtils;
 import org.oddjob.schedules.units.Month;
 
 /**
@@ -60,7 +60,7 @@ final public class YearlySchedule extends ConstrainedSchedule implements Seriali
 
     private static final long serialVersionUID = 20050226;
     
-	public static final String DAY_FORMAT = "MM-dd";
+	public static final Pattern DAY_FORMAT = Pattern.compile("(\\d?\\d)-(\\d?\\d)");
 
 	/**
 	 * @oddjob.property
@@ -164,19 +164,25 @@ final public class YearlySchedule extends ConstrainedSchedule implements Seriali
 	 * @param timeZone The time zone.
 	 * @return
 	 */
-	static int parseDay(String text, TimeZone timeZone) throws ParseException {
-		SimpleDateFormat f = new SimpleDateFormat(DAY_FORMAT);
-		f.setTimeZone(timeZone);
-		Date d = f.parse(text);
-		return DateUtils.dayOfYear(d, timeZone);
+	static Calendar parseDay(String text, Date referenceDate, TimeZone timeZone) 
+	throws ParseException {
+		
+		Matcher matcher = DAY_FORMAT.matcher(text);
+		if (!matcher.matches()) {
+			throw new ParseException(text, 0);
+		}
+
+		int month = Integer.parseInt(matcher.group(1));
+		int day = Integer.parseInt(matcher.group(2));
+		
+		CalendarUtils calendarUtils = new CalendarUtils(referenceDate, timeZone);
+		return calendarUtils.dayOfYear(day, month);
 	}
 	
 	protected Calendar fromCalendar(Date referenceDate, TimeZone timeZone) {
 		if (fromDate != null) {
 			try {
-				return CalendarUtils.dayOfYear(referenceDate,
-							parseDay(fromDate, timeZone),
-							timeZone);
+				return parseDay(fromDate, referenceDate, timeZone);
 			}
 			catch (ParseException e) {
 				throw new RuntimeException("Failed to parse from day.", e);
@@ -195,9 +201,7 @@ final public class YearlySchedule extends ConstrainedSchedule implements Seriali
 	protected Calendar toCalendar(Date referenceDate, TimeZone timeZone) {
 	    if (toDate != null) {
 	    	try {
-		    	Calendar cal = CalendarUtils.dayOfYear(referenceDate,
-		    				parseDay(toDate, timeZone),
-		    				timeZone);
+		    	Calendar cal = parseDay(toDate, referenceDate, timeZone);
 		    	CalendarUtils.setEndOfDay(cal);
 			    return cal;
 			}

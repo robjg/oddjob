@@ -4,6 +4,9 @@
 package org.oddjob.schedules.schedules;
 
 import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -17,21 +20,47 @@ import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
+import org.oddjob.schedules.ScheduleResult;
 
 /**
  * 
  */
-public class DayOfYearScheduleTest extends TestCase {
+public class YearlyScheduleTest extends TestCase {
 
+	public void testParseDay() throws ParseException {
+
+		Date referenceDate = DateHelper.parseDate("2011-11-17");
+		TimeZone timeZone = TimeZone.getDefault();
+		
+		Calendar result = YearlySchedule.parseDay("05-26", referenceDate, timeZone);
+		
+		assertEquals(DateHelper.parseDate("2011-05-26"), result.getTime());
+		
+		result = YearlySchedule.parseDay("5-26", referenceDate, timeZone);
+		
+		assertEquals(DateHelper.parseDate("2011-05-26"), result.getTime());
+		
+		result = YearlySchedule.parseDay("1-1", referenceDate, timeZone);
+		
+		assertEquals(DateHelper.parseDate("2011-01-01"), result.getTime());
+		
+		try {
+			YearlySchedule.parseDay("-1", referenceDate, timeZone);
+		}
+		catch (ParseException e) {
+			// Expected.
+		}
+	}
+	
 	public void testNextDue1() throws ParseException {
-		YearlySchedule s = new YearlySchedule();
-		s.setFromDate("02-05");
-		s.setToDate("02-25");
+		YearlySchedule test = new YearlySchedule();
+		test.setFromDate("02-05");
+		test.setToDate("02-25");
 		
 		ScheduleContext c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-02"));
 		
-		Interval result = s.nextDue(c);
+		Interval result = test.nextDue(c);
 
 		IntervalTo expected = 
 			new IntervalTo(DateHelper.parseDate("2003-02-05"),
@@ -42,7 +71,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-15"));
 		
-		result = s.nextDue(c);
+		result = test.nextDue(c);
 
 		expected = new IntervalTo(DateHelper.parseDate("2003-02-05"),
 				DateHelper.parseDate("2003-02-26"));
@@ -52,7 +81,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-15"));
 		
-		result = s.nextDue(c);
+		result = test.nextDue(c);
 
 		expected = new IntervalTo(DateHelper.parseDate("2003-02-05"),
 				DateHelper.parseDate("2003-02-26"));
@@ -61,7 +90,7 @@ public class DayOfYearScheduleTest extends TestCase {
 		
 		c = new ScheduleContext(
 				DateHelper.parseDate("2003-02-27"));
-		result = s.nextDue(c);
+		result = test.nextDue(c);
 		
 		expected = new IntervalTo(
 				DateHelper.parseDate("2004-02-05"),
@@ -85,6 +114,34 @@ public class DayOfYearScheduleTest extends TestCase {
 				DateHelper.parseDate("2011-01-05"));
 		
 		assertEquals(expected, result);
+	}
+	
+	public void testOn() throws ParseException {
+		
+		YearlySchedule test = new YearlySchedule();
+		test.setOnDate("05-26");
+		
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDate("2011-11-17"));
+		
+		ScheduleResult result = test.nextDue(context);
+		
+		ScheduleResult  expected = new IntervalTo(
+				DateHelper.parseDate("2012-05-26"),
+				DateHelper.parseDate("2012-05-27"));
+		
+		assertEquals(expected, result);
+		
+		context = context.move(result.getUseNext());
+		
+		result = test.nextDue(context);
+		
+		expected = new IntervalTo(
+				DateHelper.parseDate("2013-05-26"),
+				DateHelper.parseDate("2013-05-27"));
+		
+		assertEquals(expected, result);
+		
 	}
 	
 	public void test29thFeb() throws ParseException {
@@ -143,12 +200,24 @@ public class DayOfYearScheduleTest extends TestCase {
 
 		Schedule schedule = (Schedule)	parser.getRoot();
 
-		Interval next = schedule.nextDue(new ScheduleContext(
-				DateHelper.parseDate("2010-02-15")));
+		ScheduleContext context = new ScheduleContext(
+				DateHelper.parseDate("2010-02-15"));
+		
+		ScheduleResult next = schedule.nextDue(context);
 
-		IntervalTo expected = new IntervalTo(
+		ScheduleResult expected = new IntervalTo(
 				DateHelper.parseDateTime("2011-01-01 00:00"),
 				DateHelper.parseDateTime("2011-01-02 00:00"));
+		
+		assertEquals(expected, next);
+		
+		context = context.move(next.getUseNext());
+		
+		next = schedule.nextDue(context);
+
+		expected = new IntervalTo(
+				DateHelper.parseDateTime("2012-01-01 00:00"),
+				DateHelper.parseDateTime("2012-01-02 00:00"));
 		
 		assertEquals(expected, next);
 	}
