@@ -20,6 +20,13 @@ import org.apache.log4j.Logger;
 import org.oddjob.arooa.life.ComponentPersistException;
 
 /**
+ * Serialize an object to and from file with the given name. The .ser extension
+ * is added to the file name.
+ * <p>
+ * When writing a temporary name is used in case the process is kill mid writing
+ * so there is less chance of a corrupted file. The temporary name includes an
+ * underscore in the name.
+ * 
  * @author Rob Gordon.
  */
 public class SerializeWithFile {
@@ -30,11 +37,13 @@ public class SerializeWithFile {
 	public void toFile(File dir, String name, Object o) 
 	throws ComponentPersistException {
 		
-		File file = new File(dir, name + EXTENSION);
+		File inProgress = new File(dir, name + "_"+ EXTENSION);
+		File old = new File(dir, "_" + name + EXTENSION);
+		File finished = new File(dir, name + EXTENSION);
 		
 		ObjectOutput oo = null;
 		try {
-			OutputStream os = new FileOutputStream(file);
+			OutputStream os = new FileOutputStream(inProgress);
 			oo = new ObjectOutputStream(os);
 		}
 		catch (FileNotFoundException e) {
@@ -42,14 +51,11 @@ public class SerializeWithFile {
 		}
 		catch (IOException e) {
 			throw new ComponentPersistException("Failed opening file [" +
-					file + "]", e);
+					inProgress + "]", e);
 		}
 		
 		try {
-			oo.writeObject(o);
-			logger.debug("Saved [" + o + "], id [" + name 
-			        + "] to file ]["
-					+ file + "].");
+			oo.writeObject(o);			
 		}
 		catch (IOException e) {
 			throw new ComponentPersistException("Failed writing object id ["
@@ -65,6 +71,31 @@ public class SerializeWithFile {
 				// ignore
 			}
 		}
+		
+		// Need to move the old file because on some platforms you can't
+		// rename over an existing file.
+		if (finished.exists()) {
+			if (!finished.renameTo(old)) {
+				logger.warn("Failed renaming " + finished + " to " +
+							old);
+			}
+		}
+		
+		if (!inProgress.renameTo(finished)) {
+			throw new ComponentPersistException("Failed renaming " + inProgress + 
+					" to " + finished);
+		}
+		
+		// Now delete the old file for next time.
+		if (old.exists()) {
+			if (!old.delete()) {
+				logger.warn("Failed deleting " + old);			
+			}
+		}
+		
+		logger.debug("Saved [" + o + "], id [" + name 
+		        + "] to file ]["
+				+ finished + "].");
 	}
 	
 	public void remove(File dir, String name) {
