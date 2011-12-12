@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="com.mysql.jdbc.Driver" password="${mysql.password}" url="jdbc:mysql://localhost/${mysql.schema}" username="${mysql.user}">
+                            <classLoader>
+                                <url-class-loader>
+                                    <urls>
+                                        <files files="${mysql.home}/MySQL Connector J/*.jar"/>
+                                    </urls>
+                                </url-class-loader>
+                            </classLoader>
+                        </connection>
+                    </connection>
+                </variables>
+                <sql delimiter="GO" delimiterType="ROW" name="Create Procedure SQL">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[DROP PROCEDURE IF EXISTS sp 
+GO
+
+CREATE PROCEDURE sp(IN param1 VARCHAR(20), OUT param2 INT)
+BEGIN 
+SET param2 = 0; 
+END
+GO]]></buffer>
+                    </input>
+                </sql>
+                <sql callable="true" name="Call sp with two params">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[call sp(?, ?)                        ]]></buffer>
+                    </input>
+                    <parameters>
+                        <value value="20111210"/>
+                        <identify id="sp-result1">
+                            <value>
+                                <value/>
+                            </value>
+                        </identify>
+                    </parameters>
+                </sql>
+                <sql callable="true" name="Call sp with one params">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[call sp('20111210', ?)                        ]]></buffer>
+                    </input>
+                    <parameters>
+                        <identify id="sp-result2">
+                            <value>
+                                <value/>
+                            </value>
+                        </identify>
+                    </parameters>
+                </sql>
+                <echo><![CDATA[Results are ${sp-result1} and ${sp-result2}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

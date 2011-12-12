@@ -130,6 +130,11 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 					statement.setObject(i, converted);
 				}
 			}
+			else {
+				logger.info("Registering parameter " + i + " as an Out Parameter");
+				((CallableStatement) statement).registerOutParameter(
+						i, paramMetaData.getParameterType(i));
+			}
 		}
 
 		try {

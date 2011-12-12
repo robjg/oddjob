@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="com.ibm.db2.jcc.DB2Driver" password="${db2.password}" url="jdbc:db2://localhost:50000/sample:retrieveMessagesFromServerOnGetMessage=true;" username="${db2.user}">
+                            <classLoader>
+                                <url-class-loader>
+                                    <urls>
+                                        <files files="*.jar">
+                                            <list>
+                                                <file file="${db2.home}/Java/db2jcc4.jar"/>
+                                                <file file="${db2.home}/Java/db2jcc_license_cu.jar"/>
+                                            </list>
+                                        </files>
+                                    </urls>
+                                </url-class-loader>
+                            </classLoader>
+                        </connection>
+                    </connection>
+                </variables>
+                <sql id="check-routine" name="Check Routine Exists">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[select 1 from syscat.routines 
+where routineschema='${db2.schema}'
+and routinename='SP']]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-bean/>
+                    </results>
+                </sql>
+                <state:if xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <jobs>
+                        <check eq="1" value="${check-routine.results.rowCount}"/>
+                        <sql name="Drop SP">
+                            <connection>
+                                <value value="${vars.connection}"/>
+                            </connection>
+                            <input>
+                                <buffer><![CDATA[drop procedure ${db2.schema}.sp]]></buffer>
+                            </input>
+                        </sql>
+                    </jobs>
+                </state:if>
+                <sql delimiter="GO" delimiterType="ROW" name="Create Procedure SQL">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[CREATE PROCEDURE ${db2.schema}.sp(IN param1 VARCHAR(20), OUT param2 INT)
+BEGIN 
+SET param2 = 0; 
+END
+GO]]></buffer>
+                    </input>
+                </sql>
+                <sql callable="true" name="Call sp with two params">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[call ${db2.schema}.sp(?, ?)                        ]]></buffer>
+                    </input>
+                    <parameters>
+                        <value value="20111210"/>
+                        <identify id="sp-result1">
+                            <value>
+                                <value/>
+                            </value>
+                        </identify>
+                    </parameters>
+                </sql>
+                <sql callable="true" name="Call sp with one params">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[call ${db2.schema}.sp('20111210', ?)                        ]]></buffer>
+                    </input>
+                    <parameters>
+                        <identify id="sp-result2">
+                            <value>
+                                <value/>
+                            </value>
+                        </identify>
+                    </parameters>
+                </sql>
+                <echo><![CDATA[Results are ${sp-result1} and ${sp-result2}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

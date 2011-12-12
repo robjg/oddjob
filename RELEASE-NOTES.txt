@@ -1,16 +1,15 @@
-Oddjob-1.0.0
+Oddjob-1.1.0
 ============
 
 Changes in 1.1.0
 ----------------
-- Improved CSS style sheets and changed JSP to produce unordered lists instead
-  of using HTML tables.
+- Fixed bug with not registering Out Parameters in SQL Job.
+- Moved the Struts Webapp to JSF 2.1 with MyFaces 2.1.4.
+- Improved CSS for Webapp.
 - Fixed bug whereby explorer wouldn't close when Oddjob is killed with Ctrl-C.
 
 Still To Do for 1.1.0
 --------------------
-- Move the Struts Web-App to a more up to date platform. (JSF/Wicket/Spring 
-  MVC - still to be decided).
 - Add Security to the WebApp (with a Read Only role).  
 - Remove Frames from the Web-App. Use some kind of Java Script split pane.
 - Use AJAX to update individual parts of the tree and detail panel instead of 
