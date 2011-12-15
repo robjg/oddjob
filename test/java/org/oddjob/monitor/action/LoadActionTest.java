@@ -55,12 +55,13 @@ public class LoadActionTest extends TestCase {
 	public void testCycle() throws Exception {
 		
 		LoadAction test = new LoadAction();
-		assertTrue(test.isEnabled());
-		assertTrue(test.isVisible());
+		assertFalse(test.isEnabled());
+		assertFalse(test.isVisible());
 		
 		OurEContext eContext = new OurEContext();
 		
 		test.setSelectedContext(eContext);
+		test.prepare();
 		
 		assertTrue(test.isEnabled());
 		assertTrue(test.isVisible());
@@ -69,7 +70,6 @@ public class LoadActionTest extends TestCase {
 		
 		test.action();
 		
-		test.setSelectedContext(eContext);
 		test.prepare();
 		
 		assertFalse(eContext.loadable.loadable);
@@ -78,6 +78,9 @@ public class LoadActionTest extends TestCase {
 		assertTrue(test.isVisible());
 		
 		test.setSelectedContext(null);
+		
+		assertFalse(test.isEnabled());
+		assertFalse(test.isVisible());
 	}
 	
 }

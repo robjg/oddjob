@@ -267,7 +267,14 @@ public class JMXServerJob implements ArooaSessionAware {
 		threadManager.close();
 		
 		logger.debug("Desroying MBeans.");
-		factory.destroy(mainName);
+		try {
+			factory.destroy(mainName);
+		}
+		catch (JMException e) {
+			// This can happen when the RMI registry is shut before the 
+			// server is stopped.
+			logger.error("Failed destroying main MBean.", e);
+		}
 		
 		if (cntorServer != null) {
 			logger.debug("Stopping JMXConnectorServer.");

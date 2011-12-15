@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <rmireg/>
+                <jmx:server name="Management MBean Server" root="${jobs}" url="service:jmx:rmi://ignored/jndi/rmi://localhost/my-queue-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <sequential id="jobs">
+                    <jobs>
+                        <bean class="org.oddjob.values.ValueQueueService" id="queue"/>
+                        <foreach id="foreach" preLoad="1" purgeAfter="10">
+                            <values>
+                                <value value="${queue.values}"/>
+                            </values>
+                            <configuration>
+                                <xml>
+                                    <foreach id="loop">
+                                        <job>
+                                            <echo name="Echo ${loop.current}"><![CDATA[${loop.current}]]></echo>
+                                        </job>
+                                    </foreach>
+                                </xml>
+                            </configuration>
+                        </foreach>
+                    </jobs>
+                </sequential>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

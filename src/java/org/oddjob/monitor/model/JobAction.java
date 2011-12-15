@@ -21,9 +21,9 @@ abstract public class JobAction implements ExplorerAction {
 	private final PropertyChangeSupport propertySupport = 
 		new PropertyChangeSupport(this);
 	
-	private boolean enabled = true;
+	private boolean enabled = false;
 	
-	private boolean visible = true;
+	private boolean visible = false;
 	
 	private boolean prepared = false;
 	

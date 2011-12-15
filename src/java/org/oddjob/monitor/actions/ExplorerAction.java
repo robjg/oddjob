@@ -8,7 +8,15 @@ import org.oddjob.monitor.model.SelectedContextAware;
 
 /**
  * Abstraction for an Action that acts on a Job and is executed
- * in from OddjobExplorer.
+ * in from OddjobExplorer or another user interface.
+ * <p>
+ * The life cycle for an action is:
+ * <ul>
+ *  <li>{@link #setSelectedContext(ExplorerContext)} when the job
+ *  selection changes.</li>
+ *  <li>{@link #prepare()} before a menu is shown.</li>
+ *  <li>{@link #action()} to perform the action.</li>
+ * </ul>
  * 
  * @author rob
  *
@@ -21,11 +29,14 @@ extends PropertyChangeNotifier, SelectedContextAware {
 	
 	/** The visible property name. */
 	public static final String VISIBLE_PROPERTY = "visible";
-		
+	
+	/** The name of the 'job' menu group. */
 	public static final String JOB_GROUP = "job";
 	
+	/** The name of the 'property' menu group. */
 	public static final String PROPERTY_GROUP = "property";
 	
+	/** The name of the 'design' menu group. */
 	public static final String DESIGN_GROUP = "design";
 	
 	/**
@@ -38,7 +49,7 @@ extends PropertyChangeNotifier, SelectedContextAware {
 	
 
 	/**
-	 * Get the group name. This is which group in Job
+	 * Get the group name. This is which group in the Job
 	 * menu to place the action in. 
 	 * 
 	 * @return A name. Must not be null.
@@ -71,9 +82,11 @@ extends PropertyChangeNotifier, SelectedContextAware {
 
 	
 	/**
-	 * Called to perform the action either once
-	 * the form has been completed or immediately
-	 * the menu item or trigger for the action has
+	 * Called to perform the action.
+	 * <p>
+	 * If this is a {@link FormAction} this method will be called once
+	 * the form has been completed. Otherwise this method is called
+	 * immediately the menu item or other trigger for the action has
 	 * been selected.
 	 * 
 	 * @throws Exception The exception will be caught and
@@ -82,11 +95,14 @@ extends PropertyChangeNotifier, SelectedContextAware {
 	public void action() throws Exception;
 	
 	/**
-	 * Called when the Job Menu is selected. Provides an action
+	 * Called when the Job Menu is selected. This provides an action
 	 * with the opportunity to work out if it is disabled or not.
-	 * This might be relatively slow because, for instance, it might
-	 * involve ascertaining the state of a remote job, so this is only
-	 * done when necessary. 
+	 * <p>
+	 * This method was added in addition to 
+	 * {@link #setSelectedContext(ExplorerContext)} because prepare can be 
+	 * relatively slow if, for instance, it involves ascertaining the state
+	 * of a remote job, so this method allows this to be done only when 
+	 * the menu is to be shown. 
 	 */
 	public void prepare();
 	

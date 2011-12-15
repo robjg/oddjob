@@ -141,11 +141,15 @@ public class MonitorMenuBar extends JMenuBar implements PopupMenuProvider {
 		}
 	}
 	
+	/**
+	 * Internal class to handle menu selection.
+	 */
 	class MenuSelection implements PropertyChangeListener, PopupMenuListener, MenuListener {
 		
 		/** Job Actions for the job menu. */
 		private SelectedContextAware selectionAware;
 		
+		/** Track ExplorerContext as the selected job changes. */
 		private ExplorerContext context;
 
 		MenuSelection(SelectedContextAware jobActions) {

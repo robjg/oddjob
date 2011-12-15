@@ -96,7 +96,8 @@ public class SetPropertyActionTest extends TestCase {
 		Component component = new Component();
 				
 		SetPropertyAction test = new SetPropertyAction();
-		assertTrue(test.isEnabled());
+		assertFalse(test.isEnabled());
+		assertFalse(test.isVisible());
 		
 		OurExplorerContext ec = new OurExplorerContext();
 		ec.component = component;

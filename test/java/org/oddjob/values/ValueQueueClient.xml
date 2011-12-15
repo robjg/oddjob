@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <state:if xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <jobs>
+                        <check name="Check Argument Provided" value="${this.args[0]}"/>
+                        <properties>
+                            <values>
+                                <value key="value.to.queue" value="${this.args[0]}"/>
+                            </values>
+                        </properties>
+                        <input>
+                            <requests>
+                                <input-text prompt="Value To Queue" property="value.to.queue"/>
+                            </requests>
+                        </input>
+                    </jobs>
+                </state:if>
+                <jmx:client id="remote" url="service:jmx:rmi:///jndi/rmi://localhost/my-queue-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <echo><![CDATA[Sending ${value.to.queue} to ${remote/queue}]]></echo>
+                <set name="Add Value To Job Queue">
+                    <values>
+                        <value key="remote/queue.value" value="${value.to.queue}"/>
+                    </values>
+                </set>
+                <stop job="${remote}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -55,8 +55,8 @@ public class UnloadActionTest extends TestCase {
 	public void testCycle() throws Exception {
 		
 		UnloadAction test = new UnloadAction();
-		assertTrue(test.isEnabled());
-		assertTrue(test.isVisible());
+		assertFalse(test.isEnabled());
+		assertFalse(test.isVisible());
 		
 		OurEContext eContext = new OurEContext();
 		
