@@ -217,8 +217,10 @@ import org.oddjob.values.properties.PropertiesType;
  *  <li>{@link OddballsDescriptorFactory}</li>
  *  <li>{@link URLClassLoaderType}</li>
  * </ul>
+ * <p>
  * 
  * @author Rob Gordon
+ * 
  */
 public class Oddjob extends StructuralJob<Object>
 implements Loadable, 
@@ -634,6 +636,7 @@ implements Loadable,
 	/**
 	 * @oddjob.property loadable
 	 * @oddjob.description Can Oddjob be loaded. Used by the Load/Unload actions.
+	 * @oddjob.required Read only.
 	 */
 	@Override
 	public boolean isLoadable() {

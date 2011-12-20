@@ -22,7 +22,7 @@ public interface Loadable {
 	/**
 	 * Is the component currently loadable.
 	 * 
-	 * @return
+	 * @return true if the component can be loaded, false otherwise.
 	 */
 	public boolean isLoadable();
 	

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 
 import org.apache.log4j.Logger;
+import org.oddjob.doclet.CustomTagNames;
 
 /**
  * Creates text that can be inserted into JavaDoc or another XML document from
@@ -13,13 +14,11 @@ import org.apache.log4j.Logger;
  * @author rob
  *
  */
-public class JavaCodeFileLoader implements IncludeLoader {
+public class JavaCodeFileLoader implements IncludeLoader, CustomTagNames {
 	
 	private static final Logger logger = Logger.getLogger(JavaCodeFileLoader.class);
 	
 	private static final String EOL = System.getProperty("line.separator");
-	
-	public static final String TAG = "@oddjob.java.file";
 	
 	private final File base;
 	
@@ -29,7 +28,7 @@ public class JavaCodeFileLoader implements IncludeLoader {
 		
 	@Override
 	public boolean canLoad(String tag) {
-		return TAG.equals(tag);
+		return JAVA_FILE_TAG.equals(tag);
 	}
 	
 	public String load(String path) {

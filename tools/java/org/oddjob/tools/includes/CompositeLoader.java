@@ -18,7 +18,7 @@ public class CompositeLoader implements IncludeLoader {
 	
 	public CompositeLoader() {
 		loaders.put(JavaCodeResourceLoader.TAG, new JavaCodeResourceLoader());
-		loaders.put(XMLResourceLoader.TAG, new XMLResourceLoader());
+		loaders.put(XMLResourceLoader.XML_RESOURCE_TAG, new XMLResourceLoader());
 	}
 		
 	@Override

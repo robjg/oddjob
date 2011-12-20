@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 
 import org.apache.log4j.Logger;
+import org.oddjob.doclet.CustomTagNames;
 import org.oddjob.jobs.XSLTJob;
 
 /**
@@ -18,13 +19,11 @@ import org.oddjob.jobs.XSLTJob;
  * @author rob
  *
  */
-public class XMLFileLoader implements IncludeLoader {
+public class XMLFileLoader implements IncludeLoader, CustomTagNames {
 
 	private static final Logger logger = Logger.getLogger(XMLFileLoader.class);
 	
 	private static final String EOL = System.getProperty("line.separator");
-	
-	public static final String TAG = "@oddjob.xml.file";
 	
 	private final File base;
 	
@@ -34,7 +33,7 @@ public class XMLFileLoader implements IncludeLoader {
 	
 	@Override
 	public boolean canLoad(String tag) {
-		return TAG.equals(tag);
+		return XML_FILE_TAG.equals(tag);
 	}
 	
 	@Override

@@ -23,7 +23,7 @@ import com.sun.javadoc.Tag;
  *   
  * @author Rob Gordon.
  */
-public class Processor {
+public class Processor implements CustomTagNames {
 
 	private final ClassDoc classDoc;
 	private final String rootDir;
@@ -83,7 +83,7 @@ public class Processor {
      * @param doc The field or method doc object.
      */
     void processFieldOrMethod(WriteableBeanDoc beanDoc, Doc doc) {
-        Tag[] propertyTags = doc.tags("@oddjob.property");
+        Tag[] propertyTags = doc.tags(PROPERTY_TAG);
         
         String propertyText = processSingleTextTag(
         		propertyTags, doc.name());
@@ -101,12 +101,12 @@ public class Processor {
         	return;
         }
         
-        Tag[] descriptionTags = doc.tags("@oddjob.description");
+        Tag[] descriptionTags = doc.tags(DESCRIPTION_TAG);
         prop.setAllText(processMajorTags(descriptionTags));
         prop.setFirstSentence(processFirstLine(
         		descriptionTags, this.rootDir));
         
-        Tag[] rtags = doc.tags("@oddjob.required");
+        Tag[] rtags = doc.tags(REQUIRED_TAG);
         if (rtags.length != 0)  {
             prop.setRequired(rtags[0].text());
         }
@@ -224,12 +224,12 @@ public class Processor {
      * @param cd
      */
     public BeanDoc process() {
-    	String fqcn = fqcnFor(classDoc);
+    	String fqcn = classDoc.qualifiedName();
     	
     	WriteableBeanDoc beanDoc = jats.docFor(fqcn);
         System.out.println("Processing: " + beanDoc.getName());
         
-        Tag[] descriptionTags = classDoc.tags("@oddjob.description");
+        Tag[] descriptionTags = classDoc.tags(DESCRIPTION_TAG);
         
         String firstLine = processFirstLine(descriptionTags, ".");
         if (firstLine == null) {
@@ -239,7 +239,7 @@ public class Processor {
         beanDoc.setFirstSentence(firstLine);
         beanDoc.setAllText(processMajorTags(descriptionTags));
         
-        Tag[] exampleTags = classDoc.tags("@oddjob.example");
+        Tag[] exampleTags = classDoc.tags(EXAMPLE_TAG);
         for (int i = 0; i < exampleTags.length; ++i) {
         	
         	WriteableExampleDoc exampleDoc = new WriteableExampleDoc();

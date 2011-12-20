@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.oddjob.doclet.CustomTagNames;
 import org.oddjob.io.ResourceType;
 import org.oddjob.jobs.XSLTJob;
 
@@ -16,15 +17,13 @@ import org.oddjob.jobs.XSLTJob;
  * @author rob
  *
  */
-public class XMLResourceLoader implements IncludeLoader {
+public class XMLResourceLoader implements IncludeLoader, CustomTagNames {
 
 	private static final String EOL = System.getProperty("line.separator");
 	
-	public static final String TAG = "@oddjob.xml.resource";
-	
 	@Override
 	public boolean canLoad(String tag) {
-		return TAG.equals(tag);
+		return XML_RESOURCE_TAG.equals(tag);
 	}
 	
 	@Override
