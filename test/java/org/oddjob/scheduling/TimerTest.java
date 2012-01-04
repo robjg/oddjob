@@ -38,6 +38,7 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.job.StopJob;
+import org.oddjob.persist.MapPersister;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -391,7 +392,7 @@ public class TimerTest extends TestCase {
 	}
 	
 	public void testSerialize() throws Exception {
-		
+						
 		FlagState sample = new FlagState();
 		sample.setState(JobState.COMPLETE);
 
@@ -664,11 +665,9 @@ public class TimerTest extends TestCase {
 				new ManualClock("2011-03-09 06:30")));
 		oddjob1.setExport("work-dir", new ArooaObject( 
 				dirs.relative("work")));
-		
-		oddjob1.run();
 				
 		oddjob1.run();
-		
+				
 		assertEquals(ParentState.ACTIVE, 
 				oddjob1.lastStateEvent().getState());
 				
@@ -698,34 +697,67 @@ public class TimerTest extends TestCase {
 		
 		oddjob2.load();
 		
-		Oddjob innerOddjob = new OddjobLookup(oddjob2).lookup("persisted-schedule",
+		Oddjob innerOddjob2 = new OddjobLookup(oddjob2).lookup("persisted-schedule",
 				Oddjob.class);
 
-		innerOddjob.load();
+		innerOddjob2.load();
 		
-		Stateful scheduledJob = new OddjobLookup(innerOddjob).lookup("scheduled-job", 
+		Stateful scheduledJob2 = new OddjobLookup(innerOddjob2).lookup("scheduled-job", 
 				Stateful.class);
 		
-		StateSteps scheduledJobState = new StateSteps(scheduledJob);
+		StateSteps scheduledJobState2 = new StateSteps(scheduledJob2);
 		
-		scheduledJobState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		scheduledJobState2.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
 				
 		oddjob2.run();
 
-		scheduledJobState.checkWait();
+		scheduledJobState2.checkWait();
 		
-		String text = new OddjobLookup(oddjob2).lookup(
+		String text2 = new OddjobLookup(oddjob2).lookup(
 				"persisted-schedule/scheduled-job.text", String.class);
 
 		assertEquals("Job schedule at 2011-03-10 05:30:00.000 " +
 				"but running at 2011-03-10 07:00:00.000", 
-				text);
+				text2);
 		
 		oddjob2.stop();
 		
 		assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
 		
 		oddjob2.destroy();
+		
+		//
+		// Third run
+		    
+		Oddjob oddjob3 = new Oddjob();
+		oddjob3.setFile(dirs.relative("test/conf/persisted-schedule.xml"));
+		
+		oddjob3.setExport("clock", new ArooaObject(
+				new ManualClock("2011-03-10 08:00")));
+		oddjob3.setExport("work-dir", new ArooaObject( 
+				dirs.relative("work")));
+		
+		oddjob3.run();
+		
+		assertEquals(new SimpleInterval(
+				DateHelper.parseDateTime("2011-03-11 05:30"),
+				DateHelper.parseDateTime("2011-03-11 06:30")), 
+				new OddjobLookup(oddjob3).lookup("persisted-schedule/schedule1.current"));
+		assertEquals(DateHelper.parseDateTime("2011-03-11 05:30"), 
+				new OddjobLookup(oddjob3).lookup("persisted-schedule/schedule1.nextDue"));
+		
+		String text3 = new OddjobLookup(oddjob3).lookup(
+				"persisted-schedule/scheduled-job.text", String.class);
+
+		assertEquals("Job schedule at 2011-03-10 05:30:00.000 " +
+				"but running at 2011-03-10 07:00:00.000", 
+				text3);
+		
+		oddjob3.stop();
+		
+		assertEquals(ParentState.READY, oddjob3.lastStateEvent().getState());
+		
+		oddjob3.destroy();
 	}
 	
 	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException, ParseException {
@@ -866,6 +898,58 @@ public class TimerTest extends TestCase {
     	
     	oddjob.destroy();
     	
+	}
+	
+	public void testTimerCrashPersistance() {
+		
+		String xml = 
+				"<oddjob>" +
+				" <job>" +
+				"  <scheduling:timer id='timer' xmlns:scheduling='http://rgordon.co.uk/oddjob/scheduling'>" +
+				"   <schedule>" +
+				"    <schedules:daily at='07:00' xmlns:schedules='http://rgordon.co.uk/oddjob/schedules'/>" +
+				"   </schedule>" +
+				"   <clock>" +
+				"    <value value='${clock}'/>" +
+				"   </clock>" +
+				"   <job>" +
+				"    <echo>Hi</echo>" +
+				"   </job>" +
+				"  </scheduling:timer>" +
+				" </job>" +
+				"</oddjob>";
+				 
+		OurOddjobExecutor executors1 = new OurOddjobExecutor();
+		
+		MapPersister persister = new MapPersister();
+		
+		Oddjob oddjob1 = new Oddjob();
+		oddjob1.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob1.setExport("clock", new ArooaObject(
+				new ManualClock("2011-12-23 07:00")));
+		oddjob1.setOddjobExecutors(executors1);
+		oddjob1.setPersister(persister);
+		oddjob1.run();
+		
+		assertEquals(ParentState.ACTIVE, oddjob1.lastStateEvent().getState());
+		
+		assertEquals(0, executors1.executor.delay);
+		
+		executors1.executor.runnable.run();
+		
+		assertEquals(24 * 60 * 60 * 1000L, executors1.executor.delay);
+				
+		OurOddjobExecutor executors2 = new OurOddjobExecutor();
+		
+		Oddjob oddjob2 = new Oddjob();
+		oddjob2.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob2.setExport("clock", new ArooaObject(
+				new ManualClock("2011-12-23 07:00")));
+		oddjob2.setOddjobExecutors(executors2);
+		oddjob2.setPersister(persister);
+		oddjob2.run();
+		
+		assertEquals(24 * 60 * 60 * 1000L, executors2.executor.delay);		
 	}
 	
 }

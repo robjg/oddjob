@@ -27,7 +27,7 @@ import org.oddjob.state.StateCondition;
  * This example waits for a variable 'text' to be set. The value could be set
  * across the network or by a another job running in parallel.  
  * 
- * {@oddjob.xml.resource org/oddjob/io/WaitForExample.xml}
+ * {@oddjob.xml.resource org/oddjob/jobs/WaitForExample.xml}
  * 
  * @author Rob Gordon
  *
