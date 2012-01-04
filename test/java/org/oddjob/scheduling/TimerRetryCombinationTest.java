@@ -16,6 +16,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.WaitHelper;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
@@ -23,12 +24,10 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.framework.StopWait;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
@@ -71,6 +70,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		@Override
 		public boolean hardReset() {
 			if (super.hardReset()) {
+				logger.info("HARD RESET");
 				synchronized (this) {
 					hard++;
 				}
@@ -82,6 +82,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		@Override
 		public boolean softReset() {
 			if (super.softReset()) {
+				logger.info("SOFT RESET");
 				synchronized (this) {
 					soft++;
 				}
@@ -112,7 +113,7 @@ public class TimerRetryCombinationTest extends TestCase {
 	}
 	
 	
-	public void testContextReset() throws ArooaConversionException, PropertyVetoException {
+	public void testContextReset() throws ArooaConversionException, PropertyVetoException, InterruptedException {
 	
 		XMLConfiguration config = new XMLConfiguration(
 				"org/oddjob/scheduling/TimerRetryCombinationTest1.xml",
@@ -132,13 +133,14 @@ public class TimerRetryCombinationTest extends TestCase {
 //		explorer.setArooaSession(new StandardArooaSession());
 //		explorer.run();
 		
+		logger.info("First Oddjob, starting first run.");
+		
+		StateSteps oddjob1State = new StateSteps(oddjob1);
+		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		oddjob1.run();
 
-		WaitJob wait1 = new WaitJob();
-		wait1.setFor(oddjob1);
-		wait1.setState(StateConditions.INCOMPLETE);
-		
-		wait1.run();
+		oddjob1State.checkWait();
 		
 		OddjobLookup lookup1 = new OddjobLookup(oddjob1);
 		
@@ -160,10 +162,14 @@ public class TimerRetryCombinationTest extends TestCase {
 		assertEquals(9, softs1);
 		assertEquals(8, executions);
 		
+		logger.info("First Oddjob, starting second run.");
+		
+		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
+		
 		oddjob1.run();
 		
-		wait1.hardReset();
-		wait1.run();
+		oddjob1State.checkWait();
 		
 		hards1 = lookup1.lookup("results.hard", Integer.TYPE);
 		softs1 = lookup1.lookup("results.soft", Integer.TYPE);
@@ -183,12 +189,15 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob2.setConfiguration(config);
 		oddjob2.setPersister(persister);
 		
+		logger.info("Second Oddjob, starting first run.");
+		
+		StateSteps oddjob2State = new StateSteps(oddjob2);
+		oddjob2State.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
+		
 		oddjob2.run();
 		
-		WaitJob wait2 = new WaitJob();
-		wait2.setFor(oddjob2);
-		wait2.setState(StateConditions.INCOMPLETE);
-		wait2.run();
+		oddjob2State.checkWait();
 		
 		OddjobLookup lookup2 = new OddjobLookup(oddjob2);
 		
@@ -352,18 +361,22 @@ public class TimerRetryCombinationTest extends TestCase {
 //		explorer.setArooaSession(new StandardArooaSession());
 //		explorer.run();
 		
-		OddjobLookup lookup1 = new OddjobLookup(oddjob1);
+		final OddjobLookup lookup1 = new OddjobLookup(oddjob1);
 		
-		Date waitForDate = DateHelper.parseDateTime("2010-07-12 07:00"); 
-		while (true) {
-			Date isNow = lookup1.lookup("timer.nextDue", Date.class); 
-			if (waitForDate.equals(isNow)) {
-				break;
-			}			
-			logger.info("Waiting for next due to be " + waitForDate + 
-					" is now " + isNow);
-			Thread.sleep(100);
-		}
+		final Date waitForDate1 = DateHelper.parseDateTime("2010-07-12 07:00"); 
+		new WaitHelper() {
+			Date isNow;
+			@Override
+			public boolean condition() throws ArooaPropertyException, ArooaConversionException {
+				isNow = lookup1.lookup("timer.nextDue", Date.class); 
+				return waitForDate1.equals(isNow);
+			}
+			@Override
+			public void onRetry() {
+				logger.info("Waiting for next due to be " + waitForDate1 + 
+						" is now " + isNow);
+			}
+		}.run();
 		
 		int hards1 = lookup1.lookup("results.hard", Integer.TYPE);
 		int softs1 = lookup1.lookup("results.soft", Integer.TYPE);
@@ -384,18 +397,22 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		oddjob2.run();
 		
-		OddjobLookup lookup2 = new OddjobLookup(oddjob2);
+		final OddjobLookup lookup2 = new OddjobLookup(oddjob2);
 		
-		waitForDate = DateHelper.parseDateTime("2010-07-16 07:00"); 
-		while (true) {			
-			Date isNow = lookup2.lookup("timer.nextDue", Date.class);  
-			if (waitForDate.equals(isNow)) {
-				break;
+		final Date waitForDate2 = DateHelper.parseDateTime("2010-07-16 07:00"); 
+		new WaitHelper() {
+			Date isNow;
+			@Override
+			public boolean condition() throws ArooaPropertyException, ArooaConversionException {
+				isNow = lookup2.lookup("timer.nextDue", Date.class); 
+				return waitForDate2.equals(isNow);
 			}
-			logger.info("Waiting for next due to be " + waitForDate + 
-					" is now " + isNow);
-			Thread.sleep(100);
-		}
+			@Override
+			public void onRetry() {
+				logger.info("Waiting for next due to be " + waitForDate2 + 
+						" is now " + isNow);
+			}
+		}.run();
 		
 		int hards2 = lookup2.lookup("results.hard", Integer.TYPE);
 		int softs2 = lookup2.lookup("results.soft", Integer.TYPE);

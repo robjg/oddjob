@@ -6,7 +6,6 @@ package org.oddjob.jmx;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Executor;
 
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
@@ -608,14 +607,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		client.stop();
 		server.stop();
-	}
-	
-    private static class RunNowExecutor implements Executor {
-    	@Override
-    	public void execute(Runnable command) {
-    		command.run();
-    	}
-    }
+	}	
     
     // Make sure the bug fix doesn't leave Old Jobs lying around
     private static class JobCounter implements StructuralListener {
@@ -626,6 +618,7 @@ public class JMXClientJobTest extends TestCase {
 		public void childAdded(StructuralEvent event) {
 			Object child = event.getChild();
 			jobs.add(child);
+			logger.info("JobCounter added " + child);
 			if (child instanceof Structural) {
 				((Structural) child).addStructuralListener(this);
 			}
@@ -635,6 +628,7 @@ public class JMXClientJobTest extends TestCase {
 		public void childRemoved(StructuralEvent event) {
 			Object child = event.getChild();
 			jobs.remove(child);			
+			logger.info("JobCounter removed " + child);
 		}
     }
     
@@ -654,17 +648,20 @@ public class JMXClientJobTest extends TestCase {
     	}
 
     	@Override
-    	public void treeNodesInserted(TreeModelEvent e) {
+    	public synchronized void treeNodesInserted(TreeModelEvent e) {
     		assertEquals(1, e.getChildren().length);
     		JobTreeNode child = (JobTreeNode) e.getChildren()[0];
     		child.setVisible(true);
 			jobs.add(child);
+			logger.info("NodeCounter added " + child);
     	}
 
     	@Override
-    	public void treeNodesRemoved(TreeModelEvent e) {
+    	public synchronized void treeNodesRemoved(TreeModelEvent e) {
     		assertEquals(1, e.getChildren().length);
-			jobs.remove(e.getChildren()[0]);
+    		Object child = e.getChildren()[0];
+			jobs.remove(child);
+			logger.info("NodeCounter removed " + child);
 		}
     }
     
@@ -673,9 +670,10 @@ public class JMXClientJobTest extends TestCase {
      * <p>
      * This is the flip side of fixing the bug {@link ForEachJobTest#testDestroyWithComplicateStructure()}
      * because fixing that caused a bug in the JMXClient.
+     * 
      * @throws Exception 
      */
-    public void testDestroyWithComplicateStructure() throws Exception {
+    public void testDestroyWithComplicatedStructure() throws Exception {
     	
     	String serverConfig = 
     		"<oddjob>" +
@@ -719,7 +717,7 @@ public class JMXClientJobTest extends TestCase {
 		clientOddjob.run();
 		assertEquals(ParentState.ACTIVE, clientOddjob.lastStateEvent().getState());
 				    	    	
-		JobTreeModel model = new JobTreeModel(new RunNowExecutor());
+		JobTreeModel model = new JobTreeModel();
 
 		NodeCounter nodeCounter = new NodeCounter();
 		model.addTreeModelListener(nodeCounter);
@@ -753,13 +751,16 @@ public class JMXClientJobTest extends TestCase {
     	SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-				// Clear out queue.				
+				logger.info("Tree built and event queue should be clear.");
 			}
 		});
+    	
+		logger.info("Checking node counts.");
     	
     	assertEquals(6, jobCounter.jobs.size());    	
     	assertEquals(6, nodeCounter.jobs.size());
 
+		logger.info("Stopping client.");
 		JMXClientJob client = new OddjobLookup(
 			clientOddjob).lookup("client", JMXClientJob.class);    	
     	client.stop();
@@ -767,7 +768,7 @@ public class JMXClientJobTest extends TestCase {
     	SwingUtilities.invokeAndWait(new Runnable() {
 			@Override
 			public void run() {
-				// Clear out queue.				
+				logger.info("Tree destroyed and event queue should be clear.");
 			}
 		});
     	

@@ -15,19 +15,37 @@ import javax.swing.tree.TreePath;
  */
 public class JobTreeModel implements TreeModel {
 
+	/** Used to dispatch events to listeners. */
 	private final TreeEventDispatcher eventDispatcher;
 	
 	/** The root node. */
 	private JobTreeNode root;
 	
+	/**
+	 * Constructor. Creates a {@code JobTreeModel} with an 
+	 * {@link TreeEventDispatcher} that ensures that all tree model
+	 * changes are made from the AWT Event Dispatch Queue.
+	 */
 	public JobTreeModel() {
 		this(new ExecutorTreeEventDispatcher(new EventThreadOnlyDispatcher()));
 	}
 		
+	/**
+	 * Constructor that uses an {@link ExecutorTreeEventDispatcher} with
+	 * the given {@link Executor}.
+	 * 
+	 * @param executor The executor.
+	 */
 	public JobTreeModel(Executor executor) {
 		this(new ExecutorTreeEventDispatcher(executor));
 	}
 	
+	/**
+	 * Constructor that allows the {@link TreeEventDispatcher} to be
+	 * specified.
+	 * 
+	 * @param eventDispatcher The dispatcher. Must not be null.
+	 */
 	public JobTreeModel(TreeEventDispatcher eventDispatcher) {
 		if (eventDispatcher == null) {
 			throw new NullPointerException("No EventDispatcher.");

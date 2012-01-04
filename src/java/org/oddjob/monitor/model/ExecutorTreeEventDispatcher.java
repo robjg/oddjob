@@ -17,22 +17,29 @@ import javax.swing.tree.TreeNode;
  */
 public class ExecutorTreeEventDispatcher implements TreeEventDispatcher {
 
+	/** The listeners. */
 	private final List<TreeModelListener> listeners =
 		new CopyOnWriteArrayList<TreeModelListener>();
 
+	/** The executor used to fire events. */
 	private final Executor executor;
 	
+	/**
+	 * Only Constructor.
+	 * 
+	 * @param executor The executor.
+	 */
 	public ExecutorTreeEventDispatcher(Executor executor) {
 		this.executor = executor;
 	}
 
 	@Override
-	public void addTreeModelListener(TreeModelListener tml) {
+	public synchronized void addTreeModelListener(TreeModelListener tml) {
 		listeners.add(tml);
 	}
 	
 	@Override
-	public void removeTreeModelListener(TreeModelListener tml) {
+	public synchronized void removeTreeModelListener(TreeModelListener tml) {
 		listeners.remove(tml);
 	}
 	

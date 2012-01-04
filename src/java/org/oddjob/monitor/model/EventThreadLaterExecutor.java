@@ -14,10 +14,15 @@ public class EventThreadLaterExecutor implements Executor {
 
 	@Override
 	public void execute(final Runnable command) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				command.run();
-			}
-		});
+		if (SwingUtilities.isEventDispatchThread()) {
+			command.run();
+		}
+		else {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					command.run();
+				}
+			});
+		}
 	}	
 }
