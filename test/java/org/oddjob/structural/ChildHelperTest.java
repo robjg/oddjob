@@ -4,6 +4,7 @@
 package org.oddjob.structural;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -263,4 +264,57 @@ public class ChildHelperTest extends TestCase {
 		
 		assertEquals(7, listener.types.size());
 	}
+	
+	public void testIterable() {
+		
+		ChildHelper<String> test = new ChildHelper<String>(new MockStructural());
+		test.insertChild(0, "apple");
+		test.insertChild(1, "orange");
+		test.insertChild(2, "pear");
+		
+		Iterator<String> iterator = test.iterator();
+		
+		assertEquals(true, iterator.hasNext());
+		assertEquals("apple", iterator.next());
+		
+		assertEquals(true, iterator.hasNext());
+		assertEquals("orange", iterator.next());
+		
+		test.removeChild("apple");
+		test.insertChild(2, "banana");
+		
+		assertEquals(true, iterator.hasNext());
+		assertEquals("pear", iterator.next());
+		
+		assertEquals(true, iterator.hasNext());
+		assertEquals("banana", iterator.next());
+		
+		test.removeChild("banana");
+		test.insertChild(2, "kiwi");
+		
+		assertEquals(true, iterator.hasNext());
+		assertEquals("kiwi", iterator.next());
+		
+		assertEquals(false, iterator.hasNext());
+	}
+	
+	public void testIterableInFor() {
+		
+		ChildHelper<String> test = new ChildHelper<String>(new MockStructural());
+		test.insertChild(0, "apple");
+		test.insertChild(1, "orange");
+		test.insertChild(2, "pear");
+		
+		List<String> results = new ArrayList<String>();
+		
+		for (String next : test) {
+			results.add(next);
+		}
+		
+		assertEquals("apple", results.get(0));
+		assertEquals("orange", results.get(1));
+		assertEquals("pear", results.get(2));
+		assertEquals(3, results.size());
+	}
+
 }

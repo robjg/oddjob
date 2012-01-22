@@ -92,14 +92,14 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
 		assertEquals(classLoader, jobClassLoader);
 		
-		assertEquals(existingContextClassLoader,
+		assertEquals(classLoader,
 				classLoaderWhenRunning);
 		
 		assertEquals(existingContextClassLoader,
 				Thread.currentThread().getContextClassLoader());
 	}
 	
-	void compileSample(final OurDirs dirs) {
+	static public void compileSample(final OurDirs dirs) {
 
 		File dir = dirs.relative("test/classloader");
 		if (new File(dir, "AJob.class").exists()) {

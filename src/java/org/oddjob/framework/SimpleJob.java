@@ -9,7 +9,6 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -74,7 +73,7 @@ implements  Runnable, Resetable, Stateful {
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -118,7 +117,7 @@ implements  Runnable, Resetable, Stateful {
 			});
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -169,7 +168,7 @@ implements  Runnable, Resetable, Stateful {
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
@@ -203,7 +202,7 @@ implements  Runnable, Resetable, Stateful {
 				throw e;
 			}
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -216,7 +215,7 @@ implements  Runnable, Resetable, Stateful {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
@@ -230,7 +229,7 @@ implements  Runnable, Resetable, Stateful {
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -238,7 +237,7 @@ implements  Runnable, Resetable, Stateful {
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -252,7 +251,7 @@ implements  Runnable, Resetable, Stateful {
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

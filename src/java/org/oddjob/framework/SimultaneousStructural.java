@@ -79,7 +79,6 @@ implements Stoppable {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-		Runnable[] children = childHelper.getChildren(new Runnable[0]);
 
 		ExecutionWatcher executionWatcher = 
 			new ExecutionWatcher(new Runnable() {
@@ -90,9 +89,12 @@ implements Stoppable {
 		
 		jobThreads = new ArrayList<Future<?>>();
 		
-		for (int i = 0; i < children.length && !stop; ++i) {
+		for (Runnable child : childHelper) {
+			if (stop) {
+				break;
+			}
 			Future<?> future = executorService.submit(
-					executionWatcher.addJob(children[i]));
+					executionWatcher.addJob(child));
 			jobThreads.add(future);
 		}
 		

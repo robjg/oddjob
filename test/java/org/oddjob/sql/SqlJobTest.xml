@@ -18,7 +18,7 @@
     	                </buffer>
                     </input>
                 </sql>
-                <repeat name="Repeat Ten Times">
+                <repeat name="Repeat Ten Times" times="10">
                     <job>
                         <sequential name="Repeat Sequence">
                             <jobs>
@@ -41,9 +41,6 @@
                             </jobs>
                         </sequential>
                     </job>
-                    <schedule>
-                        <s:count count="10" xmlns:s="http://rgordon.co.uk/oddjob/schedules"/>
-                    </schedule>
                 </repeat>
                 <sql id="query" name="Get Count">
                     <connection>

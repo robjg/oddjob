@@ -1,0 +1,9 @@
+<oddjob>
+    <job>
+        <repeat times="3" id="repeat">
+            <job>
+                <echo>Hello ${repeat.count}</echo>
+            </job>
+        </repeat>
+    </job>
+</oddjob>

@@ -21,7 +21,6 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsStoppable;
 
 /**
@@ -128,7 +127,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 	    		public void run() {    			
@@ -157,7 +156,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 				throw e;
 			}
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	

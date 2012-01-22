@@ -14,12 +14,11 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.StateSteps;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
 
 public class SQLPersisterTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SQLPersisterTest.class);
@@ -89,16 +88,18 @@ public class SQLPersisterTest extends TestCase {
     	        		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setFile(file);
+		
+		StateSteps oddjobState = new StateSteps(oddjob);
+		oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
 		oddjob.run();
 	
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oj);
 //		explorer.run();
 //		
-		WaitJob wait = new WaitJob();
-		wait.setFor(oddjob);
-		wait.setState(StateConditions.COMPLETE);
-		wait.run();
+		oddjobState.checkNow();
 		
 		Object echoJob = new OddjobLookup(oddjob).lookup("oj/e"); 
 		
@@ -109,14 +110,16 @@ public class SQLPersisterTest extends TestCase {
 		oddjob.destroy();
 		
 		Oddjob oj2 = new Oddjob();
+		
+		StateSteps oddjobState2 = new StateSteps(oj2);
+		oddjobState2.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
 		oj2.setFile(file);
 		oj2.hardReset();
 		oj2.run();
 		
-		WaitJob wait2 = new WaitJob();
-		wait2.setFor(oj2);
-		wait2.setState(StateConditions.COMPLETE);
-		wait2.run();
+		oddjobState2.checkNow();
 		
 		assertEquals("0019", PropertyUtils.getProperty(
 				new OddjobLookup(oj2).lookup("oj/e"), "text"));

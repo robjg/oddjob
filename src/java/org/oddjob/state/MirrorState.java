@@ -7,8 +7,8 @@ import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 
 
@@ -64,7 +64,7 @@ implements Runnable, Stoppable, Resetable {
 	
 	synchronized public void run() {
 				
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -98,7 +98,7 @@ implements Runnable, Stoppable, Resetable {
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 
@@ -143,7 +143,7 @@ implements Runnable, Stoppable, Resetable {
 	}
 	
 	public synchronized void stop() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			if (listener != null) {
 				job.removeStateListener(listener);
@@ -158,7 +158,7 @@ implements Runnable, Stoppable, Resetable {
 				job = null;
 			}
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	

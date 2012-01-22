@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Helper;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.log4j.Log4jArchiver;
 
 public class OddjobNDCTest extends TestCase implements LogEnabled {
@@ -21,11 +22,11 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		Object job1 = new Object();
 		Object job2 = new Object();
 				
-		OddjobNDC.push(loggerName1, job1);
+		ComponentBoundry.push(loggerName1, job1);
 		assertEquals(loggerName1, OddjobNDC.peek().getLogger());
 		assertEquals(job1, OddjobNDC.peek().getJob());
 		
-		OddjobNDC.push(loggerName2, job2);
+		ComponentBoundry.push(loggerName2, job2);
 		assertEquals(loggerName2, OddjobNDC.peek().getLogger());
 		assertEquals(job2, OddjobNDC.peek().getJob());
 		

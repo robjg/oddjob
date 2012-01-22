@@ -188,6 +188,6 @@ final public class DailySchedule extends ConstrainedSchedule implements Serializ
 			description.append(getRefinement().toString());
 		}
 		
-		return "Time" + description;
+		return "Daily" + description;
 	}
 }

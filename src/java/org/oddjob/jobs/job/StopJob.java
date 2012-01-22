@@ -8,9 +8,9 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.jmx.JMXClientJob;
-import org.oddjob.logging.OddjobNDC;
 
 /**
  * @oddjob.description A job which stops another job. 
@@ -108,14 +108,14 @@ public class StopJob extends SerializableJob {
 
 				@Override
 				public void run() {
-					OddjobNDC.push(loggerName(), this);
+					ComponentBoundry.push(loggerName(), this);
 					try {
 						job.stop();
 						logger().info("Asyncronous stop complete.");
 					} catch (FailedToStopException e) {
 						logger().warn(e);
 					} finally {
-						OddjobNDC.pop();
+						ComponentBoundry.pop();
 					}
 				}
 			});

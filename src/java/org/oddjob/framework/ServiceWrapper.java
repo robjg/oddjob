@@ -23,7 +23,6 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.logging.LogEnabled;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -166,7 +165,7 @@ implements InvocationHandler {
     }
     
     public void run() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
         try {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
@@ -202,7 +201,7 @@ implements InvocationHandler {
     	    }
         }
         finally {
-        	OddjobNDC.pop();
+        	ComponentBoundry.pop();
         }
     }
         
@@ -214,7 +213,7 @@ implements InvocationHandler {
     	
 		final AtomicInteger result = new AtomicInteger();
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			service.stop();
 			result.set(getResult());
@@ -224,7 +223,7 @@ implements InvocationHandler {
 			throw new FailedToStopException(service, e);
 		}
         finally {
-        	OddjobNDC.pop();
+        	ComponentBoundry.pop();
         }
         
     	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {

@@ -49,4 +49,21 @@ public class ConnectionTypeTest extends TestCase {
 					"No connection available for"));
 		}
 	}
+	
+	public void testBadUrl2() {
+		
+		ConnectionType test = new ConnectionType();
+		test.setDriver("org.hsqldb.jdbcDriver");
+		test.setUrl("jdbc.url=");
+		test.setUsername("sa");
+		test.setPassword("");
+		
+		try {
+			test.toValue();
+			fail("Should fail.");
+		} catch (ArooaConversionException e) {
+			assertTrue(e.getMessage().startsWith(
+					"No connection available for"));
+		}
+	}
 }

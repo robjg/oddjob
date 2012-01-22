@@ -1,6 +1,6 @@
 <oddjob>
     <job>
-        <repeat name="Repeat Ten Times">
+        <repeat name="Repeat Ten Times" times="10">
             <job>
                 <sequential name="Repeat Sequence">
                     <jobs>
@@ -15,10 +15,6 @@
                     </jobs>
                 </sequential>
             </job>
-            <schedule>
-                <schedules:count count="10"
-                    xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
-            </schedule>
         </repeat>
     </job>
 </oddjob>

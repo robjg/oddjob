@@ -65,11 +65,12 @@ public class SequentialJob extends StructuralJob<Object>
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
 	public void execute() throws Exception {		
-		Object[] children = childHelper.getChildren(); 
 		
-		for (int i = 0; i < children.length && !stop; ++i) {
+		for (Object child : childHelper) {
+			if (stop) {
+				break;
+			}
 			
-			Object child = children[i];
 			if (!(child instanceof Runnable)) {
 				logger().info("Not Executing [" + child + "] as it is not a job.");
 			}

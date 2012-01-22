@@ -53,10 +53,10 @@ import org.oddjob.arooa.standard.StandardPropertyManager;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.ForEachRootDC;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNotExecuting;
@@ -444,7 +444,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 	
 	public void load() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
 				public void run() {
@@ -464,7 +464,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			});
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	};
 	
@@ -777,7 +777,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -790,7 +790,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

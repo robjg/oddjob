@@ -2,6 +2,7 @@ package org.oddjob.structural;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -17,7 +18,7 @@ import org.oddjob.Structural;
  * @author Rob Gordon
  */
 
-public class ChildHelper<E> implements Structural {
+public class ChildHelper<E> implements Structural, Iterable<E> {
 
 	/** Contains the child jobs. */
 	private final List<E> jobList = 
@@ -263,6 +264,43 @@ public class ChildHelper<E> implements Structural {
 		}
 	}
 	
+	@Override
+	public Iterator<E> iterator() {
+		return new Iterator<E>() {
+			int index;
+			E next;
+			
+			@Override
+			public boolean hasNext() {
+				synchronized (missed) {
+					// Work out the next index by adding one to the 
+					// position of the last child in case a child has been removed.
+					if (next != null) {
+						int last = jobList.indexOf(next);
+						if (last >= 0) {
+							index = last + 1;
+						}						
+					}
+					if (index < jobList.size()) {
+						next = jobList.get(index);
+					}
+					else {
+						next = null;
+					}
+				}
+				return next != null;
+			}
+			@Override
+			public E next() {
+				return next;
+			}
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+		};
+	}
+	
 	/*
 	 *  (non-Javadoc)
 	 * @see org.oddjob.structural.Structural#addStructuralListener(org.oddjob.structural.StructuralListener)
@@ -305,6 +343,12 @@ public class ChildHelper<E> implements Structural {
 		}
 	}	
 	
+	/**
+	 * Returns true if there are no listeners listening for 
+	 * {@link StructuralEvent}s.
+	 * 
+	 * @return true/false.
+	 */
 	public boolean isNoListeners() {
 		synchronized (missed) {
 			return listeners.isEmpty();
@@ -322,6 +366,9 @@ public class ChildHelper<E> implements Structural {
 		}
 	}
 	
+	/**
+	 * Used to record child added/removed events.
+	 */
 	abstract class ChildAction {
 		
 		protected final StructuralEvent event;
@@ -333,6 +380,9 @@ public class ChildHelper<E> implements Structural {
 		abstract public void dispatch(StructuralListener listener);
 	}
 	
+	/**
+	 * Used to record a child added event.
+	 */
 	class ChildAdded extends ChildAction {
 		
 		public ChildAdded(StructuralEvent event) {
@@ -345,6 +395,9 @@ public class ChildHelper<E> implements Structural {
 		}
 	}
 	
+	/**
+	 * Used record a child removed event.
+	 */
 	class ChildRemoved extends ChildAction {
 		
 		public ChildRemoved(StructuralEvent event) {

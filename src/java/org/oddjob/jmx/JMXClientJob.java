@@ -21,6 +21,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BaseComponent;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jmx.client.ClientSession;
 import org.oddjob.jmx.client.ClientSessionImpl;
@@ -33,7 +34,6 @@ import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -369,7 +369,7 @@ implements Runnable, Stateful, Resetable,
 	
 	
 	public void run() {
-		OddjobNDC.push(logger().getName(), this);
+		ComponentBoundry.push(logger().getName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -403,7 +403,7 @@ implements Runnable, Stateful, Resetable,
 			}
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -473,7 +473,7 @@ implements Runnable, Stateful, Resetable,
 	}
 
 	public void stop() {
-		OddjobNDC.push(logger().getName(), this);
+		ComponentBoundry.push(logger().getName(), this);
 		try {
 			logger().debug("Stop requested.");
 			
@@ -501,7 +501,7 @@ implements Runnable, Stateful, Resetable,
 			});
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -576,7 +576,7 @@ implements Runnable, Stateful, Resetable,
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
@@ -586,7 +586,7 @@ implements Runnable, Stateful, Resetable,
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -594,7 +594,7 @@ implements Runnable, Stateful, Resetable,
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -604,7 +604,7 @@ implements Runnable, Stateful, Resetable,
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

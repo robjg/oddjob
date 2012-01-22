@@ -7,7 +7,7 @@ import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleDesignProperty;
-import org.oddjob.arooa.design.etc.ReferenceAttribute;
+import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
@@ -28,26 +28,21 @@ public class RepeatDC implements DesignFactory {
 
 class RepeatDesign extends BaseDC {
 		
-	private final SimpleDesignProperty schedule ;
-	private final SimpleDesignProperty retry;
+	private final SimpleTextAttribute until ;
+	private final SimpleTextAttribute times;
 	
 	private final SimpleDesignProperty job;
 	
-	private final ReferenceAttribute exception;
 	
 	public RepeatDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
-		schedule = new SimpleDesignProperty(
-				"schedule", this);
+		until = new SimpleTextAttribute("until", this);
 
-		retry = new SimpleDesignProperty(
-				"retry", this);
+		times = new SimpleTextAttribute("times", this);
 		
 		job = new SimpleDesignProperty(
 				"job", this);
-		
-		exception = new ReferenceAttribute("exception", this);
 	}
 	
 	
@@ -57,15 +52,15 @@ class RepeatDesign extends BaseDC {
 			.addFormItem(
 					new BorderedGroup("Properties")
 					.add(job.view().setTitle("Job"))
-					.add(schedule.view().setTitle("Schedule"))
-					.add(retry.view().setTitle("Retry"))
-					.add(exception.view().setTitle("Exception")));
+					.add(until.view().setTitle("Until"))
+					.add(times.view().setTitle("Times"))
+					);
 	}
 
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, schedule, retry, job, exception };
+				name, until, times, job };
 	}
 	
 	

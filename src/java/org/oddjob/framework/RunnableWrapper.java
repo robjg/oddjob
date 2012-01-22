@@ -27,7 +27,6 @@ import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.LogEnabled;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -201,7 +200,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	 */
 	public void run() {
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
@@ -247,7 +246,7 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			});
 		} finally {
 			thread = null;
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

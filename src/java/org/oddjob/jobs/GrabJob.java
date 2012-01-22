@@ -14,11 +14,11 @@ import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.persist.Persistable;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
@@ -164,7 +164,7 @@ implements
 	 */
 	public final void run() {
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -196,7 +196,7 @@ implements
 			logger().info("Execution finished.");
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -383,7 +383,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			logger().debug("Stop requested.");
 
@@ -417,7 +417,7 @@ implements
 
 			logger().info("Stopped.");		
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -425,7 +425,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
@@ -445,7 +445,7 @@ implements
 				}
 			});	
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -454,7 +454,7 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -473,7 +473,7 @@ implements
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

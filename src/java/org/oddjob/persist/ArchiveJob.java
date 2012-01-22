@@ -14,10 +14,10 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.framework.BasePrimary;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsDone;
 import org.oddjob.state.IsExecutable;
@@ -126,7 +126,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
@@ -155,7 +155,7 @@ implements
 			logger().info("Execution finished.");
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -209,7 +209,7 @@ implements
 		@Override
 		public void jobStateChange(final StateEvent event) {
 
-			OddjobNDC.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), this);
 			try {
 				this.event = event;
 
@@ -245,12 +245,12 @@ implements
 					}
 				}
 			} finally {
-				OddjobNDC.pop();
+				ComponentBoundry.pop();
 			}
 		}
 		
 		private void persist(Stateful source) throws ComponentPersistException {
-			OddjobNDC.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), this);
 			try {
 				Object silhouette = new SilhouetteFactory().create(
 						child, ArchiveJob.this.getArooaSession());
@@ -259,7 +259,7 @@ implements
 						silhouette, getArooaSession());
 			}
 			finally {
-				OddjobNDC.pop();					
+				ComponentBoundry.pop();					
 			}
 		}
 		
@@ -328,7 +328,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {		
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
@@ -358,7 +358,7 @@ implements
 			
 			logger().info("Stopped.");
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 		
@@ -366,7 +366,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
@@ -382,7 +382,7 @@ implements
 				}
 			});	
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -391,7 +391,7 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -406,7 +406,7 @@ implements
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 

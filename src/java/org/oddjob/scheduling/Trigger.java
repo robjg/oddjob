@@ -13,9 +13,9 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateCondition;
@@ -256,7 +256,7 @@ public class Trigger extends ScheduleBase {
 	class Execution implements Runnable {
 		public void run() {
 			
-			OddjobNDC.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), this);
 			try {
 
 				logger().info("Executing child.");
@@ -286,7 +286,7 @@ public class Trigger extends ScheduleBase {
 				childStateReflector.start();
 			}
 			finally {
-				OddjobNDC.pop();
+				ComponentBoundry.pop();
 			} 
 		}
 	}

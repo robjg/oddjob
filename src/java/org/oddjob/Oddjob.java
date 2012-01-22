@@ -49,6 +49,7 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.RootDC;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.input.InputHandler;
 import org.oddjob.jobs.EchoJob;
@@ -57,7 +58,6 @@ import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEventSink;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LoggingPrintStream;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.logging.cache.LogArchiveImpl;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
 import org.oddjob.persist.FilePersister;
@@ -649,7 +649,7 @@ implements Loadable,
 	 */
 	@Override
 	public void load() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
 				public void run() {
@@ -672,7 +672,7 @@ implements Loadable,
 			});
 		}
 		finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -782,7 +782,7 @@ implements Loadable,
 	@Override
 	public boolean softReset() {
 		
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
@@ -805,7 +805,7 @@ implements Loadable,
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 
@@ -843,7 +843,7 @@ implements Loadable,
 	 * so as not to reset the child but destroy them.
 	 */
 	public boolean hardReset() {
-		OddjobNDC.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), this);
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
@@ -870,7 +870,7 @@ implements Loadable,
 				}
 			});
 		} finally {
-			OddjobNDC.pop();
+			ComponentBoundry.pop();
 		}
 	}
 	
@@ -981,13 +981,13 @@ implements Loadable,
 			export.remove(key);
 		}
 		else {
-			OddjobNDC.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), this);
 			try {
 				logger().debug("Adding value to export: " + 
 					key + "=" + value);
 				export.put(key, value);
 			} finally {
-				OddjobNDC.pop();
+				ComponentBoundry.pop();
 			}
 		}
 	}

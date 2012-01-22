@@ -17,8 +17,8 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.images.IconHelper;
-import org.oddjob.logging.OddjobNDC;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -388,7 +388,7 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
-			OddjobNDC.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), this);
 			try {
 				Runnable job = childHelper.getChild();
 
@@ -434,7 +434,7 @@ abstract public class TimerBase extends ScheduleBase {
 					logger().warn("Nothing to run.");
 				}
 			} finally {
-				OddjobNDC.pop();
+				ComponentBoundry.pop();
 			}
 		}
 		

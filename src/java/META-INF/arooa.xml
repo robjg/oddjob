@@ -44,7 +44,7 @@
                     designFactory='org.oddjob.values.properties.PropertiesDesFa'/>
                 <is element='reset' className='org.oddjob.jobs.job.ResetJob'
                     designFactory='org.oddjob.designer.components.ResetJobDC'/>
-                <is element='repeat' className='org.oddjob.scheduling.RepeatJob'
+                <is element='repeat' className='org.oddjob.jobs.structural.RepeatJob'
                     designFactory='org.oddjob.designer.components.RepeatDC'/>
                 <is element='rmireg' className='org.oddjob.rmi.RMIRegistryJob'/>
                 <is element='run' className='org.oddjob.jobs.job.RunJob'
