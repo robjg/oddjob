@@ -22,6 +22,7 @@ import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaLifeAware;
@@ -31,6 +32,7 @@ import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
@@ -39,9 +41,9 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
-import org.oddjob.state.ParentState;
 
 /**
  *
@@ -86,6 +88,10 @@ public class RunnableWrapperTest extends TestCase {
 				}
 			};
 		}
+		@Override
+		public ArooaTools getTools() {
+			return new StandardTools();
+		}
 	}
 	
 	
@@ -116,18 +122,19 @@ public class RunnableWrapperTest extends TestCase {
     	
     	OurRunnable test = new OurRunnable();
     	
-        Object wrapper = RunnableWrapper.wrapperFor(test,
-        		getClass().getClassLoader());
+        Object proxy = new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
         
-        ((ArooaContextAware) wrapper).setArooaContext(context);
+        ((ArooaContextAware) proxy).setArooaContext(context);
         
         MyListener l = new MyListener();
-        ((Stateful) wrapper).addStateListener(l);
+        ((Stateful) proxy).addStateListener(l);
         
-        ((Runnable) wrapper).run();
+        ((Runnable) proxy).run();
         
-        assertEquals(wrapper, session.configured);
-        assertEquals(wrapper, session.saved);
+        assertEquals(proxy, session.configured);
+        assertEquals(proxy, session.saved);
         
         assertTrue(test.ran);
         assertEquals("JobState", JobState.COMPLETE, 
@@ -135,11 +142,11 @@ public class RunnableWrapperTest extends TestCase {
         
         session.saved = null;
         
-        ((Resetable) wrapper).hardReset();
+        ((Resetable) proxy).hardReset();
         assertEquals("JobState", JobState.READY, 
                 l.lastEvent.getState());
 	
-        assertEquals(wrapper, session.saved);
+        assertEquals(proxy, session.saved);
     }
 
     /**
@@ -148,18 +155,23 @@ public class RunnableWrapperTest extends TestCase {
      *
      */
     public void testBadRunnable() {
-        Object wrapper = RunnableWrapper.wrapperFor(
-                new Runnable() {
-                    public void run() {
-                        throw new RuntimeException("How bad is this!");
-                    }
-                }, getClass().getClassLoader());
+    	
+    	Runnable test = new Runnable() {
+            public void run() {
+                throw new RuntimeException("How bad is this!");
+            }
+        };
+        
+        Object proxy = new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
+
         MyListener l = new MyListener();
-        ((Stateful) wrapper).addStateListener(l);
-        ((Runnable) wrapper).run();
+        ((Stateful) proxy).addStateListener(l);
+        ((Runnable) proxy).run();
         assertEquals("JobState", JobState.EXCEPTION, 
                 l.lastEvent.getState());
-        ((Resetable) wrapper).softReset();
+        ((Resetable) proxy).softReset();
         assertEquals("JobState", JobState.READY, 
                 l.lastEvent.getState());
     }
@@ -175,24 +187,27 @@ public class RunnableWrapperTest extends TestCase {
     
     public void testStop() throws InterruptedException, FailedToStopException {
     	
-    	Runnable wrapper = RunnableWrapper.wrapperFor(
-    			new Runnable() {
-    				@Override
-    				public void run() {   					
-    					synchronized(this) {
-    						try {
-    							wait();
-    						} catch (InterruptedException e){
-    							Thread.currentThread().interrupt();
-    						}
-    					}
-    				}
-    				@Override
-    				public String toString() {
-    					return "StopTestJob";
-    				}
-    			}, getClass().getClassLoader());
+    	Runnable test = new Runnable() {
+			@Override
+			public void run() {   					
+				synchronized(this) {
+					try {
+						wait();
+					} catch (InterruptedException e){
+						Thread.currentThread().interrupt();
+					}
+				}
+			}
+			@Override
+			public String toString() {
+				return "StopTestJob";
+			}
+		};
     	
+        Runnable wrapper = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
+    	    	
     	Stateful stateful = (Stateful) wrapper;
     	
     	StateSteps states = new StateSteps(stateful);
@@ -221,12 +236,14 @@ public class RunnableWrapperTest extends TestCase {
      *
      */
     public void testHashCode() {
-    	Object test = RunnableWrapper.wrapperFor(
-    			new Runnable() {
-    				public void run() {}
-    			}, getClass().getClassLoader()
-    		);
+    	Runnable wrapped = new Runnable() {
+    		public void run() {}
+    	};
 
+        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) wrapped,
+    			getClass().getClassLoader());  
+        
     	HashMap<Object, String> hashMap = new HashMap<Object, String>();
     	hashMap.put(test, "Hello");
     	
@@ -239,11 +256,14 @@ public class RunnableWrapperTest extends TestCase {
      *
      */
     public void testEquals() {
-    	Object test = RunnableWrapper.wrapperFor(
-    			new Runnable() {
-    				public void run() {}
-    			}, getClass().getClassLoader());
-    	
+    	Runnable wrapped = new Runnable() {
+    		public void run() {}
+    	};
+
+        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) wrapped,
+    			getClass().getClassLoader());  
+            	
     	assertTrue(test.equals(test));
     	assertEquals(test, test);
     }
@@ -284,18 +304,18 @@ public class RunnableWrapperTest extends TestCase {
     		" </job>" +
     		"</oddjob>";
     	
-    	Oddjob oj = new Oddjob();
-    	oj.setConfiguration(new XMLConfiguration("XML", xml));
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
     	
-    	oj.run();
+    	oddjob.run();
     	
-    	Object r = new OddjobLookup(oj).lookup("r");
+    	Object r = new OddjobLookup(oddjob).lookup("r");
     	assertEquals(JobState.COMPLETE, Helper.getJobState(r));
     	Object ran = PropertyUtils.getProperty(r, "ran");
     	assertEquals(Boolean.class, ran.getClass());
     	assertEquals(new Boolean(true), ran);
     	
-    	oj.destroy();
+    	oddjob.destroy();
     }
 
     /** 
@@ -336,8 +356,9 @@ public class RunnableWrapperTest extends TestCase {
     public void testPropertiesInProxy() throws Exception {
     	LotsOfProperties bean = new LotsOfProperties();
     	
-    	Runnable test = RunnableWrapper.wrapperFor(bean,
-    			getClass().getClassLoader());
+        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) bean,
+    			getClass().getClassLoader());  
     	
     	DynaBean db = (DynaBean) test;
     	
@@ -444,18 +465,19 @@ public class RunnableWrapperTest extends TestCase {
     	
     	AnyLogger l = new AnyLogger();
     	
-    	Runnable wrapper = RunnableWrapper.wrapperFor(
-    			l, getClass().getClassLoader());
+        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) l,
+    			getClass().getClassLoader());  
     	
     	Logger.getLogger("AnyLogger").setLevel(Level.DEBUG);
-    	Logger.getLogger(((LogEnabled) wrapper).loggerName()).setLevel(Level.DEBUG);
+    	Logger.getLogger(((LogEnabled) proxy).loggerName()).setLevel(Level.DEBUG);
     	
-    	Log4jArchiver archiver = new Log4jArchiver(wrapper, "%m%n");
+    	Log4jArchiver archiver = new Log4jArchiver(proxy, "%m%n");
     	
     	MyL ll = new MyL();
-    	archiver.addLogListener(ll, wrapper, LogLevel.DEBUG, 0, 1000);
+    	archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);
     	
-    	wrapper.run();
+    	proxy.run();
     	
     	assertTrue(ll.messages.indexOf("FINDME") > 0);
     }
@@ -480,17 +502,19 @@ public class RunnableWrapperTest extends TestCase {
     	
     	MyLogger l = new MyLogger();
     	
-    	Runnable wrapper = RunnableWrapper.wrapperFor(
-    			l, getClass().getClassLoader());
-    	assertEquals("MyLogger", ((LogEnabled) wrapper).loggerName());
-    	Logger.getLogger(((LogEnabled) wrapper).loggerName()).setLevel(Level.DEBUG);
+        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) l,
+    			getClass().getClassLoader());  
+        
+    	assertEquals("MyLogger", ((LogEnabled) proxy).loggerName());
+    	Logger.getLogger(((LogEnabled) proxy).loggerName()).setLevel(Level.DEBUG);
     	
-    	Log4jArchiver archiver = new Log4jArchiver(wrapper, "%m%n");
+    	Log4jArchiver archiver = new Log4jArchiver(proxy, "%m%n");
     	
     	MyL ll = new MyL();
-    	archiver.addLogListener(ll, wrapper, LogLevel.DEBUG, 0, 1000);
+    	archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);
     	
-    	wrapper.run();
+    	proxy.run();
     	
     	assertTrue(ll.messages.indexOf("FINDME") > 0);
     }
@@ -503,9 +527,10 @@ public class RunnableWrapperTest extends TestCase {
     	Job j = new Job();
     	j.setResult("Hello");
     	
-    	Runnable wrapper = RunnableWrapper.wrapperFor(
-    			j, getClass().getClassLoader());
-    	
+        Runnable wrapper = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) j,
+    			getClass().getClassLoader());  
+        
     	Map<String, String> m = Describer.describe(wrapper);
     	
     	assertEquals("Hello", m.get("result"));

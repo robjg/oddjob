@@ -8,6 +8,9 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateHandler;
@@ -68,20 +71,25 @@ public class BaseWrapperTest extends TestCase {
 
 	/**
 	 * Test getting a result.
+	 * @throws ArooaConversionException 
+	 * @throws ArooaPropertyException 
 	 *
 	 */
-	public void testWithResult() {
+	public void testWithResult() throws ArooaPropertyException, ArooaConversionException {
 		MockWrapper test = new MockWrapper(new Result());
-		assertEquals(42, test.getResult());
+		test.setArooaSession(new StandardArooaSession());
+		assertEquals(42, test.getResult(null));
 	}
 
 	/**
 	 * Test getting a result with no result.
+	 * @throws ArooaConversionException 
+	 * @throws ArooaPropertyException 
 	 *
 	 */
-	public void testNoResult() {
+	public void testNoResult() throws ArooaPropertyException, ArooaConversionException {
 		MockWrapper test = new MockWrapper(new Object());
-		assertEquals(0, test.getResult());
+		assertEquals(0, test.getResult(null));
 	}
 	
 	public static class MockBean {

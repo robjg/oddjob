@@ -18,10 +18,14 @@ import org.oddjob.structural.OddjobChildException;
 /**
  * @oddjob.description This job will repeatedly either for a number of 
  * times or until the until property is true; 
- * 
+ * <p>
+ * Without either a until or a times the job will loop indefinitely.
  * 
  * @oddjob.example
  * 
+ * Repeat a job 3 times.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/RepeatExample.xml}
  * 
  * @author Rob Gordon.
  * 
@@ -32,12 +36,17 @@ implements Stoppable {
 	
     /**
      * @oddjob.property 
-     * @oddjob.description 
+     * @oddjob.description Repeat will repeat until the value of
+     * this property is true.
      * @oddjob.required No.
      */
     private boolean until;
     
-    /** Track the number of repeats. */
+    /**
+     * @oddjob.property 
+     * @oddjob.description The count of repeats.
+     * @oddjob.required Read Only.
+     */
 	private int count;
 	
 	/**
@@ -136,6 +145,7 @@ implements Stoppable {
 	@Override
 	protected void onReset() {
 		count = 0;
+		until = false;
 	}
 	
 	public boolean isUntil() {

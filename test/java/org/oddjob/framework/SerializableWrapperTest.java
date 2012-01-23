@@ -60,12 +60,14 @@ public class SerializableWrapperTest extends TestCase {
 	public void testSimple() throws Exception {	
 
 		Runnable test = new Test1();
-		Runnable wrapper = RunnableWrapper.wrapperFor(
-				test, getClass().getClassLoader());
-	
-		wrapper.run();
 		
-		DynaBean copy = (DynaBean) Helper.copy(wrapper);
+        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
+	
+		proxy.run();
+		
+		DynaBean copy = (DynaBean) Helper.copy(proxy);
 		
 		assertTrue(copy instanceof Proxy);
 		
@@ -75,10 +77,11 @@ public class SerializableWrapperTest extends TestCase {
 	public void testNotSerializable () throws Exception {
 		Runnable test = new Test2();
 		
-		Object wrapper = RunnableWrapper.wrapperFor(
-				test, getClass().getClassLoader());
+        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
 		
-		assertTrue(wrapper instanceof Transient);
+		assertTrue(proxy instanceof Transient);
 	}
 	
 	private class OurPersister implements OddjobPersister {
@@ -150,8 +153,8 @@ public class SerializableWrapperTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		Proxy proxy = (Proxy) new OddjobLookup(oddjob).lookup("test");
-		Test1 test1 = (Test1) ((RunnableWrapper) Proxy.getInvocationHandler(
-				proxy)).getWrapped();
+		Test1 test1 = (Test1) ((WrapperInvocationHandler) Proxy.getInvocationHandler(
+				proxy)).getWrappedComponent();
 
 		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));		
 		assertEquals("hello", test1.check);
@@ -167,8 +170,8 @@ public class SerializableWrapperTest extends TestCase {
 		assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
 		
 		proxy = (Proxy) new OddjobLookup(oddjob2).lookup("test");
-		test1 = (Test1) ((RunnableWrapper) Proxy.getInvocationHandler(
-				proxy)).getWrapped();
+		test1 = (Test1) ((WrapperInvocationHandler) Proxy.getInvocationHandler(
+				proxy)).getWrappedComponent();
 		
 		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));
 		assertEquals("hello", test1.check);

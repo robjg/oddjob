@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Reserved;
@@ -17,7 +16,13 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.reflect.BeanOverview;
+import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
@@ -163,18 +168,47 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	protected void onStop() throws FailedToStopException {} 
 	
 	/**
-	 * 
+	 * Get the result. Use either the return value from the Callable or
+	 * the result property if there is one.
 	 * @return
+	 * @throws ArooaConversionException 
+	 * @throws ArooaPropertyException 
 	 */
-	protected int getResult() {
-		try {
-			Integer result = (Integer) PropertyUtils.getProperty(
-					getWrapped(), Reserved.RESULT_PROPERTY);
-			return result.intValue();
-		}
-		catch (Exception e) {
+	protected int getResult(Object callableResult) throws ArooaPropertyException, ArooaConversionException {
+
+		ArooaSession session = getArooaSession();
+		if (session == null) {
+			// Must be running outside Oddjob from code.
 			return 0;
 		}
+		
+		Integer result;
+		if (callableResult != null) {
+			result = session.getTools().getArooaConverter().convert(
+					callableResult, Integer.class);
+		}
+		else {
+			PropertyAccessor accessor = session.getTools().getPropertyAccessor();
+			BeanOverview overview = accessor.getBeanOverview(
+					getWrapped().getClass()); 
+			
+			if (!overview.hasReadableProperty(
+							Reserved.RESULT_PROPERTY)) {
+				return 0;
+			}
+			
+			ArooaConverter converter = session.getTools().getArooaConverter();
+			
+			result = converter.convert(accessor.getProperty(
+					getWrapped(), Reserved.RESULT_PROPERTY), 
+					Integer.class);
+		}
+		
+		if (result == null) {
+			return 0;
+		}
+		
+		return result.intValue();
 	}
 	
 	@Override

@@ -3,23 +3,26 @@ Oddjob-1.1.0
 
 Changes in 1.1.0
 ----------------
+- Add support Proxying Callables in Oddjob.
+- Ensure the ContextClassLoader is always set correctly before 
+  running a job.
+- Re-wrote repeat job to no longer support schedules just simple repeats.
 - Fixed bug with not registering Out Parameters in SQL Job.
+- Use JSF AJAX to update just the main sections of the screen.
 - Moved the Struts Webapp to JSF 2.1 with MyFaces 2.1.4.
 - Improved CSS for Webapp.
 - Fixed bug whereby explorer wouldn't close when Oddjob is killed with Ctrl-C.
 
 Still To Do for 1.1.0
 --------------------
-- Add Security to the WebApp (with a Read Only role).  
-- Remove Frames from the Web-App. Use some kind of Java Script split pane.
-- Use AJAX to update individual parts of the tree and detail panel instead of 
-  a whole screen refresh.
-- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
-  browser without the need for a separate Servlet Container.
 - Add a 'forceComplete' action that will force a job to be COMPLETE.
 
 Deferred to A Later Version
 ---------------------------
+- Add Security to the WebApp (with a Read Only role).  
+- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
+  browser without the need for a separate Servlet Container.
+- Improve the AJAX JSF front end to be more AJAXy.
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. from the class path.
 - Check a configuration hasn't been modified by someone else before a 

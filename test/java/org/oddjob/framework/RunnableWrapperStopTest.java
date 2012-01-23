@@ -24,9 +24,10 @@ public class RunnableWrapperStopTest extends TestCase {
 
 		WaitingJob job = new WaitingJob();
 		
-		Runnable proxy = (Runnable) RunnableWrapper.wrapperFor(
-				job, getClass().getClassLoader());
-		
+		Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) job,
+    			getClass().getClassLoader());
+    	
 		Thread t = new Thread(proxy);
 		
 		t.start();

@@ -12,6 +12,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.parsing.MockArooaContext;
@@ -20,7 +21,9 @@ import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 
 public class ServiceWrapperTest extends TestCase {
@@ -60,6 +63,11 @@ public class ServiceWrapperTest extends TestCase {
 				}
 			};
 		}
+		
+		@Override
+		public ArooaTools getTools() {
+			return new StandardTools();
+		}
 	}
 	
 	public static class MyService {
@@ -90,7 +98,7 @@ public class ServiceWrapperTest extends TestCase {
 		OurContext context = new OurContext();
 		context.session = session;
 		
-		Runnable wrapper = ServiceWrapper.wrapperFor(
+		Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
 				service, getClass().getClassLoader());
 
 		((ArooaContextAware) wrapper).setArooaContext(context);
@@ -169,7 +177,7 @@ public class ServiceWrapperTest extends TestCase {
     		"   <jobs>" +
     		"    <variables id='v'>" +
     		"     <x>" +
-    		"      <value value='hello'/>" +
+    		"      <value value='0'/>" +
     		"     </x>" +
     		"    </variables>" +
     		"    <bean class='" + MyS2.class.getName() + "' " +
@@ -184,9 +192,13 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oj.run();
     	
+    	assertEquals(ParentState.ACTIVE, oj.lastStateEvent().getState());
+    	
     	Object r = new OddjobLookup(oj).lookup("s");
-    	assertEquals("hello", PropertyUtils.getProperty(r, "result"));
+    	assertEquals("0", PropertyUtils.getProperty(r, "result"));
     	
     	oj.stop();    	
+    	
+    	assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
     }
 }

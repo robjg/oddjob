@@ -21,7 +21,7 @@ import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.RunnableWrapper;
+import org.oddjob.framework.RunnableProxyGenerator;
 import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -52,8 +52,9 @@ public class SequenceJobTest extends TestCase {
 		SequenceJob test = new SequenceJob();
 		test.setFrom(22);
 		
-		Runnable proxy = RunnableWrapper.wrapperFor(test, 
-				getClass().getClassLoader());
+        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
+    			(Runnable) test,
+    			getClass().getClassLoader());  
 		
 		proxy.run();
 		

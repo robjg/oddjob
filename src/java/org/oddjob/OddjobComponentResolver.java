@@ -5,13 +5,15 @@ package org.oddjob;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.util.concurrent.Callable;
 
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.framework.BaseWrapper;
-import org.oddjob.framework.RunnableWrapper;
+import org.oddjob.framework.CallableProxyGenerator;
+import org.oddjob.framework.RunnableProxyGenerator;
 import org.oddjob.framework.Service;
-import org.oddjob.framework.ServiceWrapper;
+import org.oddjob.framework.ServiceProxyGenerator;
+import org.oddjob.framework.WrapperInvocationHandler;
 
 /**
  * Possibly provide a proxy to use as the component. The proxy will provide
@@ -30,22 +32,27 @@ import org.oddjob.framework.ServiceWrapper;
 public class OddjobComponentResolver 
 implements ComponentProxyResolver {
 	
-	public Object resolve(Object component, ArooaContext parentContext) {
+	public Object resolve(final Object component, ArooaContext parentContext) {
 
 		Object proxy;
 		
 	    if (component instanceof Stateful) {
 	    	proxy = component;
 	    }
+	    else if (component instanceof Callable){
+	    	proxy = new CallableProxyGenerator().generate(
+	    			(Callable<?>) component, 
+	    			component.getClass().getClassLoader());
+	    }
 	    else if (component instanceof Runnable){
-	    	proxy = RunnableWrapper.wrapperFor(
-	    			(Runnable) component, 
+	    	proxy = new RunnableProxyGenerator().generate(
+	    			(Runnable) component,
 	    			component.getClass().getClassLoader());
 	    }
 	    else {
 	    	Service service = Service.serviceFor(component);
 	    	if (service != null) {
-	    		proxy = ServiceWrapper.wrapperFor(service, 
+	    		proxy = new ServiceProxyGenerator().generate(service, 
 	    				component.getClass().getClassLoader());
 	    	}
 	    	else {
@@ -65,7 +72,7 @@ implements ComponentProxyResolver {
 		}
 		else {
 			InvocationHandler handler = Proxy.getInvocationHandler(proxy);
-			component = ((BaseWrapper) handler).getWrapped();
+			component = ((WrapperInvocationHandler) handler).getWrappedComponent();
 		}
 
 		return component;

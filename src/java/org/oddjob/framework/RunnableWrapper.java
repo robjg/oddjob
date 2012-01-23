@@ -7,26 +7,14 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Iconic;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
-import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.StateIcons;
-import org.oddjob.logging.LogEnabled;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -44,8 +32,8 @@ import org.oddjob.state.StateEvent;
  * 
  * @author Rob Gordon.
  */
-public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
-		Serializable {
+public class RunnableWrapper extends BaseWrapper 
+implements ComponentWrapper, Serializable {
 	private static final long serialVersionUID = 20051231;
 
 	private transient JobStateHandler stateHandler;
@@ -53,8 +41,8 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	private transient JobStateChanger stateChanger;
 	
 	/** The wrapped Runnable. */
-	private Runnable wrapped;
-
+	private Object wrapped;
+	
 	/**
 	 * The DynaBean that takes its properties of the wrapped Runnable.
 	 */
@@ -64,26 +52,22 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	private volatile transient Thread thread;
 
 	/**
-	 * Map of methods to the object that it will be invoked on.
-	 */
-	private transient Map<Method, Object> methods;
-
-	/**
 	 * The proxy we create that represents our wrapped Runnable within Oddjob.
 	 */
-	private Object proxy;
+	private final Object proxy;
 
 	/**
-	 * Private constructor. The wrapped should always be accessed using the
-	 * static {@link #wrapperFor(Runnable)} method.
+	 * Constructor.
 	 * 
 	 */
-	private RunnableWrapper(Runnable wrapped) {
+	public RunnableWrapper(Object wrapped, Object proxy) {
+		this.wrapped = wrapped;
+		this.proxy = proxy;
 		completeConstruction();
-		setWrapped(wrapped);
 	}
 
 	private void completeConstruction() {
+		this.dynaBean = new WrapDynaBean(wrapped);
 		stateHandler = new JobStateHandler(this);
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
@@ -103,51 +87,6 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 		return stateChanger;
 	}
 	
-	/**
-	 * Create the proxy that oddjob will use to communicate wiith our Runnable.
-	 * 
-	 * @param wrapped
-	 * @return
-	 */
-	public static Runnable wrapperFor(Runnable wrapped, 
-			ClassLoader classLoader) {
-    	
-    	RunnableWrapper wrapper = new RunnableWrapper(wrapped);
-    	
-    	Set<Class<?>> interfaces = new HashSet<Class<?>>();
-    	interfaces.addAll(Arrays.asList(interfacesFor(wrapped)));
-    	interfaces.add(ArooaContextAware.class);
-    	interfaces.add(Stateful.class);
-    	interfaces.add(Resetable.class);
-    	interfaces.add(DynaBean.class);
-    	interfaces.add(Stoppable.class);
-    	interfaces.add(Iconic.class);
-    	interfaces.add(LogEnabled.class);
-    	if (!(wrapped instanceof Serializable)) {
-    		interfaces.add(Transient.class);
-    	}
-    	
-    	Class<?>[] interfaceArray = 
-    		(Class[]) interfaces.toArray(new Class[0]);
-    	
-    	wrapper.proxy = 
-    		Proxy.newProxyInstance(classLoader,
-    			interfaceArray,
-    			wrapper);
-    	
-    	return (Runnable) wrapper.proxy;
-    }
-
-	public Object invoke(Object proxy, Method method, Object[] args)
-			throws Throwable {
-		Object destination = methods.get(method);
-		if (destination == null) {
-			// hashCode etc
-			destination = this;
-		}
-		return method.invoke(destination, args);
-	}
-
 	public Object getWrapped() {
 		return wrapped;
 	}
@@ -158,39 +97,6 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 
 	protected Object getProxy() {
 		return proxy;
-	}
-
-	protected void setWrapped(Runnable wrapped) {
-		this.wrapped = wrapped;
-		this.dynaBean = new WrapDynaBean(wrapped);
-		this.methods = new HashMap<Method, Object>();
-
-		Class<?>[] interfaces = interfacesFor(wrapped);
-		for (int i = 0; i < interfaces.length; ++i) {
-			addMethods(interfaces[i], wrapped);
-		}
-
-		addMethods(ArooaContextAware.class, this);
-		addMethods(Stateful.class, this);
-		addMethods(Resetable.class, this);
-		addMethods(DynaBean.class, this);
-		addMethods(Stoppable.class, this);
-		addMethods(Iconic.class, this);
-		addMethods(Runnable.class, this);
-		addMethods(LogEnabled.class, this);
-	}
-
-	/**
-	 * Add a method and the object that is going to implement it.
-	 * 
-	 * @param from
-	 * @param destination
-	 */
-	private void addMethods(Class<?> from, Object destination) {
-		Method[] ms = from.getDeclaredMethods();
-		for (int i = 0; i < ms.length; ++i) {
-			methods.put(ms[i], destination);
-		}
 	}
 
 	/*
@@ -214,11 +120,23 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 			logger().info("Executing.");
 			
 			final AtomicReference<Throwable> exception = 
-				new AtomicReference<Throwable>();;
-			
+				new AtomicReference<Throwable>();
+			final AtomicReference<Object> callableResult = 
+				new AtomicReference<Object>();	
 			try {
 				configure();
-				wrapped.run();
+				
+				Object result;
+				
+				if (wrapped instanceof Callable<?>) {
+					result = ((Callable<?>) wrapped).call();
+				}
+				else {
+					((Runnable) wrapped).run();
+					result = null;
+				}
+				callableResult.set(result);
+				
 			} catch (Throwable t) {
 				logger().error("Exception:", t);
 				exception.set(t);
@@ -235,11 +153,17 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 						getStateChanger().setStateException(exception.get());
 					}
 					else {
-						int result = getResult();
-						if (result == 0) {
-							getStateChanger().setState(JobState.COMPLETE);
-						} else {
-							getStateChanger().setState(JobState.INCOMPLETE);
+						int result;
+						try {
+							result = getResult(callableResult.get());
+							
+							if (result == 0) {
+								getStateChanger().setState(JobState.COMPLETE);
+							} else {
+								getStateChanger().setState(JobState.INCOMPLETE);
+							}
+						} catch (Exception e) {
+							getStateChanger().setStateException(e);
 						}
 					}
 				}
@@ -302,7 +226,6 @@ public class RunnableWrapper extends BaseWrapper implements InvocationHandler,
 	private void readObject(ObjectInputStream s) throws IOException,
 			ClassNotFoundException {
 		s.defaultReadObject();
-		setWrapped(wrapped);
 		StateEvent savedEvent = (StateEvent) s.readObject();
 		completeConstruction();
 		stateHandler.restoreLastJobStateEvent(savedEvent);
