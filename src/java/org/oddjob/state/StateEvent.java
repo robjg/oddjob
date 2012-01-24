@@ -140,7 +140,7 @@ implements Serializable {
 	throws IOException, ClassNotFoundException {
 		state = (State) s.readObject();
 		time = (Date) s.readObject();
-		exception = (Exception) s.readObject();
+		exception = (Throwable) s.readObject();
 	}
 	
 }

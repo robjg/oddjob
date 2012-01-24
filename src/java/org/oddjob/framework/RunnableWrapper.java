@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
+import org.oddjob.Forceable;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.StateIcons;
@@ -33,7 +34,7 @@ import org.oddjob.state.StateEvent;
  * @author Rob Gordon.
  */
 public class RunnableWrapper extends BaseWrapper 
-implements ComponentWrapper, Serializable {
+implements ComponentWrapper, Serializable, Forceable {
 	private static final long serialVersionUID = 20051231;
 
 	private transient JobStateHandler stateHandler;
@@ -104,9 +105,10 @@ implements ComponentWrapper, Serializable {
 	 * 
 	 * @see java.lang.Runnable#run()
 	 */
+	@Override
 	public void run() {
 		
-		ComponentBoundry.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), wrapped);
 		try {
 			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
@@ -174,6 +176,7 @@ implements ComponentWrapper, Serializable {
 		}
 	}
 
+	@Override
 	public void onStop() throws FailedToStopException {
 		if (wrapped instanceof Stoppable) {
 			((Stoppable) wrapped).stop();
@@ -188,6 +191,7 @@ implements ComponentWrapper, Serializable {
 	/**
 	 * Perform a soft reset on the job.
 	 */
+	@Override
 	public boolean softReset() {
 		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 			public void run() {
@@ -201,6 +205,7 @@ implements ComponentWrapper, Serializable {
 	/**
 	 * Perform a hard reset on the job.
 	 */
+	@Override
 	public boolean hardReset() {
 		
 		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
@@ -212,6 +217,21 @@ implements ComponentWrapper, Serializable {
 		});
 	}
 	
+	/**
+	 * Force the job to COMPLETE.
+	 */
+	@Override
+	public void force() {
+		
+		stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			public void run() {
+				logger().info("Forcing complete.");			
+				
+				getStateChanger().setState(JobState.COMPLETE);
+			}
+		});
+	}
+
 	/**
 	 * Custom serialisation.
 	 */

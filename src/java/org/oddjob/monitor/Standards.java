@@ -45,6 +45,8 @@ public class Standards extends org.oddjob.arooa.design.view.Standards {
 	public static final Integer STOP_MNEMONIC_KEY = new Integer(KeyEvent.VK_T);  
 	public static final KeyStroke STOP_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.CTRL_MASK);
 
+	public static final Integer FORCE_MNEMONIC_KEY = new Integer(KeyEvent.VK_F);  
+	
 	public static final Integer PROPERTY_MNEMONIC_KEY = new Integer(KeyEvent.VK_P);  
 	public static final KeyStroke PROPERTY_ACCELERATOR_KEY = KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK);
 	

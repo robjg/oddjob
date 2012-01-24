@@ -81,7 +81,7 @@ implements ComponentWrapper {
     }
     
     public void run() {
-		ComponentBoundry.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), wrapped);
         try {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
@@ -129,7 +129,7 @@ implements ComponentWrapper {
     	
 		final AtomicInteger result = new AtomicInteger();
 		
-		ComponentBoundry.push(loggerName(), this);
+		ComponentBoundry.push(loggerName(), wrapped);
 		try {
 			service.stop();
 			result.set(getResult(null));

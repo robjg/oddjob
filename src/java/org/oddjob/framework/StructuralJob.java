@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.Forceable;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -41,7 +42,7 @@ import org.oddjob.structural.StructuralListener;
 public abstract class StructuralJob<E> extends BasePrimary
 implements 
 		Runnable, Serializable, 
-		Stoppable, Resetable, Stateful, Structural {
+		Stoppable, Resetable, Stateful, Forceable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
 	protected transient ParentStateHandler stateHandler;
@@ -277,6 +278,28 @@ implements
 		
 	}
 	
+	/**
+	 * Force the job to COMPLETE.
+	 */
+	@Override
+	public void force() {
+		
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					logger().info("Forcing complete.");			
+					
+					childStateReflector.stop();
+					
+					getStateChanger().setState(ParentState.COMPLETE);
+				}
+			});
+		} finally {
+			ComponentBoundry.pop();
+		}
+	}
+
 	/**
 	 * Add a listener. The listener will immediately receive add
 	 * notifications for all existing children.

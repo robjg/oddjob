@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.beanutils.DynaBean;
+import org.oddjob.Forceable;
 import org.oddjob.Iconic;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
@@ -29,6 +30,7 @@ abstract public class BaseWrapperFactory<T> implements WrapperFactory<T> {
 		interfaces.add(ArooaContextAware.class);
 		interfaces.add(Stateful.class);
 		interfaces.add(Resetable.class);
+		interfaces.add(Forceable.class);
 		interfaces.add(DynaBean.class);
 		interfaces.add(Stoppable.class);
 		interfaces.add(Iconic.class);

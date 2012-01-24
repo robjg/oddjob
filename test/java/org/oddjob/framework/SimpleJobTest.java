@@ -178,4 +178,21 @@ public class SimpleJobTest extends TestCase {
 
 		icons.checkNow();
 	}
+	
+	public void testForceable() {
+		
+		SimpleJob test = new SimpleJob() {
+			
+			@Override
+			protected int execute() throws Throwable {
+				return 0;
+			}
+		};
+		
+		assertEquals(JobState.READY, test.lastStateEvent().getState());
+		
+		test.force();
+		
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
+	}
 }

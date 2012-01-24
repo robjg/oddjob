@@ -14,6 +14,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
+import org.oddjob.Forceable;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -147,6 +148,11 @@ public class RunnableWrapperTest extends TestCase {
                 l.lastEvent.getState());
 	
         assertEquals(proxy, session.saved);
+        
+        ((Forceable) proxy).force();
+        
+        assertEquals("JobState", JobState.COMPLETE, 
+                l.lastEvent.getState());
     }
 
     /**

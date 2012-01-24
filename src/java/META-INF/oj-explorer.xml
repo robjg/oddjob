@@ -8,6 +8,7 @@
 				<bean class="org.oddjob.monitor.action.SoftResetAction" />
 				<bean class="org.oddjob.monitor.action.HardResetAction" />
 				<bean class="org.oddjob.monitor.action.StopAction" />
+                <bean class="org.oddjob.monitor.action.ForceAction" />
 				<bean class="org.oddjob.monitor.action.SetPropertyAction" />
 				<bean class="org.oddjob.monitor.action.DesignerAction" />
 				<bean class="org.oddjob.monitor.action.DesignInsideAction" />

@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.Forceable;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -27,7 +28,7 @@ import org.oddjob.state.StateChanger;
  * @author Rob Gordon
  */
 public abstract class SimpleJob extends BasePrimary
-implements  Runnable, Resetable, Stateful {
+implements  Runnable, Resetable, Stateful, Forceable {
 
 	protected transient JobStateHandler stateHandler;
 	
@@ -214,6 +215,7 @@ implements  Runnable, Resetable, Stateful {
 	/**
 	 * Perform a soft reset on the job.
 	 */
+	@Override
 	public boolean softReset() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
@@ -236,6 +238,7 @@ implements  Runnable, Resetable, Stateful {
 	/**
 	 * Perform a hard reset on the job.
 	 */
+	@Override
 	public boolean hardReset() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
@@ -262,6 +265,26 @@ implements  Runnable, Resetable, Stateful {
 		
 	}
 
+	/**
+	 * Force the job to COMPLETE.
+	 */
+	@Override
+	public void force() {
+		
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					logger().info("Forcing complete.");			
+					
+					getStateChanger().setState(JobState.COMPLETE);
+				}
+			});
+		} finally {
+			ComponentBoundry.pop();
+		}
+	}
+	
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();

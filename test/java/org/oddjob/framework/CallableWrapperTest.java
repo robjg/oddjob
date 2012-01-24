@@ -1,5 +1,7 @@
 package org.oddjob.framework;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
@@ -7,8 +9,14 @@ import junit.framework.TestCase;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OurDirs;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
+import org.oddjob.util.URLClassLoaderType;
+import org.oddjob.util.URLClassLoaderTypeTest;
 
 public class CallableWrapperTest extends TestCase {
 
@@ -125,4 +133,81 @@ public class CallableWrapperTest extends TestCase {
     	
     	oddjob.destroy();
     }
+
+	public static class BadCallable implements Callable<Void> {
+		
+        public Void call() throws Exception {
+        	throw new Exception("Deliberate fail!");
+        }
+        public String toString() {
+        	return "OurCallable";
+        }
+	}
+	
+    public void testExceptionInOddjob() throws Exception {
+    	String xml = 
+    		"<oddjob>" +
+    		" <job>" +
+    		"  <bean class='" + BadCallable.class.getName() + 
+    				"' id='r'/>" +
+    		" </job>" +
+    		"</oddjob>";
+    	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+    	
+    	oddjob.run();
+    	
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	Object runnable = lookup.lookup("r");
+    	assertEquals(JobState.EXCEPTION, Helper.getJobState(runnable));
+    	    	
+    	oddjob.destroy();
+    }
+    
+	public void testConSimple() throws ClassNotFoundException, MalformedURLException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException {
+		
+		OurDirs dirs = new OurDirs();
+		
+		ClassLoader existing = Thread.currentThread().getContextClassLoader();
+		
+		File check = dirs.relative("test/classloader/AJob.class");
+		if (!check.exists()) {
+			URLClassLoaderTypeTest.compileSample(dirs);
+		}
+		
+		URLClassLoaderType classLoaderType = new URLClassLoaderType();
+		classLoaderType.setFiles(new File[] {
+				dirs.relative("test/classloader") });
+		classLoaderType.setParent(getClass().getClassLoader());
+		ClassLoader classLoader = classLoaderType.toValue();
+		
+    	String xml = 
+        		"<oddjob>" +
+        		" <job>" +
+        		"  <bean class='AJob' id='c'/>" +
+        		" </job>" +
+        		"</oddjob>";
+        	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+    	oddjob.setClassLoader(classLoader);
+
+    	oddjob.run();
+    	
+        assertEquals(ParentState.COMPLETE, 
+        		oddjob.lastStateEvent().getState());
+        	
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+        	
+        ClassLoader threadClassLoader = lookup.lookup("c.classLoader", 
+        		ClassLoader.class);
+        
+        assertEquals(classLoader, threadClassLoader);
+        
+        oddjob.destroy();
+		
+		assertEquals(existing, Thread.currentThread().getContextClassLoader());
+	}
 }

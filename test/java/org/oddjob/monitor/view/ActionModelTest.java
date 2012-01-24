@@ -141,30 +141,44 @@ public class ActionModelTest extends TestCase {
 			}
 		}
 
-		assertEquals("Load", menuItems.get(0).getText());
-		assertFalse(menuItems.get(0).isEnabled());
-		assertFalse(menuItems.get(0).isVisible());
-		assertEquals("Unload", menuItems.get(1).getText());
-		assertFalse(menuItems.get(1).isEnabled());
-		assertFalse(menuItems.get(1).isVisible());
-		assertEquals("Run", menuItems.get(2).getText());
-		assertFalse(menuItems.get(2).isEnabled());
-		assertEquals("Soft Reset", menuItems.get(3).getText());
-		assertFalse(menuItems.get(3).isEnabled());
-		assertEquals("Hard Reset", menuItems.get(4).getText());
-		assertFalse(menuItems.get(4).isEnabled());
-		assertEquals("Stop", menuItems.get(5).getText());
-		assertFalse(menuItems.get(5).isEnabled());
-		assertEquals("Set Property", menuItems.get(6).getText());
-		assertTrue(menuItems.get(6).isEnabled());
-		assertEquals("Designer", menuItems.get(7).getText());
-		assertFalse(menuItems.get(7).isEnabled());
-		assertEquals("Design Inside", menuItems.get(8).getText());
-		assertFalse(menuItems.get(8).isEnabled());
-		assertFalse(menuItems.get(8).isVisible());
-		assertEquals("Add Job", menuItems.get(9).getText());
-		assertFalse(menuItems.get(9).isEnabled());
-		assertFalse(menuItems.get(9).isVisible());
+		int i = 0;
+		
+		assertEquals("Load", menuItems.get(i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+
+		assertEquals("Unload", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+		
+		assertEquals("Run", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		
+		assertEquals("Soft Reset", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+
+		assertEquals("Hard Reset", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+
+		assertEquals("Stop", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+
+		assertEquals("Force", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+
+		assertEquals("Set Property", menuItems.get(++i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+
+		assertEquals("Designer", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+
+		assertEquals("Design Inside", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+
+		assertEquals("Add Job", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
 	}
 
 	class RootContext extends MockExplorerContext {
@@ -243,36 +257,50 @@ public class ActionModelTest extends TestCase {
 			}
 		}
 
-		assertEquals("Load", menuItems.get(0).getText());
-		assertTrue(menuItems.get(0).isEnabled());
-		assertTrue(menuItems.get(0).isVisible());
-		assertEquals("Unload", menuItems.get(1).getText());
-		assertFalse(menuItems.get(1).isEnabled());
-		assertTrue(menuItems.get(1).isVisible());
-		assertEquals("Run", menuItems.get(2).getText());
-		assertTrue(menuItems.get(2).isEnabled());
-		assertTrue(menuItems.get(2).isVisible());
-		assertEquals("Soft Reset", menuItems.get(3).getText());
-		assertTrue(menuItems.get(3).isEnabled());
-		assertTrue(menuItems.get(3).isVisible());
-		assertEquals("Hard Reset", menuItems.get(4).getText());
-		assertTrue(menuItems.get(4).isEnabled());
-		assertTrue(menuItems.get(4).isVisible());
-		assertEquals("Stop", menuItems.get(5).getText());
-		assertFalse(menuItems.get(5).isEnabled());
-		assertTrue(menuItems.get(5).isVisible());
-		assertEquals("Set Property", menuItems.get(6).getText());
-		assertFalse(menuItems.get(6).isEnabled());
-		assertFalse(menuItems.get(6).isVisible());
-		assertEquals("Designer", menuItems.get(7).getText());
-		assertFalse(menuItems.get(7).isEnabled());
-		assertFalse(menuItems.get(7).isVisible());
-		assertEquals("Design Inside", menuItems.get(8).getText());
-		assertFalse(menuItems.get(8).isEnabled());
-		assertTrue(menuItems.get(8).isVisible());
-		assertEquals("Add Job", menuItems.get(9).getText());
-		assertFalse(menuItems.get(9).isEnabled());
-		assertFalse(menuItems.get(9).isVisible());
+		int i = 0;
+		assertEquals("Load", menuItems.get(i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Unload", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Run", menuItems.get(++i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Soft Reset", menuItems.get(++i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Hard Reset", menuItems.get(++i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Stop", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Force", menuItems.get(++i).getText());
+		assertTrue(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Set Property", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+		
+		assertEquals("Designer", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+		
+		assertEquals("Design Inside", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Add Job", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
 		
 	}
 	

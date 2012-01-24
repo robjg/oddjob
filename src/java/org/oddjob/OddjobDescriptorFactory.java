@@ -4,6 +4,12 @@ import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ClassPathDescriptorFactory;
 
+/**
+ * Create Oddjobs main {@link ArooaDescriptor}.
+ * 
+ * @author rob
+ *
+ */
 public class OddjobDescriptorFactory implements ArooaDescriptorFactory {
 
 	@Override
@@ -16,6 +22,14 @@ public class OddjobDescriptorFactory implements ArooaDescriptorFactory {
 		ClassPathDescriptorFactory factory = 
 			new ClassPathDescriptorFactory();
 
-		return factory.createDescriptor(classLoader);		
+		ArooaDescriptor descriptor = factory.createDescriptor(classLoader);		
+		
+		if (descriptor == null) {
+			throw new NullPointerException(
+					"No descriptors found with class loader " +
+					classLoader);
+		}
+		
+		return descriptor;
 	}
 }
