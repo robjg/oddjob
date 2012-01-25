@@ -62,7 +62,8 @@
                     designFactory='org.oddjob.designer.components.SqlDC'/>
                 <is element='sql-keeper-service' className='org.oddjob.sql.SQLKeeperService'/>
                 <is element='sql-persister-service' className='org.oddjob.sql.SQLPersisterService'/>
-                <is element='stop' className='org.oddjob.jobs.job.StopJob'/>
+                <is element='stop' className='org.oddjob.jobs.job.StopJob'
+                    designFactory='org.oddjob.designer.components.JustJobDC'/>
                 <is element='wait' className='org.oddjob.jobs.WaitJob'
                     designFactory='org.oddjob.designer.components.WaitDC'/>
             </components>

@@ -27,8 +27,12 @@ public interface ThreadManager {
 	 * @return A list of descriptions.
 	 */
 	public String[] activeDescriptions();
-	
-	
+		
+	/**
+	 * Close the ThreadManager and free resource. This may
+	 * involve interrupting Threads or similar to ensure nothing is
+	 * still running.
+	 */
 	public void close();
 	
 }

@@ -28,10 +28,18 @@ public class SimpleThreadManager implements ThreadManager {
 
 	private final ExecutorService executors;
 	
+	/**
+	 * Default Constructor. Uses a default ExecutorService.
+	 */
 	public SimpleThreadManager() {
 		this(Executors.newCachedThreadPool());
 	}
 	
+	/**
+	 * Constructor uses provided ExecutorService.
+	 * 
+	 * @param executors
+	 */
 	public SimpleThreadManager(ExecutorService executors) {
 		this.executors = executors;
 	}
@@ -56,6 +64,10 @@ public class SimpleThreadManager implements ThreadManager {
 						active.remove(runnable);
 					}
 				}
+			}
+			@Override
+			public String toString() {
+				return "Runnable for " + description;
 			}
 		};
 		

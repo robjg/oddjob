@@ -6,6 +6,7 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Helper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -15,6 +16,8 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.jobs.job.RunJob;
+import org.oddjob.jobs.job.StopJob;
 
 /**
  *
@@ -28,10 +31,10 @@ public class JustJobDCTest extends TestCase {
 
 	DesignInstance design;
 	
-	public void testCreate() throws ArooaParseException {
+	public void testRun() throws ArooaParseException {
 		
 		String xml =  
-				"<run name='Test'/>";
+				"<run id='test' name='Test' job='${test}'/>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -46,12 +49,46 @@ public class JustJobDCTest extends TestCase {
 		design = parser.getDesign();
 		
 		assertEquals(JustJobDesign.class, design.getClass());
+		
+		RunJob test = (RunJob) Helper.createComponentFromConfiguration(
+				design.getArooaContext().getConfigurationNode());
+		
+		assertEquals("Test", test.getName());
+		assertEquals(test, test.getJob());
+
 	}
 
+	public void testStop() throws ArooaParseException {
+		
+		String xml =  
+				"<stop id='test' name='Test' job='${test}'/>";
+	
+    	ArooaDescriptor descriptor = 
+    		new OddjobDescriptorFactory().createDescriptor(
+    				getClass().getClassLoader());
+		
+		DesignParser parser = new DesignParser(
+				new StandardArooaSession(descriptor));
+		parser.setArooaType(ArooaType.COMPONENT);
+		
+		parser.parse(new XMLConfiguration("TEST", xml));
+		
+		design = parser.getDesign();
+		
+		assertEquals(JustJobDesign.class, design.getClass());
+		
+		StopJob test = (StopJob) Helper.createComponentFromConfiguration(
+				design.getArooaContext().getConfigurationNode());
+		
+		assertEquals("Test", test.getName());
+		assertEquals(test, test.getJob());
+
+	}
+	
 	public static void main(String args[]) throws ArooaParseException {
 
 		JustJobDCTest test = new JustJobDCTest();
-		test.testCreate();
+		test.testRun();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);
 		view.run();

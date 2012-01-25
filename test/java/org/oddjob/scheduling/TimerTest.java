@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -36,8 +35,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.framework.SimpleJob;
 import org.oddjob.images.IconHelper;
-import org.oddjob.jobs.job.StopJob;
+import org.oddjob.jobs.WaitJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
@@ -487,7 +487,7 @@ public class TimerTest extends TestCase {
 		}
 	};
 	
-	public void testStop() throws ParseException, InterruptedException {
+	public void testStop() throws ParseException, InterruptedException, FailedToStopException {
 		
 		final Timer test = new Timer();
 		test.setSchedule(new CountSchedule(2));
@@ -500,32 +500,22 @@ public class TimerTest extends TestCase {
 				IconHelper.EXECUTING, IconHelper.SLEEPING, 
 				IconHelper.EXECUTING, IconHelper.ACTIVE, IconHelper.SLEEPING);
 		
-		StopJob stop = new StopJob();
-		stop.setExecutorService(new MockExecutorService() {
-			@Override
-			public Future<?> submit(final Runnable task) {
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						// need to guarantee order of states.
-						try {
-							checkFirstThreadFinished.checkWait();
-						} catch (InterruptedException e) {
-							throw new RuntimeException(e);
-						}
-						task.run();
-					}
-				}).start();
-				return null;
-			}
-		});
-		stop.setAsync(true);
-		stop.setJob(test);
-		
 		Retry retry = new Retry();
 		retry.setSchedule(interval);
 		
-		retry.setJob(stop);
+		SimpleJob child = new SimpleJob() {
+			int i;
+			Runnable[] jobs = {
+				new FlagState(), new WaitJob()	
+			};
+			@Override
+			protected int execute() throws Throwable {
+				jobs[i++].run();
+				return 0;
+			}
+		};
+		
+		retry.setJob(child);
 
 		test.setJob(retry);
 		
@@ -544,6 +534,9 @@ public class TimerTest extends TestCase {
 				IconHelper.STOPPING, IconHelper.READY);
 		
 		test.run();
+		
+		checkFirstThreadFinished.checkWait();
+		test.stop();
 		
 		state.checkWait();
 		icons.checkNow();

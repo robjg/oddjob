@@ -3,13 +3,15 @@ Oddjob-1.1.0
 
 Changes in 1.1.0
 ----------------
+- Removed the async property from Stop job. A separate trigger can be used
+  instead which is much more explicit.
 - Added a 'forceComplete' action that will force a job to be COMPLETE.
 - Added support Proxying Callables in Oddjob.
 - The ContextClassLoader is now always set correctly before running a job.
 - The repeat job has ben re-written to no longer support schedules just 
   simple repeats.
 - Fixed bug with not registering Out Parameters in SQL Job.
-- Moved the Struts Webapp to JSF 2.1 with MyFaces 2.1.4 amd JSF AJAX is 
+- Moved the Struts Webapp to JSF 2.1 with MyFaces 2.1.4 and JSF AJAX is 
   now used to update just the main sections of the web view.
 - The CSS for the Webapp has been improved.
 - Fixed bug whereby explorer wouldn't close when Oddjob is killed with 
@@ -17,14 +19,12 @@ Changes in 1.1.0
 
 Still To Do for 1.1.0
 ---------------------
-- Look at having a start job and a run job. The run job could use
-  Oddjobs ComponentResolver to wrap a Runnable or Service. It could be
-  structural and expose the child so properties and Log could be viewed.
-- Remove Async property from Stop job. A separate trigger can be used
-  instead which is much more explicit.
 
 Deferred to A Later Version
 ---------------------------
+- Look at having a start job and a run job. The run job could use
+  Oddjobs ComponentResolver to wrap a Runnable or Service. It could be
+  structural and expose the child so properties and Log could be viewed.
 - Add Security to the WebApp (with a Read Only role).  
 - Include a Jetty Oddball to allow connecting to an Oddjob server from a 
   browser without the need for a separate Servlet Container.

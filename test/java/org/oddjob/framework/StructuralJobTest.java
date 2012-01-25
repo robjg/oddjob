@@ -4,9 +4,14 @@
 package org.oddjob.framework;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
@@ -28,8 +33,8 @@ import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
-import org.oddjob.state.StateOperator;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 
 /**
@@ -121,44 +126,51 @@ public class StructuralJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 
-	public void testRunStop() throws FailedToStopException {
+	public void testRunStop() throws FailedToStopException, InterruptedException, ExecutionException, TimeoutException {
 		final FlagState child = new FlagState(JobState.INCOMPLETE);
 		
 		final OurStructural test = new OurStructural();
 		test.setJob(child);
 				
-		ExecutorService executor = Executors.newSingleThreadExecutor();
+		final ExecutorService executor = Executors.newSingleThreadExecutor();
 		
 		final StopJob stop = new StopJob();
-		stop.setAsync(true);
 		stop.setJob(test);
-		stop.setExecutorService(executor);
+		
+		final AtomicReference<Future<?>> future = 
+				new AtomicReference<Future<?>>();
 		
 		test.runnable = new Runnable() {
 			public void run() {
 				child.run();
 				assertEquals(ParentState.EXECUTING, test.lastStateEvent().getState());
-				stop.run();
+				future.set(executor.submit(stop));
 			}
 		};
 		test.run();
 		
-		executor.shutdown();
+		future.get().get(10, TimeUnit.SECONDS);
 		
 		assertEquals(JobState.COMPLETE, stop.lastStateEvent().getState());
 		
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		
 		test.softReset();
+		stop.hardReset();
 		
 		assertEquals(JobState.READY, child.lastStateEvent().getState());
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 		
 		child.setState(JobState.COMPLETE);
+		
 		test.run();
 		
+		future.get().get(10, TimeUnit.SECONDS);
+		
 		assertEquals(JobState.COMPLETE, child.lastStateEvent().getState());
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		
+		executor.shutdown();
 	}
 	
 	public void testJustChild() {
