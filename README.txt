@@ -3,6 +3,9 @@ Oddjob-1.1.0
 
 Changes in 1.1.0
 ----------------
+- Fixed a bug where a timer with skipMissedRuns re-ran again when the timer
+  was started and stopped before the end of the current scheduled interval.
+- Added ability to configure Oddjob from a URL.
 - Removed the async property from Stop job. A separate trigger can be used
   instead which is much more explicit.
 - Added a 'forceComplete' action that will force a job to be COMPLETE.

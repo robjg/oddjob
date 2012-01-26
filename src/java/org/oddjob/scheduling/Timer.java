@@ -9,6 +9,7 @@ import org.oddjob.Resetable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.jobs.GrabJob;
 import org.oddjob.persist.ArchiveJob;
+import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.schedules.BrokenSchedule;
@@ -149,11 +150,19 @@ public class Timer extends TimerBase {
 
 		super.begin();
 		
-		if (getCurrent() != null && !skipMissedRuns) {
-			setNextDue(getCurrent().getFromDate());
+		Date currentTime = getClock().getDate(); 		
+		Interval currentInterval = getCurrent(); 
+		
+		if (currentInterval != null && 
+				(!skipMissedRuns || skipMissedRuns && currentTime.before(
+						currentInterval.getToDate()))) {
+
+			logger().info("Setting next due from value of last current property.");
+			setNextDue(currentInterval.getFromDate());
 		}
 		else {
-			scheduleFrom(getClock().getDate());
+			logger().info("Calculating schedule from current clock date time.");
+			scheduleFrom(currentTime);
 		}
 	}
 		

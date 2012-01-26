@@ -1181,7 +1181,8 @@ implements Loadable,
 	}
 	
 	/**
-	 * Getter.
+	 * Getter for {@link OddjobExecutors} that have been given to this
+	 * instance of Oddjob. This getter does not expose the internal executors.
 	 * 
 	 * @return OddjobExecutors or null.
 	 */
