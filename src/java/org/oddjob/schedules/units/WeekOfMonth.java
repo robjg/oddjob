@@ -10,42 +10,49 @@ import org.oddjob.arooa.convert.ConvertletException;
 public interface WeekOfMonth {
 
 	enum Weeks implements WeekOfMonth {
+		/** First week of the month. */
 		FIRST {
 			@Override
 			public int getWeekNumber() {
 				return 1;
 			}
 		},
+		/** Second week of the month. */
 		SECOND {
 			@Override
 			public int getWeekNumber() {
 				return 2;
 			}
 		},
+		/** Third week of the month. */
 		THIRD {
 			@Override
 			public int getWeekNumber() {
 				return 3;
 			}
 		},
+		/** Fourth week of the month. */
 		FOURTH {
 			@Override
 			public int getWeekNumber() {
 				return 4;
 			}
 		},
-		FITH {
+		/** Fifth week of the month. */
+		FIFTH {
 			@Override
 			public int getWeekNumber() {
 				return 5;
 			}
 		},
+		/** Last week of the month. */
 		LAST {
 			@Override
 			public int getWeekNumber() {
 				return -1;
 			}
 		},
+		/** The Week before the last week of the month. */
 		PENULTIMATE {
 			@Override
 			public int getWeekNumber() {

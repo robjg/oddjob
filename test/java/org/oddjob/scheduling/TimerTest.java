@@ -43,6 +43,7 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.SimpleInterval;
+import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.DateSchedule;
@@ -162,6 +163,8 @@ public class TimerTest extends TestCase {
 		oddjobServices.runnable = null;
 		
 		assertNull(null, test.getNextDue());	
+		assertNull(null, test.getCurrent());	
+		assertEquals(expected, test.getLastDue());	
 		assertEquals(-1, oddjobServices.delay);
 
 		assertEquals(1, ourJob.resets);
@@ -204,6 +207,8 @@ public class TimerTest extends TestCase {
 		oddjobServices.runnable = null;
 		
 		assertNull(null, test.getNextDue());	
+		assertNull(null, test.getCurrent());	
+		assertEquals(expected, test.getLastDue());	
 		assertEquals(-1, oddjobServices.delay);
 
 		assertEquals(3, ourJob.resets);
@@ -466,7 +471,12 @@ public class TimerTest extends TestCase {
 		Timer copy = (Timer) Helper.copy(test);
 
 		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
-		assertEquals(null, test.getLastComplete());
+		assertEquals(DateHelper.parseDateTime("2009-02-10 14:30"), 
+				test.getLastDue());
+		assertEquals(new SimpleScheduleResult(
+				new SimpleInterval(
+						DateHelper.parseDateTime("2009-02-10 14:30:00.001"))), 
+				test.getCurrent());
 		
 	}
 	

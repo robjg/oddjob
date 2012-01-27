@@ -1,6 +1,9 @@
 Oddjob-1.1.0
 ============
 
+** Please note that many jobs are not serialisation compatible with previous 
+versions. You may need to delete persistent stores before upgrading. **
+
 Changes in 1.1.0
 ----------------
 - Fixed a bug where a timer with skipMissedRuns re-ran again when the timer
@@ -11,7 +14,7 @@ Changes in 1.1.0
 - Added a 'forceComplete' action that will force a job to be COMPLETE.
 - Added support Proxying Callables in Oddjob.
 - The ContextClassLoader is now always set correctly before running a job.
-- The repeat job has ben re-written to no longer support schedules just 
+- The repeat job has been re-written to no longer support schedules just 
   simple repeats.
 - Fixed bug with not registering Out Parameters in SQL Job.
 - Moved the Struts Webapp to JSF 2.1 with MyFaces 2.1.4 and JSF AJAX is 

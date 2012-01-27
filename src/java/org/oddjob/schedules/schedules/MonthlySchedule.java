@@ -31,7 +31,7 @@ import org.oddjob.schedules.units.WeekOfMonth;
  * of MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY 
  * (case insensitive). The week of 
  * the month is specified as a number, typically 1 to 5, or using one of FIRST,
- * SECOND, THIRD, FOURTH, FITH, PENULTIMATE, or LAST (case insensitive).
+ * SECOND, THIRD, FOURTH, FIFTH, PENULTIMATE, or LAST (case insensitive).
  * <p>
  * If the week of the month is specified on it's own then the first week is
  * taken to be the first complete week of the month.

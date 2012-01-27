@@ -324,7 +324,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());
 		
 		result = test.dayOfWeekInMonth(
-				DayOfWeek.Days.FRIDAY, WeekOfMonth.Weeks.FITH);
+				DayOfWeek.Days.FRIDAY, WeekOfMonth.Weeks.FIFTH);
 		
 		assertEquals(
 				DateHelper.parseDate("2011-07-01"),

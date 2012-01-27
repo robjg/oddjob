@@ -39,7 +39,7 @@ import org.oddjob.util.DefaultClock;
  */
 abstract public class TimerBase extends ScheduleBase {
 
-	private static final long serialVersionUID = 2009091400L; 
+	private static final long serialVersionUID = 2009091420120126L; 
 	
 	/**
 	 * @oddjob.property schedule
@@ -87,12 +87,24 @@ abstract public class TimerBase extends ScheduleBase {
 	
 	/**
 	 * @oddjob.property 
-	 * @oddjob.description This is the current/next interval from the
-	 * schedule.
+	 * @oddjob.description This is the current/next result from the
+	 * schedule. This properties fromDate is used to set the nextDue date for
+	 * the schedule and it's useNext (normally the same as toDate) property is 
+	 * used to calculate the following new current property after execution. This
+	 * property is most useful for the Timer to pass limits to 
+	 * the Retry, but is also useful for diagnostics.
 	 * @oddjob.required Set automatically.
 	 */ 
 	private volatile ScheduleResult current;
 	
+	/**
+	 * @oddjob.property 
+	 * @oddjob.description The time the schedule was lastDue. This is set
+	 * from the nextDue property when the job begins to execute.
+	 * @oddjob.required Read only.
+	 */ 
+	private Date lastDue;
+
 	@ArooaHidden
 	@Inject
 	public void setScheduleExecutorService(ScheduledExecutorService scheduler) {
@@ -138,6 +150,7 @@ abstract public class TimerBase extends ScheduleBase {
 		contextData.clear();
 		nextDue = null;
 		current = null;
+		lastDue = null;
 	}
 	
 
@@ -290,6 +303,15 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 
 	/**
+	 * Get the last due date.
+	 * 
+	 * @return The last due date, null when a timer starts for the first time.
+	 */
+	public Date getLastDue() {
+	    return lastDue;
+	}
+	
+	/**
 	 * @oddjob.property job
 	 * @oddjob.description The job to run when it's due.
 	 * @oddjob.required Yes.
@@ -399,6 +421,8 @@ abstract public class TimerBase extends ScheduleBase {
 
 				logger().info("Executing [" + job + "] due at " + nextDue);
 
+				lastDue = nextDue;
+				
 				if (job != null) {
 
 					try {

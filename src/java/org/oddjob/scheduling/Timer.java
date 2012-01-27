@@ -11,7 +11,6 @@ import org.oddjob.jobs.GrabJob;
 import org.oddjob.persist.ArchiveJob;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
-import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.schedules.BrokenSchedule;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.DailySchedule;
@@ -112,18 +111,8 @@ import org.oddjob.state.StateOperator;
  */
 public class Timer extends TimerBase {
 	
-	private static final long serialVersionUID = 2009091401L; 
+	private static final long serialVersionUID = 2009091420120126L; 
 	
-	/**
-	 * @oddjob.property 
-	 * @oddjob.description The interval in the normal schedule in which the
-	 * scheduled job last completed. This is the interval that will be used
-	 * to determine when the next normal schedule is due. It can only be 
-	 * changed using the reSchedule property.
-	 * @oddjob.required Read only.
-	 */ 
-	private ScheduleResult lastComplete;
-
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description Don't reschedule if the scheduled job doesn't
@@ -182,14 +171,6 @@ public class Timer extends TimerBase {
 		this.skipMissedRuns = skipMissedRuns;
 	}
 
-	/**
-	 * Get the last complete date.
-	 * 
-	 * @return The last complete date, null if never completed.
-	 */
-	public ScheduleResult getLastComplete() {
-	    return lastComplete;
-	}
 
 	@Override
 	protected IntervalTo getLimits() {
@@ -203,10 +184,6 @@ public class Timer extends TimerBase {
 	    	setNextDue(null);
 	    }
 	    else {
-	    	if (completeOrNot.isComplete()) {
-				lastComplete = getCurrent();			
-	    	}
-	    	
 	    	Date use = getCurrent().getUseNext();
 	    	Date now = getClock().getDate();
 	    	if (use != null &&  skipMissedRuns && use.before(now)) {
@@ -215,13 +192,6 @@ public class Timer extends TimerBase {
 	    	
 	    	scheduleFrom(use);
 	    }
-	}
-	
-	
-	protected void onReset() {
-		super.onReset();
-		
-		lastComplete = null;
 	}
 	
 	protected void reset(Resetable job) {
