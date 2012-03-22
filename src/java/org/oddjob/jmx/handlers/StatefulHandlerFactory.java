@@ -287,7 +287,12 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		public StateData(State state, Date date, Throwable throwable) {
 			this.jobState = state;
 			this.date = date;
-			this.throwable = throwable;
+			if (throwable == null) {
+				this.throwable = null;
+			}
+			else {
+				this.throwable = new OddjobTransportableException(throwable);
+			}
 		}
 		
 		public State getJobState() {
@@ -303,3 +308,4 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		}
 	}
 }
+

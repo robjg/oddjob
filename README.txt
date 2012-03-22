@@ -1,10 +1,14 @@
 Oddjob-1.2.0
 ============
 
+Changes in 1.2.0
+----------------
+- Fixed problem where a remote job in an Exception state sends an exception to 
+  the client that isn't in the clients class loader.
+  
+
 Still To Do for 1.2.0
 ---------------------
-- Fix bug with remote Jobs that are in an Exception state where the Exception 
-  can't be found by the client ClassLoader.
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.
 - 
