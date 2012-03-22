@@ -1,4 +1,5 @@
 /oddjob*.jar
+/oddjob*.jar.asc
 /commons-beanutils-*.jar
 /commons-logging.jar
 /log4j-*.jar

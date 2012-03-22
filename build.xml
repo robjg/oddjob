@@ -5,8 +5,13 @@
 
 ============================================================================ -->
 
-<project default="jar" basedir="." name="Oddjob">
+<project xmlns:artifact="antlib:org.apache.maven.artifact.ant"
+	default="jar" basedir="." name="Oddjob">
 
+	<taskdef uri="antlib:org.apache.maven.artifact.ant"
+	            resource="org/apache/maven/artifact/ant/antlib.xml"
+		classpath="../oj-assembly/antlibs/maven-ant-tasks-2.1.3.jar"/>
+	
 	<!-- =================================================================== -->
 	<!-- Initialization target                                               -->
 	<!-- =================================================================== -->
@@ -48,19 +53,21 @@
 		<property name="tools.src"    value="${tools.dir}/java"/>
 		<property name="opt.dir"      value="./opt"/>
 		<property name="opt.lib"      value="${opt.dir}/lib"/>
+		<property name="packages"     value="org.oddjob"/>
 		
 		<property name="build.dir"      value="./build"/>
 		<property name="build.src"      value="${build.dir}/src"/>
 		<property name="build.test"      value="${build.dir}/test"/>
 		<property name="build.classes"     value="${build.dir}/classes"/>
 		<property name="build.tools"     value="${build.dir}/tools"/>
-		<property name="build.javadocs" value="${build.docs}/api"/>
-		<property name="build.xjavadocs" value="${build.dir}/xjavadocs"/>
+		<property name="build.javadocs" value="${build.dir}/javadocs"/>
 
 		<property name="test.reports" value="${build.test}/reports"/>
 			
-		<property name="jar.name"       value="${name}-${build.version}.jar"/>
-		<property name="launch.jar.name"       value="run-${name}.jar"/>
+		<property name="jar.name"       	value="${name}-${build.version}.jar"/>
+		<property name="launch.jar.name"    value="run-${name}.jar"/>
+		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
+		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
 
 		<!-- selector for run-oddjob.jar -->
 		
@@ -139,6 +146,11 @@
 		</copy>
 	</target>
 
+	<target name="jar-sources" depends="prepare-src-main">
+	    <jar destfile="${build.dir}/${sources.jar.name}"
+	         basedir="${build.src}">
+	    </jar>
+	</target>
 
 	<!-- =================================================================== -->
 	<!-- Compiles the source directory                                       -->
@@ -219,6 +231,64 @@
 		</javac>
 	</target>
 	
+	<!-- =================================================================== -->
+	<!-- Set a variable if javadoc is already up-to-date.                    -->
+	<!-- =================================================================== -->
+	<target name="javadocs_check">
+		<mkdir dir="${build.javadocs}"/>
+		<uptodate property="javadocs.notrequired" targetfile="${build.javadocs}/index.html" >
+			<srcfiles dir= "${build.src}" includes="**/*.java,**/package.html"/>
+		</uptodate>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- If javadoc is already up-to-date, print a message saying so.        -->
+	<!-- =================================================================== -->
+	<target name="javadocs_done" if="javadocs.notrequired">
+		<echo message="-------------------------------------------------------------"/>
+		<echo message="Not rebuilding Javadocs, as they are up-to-date:"/>
+		<echo message="  ${build.javadocs}/index.html is more recent than"/>
+		<echo message="  ${build.src}/**/*.java"/>
+		<echo message="-------------------------------------------------------------"/>
+	</target>
+
+	<!-- =================================================================== -->
+	<!-- Creates the API documentation                                       -->
+	<!-- =================================================================== -->
+	<target name="javadocs" depends="prepare-src-main, javadocs_check, javadocs_done"
+         unless="javadocs.notrequired"
+         description="Builds the API documentation (javadocs)">
+		<javadoc packagenames="${packages}.*"
+             sourcepath="${build.src}"
+             destdir="${build.javadocs}"
+             author="true"
+             version="true"
+             use="false"
+             noindex="true"
+             windowtitle="${Name} API"
+             doctitle="${Name}">
+			<classpath refid="classpath"/>
+			<tag name="oddjob.element" description="Oddjob Element: "/>
+			<tag name="oddjob.property" description="Oddjob Property: "/>
+			<tag name="oddjob.description" description="Description: "/>
+			<tag name="oddjob.example" description="Example: "/>
+			<tag name="oddjob.required" description="Required: "/>
+			<tag name="see"/>
+			<tag name="author"/>
+			<tag name="version"/>
+			<tag name="since"/>
+			<tag name="param"/>
+			<tag name="return"/>
+			<tag name="throws"/>
+		</javadoc>
+	</target>
+	
+	<target name="jar-javadoc" depends="javadocs">
+	    <jar destfile="${build.dir}/${javadoc.jar.name}"
+	         basedir="${build.javadocs}">
+	    </jar>
+	</target>
+
 	<!-- =================================================================== -->
 	<!-- Prepares the source distribution                                    -->
 	<!-- =================================================================== -->
@@ -325,35 +395,6 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Clean targets                                                       -->
-	<!-- =================================================================== -->
-	<target name="clean" depends="init" description="Cleans the build directories">
-		<delete file="${launch.jar.name}"/>
-		<delete>
-			<fileset dir="${lib.dir}">
-				<include name="${name}*.jar"/>
-				<include name="arooa*.jar"/>
-				<include name="log4j*.jar"/>
-				<include name="commons-beanutils*.jar"/>
-				<include name="commons-logging*.jar"/>
-			</fileset>
-		</delete>
-		<delete>
-			<fileset dir="${test.dir}/lib">
-				<include name="arooa-tests.jar"/>
-				<include name="junit.jar"/>
-				<include name="xmlunit*.jar"/>
-			</fileset>
-		</delete>
-		<delete dir="${build.dir}"/>
-		<delete file="${test.dir}/classloader/AJob.class"/>
-		<delete dir="${test.dir}/oddballs/apple/classes"/>
-		<delete dir="${test.dir}/oddballs/orange/classes"/>
-		<delete dir="${work.dir}"/>
-	</target>
-
-
-	<!-- =================================================================== -->
 	<!-- Test targets                                                       -->
 	<!-- =================================================================== -->
 	
@@ -437,6 +478,117 @@
 		</junit>
 	</target>
 	
+	<!-- =================================================================== -->
+	<!-- Maven Targets			                                     -->
+	<!-- =================================================================== -->
+	
+	<target name="maven-init" depends="init, jar, jar-sources, jar-javadoc">
+		
+		<property name="maven.groupId"		value="uk.co.gordon" />
+		<property name="maven.artifactId" 	value="${name}" />
+		<property name="maven.version" 		value="${version}" />
+
+	    <!-- define artifacts' name, which follows the convention of Maven -->
+		<property name="maven.jar" 			value="${basedir}/lib/${jar.name}" />
+		<property name="maven.javadoc.jar" 	value="${basedir}/build/${javadoc.jar.name}" />
+		<property name="maven.sources.jar" 	value="${basedir}/build/${sources.jar.name}" />
+		<property name="maven.pom" 			value="${basedir}/build/pom.xml" />
+
+	    <!-- defined maven snapshots and staging repository id and url -->
+		<property name="maven.snapshots.repository.id" 	value="sonatype-nexus-snapshots" />
+		<property name="maven.snapshots.repository.url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
+		<property name="maven.staging.repository.id" 	value="sonatype-nexus-staging" />
+		<property name="maven.staging.repository.url" 	value="https://oss.sonatype.org/service/local/staging/deploy/maven2/" />
+
+		<property name="maven.deploy.plugin" 	value="org.apache.maven.plugins:maven-deploy-plugin:2.6" />
+		<property name="maven.gpg.plugin" 		value="org.apache.maven.plugins:maven-gpg-plugin:1.3" />
+		
+		<copy file="${src.dir}/pom.xml" todir="${build.dir}" filtering="on"/>
+	</target>
+	
+	<target name="maven-install" depends="maven-init" 
+			description="Install in local repository">
+		<artifact:install file="${maven.jar}">
+	    	<pom file="${maven.pom}"/>
+			<attach file="${maven.sources.jar}" type="jar" classifier="sources"/>
+			<attach file="${maven.javadoc.jar}" type="jar" classifier="javadoc"/>	  
+		</artifact:install>
+	</target>
+	
+    <target name="maven-deploy" depends="maven-init" 
+    	description="Deploy snapshot version to Maven snapshot repository">
+		<artifact:mvn>
+			<arg value="${maven.deploy.plugin}:deploy-file" />
+			<arg value="-Durl=${maven.snapshots.repository.url}" />
+			<arg value="-DrepositoryId=${maven.snapshots.repository.id}" />
+			<arg value="-DpomFile=${maven.pom}" />
+			<arg value="-Dfile=${maven.jar}" />
+		</artifact:mvn>
+    </target>
+	
+	<target name="maven-stage" depends="maven-init" 
+		description="Deploy release version to Maven staging repository">
+		<!-- sign and deploy the main artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.pom}" />
+			<arg value="-Dfile=${maven.jar}" />
+	        <arg value="-Pgpg" />
+		</artifact:mvn>
+
+		<!-- sign and deploy the sources artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.pom}" />
+			<arg value="-Dfile=${maven.sources.jar}" />
+			<arg value="-Dclassifier=sources" />
+			<arg value="-Pgpg" />
+		</artifact:mvn>
+	
+		<!-- sign and deploy the javadoc artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.pom}" />
+			<arg value="-Dfile=${maven.javadoc.jar}" />
+			<arg value="-Dclassifier=javadoc" />
+	        <arg value="-Pgpg" />
+		</artifact:mvn>
+	</target>
+	
+	<!-- =================================================================== -->
+	<!-- Clean targets                                                       -->
+	<!-- =================================================================== -->
+	<target name="clean" depends="init" description="Cleans the build directories">
+		<delete file="${launch.jar.name}"/>
+		<delete>
+			<fileset dir="${lib.dir}">
+				<include name="${name}*.jar"/>
+				<include name="${name}*.jar.asc"/>
+				<include name="arooa*.jar"/>
+				<include name="log4j*.jar"/>
+				<include name="commons-beanutils*.jar"/>
+				<include name="commons-logging*.jar"/>
+			</fileset>
+		</delete>
+		<delete>
+			<fileset dir="${test.dir}/lib">
+				<include name="arooa-tests.jar"/>
+				<include name="junit.jar"/>
+				<include name="xmlunit*.jar"/>
+			</fileset>
+		</delete>
+		<delete dir="${build.dir}"/>
+		<delete file="${test.dir}/classloader/AJob.class"/>
+		<delete dir="${test.dir}/oddballs/apple/classes"/>
+		<delete dir="${test.dir}/oddballs/orange/classes"/>
+		<delete dir="${work.dir}"/>
+	</target>
 
 </project>
 
