@@ -427,7 +427,7 @@ public class ParallelJobTest extends TestCase {
 		
 		StateSteps steps = new StateSteps(test);
 		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.EXECUTING, 
 				ParentState.READY);
 		
 		test.run();

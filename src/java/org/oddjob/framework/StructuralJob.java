@@ -58,6 +58,12 @@ implements
 	
 	private transient ParentStateChanger stateChanger;
 	
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Read only view of the internal stop flag. 
+	 * This flag is cleared with a reset.
+	 * @oddjob.required Read only.
+	 */
 	protected transient volatile boolean stop;
 	
 	/**
@@ -321,6 +327,15 @@ implements
 		childHelper.removeStructuralListener(listener);
 	}	
 			
+	/**
+	 * Expose the internal stop flag as a read only property.
+	 * 
+	 * @return the stop flag.
+	 */
+	public boolean isStop() {
+		return stop;
+	}
+	
 	/**
 	 * Custom serialisation.
 	 */

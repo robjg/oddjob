@@ -35,7 +35,6 @@ import org.oddjob.state.StateCondition;
 
 public class WaitJob extends SimpleJob 
 		implements Stoppable {
-	private static final long serialVersionUID = 20051130; 
 	
 	private static final long DEFAULT_WAIT_SLEEP = 1000;
 	

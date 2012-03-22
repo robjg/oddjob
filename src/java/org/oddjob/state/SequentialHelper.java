@@ -12,28 +12,6 @@ import org.oddjob.jobs.structural.SequentialJob;
  */
 public class SequentialHelper {
 
-	private class StateCatcher implements StateListener {
-		
-		private State jobState;
-		
-		public State stateFor(Object object) {
-			if (!(object instanceof Stateful)) {
-				jobState = JobState.READY;
-			}
-			else {
-				Stateful stateful = (Stateful) object;
-				stateful.addStateListener(this);
-				stateful.removeStateListener(this);
-			}
-			return jobState;
-		}
-		
-		@Override
-		public void jobStateChange(StateEvent event) {
-			jobState = event.getState();
-		}
-	}
-	
 	/**
 	 * Can execution continue after executing the child.
 	 * 
@@ -42,7 +20,10 @@ public class SequentialHelper {
 	 * @return true if it can, false otherwise.
 	 */
 	public boolean canContinueAfter(Object child) {
-		return new IsContinueable().test(
-				new StateCatcher().stateFor(child));
+		State state = JobState.COMPLETE;
+		if (child instanceof Stateful) {
+			state = ((Stateful) child).lastStateEvent().getState();
+		}
+		return state.isPassable();
 	}	
 }

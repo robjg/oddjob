@@ -122,7 +122,7 @@ public class StateSteps {
 				" on [" + stateful + "] to have states " + 
 				Arrays.toString(listener.steps));
 		
-		while (!listener.done) {
+		if (!listener.done) {
 			synchronized(listener) {
 				listener.wait(timeout);
 			}

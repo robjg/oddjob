@@ -10,27 +10,14 @@ public class SequentialHelperTest extends TestCase {
 		
 		private final JobState jobState;
 		
-		StateListener listener;
-		
 		public OurStateful(JobState jobState) {
 			this.jobState = jobState;
 		}
 		
 		@Override
-		public void addStateListener(StateListener listener) {
-			assertNull(this.listener);
-			assertNotNull(listener);
-			this.listener = listener;
-			listener.jobStateChange(new StateEvent(this, jobState));
-		}
-		
-		@Override
-		public void removeStateListener(StateListener listener) {
-			assertNotNull(listener);
-			assertEquals(this.listener, listener);
-			this.listener = null;
-		}
-		
+		public StateEvent lastStateEvent() {
+			return new StateEvent(this, jobState);
+		}		
 	}
 	
 	public void testAllStates() {
@@ -40,8 +27,6 @@ public class SequentialHelperTest extends TestCase {
 		OurStateful flag = new OurStateful(JobState.READY);
 		
 		assertTrue(test.canContinueAfter(flag));
-		
-		assertNull(flag.listener);
 		
 		assertTrue(test.canContinueAfter(new OurStateful(JobState.EXECUTING)));
 		assertTrue(test.canContinueAfter(new OurStateful(JobState.COMPLETE)));

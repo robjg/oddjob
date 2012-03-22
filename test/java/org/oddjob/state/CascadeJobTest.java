@@ -18,6 +18,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
+import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.scheduling.DefaultExecutors;
 
 /**
@@ -57,7 +58,7 @@ public class CascadeJobTest extends TestCase {
 		
 		StateSteps steps = new StateSteps(test);
 		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.EXECUTING,
 				ParentState.READY);
 		
 		test.run();
@@ -129,14 +130,14 @@ public class CascadeJobTest extends TestCase {
 	}
 	
 	
-	public void testNotComplete() throws FailedToStopException {
+	public void testNotComplete() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
 		FlagState job1 = new FlagState();
 		job1.setState(JobState.INCOMPLETE);
 		
 		FlagState job2 = new FlagState();
-		job2.setState(JobState.COMPLETE);
+		job2.setState(JobState.INCOMPLETE);
 		
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
@@ -145,22 +146,31 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(1, job2);
 
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
+		
+		test.run();
+				
+		testStates.checkWait();
+
+		assertEquals(JobState.INCOMPLETE, job1.lastStateEvent().getState());			
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());
+		
+		job1.setState(JobState.COMPLETE);
+
+		testStates.startCheck(ParentState.INCOMPLETE, ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.INCOMPLETE);
+		
+		test.softReset();
 		test.run();
 		
-		new StopWait(job1).run();
+		testStates.checkWait();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());	
-
-		job1.setState(JobState.COMPLETE);
-		job1.hardReset();
-
-		job1.run();
-		
-		new StopWait(test).run();
-		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());			
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());			
-		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());			
+		assertEquals(JobState.INCOMPLETE, job2.lastStateEvent().getState());			
 		
 		executors.stop();
 	}
@@ -255,6 +265,34 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+	public void testWithFoldersMixedIn() throws InterruptedException {
+		
+		DefaultExecutors executors = new DefaultExecutors();
+		
+		FlagState job1 = new FlagState(JobState.COMPLETE);
+		FlagState job2 = new FlagState(JobState.COMPLETE);
+				
+		CascadeJob test = new CascadeJob();
+		test.setExecutorService(executors.getPoolExecutor());
+
+		StateSteps testState = new StateSteps(test);		
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		test.setJobs(0, new JobFolder());
+		test.setJobs(1, job1);
+		test.setJobs(2, new JobFolder());
+		test.setJobs(3, job2);
+		test.setJobs(4, new JobFolder());
+
+		test.run();
+		
+		testState.checkWait();		
+		
+		executors.stop();
+	}
+	
 	public void testRemovingAndInserting() throws InterruptedException {
 		
 		DefaultExecutors executors = new DefaultExecutors();
@@ -300,7 +338,74 @@ public class CascadeJobTest extends TestCase {
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		assertEquals(JobState.READY, job4.lastStateEvent().getState());
+				
+		executors.stop();
+	}
+	
+	public void testInsertingWhileRuning() throws InterruptedException, FailedToStopException {
 		
+		DefaultExecutors executors = new DefaultExecutors();
+		
+		WaitJob job1 = new WaitJob();
+		WaitJob job2 = new WaitJob();
+		WaitJob job3 = new WaitJob();
+		WaitJob job4 = new WaitJob();
+				
+		CascadeJob test = new CascadeJob();
+		test.setExecutorService(executors.getPoolExecutor());
+
+		test.setJobs(0, job1);
+		test.setJobs(1, job2);
+		
+		StateSteps testState = new StateSteps(test);		
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		StateSteps job1State = new StateSteps(job1);		
+		job1State.startCheck(JobState.READY, JobState.EXECUTING, 
+				JobState.COMPLETE);
+		
+		StateSteps job2State = new StateSteps(job2);		
+		job2State.startCheck(JobState.READY);
+		
+		test.run();
+		
+		StateSteps job3State = new StateSteps(job3);		
+		job3State.startCheck(JobState.READY, JobState.EXECUTING);
+	
+		test.setJobs(1, null);
+		test.setJobs(1, job3);
+		
+		job1.stop();
+		
+		job1State.checkWait();
+		job2State.checkNow();
+		job3State.checkWait();
+		
+		StateSteps job4State = new StateSteps(job4);		
+		job4State.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		test.setJobs(0, job4);
+
+		new Thread(job4).start();
+		
+		job4State.checkWait();
+		
+		job3State.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		job4State.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		
+		job3.stop();
+		
+		job3State.checkWait();
+		
+		test.stop();
+		
+		job4State.checkNow();
+		
+		testState.checkNow();
+						
+		executors.stop();
 	}
 	
 	public void testInOddjob() throws InterruptedException {
@@ -378,6 +483,7 @@ public class CascadeJobTest extends TestCase {
 		
 		wait2State.startCheck(JobState.READY, JobState.EXECUTING);
 		
+		test.softReset();
 		test.run();
 		
 		testState.checkNow();

@@ -98,16 +98,14 @@ implements Stoppable {
 			jobThreads.add(future);
 		}
 		
-		if (stop) {
-			stop = false;
-		}
-		else {
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ParentState.ACTIVE);
-				}
-			});
-
+		if (!stop) {
+			if (jobThreads.size() > 0) {
+				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+					public void run() {
+						getStateChanger().setState(ParentState.ACTIVE);
+					}
+				});
+			}
 			executionWatcher.start();
 		}
 	}
