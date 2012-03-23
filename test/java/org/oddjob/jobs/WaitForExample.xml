@@ -3,7 +3,7 @@
         <variables id="waitvars"/>
         <wait name="Wait for Variable"
               for="${waitvars.text}" 
-              pause="5000"/>
+              pause="2000"/>
         <echo name="Echo Text">${waitvars.text}</echo>
     </jobs>
 </sequential>
