@@ -5,8 +5,10 @@ Changes in 1.2.0
 ----------------
 - Fixed problem where a remote job in an Exception state sends an exception to 
   the client that isn't in the clients class loader.
+- Re-wrote cascade job to cope with changes to children while running and to
+  terminate if a child fails.
+- Cleanup resources in Exec Job
   
-
 Still To Do for 1.2.0
 ---------------------
 - Need better protection from exceptions in the DetailModel.setSelectedContext

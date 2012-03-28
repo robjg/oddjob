@@ -94,7 +94,7 @@ public class ExecJobTest extends TestCase {
 		assertEquals("Success", JobState.COMPLETE, job.lastStateEvent().getState());
 		
 	}
-
+	
 	public void testStop() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
@@ -132,7 +132,7 @@ public class ExecJobTest extends TestCase {
 		t.start();
 		
 		String[] lines = null; 
-		while (true) {
+		for (int i = 0; i < 10; ++i) {
 			lines = buf.getLines();
 			if (lines.length > 0) {
 				break;

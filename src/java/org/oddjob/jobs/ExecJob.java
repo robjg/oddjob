@@ -384,13 +384,13 @@ implements Stoppable, ConsoleOwner {
 		
 		proc = processBuilder.start();
 		
-		final InputStream es = proc.getErrorStream();
-		final InputStream is = proc.getInputStream();
+		final InputStream processStdErr = proc.getErrorStream();
+		final InputStream processStdOut = proc.getInputStream();
 
 		Thread outT = new Thread(new Runnable() {			
 			public void run() {		
 				try {
-					BufferedInputStream bis = new BufferedInputStream(is);
+					BufferedInputStream bis = new BufferedInputStream(processStdOut);
 					OutputStream os = new LoggingOutputStream(stdout, LogLevel.INFO, 
 							consoleArchive);
 					IO.copy(bis, os);
@@ -400,31 +400,35 @@ implements Stoppable, ConsoleOwner {
 				}
 			}
 		});
-
-		Thread  errT = new Thread(new Runnable() {
-
-			public void run() {
-				try {
-					BufferedInputStream bis = new BufferedInputStream(es);
-					OutputStream os = new LoggingOutputStream(stderr, LogLevel.ERROR, 
-							consoleArchive);
-					IO.copy(bis, os);
-					os.close();
-				} catch (IOException e) {
-					logger().error("Failed copying stream.", e);
-				}
-			}	
-		});
-
 		outT.start();
-		errT.start();
 
+		Thread  errT = null;
+		if (!redirectStderr) { 
+			errT = new Thread(new Runnable() {
+
+				public void run() {
+					try {
+						BufferedInputStream bis = new BufferedInputStream(
+								processStdErr);
+						OutputStream os = new LoggingOutputStream(stderr, 
+								LogLevel.ERROR, consoleArchive);
+						IO.copy(bis, os);
+						os.close();
+					} catch (IOException e) {
+						logger().error("Failed copying stream.", e);
+					}
+				}	
+			});
+	
+			errT.start();
+		}
+		
 		// copy input.
 		if (stdin != null) {
-			OutputStream os = proc.getOutputStream();
-			IO.copy(stdin, os);
+			OutputStream processStdIn = proc.getOutputStream();
+			IO.copy(stdin, processStdIn);
 			stdin.close();
-			os.close();
+			processStdIn.close();
 		}
 
 		thread = Thread.currentThread();
@@ -432,24 +436,27 @@ implements Stoppable, ConsoleOwner {
 			proc.waitFor();
 
 			outT.join();
-			errT.join();
+			if (errT != null) {
+				errT.join();
+			}
 					
-			if (proc == null) {
-				// manually stopped
-				exitValue = 1;
-			}
-			else {
-				exitValue = proc.exitValue();
-			}
+			exitValue = proc.exitValue();
 		}
 		finally {
 			thread = null;
+
+			// clean up process resources
+			proc.getInputStream().close();
+			proc.getErrorStream().close();
+			proc.getOutputStream().close();
+			proc.destroy();
+			proc = null;
+			
 			synchronized (this) {
 				// wake up the stop wait.
 				notifyAll();
 			}
 		}
-		
 		return exitValue;
 	}
 
@@ -458,10 +465,13 @@ implements Stoppable, ConsoleOwner {
 	 * @see org.oddjob.framework.BaseComponent#onStop()
 	 */
 	public void onStop() {
-		if (proc != null) {
-			proc.destroy();
-			proc = null;
+		
+		Process proc = this.proc;
+		if (proc == null) {
+			return;
 		}
+		proc.destroy();
+		
 		for (int i = 0; i < 3 && thread != null; ++i) {
 			synchronized (this) {
 				try {
