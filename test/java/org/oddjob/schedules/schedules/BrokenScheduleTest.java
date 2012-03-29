@@ -4,6 +4,8 @@
 package org.oddjob.schedules.schedules;
 
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -22,6 +24,8 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleList;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.SimpleInterval;
+import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.units.DayOfMonth;
 import org.oddjob.schedules.units.DayOfWeek;
 
@@ -51,14 +55,23 @@ public class BrokenScheduleTest extends TestCase {
 		return b;
 	}
 	
-	public void testNextDue1() throws Exception {
+	// Feb 2003
+	// Mo  We
+	// 3   5
+	// 10  12
+	// 17  19
+	// 24  26
+	// 31
+	
+	public void testFromStartBeforeBreaks() throws Exception {
 		Schedule s = brokenSchedule();
 		
 		IntervalTo expected;
 		
 		ScheduleRoller roller = new ScheduleRoller(s);
 		
-		Interval[] results = roller.resultsFrom(DateHelper.parseDate("2003-02-01"));
+		Interval[] results = roller.resultsFrom(
+				DateHelper.parseDate("2003-02-01"));
 
 		expected = new IntervalTo(
 				DateHelper.parseDate("2003-02-03"),
@@ -98,7 +111,7 @@ public class BrokenScheduleTest extends TestCase {
 
 	}
 	
-	public void testNextDue2() throws Exception {
+	public void testFromStartOnBreak() throws Exception {
 		Schedule s = brokenSchedule();
 				
 		IntervalTo expected;
@@ -122,7 +135,7 @@ public class BrokenScheduleTest extends TestCase {
 
 	}
 
-	public void testNextDue3() throws Exception {
+	public void testStartAfterBreaks() throws Exception {
 		Schedule s = brokenSchedule();
 		
 		IntervalTo expected;
@@ -318,6 +331,192 @@ public class BrokenScheduleTest extends TestCase {
 				DateHelper.parseDateTime("2009-03-12 23:00"));
 		
 		assertEquals(expected, results[1]);
+	}
+	
+	public void testAlternateScheduleInternals() throws ParseException {
+		
+		final List<Interval> parentIntervals = new ArrayList<Interval>();
+				
+		class Alt implements Schedule {
+			@Override
+			public ScheduleResult nextDue(ScheduleContext context) {
+				parentIntervals.add(context.getParentInterval());
+				
+				DailySchedule daily = new DailySchedule();
+				daily.setAt("08:00");
+				return daily.nextDue(context);
+			}
+		}
+		
+		Schedule schedule = new DailySchedule();
+		
+		DateSchedule holiday1 = new DateSchedule();
+		holiday1.setOn("2012-04-06");
+		
+		DateSchedule holiday2 = new DateSchedule();
+		holiday2.setOn("2012-04-08");
+		
+		ScheduleList holidayList = new ScheduleList();
+		
+		holidayList.setSchedules(new Schedule[] {
+				holiday1, holiday2
+		});
+
+		BrokenSchedule test = new BrokenSchedule();
+		test.setSchedule(schedule);
+		test.setBreaks(holidayList);
+		test.setAlternative(new Alt());
+				
+		ScheduleResult expected;
+		
+		ScheduleRoller roller = new ScheduleRoller(test);
+		
+		Interval[] results = roller.resultsFrom(
+				DateHelper.parseDateTime("2012-04-05 20:00"));
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-05 00:00"),
+					DateHelper.parseDateTime("2012-04-06 00:00")));
+		
+		assertEquals(expected, results[0]);
+
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-06 08:00")),
+				DateHelper.parseDateTime("2012-04-07 00:00"));
+		
+		assertEquals(expected, results[1]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-07 00:00"),
+					DateHelper.parseDateTime("2012-04-08 00:00")));
+		
+		assertEquals(expected, results[2]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-08 08:00")),
+				DateHelper.parseDateTime("2012-04-09 00:00"));
+		
+		assertEquals(expected, results[3]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-09 00:00"),
+					DateHelper.parseDateTime("2012-04-10 00:00")));
+		
+		assertEquals(expected, results[4]);
+		
+		assertEquals(2, parentIntervals.size());
+
+		assertEquals(new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-06 00:00"),
+					DateHelper.parseDateTime("2012-04-07 00:00")),
+				parentIntervals.get(0));
+		
+		assertEquals(new SimpleInterval(
+				DateHelper.parseDateTime("2012-04-08 00:00"),
+				DateHelper.parseDateTime("2012-04-09 00:00")),
+			parentIntervals.get(1));
+		
+	}
+	
+	public void testAlternateScheduleOverWeekend() throws ParseException {
+		
+		final List<Interval> parentIntervals = new ArrayList<Interval>();
+				
+		class Alt implements Schedule {
+			@Override
+			public ScheduleResult nextDue(ScheduleContext context) {
+				parentIntervals.add(context.getParentInterval());
+				
+				DailySchedule daily = new DailySchedule();
+				daily.setAt("08:00");
+				return daily.nextDue(context);
+			}
+		}
+		
+		Schedule dailySchedule = new DailySchedule();
+		
+		WeeklySchedule schedule = new WeeklySchedule();
+		schedule.setFrom(DayOfWeek.Days.MONDAY);
+		schedule.setTo(DayOfWeek.Days.FRIDAY);
+		schedule.setRefinement(dailySchedule);
+
+		
+		DateSchedule goodFriday = new DateSchedule();
+		goodFriday.setOn("2012-04-06");
+		
+		DateSchedule easterMonday = new DateSchedule();
+		easterMonday.setOn("2012-04-09");
+		
+		ScheduleList holidayList = new ScheduleList();
+		
+		holidayList.setSchedules(new Schedule[] {
+				goodFriday, easterMonday
+		});
+
+		BrokenSchedule test = new BrokenSchedule();
+		test.setSchedule(schedule);
+		test.setBreaks(holidayList);
+		test.setAlternative(new Alt());
+				
+		ScheduleResult expected;
+		
+		ScheduleRoller roller = new ScheduleRoller(test);
+		
+		Interval[] results = roller.resultsFrom(
+				DateHelper.parseDateTime("2012-04-05 20:00"));
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-05 00:00"),
+					DateHelper.parseDateTime("2012-04-06 00:00")));
+		
+		assertEquals(expected, results[0]);
+
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-06 08:00")),
+				DateHelper.parseDateTime("2012-04-07 00:00"));
+		
+		assertEquals(expected, results[1]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-09 08:00")),
+				DateHelper.parseDateTime("2012-04-10 00:00"));
+		
+		assertEquals(expected, results[2]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-10 00:00"),
+					DateHelper.parseDateTime("2012-04-11 00:00")));
+		
+		assertEquals(expected, results[3]);
+		
+		expected = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-11 00:00"),
+					DateHelper.parseDateTime("2012-04-12 00:00")));
+		
+		assertEquals(expected, results[4]);
+		
+		assertEquals(2, parentIntervals.size());
+
+		assertEquals(new SimpleInterval(
+					DateHelper.parseDateTime("2012-04-06 00:00"),
+					DateHelper.parseDateTime("2012-04-07 00:00")),
+				parentIntervals.get(0));
+		
+		assertEquals(new SimpleInterval(
+				DateHelper.parseDateTime("2012-04-09 00:00"),
+				DateHelper.parseDateTime("2012-04-10 00:00")),
+			parentIntervals.get(1));
+		
 	}
 	
     public void testBrokenScheduleExample() throws ArooaParseException, ParseException {

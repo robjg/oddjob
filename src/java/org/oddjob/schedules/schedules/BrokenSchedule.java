@@ -203,12 +203,16 @@ public class BrokenSchedule implements Serializable, Schedule{
 			
 			// see if there is an alternative.
 			if (alternative != null) {
+				// If the interval is ahead of now move now.
+				if (lastUse.before(exclude.getFromDate())) {
+					lastUse = exclude.getFromDate();
+				}
 				ScheduleResult alternativeResult = alternative.nextDue(
 						context.spawn(lastUse, exclude));
-				if (alternativeResult == null) {
-					return null;
+				if (alternativeResult != null) {
+					return new SimpleScheduleResult(alternativeResult, use);
 				}
-				return new SimpleScheduleResult(alternativeResult, use);
+				// If the alternative is null, move on.
 			}			
 		}
 	}
