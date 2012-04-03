@@ -5,7 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -20,6 +20,8 @@ import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.ArooaDescriptorBean;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
@@ -44,6 +46,7 @@ import org.oddjob.arooa.registry.Services;
 import org.oddjob.arooa.runtime.SubstitutionException;
 import org.oddjob.arooa.runtime.SubstitutionPolicy;
 import org.oddjob.arooa.standard.StandardArooaParser;
+import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
@@ -578,14 +581,30 @@ implements Loadable,
 		ArooaSession newSession = sessionFactory.createSession(this);
         
         if (export != null) {
+    		ArooaConverter converter = 
+    				newSession.getTools().getArooaConverter();
+    		
         	for (Map.Entry<String, ArooaValue> entry: export.entrySet()) {
         		String name = entry.getKey();
         		ArooaValue value = entry.getValue();
-        		if (value == null) {
-        			throw new NullPointerException(
-        					"Bean to export with id " + name + " is null.");
-        		}
-        		newSession.getBeanRegistry().register(name, value);
+        		
+            	try {
+            		ArooaObject object = 
+            				converter.convert(value, ArooaObject.class);
+            		
+            		if (object == null) {
+            			logger().info("Bean to export with id " + 
+            					name + " is null.");
+            		}
+            		else {
+            			newSession.getBeanRegistry().register(
+            					name, object.toValue());
+            		}
+            	}
+            	catch (ArooaConversionException e) {
+        			newSession.getBeanRegistry().register(
+        					name, value);
+            	}        		
         	}
         }
 
@@ -975,7 +994,7 @@ implements Loadable,
 	 */
 	public void setExport(String key, ArooaValue value) {
 		if (export == null) {
-			export = new HashMap<String, ArooaValue>();
+			export = new LinkedHashMap<String, ArooaValue>();
 		}
 		if (value == null && export.containsKey(key)) {
 			export.remove(key);

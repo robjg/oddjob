@@ -1,0 +1,37 @@
+<oddjob>
+  <job>
+    <sequential>
+      <jobs>
+        <variables id="vars">
+          <reference>
+            <value value="${vars}" />
+          </reference>
+        </variables>
+        <oddjob id="inner">
+          <export>
+            <bean key="my-bean" />
+            <value key="my-value" value="TEST" />
+            <file key="my-file" file="test.txt" />
+            <value key="my-reference" value="${vars.reference}" />
+          </export>
+          <configuration>
+            <xml>
+              <oddjob>
+                <job>
+                  <sequential>
+                    <jobs>
+                      <echo id="echo1">${my-bean.class}</echo>
+                      <echo id="echo2">${my-value.class}</echo>
+                      <echo id="echo3">${my-file.class}</echo>
+                      <echo id="echo4">${my-reference}</echo>
+                    </jobs>
+                  </sequential>
+                </job>
+              </oddjob>
+            </xml>
+          </configuration>
+        </oddjob>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

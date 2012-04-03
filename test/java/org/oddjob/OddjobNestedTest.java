@@ -9,8 +9,16 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.convert.ConversionFailedException;
+import org.oddjob.arooa.convert.ConversionPath;
+import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.types.ArooaObject;
+import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.io.FileType;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
@@ -121,22 +129,8 @@ public class OddjobNestedTest extends TestCase {
     	assertEquals(JobState.COMPLETE, 
     			stateful.lastStateEvent().getState());
     	
-    	try {
-    		lookup.lookup("inner/secret.text", String.class);
-    		
-    		fail("Exception expected because exported thing is an ValueType.");
-    	}
-    	catch (ArooaPropertyException e) {
-    		// expected
-    	}
-    	try {
-    		lookup.lookup("inner/secret.value.text", String.class);
-    		
-    		fail("Exception expected because exported thing is an ValueType.");
-    	}
-    	catch (ArooaPropertyException e) {
-    		// expected
-    	}
+    	assertEquals("I'm a secret job",
+    		lookup.lookup("inner/secret.text", String.class));
     	
     	oddjob.destroy();
     }
@@ -183,6 +177,82 @@ public class OddjobNestedTest extends TestCase {
         
         oj.destroy();
     }    
+    
+    public void testArooaValueConversionAssumptionTest() throws NoConversionAvailableException, ConversionFailedException {
+    	
+    	ArooaConverter converter = new DefaultConverter();
+    	
+    	ConversionPath<ValueType, ArooaObject> path = 
+    			converter.findConversion(
+    					ValueType.class, ArooaObject.class);
+    	assertEquals("ValueType-ArooaObject", path.toString());
+    	
+    	ValueType value1 = new ValueType();
+    	value1.setValue(new ArooaObject("TEST"));
+    	
+    	ArooaObject result1 = converter.convert(value1, ArooaObject.class);
+    	
+    	assertEquals("TEST", result1.toValue());
+    	
+    	ValueType value2 = new ValueType();
+    	FileType fileType = new FileType();
+    	fileType.setFile(new File("foo.txt"));
+    	value2.setValue(fileType);
+    	
+    	try {
+    		converter.convert(value2, ArooaObject.class);
+    		fail("Should fail.");
+    	}
+    	catch (ConversionFailedException e) {
+    		// expected
+    	}
+    	
+    	ValueType value3 = new ValueType();
+    	value3.setValue(null);
+    	
+		ArooaObject result = converter.convert(value3, ArooaObject.class);
+		
+		assertNull(result);
+    }
+    
+    public void testExportBean() throws ArooaPropertyException, ArooaConversionException {
+
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/OddjobExportBeanTest.xml", 
+    			getClass().getClassLoader()));
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	String text1 = lookup.lookup("inner/echo1.text", 
+    			String.class);
+    	
+    	assertEquals("class java.lang.Object", text1);
+    	
+    	String text2 = lookup.lookup("inner/echo2.text", 
+    			String.class);
+    	
+    	assertEquals("class java.lang.String", text2);
+    	
+    	String text3 = lookup.lookup("inner/echo3.text", 
+    			String.class);
+    	
+    	assertEquals("class org.oddjob.io.FileType", text3);
+    	
+    	String text4 = lookup.lookup("inner/echo4.text", 
+    			String.class);
+    	
+    	// Note that a DynaBean such as variables doesn't have a class
+    	// property.
+    	assertEquals("Variables: vars", text4);
+    	
+    	oddjob.destroy();
+    }
     
     public void testSharedInheritance() throws ArooaPropertyException, ArooaConversionException {
     	
