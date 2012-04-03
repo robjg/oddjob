@@ -523,7 +523,9 @@
 			<arg value="-DrepositoryId=${maven.snapshots.repository.id}" />
 			<arg value="-DpomFile=${maven.pom}" />
 			<arg value="-Dfile=${maven.jar}" />
-		</artifact:mvn>
+			<arg value="-Dsources=${maven.sources.jar}" />
+			<arg value="-Djavadoc=${maven.javadoc.jar}" />
+		</artifact:mvn>    	
     </target>
 	
 	<target name="maven-stage" depends="maven-init" 
