@@ -1,5 +1,7 @@
 package org.oddjob.monitor.action;
 
+import java.util.concurrent.Callable;
+
 import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
@@ -90,7 +92,7 @@ public class AddJobActionTest extends TestCase {
 	public static void main(String... args) throws Exception {
 
 		
-		AddJobActionTest test = new AddJobActionTest();
+		final AddJobActionTest test = new AddJobActionTest();
 		
 		test.testAll();
 		
@@ -103,16 +105,16 @@ public class AddJobActionTest extends TestCase {
 			}
 		});
 		
-		ValueDialog dialog = new ValueDialog(test.view.dialog());
+		ValueDialog dialog = new ValueDialog(test.view.dialog(), new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				test.test.action();
+				
+				test.configOwner.provideConfigurationSession().save();		
+				return true;
+			}
+		});
 		
 		dialog.showDialog(null);
-		
-		if (!dialog.isChosen()) {
-			return;
-		}
-		
-		test.test.action();
-		
-		test.configOwner.provideConfigurationSession().save();		
 	}
 }

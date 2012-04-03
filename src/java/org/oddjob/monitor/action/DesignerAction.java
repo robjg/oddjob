@@ -27,7 +27,6 @@ import org.oddjob.monitor.model.JobFormAction;
  *
  */
 public class DesignerAction extends JobFormAction implements FormAction {
-	private static final long serialVersionUID = 2008120400;
 	
 	private ArooaConfiguration config;
 

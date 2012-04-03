@@ -2,6 +2,7 @@ package org.oddjob.swing;
 
 import java.awt.Component;
 import java.io.Serializable;
+import java.util.concurrent.Callable;
 
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -38,7 +39,7 @@ public class ConfigureBeanJob implements Serializable, Runnable, ArooaSessionAwa
 	@Override
 	public void run() {
 		
-		Object bean = this.bean;
+		final Object bean = this.bean;
 		if (bean == null) {
 			throw new NullPointerException("No bean.");
 		}
@@ -79,30 +80,32 @@ public class ConfigureBeanJob implements Serializable, Runnable, ArooaSessionAwa
 	
 		Component view = SwingFormFactory.create(form).dialog();
 		
-		ValueDialog dialog = new ValueDialog(view);
+		final DesignInstance finalDesign = design;
+		ValueDialog dialog = new ValueDialog(view, new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				StandardArooaParser parser = new StandardArooaParser(
+						bean, session);
+				
+				try {
+					parser.parse(finalDesign.getArooaContext().getConfigurationNode());
+				} catch (ArooaParseException e) {
+					throw new RuntimeException(e);
+				}
+				
+				XMLArooaParser xmlParser = new XMLArooaParser();
+				
+				try {
+					xmlParser.parse(finalDesign.getArooaContext().getConfigurationNode());
+				} catch (ArooaParseException e) {
+					throw new RuntimeException(e);
+				}
+				
+				beanConfig = xmlParser.getXml();
+				return null;
+			}
+		});
 		dialog.showDialog(null);
-		if (!dialog.isChosen()) {
-			return;
-		}
-
-		StandardArooaParser parser = new StandardArooaParser(
-				bean, session);
-		
-		try {
-			parser.parse(design.getArooaContext().getConfigurationNode());
-		} catch (ArooaParseException e) {
-			throw new RuntimeException(e);
-		}
-		
-		XMLArooaParser xmlParser = new XMLArooaParser();
-		
-		try {
-			xmlParser.parse(design.getArooaContext().getConfigurationNode());
-		} catch (ArooaParseException e) {
-			throw new RuntimeException(e);
-		}
-		
-		beanConfig = xmlParser.getXml();
 	}
 
 	public Object getBean() {

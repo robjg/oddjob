@@ -10,13 +10,13 @@ Changes in 1.2.0
 - Cleanup resources in Exec Job
 - Improved the Oddjob export property so beans and references are exported 
   to a nested Oddjob as is, and not wrapped as an ArooaValue. 
+- Validate changes in Designer before closing the dialog so changes aren't
+  lost if there is a problem.
   
 Still To Do for 1.2.0
 ---------------------
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.
-- Validate changes in Designer before closing the dialog so changes aren't
-  lost if there is a problem.
 
 
 Deferred to A Later Version

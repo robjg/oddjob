@@ -37,7 +37,7 @@ public class SequenceJob implements Runnable, Serializable {
     /**
      * @oddjob.property 
      * @oddjob.description The current sequence number.
-     * @oddjob.required Read only.
+     * @oddjob.required Set automatically, but can be changed manually.
      */
 	private volatile Integer current;
 	
@@ -84,6 +84,10 @@ public class SequenceJob implements Runnable, Serializable {
 		return current;
 	}
 
+	public void setCurrent(Integer current) {
+		this.current = current;
+	}
+	
 	public void setFrom(int from) {
 		this.from = from;
 	}
@@ -103,7 +107,7 @@ public class SequenceJob implements Runnable, Serializable {
 		else {
 			current = new Integer(current.intValue() + 1);;
 		}
-		logger.debug("Sequence now " + current);
+		logger.info("Sequence now " + current);
 	}
 	
 	
