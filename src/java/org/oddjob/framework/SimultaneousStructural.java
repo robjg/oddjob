@@ -98,7 +98,10 @@ implements Stoppable {
 			jobThreads.add(future);
 		}
 		
-		if (!stop) {
+		if (stop) {
+			stop = false;
+		}
+		else {
 			if (jobThreads.size() > 0) {
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {

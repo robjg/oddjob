@@ -109,6 +109,7 @@ public class CascadeJob extends StructuralJob<Object> {
 				}
 				
 				if (next == null || stop) {
+					stop = false;
 					executionWatcher.start();
 					return;
 				}

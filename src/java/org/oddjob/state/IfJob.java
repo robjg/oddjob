@@ -121,6 +121,7 @@ public class IfJob extends StructuralJob<Object>
 		((Runnable) depends).run();
 		
 		if (stop) {
+			stop = false;
 			return;
 		}
 		

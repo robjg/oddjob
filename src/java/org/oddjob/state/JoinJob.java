@@ -90,6 +90,7 @@ public class JoinJob extends StructuralJob<Runnable> {
 		} finally {
 			removeStateListener(listener);
 		}
+		stop = false;
 	}		
 	
 	@Override

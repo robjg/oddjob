@@ -68,6 +68,7 @@ public class SequentialJob extends StructuralJob<Object>
 		
 		for (Object child : childHelper) {
 			if (stop) {
+				stop = false;
 				break;
 			}
 			

@@ -140,6 +140,7 @@ implements Stoppable {
 			}
 		} // end while
 		
+		stop = false;
 	}
 
 	@Override

@@ -85,6 +85,7 @@ public class SequenceJob implements Runnable, Serializable {
 	}
 
 	public void setCurrent(Integer current) {
+		logger.info("Current value set to " + current + " via property.");
 		this.current = current;
 	}
 	

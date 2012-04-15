@@ -17,7 +17,10 @@ Still To Do for 1.2.0
 ---------------------
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.
-
+- Look at what happens when there are exceptions in a timer. 
+  Check a job completion of READY doesn't trigger a timer.
+- Ensure that a sequence of a running job and an exception job shows an 
+  exception.
 
 Deferred to A Later Version
 ---------------------------
