@@ -75,7 +75,10 @@ public class Trigger extends ScheduleBase {
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The state which will cause the trigger
-	 * to fire.
+	 * to fire. Valid values are READY, EXECUTING, COMPLETE, INCOMPLETE,
+	 * EXCEPTION and DESTROYED. These states can be negated by prefixing
+	 * a ! i.e. !COMPLETE will be any state other than COMPLETE. It is 
+	 * hoped to support more complicated state expressions in future. 
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
 	private StateCondition state = StateConditions.COMPLETE;

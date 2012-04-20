@@ -63,7 +63,7 @@ class TriggerDesign extends BaseDC {
 					new BorderedGroup("Trigger Details")
 						.add(new TextField("On Job", on))
 						.add(new TextField("State", state))
-						.add(new TextField("New Only", state))
+						.add(new TextField("New Only", newOnly))
 						.add(job.view().setTitle("Job"))
 				);
 	}
