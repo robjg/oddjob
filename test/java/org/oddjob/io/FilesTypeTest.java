@@ -4,6 +4,7 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -343,7 +344,7 @@ public class FilesTypeTest extends TestCase {
     			result);
     }
     
-    public void testMixedTypesExample() {
+    public void testMixedTypesExample() throws IOException {
     	
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -367,7 +368,7 @@ public class FilesTypeTest extends TestCase {
 		
 		assertEquals(5, lines.length);
 		
-		assertEquals("a.jar", lines[0].trim());
+		assertEquals(new File("a.jar").getCanonicalPath(), lines[0].trim());
 		assertEquals("b.jar", lines[1].trim());
 		assertEquals("c.jar", lines[2].trim());
 		assertEquals("d.jar", lines[3].trim());

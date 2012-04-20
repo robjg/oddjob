@@ -440,6 +440,10 @@ implements Runnable, Stateful, Resetable,
 		Object serverMain = clientSession.create(
 				OddjobMBeanFactory.objectName(0));
 		
+		if (serverMain == null) {
+			throw new NullPointerException("No Oddjob MBean found.");
+		}
+		
 		serverView = new ServerView(serverMain);
 				
 		this.logPoller = new RemoteLogPoller(serverMain, 

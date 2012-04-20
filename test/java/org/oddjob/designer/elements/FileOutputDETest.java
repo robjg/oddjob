@@ -4,6 +4,7 @@
 package org.oddjob.designer.elements;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -32,7 +33,7 @@ public class FileOutputDETest extends TestCase {
 
 	DesignInstance design;
 	
-	public void testCreate() throws ArooaParseException {
+	public void testCreate() throws ArooaParseException, IOException {
 		
 		String xml =  
 				"<append>" +
@@ -58,10 +59,11 @@ public class FileOutputDETest extends TestCase {
 		AppendType test = (AppendType) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals(new File("test/MyFile.txt"), test.getFile());
+		assertEquals(new File("test/MyFile.txt").getCanonicalFile(), 
+				test.getFile());
 	}
 
-	public static void main(String args[]) throws ArooaParseException {
+	public static void main(String args[]) throws ArooaParseException, IOException {
 
 		FileOutputDETest test = new FileOutputDETest();
 		test.testCreate();

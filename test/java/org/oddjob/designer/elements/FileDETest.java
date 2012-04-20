@@ -54,7 +54,8 @@ public class FileDETest extends TestCase {
 		FileType test = (FileType) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals(new File("test/MyFile.txt"), test.getFile());
+		assertEquals(new File("test/MyFile.txt"), 
+				test.getFile());
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

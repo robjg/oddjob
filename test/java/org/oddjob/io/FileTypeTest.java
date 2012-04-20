@@ -7,11 +7,13 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.ConverterHelper;
+import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -20,6 +22,7 @@ import org.oddjob.arooa.MockArooaBeanDescriptor;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
 
 public class FileTypeTest extends TestCase {
 	
@@ -82,6 +85,10 @@ public class FileTypeTest extends TestCase {
 		@Override
 		public String getComponentProperty() {
 			return null;
+		}
+		@Override
+		public boolean isAuto(String property) {
+			return false;
 		}
 	}
 	
@@ -155,6 +162,8 @@ public class FileTypeTest extends TestCase {
 		
 		oj.run();
 		
+		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		
 		DynaBean bean = (DynaBean) new OddjobLookup(oj).lookup("b");
 
 		// check file
@@ -177,5 +186,73 @@ public class FileTypeTest extends TestCase {
 		assertEquals('A', c);
 		
 		is.close();
+	}
+	
+	public void testNullFile() throws Exception {
+		
+		FileType test = new FileType();
+
+		ArooaConverter converter = 
+			new ConverterHelper().getConverter();
+		
+		Object result = converter.convert(
+				test, File.class);
+		
+		assertNull(result);		
+	}
+	
+	public void testNullInOddjob() throws Exception {
+		
+		String xml = 
+			"<oddjob>" +
+			" <job>" +
+			"    <properties id='props'>" +
+			"     <values>" +
+			"      <file key='no.file'/>" +
+			"     </values>" +
+			"    </properties>" +
+			" </job>" +
+			"</oddjob>";
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Properties props = 
+				lookup.lookup("props.properties", Properties.class);
+		
+		assertEquals(null, props.getProperty("no.file"));
+		oddjob.destroy();
+	}
+	
+	public void testInvalidFileName() {
+		
+		FileType test = new FileType();
+		
+		test.setFile(new File("*"));
+		
+		try {
+			test.toCanonicalFile();
+			fail("Should fail.");
+		} catch (IOException e) {
+			// expected.
+		}		
+	}
+	
+	public void testSerialisation() 
+	throws IOException, ClassNotFoundException {
+		
+		FileType test = new FileType();
+		test.setFile(new File("."));
+		
+		FileType copy = Helper.copy(test);
+		
+		assertEquals(copy.toCanonicalFile(), test.toCanonicalFile());
 	}
 }

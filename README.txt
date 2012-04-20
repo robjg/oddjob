@@ -3,6 +3,9 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- The oj-spring oddball is now a a separate project distributed to 
+  https://sourceforge.net/projects/ojob/files/oj-spring
+- The file type is now always the canonical file.
 - Fixed problem where a remote job in an Exception state sends an exception to 
   the client that isn't in the clients class loader.
 - Re-wrote cascade job to cope with changes to children while running and to
@@ -15,18 +18,41 @@ Changes in 1.2.0
   
 Still To Do for 1.2.0
 ---------------------
+- Support ${${}} substitution as Ant now does.
+- A completion state of READY re-triggers a timer. Only COMPLETE, INCOMPLETE  
+  and EXCEPTION should re-trigger timers.
+- Look at what happens when there are exceptions in a timer. Should there be
+  a haltOnException flag. Should an Exception in a timer be indicated as
+  an exception state not an incomplete state?
+- A sequential of a running job and an exception job shows as running - which
+  is correct in most situations but it doesn't work with a set of services. 
+  If one service fails to start all services should be stopped and an exception
+  should be flagged. There could either be a services flag added to sequential
+  but a better solution might be a separate services job.
+- Simplify State conditions. DESTROYED should not be an option and we probably
+  only need to support COMPLETE, INCOMPLETE and EXCEPTION. Would you ever 
+  need to test for READY?
+- Check needs a way of checking a property isn't set. A null flag maybe.
+- Look at having a start job and a run job. Do we need a run job? It would
+  be a sequential of a reset, a start and a mirror. Look at what to do with
+  depends.
+- If job should work on asynchronous completion of a job.
+- Allow mirror to mirror an entire hierarchy of jobs.
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.
-- Look at what happens when there are exceptions in a timer. 
-  Check a job completion of READY doesn't trigger a timer.
-- Ensure that a sequence of a running job and an exception job shows an 
-  exception.
+- Document State better in the user guide. Include why structural jobs 
+  COMPLETE when they have no child because editing a node involves removing
+  it and re-adding it.
+- Improve the look of the Swing Input Handlers. Ctrl and Return shortcut keys
+  should work better.
+- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
+  Explorer.
+- Support annotations for ArooaLifeCycle Methods in Oddjob. 
 
 Deferred to A Later Version
 ---------------------------
-- Look at having a start job and a run job. The run job could use
-  Oddjobs ComponentResolver to wrap a Runnable or Service. It could be
-  structural and expose the child so properties and Log could be viewed.
+- Use a ServerSide files system for choosing files on server component 
+  designer forms.
 - Add Security to the WebApp (with a Read Only role).  
 - Include a Jetty Oddball to allow connecting to an Oddjob server from a 
   browser without the need for a separate Servlet Container.
@@ -42,9 +68,6 @@ Deferred to A Later Version
   preservelastmodified. Add the ability to back up the moved files like Linux does.
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
-- Should structural jobs COMPLETE when they have no child? Need to look at what 
-  happens when they are destroyed to ensure they don't complete as their children 
-  are removed.
 
 Changes in 1.1.0
 ----------------

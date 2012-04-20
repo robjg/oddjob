@@ -20,20 +20,21 @@ public class SwingInputHandlerMain {
  		input.setInputHandler(handler);
  		
  		InputConfirm request1 = new InputConfirm();
- 		request1.setPrompt("I am over 18");
+ 		request1.setPrompt("I am over 18\n(Please don't Lie)");
  		request1.setProperty("choice.eighteen");
  		
  		InputText request2 = new InputText();
- 		request2.setPrompt("Username");
+ 		request2.setPrompt("Username\n(For The Database)");
  		request2.setDefault("admin");
  		request2.setProperty("choice.username");
  		
  		InputPassword request3 = new InputPassword();
- 		request3.setPrompt("Password");
+ 		request3.setPrompt("Password\n(For\nthe\ndatabase)");
  		request3.setProperty("choice.password");
 
  		InputMessage request4 = new InputMessage();
- 		request4.setMessage("The quick brown fox jumped over the lazy dog.");
+ 		request4.setMessage("The quick brown fox jumped over the lazy dog.\n" +
+ 				"It then ate a chicken.");
  		
  		input.setRequests(0, request1);
  		input.setRequests(1, request2);
