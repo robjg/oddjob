@@ -24,7 +24,8 @@ public class ConsoleInputHandlerTest extends TestCase {
 		String command = "java -jar \"" + dirs.relative("run-oddjob.jar"
 				).getPath() + "\" -f \"" + example + "\"";
 		
-		String input = "\n" +
+		String input = "/bin/oddjob\n" +
+				"\n" +
 				"robbo\n" +
 				"secret\n" +
 				"y\n" +
@@ -47,14 +48,15 @@ public class ConsoleInputHandlerTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		assertEquals("System? (Development)", lines[0].trim());
-		assertEquals("Username?", lines[1].trim());
-		assertEquals("Password?", lines[2].trim());
-		assertEquals("Agree To Licence (Yes/No)? (No)", lines[3].trim());
-		assertEquals("Password for robbo is secret", lines[4].trim());
-		assertEquals("Logging On to Development Now! (Return To Continue)", lines[5].trim());
+		assertEquals("Install Directory? (/home/oddjob/foo)", lines[0].trim());
+		assertEquals("System? (Development)", lines[1].trim());
+		assertEquals("Username?", lines[2].trim());
+		assertEquals("Password?", lines[3].trim());
+		assertEquals("Agree To Licence (Yes/No)? (No)", lines[4].trim());
+		assertEquals("Password for robbo is secret", lines[5].trim());
+		assertEquals("Logging On to Development Now! (Return To Continue)", lines[6].trim());
 		
-		assertEquals(6, lines.length);
+		assertEquals(7, lines.length);
 		
 		exec.destroy();
 	}

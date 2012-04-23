@@ -80,6 +80,7 @@
                 <is element='input-password' className='org.oddjob.input.requests.InputPassword'/>
                 <is element='input-confirm' className='org.oddjob.input.requests.InputConfirm'/>
                 <is element='input-message' className='org.oddjob.input.requests.InputMessage'/>
+                <is element='input-file' className='org.oddjob.input.requests.InputFile'/>
                 <is element='logout' className='org.oddjob.logging.log4j.LogoutType'/>
                 <is element='schedule' className='org.oddjob.schedules.ScheduleType'/>
                 <is element='oddballs'

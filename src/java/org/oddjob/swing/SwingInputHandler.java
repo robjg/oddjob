@@ -1,43 +1,47 @@
 package org.oddjob.swing;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.SwingConstants;
-import javax.swing.WindowConstants;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
+import org.oddjob.arooa.design.screem.FileSelectionOptions;
+import org.oddjob.arooa.design.view.DialogueHelper;
+import org.oddjob.arooa.design.view.FileSelectionWidget;
 import org.oddjob.arooa.design.view.Looks;
-import org.oddjob.arooa.design.view.ViewHelper;
 import org.oddjob.input.InputHandler;
 import org.oddjob.input.InputMedium;
 import org.oddjob.input.InputRequest;
 
+/**
+ * Implementation of an {@link InputHandler} in Swing.
+ * 
+ * @author rob
+ *
+ */
 public class SwingInputHandler implements InputHandler {
 
+	/** The parent component. Probably the OddjobExplorer window. */
 	private Component parent;
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param owner The parent component.
+	 */
 	public SwingInputHandler(Component owner) {
 		this.parent = owner;
 	}
@@ -49,6 +53,9 @@ public class SwingInputHandler implements InputHandler {
 		
 		List<AtomicReference<String>> refs = 
 			new ArrayList<AtomicReference<String>>();
+		
+		final List<Callable<Boolean>> validations =
+				new ArrayList<Callable<Boolean>>();
 		
 		Properties properties = new Properties();
 		
@@ -63,10 +70,25 @@ public class SwingInputHandler implements InputHandler {
 	
 			FormWriter formWriter = medium.getFormWriter();
 			form.accept(formWriter);
+			
+			validations.add(medium.getValidator());
 		}
 		
 		DialogManager dialogManager = new DialogManager();
-		dialogManager.showDialog(form.getForm());
+		dialogManager.showDialog(form.getForm(), new Callable<Boolean>() {
+			@Override
+			public Boolean call() throws Exception {
+				for (Callable<Boolean> validator : validations) {
+					if (validator == null) {
+						continue;
+					}
+					if (!validator.call()) {
+						return Boolean.FALSE;
+					}
+				}
+				return Boolean.TRUE;
+			}
+		});
 
 		if (dialogManager.isChosen()) {
 			int i = 0;
@@ -87,6 +109,9 @@ public class SwingInputHandler implements InputHandler {
 		}
 	}
 	
+	/**
+	 * Builds the input form.
+	 */
 	class InputDialogue {
 		
 		private final JPanel form = new JPanel();
@@ -122,19 +147,35 @@ public class SwingInputHandler implements InputHandler {
 		}
 	}
 	
+	/**
+	 * Something that can add a line to the {@link InputDialogue}. 
+	 *
+	 */
 	interface FormWriter {
 		
 		public int writeTo(Container container, int row);
 	}
 	
 	
+	/**
+	 * Create a {@link FormWriter} for the different {@link InputMedium}
+	 * input types.
+	 */
 	class FieldBuilder implements InputMedium {
 		
+		/** Holds the value of the input that will be set on pressing OK. */
 		private final AtomicReference<String> reference;
 		
+		/** Will be created for each input. */
 		private FormWriter formWriter;
 
+		/** Validates each input. */
+		private Callable<Boolean> validator;
 		
+		/** Constructor. 
+		 *  
+		 * @param reference To set the input value with.
+		 */
 		public FieldBuilder(AtomicReference<String> reference) {
 			this.reference = reference;
 		}
@@ -142,17 +183,10 @@ public class SwingInputHandler implements InputHandler {
 		@Override
 		public void confirm(String message, Boolean defaultValue) {
 			
-			final JLabel label = new JLabel(message);
+			final JLabel label = new JLabel(formatLabelText(message));
 			
-			final JToggleButton toggle = new JToggleButton();
-			toggle.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					reference.set(new Boolean(
-							toggle.isSelected()).toString());
-				}
-			});
+			final JCheckBox toggle = new JCheckBox();
+			
 			if (defaultValue != null) {
 				toggle.setSelected(defaultValue.booleanValue());
 			}
@@ -178,37 +212,33 @@ public class SwingInputHandler implements InputHandler {
 					
 					c.weightx = 1.0;
 					c.fill = GridBagConstraints.NONE;
-					c.anchor = GridBagConstraints.NORTHWEST;
+					c.anchor = GridBagConstraints.WEST;
 					c.gridx = 1;
 					c.gridwidth = GridBagConstraints.REMAINDER;
-					c.insets = new Insets(3, 0, 3, 0);
+					c.insets = new Insets(3, 3, 3, 3);
 					
 					container.add(toggle, c);
 							
 					return row + 1;
 				}
 			};
+			
+			validator = new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					reference.set(new Boolean(
+							toggle.isSelected()).toString());
+					return true;
+				}
+			};
 		}
 		
 		@Override
 		public void password(String prompt) {
-			final JLabel label = new JLabel(ViewHelper.padLabel(prompt), 
-					SwingConstants.LEADING);
+			final JLabel label = new JLabel(formatLabelText(prompt));
 			
 			final JPasswordField text = new JPasswordField(Looks.TEXT_FIELD_SIZE);
 						
-			text.getDocument().addDocumentListener(new DocumentListener() {
-				public void changedUpdate(DocumentEvent e) {
-					reference.set(new String(text.getPassword()));
-				}
-				public void removeUpdate(DocumentEvent e) {
-					reference.set(new String(text.getPassword()));
-				}
-				public void insertUpdate(DocumentEvent e) {
-					reference.set(new String(text.getPassword()));
-				}
-			});		
-			
 			formWriter = new FormWriter() {
 				
 				@Override
@@ -230,10 +260,10 @@ public class SwingInputHandler implements InputHandler {
 					
 					c.weightx = 1.0;
 					c.fill = GridBagConstraints.HORIZONTAL;
-					c.anchor = GridBagConstraints.NORTHWEST;
+					c.anchor = GridBagConstraints.WEST;
 					c.gridx = 1;
 					c.gridwidth = GridBagConstraints.REMAINDER;
-					c.insets = new Insets(3, 0, 3, 0);
+					c.insets = new Insets(3, 3, 3, 3);
 					
 					container.add(text, c);
 							
@@ -241,30 +271,24 @@ public class SwingInputHandler implements InputHandler {
 				}
 			};
 			
+			validator = new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					reference.set(new String(text.getPassword()));
+					return true;
+				}
+			};			
 		}
 		
 		@Override
 		public void prompt(String prompt, String defaultValue) {
 			
-			final JLabel label = new JLabel(ViewHelper.padLabel(prompt), 
-					SwingConstants.LEADING);
+			final JLabel label = new JLabel(formatLabelText(prompt));
 			
 			final JTextField text = new JTextField(Looks.TEXT_FIELD_SIZE);
 			text.setText(defaultValue);
 			reference.set(defaultValue);
-			
-			text.getDocument().addDocumentListener(new DocumentListener() {
-				public void changedUpdate(DocumentEvent e) {
-					reference.set(text.getText());
-				}
-				public void removeUpdate(DocumentEvent e) {
-					reference.set(text.getText());
-				}
-				public void insertUpdate(DocumentEvent e) {
-					reference.set(text.getText());
-				}
-			});		
-			
+						
 			formWriter = new FormWriter() {
 				
 				@Override
@@ -286,21 +310,30 @@ public class SwingInputHandler implements InputHandler {
 					
 					c.weightx = 1.0;
 					c.fill = GridBagConstraints.HORIZONTAL;
-					c.anchor = GridBagConstraints.NORTHWEST;
+					c.anchor = GridBagConstraints.WEST;
 					c.gridx = 1;
 					c.gridwidth = GridBagConstraints.REMAINDER;
-					c.insets = new Insets(3, 0, 3, 0);
+					c.insets = new Insets(3, 3, 3, 3);
 					
 					container.add(text, c);
 							
 					return row + 1;
 				}
 			};
+			
+			validator = new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					reference.set(new String(text.getText()));
+					return true;
+				}
+			};			
+
 		}
 		
 		public void message(String message) {
 			
-			final JLabel label = new JLabel(message);
+			final JLabel label = new JLabel(formatLabelText(message));
 			label.setAlignmentY(0.5f);
 			
 			formWriter = new FormWriter() {
@@ -310,16 +343,16 @@ public class SwingInputHandler implements InputHandler {
 					
 					GridBagConstraints c = new GridBagConstraints();
 
-					c.weightx = 0.3;
+					c.weightx = 0.0;
 					c.weighty = 0.0;
 					
 					c.fill = GridBagConstraints.HORIZONTAL;
-					c.anchor = GridBagConstraints.NORTHWEST;
+					c.anchor = GridBagConstraints.NORTH;
 					c.gridx = 0;
 					c.gridy = row;
-					c.gridwidth = 2;
+					c.gridwidth = GridBagConstraints.REMAINDER;
 					
-					c.insets = new Insets(3, 3, 3, 20);		 
+					c.insets = new Insets(3, 3, 3, 3);		 
 
 					container.add(label, c);
 												
@@ -327,75 +360,113 @@ public class SwingInputHandler implements InputHandler {
 				}
 			};
 		}
+		
+		@Override
+		public void file(final String prompt, String defaultValue,
+					final FileSelectionOptions options) {
+
+			final JLabel label = new JLabel(formatLabelText(prompt));
+			
+			final FileSelectionWidget chooser = new FileSelectionWidget();
+									
+			if (defaultValue != null) {
+				chooser.setSelectedFile(
+						new File(defaultValue));
+			}
+			
+			formWriter = new FormWriter() {
+				
+				@Override
+				public int writeTo(Container container, int row) {
+					
+					GridBagConstraints c = new GridBagConstraints();
+
+					c.weightx = 0.3;
+					c.weighty = 0.0;
+					
+					c.fill = GridBagConstraints.HORIZONTAL;
+					c.anchor = GridBagConstraints.NORTHWEST;
+					c.gridx = 0;
+					c.gridy = row;
+					
+					c.insets = new Insets(3, 3, 3, 20);		 
+
+					container.add(label, c);
+					
+					c.weightx = 1.0;
+					c.fill = GridBagConstraints.HORIZONTAL;
+					c.anchor = GridBagConstraints.WEST;
+					c.gridx = 1;
+					c.gridwidth = GridBagConstraints.REMAINDER;
+					c.insets = new Insets(3, 3, 3, 3);
+					
+					container.add(chooser, c);
+							
+					return row + 1;
+				}
+			};
+			
+			
+			validator = new Callable<Boolean>() {
+				@Override
+				public Boolean call() throws Exception {
+					File chosen = chooser.getSelectedFile();
+					if (chosen == null) {
+						reference.set(null);
+					}
+					else {
+						reference.set(chosen.getCanonicalPath());
+					}
+					return Boolean.TRUE;
+				}
+			};
+		}
 
 		public FormWriter getFormWriter() {
 			return formWriter;
 		}
+		
+		public Callable<Boolean> getValidator() {
+			return validator;
+		}
 	}
 	
+	/**
+	 * Responsible for displaying the dialogue.
+	 */
 	class DialogManager {
 		
+		/** True when OK pressed. */
 		private boolean chosen;
+		
 		
 		public boolean isChosen() {
 			return chosen;
 		}
 		
-		public void showDialog(Component form) {
+		/**
+		 * Show the form on an OK/CANCEL dialogue.
+		 * 
+		 * @param form The form component.
+		 */
+		public void showDialog(Component form, Callable<Boolean> okAction) {
 
-			final JDialog dialog;  
-			
-			if (parent != null) {
-				Window w = ViewHelper.getWindowForComponent(parent);
-				
-				if (w instanceof Frame) {
-					dialog = new JDialog((Frame) w);
-				} else {
-					dialog = new JDialog((Dialog) w);
-				}
-				dialog.setLocationRelativeTo(w);
-			}
-			else {
-				dialog = new JDialog();
-			}
-			
-			dialog.getContentPane().setLayout(new BorderLayout());
-			
-			dialog.getContentPane().add(form, BorderLayout.CENTER);	
-
-			JPanel selection = new JPanel();
-			
-			JButton ok = new JButton("OK");
-			ok.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					dialog.dispose();
-					chosen = true;
-				}
-			});
-			
-			JButton cancel = new JButton("Cancel");
-			cancel.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					dialog.dispose();
-					chosen = false;
-				}
-			});
-			
-			selection.add(ok);
-			selection.add(cancel);
-
-			dialog.getContentPane().add(selection, BorderLayout.PAGE_END);
-			
-			dialog.setDefaultCloseOperation(
-					WindowConstants.DISPOSE_ON_CLOSE);
-			
-			dialog.setModal(true);
-			
-			dialog.pack();
-			dialog.setVisible(true);
+			chosen = DialogueHelper.showOKCancelDialogue(
+					parent, form, okAction);
 		}
 
 	}	
+	
+	static String formatLabelText(String labelText) {
+		
+		if (labelText.contains("\n")) {
+			return "<html>" + labelText.replaceAll("\\n", "<br/>") + 
+					"</html>";
+		}
+		else {
+			return labelText;
+		}
+	}
 	
 	@Override
 	public String toString() {

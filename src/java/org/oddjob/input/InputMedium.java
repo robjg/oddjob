@@ -1,5 +1,7 @@
 package org.oddjob.input;
 
+import org.oddjob.arooa.design.screem.FileSelectionOptions;
+
 /**
  * Allows an {@link InputHandler} to provide a call-back to an 
  * {@link InputRequest}. Implementation are essentially the Visitor in
@@ -35,10 +37,14 @@ public interface InputMedium {
 	public void confirm(String message, Boolean defaultValue);
 	
 	/**
-	 * Display a message. Wait for acknolagement. (Any Key To Continue 
+	 * Display a message. Wait for acknowledgement. (Any Key To Continue 
 	 * type thing).
 	 * 
 	 * @param message
 	 */	
 	public void message(String message);
+	
+	
+	public void file(String message, 
+			String defaultValue, FileSelectionOptions options);
 }

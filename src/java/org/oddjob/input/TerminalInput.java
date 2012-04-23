@@ -1,5 +1,10 @@
 package org.oddjob.input;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.oddjob.arooa.design.screem.FileSelectionOptions;
+
 
 /**
  * Base class for shared implementation of Console type {@link InputMedium}s.
@@ -89,6 +94,49 @@ abstract class TerminalInput implements InputMedium {
 		
 		this.value = doPrompt((message == null ? "" : message) +
 				" (Return To Continue) ");		
+	}
+	
+	@Override
+	public void file(String prompt, String defaultValue, 
+			FileSelectionOptions options) {
+		
+		while (true) {
+			
+			StringBuilder promptBuilder = new StringBuilder();
+			if (prompt != null) {
+				promptBuilder.append(prompt);
+			}
+			promptBuilder.append("? ");
+			if (defaultValue != null) {
+				promptBuilder.append("(" + defaultValue + ") ");
+			}
+			
+			String value = doPrompt(promptBuilder.toString());
+			File file;
+			
+			if (value == null) {
+				file = null;
+			}
+			else if (value.length() == 0 && defaultValue != null) {
+				file = new File(options.getCurrentDirectory(), defaultValue);
+			}
+			else {
+				file = new File(options.getCurrentDirectory(), value);
+			}
+		
+			if (file == null) {
+				this.value = null;
+				break;
+			}
+			else {
+				try {
+					this.value = file.getCanonicalPath();
+					break;
+				} catch (IOException e) {
+					System.err.println(e.toString());
+				}
+			}
+		}
 	}
 	
 	protected abstract String doPrompt(String prompt);

@@ -4,6 +4,9 @@
             <jobs>
                 <input>
                     <requests>
+                        <input-file prompt="Install Directory"
+                            default="/home/oddjob/foo"
+                            property="config.install"/>
                         <input-text prompt="System"
                             default="Development"
                             property="config.system"/>
