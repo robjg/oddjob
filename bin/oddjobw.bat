@@ -9,11 +9,11 @@ set _ODDJOB_JAR="%_ODDJOB_HOME%\run-oddjob.jar"
 if not exist %_ODDJOB_JAR% goto failNoOddjob
 
 if "%JAVA_HOME%" == "" goto noJavaHome
-set _JAVA_CMD=%JAVA_HOME%/bin/java.exe
+set _JAVA_CMD=%JAVA_HOME%/bin/javaw.exe
 goto haveJavaCmd
 
 :noJavaHome
-set _JAVA_CMD=java
+set _JAVA_CMD=javaw
 
 :haveJavaCmd
 
@@ -38,5 +38,5 @@ exit /b 1
 
 :runOddjob
 
-"%_JAVA_CMD%" -jar %_ODDJOB_JAR% %_ARGS%
+start "Oddjob" /b "%_JAVA_CMD%" -jar %_ODDJOB_JAR% %_ARGS%
 
