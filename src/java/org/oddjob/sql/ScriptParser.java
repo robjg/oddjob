@@ -213,7 +213,7 @@ Driver<String>, BusAware, StageNotifier {
 	String replaceProperties(String line) throws ArooaConversionException {
 		ExpressionParser lineParser = session.getTools().getExpressionParser();
 		ParsedExpression parsed = lineParser.parse(line);
-		return parsed.evaluateAsText(session);
+		return parsed.evaluate(session, String.class);
 	}
 	
 	@Override

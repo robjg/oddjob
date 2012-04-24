@@ -38,7 +38,7 @@ public class StateSteps {
 		}
 		
 		@Override
-		public void jobStateChange(StateEvent event) {
+		public synchronized void jobStateChange(StateEvent event) {
 			String position;
 			if (failureMessage != null) {
 				position = "(failure pending)";
@@ -59,9 +59,7 @@ public class StateSteps {
 				if (event.getState() == steps[index]) {
 					if (++index == steps.length) {
 						done = true;
-						synchronized(this) {
-							notifyAll();
-						}
+						notifyAll();
 					}
 				}
 				else {
@@ -70,11 +68,13 @@ public class StateSteps {
 							"Expected " + steps[index] + 
 							", was " + event.getState() + 
 							" (index " + index + ")";
-					synchronized(this) {
-						notifyAll();
-					}
+					notifyAll();
 				}
 			}
+		}
+		
+		public synchronized boolean isDone() {
+			return done;
 		}
 	};	
 	
@@ -94,7 +94,7 @@ public class StateSteps {
 	public void checkNow() {
 		
 		try {
-			if (listener.done) {
+			if (listener.isDone()) {
 				if (listener.failureMessage != null) {
 					throw new IllegalStateException(listener.failureMessage);
 				}
@@ -122,7 +122,7 @@ public class StateSteps {
 				" on [" + stateful + "] to have states " + 
 				Arrays.toString(listener.steps));
 		
-		if (!listener.done) {
+		if (!listener.isDone()) {
 			synchronized(listener) {
 				listener.wait(timeout);
 			}

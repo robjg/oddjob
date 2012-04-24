@@ -140,7 +140,7 @@ public class PropertiesBase implements ArooaContextAware {
 			if (substitute) {
 				ExpressionParser parser = session.getTools().getExpressionParser();
 				ParsedExpression expression = parser.parse(value);
-				value = expression.evaluateAsAttribute(session, String.class);
+				value = expression.evaluate(session, String.class);
 			}
 			
 			if (value == null) {

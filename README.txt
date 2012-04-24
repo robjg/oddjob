@@ -3,6 +3,10 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Property expansion now supports nested properties of the form ${${}}.
+- A file chooser has been added to Input Handlers. 
+- Ctrl enter and escape shortcut keys now work in the SwingInputHandler
+  dialogue.
 - The oj-spring oddball is now a a separate project distributed to 
   https://sourceforge.net/projects/ojob/files/oj-spring
 - The file type is now always the canonical file.
@@ -18,7 +22,6 @@ Changes in 1.2.0
   
 Still To Do for 1.2.0
 ---------------------
-- Support ${${}} substitution as Ant now does.
 - A completion state of READY re-triggers a timer. Only COMPLETE, INCOMPLETE  
   and EXCEPTION should re-trigger timers.
 - Look at what happens when there are exceptions in a timer. Should there be
@@ -43,8 +46,6 @@ Still To Do for 1.2.0
 - Document State better in the user guide. Include why structural jobs 
   COMPLETE when they have no child because editing a node involves removing
   it and re-adding it.
-- Improve the look of the Swing Input Handlers. Ctrl and Return shortcut keys
-  should work better.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
 - Support annotations for ArooaLifeCycle Methods in Oddjob. 
