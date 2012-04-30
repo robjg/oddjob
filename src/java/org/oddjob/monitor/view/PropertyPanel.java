@@ -19,11 +19,18 @@ import org.oddjob.monitor.model.PropertyModel;
 /**
  *  The Tab Panel for properties.
  *  
- *  @author Rob Gordonl.
+ *  @author Rob Gordon.
  */
 public class PropertyPanel extends JPanel 
 implements Observer {
 	private static final long serialVersionUID = 0;
+	
+	/** Rough guess at number of characters screen width, to limit
+	 * the length of tool tips. */
+	private int screenWidth = (int)
+			java.awt.Toolkit.getDefaultToolkit().getScreenSize(
+					).getWidth() / 12;
+
 	
 	private PropertyTableModel  tableModel;
 	
@@ -76,7 +83,13 @@ implements Observer {
 				(JComponent) defaultRenderer.getTableCellRendererComponent(
 						table, value, isSelected, hasFocus, row, column);
 			
-			component.setToolTipText((String) value);
+			// Large Tooltip causes Windows 7 to change Graphics mode.
+			// Todo: Look at using JMultiLineToolTip.
+			String text = (String) value;
+			if (text != null && text.length() > screenWidth) {
+				text = text.substring(0, screenWidth) + "...";
+			}
+			component.setToolTipText(text);
 			
 			return component;
 		}

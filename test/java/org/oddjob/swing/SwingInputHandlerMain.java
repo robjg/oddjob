@@ -6,7 +6,6 @@ import java.util.Properties;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.input.InputHandler;
 import org.oddjob.input.InputJob;
-import org.oddjob.input.StdInInputHandler;
 import org.oddjob.input.requests.InputConfirm;
 import org.oddjob.input.requests.InputFile;
 import org.oddjob.input.requests.InputMessage;
@@ -72,14 +71,13 @@ public class SwingInputHandlerMain {
 	
 	public static void main(String... args) {
 
-		StdInInputHandler handler = new StdInInputHandler();
-//		SwingInputHandler handler = new SwingInputHandler(null);
+//		StdInInputHandler handler = new StdInInputHandler();
+		SwingInputHandler handler = new SwingInputHandler(null);
 
 		InputJob[] inputs = new InputJob[] {
-				one(handler), 
-//				two(handler),
-		};
-		
+//			one(handler),
+			two(handler),
+		};		
 		
 		for (InputJob input : inputs) {
 			
@@ -93,7 +91,6 @@ public class SwingInputHandlerMain {
 					System.out.println(key + "=" + props.get(key));
 				}
 			}			
-		}
-				
+		}				
 	}
 }

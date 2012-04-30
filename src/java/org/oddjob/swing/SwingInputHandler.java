@@ -370,9 +370,9 @@ public class SwingInputHandler implements InputHandler {
 			final FileSelectionWidget chooser = new FileSelectionWidget();
 									
 			if (defaultValue != null) {
-				chooser.setSelectedFile(
-						new File(defaultValue));
+				chooser.setSelectedFile(defaultValue);
 			}
+			chooser.setOptions(options);
 			
 			formWriter = new FormWriter() {
 				
@@ -410,12 +410,12 @@ public class SwingInputHandler implements InputHandler {
 			validator = new Callable<Boolean>() {
 				@Override
 				public Boolean call() throws Exception {
-					File chosen = chooser.getSelectedFile();
+					String chosen = chooser.getSelectedFile();
 					if (chosen == null) {
 						reference.set(null);
 					}
 					else {
-						reference.set(chosen.getCanonicalPath());
+						reference.set(new File(chosen).getCanonicalPath());
 					}
 					return Boolean.TRUE;
 				}

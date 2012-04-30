@@ -1,8 +1,11 @@
 package org.oddjob.monitor.action;
 
 import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
@@ -15,6 +18,7 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.view.SwingFormFactory;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.input.StdInInputHandler;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
@@ -86,7 +90,7 @@ public class DesignerActionTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <sequential id='sequential'/>" +
+			"  <input id='sequential'/>" +
 			" </job>" +
 			"</oddjob>";
 					
@@ -94,10 +98,10 @@ public class DesignerActionTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(config);
-		
+		oddjob.setInputHandler(new StdInInputHandler());
 		oddjob.run();
 		
-		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		Object sequentialJob = new OddjobLookup(oddjob).lookup("sequential");
 		
@@ -131,6 +135,16 @@ public class DesignerActionTest extends TestCase {
 		});
 		
 		Component view = SwingFormFactory.create(test.test.form()).dialog();
+		
+		KeyboardFocusManager focusManager = 
+				KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		focusManager.addPropertyChangeListener(new PropertyChangeListener() {
+			@Override
+			public void propertyChange(PropertyChangeEvent evt) {
+				System.out.println(evt.getPropertyName() + "=" + 
+					evt.getNewValue());
+			}
+		});
 		
 		JFrame frame = new JFrame();
 		frame.getContentPane().add(view);

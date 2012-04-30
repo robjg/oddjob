@@ -10,19 +10,6 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.AbstractCellEditor;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.event.TableModelEvent;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-
 import org.oddjob.arooa.ArooaConstants;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
@@ -45,15 +32,20 @@ import org.oddjob.arooa.design.screem.FormItem;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.design.view.DesignViewException;
 import org.oddjob.arooa.design.view.SwingFormFactory;
-import org.oddjob.arooa.design.view.SwingFormView;
 import org.oddjob.arooa.design.view.SwingItemFactory;
 import org.oddjob.arooa.design.view.SwingItemView;
+import org.oddjob.arooa.design.view.multitype.AbstractMultiTypeModel;
+import org.oddjob.arooa.design.view.multitype.EditableValue;
+import org.oddjob.arooa.design.view.multitype.MultiTypeRow;
+import org.oddjob.arooa.design.view.multitype.MultiTypeStrategy;
+import org.oddjob.arooa.design.view.multitype.MultiTypeTableWidget;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.AbstractConfigurationNode;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ArooaHandler;
+import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.parsing.PrefixMappings;
 import org.oddjob.arooa.parsing.QTag;
 import org.oddjob.arooa.reflect.ArooaClass;
@@ -145,7 +137,7 @@ class VariablesDesign implements DesignComponent {
 		}
 	}
 	
-	void addProperty(int index, DesignElementProperty property) {
+	void addProperty(int index, VariablesDesignProperty property) {
 		synchronized (listeners) {
 			properties.add(index, new PropertyValuePair(property));
 			for (VariablesListener listener: listeners) {
@@ -167,7 +159,7 @@ class VariablesDesign implements DesignComponent {
 		return properties.get(index).getValue();
 	}
 	
-	DesignElementProperty propertyAt(int index) {
+	VariablesDesignProperty propertyAt(int index) {
 		return properties.get(index).getProperty();
 	}
 	
@@ -176,13 +168,16 @@ class VariablesDesign implements DesignComponent {
 	}
 }
 
+/**
+ * Keeps track of the property and its instance.
+ */
 class PropertyValuePair { 
 
-	private final DesignElementProperty property;
+	private final VariablesDesignProperty property;
 	
 	private DesignInstance value;
 	
-	PropertyValuePair(DesignElementProperty property) {
+	PropertyValuePair(VariablesDesignProperty property) {
 		this.property = property;
 		property.addDesignListener(new DesignListener() {
 			public void childAdded(DesignStructureEvent event) {
@@ -194,7 +189,7 @@ class PropertyValuePair {
 		});
 	}
 
-	DesignElementProperty getProperty() {
+	VariablesDesignProperty getProperty() {
 		return property;
 	}
 	
@@ -204,6 +199,9 @@ class PropertyValuePair {
 	
 }
 	
+/**
+ * Receive notifications of when variables are added and removed.
+ */
 interface VariablesListener {
 	
 	void variableAdded(int index);
@@ -211,6 +209,34 @@ interface VariablesListener {
 	void variableRemoved(int index);
 }
 
+
+/**
+ * 
+ */
+class VariablesDesignProperty extends SimpleDesignProperty {
+	
+	private String property;
+	
+	public VariablesDesignProperty(String property, 
+			Class<?> propertyClass,
+			ArooaType type, DesignInstance parent) {
+		super(null, propertyClass, type, parent);
+		this.property = property;
+	}
+	
+	@Override
+	public String property() {
+		return property;
+	}
+	
+	void changePropertyName(String name) {
+		this.property = name;
+	}
+}
+
+/**
+ * Handles parsing of the design etc.
+ */
 class VariablesDesignContext implements ArooaContext {
 	
 	private final ArooaContext parent;
@@ -329,7 +355,7 @@ class VariablesDesignContext implements ArooaContext {
 				variables.removeProperty(index);
 			}
 			else {
-				variables.addProperty(index, (DesignElementProperty) value);
+				variables.addProperty(index, (VariablesDesignProperty) value);
 			}
 		}
 		
@@ -390,7 +416,7 @@ class VariablesDesignContext implements ArooaContext {
 							element.getAttributes().getAttributNames()[0]);
 				}
 				
-				SimpleDesignProperty property = new SimpleDesignProperty(
+				VariablesDesignProperty property = new VariablesDesignProperty(
 						element.getTag(), Object.class, 
 						ArooaType.VALUE, variables);
 				
@@ -439,40 +465,267 @@ class VariablesGrid implements FormItem {
 }
 
 
-class VariablesTableView implements SwingItemView {
+class VariablesModel extends AbstractMultiTypeModel {
 
 	public static final QTag NULL_TAG = new QTag("");
 	
-	private final VariablesTableModel tableModel = new VariablesTableModel();
+	private final QTag[] supportedTypes; 
+	
+	private final List<VariableRow> variableRows = 
+			new ArrayList<VariableRow>();
 	
 	private final VariablesDesign variables;
-
-	private JLabel label;
 	
+	public VariablesModel(VariablesGrid variablesGrid) {
+
+		this.variables = variablesGrid.getVariables();
+
+		variables.addVariablesListener(new VariablesListener() {
+			@Override
+			public void variableAdded(final int index) {				
+				final VariableRow variableRow = new VariableRow(index);
+				variableRows.add(index, variableRow);
+				fireRowInserted(index);
+				variables.propertyAt(index).addDesignListener(new DesignListener() {
+					public void childAdded(DesignStructureEvent event) {
+						variableRow.setInstance(event.getChild());
+						fireRowChanged(index);
+					}
+					public void childRemoved(DesignStructureEvent event) {
+						variableRow.setInstance(null);
+						fireRowChanged(index);
+					}
+				});
+				
+			}
+			public void variableRemoved(int index) {
+				variableRows.remove(index);
+				fireRowRemoved(index);
+			}			
+		});		
+
+		ArooaContext context = variables.getArooaContext(); 
+		
+		ElementMappings mappings = context.getSession(
+				).getArooaDescriptor().getElementMappings();
+		
+		InstantiationContext instantiationContext = 
+			new InstantiationContext(ArooaType.VALUE, 
+					new SimpleArooaClass(ArooaValue.class));
+		
+		ArooaElement[] supportedElements = 
+			mappings.elementsFor(instantiationContext);
+				
+		this.supportedTypes = new QTag[supportedElements.length]; 
+			
+		for (int i = 0; i < supportedTypes.length; ++i) {
+			supportedTypes[i] = new QTag(
+					supportedElements[i], context);
+		}
+	}
+	
+	
+	@Override
+	public Object getDeleteOption() {
+		return NULL_TAG;
+	}
+
+	@Override
+	public Object[] getTypeOptions() {
+		return supportedTypes;
+	}
+	
+	@Override
+	public void createRow(Object creator, int row) {
+		insertProperty(row, (String) creator);
+	}
+	
+	@Override
+	public void swapRow(int from, int direction) {
+		ArooaContext propertyContext = variables.propertyAt(from).getArooaContext();
+		ArooaContext parentContext = propertyContext.getParent();
+		
+		CutAndPasteSupport.cut(parentContext, propertyContext);
+		
+		int to = from+direction;
+		
+		try {
+			CutAndPasteSupport.paste(parentContext, to, 
+					propertyContext.getConfigurationNode());
+		} catch (ArooaParseException e) {
+			throw new DesignViewException(e);
+		}
+	}
+	
+	@Override
+	public void removeRow(int index) {
+		removeProperty(variables.propertyAt(index));
+	}
+	
+	@Override
+	public MultiTypeRow getRow(int index) {
+		return variableRows.get(index);
+	}
+	
+	@Override
+	public int getRowCount() {
+		return variableRows.size();
+	}
+	
+	void removeProperty(DesignElementProperty property) {
+		
+		property.getArooaContext().getRuntime().destroy();
+		
+		ConfigurationNode configurationNode = variables.getArooaContext().getConfigurationNode();
+
+		int index = configurationNode.indexOf(property.getArooaContext().getConfigurationNode());
+		
+		if (index < 0) {
+			throw new IllegalStateException("Configuration node is not a child of the variables context.");
+		}
+		
+		configurationNode.removeChild(index);
+	}
+	
+	/**
+	 * 
+	 * @param index
+	 * @param property
+	 */
+	void insertProperty(int index, String property) {
+		
+		variables.getArooaContext().getConfigurationNode().setInsertPosition(index);
+		
+		ArooaContext nextContext = variables.getArooaContext().getArooaHandler().onStartElement(
+				new ArooaElement(property), variables.getArooaContext());
+		
+		variables.getArooaContext().getConfigurationNode().setInsertPosition(index);
+		
+		int i = variables.getArooaContext().getConfigurationNode().insertChild(
+				nextContext.getConfigurationNode());
+		
+		try {
+			nextContext.getRuntime().init();
+		} 
+		catch (ArooaException e) {
+			variables.getArooaContext().getConfigurationNode().removeChild(i);
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	class VariableRow implements MultiTypeRow {
+		
+		private final VariablesDesignProperty designProperty;
+		
+		private DesignInstance instance;
+		
+		private Component component;
+		
+		public VariableRow(int index) {
+			this.designProperty = variables.propertyAt(index);
+		}
+		
+		void setInstance(DesignInstance instance) {
+			this.instance = instance;
+			if (instance == null) {
+				component = null;
+			}
+			else {
+				Form designDefintion = instance.detail();
+				this.component = SwingFormFactory.create(designDefintion).cell();
+			}
+		}
+		
+		@Override
+		public String getName() {
+			return designProperty.property();
+		}
+
+		@Override
+		public void setName(String name) {
+			designProperty.changePropertyName(name);
+		}
+		
+		@Override
+		public void setType(Object value) {
+			
+			InstanceSupport support = new InstanceSupport(designProperty);
+				
+			QTag newType = (QTag) value;
+										
+			QTag oldType;
+			if (instance == null) {
+				oldType = NULL_TAG;
+			}
+			else {
+				oldType = InstanceSupport.tagFor(instance);
+			}
+			
+			if (newType.equals(oldType)) {
+				// if the type hasn't changed then nothing to do.
+				return;
+			}
+			else if (!NULL_TAG.equals(oldType)){
+				support.removeInstance(instance);
+			}
+					
+			if (NULL_TAG.equals(newType)) {
+				return;
+			}
+			try {
+				support.insertTag(0, newType);
+			}
+			catch (ArooaParseException e) {
+				throw new DesignViewException(e);
+			}
+		}
+		
+		@Override
+		public Object getType() {
+			if (instance != null) {
+				return InstanceSupport.tagFor(instance);
+			}
+			else {
+				return NULL_TAG;
+			}
+		}
+		
+		@Override
+		public EditableValue getValue() {
+			if (instance == null) {
+				return null;
+			}
+			else {
+				return new EditableValue() {
+					@Override
+					public Component getEditor() {
+						return component;
+					}
+					
+					@Override
+					public void commit() {
+					}
+					
+					@Override
+					public void abort() {
+					}
+				};
+			}
+		}		
+	}
+}
+
+class VariablesTableView implements SwingItemView {
+
 	private Component component;
 		
 	public VariablesTableView(VariablesGrid variablesGrid) {
-		variables = variablesGrid.getVariables();
 		
-		this.component = component();
-		label = new JLabel(variablesGrid.getTitle());
-		
-		variables.addVariablesListener(new VariablesListener() {
-			public void variableAdded(int index) {
-				tableModel.fireTableChanged(new TableModelEvent(tableModel));
-				variables.propertyAt(index).addDesignListener(new DesignListener() {
-					public void childAdded(DesignStructureEvent event) {
-						tableModel.fireTableChanged(new TableModelEvent(tableModel));
-					}
-					public void childRemoved(DesignStructureEvent event) {
-						tableModel.fireTableChanged(new TableModelEvent(tableModel));
-					}
-				});
-			}
-			public void variableRemoved(int index) {
-				tableModel.fireTableChanged(new TableModelEvent(tableModel));
-			}			
-		});		
+		this.component = new MultiTypeTableWidget(
+				new VariablesModel(variablesGrid), 
+				MultiTypeStrategy.Strategies.NAMED);
 	}
 
 	/* (non-Javadoc)
@@ -482,25 +735,6 @@ class VariablesTableView implements SwingItemView {
 			boolean selectionInGroup) {
 		
 		GridBagConstraints c = new GridBagConstraints();
-
-		if (label != null) {
-			c.weightx = 1.0;
-			c.weighty = 0.0;
-			
-			c.fill = GridBagConstraints.HORIZONTAL;
-			c.anchor = GridBagConstraints.NORTHWEST;
-			c.gridx = column;
-			c.gridy = row;
-			if (selectionInGroup) {
-				c.gridwidth = 2;
-			}
-			
-			c.insets = new Insets(3, 3, 3, 20);		 
-	
-			container.add(label, c);
-			
-			++row;
-		}
 		
 		c.weightx = 1.0;
 		c.weighty = 0.0;
@@ -528,269 +762,4 @@ class VariablesTableView implements SwingItemView {
 		component.setEnabled(enabled);
 	}
 
-	/**
-	 * Creates the table component.
-	 * 
-	 * @return The table.
-	 */
-	private Component component() {
-		JTable table = new JTable(tableModel);
-		table.setRowHeight(new JTextField().getPreferredSize().height);
-				
-		TableColumn typeCol = table.getColumnModel().getColumn(1);
-		
-		JComboBox comboBox = new JComboBox();
-		QTag[] types = getOptions();
-		for (int i = 0; i < types.length; ++i) {
-			comboBox.addItem(types[i]);				
-		}
-		typeCol.setCellEditor(new DefaultCellEditor(comboBox));
-
-		TableColumn valueCol = table.getColumnModel().getColumn(
-				tableModel.getColumnCount() - 1);
-		valueCol.setCellEditor(new DialogEditor());
-		valueCol.setCellRenderer(new DialogRenderer());
-
-		JScrollPane jsp = new JScrollPane(table);
-		return jsp;
-	}
-		
-	class VariablesTableModel extends AbstractTableModel {
-		private static final long serialVersionUID = 2008100100;
-
-		String[] headers = { "Name", "Type", "Value" };
-
-		public String getColumnName(int c) {
-				return headers[c];
-		}
-
-		public int getColumnCount() {
-			return 3;
-		}
-
-		public int getRowCount() {
-			return variables.properties.size() + 1;
-		}
-
-		public boolean isCellEditable(int rowIndex, int columnIndex) {
-			if (columnIndex == 0) {
-				return true;
-			}
-			if (!"".equals(getValueAt(rowIndex, 0))) {
-				return true;
-			}
-			return false;
-		}
-
-		public Object getValueAt(int rowIndex, int columnIndex) {
-			if (rowIndex == getRowCount() - 1) {
-				return "";
-			}
-			
-			if (columnIndex == 0) {
-				return variables.propertyAt(rowIndex).property();
-			} else if (columnIndex == 1) {
-				DesignInstance design = variables.instanceAt(rowIndex);
-				if (design != null) {
-					return InstanceSupport.tagFor(design);
-				}
-				else {
-					return NULL_TAG;
-				}
-			} else if (columnIndex == 2) {
-				return variables.instanceAt(rowIndex);
-			} else {
-				throw new RuntimeException("This should be impossible!");
-			}
-		}
-
-		public void setValueAt(Object value, int rowIndex, int columnIndex) {
-			if (columnIndex == 0) {
-				String newValue = ((String) value).trim();
-				if (rowIndex < getRowCount() - 1) {
-					
-					String oldProperty = variables.propertyAt(rowIndex).property();
-					
-					if (newValue.equals(oldProperty)) {
-						// if the type hasn't changed then nothing to do.
-						return;
-					}
-					else {
-						removeProperty(variables.propertyAt(rowIndex));
-					}
-				}
-				if ("".equals(newValue)) {
-					return;
-				}
-				insertProperty(rowIndex, newValue);
-			}
-			else if (columnIndex == 1) {
-				if (rowIndex == getRowCount() - 1) {
-					// no property
-					return;
-				}
-
-				DesignElementProperty designProperty =
-					variables.propertyAt(rowIndex);
-				
-				InstanceSupport support = new InstanceSupport(
-						designProperty);
-				
-				QTag type = (QTag) value;
-					
-				DesignInstance oldInstance = variables.instanceAt(rowIndex);
-				QTag oldType;
-				if (oldInstance == null) {
-					oldType = NULL_TAG;
-				}
-				else {
-					oldType = InstanceSupport.tagFor(oldInstance);
-				}
-					
-				if (type.equals(oldType)) {
-					// if the type hasn't changed then nothing to do.
-					return;
-				}
-				else if (!NULL_TAG.equals(oldType)){
-					support.removeInstance(oldInstance);
-				}
-					
-				if (NULL_TAG.equals(type)) {
-					return;
-				}
-				try {
-					support.insertTag(0, type);
-				}
-				catch (ArooaParseException e) {
-					throw new DesignViewException(e);
-				}
-				
-			} else if (columnIndex == 2) {
-				// don't do anything - the render takes care of the display.
-			} else {
-				throw new RuntimeException("This should be impossible!");
-			}
-		}
-
-	}
-	
-	/**
-	 * The cell editor for the instance.
-	 * 
-	 */
-	public class DialogEditor extends AbstractCellEditor 
-	implements TableCellEditor {
-		private static final long serialVersionUID = 20081008;
-		
-		DesignInstance value;
-
-		//Implement the one CellEditor method that AbstractCellEditor doesn't.
-		public Object getCellEditorValue() {
-			return value;
-		}
-
-		//Implement the one method defined by TableCellEditor.
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
-			this.value = (DesignInstance) value;
-			return generateRenderer((DesignInstance) value);
-		}
-	}
-
-	/**
-	 * The value renderer.
-	 *
-	 */
-	class DialogRenderer implements TableCellRenderer {
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			if (value == null) {
-				JLabel label = new JLabel();
-				label.setEnabled(false);
-				return label;
-			}
-			else if (value instanceof String) {
-				return new JLabel(value.toString());
-			} else {
-				return generateRenderer((DesignInstance) value);
-			}
-		}
-	}
-	
-	/**
-	 * Generate the table cell component used to edit the design of 
-	 * the instance.
-	 * 
-	 * @param designInstance
-	 * @return
-	 */
-	static Component generateRenderer(DesignInstance designInstance) {
-		if (designInstance == null) {
-			return null;
-		}
-		Form designDefintion = designInstance.detail();
-		SwingFormView view = SwingFormFactory.create(designDefintion);
-		
-		return view.cell();
-	}
-	
-	QTag[] getOptions() {
-		
-		ArooaContext context = variables.getArooaContext(); 
-		
-		ElementMappings mappings = context.getSession(
-				).getArooaDescriptor().getElementMappings();
-		
-		InstantiationContext instantiationContext = 
-			new InstantiationContext(ArooaType.VALUE, 
-					new SimpleArooaClass(ArooaValue.class));
-		
-		ArooaElement[] supportedElements = 
-			mappings.elementsFor(instantiationContext);
-				
-		QTag[] supportedTypes = new QTag[supportedElements.length + 1]; 
-		
-		supportedTypes[0] = NULL_TAG;
-		
-		for (int i = 1; i < supportedTypes.length; ++i) {
-			supportedTypes[i] = new QTag(
-					supportedElements[i-1], context);
-		}
-		
-		return supportedTypes;
-	}
-	
-	void removeProperty(DesignElementProperty property) {
-	
-		property.getArooaContext().getRuntime().destroy();
-		
-		ConfigurationNode configurationNode = variables.getArooaContext().getConfigurationNode();
-
-		int index = configurationNode.indexOf(property.getArooaContext().getConfigurationNode());
-		
-		if (index < 0) {
-			throw new IllegalStateException("Configuration node is not a child of the variables context.");
-		}
-		
-		configurationNode.removeChild(index);
-	}
-	
-	void insertProperty(int index, String property) {
-		
-		ArooaContext nextContext = variables.getArooaContext().getArooaHandler().onStartElement(
-				new ArooaElement(property), variables.getArooaContext());
-		
-		variables.getArooaContext().getConfigurationNode().setInsertPosition(index);
-		
-		int i = variables.getArooaContext().getConfigurationNode().insertChild(
-				nextContext.getConfigurationNode());
-		
-		try {
-			nextContext.getRuntime().init();
-		} 
-		catch (ArooaException e) {
-			variables.getArooaContext().getConfigurationNode().removeChild(i);
-		}
-	}
 }
