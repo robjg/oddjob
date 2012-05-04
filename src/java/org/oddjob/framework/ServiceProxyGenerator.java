@@ -21,12 +21,12 @@ import org.oddjob.logging.LogEnabled;
  * @author rob
  *
  */
-public class ServiceProxyGenerator extends ProxyGenerator<Service> {
+public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 
-	public Object generate(Service service, ClassLoader classLoader) {
-		return generate(service, new WrapperFactory<Service>() {
+	public Object generate(ServiceAdaptor service, ClassLoader classLoader) {
+		return generate(service, new WrapperFactory<ServiceAdaptor>() {
 			@Override
-			public Class<?>[] wrappingInterfacesFor(Service wrapped) {
+			public Class<?>[] wrappingInterfacesFor(ServiceAdaptor wrapped) {
 					
 				Set<Class<?>> interfaces = new HashSet<Class<?>>();
 				interfaces.add(Object.class);
@@ -40,11 +40,12 @@ public class ServiceProxyGenerator extends ProxyGenerator<Service> {
 				interfaces.add(Runnable.class);
 				interfaces.add(LogEnabled.class);
 				interfaces.add(Transient.class);
-
-				return (Class[]) interfaces.toArray(new Class[0]);		
+				
+				return (Class[]) interfaces.toArray(
+						new Class[interfaces.size()]);		
 			}
 			@Override
-			public ComponentWrapper wrapperFor(Service wrapped, Object proxy) {
+			public ComponentWrapper wrapperFor(ServiceAdaptor wrapped, Object proxy) {
 				return new ServiceWrapper(wrapped, proxy);
 			}
 		}, classLoader);

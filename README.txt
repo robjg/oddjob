@@ -3,6 +3,13 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Created a start job that is the old run job. The run job now shows what
+  it is running and reflects it's state. It will also wait until Execution
+  has finished so behaviour will be the same running a local job or a
+  server job. Depends job is now deprecated.
+- Re-wrote the multi value table widget used to design mapped and indexed
+  properties and the Variables designer. It now has up down buttons for
+  re-ordering (alt-up/alt-down) and is much less buggy.
 - Property expansion now supports nested properties of the form ${${}}.
 - A file chooser has been added to Input Handlers. 
 - Ctrl enter and escape shortcut keys now work in the SwingInputHandler
@@ -36,9 +43,6 @@ Still To Do for 1.2.0
   only need to support COMPLETE, INCOMPLETE and EXCEPTION. Would you ever 
   need to test for READY?
 - Check needs a way of checking a property isn't set. A null flag maybe.
-- Look at having a start job and a run job. Do we need a run job? It would
-  be a sequential of a reset, a start and a mirror. Look at what to do with
-  depends.
 - If job should work on asynchronous completion of a job.
 - Allow mirror to mirror an entire hierarchy of jobs.
 - Need better protection from exceptions in the DetailModel.setSelectedContext

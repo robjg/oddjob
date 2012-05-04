@@ -195,7 +195,8 @@ implements
 				failedToStopException = e;
 			} catch (RuntimeException e) {
 				failedToStopException =
-					new FailedToStopException(StructuralJob.this, e);
+					new FailedToStopException(StructuralJob.this, 
+							"Failed to stop child.", e);
 			}				
 			
 			try {
@@ -265,8 +266,8 @@ implements
 					
 					childStateReflector.stop();
 					childHelper.hardResetChildren();
-					onReset();
 					stop = false;
+					onReset();
 					getStateChanger().setState(ParentState.READY);
 					
 					logger().info("Hard Reset complete.");
@@ -377,7 +378,7 @@ implements
 		try {
 			stop();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Failed to stop during destroy.", e);
 		}
 		
 		childStateReflector.stop();

@@ -5,19 +5,9 @@ import java.io.Serializable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
-import org.oddjob.arooa.parsing.MockArooaContext;
 
 public class OddjobComponentResolverTest extends TestCase {
-
-	private class OurContext extends MockArooaContext {
-		
-		@Override
-		public ArooaSession getSession() {
-			return new MockArooaSession();
-		}
-	}
 	
 	public void testRunnable() {
 		
@@ -29,7 +19,7 @@ public class OddjobComponentResolverTest extends TestCase {
 			}
 		};
 		
-		Object proxy = test.resolve(runnable, new OurContext());
+		Object proxy = test.resolve(runnable, new MockArooaSession());
 
 		assertTrue(proxy instanceof Runnable);
 	}
@@ -46,7 +36,8 @@ public class OddjobComponentResolverTest extends TestCase {
 		OddjobComponentResolver test = 
 			new OddjobComponentResolver();
 				
-		Object proxy = test.resolve(new OurService(), new OurContext());
+		Object proxy = test.resolve(new OurService(), 
+				new MockArooaSession());
 
 		assertTrue(proxy instanceof Runnable);
 	}
@@ -67,11 +58,12 @@ public class OddjobComponentResolverTest extends TestCase {
 		
 		Object job = new OurSerializableRunnable();
 		
-		Object proxy = test.resolve(job, new OurContext());
+		Object proxy = test.resolve(job, new MockArooaSession());
 
 		Object restoredProxy = Helper.copy(proxy);
 		
-		Object restoredJob = test.restore(restoredProxy, new OurContext());
+		Object restoredJob = test.restore(restoredProxy, 
+				new MockArooaSession());
 		
 		assertEquals(OurSerializableRunnable.class, restoredJob.getClass());
 		

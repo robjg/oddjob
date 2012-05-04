@@ -1,0 +1,19 @@
+<oddjob>
+  <job>
+    <sequential>
+      <jobs>
+        <folder name="services">
+          <jobs>
+            <bean id="cachingPriceService" 
+                class="org.oddjob.examples.CachingPriceService" />
+            <bean id="nonCachingPriceService" 
+                class="org.oddjob.examples.NonCachingPriceService" />
+          </jobs>
+        </folder>
+        <start job="${${priceService}}"/>
+        <bean id="pricingJob" class="org.oddjob.examples.PricingJob"
+          priceService="${${priceService}}"/>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

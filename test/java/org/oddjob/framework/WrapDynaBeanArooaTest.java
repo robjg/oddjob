@@ -10,7 +10,6 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.BeanOverview;
@@ -59,11 +58,11 @@ public class WrapDynaBeanArooaTest extends TestCase {
 		public ComponentProxyResolver getComponentProxyResolver() {
 			return new ComponentProxyResolver() {
 				@Override
-				public Object resolve(Object object, ArooaContext parentContext) {
+				public Object resolve(Object object, ArooaSession session) {
 					return new WrapDynaBean(object);
 				}
 				@Override
-				public Object restore(Object proxy, ArooaContext parentContext) {
+				public Object restore(Object proxy, ArooaSession session) {
 					throw new RuntimeException("Unexpected.");
 				}
 			};

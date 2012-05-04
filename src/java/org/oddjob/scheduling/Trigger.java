@@ -255,11 +255,12 @@ public class Trigger extends ScheduleBase {
 	}
 
 	/**
+	 * Wrap the job. This is the Runnable that is submitted.
 	 */
 	class Execution implements Runnable {
 		public void run() {
 			
-			ComponentBoundry.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), Trigger.this);
 			try {
 
 				logger().info("Executing child.");

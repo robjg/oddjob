@@ -29,7 +29,6 @@ import org.oddjob.monitor.model.JobFormAction;
  * @author rob
  */
 public class DesignInsideAction extends JobFormAction implements FormAction {
-	private static final long serialVersionUID = 2008120400;
 	
 	private ArooaConfiguration config;
 
@@ -62,7 +61,8 @@ public class DesignInsideAction extends JobFormAction implements FormAction {
 					(ConfigurationOwner) context.getThisComponent();
 			}
 			
-			if (configOwner == null) {
+			if (configOwner == null || 
+					configOwner.rootDesignFactory() == null) {
 				setEnabled(false);
 				setVisible(false);
 			}

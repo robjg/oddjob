@@ -104,14 +104,14 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 * 
 	 * @throws RemoteException
 	 */
-	public static Object createProxyFor(ObjectName objectName,
+	public static Handle createProxyFor(ObjectName objectName,
 			ClientSideToolkit toolkit) {
 		
 		ClientNode client = new ClientNode(
 				objectName, 
 				toolkit);
 				
-		return client.proxy;
+		return client.new Handle();
 	}
 	
 	/**
@@ -137,6 +137,15 @@ public class ClientNode implements InvocationHandler, Exportable {
 		logger.debug("[" + proxy + "] exported with name [" + objectName + "]");
 		ComponentTransportable transportable = new ComponentTransportable(objectName);
 		return transportable;
+	}
+	
+	public class Handle {
+		public Object getproxy() {
+			return proxy;
+		}
+		public Destroyable getDestroyer() {
+			return interfaceManager;
+		}
 	}
 	
 }

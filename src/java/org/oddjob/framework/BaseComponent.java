@@ -98,14 +98,26 @@ implements Iconic, Stateful,
 			@Override
 			public void beforeDestroy(RuntimeEvent event) throws ArooaException {
 				stateHandler().assertAlive();
-				logger().debug("Destroying.");
-				onDestroy();
+				ComponentBoundry.push(logger().getName(), BaseComponent.this);
+				try {
+					logger().debug("Destroying.");
+					onDestroy();
+				}
+				finally {
+					ComponentBoundry.pop();
+				}
 			}
 			
 			@Override
 			public void afterDestroy(RuntimeEvent event) throws ArooaException {
 				
-				fireDestroyedState();
+				ComponentBoundry.push(logger().getName(), BaseComponent.this);
+				try {
+					fireDestroyedState();
+				}
+				finally {
+					ComponentBoundry.pop();
+				}
 			}
 		});
 		
@@ -249,8 +261,14 @@ implements Iconic, Stateful,
 	 */
 	public void initialise() throws JobDestroyedException {
 		stateHandler().assertAlive();
-		onInitialised();
-		onConfigured();
+		ComponentBoundry.push(logger().getName(), this);
+		try {
+			onInitialised();
+			onConfigured();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}	
 	
 	/**
@@ -261,8 +279,14 @@ implements Iconic, Stateful,
 	 */
 	public void destroy() throws JobDestroyedException { 
 		stateHandler().assertAlive();
-		onDestroy();
-		fireDestroyedState();
+		ComponentBoundry.push(logger().getName(), this);
+		try {
+			onDestroy();
+			fireDestroyedState();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}		
 	}
 	
 	/**
@@ -281,13 +305,15 @@ implements Iconic, Stateful,
 	protected void onConfigured() {
 	}
 	
-	
 	/**
 	 * Subclasses override this method to clear up resources.
 	 *
 	 */
 	protected void onDestroy() { }
 	
+	/**
+	 * Subclasses must override this to fire the destroyed state.
+	 */
 	abstract protected void fireDestroyedState();
 	
 }

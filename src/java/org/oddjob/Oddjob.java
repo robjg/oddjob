@@ -755,7 +755,7 @@ implements Loadable,
 		try {
 			childHelper.stopChildren();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Faild to stop child.", e);
 		}
 		
 		ComponentPersister persister = ourSession.getComponentPersister();		

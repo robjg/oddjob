@@ -271,7 +271,7 @@ abstract public class TimerBase extends ScheduleBase {
 		firePropertyChange("nextDue", oldNextDue, nextDue);
 		
 		if (nextDue == null) {
-			logger().info("Schedule finished.");
+			logger().info("There is no nextDue, schedule finished.");
 			childStateReflector.start();
 			return;
 		}

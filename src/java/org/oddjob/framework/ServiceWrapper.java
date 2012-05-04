@@ -31,7 +31,7 @@ implements ComponentWrapper {
 	
 	private final ServiceStateChanger stateChanger;
 	
-    private final Service service;
+    private final ServiceAdaptor service;
     
     private Object wrapped;
     
@@ -39,7 +39,7 @@ implements ComponentWrapper {
     
     private final Object proxy;
     	
-    public ServiceWrapper(Service service, Object proxy) {
+    public ServiceWrapper(ServiceAdaptor service, Object proxy) {
     	this.service = service;
     	this.proxy = proxy;
         this.wrapped = service.getComponent();

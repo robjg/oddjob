@@ -531,6 +531,8 @@ implements Runnable, Stateful, Resetable,
 		
 		notificationProcessor.stopProcessor();
 		
+		clientSession.destroyAll();
+		
 		serverStoppedListener = null;
 		cntor = null;
 		logPoller = null;

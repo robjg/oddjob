@@ -11,8 +11,10 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.FragmentHelper;
 import org.oddjob.Helper;
+import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
@@ -64,7 +66,7 @@ public class WaitJobTest extends TestCase {
 		sample.setState(JobState.COMPLETE);
 		
 		WaitJob wait = new WaitJob();
-		wait.setPause(2000);
+		wait.setPause(500);
 		
 		SequentialJob sequential = new SequentialJob();
 		sequential.setJobs(0, wait);
@@ -81,6 +83,38 @@ public class WaitJobTest extends TestCase {
 		
 		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
 	}
+	
+	public void testStopStateWait() throws InterruptedException, FailedToStopException {
+		FlagState sample = new FlagState();
+		sample.setState(JobState.COMPLETE);
+				
+		WaitJob test = new WaitJob();
+		test.setFor(sample);
+		test.setState(StateConditions.INCOMPLETE);
+		test.setPause(9999999);
+		
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck("ready", "executing", "sleeping");
+		
+		Thread t = new Thread(test);
+		
+		t.start();
+		
+		icons.checkWait();
+		
+		icons.startCheck("sleeping", "executing", "sleeping");
+		
+		sample.run();
+		
+		icons.checkWait();
+		
+		test.stop();
+		
+		icons.startCheck("sleeping", "stopping", "complete");
+		
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
+	}
+	
 	
 	public void testStateWaitInOJ() throws Exception {
 		
@@ -131,7 +165,7 @@ public class WaitJobTest extends TestCase {
 			"     <job>" +
 			"      <scheduling:retry>"  +
 			"       <schedule>" +
-			"        <schedules:interval interval='00:01'/>" +
+			"        <schedules:interval interval='00:00:00.500'/>" +
 			"       </schedule>" +
 			"       <job>" +
 			"        <sequential>" +
@@ -155,17 +189,19 @@ public class WaitJobTest extends TestCase {
 		Oddjob oddjob = new Oddjob();
 		oddjob.setOddjobExecutors(services);
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.run();
 
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oddjob);
 //		explorer.run();
-//		
-		WaitJob wait = new WaitJob();
-		wait.setState(StateConditions.COMPLETE);
-		wait.setFor(oddjob);
 		
-		wait.run();
+		StateSteps state = new StateSteps(oddjob);
+		state.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+				
+		oddjob.run();
+		
+		state.checkWait();
 		
 		oddjob.destroy();
 		

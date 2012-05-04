@@ -7,11 +7,12 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Callable;
 
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.framework.CallableProxyGenerator;
+import org.oddjob.framework.ServiceStrategies;
 import org.oddjob.framework.RunnableProxyGenerator;
-import org.oddjob.framework.Service;
+import org.oddjob.framework.ServiceAdaptor;
 import org.oddjob.framework.ServiceProxyGenerator;
 import org.oddjob.framework.WrapperInvocationHandler;
 
@@ -32,7 +33,8 @@ import org.oddjob.framework.WrapperInvocationHandler;
 public class OddjobComponentResolver 
 implements ComponentProxyResolver {
 	
-	public Object resolve(final Object component, ArooaContext parentContext) {
+	@Override
+	public Object resolve(final Object component, ArooaSession session) {
 
 		Object proxy;
 		
@@ -50,7 +52,8 @@ implements ComponentProxyResolver {
 	    			component.getClass().getClassLoader());
 	    }
 	    else {
-	    	Service service = Service.serviceFor(component);
+	    	ServiceAdaptor service = 
+	    			new ServiceStrategies().serviceFor(component);
 	    	if (service != null) {
 	    		proxy = new ServiceProxyGenerator().generate(service, 
 	    				component.getClass().getClassLoader());
@@ -63,7 +66,8 @@ implements ComponentProxyResolver {
 	    return proxy;
 	}
 	
-	public Object restore(Object proxy, ArooaContext parentContext) {
+	@Override
+	public Object restore(Object proxy, ArooaSession session) {
 		
 		Object component;
 		

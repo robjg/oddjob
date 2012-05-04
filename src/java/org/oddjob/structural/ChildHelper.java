@@ -167,6 +167,9 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 					((Stoppable) child).stop();
 				} catch (FailedToStopException e) {
 					failed = e;
+				} catch (RuntimeException e) {
+					failed = new FailedToStopException(child, 
+							"[" + child + "] failed to stop.", e);
 				}
 			}
 		} 

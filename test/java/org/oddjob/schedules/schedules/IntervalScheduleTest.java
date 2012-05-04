@@ -275,4 +275,22 @@ public class IntervalScheduleTest extends TestCase {
     	
     	assertEquals(expected, next);
     }
+    
+    public void testBadInterval() throws ParseException {
+    	
+		IntervalSchedule test = new IntervalSchedule();		
+		test.setInterval("00:00.500");
+		
+		ScheduleContext scheduleContext = new ScheduleContext(
+				DateHelper.parseDateTime("2012-05-01 12:00"));
+		
+		try {
+			test.nextDue(scheduleContext);
+			fail("Should fail.");
+		}
+		catch (IllegalStateException e) {
+			//
+		}
+		
+    }
 }

@@ -147,6 +147,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 					stateHandler().sleep(waitTime);
 				} catch (InterruptedException e) {
 					logger().debug("Sleep interupted.");
+					Thread.currentThread().interrupt();
 				}
 				
 				// Stop should already have set Icon to Stopping.

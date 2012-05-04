@@ -90,7 +90,7 @@ public class IntervalSchedule implements Schedule, Serializable {
 	public ScheduleResult nextDue(ScheduleContext context) {
 
 		if (intervalMillis == 0) {
-			return null;
+			throw new IllegalStateException("An interval of 0 is invalid.");
 		}
 		
 		Date now = context.getDate();

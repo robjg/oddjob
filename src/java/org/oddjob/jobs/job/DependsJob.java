@@ -4,16 +4,17 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
-import org.oddjob.scheduling.Trigger;
 import org.oddjob.state.JobState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.state.StateMemory;
 import org.oddjob.util.OddjobConfigException;
 
 /**
- * @oddjob.description A job which depends on another job. 
+ * @oddjob.description This job is deprecated, use {@link RunJob} instead. 
+ * <p>
+ * A job which depends on another job. 
  * <ul>
  * <li>If the other job is in a READY state, this job will run 
  * the other job.</li>
@@ -23,12 +24,10 @@ import org.oddjob.util.OddjobConfigException;
  * completion state.</li>
  * </ul>
  * 
- * This job is intended to simulate Ant's dependency like
- * functionality however it's usefulness is currently 
- * questionable. Solutions using {@link Trigger} may well be
- * more elegant.
+ * This job was intended to simulate Ant's dependency like
+ * functionality but the run job is better.
  * 
- * 
+ * @deprecated Use {@link RunJob} instead.
  * @author Rob Gordon
  */
 
@@ -45,6 +44,10 @@ public class DependsJob extends SimpleJob implements Stoppable,
 
 	private transient volatile StateEvent event;
 
+	public DependsJob() {
+		logger().warn("Depends Job is deprecated. Use run instead.");
+	}
+	
 	/**
 	 * Set the stop node directly.
 	 * 

@@ -1,15 +1,18 @@
 package org.oddjob.jobs;
 
+import java.util.LinkedList;
+
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * @oddjob.description This Job will either wait a given number of milliseconds
@@ -128,39 +131,54 @@ public class WaitJob extends SimpleJob
 	}
 
 	protected void waitForState() {
-		class Listener implements StateListener {
-			synchronized public void jobStateChange(StateEvent event) {
-				synchronized (WaitJob.this) {
-					WaitJob.this.notifyAll();
-				}
-			}
-		}
-		Listener listener = new Listener();
 		
-		Stateful stateful = (Stateful) forProperty;
-		
-		stateful.addStateListener(listener);
-		
-		long waitBetweenChecks = pause;
-		if (waitBetweenChecks == 0) {
+		final long waitBetweenChecks;
+		if (pause == 0) {
 			waitBetweenChecks = DEFAULT_WAIT_SLEEP;
 		}
+		else {
+			waitBetweenChecks = pause;
+		}
+		
+		final LinkedList<State> states = new LinkedList<State>();
+		
+		StateListener listener = new StateListener() {
+			synchronized public void jobStateChange(StateEvent event) {
+				synchronized (states) {
+					states.add(event.getState());
+					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+						public void run() {
+							stateHandler.wake();
+						}
+					});
+				}
+			}
+		};
+		
+		((Stateful) forProperty).addStateListener(listener);
 		
 		while (!stop) {
 
-			State now = stateful.lastStateEvent().getState();
-			logger().debug("State of [" + forProperty + "] is "+ state);
-				
-			if (state.test(now)) {
+			State now = null;
+			
+			synchronized (states) {
+				if (!states.isEmpty()) {
+					now = states.removeFirst();
+					logger().debug("State received "+ now);
+				}
+			}
+			
+			if (now != null && state.test(now)) {
+				logger().debug("State matches " + state);
 				break;
 			}
-			logger().debug("Waiting for state " + 
-					 state + ", currently "
-					+ now);
+			
+			logger().debug("Waiting for state to match " + state);
 			
 			sleep(waitBetweenChecks);
 		}
-		((Stateful) forProperty).removeStateListener(listener);
+		
+		((Stateful) forProperty).removeStateListener(listener);		
 	}
 	
 	public Object getFor() {

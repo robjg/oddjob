@@ -47,4 +47,8 @@ public interface ClientSession extends ObjectNames {
 	 * @return
 	 */
 	public Logger logger();
+	
+	
+	public void destroyAll();
+	
 }

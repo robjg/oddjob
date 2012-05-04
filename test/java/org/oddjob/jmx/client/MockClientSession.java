@@ -36,4 +36,9 @@ public class MockClientSession implements ClientSession {
 	public Logger logger() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
+	
+	@Override
+	public void destroyAll() {
+		throw new RuntimeException("Unexpected from " + getClass());
+	}
 }

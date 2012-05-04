@@ -4,7 +4,7 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
 
 /**
- * Extends the idea of a {@link BeanDirectory} to also include a server
+ * Extends the idea of a {@link BeanDirectory} to also includes a server
  * identifier.
  * 
  * @author rob

@@ -121,7 +121,7 @@ public class IconSteps {
 				" on [" + iconic + "] to have states " + 
 				Arrays.toString(listener.steps));
 		
-		while (!listener.done) {
+		if (!listener.done) {
 			synchronized(listener) {
 				listener.wait(timeout);
 			}

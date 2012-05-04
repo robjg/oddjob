@@ -2,9 +2,23 @@ package org.oddjob.jmx.client;
 
 import java.lang.reflect.Method;
 
-public interface ClientInterfaceManager {
+/**
+ * Dispatches methods to the correct handlers.
+ * 
+ * @author rob
+ *
+ */
+public interface ClientInterfaceManager extends Destroyable {
 
-	
-	public Object invoke(Method m, Object[] args)
+	/**
+	 * Invoke a method.
+	 * 
+	 * @param method
+	 * @param args
+	 * @return
+	 * 
+	 * @throws Throwable
+	 */
+	public Object invoke(Method method, Object[] args)
 	throws Throwable;
 }

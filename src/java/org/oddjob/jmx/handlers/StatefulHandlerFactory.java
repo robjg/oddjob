@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.management.InstanceNotFoundException;
@@ -22,9 +21,11 @@ import javax.management.ReflectionException;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.ClientDestroyed;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.Destroyable;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.client.SimpleHandlerResolver;
 import org.oddjob.jmx.client.Synchronizer;
@@ -33,9 +34,9 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.state.JobState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
@@ -115,7 +116,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	 * @author Rob Gordon
 	 */
 
-	static class ClientStatefulHandler implements Stateful {
+	static class ClientStatefulHandler implements Stateful, Destroyable {
 
 		/** Remember the last event so new state listeners can be told it. */
 		private StateEvent lastEvent;
@@ -152,8 +153,8 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			synchronized (listeners) {
 				copy = new ArrayList<StateListener>(listeners);
 			}
-			for (Iterator<StateListener> it = copy.iterator(); it.hasNext();) {				
-				((StateListener)it.next()).jobStateChange(newEvent);	
+			for (StateListener listener : copy) {				
+				listener.jobStateChange(newEvent);	
 			}
 		}
 		
@@ -219,6 +220,12 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		@Override
 		public StateEvent lastStateEvent() {
 			return lastEvent;
+		}
+		
+		@Override
+		public void destroy() {
+			jobStateChange(new StateData(
+					new ClientDestroyed(), new Date(), null)); 
 		}
 	}
 

@@ -91,7 +91,8 @@ public class ServiceWrapperTest extends TestCase {
 	public void testStartStop() throws Exception {
 		MyService myService = new MyService();
 		
-		Service service = Service.serviceFor(myService);
+		ServiceAdaptor service = new ServiceStrategies().serviceFor(
+				myService);
 		
 		OurSession session = new OurSession();
 		

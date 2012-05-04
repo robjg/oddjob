@@ -5,9 +5,10 @@ package org.oddjob.jmx.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,11 +58,17 @@ class ClientInterfaceManagerFactory {
 		final Map<Method, Operation<?>> operations = 
 			new LinkedHashMap<Method, Operation<?>>();
 
+		final List<Destroyable> destroyables = 
+				new ArrayList<Destroyable>();
+				
 		// Loop over all definitions.
-		for (Iterator<ClientInterfaceHandlerFactory<?>> it = clientHandlerFactories.iterator(); it.hasNext(); ) {
-			ClientInterfaceHandlerFactory<?> clientHandlerFactory = it.next();
-
-			createOperations(source, csToolkit, clientHandlerFactory, operations);
+		for (ClientInterfaceHandlerFactory<?> clientHandlerFactory : 
+				clientHandlerFactories) {
+			Object handler = createOperations(source, csToolkit, 
+					clientHandlerFactory, operations);
+			if (handler instanceof Destroyable) {
+				destroyables.add((Destroyable) handler);
+			}
 		}
 		
 		return new ClientInterfaceManager() {
@@ -82,6 +89,12 @@ class ClientInterfaceManagerFactory {
 					throw e.getTargetException();
 				}
 			}
+			@Override
+			public void destroy() {
+				for (Destroyable destroyable : destroyables) {
+					destroyable.destroy();
+				}
+			}
 
 		};
 	}
@@ -95,7 +108,7 @@ class ClientInterfaceManagerFactory {
 	 * @param factory
 	 * @param operations
 	 */
-	private <T> void createOperations(
+	private <T> T createOperations(
 			Object source, 
 			ClientSideToolkit csToolkit,
 			ClientInterfaceHandlerFactory<T> factory, 
@@ -126,6 +139,8 @@ class ClientInterfaceManagerFactory {
 					new Operation<T>(interfaceHandler,
 							factory));
 		}
+		
+		return interfaceHandler;
 	}
 	
 	/**
