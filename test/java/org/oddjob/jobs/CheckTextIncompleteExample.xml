@@ -1,20 +1,22 @@
 <oddjob>
-    <job>
-        <!--  needed to force predictable state transitions,
-            so Oddjob goes to INCOMPLETE not ACTIVE first. -->
-        <state:join xmlns:state="http://rgordon.co.uk/oddjob/state">
-            <job>
-                <parallel id="all-checks">
-                    <jobs>
-                        <check value='apple' eq='orange'/>
-                        <check value='apple' ne='apple'/>
-                        <check value='orange' lt='apple'/>
-                        <check value='orange' le='apple'/>
-                        <check value='apple' gt='orange'/>
-                        <check value='apple' ge='orange'/>
-                    </jobs>
-                </parallel>
-            </job>
-        </state:join>
-    </job>
+  <job>
+    <!-- needed to force predictable state transitions for the unit test, 
+      so Oddjob goes to INCOMPLETE not ACTIVE first. -->
+    <state:join xmlns:state="http://rgordon.co.uk/oddjob/state">
+      <job>
+        <parallel id="all-checks">
+          <jobs>
+            <check value='apple' eq='orange' />
+            <check value='apple' ne='apple' />
+            <check value='orange' lt='apple' />
+            <check value='orange' le='apple' />
+            <check value='apple' gt='orange' />
+            <check value='apple' ge='orange' />
+            <check value='anything' null='true' />
+            <check value='${missing}' null='false' />
+          </jobs>
+        </parallel>
+      </job>
+    </state:join>
+  </job>
 </oddjob>

@@ -7,9 +7,9 @@ import org.oddjob.Structural;
  * as follows:
  * <ul>
  * <li>If any child is EXCEPTION then evaluate to EXCEPTION.</li>
- * <li>If any child is ACTIVE/EXECUTING then evaluate to ACTIVE.</li>
  * <li>If any child is INCOMPLETE then evaluate to INCOMPLETE.</li>
  * <li>If any child is READY then evaluate to READY.</li>
+ * <li>If any child is ACTIVE/EXECUTING then evaluate to COMPLETE.</li>
  * <li>Evaluate to COMPLETE.</li>
  * </ul>
  * 
@@ -20,7 +20,7 @@ import org.oddjob.Structural;
  * @author rob
  *
  */
-public class ExceptionHighestStateOp implements StateOperator {
+public class ServiceManagerStateOp implements StateOperator {
 	
 	@Override
 	public ParentState evaluate(State... states) {
@@ -32,15 +32,15 @@ public class ExceptionHighestStateOp implements StateOperator {
 		if (states.length > 0) {
 			
 			state = new ParentStateConverter().toStructuralState(states[0]);
+			if (state.isStoppable()) {
+				state = ParentState.COMPLETE;
+			}
 			
 			for (int i = 1; i < states.length; ++i) {
 				State next = states[i];
 
 				if (state.isException() || next.isException()) {
 					state = ParentState.EXCEPTION;
-				}
-				else if (state.isStoppable() || next.isStoppable()){
-					state = ParentState.ACTIVE;
 				}
 				else if (state.isIncomplete() || next.isIncomplete()){
 					state = ParentState.INCOMPLETE;

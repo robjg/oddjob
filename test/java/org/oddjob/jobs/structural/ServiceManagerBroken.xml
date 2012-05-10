@@ -1,0 +1,17 @@
+<oddjob>
+  <job>
+    <sequential>
+      <jobs>
+      <serviceman id="service-manager">
+        <jobs>
+          <bean id="lights" 
+            class="org.oddjob.jobs.structural.ServiceManagerTest$Lights"/>
+          <bean id='machine'
+            class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatBreaks"/>
+        </jobs>
+      </serviceman>
+      <echo>This will never run.</echo>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

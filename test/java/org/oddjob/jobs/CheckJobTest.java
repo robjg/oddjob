@@ -37,6 +37,12 @@ public class CheckJobTest extends TestCase {
 		test.run();
 		
 		assertEquals(1, test.getResult());
+		
+		test.setNull(true);
+		
+		test.run();
+		
+		assertEquals(0, test.getResult());
 	}
 	
 	class OurSession extends MockArooaSession {

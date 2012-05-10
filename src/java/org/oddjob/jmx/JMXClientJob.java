@@ -546,7 +546,8 @@ implements Runnable, Stateful, Resetable,
 					logger().error("Stopped because of heartbeat Failure.", cause);
 					break;
 				case SERVER_STOPPED:
-					getStateChanger().setState(ServiceState.INCOMPLETE);
+					getStateChanger().setStateException(
+							new Exception("Server Stopped"));
 					logger().info("Stopped because server Stopped.");
 					break;
 				default:

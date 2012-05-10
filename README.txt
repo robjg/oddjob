@@ -3,6 +3,15 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Added a Service Manager (serviceman) job has been add for managing 
+  services.
+- The INCOMPLETE state has been removed from the ServiceState enum.
+  This state wasn't really meaningful in the context of a service. It existed
+  only because historically JMXClientJob could become incomplete when a 
+  server is shut down. If differentiating between a shutdown server and a
+  lost network connection is a requirement then a property could be added to 
+  the client job in future.
+- The check job now includes a null flag to check that a property isn't set.
 - Changed the designer for a bean from just XML to one that dynamically 
   creates a form for the bean's settable properties.
 - Improved properties job to show when properties are overridden, to
@@ -39,15 +48,9 @@ Still To Do for 1.2.0
 - Look at what happens when there are exceptions in a timer. Should there be
   a haltOnException flag. Should an Exception in a timer be indicated as
   an exception state not an incomplete state?
-- A sequential of a running job and an exception job shows as running - which
-  is correct in most situations but it doesn't work with a set of services. 
-  If one service fails to start all services should be stopped and an exception
-  should be flagged. There could either be a services flag added to sequential
-  but a better solution might be a separate services job.
 - Simplify State conditions. DESTROYED should not be an option and we probably
   only need to support COMPLETE, INCOMPLETE and EXCEPTION. Would you ever 
   need to test for READY?
-- Check needs a way of checking a property isn't set. A null flag maybe.
 - If job should work on asynchronous completion of a job.
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.

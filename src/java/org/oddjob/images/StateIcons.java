@@ -33,7 +33,6 @@ public class StateIcons {
 		iconIds.put(ServiceState.READY, IconHelper.READY);
 		iconIds.put(ServiceState.STARTING, IconHelper.EXECUTING);
 		iconIds.put(ServiceState.STARTED, IconHelper.STARTED);
-		iconIds.put(ServiceState.INCOMPLETE, IconHelper.NOT_COMPLETE);
 		iconIds.put(ServiceState.COMPLETE, IconHelper.COMPLETE);
 		iconIds.put(ServiceState.EXCEPTION, IconHelper.EXCEPTION);
 		iconIds.put(ServiceState.DESTROYED, IconHelper.INVALID);		

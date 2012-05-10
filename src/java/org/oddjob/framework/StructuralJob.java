@@ -214,6 +214,7 @@ implements
 					public void run() {
 						iconHelper.changeIcon(
 								StateIcons.iconFor(stateHandler.getState()));
+						stop = false;
 					}					
 				});
 			}		

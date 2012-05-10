@@ -144,11 +144,7 @@ implements ComponentWrapper {
         
     	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     		public void run() {
-                if (result.get() == 0) {
-                	getStateChanger().setState(ServiceState.COMPLETE);
-                } else {
-                	getStateChanger().setState(ServiceState.INCOMPLETE);
-                }
+    			getStateChanger().setState(ServiceState.COMPLETE);
     		}
     	});
 
@@ -158,13 +154,19 @@ implements ComponentWrapper {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setState(ServiceState.READY);
-				
-				logger().info("Soft Reset complete.");
-			}
-		});
+		ComponentBoundry.push(loggerName(), wrapped);
+        try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ServiceState.READY);
+					
+					logger().info("Soft Reset complete.");
+				}
+			});
+        }
+        finally {
+        	ComponentBoundry.pop();
+        }
 	}
 	
 	/**
@@ -172,13 +174,19 @@ implements ComponentWrapper {
 	 */
 	public boolean hardReset() {
 		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				getStateChanger().setState(ServiceState.READY);
-
-				logger().info("Hard Reset complete.");
-			}
-		});
+		ComponentBoundry.push(loggerName(), wrapped);
+        try {
+        	return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ServiceState.READY);
+	
+					logger().info("Hard Reset complete.");
+				}
+			});
+        }
+        finally {
+        	ComponentBoundry.pop();
+        }
 	}
 	
 	/**

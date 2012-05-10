@@ -112,43 +112,6 @@ public enum ServiceState implements State {
 	},
 	
 	/**
-	 * The service has terminated in an incomplete state. Not sure this
-	 * state is meaningful but is here because a historically a 
-	 * ClientJob become incomplete when a service is shut down. This
-	 * state may be removed in future versions.
-	 */
-	INCOMPLETE() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isPassable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return true;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
-	
-	/**
 	 * Indicates service has stopped. 
 	 */	
 	COMPLETE() {

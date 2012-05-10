@@ -14,7 +14,7 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 
 /**
  * @oddjob.description Checks a value for certain criteria. This
- * job is analogous to the unix 'test' command. 
+ * job is analogous to the Unix 'test' command. 
  * <p>
  * This Job will COMPLETE if all checks pass. It will be INCOMPLETE
  * if any fail.
@@ -24,7 +24,8 @@ import org.oddjob.arooa.life.ArooaSessionAware;
  * if the row count property is an integer, the 1000 is converted
  * into an integer for the comparison.
  * <p>
- * If the value property is not provided the job will be INCOMPLETE.
+ * If the value property is not provided the job will be INCOMPLETE unless
+ * the null property is set to true.
  * 
  * @oddjob.example
  * 
@@ -48,8 +49,8 @@ import org.oddjob.arooa.life.ArooaSessionAware;
  * 
  * @oddjob.example
  * 
- * Check a Property Exists. The secon check will be INCOMPLETE because the
- * prpoerty doesn't exist.
+ * Check a Property Exists. The second check will be INCOMPLETE because the
+ * property doesn't exist.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/CheckExistsExample.xml}
  * 
@@ -69,9 +70,19 @@ implements Runnable, Serializable, ArooaSessionAware {
 	private int result;
 	
 	/** 
+	 * @oddjob.property null
+	 * @oddjob.description Must the value be null for the check to pass. 
+	 * True the value must be null. False it must not be null. If this 
+	 * property is true other checks will cause an exception because they
+	 * require the value property has a value.
+	 * @oddjob.required No, if this does exist the check value null will fail.
+	 */
+	private transient boolean null_;
+
+	/** 
 	 * @oddjob.property
 	 * @oddjob.description The value to check.
-	 * @oddjob.required No, but the check will fail.
+	 * @oddjob.required No, but the check value is not null will fail.
 	 */
 	private transient Object value;
 	
@@ -139,11 +150,12 @@ implements Runnable, Serializable, ArooaSessionAware {
 					}
 					@Override
 					public boolean check() {
-						return value != null;
+						return !(value == null ^ null_);
 					}
 					@Override
 					public String toString() {
-						return "Value Exists";
+						return "value [" + value + "] should" +
+								(null_ ? "" : " not" ) + " be null";
 					}
 				},
 				new Check() {
@@ -153,11 +165,11 @@ implements Runnable, Serializable, ArooaSessionAware {
 					}
 					@Override
 					public boolean check() {
-						return value.equals(convert(eq));						
+						return value != null && value.equals(convert(eq));						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " eq " + eq;
+						return "[" + value + "] should equal [" + eq + "]";
 					}
 				},
 				new Check() {
@@ -167,11 +179,12 @@ implements Runnable, Serializable, ArooaSessionAware {
 					}
 					@Override
 					public boolean check() {
-						return !value.equals(convert(ne));						
+						return value != null && !value.equals(convert(ne));						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " ne " + ne;
+						return "[" + value + "] should not equal [" + 
+								ne + "]";
 					}
 				},
 				new Check() {
@@ -182,11 +195,14 @@ implements Runnable, Serializable, ArooaSessionAware {
 					@SuppressWarnings("rawtypes")
 					@Override
 					public boolean check() {
-						return ((Comparable) value).compareTo(convert(lt)) < 0;						
+						return value != null && 
+								((Comparable) value).compareTo(
+										convert(lt)) < 0;						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " lt " + lt;
+						return "[" + value + "] should be less than [" + 
+								lt + "]";
 					}
 				},
 				new Check() {
@@ -197,11 +213,14 @@ implements Runnable, Serializable, ArooaSessionAware {
 					@Override
 					@SuppressWarnings("rawtypes")
 					public boolean check() {
-						return ((Comparable) value).compareTo(convert(le)) <= 0;						
+						return value != null && 
+								((Comparable) value).compareTo(
+										convert(le)) <= 0;						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " le " + le;
+						return "[" + value + 
+								"] should be less or equal to [" + le + "]";
 					}
 				},
 				new Check() {
@@ -212,11 +231,14 @@ implements Runnable, Serializable, ArooaSessionAware {
 					@Override
 					@SuppressWarnings("rawtypes")
 					public boolean check() {
-						return ((Comparable) value).compareTo(convert(gt)) > 0;						
+						return value != null && 
+								((Comparable) value).compareTo(
+										convert(gt)) > 0;						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " gt " + gt;
+						return "[" + value + "] should be greater than [" + 
+								gt + "]";
 					}
 				},
 				new Check() {
@@ -227,11 +249,15 @@ implements Runnable, Serializable, ArooaSessionAware {
 					@Override
 					@SuppressWarnings("rawtypes")
 					public boolean check() {
-						return ge == null || ((Comparable) value).compareTo(convert(ge)) >= 0;						
+						return value != null && 
+								((Comparable) value).compareTo(
+										convert(ge)) >= 0;						
 					}
 					@Override
 					public String toString() {
-						return "" + value + " ge " + ge;
+						return "[" + value + 
+								"] should be greater or equal to [" + 
+								ge + "]";
 					}
 				}
 		};
@@ -241,14 +267,15 @@ implements Runnable, Serializable, ArooaSessionAware {
 				continue;
 			}
 			if (check.check()) {
-				logger.info("Check passed: " + check);
+				logger.debug("Check " + check + " passed.");
 			}
 			else {
-				logger.info("Check failed: " + check);
+				logger.info("Check " + check + " FAILED!");
 				result = 1;
 				return;
 			}
 		}
+		logger.info("Check(s) passed.");
 	}
 
 	/**
@@ -302,6 +329,15 @@ implements Runnable, Serializable, ArooaSessionAware {
 		this.name = name;
 	}
 
+	public boolean getNull() {
+		return null_;
+	}
+
+	@ArooaAttribute
+	public void setNull(boolean value) {
+		this.null_ = value;
+	}
+	
 	public Object getValue() {
 		return value;
 	}

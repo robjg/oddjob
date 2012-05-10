@@ -56,12 +56,17 @@
                 <is element='sequential'
                     className='org.oddjob.jobs.structural.SequentialJob'
                     designFactory='org.oddjob.designer.components.SequentialDC'/>
-                <is element='services' className='org.oddjob.framework.ServicesJob'/>
+                <is element='services' 
+                    className='org.oddjob.framework.ServicesJob'/>
+                <is element='serviceman'
+                    className='org.oddjob.jobs.structural.ServiceManager'/>
                 <is element='set' className='org.oddjob.values.SetJob'/>
                 <is element='sql' className='org.oddjob.sql.SQLJob'
                     designFactory='org.oddjob.designer.components.SqlDC'/>
-                <is element='sql-keeper-service' className='org.oddjob.sql.SQLKeeperService'/>
-                <is element='sql-persister-service' className='org.oddjob.sql.SQLPersisterService'/>
+                <is element='sql-keeper-service' 
+                    className='org.oddjob.sql.SQLKeeperService'/>
+                <is element='sql-persister-service' 
+                    className='org.oddjob.sql.SQLPersisterService'/>
                 <is element='start' className='org.oddjob.jobs.job.StartJob'
                     designFactory='org.oddjob.designer.components.JustJobDC'/>
                 <is element='stop' className='org.oddjob.jobs.job.StopJob'
