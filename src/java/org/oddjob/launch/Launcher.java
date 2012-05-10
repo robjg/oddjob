@@ -131,7 +131,7 @@ public class Launcher implements Runnable {
 			return file.toURI().toURL();
 		}
 		catch (IOException e) {
-        	throw new RuntimeException(e);
+        	throw new RuntimeException("Classpath " + file + " is invalid", e);
 		}
 	}
 

@@ -27,7 +27,7 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.InvalidIdException;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.registry.SimpleComponentPool;
-import org.oddjob.arooa.runtime.PropertyLookup;
+import org.oddjob.arooa.standard.MockPropertyLookup;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.persist.OddjobPersister;
@@ -172,7 +172,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		
 		ArooaSession session = test.createSession();
 		
-		outerSession.getPropertyManager().addPropertyLookup(new PropertyLookup() {
+		outerSession.getPropertyManager().addPropertyLookup(new MockPropertyLookup() {
 			
 			@Override
 			public String lookup(String propertyName) {

@@ -13,6 +13,7 @@ import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.arooa.standard.StandardPropertyLookup;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.state.JobState;
 
@@ -28,27 +29,7 @@ abstract public class PropertiesJobBase extends SerializableJob {
 	
 	/** The property lookup this job defines. */
 	private transient PropertyLookup lookup;
-	
-	/**
-	 * Default Constructor.
-	 */
-	public PropertiesJobBase() {
-		completeConstruction();
-	}
-	
-	/**
-	 * Post construction and deserialisation.
-	 */
-	private void completeConstruction() {
 		
-		lookup = new PropertyLookup() {
-			
-			@Override
-			public String lookup(String propertyName) {
-				return properties.getProperty(propertyName);
-			}
-		};
-	}
 		
 	@Override
 	@ArooaHidden
@@ -97,26 +78,46 @@ abstract public class PropertiesJobBase extends SerializableJob {
 		
 	}
 
+	protected void createPropertyLookup() {
+		
+		lookup = new StandardPropertyLookup(properties, this.toString());
+	}
+	
 	/**
 	 * Adds the property lookup to the session.
 	 */
-	protected void addPropertyLookup() {
+	protected final void addPropertyLookup() {
+		createPropertyLookup();
+		
 		ArooaSession session = getArooaSession();
 		if (session == null) {
 			throw new NullPointerException("No Session.");
 		}
 		
 		if (isOverride()) {
-			session.getPropertyManager().addPropertyOverride(lookup);					
+			session.getPropertyManager().addPropertyOverride(
+					getLookup());					
 		}
 		else {
-			session.getPropertyManager().addPropertyLookup(lookup);					
+			session.getPropertyManager().addPropertyLookup(
+					getLookup());					
 		}
 	}
 
+	/**
+	 * Subclasses can override the lookup.
+	 * 
+	 * @return
+	 */
+	protected PropertyLookup getLookup() {
+		return lookup;
+	}
+	
 	@Override
 	protected void onReset() {
-		getArooaSession().getPropertyManager().removePropertyLookup(lookup);
+		getArooaSession().getPropertyManager().removePropertyLookup(
+				getLookup());
+		lookup = null;
 	}
 	
 	@Override
@@ -153,11 +154,10 @@ abstract public class PropertiesJobBase extends SerializableJob {
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		completeConstruction();
 	}
 
 	/**
-	 * Are the properties overide prperties.
+	 * Are the properties override properties.
 	 * 
 	 * @return
 	 */

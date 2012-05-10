@@ -14,6 +14,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.runtime.PropertyLookup;
+import org.oddjob.arooa.standard.MockPropertyLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
@@ -46,7 +47,7 @@ public class InputJobTest extends TestCase {
 		OddjobSessionFactory sessionFactory = new OddjobSessionFactory();
 		ArooaSession session = sessionFactory.createSession();
 		
-		session.getPropertyManager().addPropertyLookup(new PropertyLookup() {
+		session.getPropertyManager().addPropertyLookup(new MockPropertyLookup() {
 			
 			@Override
 			public String lookup(String propertyName) {

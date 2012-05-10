@@ -49,7 +49,7 @@ public class Main {
 	 */
     public OddjobRunner init(String args[]) throws IOException {
 	    
-    	processUserProperties();
+    	Properties props = processUserProperties();
     	
 		String oddjobFile = null;
 		String name = null;
@@ -154,6 +154,8 @@ public class Main {
 			oddjob.setInputHandler(new ConsoleInputHandler());
 		}
 		
+		oddjob.setProperties(props);
+		
 		// pass remaining args into Oddjob.
 		Object newArray = Array.newInstance(String.class, args.length - startArg);
 	    System.arraycopy(args, startArg, newArray, 0, args.length - startArg);
@@ -202,31 +204,27 @@ public class Main {
 	}
 	
 	
-	protected void processUserProperties() throws IOException {
+	protected Properties processUserProperties() throws IOException {
 		
 		String homeDir = System.getProperty("user.home");		
 		
 		if (homeDir == null) {
-			return;
+			return null;
 		}
 			
 		File userProperties = new File(homeDir, USER_PROPERTIES);
 		
-		if (userProperties.exists()) {
+		if (!userProperties.exists()) {
+			return null;
+		}
 			
-			Properties props = new Properties();
-			InputStream input = new FileInputStream(userProperties);
-			
-			props.load(input);
-			input.close();
-			
-			for (Object name : props.keySet()) {
-				if (System.getProperty((String) name) == null) {
-					System.setProperty((String) name,
-							props.getProperty((String) name));
-				}
-			}
-		}		
+		Properties props = new Properties();
+		InputStream input = new FileInputStream(userProperties);
+		
+		props.load(input);
+		input.close();
+		
+		return props;
 	}
 	
 	/**

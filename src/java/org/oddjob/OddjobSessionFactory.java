@@ -62,6 +62,11 @@ public class OddjobSessionFactory {
 	 */
 	public ArooaSession createSession(Object oddjob) {
 
+		String propertySourceName = "Exported to Oddjob";
+		if (oddjob != null) {
+			propertySourceName = oddjob.toString();
+		}
+		
 		ComponentProxyResolver componentProxyResolver = null;
 		
 		ClassLoader classLoader = this.classLoader;
@@ -152,11 +157,13 @@ public class OddjobSessionFactory {
     		
     		switch (inherit) {
     		case NONE:
-                propertyManager = new StandardPropertyManager(properties);
+                propertyManager = new StandardPropertyManager(
+                		properties, propertySourceName);
     			break;
     		case PROPERTIES:
     			propertyManager = new StandardPropertyManager(
-        				existingSession.getPropertyManager(), properties);
+        				existingSession.getPropertyManager(), 
+        				properties, propertySourceName);
     			break;
     		case SHARED:
     			propertyManager = existingSession.getPropertyManager();
@@ -169,7 +176,8 @@ public class OddjobSessionFactory {
 			componentProxyResolver = new OddjobComponentResolver();
 		}
 		if (propertyManager == null) {
-			propertyManager = new StandardPropertyManager(properties);
+			propertyManager = new StandardPropertyManager(
+					properties, propertySourceName);
 		}
 		if (beanRegistry == null) {
 			beanRegistry = new SimpleBeanRegistry(

@@ -71,7 +71,7 @@ class PropertiesJobDesign extends BaseDC {
 	}
 	
 	@Override
-	protected DesignProperty[] children() {
+	public DesignProperty[] children() {
 		DesignProperty[] delegates = delegate.children();
 		DesignProperty[] all = new DesignProperty[delegates.length + 3];
 		all[0] = name;
@@ -99,7 +99,7 @@ class PropertiesTypeDesign extends DesignValueBase {
 	}
 	
 	@Override
-	protected DesignProperty[] children() {
+	public DesignProperty[] children() {
 		return delegate.children();
 	}
 }

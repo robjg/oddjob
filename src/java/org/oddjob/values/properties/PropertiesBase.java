@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
@@ -17,6 +19,7 @@ import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.ExpressionParser;
 import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.arooa.runtime.PropertyLookup;
+import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.ListSetterHelper;
 
 /**
@@ -51,6 +54,8 @@ public class PropertiesBase implements ArooaContextAware {
 	/** The session. */
 	private ArooaSession session;
 	
+	private PropertySource source;
+	
 	@Override
 	public void setArooaContext(final ArooaContext context) {
 		session = context.getSession();
@@ -71,6 +76,27 @@ public class PropertiesBase implements ArooaContextAware {
 					if (value != null) {
 						return value;
 					}
+				}
+				return null;
+			}
+			
+			@Override
+			public Set<String> propertyNames() {
+				Set<String> names = new TreeSet<String>();
+				names.addAll(values.keySet());
+				for (Properties props : list) {
+					if (props == null) {
+						continue;
+					}
+					names.addAll(props.stringPropertyNames());
+				}
+				return names;
+			}
+			
+			@Override
+			public PropertySource sourceFor(String propertyName) {
+				if (lookup(propertyName) != null) {
+					return source;
 				}
 				return null;
 			}
@@ -293,6 +319,14 @@ public class PropertiesBase implements ArooaContextAware {
      */
 	public void setPrefix(String prefix) {
 		this.prefix = prefix;
+	}
+
+	public PropertySource getSource() {
+		return source;
+	}
+
+	public void setSource(PropertySource source) {
+		this.source = source;
 	}
 	
 }

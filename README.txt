@@ -3,6 +3,11 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Changed the designer for a bean from just XML to one that dynamically 
+  creates a form for the bean's settable properties.
+- Improved properties job to show when properties are overridden, to
+  show environment properties, and, if no properties are defined, to show 
+  all properties available.
 - Created a start job that is the old run job. The run job now shows what
   it is running and reflects it's state. It will also wait until Execution
   has finished so behaviour will be the same running a local job or a
@@ -44,18 +49,17 @@ Still To Do for 1.2.0
   need to test for READY?
 - Check needs a way of checking a property isn't set. A null flag maybe.
 - If job should work on asynchronous completion of a job.
-- Allow mirror to mirror an entire hierarchy of jobs.
 - Need better protection from exceptions in the DetailModel.setSelectedContext
   method.
 - Document State better in the user guide. Include why structural jobs 
   COMPLETE when they have no child because editing a node involves removing
   it and re-adding it.
-- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
-  Explorer.
 - Support annotations for ArooaLifeCycle Methods in Oddjob. 
 
 Deferred to A Later Version
 ---------------------------
+- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
+  Explorer.
 - Use a ServerSide files system for choosing files on server component 
   designer forms.
 - Add Security to the WebApp (with a Read Only role).  

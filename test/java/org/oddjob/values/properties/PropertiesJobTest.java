@@ -4,6 +4,7 @@
 package org.oddjob.values.properties;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -342,7 +343,6 @@ public class PropertiesJobTest extends TestCase {
 	
 	public void testOverridingProperties() throws ArooaPropertyException, ArooaConversionException {
 		
-		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/values/properties/PropertiesJobOverriding.xml",
@@ -355,8 +355,182 @@ public class PropertiesJobTest extends TestCase {
 		assertEquals("${fruit.favourite} is apple",
 				lookup.lookup("echo1.text", String.class));
 		
-		assertEquals("${fruit.favourite} is banana",
+		assertEquals("${fruit.favourite} is apple",
 				lookup.lookup("echo2.text", String.class));
+		
+		assertEquals("${fruit.favourite} is banana",
+				lookup.lookup("echo3.text", String.class));
+		
+		oddjob.destroy();
+	}
+	
+	public void testDescribeable() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml =
+				"<oddjob>" +
+		  "<job>" +
+		   "<sequential>" +
+		    "<jobs>" +
+		     "<properties id='props1' name='Properties 1'>" +
+		      "<values>" +
+		       "<value key='fruit.favourite' value='apple'/>" +
+		      "</values>" +
+		     "</properties>" +
+		     "<properties id='props2' name='Properties 2'>" +
+		      "<values>" +
+		       "<value key='fruit.favourite' value='pear'/>" +
+		      "</values>" +
+		     "</properties>" +
+		     "<properties id='props3' name='Properties 3' override='true'>" +
+		      "<values>" +
+		       "<value key='fruit.favourite' value='banana'/>" +
+		      "</values>" +
+		     "</properties>" +
+		    "</jobs>" +
+		   "</sequential>" +
+		  "</job>" +
+		 "</oddjob>";
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		PropertiesJob props1 = lookup.lookup("props1", PropertiesJob.class);
+		PropertiesJob props2 = lookup.lookup("props2", PropertiesJob.class);
+		PropertiesJob props3 = lookup.lookup("props3", PropertiesJob.class);
+		
+		Map<String, String> description1;
+		Map<String, String> description2;
+		Map<String, String> description3;
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(0, description1.size());
+		assertEquals(0, description2.size());
+		assertEquals(0, description3.size());
+		
+		props1.run();
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(1, description1.size());
+		assertEquals(0, description2.size());
+		assertEquals(0, description3.size());
+		assertEquals("apple", 
+				description1.get("fruit.favourite"));
+		
+		props2.run();
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(1, description1.size());
+		assertEquals(1, description2.size());
+		assertEquals(0, description3.size());
+		
+		assertEquals("apple", 
+				description1.get("fruit.favourite"));
+		assertEquals("pear *(apple) [Properties 1]",
+				description2.get("fruit.favourite"));
+		
+		props1.hardReset();
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(0, description1.size());
+		assertEquals(1, description2.size());
+		assertEquals(0, description3.size());
+		
+		assertEquals("pear",
+				description2.get("fruit.favourite"));
+		
+		props3.run();
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(0, description1.size());
+		assertEquals(1, description2.size());
+		assertEquals(1, description3.size());
+		
+		assertEquals("pear *(banana) [Properties 3]",
+				description2.get("fruit.favourite"));
+		assertEquals("banana", 
+				description3.get("fruit.favourite"));
+		
+		props1.run();
+		props3.hardReset();
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		description3 = props3.describe();
+		
+		assertEquals(1, description1.size());
+		assertEquals(1, description2.size());
+		assertEquals(0, description3.size());
+		
+		assertEquals("apple *(pear) [Properties 2]",
+				description1.get("fruit.favourite"));
+		assertEquals("pear",
+				description2.get("fruit.favourite"));
+		
+		oddjob.destroy();
+	}
+	
+	public void testDescribeAll() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml =
+				"<oddjob>" +
+		  "<job>" +
+		   "<sequential>" +
+		    "<jobs>" +
+		     "<properties id='props1' name='Properties 1'>" +
+		      "<values>" +
+		       "<value key='fruit.favourite' value='apple'/>" +
+		      "</values>" +
+		     "</properties>" +
+		     "<properties id='props2' name='Properties 2'/>" +
+		    "</jobs>" +
+		   "</sequential>" +
+		  "</job>" +
+		 "</oddjob>";
+		
+		System.setProperty("props.job.test.only", "test");
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+
+		oddjob.run();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		PropertiesJob props1 = lookup.lookup("props1", PropertiesJob.class);
+		PropertiesJob props2 = lookup.lookup("props2", PropertiesJob.class);
+		
+		Map<String, String> description1;
+		Map<String, String> description2;
+		
+		description1 = props1.describe();
+		description2 = props2.describe();
+		
+		assertEquals(1, description1.size());
+		assertTrue(description2.size() > 1);
+		
+		assertEquals("apple [Properties 1]", 
+				description2.get("fruit.favourite"));
+		assertEquals("test [SYSTEM]", 
+				description2.get("props.job.test.only"));
 		
 		oddjob.destroy();
 	}

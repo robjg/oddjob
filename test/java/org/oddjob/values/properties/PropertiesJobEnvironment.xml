@@ -1,11 +1,11 @@
 <oddjob>
-    <job>
-        <sequential>
-            <jobs>
-                <properties environment='env'/>
-                <echo id='echo-path'>Path is ${env.PATH}</echo>
-            </jobs>
-        </sequential>
-    </job>
+  <job>
+    <sequential>
+      <jobs>
+        <properties id='props' environment='env' />
+        <echo id='echo-path'>Path is ${env.PATH}</echo>
+      </jobs>
+    </sequential>
+  </job>
 </oddjob>
         

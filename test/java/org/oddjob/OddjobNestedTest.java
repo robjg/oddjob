@@ -3,6 +3,7 @@ package org.oddjob;
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -21,6 +22,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FileType;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.values.properties.PropertiesJob;
 
 public class OddjobNestedTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(OddjobNestedTest.class);
@@ -299,5 +301,73 @@ public class OddjobNestedTest extends TestCase {
         
         oj.destroy();
         
+    }
+    
+    public void testExportedProperty() 
+    throws ArooaPropertyException, ArooaConversionException {
+    	
+    	String xml =
+    			"<oddjob>" +
+    			" <job>" +
+    			"  <oddjob id='nested'>" +
+    			"   <configuration>" +
+    		    "    <xml>" +
+    		    "     <oddjob>" +
+    		    "      <job>" +
+    		    "       <sequential>" +
+    		    "        <jobs>" +
+    		    "         <properties id='props1'>" +
+    		    "          <values>" +
+    		    "           <value key='fruit.favourite' value='apple'/>" +
+    		    "          </values>" +
+    		    "         </properties>" +
+    		    "         <properties id='props2' override='true'>" +
+    		    "          <values>" +
+    		    "           <value key='snack.favourite' value='pizza'/>" +
+    		    "          </values>" +
+    		    "         </properties>" +
+    		    "        </jobs>" +
+    		    "       </sequential>" +
+    		    "      </job>" +
+    		    "     </oddjob>" +
+    		    "    </xml>" +
+    		    "   </configuration>" +
+    		    "   <properties>" +
+    		    "    <properties>" +
+    		    "     <values>" +
+    		    "      <value key='fruit.favourite' value='banana'/>" +
+    		    "      <value key='snack.favourite' value='chips'/>" +
+    		    "     </values>" +
+    		    "    </properties>" +
+    		    "   </properties>" +
+    		    "  </oddjob>" +
+    		    " </job>" +
+    		    "</oddjob>";
+    		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+
+		oddjob.run();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		PropertiesJob props1 = lookup.lookup("nested/props1", 
+				PropertiesJob.class);
+		PropertiesJob props2 = lookup.lookup("nested/props2", 
+				PropertiesJob.class);
+		
+		Map<String, String> description1 = props1.describe();
+		Map<String, String> description2 = props2.describe();
+		
+		
+		assertEquals(1, description1.size());
+		assertEquals(1, description2.size());
+		
+		assertEquals("apple *(banana) [Oddjob]", 
+				description1.get("fruit.favourite"));
+		assertEquals("pizza", 
+				description2.get("snack.favourite"));
+		
+		oddjob.destroy();
     }
 }

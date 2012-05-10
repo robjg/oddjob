@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -147,21 +148,15 @@ public class MainTest extends TestCase {
 	}
 	
 	public void testUserProperties() throws IOException {
-		
-		System.setProperty("test.snack", "pizza");
-		
-		System.getProperties().remove("test.fruit");
-		assertEquals(null, System.getProperty("test.fruit"));
-		
+				
 		File userProperties = new File(System.getProperty("user.home"), 
 				Main.USER_PROPERTIES);
 		
 		File renamedFile = new File(userProperties.getPath() + "_testInProgress");
-		// Delete old failed test.
-		if (renamedFile.exists()) {
-			assertTrue(renamedFile.delete());			
-		}
-		if (userProperties.exists()) {
+
+		// if an old test failed the _testInProgress file are the properties
+		// we want to keep.
+		if (!renamedFile.exists()) {
 			assertTrue(userProperties.renameTo(renamedFile));
 		}
 		
@@ -175,23 +170,18 @@ public class MainTest extends TestCase {
 		
 		Main test = new Main();
 		
-		test.processUserProperties();
+		Properties props = test.processUserProperties();
 		
-		assertEquals("apples", System.getProperty("test.fruit"));
-		assertEquals("pizza", System.getProperty("test.snack"));
-		assertEquals("", System.getProperty("test.empty"));
+		assertEquals("apples", props.getProperty("test.fruit"));
+		assertEquals("fruit", props.getProperty("test.snack"));
+		assertEquals("", props.getProperty("test.empty"));
 		
 		
 		assertTrue(userProperties.delete());		
 		
 		if (renamedFile.exists()) {
 			assertTrue(renamedFile.renameTo(userProperties));
-		}
-		
-		System.getProperties().remove("test.snack");
-		System.getProperties().remove("test.fruit");
-		System.getProperties().remove("test.empty");
-		
+		}		
 	}
 	
 	public void testOddjobDestroyOnComplete() throws IOException {

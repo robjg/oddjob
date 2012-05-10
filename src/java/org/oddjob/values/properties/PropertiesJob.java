@@ -6,13 +6,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.oddjob.Describeable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.runtime.PropertyManager;
+import org.oddjob.arooa.runtime.PropertyLookup;
+import org.oddjob.arooa.runtime.PropertySource;
 
 /**
  * @oddjob.description Creates properties that can used to configure 
@@ -62,6 +65,13 @@ import org.oddjob.arooa.runtime.PropertyManager;
  * 
  * {@oddjob.xml.resource org/oddjob/values/properties/PropertiesJobOverriding.xml}
  * 
+ * This will display
+ * <pre>
+ * ${fuit.favourite} is apple
+ * ${fuit.favourite} is apple
+ * ${fuit.favourite} is banana
+ * </pre>
+ * 
  * @oddjob.example
  * 
  * Capturing Environment Variables. Note that the case sensitivity of 
@@ -80,6 +90,8 @@ implements Describeable {
 	private transient PropertiesBase delegate;
 
 	private transient ArooaSession session;
+	
+	private transient PropertyLookup lookup;
 	
 	/** Prefix environment variables. */
 	private String environment;
@@ -119,29 +131,28 @@ implements Describeable {
 	/**
 	 * Adds the property lookup to the session.
 	 */
-	protected void addPropertyLookup() {
-		PropertyManager propertyManager = session.getPropertyManager();
-		if (override) {
-			if (environment != null) {
-				propertyManager.addPropertyOverride(
-						new EnvVarPropertyLookup(environment));
-			}
+	protected void createPropertyLookup() {
+		super.createPropertyLookup();
+		if (environment != null) {
+			lookup = new CompositeLookup(
+					new EnvVarPropertyLookup(environment), 
+					super.getLookup());
 		}
-		else {
-			if (environment != null) {
-				propertyManager.addPropertyLookup(
-						new EnvVarPropertyLookup(environment));
-			}
-		}
-		super.addPropertyLookup();
 	}
 	
-	
+	@Override
+	protected PropertyLookup getLookup() {
+		if (lookup == null) {
+			return super.getLookup();
+		}
+		else {
+			return lookup;
+		}		
+	}
 	
 	@Override
 	protected int execute() throws IOException, ArooaConversionException {
 
-				
 		setProperties(delegate.toProperties());
 
 		// All the work's been done during configuration. This is all
@@ -154,19 +165,44 @@ implements Describeable {
 	
 	@Override
 	public Map<String, String> describe() {
-		Properties properties = getProperties();
-		Map<String, String> copy = new TreeMap<String, String>();
+		PropertyLookup lookup = getLookup();
+		Map<String, String> description = new TreeMap<String, String>();
 		
-		if (properties  == null) {
-			return copy;
+		if (lookup == null) {
+			return description;
 		}
 		
-		for (Object key : properties.keySet()) {
-			String name = key.toString();
-			copy.put(name, properties.getProperty(name));
+		PropertyLookup managers = session.getPropertyManager();
+		
+		Set<String> names = lookup.propertyNames();
+		if (names.isEmpty()) {
+			for (String name : managers.propertyNames()) {
+				String value = managers.lookup(name);
+				PropertySource source = managers.sourceFor(name);
+				value += " [" + source + "]";
+				description.put(name, value);
+			}
+		}
+		else {
+			for (String name : names) {
+				String value = lookup.lookup(name);
+				PropertySource local = lookup.sourceFor(name);
+				PropertySource actual = managers.sourceFor(name);
+				if (!local.equals(actual)) {
+					value += " *(" + managers.lookup(name) +
+							") [" + actual + "]";
+				}
+				description.put(name, value);
+			}
 		}
 		
-		return copy;
+		return description;
+	}
+	
+	@Override
+	protected void onReset() {
+		super.onReset();
+		lookup = null;
 	}
 	
 	/**
@@ -330,4 +366,54 @@ implements Describeable {
 	public void setOverride(boolean override) {
 		this.override = override;
 	}
+	
+	private class CompositeLookup implements PropertyLookup {
+
+		private final PropertySource propertySource = new PropertySource() {
+			public String toString() {
+				return PropertiesJob.this.toString();
+			}
+		};
+		
+		private final PropertyLookup environment;
+		private final PropertyLookup loaded;
+
+		CompositeLookup(PropertyLookup first, PropertyLookup second) {
+			if (first == null) {
+				throw new NullPointerException("First PropertyLookup null.");
+			}
+			if (second == null) {
+				throw new NullPointerException("Second PropertyLookup null.");
+			}
+			this.environment = first;
+			this.loaded = second;
+		}
+		
+		@Override
+		public String lookup(String propertyName) {
+			String value = null;
+			value = environment.lookup(propertyName);
+			if (value == null) {
+				value = loaded.lookup(propertyName);
+			}
+			return value;
+		}
+		
+		@Override
+		public Set<String> propertyNames() {
+			Set<String> names = new TreeSet<String>();
+			names.addAll(environment.propertyNames());
+			names.addAll(loaded.propertyNames());
+			return names;
+		}
+		
+		@Override
+		public PropertySource sourceFor(String propertyName) {
+			if (lookup(propertyName) != null) {
+				return propertySource;
+			}
+			return null;
+		}
+	}
+	
 }
