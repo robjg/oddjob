@@ -27,21 +27,23 @@ import org.oddjob.beanbus.StageNotifier;
 import org.oddjob.beanbus.StageSupport;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
-public class ScriptParser implements ArooaSessionAware, 
-Driver<String>, BusAware, StageNotifier {
+/**
+ * Parses SQL from an InputStream into individual statements.
+ * 
+ * @author rob
+ */
+public class ScriptParser 
+implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 	
 	private static final Logger logger = Logger.getLogger(ScriptParser.class);
 	
     /**
-     * Keep the format of a sql block?
+     * Keep the format of a SQL block.
      */
     private boolean keepFormat;
 
     /**
-     * should properties be expanded in text?
-     * false for backwards compatibility
-     *
-     * @since Ant 1.7
+     * Should properties be expanded in SQL.
      */
     private boolean expandProperties;
 
@@ -61,14 +63,29 @@ Driver<String>, BusAware, StageNotifier {
      */
     private String encoding = null;
 
+    /**
+     * Session.
+     */
 	private ArooaSession session;
 		
+	/**
+	 * Input for the SQL.
+	 */
 	private InputStream input;
 	
+	/**
+	 * Where to send parsed SQL.
+	 */
 	private Destination<? super String> to;
 	
-	private final StageSupport batchSupport = new StageSupport(this);
+	/**
+	 * Supports notification around each statement being executed.
+	 */
+	private final StageSupport stageSupport = new StageSupport(this);
 	
+	/**
+	 * Stop flag.
+	 */
 	private volatile boolean stop;
 	
 	@Override
@@ -76,44 +93,92 @@ Driver<String>, BusAware, StageNotifier {
 		this.session = session;
 	}
 	
+	/**
+	 * Getter for keepFormat.
+	 * 
+	 * @return keepFormat flag.
+	 */
 	public boolean isKeepFormat() {
 		return keepFormat;
 	}
 
+	/**
+	 * Setter for keepFormat
+	 * 
+	 * @param keepformat The keepFormat flag.
+	 */
 	public void setKeepFormat(boolean keepformat) {
 		this.keepFormat = keepformat;
 	}
 
-
-
+	/**
+	 * Getter for expandProperties.
+	 * 
+	 * @return The expandProperties flag.
+	 */
 	public boolean isExpandProperties() {
 		return expandProperties;
 	}
 
+	/**
+	 * Setter for exapndProperties.
+	 * 
+	 * @param expandProperties The expandProperties flag.
+	 */
 	public void setExpandProperties(boolean expandProperties) {
 		this.expandProperties = expandProperties;
 	}
 
+	/**
+	 * Getter for delimiterType.
+	 * 
+	 * @return The delimiterType.
+	 */
 	public DelimiterType getDelimiterType() {
 		return delimiterType;
 	}
 
+	/**
+	 * Setter for delimiterType.
+	 * 
+	 * @param delimiterType The delimiterType.
+	 */
 	public void setDelimiterType(DelimiterType delimiterType) {
 		this.delimiterType = delimiterType;
 	}
 
+	/**
+	 * Getter for delimiter.
+	 * 
+	 * @return The delimiter.
+	 */
 	public String getDelimiter() {
 		return delimiter;
 	}
 
+	/**
+	 * Setter for delimiter.
+	 * 
+	 * @param delimiter The delimiter.
+	 */
 	public void setDelimiter(String delimiter) {
 		this.delimiter = delimiter;
 	}
 
+	/**
+	 * Getter for encoding.
+	 * 
+	 * @return The encoding.
+	 */
 	public String getEncoding() {
 		return encoding;
 	}
 
+	/**
+	 * Setter for encoding.
+	 * 
+	 * @param encoding The encoding.
+	 */
 	public void setEncoding(String encoding) {
 		this.encoding = encoding;
 	}
@@ -205,9 +270,9 @@ Driver<String>, BusAware, StageNotifier {
 	}
 
 	private void dispatch(String sql) throws BadBeanException, CrashBusException {
-		batchSupport.fireBatchStarting("Sql Statement", sql);
+		stageSupport.fireStageStarting("Sql Statement", sql);
 		to.accept(sql);
-		batchSupport.fireBatchComplete();		
+		stageSupport.fireStageComplete();		
 	}
 	
 	String replaceProperties(String line) throws ArooaConversionException {
@@ -256,12 +321,12 @@ Driver<String>, BusAware, StageNotifier {
 	
 	@Override
 	public void addStageListener(StageListener listener) {
-		batchSupport.addStageListener(listener);
+		stageSupport.addStageListener(listener);
 	}
 	
 	@Override
 	public void removeStageListener(StageListener listener) {
-		batchSupport.removeStageListener(listener);
+		stageSupport.removeStageListener(listener);
 	}
 
 	@Override

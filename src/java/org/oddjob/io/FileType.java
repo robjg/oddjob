@@ -41,7 +41,8 @@ public class FileType implements ArooaValue, Serializable {
 						return from.toCanonicalFile();
 					} catch (IOException e) {
 						throw new ConvertletException(
-								"File is not in a Canonical Form.", e);
+								"File ]" + from.file + 
+								"] is not in a Canonical Form.", e);
 					}
 	    		}
 	    	});

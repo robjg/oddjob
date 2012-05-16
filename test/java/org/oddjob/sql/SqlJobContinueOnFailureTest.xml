@@ -1,41 +1,55 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
-    <job>
-        <sequential>
-            <jobs>
-                <variables id="vars">
-                    <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
-                    </connection>
-                </variables>
-                <sql id="sql-job" onError="${this.args[0]}">
-                    <connection>
-                        <value value="${vars.connection}"/>
-                    </connection>
-                    <input>
-                    	<buffer>
+  <job>
+    <sequential independent="true">
+      <jobs>
+        <variables id="vars">
+          <connection>
+            <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+              username="sa" />
+          </connection>
+        </variables>
+        <sql id="sql-job" onError="${this.args[0]}" autocommit="${this.args[1]}">
+          <connection>
+            <value value="${vars.connection}" />
+          </connection>
+          <input>
+            <buffer>
 
-create table NUMBERS(NUMBER varchar(20))
+      create table NUMBERS(NUMBER varchar(20));
 
-insert into numbers (number) values ('01');
-insert into numbers (number) complete rubbish;
-insert into numbers (number) values ('03');
-insert into numbers (number) values ('04');
-insert into numbers (number) values ('05');
-insert into numbers (number) values ('06');
+      insert into numbers (number) values ('01');
+      insert into numbers (number) complete rubbish;
+      insert into numbers (number) values ('03');
+      insert into numbers (number) values ('04');
+      insert into numbers (number) values ('05');
+      insert into numbers (number) values ('06');
 
-select NUMBER from numbers
-order by number
+            </buffer>
+          </input>
+          <results>
+            <sql-results-sheet />
+          </results>
+        </sql>
+        <sql id="sql-query">
+          <connection>
+            <value value="${vars.connection}" />
+          </connection>
+          <input>
+            <buffer>
 
-shutdown
+      select NUMBER from numbers
+      order by number;
 
-                    	</buffer>
-                    </input>
-                    <results>
-                    	<sql-results-bean/>
-                    </results>
-                </sql>
-            </jobs>
-        </sequential>
-    </job>
+      shutdown;
+      
+            </buffer>
+          </input>
+          <results>
+            <sql-results-bean />
+          </results>
+        </sql>
+      </jobs>
+    </sequential>
+  </job>
 </oddjob>

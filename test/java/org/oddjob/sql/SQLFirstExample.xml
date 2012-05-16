@@ -1,20 +1,19 @@
 <oddjob>
-    <job>
-        <sequential>
-            <jobs>
-                <variables id="vars">
-                    <connection>
-                        <connection driver="org.hsqldb.jdbcDriver"
-                            url="jdbc:hsqldb:mem:test"
-                            username="sa" />
-                    </connection>
-                </variables>
-                <sql name="Create table">
-                    <connection>
-                        <value value="${vars.connection}"/>
-                    </connection>
-                    <input>
-                        <buffer>
+  <job>
+    <sequential>
+      <jobs>
+        <variables id="vars">
+          <connection>
+            <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+              username="sa" />
+          </connection>
+        </variables>
+        <sql name="Create table">
+          <connection>
+            <value value="${vars.connection}" />
+          </connection>
+          <input>
+            <buffer>
 	        	            <![CDATA[
 create table GREETINGS(STYLE varchar(20),
        TEXT varchar(20))
@@ -23,31 +22,31 @@ insert into GREETINGS values('nice', 'Hello')
 
 insert into GREETINGS values('gumpy', 'Bah Humbug')
 ]]>
-                        </buffer>
-                    </input>
-                </sql>
-                <sql id="query">
-                    <connection>
-                        <value value="${vars.connection}" />
-                    </connection>
-                    <input>
-                        <buffer>
+            </buffer>
+          </input>
+        </sql>
+        <sql id="query">
+          <connection>
+            <value value="${vars.connection}" />
+          </connection>
+          <input>
+            <buffer>
 	        	            <![CDATA[
 select TEXT from GREETINGS where STYLE = ?
 ]]>
-                        </buffer>
-                    </input>
-                    <parameters>
-                        <value value='nice' />
-                    </parameters>
-                    <results>
-                        <sql-results-bean />
-                    </results>
-                </sql>
-                <echo name="Single Row Result">${query.results.row.TEXT}</echo>
-                <echo name="Result By Row Index">${query.results.rows[0].TEXT}</echo>
-            </jobs>
-        </sequential>
-    </job>
+            </buffer>
+          </input>
+          <parameters>
+            <value value='nice' />
+          </parameters>
+          <results>
+            <sql-results-bean />
+          </results>
+        </sql>
+        <echo name="Single Row Result">${query.results.row.TEXT}</echo>
+        <echo name="Result By Row Index">${query.results.rows[0].TEXT}</echo>
+      </jobs>
+    </sequential>
+  </job>
 </oddjob>
  

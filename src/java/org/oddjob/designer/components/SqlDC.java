@@ -38,6 +38,8 @@ class SqlDesign extends BaseDC {
 	
 	private final IndexedDesignProperty parameters;
 	
+	private final SimpleTextAttribute autocommit;
+	
 	private final SimpleTextAttribute callable;
 	
 	private final SimpleTextAttribute escapeProcessing;
@@ -64,6 +66,8 @@ class SqlDesign extends BaseDC {
 		input = new SimpleDesignProperty("input", this);
 		
 		parameters = new IndexedDesignProperty("parameters", this);
+		
+		autocommit = new SimpleTextAttribute("autocommit", this);
 		
 		callable = new SimpleTextAttribute("callable", this);
 		
@@ -95,6 +99,7 @@ class SqlDesign extends BaseDC {
 				new TabGroup()
 					.add(new FieldGroup("Execution Options")
 						.add(parameters.view().setTitle("Parameters"))
+						.add(autocommit.view().setTitle("Auto Commit"))
 						.add(callable.view().setTitle("Callable"))
 						.add(escapeProcessing.view().setTitle("Escape Processing"))
 						.add(onError.view().setTitle("On Error"))
@@ -113,7 +118,7 @@ class SqlDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { name, connection, input, 
-				parameters, callable, escapeProcessing, onError, results,
+				parameters, autocommit, callable, escapeProcessing, onError, results,
 				expandProperties, delimiter, delimiterType, keepFormat, encoding};
 	}
 }

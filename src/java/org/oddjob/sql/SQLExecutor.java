@@ -7,6 +7,7 @@ import org.oddjob.beanbus.Destination;
 
 /**
  * Abstraction for something that executes an SQL statement.
+ * 
  * @author rob
  *
  */

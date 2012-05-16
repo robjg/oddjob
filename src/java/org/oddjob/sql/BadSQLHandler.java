@@ -25,7 +25,8 @@ public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
 	public void handle(String sql, BadBeanException e)
 			throws CrashBusException {
 		
-		logger.info("Failed executing: " + sql, e);
+		logger.info("Failed executing: " + sql + 
+				"\n\t" + e.getCause().getMessage());
 		
 		OnError onError = this.onError;
 		if (onError == null) {

@@ -3,9 +3,9 @@
  */
 package org.oddjob.jmx.client;
 
-import org.apache.log4j.Logger;
-
 import junit.framework.TestCase;
+
+import org.apache.log4j.Logger;
 
 public class SimpleNotificationProcessorTest extends TestCase {
 
@@ -57,4 +57,31 @@ public class SimpleNotificationProcessorTest extends TestCase {
 		
 		assertTrue(runnable.ran);
 	}
+	
+	public void testStop() throws InterruptedException {
+		
+		final SimpleNotificationProcessor test = 
+				new SimpleNotificationProcessor(logger);
+			
+		class R implements Runnable {
+			boolean ran;
+			public void run() {
+				ran = true; 
+			}
+		}
+		R runnable = new R();
+
+		test.start();
+
+		test.enqueueDelayed(runnable, 500);
+
+		test.stopProcessor();
+		test.stopProcessor();
+		test.stopProcessor();
+
+		test.join();
+
+		assertFalse(runnable.ran);
+	}
+
 }

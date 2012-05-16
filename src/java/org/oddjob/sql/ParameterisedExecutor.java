@@ -29,37 +29,45 @@ import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusListener;
 import org.oddjob.beanbus.CrashBusException;
 
+/**
+ * Handles the execution of a single SQL statement at a time.
+ * 
+ * @author rob
+ *
+ */
 public class ParameterisedExecutor 
 implements ArooaSessionAware, SQLExecutor, BusAware  {
 
 	private static final Logger logger = Logger.getLogger(SQLJob.class);
 	
+	/** The connection. */
 	private Connection connection;
 	
+	/** The parameters for parameterised statements or procedures. */
 	private transient List<ValueType> parameters;
 	
+	/** True if the statement is a function or procedure. */
 	private boolean callable;
 	
+	/** The number of statements successfully executed. */
     private int successfulSQLCount = 0;
 
+    /** The number of statements executed. */
     private int executedSQLCount = 0;
 
+    /** The to pass results to. */
 	private SQLResultsProcessor resultProcessor;
 
+	/** The statement. */
 	private PreparedStatement statement;
 	
-    /**
-     * Argument to Statement.setEscapeProcessing
-     *
-     * @since Ant 1.6
-     */
+    /** Argument to Statement.setEscapeProcessing */
     private boolean escapeProcessing = true;
 
-    /**
-     * Autocommit flag. Default value is false
-     */
+    /** Autocommit flag. Default value is false */
     private boolean autocommit = false;
     
+    /** The session. */
 	private transient ArooaSession session;
 
 	
@@ -82,9 +90,10 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     }
     
     /**
-     * Exec the sql statement.
+     * Execute the SQL statement.
+     * 
      * @param sql the SQL statement to execute
-     * @param out the place to put output
+     * 
      * @throws SQLException on SQL problems
      * @throws ConversionFailedException 
      * @throws NoConversionAvailableException 
@@ -92,7 +101,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
      * @throws ClassNotFoundException 
      */
     public void execute(String sql) throws SQLException, NoConversionAvailableException, ConversionFailedException, BusException, ClassNotFoundException {
-		logger.info("Executing query: " + sql);
+		logger.info("Executing: " + sql);
 		++executedSQLCount;
 		
 		if (callable) {
@@ -195,6 +204,9 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 		}
 	}
 
+    /**
+     * Cancel the statement. Used by {@link SQLJob#stop()}. 
+     */
     public void stop() {
     	Statement stmt = this.statement;
     	if (stmt != null) {
@@ -216,6 +228,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 				}
 				try {
 					connection.setAutoCommit(autocommit);
+					logger.info("Setting autocommit " + autocommit);
 				}
 				catch (SQLException e) {
 					throw new CrashBusException(e);
@@ -225,17 +238,21 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			}
 			@Override
 			public void busStopping(BusEvent event) throws CrashBusException {
-	        	try {
-					connection.commit();
-				} catch (SQLException e) {
-					throw new CrashBusException("Failed to commit.", e);
-				}
+        		if (!isAutocommit()) {
+		        	try {
+						connection.commit();
+						logger.info("Connection committed.");
+					} catch (SQLException e) {
+						throw new CrashBusException("Failed to commit.", e);
+					}
+        		}
 			}
 			@Override
 			public void busCrashed(BusEvent event, BusException e) {
 				if (connection != null && !isAutocommit()) {
 		        	try {
 						connection.rollback();
+						logger.info("Connection rolled back.");
 					} catch (SQLException e1) {
 						logger.error("Failed to rollback.", e1);
 					}
@@ -262,14 +279,21 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 		}
 	}
 	
+	/**
+	 * Set the result processor.
+	 * 
+	 * @param processor The result processor to pass results to.
+	 */
 	public void setResultProcessor(SQLResultsProcessor processor) {
 		this.resultProcessor = processor;
 	}
 
-	public Connection getConnection() {
-		return connection;
-	}
-
+	/**
+	 * Set the connection to use. This will be closed when the bus
+	 * is stopped.
+	 * 
+	 * @param connection The connection.
+	 */
 	public void setConnection(Connection connection) {
 		this.connection = connection;
 	}
@@ -277,25 +301,51 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     /**
      * Auto commit flag for database connection;
      * optional, default false.
+     * 
      * @param autocommit The autocommit to set
      */
     public void setAutocommit(boolean autocommit) {
         this.autocommit = autocommit;
     }
 
+    /**
+     * Getter for autocommit.
+     * 
+     * @return autocommit flag.
+     */
     public boolean isAutocommit() {
 		return autocommit;
 	}
     
+    /**
+     * Getter for escapeProcessing.
+     * 
+     * @return escapeProcessing flag.
+     */
 	public boolean isEscapeProcessing() {
 		return escapeProcessing;
 	}
 
+	/**
+	 * Setter for escapeProcessing.
+	 * 
+	 * @param escapeProcessing escapeProcessing flag.
+	 */
 	public void setEscapeProcessing(boolean escapeProcessing) {
 		this.escapeProcessing = escapeProcessing;
 	}
 
-	public ValueType getParameters(int index) {
+	/**
+	 * Get parameter by index.
+	 * 
+	 * @param index The index.
+	 * 
+	 * @return The parameter or null.
+	 * 
+	 * @throws IndexOutOfBoundsException
+	 */
+	public ValueType getParameters(int index) 
+	throws IndexOutOfBoundsException {
 		if (parameters == null) {
 			return null;
 		}
@@ -304,7 +354,17 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 		}
 	}
 
-	public void setParameters(int index, ValueType parameter) {
+	/**
+	 * Set parameter by index.
+	 * 
+	 * @param index The index.
+	 * 
+	 * @param parameter The parameter. Null to remove.
+	 * 
+	 * @throws IndexOutOfBoundsException
+	 */
+	public void setParameters(int index, ValueType parameter) 
+	throws IndexOutOfBoundsException {
 		if (parameters == null) {
 			parameters = new ArrayList<ValueType>();
 		}
@@ -312,22 +372,42 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			this.parameters.remove(index);
 		}
 		else {
-			this.parameters.add(index, parameter);			
+			this.parameters.add(index, parameter);	
 		}
 	}
 
+	/**
+	 * Getter for callable statement flag.
+	 * 
+	 * @return The callable flag.
+	 */
 	public boolean isCallable() {
 		return callable;
 	}
 
+	/**
+	 * Setter for callable statement flag.
+	 * 
+	 * @param callable The callable flag.
+	 */
 	public void setCallable(boolean callable) {
 		this.callable = callable;
 	}    
 	
+	/**
+	 * Getter for executedSQLCount.
+	 * 
+	 * @return The number of SQL statements executed.
+	 */
 	public int getExecutedSQLCount() {
 		return executedSQLCount;
 	}
 	
+	/**
+	 * Getter for successful SQL count.
+	 * 
+	 * @return The number of SQL statements successfully executed.
+	 */
 	public int getSuccessfulSQLCount() {
 		return successfulSQLCount;
 	}

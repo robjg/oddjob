@@ -23,6 +23,7 @@ public class SQLJobDesFaTest extends TestCase {
 		String xml =  
 			"<sql name='A Test'" +
 			"		     id='this'" +
+			"            autocommit='true'" +
 			"            callable='true'" +
 			"            escapeProcessing='true'" +
 			"            onError='CONTINUE'" +
@@ -50,7 +51,7 @@ public class SQLJobDesFaTest extends TestCase {
 		
 		parser.parse(new XMLConfiguration("TEST", xml));
 		
-		design = parser.getDesign();
+		design = (SqlDesign) parser.getDesign();
 		
 		assertEquals(SqlDesign.class, design.getClass());
 		
@@ -58,6 +59,7 @@ public class SQLJobDesFaTest extends TestCase {
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(true, test.isCallable());
+		assertEquals(true, test.isAutocommit());
 		assertEquals(true, test.isEscapeProcessing());
 		assertEquals("go", test.getDelimiter());
 		assertEquals(SQLJob.DelimiterType.ROW, test.getDelimiterType());

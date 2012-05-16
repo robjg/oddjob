@@ -70,28 +70,48 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BadBeanException;
 import org.oddjob.beanbus.BadBeanFilter;
 import org.oddjob.beanbus.CrashBusException;
 import org.oddjob.beanbus.SimpleBus;
-
+import org.oddjob.io.BufferType;
+import org.oddjob.io.FileType;
 
 /**
  * @oddjob.description Runs one or more SQL statements.
  * <p>
- * An optional result processor may be provided. Current implementations allow
- * the results to be displayed on a result sheet in a similar style to an
- * SQL query tool, or results can be captured as beans who's properties can
- * be used elsewhere in Oddjob.
- * <p>
+ * <h3>Parsing</h3>
+ * The SQL will be parsed and broken into individual statements
+ * before being executed using JDBC. The statements are broken according
+ * to the <code>delimiter</code> and <code>delimiterType</code> properties. 
+ * Setting the <code>expandProperties</code> property to true will cause
+ * Oddjob to expand ${} expressions within the SQL. Comments are achieved
+ * by starting a line with <code>--</code> or <code>//</code> or 
+ * <code>REM</code>. Note that <code>/* &#42;/</code> is not yet supported.
+ * 
+ * <h3>Result Processing</h3>
+ * An optional result processor may be provided. {@link SQLResultsSheet} 
+ * allows the results to be displayed on a result sheet in a similar style 
+ * to an SQL query tool. {@link SQLResultsBean} allows results to be 
+ * captured as beans who's properties can be used elsewhere in Oddjob.
+ * 
+ * <h3>Errors and Auto Commit</h3>
+ * The <code>onError</code> property controls what to do if a statement fails.
+ * By default it is ABORT. Auto commit is false by default so the changes
+ * are rolled back. If auto commit is true the ABORT has the same affect as
+ * STOP which commits statements already executed.
+ * 
+ * <h3>Parameterised Statements and Procedures</h3>
  * SQL statements can be parameterised, and can be stored procedure or 
  * function calls. Out parameter values can also be accessed and used
- * elsewhere in Oddjob.
+ * elsewhere in Oddjob by wrapping them with an 
+ * {@link IdentifiableValueType}. See example 2 for an example of this.
  * 
  * @oddjob.example
  *
- * A simple example show first the execution of multiple statements, 
+ * A simple example shows first the execution of multiple statements, 
  * then a simple parameterised query.
  *
  * {@oddjob.xml.resource org/oddjob/sql/SQLFirstExample.xml}
@@ -108,6 +128,7 @@ import org.oddjob.beanbus.SimpleBus;
  * 
  * {@oddjob.xml.resource org/oddjob/sql/SQLCallableStatement.xml}
  * 
+ * @author rob and Ant.
  */
 public class SQLJob
 implements Runnable, Serializable, ArooaSessionAware, Stoppable {
@@ -116,22 +137,21 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 //	private static final Logger logger = Logger.getLogger(SqlJob.class);
 	
     /**
-     * delimiters we support, "NORMAL" and "ROW"
+     * delimiter type between SQL statements.
      */
     public enum DelimiterType {
-    	
-    	NORMAL, ROW,
+    	NORMAL, 
+    	ROW,
     }
 
     /**
-     * The action a task should perform on an error,
-     * one of "continue", "stop" and "abort"
+     * The action a task should perform on an error.
      */
     public enum OnError {
-            CONTINUE,
-            STOP,
-            ABORT
-            ;
+    	CONTINUE,
+    	STOP,
+    	ABORT
+    	;
     }
  
     /** Parses the SQL. */
@@ -152,8 +172,9 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description Optional result processor.
-	 * @oddjob.required No, defaults to false. 
+	 * @oddjob.description Optional result processor. Probably one of
+	 * {@link SQLResultsBean} or {@link SQLResultsSheet}.
+	 * @oddjob.required No, defaults to none. 
 	 */
 	private transient SQLResultsProcessor results;
 	
@@ -253,7 +274,9 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	/** 
 	 * @oddjob.property input
 	 * @oddjob.description The input from where to read the SQL query 
-	 * or DML statement(s) to run.
+	 * or DML statement(s) to run. Probably either {@link FileType} for
+	 * reading the SQL from a file or {@link BufferType} for configuring
+	 * the SQL in line. 
 	 * @oddjob.required Yes. 
 	 */
 	public void setInput(InputStream sql) {
@@ -271,10 +294,9 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
     }
 
     /**
-     * is property expansion inside inline text enabled?
+     * Is property expansion inside inline text enabled?
      *
      * @return true if properties are to be expanded.
-     * @since Ant 1.7
      */
     public boolean getExpandProperties() {
         return this.parser.isExpandProperties();
@@ -300,14 +322,16 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
     
 	/** 
 	 * @oddjob.property delimiter
-	 * @oddjob.description 
-     * Set the delimiter that separates SQL statements. Defaults to &quot;;&quot;;
-     * optional
-     *
-     * <p>For example, set this to "go" and delimitertype to "ROW" for
-     * Sybase ASE or MS SQL Server.</p>
+	 * @oddjob.description Set the delimiter that separates SQL statements. 
+	 * Defaults to a semicolon.
+     * <p>
+     * For scripts that use a separate line delimiter like "GO" 
+     * also set the <code>delimiterType</code> to "ROW".
+     * <p>
+     * The delimiter is case insensitive so either "GO" or "go" can be 
+     * used interchangeably.
      * 
-	 * @oddjob.required No.
+	 * @oddjob.required No. Defaults to ;
 	 *  
      * @param delimiter the separator.
      */
@@ -326,17 +350,17 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
     
     /**
 	 * @oddjob.property delimiterType
-	 * @oddjob.description 
-     * Set the delimiter type: "NORMAL" or "ROW" (default "NORMAL").
-     *
-     * <p>The delimiter type takes two values - NORMAL and ROW. NORMAL
-     * means that any occurrence of the delimiter terminate the SQL
+	 * @oddjob.description Set the delimiter type: NORMAL or ROW.
+     * <p>
+     * NORMAL means that any occurrence of the delimiter terminates the SQL
      * command whereas with ROW, only a line containing just the
-     * delimiter is recognised as the end of the command.</p>
+     * delimiter is recognised as the end of the command.
+     * <p>
+     * ROW is used with delimiters such as GO.
      * 
-	 * @oddjob.required No.
+	 * @oddjob.required No, defaults to NORMAL.
 	 * 
-     * @param delimiterType the type of delimiter - "normal" or "row".
+     * @param delimiterType the type of delimiter - "NORMAL" or "ROW".
      */
     public void setDelimiterType(DelimiterType delimiterType) {
         this.parser.setDelimiterType(delimiterType);
@@ -377,26 +401,57 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 
 	/**
 	 * @oddjob.property connection
-	 * @oddjob.description The {@link ConnectionType} to use.
+	 * @oddjob.description The connection to use. This can be provided
+	 * by a {@link ConnectionType} or by some other means such as custom
+	 * data source. This SQL job will always close the connection once
+	 * it has run.
 	 * @oddjob.required Yes. 
 	 */
 	public void setConnection(Connection connection) {
 		executor.setConnection(connection);
 	}
 
+	/**
+	 * @oddjob.property autocommit
+	 * @oddjob.description Autocommit statements once executed.
+	 * @oddjob.required No, defaults to false.
+	 * 
+	 * @param autocommit
+	 */
+	public void setAutocommit(boolean autocommit) {
+		executor.setAutocommit(autocommit);
+	}
+	
+	/**
+	 * Getter for autocommit.
+	 * 
+	 * @return
+	 */
+	public boolean isAutocommit() {
+		return executor.isAutocommit();
+	}
+	
+	/**
+	 * Indexed getter for parameter types.
+	 * 
+	 * @param index
+	 * @return
+	 */
 	public ValueType getParameters(int index) {
 		return executor.getParameters(index);
 	}
 
 	/** 
 	 * @oddjob.property parameters
-	 * @oddjob.description Parameters to be bound to statement(s).
+	 * @oddjob.description Parameters to be bound to statement(s). This
+	 * is either a {@link ValueType} or an {@link IdentifiableValueType} 
+	 * if the parameter is an out parameter that is to be identifiable by 
+	 * an id for other jobs to access.
 	 * @oddjob.required No. 
 	 */
 	public void setParameters(int index, ValueType parameter) {
 		executor.setParameters(index, parameter);
 	}
-
 
 	/** 
 	 * @oddjob.property callable
@@ -408,7 +463,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	}
 
 	/**
-	 * Is the statement a store procedure.
+	 * Is the statement a stored procedure.
 	 * 
 	 * @return
 	 */
@@ -419,7 +474,8 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	/** 
 	 * @oddjob.property escapeProcessing
 	 * @oddjob.description 
-     * Set escape processing for statements.
+     * Set escape processing for statements. See the java doc for 
+     * <code>Statement.setEscapeProcessing</code> for more information.
      * 
 	 * @oddjob.required No, defaults to false. 
 	 * 
@@ -430,6 +486,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
     }
  
     /**
+     * Getter for escapeProcessing.
      * 
      * @return
      */
@@ -439,11 +496,19 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 
     /**
 	 * @oddjob.property onError
-	 * @oddjob.description 
-     * Action to perform when statement fails: continue, stop, or abort
-     * optional; default &quot;abort&quot;
+	 * @oddjob.description What to do when a statement fails:
+	 * <dl>
+	 * <dt>CONTINUE</dt>
+	 * <dd>Ignore the failure and continue executing.</dd>
+	 * <dt>STOP</dt>
+	 * <dd>Commit what has been executed but don't execute any more.</dd>
+	 * <dt>ABORT</dt>
+	 * <dd>Rollback what has been executed and don't execute any more.</dd>
+	 * </dl>
+     * Note that if <code>autocommit</code> is true then ABORT behaves
+     * like STOP as no roll back is possible.
      * 
-	 * @oddjob.required No, defaults to false. 
+	 * @oddjob.required No, defaults to ABORT. 
 	 * 
      * @param action the action to perform on statement failure.
      */
@@ -506,9 +571,11 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 */
 	public String toString() {
 		if (name == null) {
-			return "Sql";
+			return getClass().getSimpleName();
 		}
-		return name;
+		else {
+			return name;
+		}
 	}
 
 }

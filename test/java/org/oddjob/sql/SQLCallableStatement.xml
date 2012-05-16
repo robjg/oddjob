@@ -1,54 +1,53 @@
 <oddjob>
-    <job>
-        <sequential>
-            <jobs>
-                <variables id='vars'>
-                    <connection>
-                        <connection driver="org.hsqldb.jdbcDriver"
-                            url="jdbc:hsqldb:mem:test"
-                            username="sa" />
-                    </connection>
-                </variables>
-                <sql callable='true' delimiterType='ROW'>
-                    <connection>
-                        <value value="${vars.connection}"/>
-                    </connection>
-                    <input>
-                        <buffer>
-create procedure TEST (out a int, inout b int, in c int)
-    MODIFIES SQL DATA
-    begin atomic
-        set a = b;
-        set b = c;
-    end
-                        </buffer>
-                    </input>
-                </sql>
-                <sql id='sql-call' callable='true'>
-                    <connection>
-                        <value value='${vars.connection}' />
-                    </connection>
-                    <parameters>
-                        <identify id='a'>
-                            <value>
-                                <value/>
-                            </value>
-                        </identify>
-                        <identify id='b'>
-                            <value>
-                                <value value='2' />
-                            </value>
-                        </identify>
-                        <value value='3' />
-                    </parameters>
-                    <input>
-                        <buffer>
-call TEST (?, ?, ?)
-                        </buffer>
-                    </input>
-                </sql>
-                <echo>a=${a}, b=${b}.</echo>
-            </jobs>
-        </sequential>
-    </job>
+  <job>
+    <sequential>
+      <jobs>
+        <variables id='vars'>
+          <connection>
+            <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+              username="sa" />
+          </connection>
+        </variables>
+        <sql callable='true' delimiterType='ROW'>
+          <connection>
+            <value value="${vars.connection}" />
+          </connection>
+          <input>
+            <buffer>
+              create procedure TEST (out a int, inout b int, in c int)
+              MODIFIES SQL DATA
+              begin atomic
+              set a = b;
+              set b = c;
+              end
+            </buffer>
+          </input>
+        </sql>
+        <sql id='sql-call' callable='true'>
+          <connection>
+            <value value='${vars.connection}' />
+          </connection>
+          <parameters>
+            <identify id='a'>
+              <value>
+                <value />
+              </value>
+            </identify>
+            <identify id='b'>
+              <value>
+                <value value='2' />
+              </value>
+            </identify>
+            <value value='3' />
+          </parameters>
+          <input>
+            <buffer>
+              call TEST (?, ?, ?)
+            </buffer>
+          </input>
+        </sql>
+        <echo>a=${a}, b=${b}.</echo>
+      </jobs>
+    </sequential>
+  </job>
 </oddjob>

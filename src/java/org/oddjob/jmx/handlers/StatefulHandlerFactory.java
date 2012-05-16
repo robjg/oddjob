@@ -41,7 +41,7 @@ import org.oddjob.state.StateListener;
 public class StatefulHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	public static final String STATE_CHANGE_NOTIF_TYPE = "org.oddjob.statechange";
 

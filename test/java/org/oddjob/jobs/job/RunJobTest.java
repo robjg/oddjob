@@ -15,6 +15,7 @@ import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -23,9 +24,16 @@ import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.structural.SequentialJob;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateHandler;
+import org.oddjob.state.StateListener;
+import org.oddjob.util.OddjobLockedException;
 
 /**
  * 
@@ -146,6 +154,111 @@ public class RunJobTest extends TestCase {
 		logger.info("Destroying Oddjob.");
 		
 		oddjob.destroy();
+	}
+	
+	private class MyStateful implements Stateful, Runnable {
+				
+		StateHandler<ServiceState> states = new StateHandler<ServiceState>(
+				this, ServiceState.READY);
+
+		
+		void fireJobState(final ServiceState state) {
+			try {
+				states.tryToWhen(new IsAnyState(), new Runnable() {
+					@Override
+					public void run() {
+						states.setState(state);
+						states.fireEvent();
+					}
+				});
+			}
+			catch (OddjobLockedException e) {
+				fail(e.getMessage());
+			}
+		}
+		
+		@Override
+		public void addStateListener(StateListener listener) {
+			states.addStateListener(listener);
+		}
+		
+		@Override
+		public void removeStateListener(StateListener listener) {
+			states.removeStateListener(listener);
+		}
+		
+		@Override
+		public StateEvent lastStateEvent() {
+			throw new RuntimeException("Unexpected");
+		}
+		
+		@Override
+		public void run() {
+			fireJobState(ServiceState.STARTING);
+		}
+	}
+	
+	public void testDestroyedWhileActive() throws InterruptedException {
+
+		MyStateful job = new MyStateful();
+		
+		RunJob test = new RunJob();
+		test.setJob(job);
+		
+		IconSteps icons = new IconSteps(test);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.SLEEPING);
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+
+		Thread t = new Thread(test);
+		t.start();
+		
+		icons.checkWait();
+		icons.startCheck(IconHelper.SLEEPING, IconHelper.EXECUTING, 
+				IconHelper.ACTIVE);
+		
+		job.fireJobState(ServiceState.STARTED);
+
+		icons.checkWait();
+		
+		t.join();
+		
+		states.checkNow();
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		job.fireJobState(ServiceState.DESTROYED);
+		
+		
+		states.checkNow();
+	}
+	
+	private class MyStateful2 extends MyStateful {
+		
+		@Override
+		public void run() {
+			fireJobState(ServiceState.STARTING);
+			fireJobState(ServiceState.DESTROYED);
+		}
+	}
+	
+	public void testDestroyedWhileExecuting() throws InterruptedException {
+
+		MyStateful2 job = new MyStateful2();
+		
+		RunJob test = new RunJob();
+		test.setJob(job);
+		
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.EXCEPTION);
+
+		test.run();
+		
+		states.checkNow();
+		
+		
 	}
 	
 	public void testRunRemoteJob() 

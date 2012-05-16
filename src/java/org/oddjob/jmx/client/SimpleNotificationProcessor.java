@@ -4,6 +4,7 @@
 package org.oddjob.jmx.client;
 
 import java.util.LinkedList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.log4j.Logger;
 
@@ -26,10 +27,18 @@ implements NotificationProcessor {
 	private final LinkedList<Runnable> notifications = new LinkedList<Runnable>();
 	private final LinkedList<Delayed> delayed = new LinkedList<Delayed>();
 
+	private final CountDownLatch stopped = new CountDownLatch(1);
+	
 	private volatile boolean stop;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param logger
+	 */
 	public SimpleNotificationProcessor(Logger logger) {
 		this.logger = logger;
+		logger.debug("Notification processor starting.");
 	}
 	
 	synchronized public void enqueue(Runnable o) {
@@ -111,18 +120,30 @@ implements NotificationProcessor {
 				}
 			}
 		}
-		logger.debug("Stopping.");
 		notifications.clear();
 		delayed.clear();
+		stopped.countDown();
+		logger.debug("Notification processor stopped.");
+		
 	}
 	
-	public synchronized void stopProcessor() {
+	public void stopProcessor() {
+		logger.debug("Notification processor stopping.");
 		this.stop = true;
-		notifyAll();
+		synchronized (this) {
+			notifyAll();
+		}
+		if (Thread.currentThread() != this) {
+			try {
+				stopped.await();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 	
 	synchronized public int size() {
-	    return notifications.size();
+	    return notifications.size() + delayed.size();
 	}
 	
 }

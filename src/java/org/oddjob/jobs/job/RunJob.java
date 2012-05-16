@@ -13,6 +13,7 @@ import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.framework.ComponentBoundry;
+import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.IsAnyState;
@@ -58,8 +59,6 @@ implements Structural, Stoppable, ConfigurationOwner {
 	 */
 	private transient Object job;
 	
-	private transient ParentState lastState = null;
-	
 	/**
 	 * Set the stop node directly.
 	 * 
@@ -82,28 +81,41 @@ implements Structural, Stoppable, ConfigurationOwner {
 	@Override
 	protected StateOperator getStateOp() {
 		return new StateOperator() {
-			
 			@Override
 			public ParentState evaluate(State... states) {
+				// Our state operator must cope with a client node
+				// that has been destroyed because the client has
+				// been stopped.
 				if (states.length > 0 && states[0].isDestroyed()) {
-					ComponentBoundry.push(loggerName(), RunJob.this);
-					try {
-						logger().info("Job Destroyed, setting to previous state " + 
-									lastState);
+					if (childStateReflector.isRunning()) { 
+						ComponentBoundry.push(loggerName(), RunJob.this);
 						try {
-							return lastState;
-						}
-						finally {
 							childStateReflector.stop();
 							childHelper.removeAllChildren();
+
+							stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+								@Override
+								public void run() {
+									if (stateHandler.lastStateEvent().getState().isStoppable()) {
+										logger().info("Job Destroyed while active, setting state to COMPLETE");
+										getStateChanger().setState(ParentState.COMPLETE);
+									}
+									else {
+										logger().info("Job Destroyed, leaving job in previous state.");
+									}
+								}
+							});
+						}
+						finally {
+							ComponentBoundry.pop();
 						}
 					}
-					finally {
-						ComponentBoundry.pop();
-					}
+					// this will not be used.
+					return ParentState.READY;
 				}
-				lastState = new WorstStateOp().evaluate(states);
-				return lastState;
+				else {
+					return new WorstStateOp().evaluate(states);
+				}
 			}
 		};
 	}
@@ -182,7 +194,6 @@ implements Structural, Stoppable, ConfigurationOwner {
 						if (now.isPassable() && 
 								(executed || !now.isReady())) {
 							logger().debug("Job has executed. State is " + now);
-							lastState = getStateOp().evaluate(now);
 							break;
 						}
 						continue;
@@ -199,6 +210,11 @@ implements Structural, Stoppable, ConfigurationOwner {
 		}
 	}
 
+	/**
+	 * Sleep. This is a copy of {@link SimpleJob#sleep}.
+	 * 
+	 * @param waitTime Time in milliseconds to sleep for.
+	 */
 	protected void sleep(final long waitTime) {
 		stateHandler().assertAlive();
 		

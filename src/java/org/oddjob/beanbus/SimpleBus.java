@@ -5,9 +5,20 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Very simple implementation of a {@link BeanBus}. This bus supports
+ * a single bus {@link Driver} and a single {@link StageNotifier} 
+ * (conductor).
+ * 
+ * 
+ * @author rob
+ *
+ * @param <T> The type of beans on the bus.
+ */
 public class SimpleBus<T> implements BeanBus {
 	private static final Logger logger = Logger.getLogger(SimpleBus.class);
 	
+	/** The driver. */
 	private Driver<? extends T> driver;
 
 	private StageNotifier conductor;

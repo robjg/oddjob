@@ -228,7 +228,7 @@ public class SQLJobTest extends TestCase {
 				"org/oddjob/sql/SqlJobContinueOnFailureTest.xml",
 				getClass().getClassLoader()));
 		
-		oddjob.setArgs(new String[] { "CONTINUE" });
+		oddjob.setArgs(new String[] { "CONTINUE", "false" });
 		oddjob.run();
 
 		assertEquals(ParentState.COMPLETE, 
@@ -237,19 +237,19 @@ public class SQLJobTest extends TestCase {
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		assertEquals(new Integer(1), lookup.lookup(
-				"sql-job.results.rowSetCount", Integer.class));
+				"sql-query.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(
-				"sql-job.results.rows", String[].class);
+				"sql-query.results.rows", String[].class);
 
 		assertEquals(5, rows.length);
 		assertEquals("01", lookup.lookup(
-				"sql-job.results.rows[0].NUMBER", String.class));
+				"sql-query.results.rows[0].NUMBER", String.class));
 		assertEquals("06", lookup.lookup(
-				"sql-job.results.rows[4].NUMBER", String.class));
+				"sql-query.results.rows[4].NUMBER", String.class));
 				
-		assertEquals(9, lookup.lookup("sql-job.executedSQLCount"));
-		assertEquals(8, lookup.lookup("sql-job.successfulSQLCount"));
+		assertEquals(7, lookup.lookup("sql-job.executedSQLCount"));
+		assertEquals(6, lookup.lookup("sql-job.successfulSQLCount"));
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
@@ -263,7 +263,7 @@ public class SQLJobTest extends TestCase {
 				"org/oddjob/sql/SqlJobContinueOnFailureTest.xml",
 				getClass().getClassLoader()));
 		
-		oddjob.setArgs(new String[] { "STOP" });
+		oddjob.setArgs(new String[] { "STOP", "false" });
 		oddjob.run();
 
 		assertEquals(ParentState.COMPLETE, 
@@ -271,17 +271,16 @@ public class SQLJobTest extends TestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(0), lookup.lookup(
-				"sql-job.results.rowSetCount", Integer.class));
+		assertEquals(new Integer(1), lookup.lookup(
+				"sql-query.results.rowSetCount", Integer.class));
 		
-		Connection connection = lookup.lookup("vars.connection", Connection.class);
-		try {
-			connection.createStatement().execute("shutdown");
-		}
-		finally {
-			connection.close();
-		}
-		
+		String [] rows = lookup.lookup(
+				"sql-query.results.rows", String[].class);
+
+		assertEquals(1, rows.length);
+		assertEquals("01", lookup.lookup(
+				"sql-query.results.rows[0].NUMBER", String.class));
+				
 		assertEquals(3, lookup.lookup("sql-job.executedSQLCount"));
 		assertEquals(2, lookup.lookup("sql-job.successfulSQLCount"));
 		
@@ -290,13 +289,13 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
-	public void testTerminateOnFailure() throws Exception {
+	public void testAbortOnFailure() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/sql/SqlJobContinueOnFailureTest.xml",
 				getClass().getClassLoader()));
-		oddjob.setArgs(new String[] { "ABORT" });
+		oddjob.setArgs(new String[] { "ABORT", "false" });
 		oddjob.run();
 
 		assertEquals(ParentState.EXCEPTION, 
@@ -304,16 +303,45 @@ public class SQLJobTest extends TestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(0), lookup.lookup(
-				"sql-job.results.rowSetCount", Integer.class));
+		assertEquals(new Integer(1), lookup.lookup(
+				"sql-query.results.rowSetCount", Integer.class));
 		
-		Connection connection = lookup.lookup("vars.connection", Connection.class);
-		try {
-			connection.createStatement().execute("shutdown");
-		}
-		finally {
-			connection.close();
-		}
+		String [] rows = lookup.lookup(
+				"sql-query.results.rows", String[].class);
+
+		assertEquals(0, rows.length);
+		
+		assertEquals(3, lookup.lookup("sql-job.executedSQLCount"));
+		assertEquals(2, lookup.lookup("sql-job.successfulSQLCount"));
+		
+		assertEquals(ParentState.EXCEPTION, oddjob.lastStateEvent().getState());
+		
+		oddjob.destroy();
+	}
+	
+	public void testAbortOnFailureWithAutocommit() throws Exception {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/sql/SqlJobContinueOnFailureTest.xml",
+				getClass().getClassLoader()));
+		oddjob.setArgs(new String[] { "ABORT", "true" });
+		oddjob.run();
+
+		assertEquals(ParentState.EXCEPTION, 
+				oddjob.lastStateEvent().getState());
+
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		assertEquals(new Integer(1), lookup.lookup(
+				"sql-query.results.rowSetCount", Integer.class));
+		
+		String [] rows = lookup.lookup(
+				"sql-query.results.rows", String[].class);
+
+		assertEquals(1, rows.length);
+		assertEquals("01", lookup.lookup(
+				"sql-query.results.rows[0].NUMBER", String.class));
 		
 		assertEquals(3, lookup.lookup("sql-job.executedSQLCount"));
 		assertEquals(2, lookup.lookup("sql-job.successfulSQLCount"));

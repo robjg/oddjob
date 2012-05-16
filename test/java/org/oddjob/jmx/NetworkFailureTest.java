@@ -9,12 +9,12 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Helper;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
-import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ServiceState;
 
 public class NetworkFailureTest extends TestCase {
 
@@ -57,7 +57,14 @@ public class NetworkFailureTest extends TestCase {
 		client.setUrl(server.getAddress());
 		client.setArooaSession(new StandardArooaSession());
 		client.setHeartbeat(500);
+		
+		StateSteps clientStates = new StateSteps(client);
+		clientStates.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
 		client.run();
+		
+		clientStates.checkNow();
 		
 		Object[] children = Helper.getChildren(client);
 		
@@ -67,25 +74,31 @@ public class NetworkFailureTest extends TestCase {
 		
 		assertEquals("Our Job", child.toString()); 
 		
+		clientStates.startCheck(ServiceState.STARTED, 
+				ServiceState.EXCEPTION);
+		
 		ssf.setFail(true);
 		
 		logger.debug("Server Job Running.");
 		
 		root.run();
 		
-		WaitJob wait = new WaitJob();
-		wait.setFor(client);
-		wait.setState(new IsNotExecuting());
-		wait.setPause(1000);
-		wait.run();
-		
+		clientStates.checkWait();
+				
 		ssf.setFail(false);
+		
+		clientStates.startCheck(ServiceState.EXCEPTION, 
+				ServiceState.READY, 
+				ServiceState.STARTING,
+				ServiceState.STARTED);
 		
 		logger.debug("Client Running Again.");
 		
 		client.hardReset();
 		
 		client.run();
+		
+		clientStates.checkNow();
 		
 		children = Helper.getChildren(client);
 		

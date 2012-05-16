@@ -6,6 +6,13 @@ import java.util.List;
 
 import org.oddjob.arooa.types.ValueFactory;
 
+/**
+ * A {@link Destination} that collects beans in a list.
+ * 
+ * @author rob
+ *
+ * @param <T> The type of the beans to be collected.
+ */
 public class BeanTrap<T> implements Destination<T>, 
 		Iterable<T>, 
 		ValueFactory<List<T>>,

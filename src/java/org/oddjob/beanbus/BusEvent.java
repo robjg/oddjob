@@ -2,9 +2,20 @@ package org.oddjob.beanbus;
 
 import java.util.EventObject;
 
+/**
+ * An event on the bus.
+ * 
+ * @author rob
+ *
+ */
 public class BusEvent extends EventObject {
 	private static final long serialVersionUID = 2010021800L;
 	
+	/**
+	 * Constructor.
+	 *  
+	 * @param source The source of the event.
+	 */
 	public BusEvent(BeanBus source) {
 		super(source);
 	}

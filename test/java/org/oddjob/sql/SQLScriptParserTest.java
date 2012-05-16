@@ -254,9 +254,23 @@ public class SQLScriptParserTest extends TestCase {
 		test.setDelimiterType(DelimiterType.ROW);
 		
 		BufferType buffer = new BufferType();
-		buffer.setText("\nONE\nBANANA\ngo\n" +
-				"\nTWO\n\nBANANAS\n\nGO\n" +
-				"\nTHREE\nBANANAS\nFOUR\nGO\n\n");
+		buffer.setText(
+				"\n" +
+				"ONE\n" +
+				"BANANA\n" +
+				"go\n" +
+				"\n" +
+				"TWO\n" +
+				"\n" +
+				"BANANAS\n" +
+				"\n" +
+				"GO\n" +
+				"\n" +
+				"THREE\n" +
+				"BANANAS\n" +
+				"FOUR\n" +
+				"GO\n" +
+				"\n");
 		buffer.configured();
 
 		test.setInput(buffer.toInputStream());

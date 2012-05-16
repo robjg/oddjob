@@ -3,6 +3,7 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Added an autocommit flag to SQLJob.
 - Added a Service Manager (serviceman) job has been add for managing 
   services.
 - The INCOMPLETE state has been removed from the ServiceState enum.
@@ -63,7 +64,7 @@ Deferred to A Later Version
 ---------------------------
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
-- Use a ServerSide files system for choosing files on server component 
+- Use a ServerSide file system for choosing files on server component 
   designer forms.
 - Add Security to the WebApp (with a Read Only role).  
 - Include a Jetty Oddball to allow connecting to an Oddjob server from a 

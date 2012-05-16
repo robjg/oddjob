@@ -39,7 +39,7 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 public class IconicHandlerFactory 
 implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	public static final String ICON_CHANGED_NOTIF_TYPE = "org.oddjob.iconchanged";
 
