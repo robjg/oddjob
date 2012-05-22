@@ -3,9 +3,13 @@ package org.oddjob.framework;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.standard.StandardArooaSession;
 
 public class ServiceStrategiesTest extends TestCase {
 
+	ArooaSession session = new StandardArooaSession();
+	
 	public static class MyService1 implements Service {
 		boolean started;
 		@Override
@@ -25,7 +29,7 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		MyService1 service = new MyService1();
 		
-		ServiceAdaptor adaptor = test.serviceFor(service);
+		ServiceAdaptor adaptor = test.serviceFor(service, session);
 		
 		assertNotNull(adaptor);
 		
@@ -39,7 +43,7 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		assertEquals(false, service.started);
 		
-		assertNull(test.serviceFor(new Object()));
+		assertNull(test.serviceFor(new Object(), session));
 	}
 	
 	public static class MyService2 {
@@ -61,7 +65,7 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		MyService2 service = new MyService2();
 		
-		ServiceAdaptor adaptor = test.serviceFor(service);
+		ServiceAdaptor adaptor = test.serviceFor(service, session);
 		
 		assertNotNull(adaptor);
 		
@@ -75,7 +79,7 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		assertEquals(false, service.started);
 		
-		assertNull(test.serviceFor(new Object()));
+		assertNull(test.serviceFor(new Object(), session));
 	}
 	
 	public static class MyService3 {
@@ -97,7 +101,7 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		MyService3 service = new MyService3();
 		
-		ServiceAdaptor adaptor = test.serviceFor(service);
+		ServiceAdaptor adaptor = test.serviceFor(service, session);
 		
 		assertNotNull(adaptor);
 		
@@ -111,6 +115,6 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		assertEquals(false, service.started);
 		
-		assertNull(test.serviceFor(new Object()));
+		assertNull(test.serviceFor(new Object(), session));
 	}
 }

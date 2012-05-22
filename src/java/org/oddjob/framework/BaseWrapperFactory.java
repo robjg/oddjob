@@ -11,6 +11,7 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ArooaContextAware;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.logging.LogEnabled;
 
 /**
@@ -27,6 +28,7 @@ abstract public class BaseWrapperFactory<T> implements WrapperFactory<T> {
 		
 		Set<Class<?>> interfaces = new HashSet<Class<?>>();
 		interfaces.add(Object.class);
+		interfaces.add(ArooaSessionAware.class);
 		interfaces.add(ArooaContextAware.class);
 		interfaces.add(Stateful.class);
 		interfaces.add(Resetable.class);

@@ -22,17 +22,21 @@ import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaLifeAware;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.parsing.MockArooaContext;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.arooa.standard.StandardArooaDescriptor;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.LogEnabled;
@@ -74,6 +78,13 @@ public class RunnableWrapperTest extends TestCase {
 	private class OurSession extends MockArooaSession {
 		Object configured;
 		Object saved;
+		
+		ArooaDescriptor descriptor = new StandardArooaDescriptor();
+		
+		@Override
+		public ArooaDescriptor getArooaDescriptor() {
+			return descriptor;
+		}
 		
 		@Override
 		public ComponentPool getComponentPool() {
@@ -127,6 +138,7 @@ public class RunnableWrapperTest extends TestCase {
     			(Runnable) test,
     			getClass().getClassLoader());  
         
+        ((ArooaSessionAware) proxy).setArooaSession(session);
         ((ArooaContextAware) proxy).setArooaContext(context);
         
         MyListener l = new MyListener();
@@ -172,6 +184,10 @@ public class RunnableWrapperTest extends TestCase {
     			(Runnable) test,
     			getClass().getClassLoader());  
 
+        ArooaSession session = new StandardArooaSession();
+        
+        ((ArooaSessionAware) proxy).setArooaSession(session);
+        
         MyListener l = new MyListener();
         ((Stateful) proxy).addStateListener(l);
         ((Runnable) proxy).run();

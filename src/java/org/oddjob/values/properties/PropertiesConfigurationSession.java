@@ -1,14 +1,10 @@
 package org.oddjob.values.properties;
 
-import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaTools;
-import org.oddjob.arooa.life.ComponentPersister;
-import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.registry.BeanRegistry;
-import org.oddjob.arooa.registry.ComponentPool;
+import org.oddjob.arooa.parsing.SessionDelegate;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.StandardPropertyManager;
+import org.oddjob.values.types.PropertyType;
 
 /**
  * A version of an {@link ArooaSession} that creates it's own copy
@@ -18,55 +14,26 @@ import org.oddjob.arooa.standard.StandardPropertyManager;
  * @author rob
  *
  */
-public class PropertiesConfigurationSession implements ArooaSession {
+public class PropertiesConfigurationSession extends SessionDelegate
+implements ArooaSession {
 
-	private final ArooaSession original;
-	
 	private final PropertyManager propertyManager;
 	
+	/**
+	 * Constructor.
+	 * 
+	 * @param original The original session.
+	 */
 	public PropertiesConfigurationSession(ArooaSession original) {
-		this.original = original;
+		super(original);
 		
 		this.propertyManager = new StandardPropertyManager(
 				original.getPropertyManager());
 	}
-	
-	@Override
-	public ArooaDescriptor getArooaDescriptor() {
-		return original.getArooaDescriptor();
-	}
-	
-	@Override
-	public BeanRegistry getBeanRegistry() {
-		return original.getBeanRegistry();
-	}
-	
+		
 	@Override
 	public PropertyManager getPropertyManager() {
 		return propertyManager;
-	}
-	
-	@Override
-	public ComponentPersister getComponentPersister() {
-		return original.getComponentPersister();
-	}
-	
-	@Override
-	public ComponentProxyResolver getComponentProxyResolver() {
-		return original.getComponentProxyResolver();
-	}
-	
-	@Override
-	public ComponentPool getComponentPool() {
-		return original.getComponentPool();
-	}
-	
-	@Override
-	public ArooaTools getTools() {
-		return original.getTools();
-	}
-	
-	public ArooaSession getOriginal() {
-		return original;
-	}
+	}		
+		
 }

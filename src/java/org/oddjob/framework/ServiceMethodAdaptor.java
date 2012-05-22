@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import org.oddjob.FailedToStopException;
 
 /**
+ * A {@link ServiceAdaptor} that uses a start and stop method.
  * 
  * @author rob
  *

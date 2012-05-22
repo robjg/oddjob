@@ -17,10 +17,12 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.MockArooaBeanDescriptor;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
@@ -89,6 +91,10 @@ public class FileTypeTest extends TestCase {
 		@Override
 		public boolean isAuto(String property) {
 			return false;
+		}
+		@Override
+		public ArooaAnnotations getAnnotations() {
+			return new NoAnnotations();
 		}
 	}
 	

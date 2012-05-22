@@ -13,6 +13,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaLifeAware;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.RuntimeEvent;
@@ -21,9 +22,9 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.IconTip;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
+import org.oddjob.state.StateListener;
 
 /**
  * An abstract implementation of a component which provides common functionality to
@@ -34,8 +35,7 @@ import org.oddjob.state.StateHandler;
 
 public abstract class BaseComponent 
 implements Iconic, Stateful, 
-	PropertyChangeNotifier,
-	ArooaContextAware {
+	ArooaSessionAware, ArooaContextAware, PropertyChangeNotifier {
 	
     /**
 	 * Implement property change support which sub classes can take advantage of.
@@ -63,6 +63,10 @@ implements Iconic, Stateful,
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}
+		
+	protected ArooaSession getArooaSession() {
+		return this.session;
+	}
 	
 	@ArooaHidden
 	public void setArooaContext(ArooaContext context) {
@@ -71,8 +75,6 @@ implements Iconic, Stateful,
 					" must not implement " + ArooaLifeAware.class.getName() + 
 					". Methods are already available and handled internally.");
 		}
-		
-		this.session = context.getSession();
 		
 		context.getRuntime().addRuntimeListener(new RuntimeListenerAdaptor() {
 			@Override
@@ -121,10 +123,6 @@ implements Iconic, Stateful,
 			}
 		});
 		
-	}
-	
-	protected ArooaSession getArooaSession() {
-		return this.session;
 	}
 	
 	protected abstract Logger logger();

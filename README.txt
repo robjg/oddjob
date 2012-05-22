@@ -3,6 +3,12 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Support annotations, synthetic or normal, for Oddjob reset methods. 
+- Support annotations, synthetic or normal, for ArooaLifeCycle Methods. 
+- Added the idea of synthetic annotations to the descriptor. This allows
+  a method to tagged with a pseudo annotation with the XML descriptor so
+  beans do not need to have a dependency on an Oddjob jar for things
+  such as life cycle events. 
 - Added an autocommit flag to SQLJob.
 - Added a Service Manager (serviceman) job has been add for managing 
   services.
@@ -58,7 +64,6 @@ Still To Do for 1.2.0
 - Document State better in the user guide. Include why structural jobs 
   COMPLETE when they have no child because editing a node involves removing
   it and re-adding it.
-- Support annotations for ArooaLifeCycle Methods in Oddjob. 
 
 Deferred to A Later Version
 ---------------------------

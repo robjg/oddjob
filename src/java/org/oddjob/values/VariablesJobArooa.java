@@ -1,9 +1,11 @@
 package org.oddjob.values;
 
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaConstants;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.deploy.NoAnnotations;
 
 public class VariablesJobArooa implements ArooaBeanDescriptor {
 
@@ -32,5 +34,10 @@ public class VariablesJobArooa implements ArooaBeanDescriptor {
 	
 	public String getFlavour(String property) {
 		return null;
+	}
+	
+	@Override
+	public ArooaAnnotations getAnnotations() {
+		return new NoAnnotations();
 	}
 }

@@ -1,9 +1,12 @@
 package org.oddjob.framework;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.arooa.ArooaAnnotations;
+import org.oddjob.arooa.ArooaBeanDescriptor;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.reflect.PropertyAccessor;
 
 /**
  * A collection of different strategies that are applied to a component
@@ -15,15 +18,19 @@ import org.oddjob.FailedToStopException;
 public class ServiceStrategies implements ServiceStrategy {
 
 	@Override
-	public ServiceAdaptor serviceFor(Object component) {
+	public ServiceAdaptor serviceFor(Object component,
+			ArooaSession session) {
 		
 		ServiceAdaptor adaptor = 
-				isServiceAlreadyStrategy().serviceFor(component);
+				isServiceAlreadyStrategy().serviceFor(
+						component, session);
 		if (adaptor == null) {
-			adaptor = hasServiceAnnotationsStrategy().serviceFor(component);
+			adaptor = hasServiceAnnotationsStrategy().serviceFor(
+					component, session);
 		}
 		if (adaptor == null) {
-			adaptor = hasServiceMethodsStrategy().serviceFor(component);
+			adaptor = hasServiceMethodsStrategy().serviceFor(
+					component, session);
 		}
 		return adaptor;
 	}
@@ -38,7 +45,8 @@ public class ServiceStrategies implements ServiceStrategy {
 		return new ServiceStrategy() {
 			
 			@Override
-			public ServiceAdaptor serviceFor(Object component) {
+			public ServiceAdaptor serviceFor(Object component,
+					ArooaSession session) {
 				if (component instanceof Service) {
 					final Service service = (Service) component;
 					return new ServiceAdaptor() {
@@ -69,7 +77,9 @@ public class ServiceStrategies implements ServiceStrategy {
 	public ServiceStrategy hasServiceMethodsStrategy() {
 		return new ServiceStrategy() {
 			
-			public ServiceMethodAdaptor serviceFor(Object component) {
+			@Override
+			public ServiceMethodAdaptor serviceFor(Object component,
+					ArooaSession session) {
 				Class<?> cl = component.getClass();
 				try {
 					Method startMethod = cl.getDeclaredMethod(
@@ -95,36 +105,22 @@ public class ServiceStrategies implements ServiceStrategy {
 		return new ServiceStrategy() {
 			
 			@Override
-			public ServiceAdaptor serviceFor(Object component) {
+			public ServiceAdaptor serviceFor(Object component,
+					ArooaSession session) {
 				
-				Method startMethod = null;
-				Method stopMethod = null;
+				PropertyAccessor accessor = 
+						session.getTools().getPropertyAccessor();
 				
-				Class<?> cl = component.getClass();
-				for (Method method : cl.getMethods()) {
-
-					Annotation[] annotations = method.getAnnotations();
-					
-					for (Annotation arooaAnnotation: annotations) {
-						
-						if (arooaAnnotation instanceof Start) {
-							if (startMethod != null) {
-								throw new IllegalStateException(
-									"Class " + cl.getName() + 
-									" has more than on @Start annotation.");
-							}
-							startMethod = method;
-						}
-						if (arooaAnnotation instanceof Stop) {
-							if (stopMethod != null) {
-								throw new IllegalStateException(
-									"Class " + cl.getName() + 
-									" has more than on @Stop annotation.");
-							}
-							stopMethod = method;
-						}
-					}
-				}
+				ArooaBeanDescriptor beanDescriptor = 
+						session.getArooaDescriptor().getBeanDescriptor(
+								accessor.getClassName(component), accessor);
+				
+				ArooaAnnotations annotations = 
+						beanDescriptor.getAnnotations();
+				
+				Method startMethod = annotations.methodFor(Start.class.getName());
+				Method stopMethod = annotations.methodFor(Stop.class.getName());
+				
 				if (startMethod == null && stopMethod == null) {
 					return null;
 				}
@@ -133,7 +129,7 @@ public class ServiceStrategies implements ServiceStrategy {
 							component, startMethod, stopMethod);
 				}
 				throw new IllegalStateException(
-					"Class " + cl.getName() + 
+					"Class " + component.getClass().getName() + 
 					" must have both a @Start and a @Stop method annoted.");
 			}
 		};

@@ -53,7 +53,7 @@ implements ComponentProxyResolver {
 	    }
 	    else {
 	    	ServiceAdaptor service = 
-	    			new ServiceStrategies().serviceFor(component);
+	    			new ServiceStrategies().serviceFor(component, session);
 	    	if (service != null) {
 	    		proxy = new ServiceProxyGenerator().generate(service, 
 	    				component.getClass().getClassLoader());

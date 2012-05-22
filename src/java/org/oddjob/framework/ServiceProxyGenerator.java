@@ -10,6 +10,7 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ArooaContextAware;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.logging.LogEnabled;
 
 /**
@@ -23,6 +24,14 @@ import org.oddjob.logging.LogEnabled;
  */
 public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 
+	/**
+	 * Generate the proxy.
+	 * 
+	 * @param service
+	 * @param classLoader
+	 * 
+	 * @return The proxy.
+	 */
 	public Object generate(ServiceAdaptor service, ClassLoader classLoader) {
 		return generate(service, new WrapperFactory<ServiceAdaptor>() {
 			@Override
@@ -30,6 +39,7 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 					
 				Set<Class<?>> interfaces = new HashSet<Class<?>>();
 				interfaces.add(Object.class);
+				interfaces.add(ArooaSessionAware.class);
 				interfaces.add(ArooaContextAware.class);
 				interfaces.add(Stateful.class);
 				interfaces.add(Resetable.class);
@@ -46,7 +56,8 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 			}
 			@Override
 			public ComponentWrapper wrapperFor(ServiceAdaptor wrapped, Object proxy) {
-				return new ServiceWrapper(wrapped, proxy);
+				ServiceWrapper wrapper = new ServiceWrapper(wrapped, proxy);
+				return wrapper;
 			}
 		}, classLoader);
 	}

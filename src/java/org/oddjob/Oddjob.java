@@ -11,6 +11,7 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -25,6 +26,7 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.ArooaDescriptorBean;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
+import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -43,8 +45,6 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
-import org.oddjob.arooa.runtime.SubstitutionException;
-import org.oddjob.arooa.runtime.SubstitutionPolicy;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
@@ -1179,6 +1179,11 @@ implements Loadable,
 		public boolean isAuto(String property) {
 			return false;
 		}
+		
+		@Override
+		public ArooaAnnotations getAnnotations() {
+			return new NoAnnotations();
+		}
 	}
 	
 	/**
@@ -1247,42 +1252,7 @@ implements Loadable,
 			return file.getName();
 		}
 		return getClass().getSimpleName();
-	}
-	
-	/**
-	 * No longer used. This might be reinstated in future.
-	 * 
-	 * @param policy
-	 * @return
-	 */
-	SubstitutionPolicy createSubsitituionPolicy(String policy) {
-		if (OJConstants.SUBSTITUTION_POLICY_STRICT.equals(policy)) {
-			return new SubstitutionPolicy() {
-				public <T> T substituteObject(T value) throws SubstitutionException {
-					if (value == null) {
-						throw new SubstitutionException("Null substitutions not allowed.");
-					}
-					return value;
-				}
-				public String substituteString(String value) {
-					if (value == null) {
-						throw new SubstitutionException("Null substitutions not allowed.");
-					}
-					return value;
-				}
-			};
-		}
-		else {
-			return new SubstitutionPolicy() {
-				public <T> T substituteObject(T value) throws SubstitutionException {
-					return value;
-				}
-				public String substituteString(String value) {
-					return value;
-				}
-			};
-		}
-	}
+	}	
 	
 	/**
 	 * Wrapper to replace this Oddjob with the root object.

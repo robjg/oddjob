@@ -1,9 +1,11 @@
 package org.oddjob.values.properties;
 
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.SessionOverrideContext;
 
@@ -64,5 +66,10 @@ public class PropertiesBaseArooa implements ArooaBeanDescriptor {
 	@Override
 	public boolean isAuto(String property) {
 		return false;
+	}
+	
+	@Override
+	public ArooaAnnotations getAnnotations() {
+		return new NoAnnotations();
 	}
 }

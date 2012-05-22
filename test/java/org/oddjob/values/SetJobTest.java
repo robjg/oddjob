@@ -14,11 +14,13 @@ import org.apache.commons.beanutils.DynaProperty;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.MockArooaBeanDescriptor;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
@@ -251,6 +253,11 @@ public class SetJobTest extends TestCase {
     	@Override
     	public String getComponentProperty() {
     		return null;
+    	}
+    	
+    	@Override
+    	public ArooaAnnotations getAnnotations() {
+    		return new NoAnnotations();
     	}
     }
     

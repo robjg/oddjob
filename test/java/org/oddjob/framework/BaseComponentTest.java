@@ -215,13 +215,14 @@ public class BaseComponentTest extends TestCase {
 		}
 	}
 	
+	/** Note this test should change classes as it test the BasePrimary. */
 	public void testStateNotifiedOnDestroy() {
 
 		final List<State> results = new ArrayList<State>();
 
 		final AtomicBoolean destroyed = new AtomicBoolean();
 		
-		BaseComponent test = new BaseComponent() {
+		BasePrimary test = new BasePrimary() {
 
 			JobStateHandler stateHandler = new JobStateHandler(this);
 			

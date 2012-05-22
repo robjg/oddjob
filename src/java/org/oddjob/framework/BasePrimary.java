@@ -12,7 +12,6 @@ import org.oddjob.logging.LogEnabled;
  * 
  * @author Rob Gordon
  */
-
 public abstract class BasePrimary extends BaseComponent
 implements LogEnabled {
 	
@@ -28,6 +27,7 @@ implements LogEnabled {
 	 * @oddjob.required No. 
 	 */
 	private String name;
+	
 	
 	/**
 	 * Allow sub classes access to the logger.
@@ -46,12 +46,20 @@ implements LogEnabled {
 	    return theLogger;
 	}
 		
-		
+	/**
+	 * Called by sub classes to configure this component.
+	 * 	
+	 * @throws ArooaConfigurationException
+	 */
 	protected void configure() 
 	throws ArooaConfigurationException {
 		configure(this);
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.framework.BaseComponent#save()
+	 */
 	protected void save() throws ComponentPersistException {
 		save(this);
 	}

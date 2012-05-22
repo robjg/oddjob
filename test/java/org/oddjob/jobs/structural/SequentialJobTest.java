@@ -16,6 +16,7 @@ import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.FlagState;
@@ -309,7 +310,7 @@ public class SequentialJobTest extends TestCase {
 	public void testService() throws FailedToStopException {
 		
 		Object service = new OddjobComponentResolver().resolve(
-				new MyService(), null);
+				new MyService(), new StandardArooaSession());
 		
 		FlagState job = new FlagState();
 		
@@ -337,7 +338,7 @@ public class SequentialJobTest extends TestCase {
 	public void testNestedSequentials() throws FailedToStopException {
 		
 		Object service = new OddjobComponentResolver().resolve(
-				new MyService(), null);
+				new MyService(), new StandardArooaSession());
 		
 		FlagState job1 = new FlagState();
 		

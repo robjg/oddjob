@@ -46,13 +46,23 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	abstract public Object getWrapped();
 	
 	/**
+	 * Sub classes must provide a dyna bean for properties.
 	 * 
 	 * @return
 	 */
 	abstract protected DynaBean getDynaBean();
 	
+	/**
+	 * Subclass must provide the proxy.
+	 * 
+	 * @return
+	 */
 	abstract protected Object getProxy();
 	    
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.framework.BaseComponent#logger()
+	 */
 	protected Logger logger() {
     	if (theLogger == null) {
     		String logger = LogHelper.getLogger(getWrapped());
@@ -64,10 +74,19 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
     	return theLogger;
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.logging.LogEnabled#loggerName()
+	 */
     public String loggerName() {
 		return logger().getName();    	
     }
     
+    /**
+     * Called by sub classes to configure the component.
+     * 
+     * @throws ArooaConfigurationException
+     */
 	protected void configure() 
 	throws ArooaConfigurationException {
 		configure(getProxy());
@@ -222,12 +241,19 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 		}
 	}
 	
+	/**
+	 * Helper class to find interfaces implemented by an object.
+	 * 
+	 * @param object
+	 * 
+	 * @return An array of the interface classes.
+	 */
     public static Class<?>[] interfacesFor(Object object) {
     	List<Class<?>> results = new ArrayList<Class<?>>();
     	for (Class<?> cl = object.getClass(); cl != null; cl = cl.getSuperclass()) {
     		results.addAll(Arrays.asList((Class<?>[]) cl.getInterfaces()));
     	}
-    	return (Class[]) results.toArray(new Class[0]);
+    	return (Class[]) results.toArray(new Class[results.size()]);
     }
     
 }

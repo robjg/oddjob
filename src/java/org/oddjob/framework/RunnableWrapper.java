@@ -13,7 +13,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
+import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
@@ -57,6 +59,9 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	private final Object proxy;
 
+	/** Reset with annotations adaptor. */
+	private transient Resetable resetableAdaptor;
+	
 	/**
 	 * Constructor.
 	 * 
@@ -77,6 +82,13 @@ implements ComponentWrapper, Serializable, Forceable {
 						save();
 					}
 				});
+	}
+	
+	@Override
+	public void setArooaSession(ArooaSession session) {
+		super.setArooaSession(session);
+		resetableAdaptor = new ResetableAdaptorFactory().resetableFor(
+				wrapped, session);
 	}
 	
 	@Override
@@ -193,8 +205,11 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean softReset() {
+		
 		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 			public void run() {
+				resetableAdaptor.softReset();
+				
 				getStateChanger().setState(JobState.READY);
 				
 				logger().info("Soft Reset complete.");
@@ -210,8 +225,10 @@ implements ComponentWrapper, Serializable, Forceable {
 		
 		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 			public void run() {
+				resetableAdaptor.hardReset();
+				
 				getStateChanger().setState(JobState.READY);
-
+					
 				logger().info("Hard Reset complete.");
 			}
 		});

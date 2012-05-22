@@ -6,6 +6,7 @@ import java.io.Serializable;
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.MockArooaSession;
+import org.oddjob.framework.Service;
 
 public class OddjobComponentResolverTest extends TestCase {
 	
@@ -24,7 +25,7 @@ public class OddjobComponentResolverTest extends TestCase {
 		assertTrue(proxy instanceof Runnable);
 	}
 	
-	public static class OurService {
+	public static class OurService implements Service {
 		
 		public void start() {}
 		

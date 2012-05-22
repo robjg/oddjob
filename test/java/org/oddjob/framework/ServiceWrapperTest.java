@@ -11,16 +11,19 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.parsing.MockArooaContext;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -28,7 +31,7 @@ import org.oddjob.state.ServiceState;
 
 public class ServiceWrapperTest extends TestCase {
 
-	class OurContext extends MockArooaContext {
+	private class OurContext extends MockArooaContext {
 		OurSession session;
 		
 		@Override
@@ -46,9 +49,16 @@ public class ServiceWrapperTest extends TestCase {
 		}
 	}
 	
-	class OurSession extends MockArooaSession {
+	private class OurSession extends MockArooaSession {
 		Object configured;
 		Object saved;
+		
+		ArooaDescriptor descriptor = new StandardArooaDescriptor();
+		
+		@Override
+		public ArooaDescriptor getArooaDescriptor() {
+			return descriptor;
+		}
 		
 		@Override
 		public ComponentPool getComponentPool() {
@@ -91,10 +101,10 @@ public class ServiceWrapperTest extends TestCase {
 	public void testStartStop() throws Exception {
 		MyService myService = new MyService();
 		
-		ServiceAdaptor service = new ServiceStrategies().serviceFor(
-				myService);
-		
 		OurSession session = new OurSession();
+		
+		ServiceAdaptor service = new ServiceStrategies().serviceFor(
+				myService, session);
 		
 		OurContext context = new OurContext();
 		context.session = session;
@@ -102,6 +112,7 @@ public class ServiceWrapperTest extends TestCase {
 		Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
 				service, getClass().getClassLoader());
 
+		((ArooaSessionAware) wrapper).setArooaSession(session);
 		((ArooaContextAware) wrapper).setArooaContext(context);
 		
 		wrapper.run();

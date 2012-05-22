@@ -16,6 +16,14 @@ import java.util.Set;
  */
 public class ProxyGenerator<T> {
 
+	/**
+	 * Generate the proxy.
+	 * 
+	 * @param wrapped
+	 * @param wrapperFactory
+	 * @param classLoader
+	 * @return
+	 */
 	public Object generate(T wrapped, WrapperFactory<T> wrapperFactory, 
 			ClassLoader classLoader) {
 

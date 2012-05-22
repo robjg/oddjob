@@ -1,8 +1,10 @@
 package fruit;
 
+import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.deploy.NoAnnotations;
 
 public class FlavourTypeArooa implements ArooaBeanDescriptor {
 
@@ -26,7 +28,13 @@ public class FlavourTypeArooa implements ArooaBeanDescriptor {
 		return false;
 	}
 	
+	@Override
 	public String getFlavour(String property) {
 		return null;
+	}
+	
+	@Override
+	public ArooaAnnotations getAnnotations() {
+		return new NoAnnotations();
 	}
 }

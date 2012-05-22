@@ -18,6 +18,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.framework.Service;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
@@ -368,7 +369,7 @@ public class ParallelJobTest extends TestCase {
 		
 	}
 	
-	public static class MyService {
+	public static class MyService implements Service {
 		
 		public void start() {}
 		public void stop() {}
