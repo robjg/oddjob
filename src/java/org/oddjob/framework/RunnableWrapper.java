@@ -37,7 +37,7 @@ import org.oddjob.state.StateEvent;
  */
 public class RunnableWrapper extends BaseWrapper 
 implements ComponentWrapper, Serializable, Forceable {
-	private static final long serialVersionUID = 20051231;
+	private static final long serialVersionUID = 20012052320051231L;
 
 	private transient JobStateHandler stateHandler;
 	
@@ -205,16 +205,27 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean softReset() {
-		
-		return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-			public void run() {
-				resetableAdaptor.softReset();
-				
-				getStateChanger().setState(JobState.READY);
-				
-				logger().info("Soft Reset complete.");
-			}
-		});
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+				public void run() {
+					if (resetableAdaptor == null) {
+						throw new NullPointerException(
+							"ResetableAdaptor hasn't been set, " +
+							"setArooaSession() must be called on the proxy.");
+					}
+					
+					resetableAdaptor.softReset();
+					
+					getStateChanger().setState(JobState.READY);
+					
+					logger().info("Soft Reset complete.");
+				}
+			});
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	/**
@@ -222,16 +233,27 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean hardReset() {
-		
-		return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-			public void run() {
-				resetableAdaptor.hardReset();
-				
-				getStateChanger().setState(JobState.READY);
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+				public void run() {
+					if (resetableAdaptor == null) {
+						throw new NullPointerException(
+							"ResetableAdaptor hasn't been set, " +
+							"setArooaSession() must be called on the proxy.");
+					}
 					
-				logger().info("Hard Reset complete.");
-			}
-		});
+					resetableAdaptor.hardReset();
+					
+					getStateChanger().setState(JobState.READY);
+						
+					logger().info("Hard Reset complete.");
+				}
+			});
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	/**

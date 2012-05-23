@@ -117,23 +117,8 @@ public class Main {
 		
 		final Oddjob oddjob = new Oddjob();
 		
-		if (oddjobFile == null) {
-			if (oddjobHome != null) {
-				oddjobFile = oddjobHome + "/oddjob.xml";
-				
-			}
-			else {
-				oddjobFile = "oddjob.xml";
-			}
-		}
-		File theFile = new File(oddjobFile);
-		if (!theFile.exists()) {
-			throw new FileNotFoundException(oddjobFile);
-		}
-		oddjob.setFile(theFile);
-		if (name == null) {
-			name = "Oddjob " + oddjobFile;
-		}
+		oddjob.setFile(findFileToUse(oddjobFile, oddjobHome));
+		
 		oddjob.setName(name);
 		
 		if (oddballsPath != null) {
@@ -203,6 +188,38 @@ public class Main {
 	    System.out.println("Oddjob version: " + new Oddjob().getVersion());
 	}
 	
+	/**
+	 * Work out which file to use
+	 * 
+	 * @param oddjobFile
+	 * 
+	 * @return
+	 * 
+	 * @throws FileNotFoundException
+	 */
+	public File findFileToUse(String oddjobFile, String oddjobHome) 
+	throws FileNotFoundException {
+		
+		File theFile;
+		
+		if (oddjobFile == null) {
+			theFile = new File("oddjob.xml");
+			if (!theFile.exists() && oddjobHome != null) {
+				theFile = new File(oddjobHome, "oddjob.xml");
+			}
+			if (!theFile.exists()) {
+				throw new FileNotFoundException(
+						"oddjob.xml or ${oddjob.home}/oddjob.xml");
+			}
+		}
+		else {
+			theFile = new File(oddjobFile);
+			if (!theFile.exists()) {
+				throw new FileNotFoundException(oddjobFile);
+			}
+		}
+		return theFile;
+	}
 	
 	protected Properties processUserProperties() throws IOException {
 		

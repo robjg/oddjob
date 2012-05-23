@@ -384,7 +384,6 @@ implements Stoppable, ConsoleOwner {
 		
 		proc = processBuilder.start();
 		
-		final InputStream processStdErr = proc.getErrorStream();
 		final InputStream processStdOut = proc.getInputStream();
 
 		Thread outT = new Thread(new Runnable() {			
@@ -395,15 +394,17 @@ implements Stoppable, ConsoleOwner {
 							consoleArchive);
 					IO.copy(bis, os);
 					os.close();
+					bis.close();
 				} catch (IOException e) {
 					logger().error("Failed copying stream.", e);
 				}
 			}
 		});
-		outT.start();
-
+		outT.start();		
+		
 		Thread  errT = null;
 		if (!redirectStderr) { 
+			final InputStream processStdErr = proc.getErrorStream();
 			errT = new Thread(new Runnable() {
 
 				public void run() {
@@ -414,6 +415,7 @@ implements Stoppable, ConsoleOwner {
 								LogLevel.ERROR, consoleArchive);
 						IO.copy(bis, os);
 						os.close();
+						bis.close();
 					} catch (IOException e) {
 						logger().error("Failed copying stream.", e);
 					}
@@ -433,22 +435,13 @@ implements Stoppable, ConsoleOwner {
 
 		thread = Thread.currentThread();
 		try {
-			proc.waitFor();
-
-			outT.join();
-			if (errT != null) {
-				errT.join();
-			}
-					
-			exitValue = proc.exitValue();
+			logger().debug("Waiting for process.");
+			exitValue = proc.waitFor();
+			logger().debug("Process completed with exit value " + exitValue);
 		}
 		finally {
 			thread = null;
 
-			// clean up process resources
-			proc.getInputStream().close();
-			proc.getErrorStream().close();
-			proc.getOutputStream().close();
 			proc.destroy();
 			proc = null;
 			
@@ -457,6 +450,7 @@ implements Stoppable, ConsoleOwner {
 				notifyAll();
 			}
 		}
+
 		return exitValue;
 	}
 
@@ -483,6 +477,8 @@ implements Stoppable, ConsoleOwner {
 				}
 			}
 		}
+		
+		Thread thread = this.thread;
 		if (thread != null) {
 			logger().warn("Process failed to die - needs to be manually killed.");
 			thread.interrupt();

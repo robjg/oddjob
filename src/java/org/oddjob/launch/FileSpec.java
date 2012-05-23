@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, Rob Gordon.
+ * Based on code from Ant.
  */
 package org.oddjob.launch;
 
@@ -7,37 +7,83 @@ import java.io.File;
 import java.io.FileFilter;
 
 /**
+ * Provide file matching for deriving the class path.
  * 
  * @author Rob Gordon.
  */
 public class FileSpec {
 
-    private File filespec;
+	/** The file specification to match against. */
+    private final File filespec;
     
-    /**
-     */
-    private boolean caseSensative;
+    /** Is the match case sensitive */
+    private final boolean caseSensative;
             
+    /**
+     * Constructor.
+     * 
+     * @param filespec
+     */
     public FileSpec(File filespec) {
-        this.filespec = filespec;
+    	this(filespec, false);
     }
+
+    /**
+     * Constructor
+     * 
+     * @param filespec
+     * @param caseSensative
+     */
+    public FileSpec(File filespec, boolean caseSensative) {
+        this.filespec = filespec;
+        this.caseSensative = caseSensative;
+	}
     
     /**
-     * Get the files mathcing the filespec.
+     * Get the files matching the filespec.
      *
      * @return An array of all files.
      */
-    public File[] getFiles() {    	
-        File dir = filespec.getParentFile();
-        File[] result = dir.listFiles(new FileFilter() {
+    public File[] getFiles() {
+    	
+    	// if it's a directory it's something like 'classes' so return
+    	// it straight away.
+    	if (filespec.isDirectory()) {
+    		return new File[] { filespec };
+    	}
+    	
+        File parentDir = filespec.getParentFile();
+        
+        // if the parent directory is null, it's something like *.jar so
+        // use the current directory.
+        if (parentDir == null) {
+        	parentDir = new File(System.getProperty("user.dir"));
+        	
+        }
+        
+        File[] result = parentDir.listFiles(new FileFilter() {
                 public boolean accept(File pathname) {
-                    return match(filespec.getName(), pathname.getPath(), caseSensative);
+                	
+                    return match(filespec.getName(), pathname.getName(), 
+                    		caseSensative);
                 }
             });
-       if (result == null) {
-            result = new File[0];
-       }
-       return result;
+        
+        // Ignore errors.
+        if (result == null) {
+        	return new File[0];
+        }
+        
+        // if we used the current directory we need to restore the
+        // list to be just names. Example *.jar becomes a.jar b.jar
+        // not /home/rob/a.jar /home/rob/b.jar etc.
+        if (filespec.getParentFile() == null) {
+        	for (int i = 0 ; i < result.length; ++i) {
+        		result[i] = new File(result[i].getName());
+        	}
+        }
+        
+        return result;
     }
     
     // taken as is from ant...

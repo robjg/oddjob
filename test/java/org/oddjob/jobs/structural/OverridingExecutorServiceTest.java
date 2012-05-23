@@ -73,14 +73,6 @@ public class OverridingExecutorServiceTest extends TestCase {
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING);
 		
-		Thread t = new Thread(oddjob);
-		t.start();
-
-		oddjobStates.checkWait();
-				
-		oddjobStates.startCheck(ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.COMPLETE);
-		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		WaitJob wait1 = lookup.lookup("wait1", WaitJob.class); 
@@ -98,6 +90,14 @@ public class OverridingExecutorServiceTest extends TestCase {
 		states3.startCheck(JobState.READY, JobState.EXECUTING);
 		states4.startCheck(JobState.READY, JobState.EXECUTING);
 
+		Thread t = new Thread(oddjob);
+		t.start();
+
+		oddjobStates.checkWait();
+				
+		oddjobStates.startCheck(ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
 		states1.checkWait();
 		states2.checkWait();
 		wait1.stop();

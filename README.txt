@@ -3,6 +3,9 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Allow file wild cards in the launch class path.
+- Process -D property arguments in the Launcher so they can be 
+  set from batch files.
 - Support annotations, synthetic or normal, for Oddjob reset methods. 
 - Support annotations, synthetic or normal, for ArooaLifeCycle Methods. 
 - Added the idea of synthetic annotations to the descriptor. This allows

@@ -49,9 +49,12 @@ public class LauncherTest extends TestCase {
 	
     public void testGetClassLoader() throws IOException, URISyntaxException {
     	
+    	OurDirs dirs = new OurDirs();
+    	File f = dirs.relative("src/java");
+    	
         ClassLoader cl = Launcher.getClassLoader(
         		LauncherTest.class.getClassLoader(), 
-        		new String[] { "fruits/apple.jar" } );
+        		new String[] { f.getPath() } );
 
         assertNotNull("Classloader", cl);
 
@@ -65,11 +68,11 @@ public class LauncherTest extends TestCase {
         }
         
         assertTrue(results.contains(
-        		new File("fruits/apple.jar").getCanonicalPath()));
+        		f.getCanonicalPath()));
         
         assertTrue(System.getProperty(
         		"java.class.path").contains(
-        				new File("fruits/apple.jar").getCanonicalPath()));
+        				f.getCanonicalPath()));
 
         assertEquals(Thread.currentThread().getContextClassLoader(),
         		ClassLoader.getSystemClassLoader());

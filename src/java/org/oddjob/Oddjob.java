@@ -1249,7 +1249,7 @@ implements Loadable,
 			return name;
 		}
 		if (file != null) {
-			return file.getName();
+			return "Oddjob " + file.getName();
 		}
 		return getClass().getSimpleName();
 	}	

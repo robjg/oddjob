@@ -7,7 +7,6 @@ import java.beans.PropertyVetoException;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.IconSteps;
@@ -51,11 +50,12 @@ public class RunJobTest extends TestCase {
 	}
 	
 	public static class OurRunnable implements Runnable {
-		boolean ran;
+		int ran;
+		
 		public void run() {
-			ran = true;
+			++ran;
 		}
-		public boolean isRan() {
+		public int getRan() {
 			return ran;
 		}
 	}
@@ -63,13 +63,25 @@ public class RunJobTest extends TestCase {
 	public void testCode() {
 		OurRunnable r = new OurRunnable();
 		
-		RunJob j = new RunJob();
-		j.setJob(r);
-		j.run();
+		RunJob test = new RunJob();
+		test.setJob(r);
+		test.run();
 		
-		assertEquals(ParentState.COMPLETE
-				, j.lastStateEvent().getState());
-		assertTrue(r.ran);
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
+		assertEquals(1, r.ran);
+		
+		test.hardReset();
+		
+		assertEquals(ParentState.READY, 
+				test.lastStateEvent().getState());
+		
+		test.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
+		
+		assertEquals(2, r.ran);
 	}
 	
 	public void testInOddjob() throws Exception {
@@ -80,7 +92,7 @@ public class RunJobTest extends TestCase {
 			"  <sequential>" +
 			"   <jobs>" +
 			"    <bean id='r' class='" + OurRunnable.class.getName() + "'/>" +
-			"    <run job='${r}' />" +
+			"    <run id='j' job='${r}' />" +
 			"   </jobs>" +
 			"  </sequential>" +
 			" </job>" +
@@ -90,8 +102,17 @@ public class RunJobTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		oddjob.run();
 		
-		Object r = new OddjobLookup(oddjob).lookup("r");
-		assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "ran"));
+		OddjobLookup lookup = new OddjobLookup(oddjob); 
+		
+		assertEquals(1, lookup.lookup("r.ran"));
+		
+		RunJob test = lookup.lookup("j", RunJob.class);
+		
+		test.hardReset();
+		
+		test.run();
+		
+		assertEquals(1, lookup.lookup("r.ran"));
 		
 		oddjob.destroy();
 	}

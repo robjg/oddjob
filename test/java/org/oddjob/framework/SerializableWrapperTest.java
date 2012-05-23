@@ -14,6 +14,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.MockComponentPersister;
@@ -96,7 +97,7 @@ public class SerializableWrapperTest extends TestCase {
 					if (closed) {
 						return;
 					}
-					logger.debug("Persisting [" + proxy + "] id [" + id + "]");
+					logger.info("Persisting [" + proxy + "] id [" + id + "]");
 					assertEquals("test", id);
 
 					try {
@@ -112,6 +113,8 @@ public class SerializableWrapperTest extends TestCase {
 				public Object restore(String id, ClassLoader classLoader, 
 						ArooaSession session) {
 					assertEquals("test", id);
+					
+					logger.info("Restoring id [" + id + "]");
 					
 					return save;
 				}
@@ -160,6 +163,8 @@ public class SerializableWrapperTest extends TestCase {
 		assertEquals("hello", test1.check);
 		
 		oddjob.destroy();
+
+		// restore
 		
 		Oddjob oddjob2 = new Oddjob();
     	oddjob2.setConfiguration(new XMLConfiguration("XML", xml));
@@ -173,10 +178,23 @@ public class SerializableWrapperTest extends TestCase {
 		test1 = (Test1) ((WrapperInvocationHandler) Proxy.getInvocationHandler(
 				proxy)).getWrappedComponent();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));
+		assertEquals(JobState.COMPLETE, 
+				((Stateful) proxy).lastStateEvent().getState());
 		assertEquals("hello", test1.check);
 		
 		assertEquals(1, persister.count);
+		
+		// try and reset
+
+		((Resetable) proxy).hardReset();
+		
+		assertEquals(JobState.READY, 
+				((Stateful) proxy).lastStateEvent().getState());
+		
+		((Runnable) proxy).run();
+		
+		assertEquals(JobState.COMPLETE, 
+				((Stateful) proxy).lastStateEvent().getState());
 		
 		oddjob2.destroy();
 	}

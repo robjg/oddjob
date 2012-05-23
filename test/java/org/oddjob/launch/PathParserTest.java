@@ -17,7 +17,11 @@ public class PathParserTest extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
+		super.setUp();
 		logger.info("-----------------" + getName() + "-----------");
+	}
+	
+	void pathSetUp() {
 		
 		if (";".equals(File.pathSeparator)) {
 			logger.info("Windows style path.");
@@ -38,6 +42,7 @@ public class PathParserTest extends TestCase {
 	
 	
 	public void testPathParse() {
+		pathSetUp();
 		
 		if (pathToParse == null) {
 			return;
@@ -63,5 +68,44 @@ public class PathParserTest extends TestCase {
 		
 		assertEquals(result1, results[0]);
 		assertEquals(result2, results[1]);
+	}
+	
+	public void testArgButNoPath() {
+		
+		PathParser test = new PathParser();
+		
+		try {
+			test.processArgs(new String[] { 
+					"before", "-cp" });
+			fail("Should fail.");
+		}
+		catch (IllegalArgumentException e) {
+			// expected
+		}
+	}
+	
+	public void testContinue() {
+		
+		PathParser test = new PathParser();
+		
+		String[] after =  test.processArgs(new String[] { 
+					"--", "-cp" });
+		
+		assertEquals("--", after[0]);
+		assertEquals("-cp", after[1]);
+		
+		assertEquals(2, after.length);
+	}
+	
+	public void testTwoClassPathsContinue() {
+		
+		PathParser test = new PathParser();
+		
+		String[] after =  test.processArgs(new String[] { 
+					"-classpath", "foo", "-cp" });
+		
+		assertEquals("-cp", after[0]);
+		
+		assertEquals(1, after.length);
 	}
 }

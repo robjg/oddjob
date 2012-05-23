@@ -17,17 +17,6 @@ set _JAVA_CMD=javaw
 
 :haveJavaCmd
 
-set _ARGS=
-if "%1" == "" goto noMoreArgs
-set _ARGS=%1
-shift
-:moreArgs
-if "%1" == "" goto noMoreArgs
-set _ARGS=%_ARGS% %1
-shift
-goto moreArgs
-
-:noMoreArgs
 goto runOddjob
 
 :failNoOddjob
@@ -38,5 +27,5 @@ exit /b 1
 
 :runOddjob
 
-start "Oddjob" /b "%_JAVA_CMD%" -jar %_ODDJOB_JAR% %_ARGS%
+start "Oddjob" /b "%_JAVA_CMD%" -jar %_ODDJOB_JAR% %*
 

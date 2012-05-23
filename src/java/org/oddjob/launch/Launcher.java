@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * By Default, launch Oddjob using a classloader with the following:
@@ -85,55 +88,48 @@ public class Launcher implements Runnable {
         System.setProperty(ODDJOB_HOME_PROPERTY, jarDir.getCanonicalPath());
         System.setProperty(ODDJOB_RUN_JAR_PROPERTY, sourceJar.getCanonicalPath());
                 
-        File[] libFiles = new FileSpec(
-        		new File(new File(jarDir,"lib"), "*.jar")).getFiles();
+        List<File> classPathList = new ArrayList<File>();
+        
+        // add the source jar
+        classPathList.add(sourceJar);
+        
+        // expand the classpath entries.
+        for (String entry : classpath) {
+        	File[] entryFiles = new FileSpec(
+            		new File(entry)).getFiles();
+        	classPathList.addAll(Arrays.asList(entryFiles));
+        }
+            
+        // expand the lib directory
+    	File[] libFiles = new FileSpec(
+    		new File(new File(jarDir,"lib"), "*.jar")).getFiles();
+    	classPathList.addAll(Arrays.asList(libFiles));
+    	
+    	// add opt/classes
+    	classPathList.add(new File(jarDir, "opt/classes"));
+    	
+    	// expand the opt/lib directory
         File[] optFiles = new FileSpec(new File(
         		new File(jarDir,"opt/lib"), "*.jar")).getFiles();
+    	classPathList.addAll(Arrays.asList(optFiles));
         
-        URL[] urls = new URL[2 + 
-                             classpath.length + 
-                             libFiles.length + 
-                             optFiles.length];
+    	// The full class path
+    	ClassPathHelper classPathHelper = new ClassPathHelper(
+    			classPathList.toArray(new File[classPathList.size()]));
         
-        int index = 0;
-        
-        // this is in the classpath already.
-        urls[index++] = sourceJar.toURI().toURL();
-        
-        for (int i = 0; i < classpath.length; ++i) {
-        	urls[index++] = extendClasspath(new File(classpath[i]));
-        }
-        for (int i = 0; i < libFiles.length; ++i) {
-        	urls[index++] = extendClasspath(libFiles[i]);
-        }
-        urls[index++] = extendClasspath(new File(jarDir, "opt/classes"));
-        for (int i = 0; i < optFiles.length; ++i) {
-        	urls[index++] = extendClasspath(optFiles[i]);
-        }
+        URL[] urls = classPathHelper.toURLs();
+        classPathHelper.appendToJavaClassPath();
+        final String classPath = classPathHelper.toString();
         
         ClassLoader cl = new URLClassLoader(urls, currentLoader) {
         	@Override
         	public String toString() {
-        		return "Oddjob Launcher ClassLoader";
+        		return "Oddjob Launcher ClassLoader: " + 
+        					classPath;
         	}
         };
         return cl;
-	}
-	
-	static URL extendClasspath(File file) {
-		
-		try {
-			String classpath = System.getProperty("java.class.path");
-			
-			System.setProperty("java.class.path", classpath + 
-					File.pathSeparator + file.getCanonicalPath());
-			
-			return file.toURI().toURL();
-		}
-		catch (IOException e) {
-        	throw new RuntimeException("Classpath " + file + " is invalid", e);
-		}
-	}
+	}	
 
 	public ClassLoader getClassLoader() {
 		return classLoader;
@@ -168,7 +164,11 @@ public class Launcher implements Runnable {
 	 * @throws IOException
 	 */
     public static void main(String... args) throws IOException {
+
+    	// process -D property definitions
+    	args = new SystemPropertyArgParser().processArgs(args);
     	
+    	// process class path
     	PathParser path = new PathParser();
     	args = path.processArgs(args);
     	
