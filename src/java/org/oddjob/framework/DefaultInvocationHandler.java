@@ -31,6 +31,15 @@ implements WrapperInvocationHandler, Serializable {
 	
 	private Class<?>[] wrappedInterfaces;
 	
+	/**
+	 * Initialise the invocation handler.
+	 * 
+	 * @param wrapper The wrapper. Handles invocations for wrapping 
+	 * interfaces.
+	 * @param wrappingInterfaces The wrapping interfaces.
+	 * @param wrapped The component.
+	 * @param wrappedInterfaces The component interfaces.
+	 */
 	public void initialise(ComponentWrapper wrapper, 
 			Class<?>[] wrappingInterfaces,
 			Object wrapped, 

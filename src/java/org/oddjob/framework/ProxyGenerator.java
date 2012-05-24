@@ -8,7 +8,12 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Generates a Proxy for a wrapped component.
+ * Generates a Proxy for a wrapped component. The proxy provided
+ * will implement all interfaces from the original component as well
+ * as those provided by the {@link WrapperFactory}.
+ * <p>
+ * If the wrapped component is an instance of an {@link Adaptor} the 
+ * underlying component interface will be used instead.
  * 
  * @author rob
  *
@@ -19,16 +24,26 @@ public class ProxyGenerator<T> {
 	/**
 	 * Generate the proxy.
 	 * 
-	 * @param wrapped
+	 * @param wrapped The component being wrapped.
 	 * @param wrapperFactory
 	 * @param classLoader
-	 * @return
+	 * 
+	 * @return A proxy implementing all the interface of factory and
+	 * component.
 	 */
 	public Object generate(T wrapped, WrapperFactory<T> wrapperFactory, 
 			ClassLoader classLoader) {
 
+		Object component;
+		if (wrapped instanceof Adaptor) {
+			component = ((Adaptor) wrapped).getComponent();
+		}
+		else {
+			component = wrapped;
+		}
+		
 		Class<?>[] wrappedInterfaces = 
-				interfacesFor(wrapped);
+				interfacesFor(component);
 		Class<?>[] wrappingInterfaces = 
 				wrapperFactory.wrappingInterfacesFor(wrapped);
 		
@@ -51,13 +66,19 @@ public class ProxyGenerator<T> {
     	
     	handler.initialise(wrapper, 
     			wrappingInterfaces, 
-    			wrapped, 
+    			component, 
     			wrappedInterfaces);
     	
         return proxy;
     	
 	}
 	
+	/**
+	 * Find all the interfaces an object implements.
+	 * 
+	 * @param object The object.
+	 * @return All the interfaces it implements
+	 */
     public static Class<?>[] interfacesFor(Object object) {
     	List<Class<?>> results = new ArrayList<Class<?>>();
     	for (Class<?> cl = object.getClass(); cl != null; cl = cl.getSuperclass()) {

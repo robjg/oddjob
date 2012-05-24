@@ -3,6 +3,7 @@ package org.oddjob.framework;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Forceable;
@@ -15,7 +16,8 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.logging.LogEnabled;
 
 /**
- * Shared class definitions for most wrappers.
+ * Shared class definitions for {@link Callable} and {@link Runnable}
+ * wrappers.
  * 
  * @author rob
  *
