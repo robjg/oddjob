@@ -5,13 +5,9 @@ package org.oddjob.monitor.action;
 
 import junit.framework.TestCase;
 
-import org.oddjob.MockStateful;
 import org.oddjob.Stoppable;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.monitor.model.MockExplorerContext;
-import org.oddjob.state.JobState;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
@@ -56,74 +52,11 @@ public class StopActionTest extends TestCase {
 		JobAction test = new StopAction();
 		test.setSelectedContext(ec);
 		
+		assertTrue(test.isEnabled());
+		
 		test.action();
 		
 		assertTrue(sample.stopped);
-	}
-
-	/**
-	 * Test action is enabled when a stateful is selected running.
-	 *
-	 */
-	public void testEnabled() {
-		class MySS extends MockStateful implements Stoppable {
-			boolean removed;
-			public void stop() {}
-			public void addStateListener(StateListener listener) {
-				listener.jobStateChange(
-						new StateEvent(this, JobState.EXECUTING));
-			}
-			public void removeStateListener(StateListener listener) {
-				removed = true;
-			}
-		}
-		MySS sample = new MySS();
-		
-		OurExplorerContext ec = new OurExplorerContext();
-		ec.component = sample;
-		
-		JobAction test = new StopAction();
-
-		test.setSelectedContext(ec);
-		test.prepare();
-		
-		assertTrue(test.isEnabled());
-		
-		test.setSelectedContext(null);
-		assertTrue(sample.removed);
-	}
-	
-	/**
-	 * Test action is disable when a stateful is selected in complete state.
-	 *
-	 */
-	public void testDisabled() {
-		class MySS extends MockStateful implements Stoppable {
-			boolean removed;
-			public void stop() {}
-			public void addStateListener(StateListener listener) {
-				listener.jobStateChange(
-						new StateEvent(this, JobState.COMPLETE));
-			}
-			public void removeStateListener(StateListener listener) {
-				removed = true;
-			}
-		}
-		MySS sample = new MySS();
-		
-		OurExplorerContext ec = new OurExplorerContext();
-		ec.component = sample;
-		
-		JobAction test = new StopAction();
-
-		test.setSelectedContext(ec);
-		test.prepare();
-		
-		assertFalse(test.isEnabled());
-		
-		test.setSelectedContext(null);
-		assertTrue(sample.removed);
-
 	}
 	
 	/**

@@ -9,10 +9,12 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
+import org.oddjob.Helper;
 import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -22,11 +24,13 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.state.IsAnyState;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.state.StateEvent;
@@ -61,9 +65,13 @@ public class RunJobTest extends TestCase {
 	}
 	
 	public void testCode() {
+		
+		StandardArooaSession session = new StandardArooaSession();
+		
 		OurRunnable r = new OurRunnable();
 		
 		RunJob test = new RunJob();
+		test.setArooaSession(session);
 		test.setJob(r);
 		test.run();
 		
@@ -82,6 +90,25 @@ public class RunJobTest extends TestCase {
 				test.lastStateEvent().getState());
 		
 		assertEquals(2, r.ran);
+		
+		Object[] children = Helper.getChildren(test);
+		assertEquals(1, children.length);
+		Object proxy = children[0];
+
+		assertEquals(JobState.COMPLETE, 
+				((Stateful) proxy).lastStateEvent().getState());
+		
+		((Resetable) proxy).hardReset();
+		
+		assertEquals(JobState.READY, 
+				((Stateful) proxy).lastStateEvent().getState());
+		
+		((Runnable) proxy).run();
+		
+		assertEquals(JobState.COMPLETE, 
+				((Stateful) proxy).lastStateEvent().getState());
+		
+		assertEquals(3, r.ran);
 	}
 	
 	public void testInOddjob() throws Exception {

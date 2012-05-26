@@ -8,6 +8,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.DesignFactory;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
@@ -136,6 +137,17 @@ implements Structural, Stoppable, ConfigurationOwner {
 			OddjobComponentResolver resolver = new OddjobComponentResolver();
 			
 			proxy = resolver.resolve(job, getArooaSession());
+			
+			// if we created the proxy we need to set the session.
+			// This is required for reset actions that might use descriptor 
+			// annotations. We don't set context and so don't have any
+			// way to destroy the proxy. This might need to be addressed
+			// at a later date.
+			if (proxy != job && proxy instanceof ArooaSessionAware) {
+				((ArooaSessionAware) proxy).setArooaSession(
+						getArooaSession());
+			}
+			
 			childHelper.addChild(proxy);
 		}
 		else {

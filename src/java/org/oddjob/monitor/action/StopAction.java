@@ -4,13 +4,10 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.StateEvent;
 import org.oddjob.util.ThreadManager;
 
 /**
@@ -19,8 +16,7 @@ import org.oddjob.util.ThreadManager;
  * @author Rob Gordon
  */
 
-public class StopAction extends JobAction 
-implements StateListener {
+public class StopAction extends JobAction {
 
 	private static final Logger logger = Logger.getLogger(StopAction.class);
 	
@@ -63,10 +59,6 @@ implements StateListener {
 			this.job = component;
 			setEnabled(true);
 			this.threadManager = explorerContext.getThreadManager();
-			
-			if (job instanceof Stateful) {
-				((Stateful) job).addStateListener(this);
-			}
 		}
 		else {
 			setEnabled(false);
@@ -75,9 +67,6 @@ implements StateListener {
 	
 	@Override
 	protected void doFree(ExplorerContext explorerContext) {
-		if (job != null && job instanceof Stateful) {
-			((Stateful) job).removeStateListener(this);
-		}
 		job = null;			
 	}
 		
@@ -94,16 +83,4 @@ implements StateListener {
 		}, "Stopping " + job);
 	}
 	
-	/*
-	 *  (non-Javadoc)
-	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
-	 */	
-	public void jobStateChange(StateEvent event) {
-		if (event.getState().isStoppable()
-				&& event.getSource() instanceof Stoppable) {
-			setEnabled(true);
-		} else {
-			setEnabled(false);
-		}
-	}
 }

@@ -279,7 +279,7 @@ public class ActionModelTest extends TestCase {
 		assertTrue(menuItems.get(i).isVisible());
 		
 		assertEquals("Stop", menuItems.get(++i).getText());
-		assertFalse(menuItems.get(i).isEnabled());
+		assertTrue(menuItems.get(i).isEnabled());
 		assertTrue(menuItems.get(i).isVisible());
 		
 		assertEquals("Force", menuItems.get(++i).getText());
