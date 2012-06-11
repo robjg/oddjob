@@ -32,12 +32,7 @@ public class Reserved {
 	 * This property is holds the integer result of a job.
 	 */
 	public static final String RESULT_PROPERTY = "result";
-	
-	/**
-	 * This property provides a description of the job.
-	 */
-	public static final String DESCRIBE_METHOD = "describe";
-	
+		
 	/**
 	 * Not implemented yet. The idea that a component can 
 	 * contain a more detail and that the monitor can zoon into it.

@@ -7,8 +7,10 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.server.MockServerSession;
 import org.oddjob.jmx.server.OddjobMBean;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
@@ -24,13 +26,13 @@ import org.oddjob.util.MockThreadManager;
 public class LogEnabledHandlerFactoryTest extends TestCase {
 //	private static final Logger logger = Logger.getLogger(IconicInfoTest.class);
 
-	class MockLogEnabled implements LogEnabled {
+	private class MockLogEnabled implements LogEnabled {
 		public String loggerName() {
 			return "org.oddjob.TestLogger";
 		}
 	}
 	
-	class OurHierarchicalRegistry extends MockBeanRegistry {
+	private class OurHierarchicalRegistry extends MockBeanRegistry {
 		
 		@Override
 		public String getIdFor(Object component) {
@@ -40,11 +42,18 @@ public class LogEnabledHandlerFactoryTest extends TestCase {
 		
 	}
 	
-	class OurServerSession extends MockServerSession {
+	private class OurServerSession extends MockServerSession {
+		
+		ArooaSession session = new StandardArooaSession();
 		
 		@Override
 		public ObjectName nameFor(Object object) {
 			return OddjobMBeanFactory.objectName(0);
+		}
+		
+		@Override
+		public ArooaSession getArooaSession() {
+			return session;
 		}
 	}
 	

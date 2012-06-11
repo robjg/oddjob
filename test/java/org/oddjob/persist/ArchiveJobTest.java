@@ -16,6 +16,7 @@ import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.WaitJob;
@@ -41,7 +42,8 @@ public class ArchiveJobTest extends TestCase {
 		FlagState job = new FlagState();
 		
 		ArchiveJob test = new ArchiveJob();
-		
+
+		test.setArooaSession(new StandardArooaSession());
 		test.setArchiver(persister);
 		test.setArchiveIdentifier("1");
 		test.setArchiveName("test");
@@ -80,6 +82,8 @@ public class ArchiveJobTest extends TestCase {
 		waitStates.checkWait();
 		
 		ArchiveJob test = new ArchiveJob();
+		
+		test.setArooaSession(new StandardArooaSession());
 		test.setArchiver(persister);
 		test.setArchiveIdentifier("1");
 		test.setArchiveName("test");
@@ -111,6 +115,8 @@ public class ArchiveJobTest extends TestCase {
 		FlagState job = new FlagState(JobState.INCOMPLETE);
 
 		ArchiveJob test = new ArchiveJob();
+		
+		test.setArooaSession(new StandardArooaSession());
 		test.setArchiver(persister);
 		test.setArchiveIdentifier("1");
 		test.setArchiveName("test");

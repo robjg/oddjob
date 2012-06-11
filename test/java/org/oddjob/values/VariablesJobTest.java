@@ -38,7 +38,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.monitor.model.Describer;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
@@ -68,7 +68,8 @@ public class VariablesJobTest extends TestCase {
 		
 		assertNotNull(result);
 		
-		Map<String, String> description = Describer.describe(test);
+		Map<String, String> description = new UniversalDescriber(
+				new StandardArooaSession()).describe(test);
 		assertTrue(description.containsKey("test"));
 		
     	ArooaDescriptor descriptor = new OddjobDescriptorFactory(
@@ -85,7 +86,8 @@ public class VariablesJobTest extends TestCase {
 		
 		assertNull(PropertyUtils.getProperty(test, "test"));
 		
-		description = Describer.describe(test);
+		description = new UniversalDescriber(
+				new StandardArooaSession()).describe(test);
 		assertFalse(description.containsKey("test"));
 	}
 	

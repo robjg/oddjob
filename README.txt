@@ -3,15 +3,18 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Add a NoDescribe annotation that allows a property to be hidden from
+  the properties panel. Required for things like a DataSource that has
+  a connection property the shouldn't be described.
 - Allow file wild cards in the launch class path.
 - Process -D property arguments in the Launcher so they can be 
   set from batch files.
 - Support annotations, synthetic or normal, for Oddjob reset methods. 
 - Support annotations, synthetic or normal, for ArooaLifeCycle Methods. 
 - Added the idea of synthetic annotations to the descriptor. This allows
-  a method to tagged with a pseudo annotation with the XML descriptor so
-  beans do not need to have a dependency on an Oddjob jar for things
-  such as life cycle events. 
+  a method or property to tagged with a pseudo annotation with the XML 
+  descriptor so beans do not need to have a dependency on an Oddjob jar 
+  for things such as life cycle events. 
 - Added an autocommit flag to SQLJob.
 - Added a Service Manager (serviceman) job has been add for managing 
   services.
@@ -61,15 +64,13 @@ Still To Do for 1.2.0
 - Simplify State conditions. DESTROYED should not be an option and we probably
   only need to support COMPLETE, INCOMPLETE and EXCEPTION. Would you ever 
   need to test for READY?
-- If job should work on asynchronous completion of a job.
-- Need better protection from exceptions in the DetailModel.setSelectedContext
-  method.
-- Document State better in the user guide. Include why structural jobs 
-  COMPLETE when they have no child because editing a node involves removing
-  it and re-adding it.
 
 Deferred to A Later Version
 ---------------------------
+- Should If job work on asynchronous completion of a job?
+- Document State better in the user guide. Include why structural jobs 
+  COMPLETE when they have no child because editing a node involves removing
+  it and re-adding it.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
 - Use a ServerSide file system for choosing files on server component 
@@ -89,6 +90,8 @@ Deferred to A Later Version
   preservelastmodified. Add the ability to back up the moved files like Linux does.
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
+- Need better protection from exceptions in the DetailModel.setSelectedContext
+  method.
 
 Changes in 1.1.0
 ----------------

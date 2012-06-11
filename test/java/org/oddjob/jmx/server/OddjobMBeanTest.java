@@ -22,6 +22,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.Helper;
 import org.oddjob.MockStateful;
 import org.oddjob.Structural;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -47,7 +48,7 @@ public class OddjobMBeanTest extends TestCase {
 	
 	private int unique;
 	
-	class OurHierarchicalRegistry extends MockBeanRegistry {
+	private class OurHierarchicalRegistry extends MockBeanRegistry {
 		
 		@Override
 		public String getIdFor(Object component) {
@@ -73,11 +74,18 @@ public class OddjobMBeanTest extends TestCase {
 				imf);
 	}
 	
-	class OurServerSession extends MockServerSession {
+	private class OurServerSession extends MockServerSession {
+		
+		ArooaSession session = new StandardArooaSession();
 		
 		@Override
 		public ObjectName nameFor(Object object) {
 			return OddjobMBeanFactory.objectName(0);
+		}
+		
+		@Override
+		public ArooaSession getArooaSession() {
+			return session;
 		}
 	}
 
@@ -197,7 +205,8 @@ public class OddjobMBeanTest extends TestCase {
 		MyNotLis myNotLis = new MyNotLis();
 		
 		MBeanServer mbs = MBeanServerFactory.createMBeanServer();
-		OddjobMBeanFactory f = new OddjobMBeanFactory(mbs);
+		OddjobMBeanFactory f = new OddjobMBeanFactory(mbs, 
+				new StandardArooaSession());
 		
 		ServerContext serverContext = new ServerContextImpl(
 				myJob, sm, new OurHierarchicalRegistry()); 

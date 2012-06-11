@@ -15,10 +15,10 @@ import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.parsing.MockArooaContext;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.EchoJob;
 import org.oddjob.jobs.structural.SequentialJob;
-import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 
@@ -70,7 +70,8 @@ public class SilhouetteFactoryTest extends TestCase {
 		assertFalse(silhouette instanceof Structural);
 		assertFalse(silhouette instanceof Iconic);
 		
-		Map<String, String> description = Describer.describe(silhouette);
+		Map<String, String> description = new UniversalDescriber(
+				new StandardArooaSession()).describe(silhouette);
 		
 		assertEquals("Hello", description.get("text"));
 		

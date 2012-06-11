@@ -48,7 +48,9 @@ public interface ClientSession extends ObjectNames {
 	 */
 	public Logger logger();
 	
-	
+	/**
+	 * Destroy all proxies on the client side.
+	 */
 	public void destroyAll();
 	
 }

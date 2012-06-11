@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 
 import org.oddjob.Helper;
 import org.oddjob.Structural;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -56,6 +57,8 @@ public class ServerMainBeanTest extends TestCase {
 	
 	private class OurServerToolkit extends MockServerSideToolkit {
 
+		ArooaSession session = new StandardArooaSession();
+		
 		Object child;
 		
 		List<Notification> sent = new ArrayList<Notification>();
@@ -101,6 +104,11 @@ public class ServerMainBeanTest extends TestCase {
 				public void destroy(ObjectName childName) {
 					assertEquals(ServerMainBeanTest.this.childName, childName);
 					child = null;
+				}
+				
+				@Override
+				public ArooaSession getArooaSession() {
+					return session;
 				}
 			};
 		}

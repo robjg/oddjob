@@ -16,7 +16,6 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
-import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.server.HandlerFactoryProvider;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jmx.server.ResourceFactoryProvider;
@@ -229,8 +228,7 @@ public class JMXServerJob implements ArooaSessionAware {
 			new ServerInterfaceManagerFactoryImpl(environment);
 		
 		imf.addServerHandlerFactories(
-				new ResourceFactoryProvider(
-						new StandardArooaSession(session.getArooaDescriptor())
+				new ResourceFactoryProvider(session
 					).getHandlerFactories());
 		if (handlerFactories != null) {
 			imf.addServerHandlerFactories(handlerFactories.getHandlerFactories());
@@ -245,7 +243,7 @@ public class JMXServerJob implements ArooaSessionAware {
 		
 		model.setLogFormat(logFormat);
 			
-		factory = new OddjobMBeanFactory(server);
+		factory = new OddjobMBeanFactory(server, session);
 		
 		ServerMainBean serverBean = new ServerMainBean(
 				root,

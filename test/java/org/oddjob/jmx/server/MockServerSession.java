@@ -2,6 +2,8 @@ package org.oddjob.jmx.server;
 
 import javax.management.ObjectName;
 
+import org.oddjob.arooa.ArooaSession;
+
 public class MockServerSession implements ServerSession {
 
 	public ObjectName nameFor(Object object) {
@@ -17,6 +19,11 @@ public class MockServerSession implements ServerSession {
 	}
 	
 	public void destroy(ObjectName childName) {
+		throw new RuntimeException("Unexpected from " + getClass());
+	}
+	
+	@Override
+	public ArooaSession getArooaSession() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 }

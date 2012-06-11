@@ -13,7 +13,7 @@ import org.oddjob.jobs.structural.JobFolder;
 
 public class OddjobMBeanFactoryTest extends TestCase {
 
-	class OurServerContext extends MockServerContext {
+	private class OurServerContext extends MockServerContext {
 
 		ServerInterfaceManagerFactory simf;
 		
@@ -51,7 +51,7 @@ public class OddjobMBeanFactoryTest extends TestCase {
 		
 		MBeanServer server = MBeanServerFactory.createMBeanServer();
 	
-		OddjobMBeanFactory test = new OddjobMBeanFactory(server);
+		OddjobMBeanFactory test = new OddjobMBeanFactory(server, null);
 		
 		ServerInterfaceManagerFactoryImpl simf = 
 			new ServerInterfaceManagerFactoryImpl(

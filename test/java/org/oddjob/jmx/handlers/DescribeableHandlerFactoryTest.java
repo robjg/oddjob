@@ -5,13 +5,17 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.oddjob.Describeable;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
+import org.oddjob.jmx.server.MockServerSession;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.jmx.server.ServerSession;
 
 public class DescribeableHandlerFactoryTest extends TestCase {
 
@@ -28,6 +32,18 @@ public class DescribeableHandlerFactoryTest extends TestCase {
 	}
 	
 	private class OurServerToolkit extends MockServerSideToolkit {
+		
+		ArooaSession session = new StandardArooaSession();
+		
+		@Override
+		public ServerSession getServerSession() {
+			return new MockServerSession() {
+				@Override
+				public ArooaSession getArooaSession() {
+					return session;
+				}
+			};
+		}		
 	}
 
 	public class Apple {

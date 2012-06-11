@@ -13,6 +13,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
 import org.oddjob.Helper;
@@ -39,12 +40,12 @@ import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
-import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
@@ -333,9 +334,13 @@ public class RunnableWrapperTest extends TestCase {
     	
     	Object r = new OddjobLookup(oddjob).lookup("r");
     	assertEquals(JobState.COMPLETE, Helper.getJobState(r));
+    	
     	Object ran = PropertyUtils.getProperty(r, "ran");
     	assertEquals(Boolean.class, ran.getClass());
     	assertEquals(new Boolean(true), ran);
+    	
+    	Map<String, String> description = ((Describeable) r).describe();
+    	assertEquals("true", description.get("ran"));
     	
     	oddjob.destroy();
     }
@@ -546,14 +551,20 @@ public class RunnableWrapperTest extends TestCase {
      *
      */
     public void testDescribe() {
+    	
+    	ArooaSession session = new StandardArooaSession();
+    	
     	Job j = new Job();
     	j.setResult("Hello");
     	
         Runnable wrapper = (Runnable) new RunnableProxyGenerator().generate(
     			(Runnable) j,
     			getClass().getClassLoader());  
+
+        ((ArooaSessionAware) wrapper).setArooaSession(session);
         
-    	Map<String, String> m = Describer.describe(wrapper);
+    	Map<String, String> m = new UniversalDescriber(
+				session).describe(wrapper);
     	
     	assertEquals("Hello", m.get("result"));
     }

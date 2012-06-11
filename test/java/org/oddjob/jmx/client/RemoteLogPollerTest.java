@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaDescriptor;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.MockArooaDescriptor;
 import org.oddjob.arooa.MockArooaSession;
@@ -19,6 +20,7 @@ import org.oddjob.arooa.registry.Address;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.server.MockServerContext;
 import org.oddjob.jmx.server.MockServerModel;
 import org.oddjob.jmx.server.MockServerSession;
@@ -223,9 +225,16 @@ public class RemoteLogPollerTest extends TestCase {
 	
 	private class OurServerSession extends MockServerSession {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		@Override
 		public ObjectName nameFor(Object object) {
 			return OddjobMBeanFactory.objectName(0);
+		}
+		
+		@Override
+		public ArooaSession getArooaSession() {
+			return session;
 		}
 	}
 	

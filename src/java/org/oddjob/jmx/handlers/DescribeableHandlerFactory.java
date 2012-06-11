@@ -9,6 +9,9 @@ import javax.management.MBeanOperationInfo;
 import javax.management.ReflectionException;
 
 import org.oddjob.Describeable;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.describe.Describer;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
@@ -18,7 +21,6 @@ import org.oddjob.jmx.server.JMXOperationFactory;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.monitor.model.Describer;
 
 /**
  * InterfaceHandler for the {@link org.oddjob.jmx.client.Describable}
@@ -57,7 +59,8 @@ implements ServerInterfaceHandlerFactory<Object, Describeable> {
 	
 	
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
-		return new ServerDescribeableHandler(target);
+		return new ServerDescribeableHandler(target, 
+				ojmb.getServerSession().getArooaSession());
 	}
 
 	public ClientHandlerResolver<Describeable> clientHandlerFactory() {
@@ -68,16 +71,18 @@ implements ServerInterfaceHandlerFactory<Object, Describeable> {
 	class ServerDescribeableHandler implements ServerInterfaceHandler {
 	
 		private final Object object;
+		private final Describer describer;
 		
-		ServerDescribeableHandler(Object object) {
+		ServerDescribeableHandler(Object object, ArooaSession session) {
 			this.object = object;
+			this.describer = new UniversalDescriber(session);
 		}
 		
 		public Object invoke(RemoteOperation<?> operation, Object[] params) 
 		throws MBeanException, ReflectionException {
 
 			if (DESCRIBE.equals(operation)) {
-				return Describer.describe(object);
+				return describer.describe(object);
 			}
 			else {
 				throw new ReflectionException(

@@ -47,6 +47,7 @@ import org.oddjob.OddjobServices;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.view.ScreenPresence;
@@ -185,6 +186,10 @@ implements Stoppable {
 	/** Used to track modification changes. */
 	transient private Set<ConfigurationOwner> owners;
 		
+	/**
+	 * Constructor to be used to create a single instance of this explorer.
+	 * Typically used from code to aid debugging an Oddjob.
+	 */
 	public OddjobExplorer() {
 		fileHistory = new FileHistory();
 		
@@ -194,6 +199,13 @@ implements Stoppable {
 		completeConstruction();
 	}
 	
+	/**
+	 * Constructor when this explorer is being created as one of many.
+	 * 
+	 * @param controller
+	 * @param screen
+	 * @param sharedFileHistory
+	 */
 	public OddjobExplorer(MultiViewController controller, 
 			ScreenPresence screen,
 			FileHistory sharedFileHistory) {
@@ -221,8 +233,6 @@ implements Stoppable {
 		closeAction = new CloseAction();
 		exitAction = new ExitAction();
 		
-		propertyPolling = new PropertyPolling(this);		
-		
 		fileHistory.addChangeAction(new Runnable() {
 			
 			@Override
@@ -247,11 +257,35 @@ implements Stoppable {
 		return explorerComponent;
 	}
 	
+	/**
+	 * Capture services from the containing Oddjob.
+	 * 
+	 * @param oddjobServices
+	 */
 	@Inject
 	public void setOddjobServices(OddjobServices oddjobServices) {
 		this.oddjobServices = oddjobServices;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.framework.BaseComponent#setArooaSession(org.oddjob.arooa.ArooaSession)
+	 */
+	@Override
+	public void setArooaSession(ArooaSession session) {
+		super.setArooaSession(session);
+		
+		propertyPolling = new PropertyPolling(this, session);		
+	}
+
+	/**
+	 * Setter for Oddjob. This will change the Oddjob being monitored.
+	 *  
+	 * @param oddjob The new Oddjob or null to just close.
+	 * 
+	 * @throws PropertyVetoException If the exsiting Oddjob can't be
+	 * closed.
+	 */
 	public void setOddjob(Oddjob oddjob) throws PropertyVetoException {
 		if (this.oddjob == oddjob) {
 			return;
@@ -738,7 +772,12 @@ implements Stoppable {
 		
 		while (!stop) {
 			try {
-				propertyPolling.poll();
+				if (propertyPolling == null) {
+					logger().info("No property polling. set ArooaSession to enable polling.");
+				}
+				else {
+					propertyPolling.poll();
+				}
 			}
 			catch (RuntimeException e) {
 				logger().error("Property polling failed.", e);

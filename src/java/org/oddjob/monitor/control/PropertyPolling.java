@@ -10,7 +10,8 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
-import org.oddjob.monitor.model.Describer;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.monitor.model.DetailModel;
 import org.oddjob.monitor.model.PropertyModel;
 import org.oddjob.state.StateEvent;
@@ -30,6 +31,8 @@ public class PropertyPolling implements PropertyChangeListener {
 
 	private PropertyModel propertyModel;
 
+	private final UniversalDescriber describer;
+	
 	private final PropertyChangeListener subjectListener = 
 		new PropertyChangeListener() {
 		/**
@@ -61,7 +64,8 @@ public class PropertyPolling implements PropertyChangeListener {
 	 * 
 	 * @param kick An object notify to kick the polling.
 	 */
-	public PropertyPolling(Object kick) {
+	public PropertyPolling(Object kick, ArooaSession session) {
+		this.describer = new UniversalDescriber(session);
 		this.kick = kick;
 	}
 	
@@ -77,7 +81,7 @@ public class PropertyPolling implements PropertyChangeListener {
 			}
 		} else {
 			Map<String, String> props = null;
-			props = Describer.describe(subject);
+			props = describer.describe(subject);
 			propertyModel.setProperties(props);
 		}
 	}

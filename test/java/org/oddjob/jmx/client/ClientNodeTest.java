@@ -35,6 +35,7 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaDescriptor;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.MockArooaDescriptor;
 import org.oddjob.arooa.MockArooaSession;
@@ -46,6 +47,8 @@ import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
+import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.handlers.DynaBeanHandlerFactory;
 import org.oddjob.jmx.handlers.LogPollableHandlerFactory;
@@ -64,7 +67,6 @@ import org.oddjob.jmx.server.ServerModelImpl;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
-import org.oddjob.monitor.model.Describer;
 import org.oddjob.util.MockThreadManager;
 
 /**
@@ -424,7 +426,7 @@ public class ClientNodeTest extends TestCase {
 		mbs.registerMBean(nestedBean, on2);
 	}
 
-	class OurHierarchicalRegistry extends MockBeanRegistry {
+	private class OurHierarchicalRegistry extends MockBeanRegistry {
 		
 		@Override
 		public String getIdFor(Object component) {
@@ -433,11 +435,18 @@ public class ClientNodeTest extends TestCase {
 		}
 	}
 	
-	class OurServerSession extends MockServerSession {
+	private class OurServerSession extends MockServerSession {
+		
+		ArooaSession session = new StandardArooaSession();
 		
 		@Override
 		public ObjectName nameFor(Object object) {
 			return OddjobMBeanFactory.objectName(0);
+		}
+		
+		@Override
+		public ArooaSession getArooaSession() {
+			return session;
 		}
 	}
 	
@@ -450,7 +459,9 @@ public class ClientNodeTest extends TestCase {
 				new ServerInterfaceManagerFactoryImpl()
 			);
 		
-		ServerContext srvcon = new ServerContextImpl(o, sm, new OurHierarchicalRegistry());
+		ServerContext srvcon = new ServerContextImpl(o, sm, 
+				new OurHierarchicalRegistry());
+
 		Object mb = new OddjobMBean(
 				o, new OurServerSession(), srvcon);
 		
@@ -468,7 +479,9 @@ public class ClientNodeTest extends TestCase {
 		
 		assertNotNull(proxy);
 		
-		Map<String, String> map = Describer.describe(proxy);
+		ArooaSession session = new StandardArooaSession(); 
+		Map<String, String> map = new UniversalDescriber(
+				session).describe(proxy);
 		assertNotNull(map);
 		
 		BeanUtilsPropertyAccessor bubh = new BeanUtilsPropertyAccessor();

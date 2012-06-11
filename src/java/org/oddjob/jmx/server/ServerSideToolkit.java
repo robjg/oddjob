@@ -38,8 +38,18 @@ public interface ServerSideToolkit {
 	 */
 	public ServerContext getContext();
 	
+	/**
+	 * Get the remote controller bean.
+	 * 
+	 * @return
+	 */
 	public RemoteOddjobBean getRemoteBean();
 	
+	/**
+	 * Get the server session.
+	 * 
+	 * @return
+	 */
 	public ServerSession getServerSession();
 	
 }

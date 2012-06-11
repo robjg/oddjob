@@ -13,10 +13,10 @@ import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.IconTip;
-import org.oddjob.monitor.model.Describer;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
@@ -43,7 +43,8 @@ public class SilhouetteFactory {
 	public Object create(Object subject, ArooaSession session) {
 		
 		String name = subject.toString();
-		Map<String, String> description = Describer.describe(subject);
+		Map<String, String> description = new UniversalDescriber(
+				session).describe(subject);
 				
 		List<Class<?>> interfaces = new ArrayList<Class<?>>();
 		

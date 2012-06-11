@@ -10,9 +10,11 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.client.ClientHandlerResolver;
@@ -35,9 +37,16 @@ public class ObjectMBeanServerInfoTest extends TestCase {
 	
 	private class OurServerSession extends MockServerSession {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		@Override
 		public ObjectName nameFor(Object object) {
 			return OddjobMBeanFactory.objectName(0);
+		}
+		
+		@Override
+		public ArooaSession getArooaSession() {
+			return session;
 		}
 	}
 	

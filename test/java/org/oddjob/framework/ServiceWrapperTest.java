@@ -3,9 +3,12 @@
  */
 package org.oddjob.framework;
 
+import java.util.Map;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.oddjob.Describeable;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -147,14 +150,22 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oj.run();
     	
-    	Object r = new OddjobLookup(oj).lookup("s");
-    	assertEquals(ServiceState.STARTED, Helper.getJobState(r));
-    	assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "started"));
+    	Object test = new OddjobLookup(oj).lookup("s");
+    	assertEquals(ServiceState.STARTED, Helper.getJobState(test));
+    	assertEquals(new Boolean(true), 
+    			PropertyUtils.getProperty(test, "started"));
     	
     	oj.stop();
     	
-    	assertEquals(ServiceState.COMPLETE, Helper.getJobState(r));
-    	assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "stopped"));    	
+    	assertEquals(ServiceState.COMPLETE, Helper.getJobState(test));
+    	assertEquals(new Boolean(true), 
+    			PropertyUtils.getProperty(test, "stopped"));
+
+    	Map<String, String> description = ((Describeable) test).describe();
+    	assertEquals("true", description.get("started"));
+    	assertEquals("true", description.get("stopped"));
+    	
+    	oj.destroy();
     }
     
     public static class Bean {

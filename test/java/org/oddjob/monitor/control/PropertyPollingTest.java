@@ -8,6 +8,8 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.oddjob.Stateful;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.monitor.model.DetailModel;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.monitor.model.PropertyModel;
@@ -37,9 +39,11 @@ public class PropertyPollingTest extends TestCase {
 	 */
 	public void testSelected() {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		PropertyModel model = new PropertyModel();
 		
-		PropertyPolling test = new PropertyPolling(this);
+		PropertyPolling test = new PropertyPolling(this, session);
 		test.setPropertyModel(model);
 
 		DetailModel detailModel = new DetailModel();
@@ -65,9 +69,11 @@ public class PropertyPollingTest extends TestCase {
 	 */
 	public void testNotSelected() {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		PropertyModel model = new PropertyModel();
 		
-		PropertyPolling test = new PropertyPolling(this);
+		PropertyPolling test = new PropertyPolling(this, session);
 		test.setPropertyModel(model);
 
 		DetailModel detailModel = new DetailModel();
@@ -120,9 +126,11 @@ public class PropertyPollingTest extends TestCase {
 
 	public void testSelectedStateful() {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		PropertyModel model = new PropertyModel();
 		
-		PropertyPolling test = new PropertyPolling(this);
+		PropertyPolling test = new PropertyPolling(this, session);
 		test.setPropertyModel(model);
 
 		DetailModel detailModel = new DetailModel();

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.beanutils.DynaBean;
+import org.oddjob.Describeable;
 import org.oddjob.Forceable;
 import org.oddjob.Iconic;
 import org.oddjob.Resetable;
@@ -40,6 +41,7 @@ abstract public class BaseWrapperFactory<T> implements WrapperFactory<T> {
 		interfaces.add(Iconic.class);
 		interfaces.add(Runnable.class);
 		interfaces.add(LogEnabled.class);
+		interfaces.add(Describeable.class);
 
 		if (!(wrapped instanceof Serializable)) {
 			interfaces.add(Transient.class);

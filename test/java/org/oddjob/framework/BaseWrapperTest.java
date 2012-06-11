@@ -8,10 +8,11 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.monitor.model.Describer;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateHandler;
 
@@ -29,7 +30,7 @@ public class BaseWrapperTest extends TestCase {
 	}
 	
 	/** Test base wrapper by extending it. */
-	class MockWrapper extends BaseWrapper {
+	private class MockWrapper extends BaseWrapper {
 		
 		JobStateHandler stateHandler = new JobStateHandler(this);
 		
@@ -108,9 +109,13 @@ public class BaseWrapperTest extends TestCase {
 	}
 	
 	public void testDescribe() {
-		MockWrapper test = new MockWrapper(new MockBean());
+		ArooaSession session = new StandardArooaSession(); 
 		
-		Map<String, String> properties = Describer.describe(test);
+		MockWrapper test = new MockWrapper(new MockBean());
+		test.setArooaSession(session);
+		
+		Map<String, String> properties = new UniversalDescriber(
+				session).describe(test);
 
 		assertEquals("readable", "a", properties.get("readable"));
 		assertEquals("both", "b", properties.get("both"));

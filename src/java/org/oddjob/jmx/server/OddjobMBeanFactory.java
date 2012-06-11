@@ -14,6 +14,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
 import org.apache.log4j.Logger;
+import org.oddjob.arooa.ArooaSession;
 
 /**
  * A factory for producing OddjobMBeans. The MBean names are just sequential formatted numbers.
@@ -25,6 +26,8 @@ public class OddjobMBeanFactory implements ServerSession {
 	
 	/** The server */
 	private final MBeanServer server;
+	
+	private final ArooaSession session;
 	
 	/** Give each bean a serial number. */
 	private int serial = 0;
@@ -42,8 +45,9 @@ public class OddjobMBeanFactory implements ServerSession {
 	 * 
 	 * @param server The server to register newly created beans with.
 	 */
-	public OddjobMBeanFactory(MBeanServer server) {
+	public OddjobMBeanFactory(MBeanServer server, ArooaSession session) {
 		this.server = server;
+		this.session = session;
 	}
 	
 	/**
@@ -105,5 +109,10 @@ public class OddjobMBeanFactory implements ServerSession {
 	public Object objectFor(ObjectName objectName) {
 		OddjobMBean mBean = mBeans.get(objectName);
 		return mBean.getNode();
+	}
+	
+	@Override
+	public ArooaSession getArooaSession() {
+		return session;
 	}
 }

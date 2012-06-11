@@ -21,6 +21,7 @@ import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.MockClassResolver;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jmx.server.ServerContext;
@@ -115,7 +116,8 @@ public class TransportableComponentTest extends TestCase {
 		
 		MBeanServer mbs = MBeanServerFactory.createMBeanServer();
 			
-		OddjobMBeanFactory factory = new OddjobMBeanFactory(mbs);
+		OddjobMBeanFactory factory = new OddjobMBeanFactory(mbs, 
+				new StandardArooaSession());
 		ObjectName on = factory.createMBeanFor(folder, serverContext); 
 		
 		// client side.

@@ -6,10 +6,12 @@ package org.oddjob.framework;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.log4j.Logger;
+import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Reserved;
 import org.oddjob.Resetable;
@@ -23,6 +25,7 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
@@ -34,7 +37,7 @@ import org.oddjob.state.IsStoppable;
  */
 abstract public class BaseWrapper extends BaseComponent 
 implements Runnable, Stateful, Resetable, DynaBean, Stoppable, 
-		LogEnabled {
+		LogEnabled, Describeable {
     
     private transient Logger theLogger;
     
@@ -228,6 +231,16 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 		}
 		
 		return result.intValue();
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.Describeable#describe()
+	 */
+	@Override
+	public Map<String, String> describe() {
+		return new UniversalDescriber(getArooaSession()).describe(
+				getWrapped());
 	}
 	
 	@Override
