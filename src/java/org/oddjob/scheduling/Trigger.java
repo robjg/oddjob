@@ -16,7 +16,9 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateConditions;
@@ -52,6 +54,12 @@ import org.oddjob.state.WorstStateOp;
  * 
  * @oddjob.example
  * 
+ * Cancelling a trigger.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TriggerCancelExample.xml}
+ * 
+ * @oddjob.example
+ * 
  * Examples Elsewhere.
  * <ul>
  *  <li>The scheduling example (<code>examples/scheduling/dailyftp.xml</code>
@@ -82,6 +90,14 @@ public class Trigger extends ScheduleBase {
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
 	private StateCondition state = StateConditions.COMPLETE;
+	
+	/**
+	 * @oddjob.property
+	 * @oddjob.description A state condition that will cause the trigger
+	 * to cancel.
+	 * @oddjob.required No, defaults to not cancelling.
+	 */
+	private StateCondition cancelWhen;
 	
 	/** The last time on the event that caused the trigger. */
 	private Date lastTime;
@@ -124,50 +140,7 @@ public class Trigger extends ScheduleBase {
 				throw new NullPointerException("No ExecutorService.");
 			}
 			
-			listener = 
-				new StateListener() {
-
-				@Override
-				public synchronized void jobStateChange(StateEvent event) {
-					logger().debug("Trigger on [" + on + "] has state [" + 
-							event.getState() + "] at " +
-							event.getTime());
-					
-					if (event.getState().isDestroyed()) {
-						stateHandler().waitToWhen(new IsStoppable(), 
-								new Runnable() {
-							@Override
-							public void run() {
-								getStateChanger().setStateException(
-										new JobDestroyedException(on));
-							}
-						});
-						on = null;
-					}
-						
-					if (!state.test(event.getState())) {
-						logger().debug("Not the trigger state, returning.");
-						return;
-					}
-					
-					// don't fire if event time hasn't changed.
-					if (newOnly && event.getTime().equals(lastTime)) {
-						logger().info("Already had event for time " +
-								event.getTime() + ", not triggering.");
-						return;
-					}
-					
-					lastTime = event.getTime();
-					
-					// We won't fire again until run again.
-					removeListener();
-					
-					logger().debug("Submitting [" + 
-							childHelper.getChild() + "] for immediate execution.");
-
-					future = executors.submit(new Execution());
-				};
-			};
+			listener = new TriggerStateListener();
 			
 			on.addStateListener(listener);
 			
@@ -237,6 +210,15 @@ public class Trigger extends ScheduleBase {
 	}
 		
 	
+	public StateCondition getCancelWhen() {
+		return cancelWhen;
+	}
+
+	@ArooaAttribute
+	public void setCancelWhen(StateCondition cancelWhen) {
+		this.cancelWhen = cancelWhen;
+	}
+
 	public boolean isNewOnly() {
 		return newOnly;
 	}
@@ -293,5 +275,64 @@ public class Trigger extends ScheduleBase {
 				ComponentBoundry.pop();
 			} 
 		}
+	}
+	
+	class TriggerStateListener implements StateListener {
+
+		@Override
+		public synchronized void jobStateChange(StateEvent event) {
+			logger().debug("Trigger on [" + on + "] has state [" + 
+					event.getState() + "] at " +
+					event.getTime());
+			
+			if (event.getState().isDestroyed()) {
+				stateHandler().waitToWhen(new IsStoppable(), 
+						new Runnable() {
+					@Override
+					public void run() {
+						getStateChanger().setStateException(
+								new JobDestroyedException(on));
+					}
+				});
+				on = null;
+			}
+				
+			if (!state.test(event.getState()) && 
+					(cancelWhen == null || 
+					!cancelWhen.test(event.getState()))
+					) {
+				logger().debug("Not a trigger state, returning.");
+				return;
+			}
+			
+			// don't fire if event time hasn't changed.
+			if (newOnly && event.getTime().equals(lastTime)) {
+				logger().info("Already had event for time " +
+						event.getTime() + ", not triggering.");
+				return;
+			}
+			
+			lastTime = event.getTime();
+			
+			// We won't fire again until run again.
+			removeListener();
+			
+			if (state.test(event.getState())) {
+				
+				logger().debug("Submitting [" + 
+				childHelper.getChild() + "] for immediate execution.");
+
+				future = executors.submit(new Execution());
+			}
+			else {
+				
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						getStateChanger().setState(ParentState.COMPLETE);
+					}
+				});
+			}
+					
+		};
 	}
 }

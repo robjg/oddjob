@@ -26,7 +26,7 @@ public enum StateConditions implements StateCondition {
 	/**
 	 * Is a job executing or otherwise active?
 	 */	
-	EXECUTING() {
+	RUNNING() {
 		@Override
 		public boolean test(State state) {
 			return state.isStoppable();
@@ -64,7 +64,10 @@ public enum StateConditions implements StateCondition {
 	},
 	
 	/**
-	 * The job has been destroyed. It can no longer be used.
+	 * The job has been destroyed. It can no longer be used. Note that
+	 * many Jobs that use state conditions will enter an EXCEPTION state
+	 * if the job they trigger on is destroyed, and so this state
+	 * condition will not be met.
 	 */	
 	DESTROYED() {
 		@Override
@@ -72,8 +75,61 @@ public enum StateConditions implements StateCondition {
 			return state.isDestroyed();
 		}
 	},
+	
+	// Composite and Special Conditions
+	
+	/**
+	 * The state is either INCOMPLETE or EXCEPTION
+	 */
+	FAILURE() {
+		@Override
+		public boolean test(State state) {
+			return state.isIncomplete() || state.isException();
+		}
+	},
+	
+	/**
+	 * The state is either COMPLETE, INCOMPLETE or EXCEPTION
+	 */	
+	FINISHED() {
+		@Override
+		public boolean test(State state) {
+			return state.isComplete() || 
+					state.isIncomplete() || 
+					state.isException();
+		}
+	},
+	
+	/**
+	 * A state is either {@link JobState#EXECUTING} or 
+	 * {@link ParentState#EXECUTING} or {@link ServiceState#STARTING}.
+	 */
+	EXECUTING() {
+		@Override
+		public boolean test(State state) {
+			return state == JobState.EXECUTING || 
+					state == ParentState.EXECUTING || 
+					state == ServiceState.STARTING;
+		}
+	},
+	
+	/**
+	 * A service has STARTED.
+	 */
+	STARTED() {
+		@Override
+		public boolean test(State state) {
+			return state == ServiceState.STARTED;
+		}
+	},
+
 	;
 	
+	
+	/**
+	 * 
+	 * The Conversion from String
+	 */
 	public static class Conversions implements ConversionProvider {
 		@Override
 		public void registerWith(ConversionRegistry registry) {

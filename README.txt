@@ -3,7 +3,13 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
-- Add a NoDescribe annotation that allows a property to be hidden from
+- Trigger has a new cancelWhen property that will cause the trigger to
+  complete without executing it's job.
+- Introduced new state conditions. FAILURE, FINISHED and EXECUTING (which
+  included EXECUTING and ACTIVE states) has become RUNNING and a new 
+  EXECUTING state condition has been introduced for just actual EXECUTING 
+  states. There is also a new STARTED state condition for services.
+- Added a NoDescribe annotation that allows a property to be hidden from
   the properties panel. Required for things like a DataSource that has
   a connection property the shouldn't be described.
 - Allow file wild cards in the launch class path.
@@ -56,17 +62,12 @@ Changes in 1.2.0
   
 Still To Do for 1.2.0
 ---------------------
-- A completion state of READY re-triggers a timer. Only COMPLETE, INCOMPLETE  
-  and EXCEPTION should re-trigger timers.
-- Look at what happens when there are exceptions in a timer. Should there be
-  a haltOnException flag. Should an Exception in a timer be indicated as
-  an exception state not an incomplete state?
-- Simplify State conditions. DESTROYED should not be an option and we probably
-  only need to support COMPLETE, INCOMPLETE and EXCEPTION. Would you ever 
-  need to test for READY?
 
 Deferred to A Later Version
 ---------------------------
+- Look at what happens when there are exceptions in a timer. Should there be
+  a haltOnException flag. Should an Exception in a timer be indicated as
+  an exception state not an incomplete state?
 - Should If job work on asynchronous completion of a job?
 - Document State better in the user guide. Include why structural jobs 
   COMPLETE when they have no child because editing a node involves removing

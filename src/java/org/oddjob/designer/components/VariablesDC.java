@@ -9,6 +9,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeSet;
 
 import org.oddjob.arooa.ArooaConstants;
 import org.oddjob.arooa.ArooaException;
@@ -516,12 +517,14 @@ class VariablesModel extends AbstractMultiTypeModel {
 		ArooaElement[] supportedElements = 
 			mappings.elementsFor(instantiationContext);
 				
-		this.supportedTypes = new QTag[supportedElements.length]; 
-			
-		for (int i = 0; i < supportedTypes.length; ++i) {
-			supportedTypes[i] = new QTag(
-					supportedElements[i], context);
+		TreeSet<QTag> sortedTypes = new TreeSet<QTag>();
+		
+		for (ArooaElement element : supportedElements) {
+			sortedTypes.add(new QTag(
+					element, context));
 		}
+		
+		this.supportedTypes = sortedTypes.toArray(new QTag[sortedTypes.size()]);
 	}
 	
 	

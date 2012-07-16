@@ -54,9 +54,7 @@ public class PropertiesTypeTest extends TestCase {
 	}
 
 	/**
-	 * Test that properties can be set from a map. This test should really be
-	 * in MapTypeTest as it's not a PropertyType that proxies java.util.Properties.
-	 *
+	 * Test that properties can be set from each other.
 	 */
 	public void testSetInOddjob() {
 		String xml = 

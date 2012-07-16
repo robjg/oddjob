@@ -18,6 +18,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.job.StopJob;
+import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
@@ -26,6 +27,7 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.schedules.DailySchedule;
+import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
@@ -316,5 +318,87 @@ public class TimerStopTest extends TestCase {
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
+	}
+	
+	/**
+	 * This is what happens when a Retry or an unfinished sequential 
+	 * is stopped.
+	 * @throws ParseException 
+	 * @throws FailedToStopException 
+	 * @throws InterruptedException 
+	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void testWhenScheduledChildGoesToReady() throws ParseException, FailedToStopException, InterruptedException {
+		
+		final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
+		
+		ScheduledExecutorService executor = 
+				Mockito.mock(ScheduledExecutorService.class);
+		
+		CapturingMatcher<Runnable> runnable = 
+				new CapturingMatcher<Runnable>();
+		
+		CapturingMatcher<Long> delay = new CapturingMatcher<Long>();
+		
+		Mockito.when(executor.schedule(
+				Mockito.argThat(runnable), 
+				Mockito.longThat(delay), 
+				Mockito.eq(TimeUnit.MILLISECONDS))).thenReturn(
+						(ScheduledFuture) future);
+		
+		Timer test = new Timer();
+		test.setSchedule(new DailySchedule());
+		test.setClock(new ManualClock("2012-07-11 01:00"));
+		test.setScheduleExecutorService(executor);
+
+		SequentialJob child = new SequentialJob();
+		test.setJob(child);
+		
+		test.run();
+
+		Mockito.verify(executor).schedule(
+				Mockito.argThat(runnable), 
+				Mockito.longThat(delay), 
+				Mockito.eq(TimeUnit.MILLISECONDS));
+		
+		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		
+		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-07-11 00:00"),
+					DateHelper.parseDateTime("2012-07-12 00:00"))); 
+		
+		assertEquals(new Long(0), delay.getLastValue());
+		assertEquals(expectedCurrent1, test.getCurrent());
+				
+		runnable.getLastValue().run();
+		
+		Mockito.verifyNoMoreInteractions(executor);
+		
+		assertEquals(ParentState.READY, child.lastStateEvent().getState());
+		
+		FlagState flag = new FlagState();
+		
+		child.setJobs(0, flag);
+		flag.run();
+		
+		assertEquals(ParentState.COMPLETE, child.lastStateEvent().getState());
+		
+		Mockito.verify(executor, Mockito.times(2)).schedule(
+				Mockito.argThat(runnable), 
+				Mockito.longThat(delay), 
+				Mockito.eq(TimeUnit.MILLISECONDS));
+		
+		ScheduleResult expectedCurrent2 = new SimpleScheduleResult(
+				new SimpleInterval(
+					DateHelper.parseDateTime("2012-07-12 00:00"),
+					DateHelper.parseDateTime("2012-07-13 00:00"))); 
+		
+		assertEquals(expectedCurrent2, test.getCurrent());
+		assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
+		
+		test.stop();
+		
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 }

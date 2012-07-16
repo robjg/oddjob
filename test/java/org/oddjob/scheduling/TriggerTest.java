@@ -14,6 +14,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.parsing.DragPoint;
@@ -28,8 +29,8 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateListener;
 
 /**
  * 
@@ -599,24 +600,76 @@ public class TriggerTest extends TestCase {
 				"org/oddjob/scheduling/TriggerExample.xml",
 				getClass().getClassLoader()));
 		oddjob.setOddjobExecutors(services);
+				
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Stateful test = (Stateful) lookup.lookup("trigger");
+		
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
 		oddjob.run();
 		
 		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
-		OddjobLookup lookup = new OddjobLookup(oddjob);
+		testStates.checkNow();
+		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		Runnable thing1 = (Runnable) lookup.lookup("thing1");
 		thing1.run();
 		Runnable thing2 = (Runnable) lookup.lookup("thing2");
 		thing2.run();
 		
-		WaitJob wj = new WaitJob();
-		wj.setFor(lookup.lookup("trigger"));
-		wj.setState(StateConditions.COMPLETE);
-		wj.run();
+		testStates.checkWait();
 
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
+		services.stop();
+		
+		oddjob.destroy();
+	}
+	
+	public void testCancelExample() throws InterruptedException {
+
+		DefaultExecutors services = new DefaultExecutors(); 
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/scheduling/TriggerCancelExample.xml",
+				getClass().getClassLoader()));
+		oddjob.setOddjobExecutors(services);
+				
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Stateful test = (Stateful) lookup.lookup("trigger");
+		
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+
+		testStates.checkNow();
+		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		Runnable ourJob = (Runnable) lookup.lookup("our-job");
+		ourJob.run();
+				
+		testStates.checkWait();
+
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		Stateful triggeredJob = (Stateful) lookup.lookup("triggered-job");
+
+		assertEquals(JobState.READY, 
+				triggeredJob.lastStateEvent().getState());
 		services.stop();
 		
 		oddjob.destroy();

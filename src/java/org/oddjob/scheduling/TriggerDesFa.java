@@ -35,6 +35,8 @@ class TriggerDesign extends BaseDC {
 	
 	private final SimpleTextAttribute state;
 
+	private final SimpleTextAttribute cancelWhen;
+	
 	private final SimpleTextAttribute newOnly;
 	
 	private final SimpleDesignProperty job;
@@ -46,6 +48,8 @@ class TriggerDesign extends BaseDC {
 		
 		state = new SimpleTextAttribute("state", this);
 		
+		cancelWhen = new SimpleTextAttribute("cancelWhen", this);
+		
 		newOnly = new SimpleTextAttribute("newOnly", this);
 		
 		job = new SimpleDesignProperty(
@@ -53,7 +57,8 @@ class TriggerDesign extends BaseDC {
 	}
 
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, on, state, newOnly, job };
+		return new DesignProperty[] { name, on, state, 
+				cancelWhen, newOnly, job };
 	}
 	
 	public Form detail() {
@@ -62,7 +67,8 @@ class TriggerDesign extends BaseDC {
 			.addFormItem(
 					new BorderedGroup("Trigger Details")
 						.add(new TextField("On Job", on))
-						.add(new TextField("State", state))
+						.add(new TextField("Trigger State", state))
+						.add(new TextField("Cancel When", cancelWhen))
 						.add(new TextField("New Only", newOnly))
 						.add(job.view().setTitle("Job"))
 				);

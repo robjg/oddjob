@@ -156,7 +156,7 @@ public class MainTest extends TestCase {
 
 		// if an old test failed the _testInProgress file are the properties
 		// we want to keep.
-		if (!renamedFile.exists()) {
+		if (!renamedFile.exists() && userProperties.exists()) {
 			assertTrue(userProperties.renameTo(renamedFile));
 		}
 		
