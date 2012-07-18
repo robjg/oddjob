@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+    <job>
+        <sequential name="Trigger Example">
+            <jobs>
+                <scheduling:trigger id="trigger" 
+                		name="Alert Trigger" on="${our-job}"
+                		state="FAILURE" cancelWhen="FINISHED">
+                    <job>
+                        <echo name="Alert" id="triggered-job">That job shouldn't fail!</echo>
+                    </job>
+                </scheduling:trigger>
+                <folder name="A Folder of Jobs">
+                    <jobs>
+                        <echo id="our-job" name="Run Me">I won't fail</echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
