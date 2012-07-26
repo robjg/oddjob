@@ -59,7 +59,8 @@ public class IfJob extends StructuralJob<Object>
 	
 	/**
 	 * @oddjob.property state
-	 * @oddjob.description The state to check against.
+	 * @oddjob.description The state condition to check against. 
+	 * See the Oddjob User guide for a full list of state conditions.
 	 * @oddjob.required No, defaults to COMPLETE.
 	 */
 	@ArooaAttribute

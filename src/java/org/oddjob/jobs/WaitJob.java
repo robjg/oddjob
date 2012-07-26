@@ -59,7 +59,10 @@ public class WaitJob extends SimpleJob
 	
 	/** 
 	 * @oddjob.property state
-	 * @oddjob.description A state to wait for. 
+	 * @oddjob.description A state condition to wait for. When this is 
+	 * set this job will wait for the job referenced with the <code>
+	 * for</code> property match the given state condition. 
+	 * See the Oddjob User guide for a full list of state conditions.
 	 * @oddjob.required No.
 	 */
 	private StateCondition state;
