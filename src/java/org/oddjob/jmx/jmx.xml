@@ -8,8 +8,14 @@
     </values>
     <components>
         <arooa:bean-def element='client'
-            className='org.oddjob.jmx.JMXClientJob' designFactory='org.oddjob.designer.components.ClientDC'/>
+            className='org.oddjob.jmx.JMXClientJob' 
+            designFactory='org.oddjob.designer.components.ClientDC'/>
         <arooa:bean-def element='server'
-            className='org.oddjob.jmx.JMXServerJob' designFactory='org.oddjob.designer.components.ServerDC'/>
+            className='org.oddjob.jmx.JMXServerJob' 
+            designFactory='org.oddjob.designer.components.ServerDC'/>
+        <arooa:bean-def element='service'
+            className='org.oddjob.jmx.JMXServiceJob' 
+            designFactory='org.oddjob.designer.components.ClientDC'/>
+        
     </components>
 </arooa:descriptor>

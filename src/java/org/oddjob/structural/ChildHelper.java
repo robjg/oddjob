@@ -96,8 +96,8 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 	 * @param index The index of the child to remove.
 	 * @return The child removed.
 	 */
-	public Object removeChildAt(int index) {
-		Object child = null;
+	public E removeChildAt(int index) {
+		E child = null;
 		
 		StructuralEvent event;
 		synchronized (missed) {

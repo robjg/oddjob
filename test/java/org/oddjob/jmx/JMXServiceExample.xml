@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential id="sequential">
+            <jobs>
+                <jmx:service id="jmx-service" 
+                  url="localhost:13013" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <echo id="echo-farm"><![CDATA[${jmx-service/"fruit:service=vendor,name=Pickles".Farm}]]></echo>
+                <set>
+                    <values>
+                        <value key="jmx-service/fruit:service=vendor,name=Pickles.Rating" value="4.2"/>
+                    </values>
+                </set>
+                <invoke id="invoke-quote" function="quote">
+                    <parameters>
+                        <value value="apples"/>
+                        <value value="2012-08-06"/>
+                        <value value="42"/>
+                    </parameters>
+                    <source>
+                        <value value="${jmx-service/fruit:service=vendor,name=Pickles}"/>
+                    </source>
+                </invoke>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

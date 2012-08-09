@@ -8,6 +8,8 @@
                 <value value='org.oddjob.values.types.FormatType$Conversions'/>
                 <value value='org.oddjob.values.types.TokenizerType$Conversions'/>
                 <value value='org.oddjob.script.InvokeType$Conversions'/>
+                <value value='org.oddjob.script.ScriptInvoker$Conversions'/>
+                <value value='org.oddjob.script.MethodInvoker$Conversions'/>
                 <value value='org.oddjob.schedules.ScheduleType$Conversions'/>
                 <value value='org.oddjob.values.types.PropertyType$Conversions'/>
                 <value value='org.oddjob.values.properties.PropertiesType$Conversions'/>
@@ -35,6 +37,7 @@
                     designFactory='org.oddjob.designer.components.ForEachDC'/>
                 <is element='grab' className='org.oddjob.jobs.GrabJob'/>
                 <is element='input' className='org.oddjob.input.InputJob'/>
+                <is element='invoke' className='org.oddjob.script.InvokeJob'/>
                 <is element='launch' className='org.oddjob.jobs.LaunchJob'/>
                 <is element='oddjob' className='org.oddjob.Oddjob'
                     designFactory='org.oddjob.designer.components.OddjobDC'/>

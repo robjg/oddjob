@@ -4,7 +4,7 @@
             <jobs>
                 <variables id='vars'>
                     <message>
-                        <invoke function="greetPerson" static="true">
+                        <invoke function="static greetPerson">
                             <source>
                                 <class name='org.oddjob.script.GreetingService'/>
                             </source>

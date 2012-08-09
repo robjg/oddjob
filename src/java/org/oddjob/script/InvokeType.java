@@ -1,23 +1,19 @@
 package org.oddjob.script;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.script.Invocable;
-
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
-import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.ConversionLookup;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.arooa.convert.ConversionStep;
 import org.oddjob.arooa.convert.Joker;
-import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 
@@ -68,22 +64,15 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 public class InvokeType 
 implements ArooaValue, ArooaSessionAware {
 
+	private static final Logger logger = Logger.getLogger(InvokeType.class);
+	
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The java object or script Invocable on
 	 * which to invoke the method/function.
 	 * @oddjob.required Yes.
 	 */
-	private Object source;
-
-	
-	/**
-	 * @oddjob.property static
-	 * @oddjob.description Indicates that the source contains a 
-	 * a java class and a static method on the class is to be invoked.
-	 * @oddjob.required No.
-	 */
-	private boolean staticMethod;
+	private Invoker source;
 	
 	/**
 	 * @oddjob.property
@@ -140,101 +129,30 @@ implements ArooaValue, ArooaSessionAware {
 	}
 	
 	public Object toValue() throws ArooaConversionException {
+		
 		if (source == null) {
 			throw new ArooaConversionException("No source.");
 		}
+	
+		Object[] paramArray = parameters.toArray();
 		
-		if (source instanceof Invocable) {
-			return toValue((Invocable) source);
-		}
-		else {
-			return toValue(source);
-		}
+		logger.info("Invoking " + function + " with args " + 
+					Arrays.toString(paramArray));
+		
+		Object result = source.invoke(function, 
+				new ConvertableArguments(converter, paramArray));
+		
+		logger.info("Invocation of " + function + " complete, result " + 
+				result);
+		
+		return result;
 	}
 	
-	private Object toValue(Invocable invocable) 
-	throws ArooaConversionException {	
-		
-		Class<?>[] signature = new Class<?>[parameters.size()];
-		Arrays.fill(signature, Object.class);
-		
-		Object args[] = parameters(signature);
-		
-		try {
-			return invocable.invokeFunction(function, args);
-		} catch (Exception e) {
-			throw new ArooaConversionException("Failed invoking " + 
-					function, e);
-		}
-	}
-	
-	private Object toValue(Object object) throws ArooaConversionException {
-		
-		Class<?> cl;
-		
-		if (staticMethod && object instanceof Class<?>) {
-			cl = (Class<?>) object;
-			object = null;
-		}
-		else {
-			cl = object.getClass();
-		}
-		
-		
-		Method[] ms = cl.getMethods();
-		
-		Method found = null;
-		Object[] args = null;
-		
-		for (Method m: ms) {
-			if (!m.getName().equals(function)) {
-				continue;
-			}
-		
-			if (parameters.size() != m.getParameterTypes().length) {
-				continue;
-			}
-			
-			try {
-				args = parameters(m.getParameterTypes());
-			}
-			catch (ArooaConversionException e) {
-				continue;
-			}
-			found = m;
-		}
-		
-		if (found == null) {
-			throw new ArooaConversionException("No function found.");
-		}
-		
-		try {
-			return found.invoke(object, args);
-		}
-		catch (Exception e) {
-			throw new ArooaConversionException("Failed invoking " + 
-					function, e);
-		}
-	}
-	
-	private Object[] parameters(Class<?>[] signature) throws NoConversionAvailableException, ConversionFailedException {
-		
-		Object[] converted = new Object[signature.length];
-		
-		for (int i = 0; i < signature.length; ++i) {
-			ArooaValue from = parameters.get(i);
-
-			converted[i] = converter.convert(from, signature[i]);
-		}
-		
-		return converted;
-	}
-
-	public Object getSource() {
+	public Invoker getSource() {
 		return source;
 	}
 
-	public void setSource(Object source) {
+	public void setSource(Invoker source) {
 		this.source = source;
 	}
 
@@ -257,14 +175,6 @@ implements ArooaValue, ArooaSessionAware {
 		else {
 			parameters.add(index, parameter);
 		}
-	}
-	
-	public void setStatic(boolean staticMethod) {
-		this.staticMethod = staticMethod;
-	}
-	
-	public boolean getStatic() {
-		return staticMethod;
 	}
 	
 	@Override

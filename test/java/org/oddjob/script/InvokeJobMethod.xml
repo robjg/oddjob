@@ -1,0 +1,18 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <invoke id="invoke-job" function="echo">
+                    <source>
+                        <bean
+                            class='org.oddjob.script.EchoService'/>
+                    </source>
+                    <parameters>
+                        <value value="Hello"/>
+                    </parameters>
+                </invoke>
+                <echo id="echo">${invoke-job.result}</echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

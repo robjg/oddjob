@@ -44,7 +44,6 @@ public class SetJob extends SimpleJob {
 	 * @param value The runtime configurable for the value.
 	 */
 	public void setValues(String name, ArooaValue value) {		
-		logger().debug("Setting [" + name + "] = [" + value + "]");
 		values.put(name, value);
 	}
 	
@@ -53,8 +52,12 @@ public class SetJob extends SimpleJob {
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
 	protected int execute() throws Exception {
+		
 		for (Map.Entry<String, ArooaValue> entry : values.entrySet()) {
-			setProperty(entry.getKey(), entry.getValue());
+			String name = entry.getKey();
+			ArooaValue value = entry.getValue();
+			logger().info("Setting [" + name + "] = [" + value + "]");
+			setProperty(name, value);
 		}
 		
 		return 0;

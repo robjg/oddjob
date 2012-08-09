@@ -62,7 +62,7 @@ public class InvokeTypeTest extends TestCase {
 		InvokeType test = new InvokeType();
 		
 		test.setFunction("simpleStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		Object result = test.toValue();
 		
@@ -76,7 +76,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("staticThing");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		test.setParameters(0, new ArooaObject("Apples"));
 		
 		assertEquals("Apples", test.toValue());
@@ -89,7 +89,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("newInstance");
-		test.setSource(Thing.class);
+		test.setSource(new MethodInvoker(Thing.class));
 		
 		assertEquals(Thing.class, test.toValue().getClass());
 	}
@@ -100,7 +100,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("simpleStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		test.setParameters(0, new ArooaObject("Thing"));
 		
@@ -108,7 +108,7 @@ public class InvokeTypeTest extends TestCase {
 			test.toValue();
 			fail("Should fail.");
 		}
-		catch (ArooaConversionException e) {
+		catch (RuntimeException e) {
 			// expected.
 		}
 	}
@@ -119,7 +119,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("complexStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		test.setParameters(0, new ArooaObject(1));
 		
@@ -134,7 +134,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("complexStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		test.setParameters(0, new ArooaObject(2));
 		test.setParameters(1, new ArooaObject(2));
@@ -150,7 +150,7 @@ public class InvokeTypeTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		test.setFunction("complexStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		test.setParameters(0, new ArooaObject("BillAnd"));
 		test.setParameters(1, new ArooaObject("Ben"));
@@ -165,7 +165,7 @@ public class InvokeTypeTest extends TestCase {
 		InvokeType test = new InvokeType();
 		
 		test.setFunction("simpleStuff");
-		test.setSource(new Thing());
+		test.setSource(new MethodInvoker(new Thing()));
 		
 		DefaultConversionRegistry conversions = 
 			new DefaultConversionRegistry();

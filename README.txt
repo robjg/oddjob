@@ -3,6 +3,14 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- JMX client URLs can now connect with just hostname:port in the URL.
+- Introduced a new jms:service job that exposes attributes and operations
+  of MBeans for getting and setting and invoking by other Oddjob jobs.
+- Introduced a new Invoker interface for more general invocations of 
+  InvokeType than the previous hard coded java methods and script snippets.
+- Introduced an Invoker for MBean operations 
+- Provide a new Invoke job that can do everything InvokeType can do including
+  invoking MBean operations.
 - Trigger has a new cancelWhen property that will cause the trigger to
   complete without executing it's job.
 - Introduced new state conditions. FAILURE, FINISHED and EXECUTING (which

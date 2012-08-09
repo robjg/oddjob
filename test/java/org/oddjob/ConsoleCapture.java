@@ -26,7 +26,7 @@ public class ConsoleCapture {
 	class Console implements LogListener  {
 		List<String> lines = new ArrayList<String>();
 		
-		public void logEvent(LogEvent logEvent) {
+		public synchronized void logEvent(LogEvent logEvent) {
 			lines.add(logEvent.getMessage());
 		}
 	}
