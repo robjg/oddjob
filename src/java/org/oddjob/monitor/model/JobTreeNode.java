@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.concurrent.Executor;
 
+import javax.swing.ImageIcon;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
@@ -14,7 +15,6 @@ import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
@@ -49,7 +49,7 @@ public class JobTreeNode
 
 	/** Save icon information */
 	private final OurIconListener iconListener = new OurIconListener();
-	private volatile IconTip iconTip = IconHelper.nullIcon;
+	private volatile ImageIcon iconTip = IconHelper.nullIcon;
 
 	/** The job this is modelling. */
 	final private Object component;
@@ -201,9 +201,14 @@ public class JobTreeNode
 		return visible;
 	}
 	
-	void setIcon(IconTip iconTip) {
+	/**
+	 * Called from Icon Listener.
+	 * 
+	 * @param icon
+	 */
+	void setIcon(ImageIcon icon) {
 	    synchronized (this) {
-	        this.iconTip = iconTip;
+	        this.iconTip = icon;
 	    }
 	    executor.execute(new Runnable() {			
 			@Override
@@ -257,7 +262,7 @@ public class JobTreeNode
 		return nodeName;
 	}
 
-	synchronized public IconTip getIcon() {
+	synchronized public ImageIcon getIcon() {
 		return iconTip;	
 	}	
 
@@ -306,8 +311,8 @@ public class JobTreeNode
 	class OurIconListener implements IconListener {
 		private boolean listening;
 		
-		private final Map<String, IconTip> icons = 
-			new HashMap<String, IconTip>();
+		private final Map<String, ImageIcon> icons = 
+			new HashMap<String, ImageIcon>();
 		
 		void listen() {
 			if (listening) {
@@ -321,7 +326,7 @@ public class JobTreeNode
 
 		public void iconEvent(IconEvent event) {
 			String iconId = event.getIconId();
-			IconTip it = (IconTip) icons.get(iconId);
+			ImageIcon it = icons.get(iconId);
 			if (it == null) {
 				it = ((Iconic)component).iconForId(iconId);
 				if (it == null) {

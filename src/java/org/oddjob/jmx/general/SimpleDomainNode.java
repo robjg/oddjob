@@ -3,13 +3,13 @@ package org.oddjob.jmx.general;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.ObjectName;
+import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
@@ -81,9 +81,9 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
 	 */
-	public IconTip iconForId(String iconId) {
+	public ImageIcon iconForId(String iconId) {
 		if (iconId.equals("folder")) {
-		    return new IconTip(	
+		    return new ImageIcon(	
 		            IconHelper.class.getResource("Open16.gif"),
 					"folder");
 		} 
@@ -111,6 +111,7 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	public void removeIconListener(IconListener listener) {
 	}
 
+	
 	public void destroy() {
 		while (childHelper.size() > 0) {
 			MBeanNode node = childHelper.removeChildAt(0);

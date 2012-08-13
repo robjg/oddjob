@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
+
 import org.oddjob.Iconic;
 
 
@@ -31,73 +33,73 @@ public class IconHelper implements Iconic {
 	public static final String ACTIVE = "active"; 
 	public static final String INVALID = "invalid"; 
 	
-	public static final IconTip nullIcon
-		= new IconTip(
+	public static final ImageIcon nullIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("diamond.gif"),
 				"Null Icon");
 	
-	public static final IconTip initializingIcon
-		= new IconTip(
+	public static final ImageIcon initializingIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("triangle.gif"),
 				"Initialising");
 
-	public static final IconTip readyIcon
-		= new IconTip(
+	public static final ImageIcon readyIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("right_blue.gif"),
 				"Ready");
 
-	public static final IconTip executingIcon
-		= new IconTip(
+	public static final ImageIcon executingIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("triangle_green.gif"),
 				"Executing");
 
-	public static final IconTip completeIcon
-		= new IconTip(
+	public static final ImageIcon completeIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("tick_green.gif"),
 				"Complete");
 
-	public static final IconTip notCompleteIcon
-		= new IconTip(
+	public static final ImageIcon notCompleteIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("cross.gif"),
 				"Not Complete");
 
-	public static final IconTip stoppingIcon
-		= new IconTip(
+	public static final ImageIcon stoppingIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("triangle_red.gif"),
 				"Stopping");
 
-	public static final IconTip stoppedIcon
-	= new IconTip(
+	public static final ImageIcon stoppedIcon
+	= new ImageIcon(
 			IconHelper.class.getResource("square_red.gif"),
 			"Stopped");
 
-	public static final IconTip sleepingIcon
-		= new IconTip(
+	public static final ImageIcon sleepingIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("dot_blue.gif"),
 				"Sleeping");
 
-	public static final IconTip invalidIcon
-		= new IconTip(
+	public static final ImageIcon invalidIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("cross_red.gif"),
 				"Invalid");
 
-	public static final IconTip exceptionIcon
-		= new IconTip(
+	public static final ImageIcon exceptionIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("asterix_red.gif"),
 				"Exception");
 
-	public static final IconTip startedIcon
-		= new IconTip(
+	public static final ImageIcon startedIcon
+		= new ImageIcon(
 				IconHelper.class.getResource("dot_green.gif"),
 				"Started");
 
-	public static final IconTip activeIcon
-		= new IconTip(
+	public static final ImageIcon activeIcon
+		= new ImageIcon(
 			IconHelper.class.getResource("right_green.gif"),
 			"Active");
 	
-	private static Map<String, IconTip> defaultIconMap = 
-		new HashMap<String, IconTip>();
+	private static Map<String, ImageIcon> defaultIconMap = 
+		new HashMap<String, ImageIcon>();
 
 	static {
 		defaultIconMap.put(NULL, nullIcon);
@@ -118,7 +120,7 @@ public class IconHelper implements Iconic {
 	private final Iconic source;
 	private volatile IconEvent lastEvent;
 	private List<IconListener> listeners = new ArrayList<IconListener>();
-	private final Map<String, IconTip> iconMap;
+	private final Map<String, ImageIcon> iconMap;
 	
 	public IconHelper(Iconic source) {
 		this(source, defaultIconMap);
@@ -129,22 +131,22 @@ public class IconHelper implements Iconic {
 	 * 
 	 * @param source The source for events.
 	 */
-	public IconHelper(Iconic source, Map<String, IconTip> iconMap) {
+	public IconHelper(Iconic source, Map<String, ImageIcon> iconMap) {
 		this.source = source;
 		lastEvent = new IconEvent(source, READY);
 		this.iconMap = iconMap;
 	}
 	
 	/**
-	 * Return an IconTip for the given id.
+	 * Return an ImageIcon for the given id.
 	 * 
 	 * @param iconId The id.
-	 * @return The iconTip never null.
+	 * @return The ImageIcon never null.
 	 * 
 	 * @throws NoSuchIconException If the icon doesn't exist.
 	 */
 	@Override
-	public IconTip iconForId(String iconId) {
+	public ImageIcon iconForId(String iconId) {
 		return iconMap.get(iconId);
 	}
 

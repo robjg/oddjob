@@ -1,5 +1,7 @@
 package org.oddjob.jmx;
 
+import javax.swing.ImageIcon;
+
 import junit.framework.TestCase;
 
 import org.oddjob.Iconic;
@@ -12,7 +14,6 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 
 public class IconicTest extends TestCase {
 
@@ -73,9 +74,9 @@ public class IconicTest extends TestCase {
 		
 		assertEquals(IconHelper.COMPLETE, iconId);
 
-		IconTip tip = fruit.iconForId(iconId);
+		ImageIcon tip = fruit.iconForId(iconId);
 
-		assertEquals("Complete", tip.getToolTip());
+		assertEquals("Complete", tip.getDescription());
 		
 		Resetable resetable = (Resetable) fruit;
 		

@@ -1,6 +1,8 @@
 package org.oddjob.jobs.structural;
 
 
+import javax.swing.ImageIcon;
+
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
@@ -8,7 +10,6 @@ import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -127,9 +128,9 @@ public class JobFolder
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
 	 */
-	public IconTip iconForId(String iconId) {
+	public ImageIcon iconForId(String iconId) {
 		if (iconId.equals("folder")) {
-		    return new IconTip(	
+		    return new ImageIcon(	
 		            IconHelper.class.getResource("Open16.gif"),
 					"folder");
 		} 

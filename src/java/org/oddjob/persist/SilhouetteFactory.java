@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.ImageIcon;
+
 import org.oddjob.Describeable;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
@@ -16,7 +18,6 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
@@ -110,7 +111,7 @@ public class SilhouetteFactory {
 		if (iconInfo != null) {
 			silhouette.setIconInfo(
 					new IconEvent((Iconic) proxy, iconInfo.getIconId()),
-					iconInfo.getIconTip());
+					iconInfo.getIcon());
 		}
 		
 		return proxy;
@@ -135,7 +136,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	
 	private IconEvent iconEvent;
 	
-	private IconTip iconTip;
+	private ImageIcon iconTip;
 	
 	Silhouette(String name, Map<String, String> description) {
 		this.name = name;
@@ -150,7 +151,7 @@ class Silhouette implements InvocationHandler, Serializable,
 		this.lastJobStateEvent = lastJobStateEvent;
 	}
 	
-	void setIconInfo(IconEvent iconEvent, IconTip iconTip) {
+	void setIconInfo(IconEvent iconEvent, ImageIcon iconTip) {
 		this.iconEvent = iconEvent;
 		this.iconTip = iconTip;
 	}
@@ -204,7 +205,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	}
 	
 	@Override
-	public IconTip iconForId(String id) {
+	public ImageIcon iconForId(String id) {
 		return iconTip;
 	}
 	
@@ -278,19 +279,19 @@ class ChildCatcher implements StructuralListener {
 class IconInfo {
 	
 	private final String iconId;
-	private final IconTip iconTip;
+	private final ImageIcon icon;
 	
-	IconInfo(String iconId, IconTip iconTip) {
+	IconInfo(String iconId, ImageIcon iconTip) {
 		this.iconId = iconId;
-		this.iconTip = iconTip;
+		this.icon = iconTip;
 	}
 	
 	public String getIconId() {
 		return iconId;
 	}
 	
-	public IconTip getIconTip() {
-		return iconTip;
+	public ImageIcon getIcon() {
+		return icon;
 	}
 }
 

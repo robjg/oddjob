@@ -3,6 +3,8 @@ package org.oddjob.images;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
+
 import junit.framework.TestCase;
 
 import org.oddjob.Iconic;
@@ -26,7 +28,7 @@ public class IconHelperTest extends TestCase {
 		public void removeIconListener(IconListener listener) {
 		}
 		@Override
-		public IconTip iconForId(String id) {
+		public ImageIcon iconForId(String id) {
 			throw new RuntimeException();
 		}
 	}

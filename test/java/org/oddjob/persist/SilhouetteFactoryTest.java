@@ -5,6 +5,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
 import org.oddjob.Helper;
 import org.oddjob.Iconic;
@@ -24,6 +25,14 @@ import org.oddjob.state.JobState;
 
 public class SilhouetteFactoryTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(SilhouetteFactoryTest.class);
+	@Override
+	protected void setUp() throws Exception {
+		if (Thread.interrupted()) {
+			logger.warn("Clearing interrupted flag left by some other test because it messes with image loading.");
+		}
+	}
+	
 	/**
 	 * Needed for storing in hash sets.
 	 * @throws ClassNotFoundException 

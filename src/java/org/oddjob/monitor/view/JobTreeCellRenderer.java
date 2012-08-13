@@ -6,7 +6,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.oddjob.images.IconTip;
 import org.oddjob.monitor.model.JobTreeNode;
 
 /**
@@ -38,10 +37,10 @@ public class JobTreeCellRenderer extends DefaultTreeCellRenderer {
 
 		JobTreeNode node = (JobTreeNode)value;
 
-		IconTip iconTip = node.getIcon();
-		if (iconTip != null) {
-			setIcon(new ImageIcon(iconTip.getImageData()));
-			setToolTipText(iconTip.getToolTip());			
+		ImageIcon icon = node.getIcon();
+		if (icon != null) {
+			setIcon(icon);
+			setToolTipText(icon.getDescription());			
 		}
         return this;
 	}

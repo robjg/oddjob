@@ -1,5 +1,6 @@
 package org.oddjob.jmx.general;
 
+import java.awt.Image;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -28,9 +30,7 @@ import org.oddjob.Iconic;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.images.IconEvent;
-import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.script.InvokerArguments;
 
@@ -48,6 +48,10 @@ public class SimpleMBeanNode implements
 	private final String loggerName = getClass().getName() + 
 			"." + instanceCount.incrementAndGet();
 	
+	private static final ImageIcon icon = new ImageIcon(new ImageIcon(
+			SimpleDomainNode.class.getResource("mbean.gif")).getImage(
+					).getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+
 	private final Logger logger = Logger.getLogger(loggerName);
 	
 	private final ObjectName objectName;
@@ -165,8 +169,8 @@ public class SimpleMBeanNode implements
 	}
 	
 	@Override
-	public IconTip iconForId(String id) {
-		return IconHelper.activeIcon;
+	public ImageIcon iconForId(String id) {
+		return icon;
 	}
 	
 	@Override

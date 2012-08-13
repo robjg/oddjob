@@ -13,12 +13,12 @@ import javax.management.MBeanOperationInfo;
 import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ReflectionException;
+import javax.swing.ImageIcon;
 
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
@@ -50,11 +50,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 				Notification[].class, 
 				MBeanOperationInfo.INFO);
 		
-	static final JMXOperationPlus<IconTip> ICON_FOR = 
-		new JMXOperationPlus<IconTip>(
+	static final JMXOperationPlus<ImageIcon> ICON_FOR = 
+		new JMXOperationPlus<ImageIcon>(
 				"Iconic.iconForId",
 				"Retrieve an Icon and ToolTip.",
-				IconTip.class, 
+				ImageIcon.class, 
 				MBeanOperationInfo.INFO)
 			.addParam("iconId", String.class, "The icon id.");
 	
@@ -145,7 +145,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			lastEvent = new IconEvent(owner, IconHelper.NULL);
 		}
 		
-		public IconTip iconForId(String id) {
+		public ImageIcon iconForId(String id) {
 			try {
 				return toolkit.invoke(
 						ICON_FOR,

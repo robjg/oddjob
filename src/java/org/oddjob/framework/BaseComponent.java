@@ -4,6 +4,8 @@ package org.oddjob.framework;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
+import javax.swing.ImageIcon;
+
 import org.apache.log4j.Logger;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
@@ -20,7 +22,6 @@ import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdaptor;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
@@ -59,6 +60,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @param session
 	 */
+	@Override
 	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
@@ -68,6 +70,7 @@ implements Iconic, Stateful,
 		return this.session;
 	}
 	
+	@Override
 	@ArooaHidden
 	public void setArooaContext(ArooaContext context) {
 		if (this instanceof ArooaLifeAware) {
@@ -174,6 +177,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @return The last JobStateEvent. Will never be null.
 	 */	
+	@Override
 	public StateEvent lastStateEvent() {
 		return stateHandler().lastStateEvent();
 	}
@@ -181,6 +185,7 @@ implements Iconic, Stateful,
 	/**
 	 * Add a job state listener.
 	 */
+	@Override
 	public void addStateListener(StateListener listener) {
 		stateHandler().addStateListener(listener);
 	}
@@ -188,6 +193,7 @@ implements Iconic, Stateful,
 	/**
 	 * Remove a job state listener.
 	 */
+	@Override
 	public void removeStateListener(StateListener listener){
 		stateHandler().removeStateListener(listener);
 	}
@@ -197,6 +203,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @param l The property change listener.
 	 */		
+	@Override
 	public void addPropertyChangeListener(PropertyChangeListener l) {
 		stateHandler().assertAlive();
 		propertyChangeSupport.addPropertyChangeListener(l);		
@@ -207,6 +214,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @param l The property change listener.
 	 */
+	@Override
 	public void removePropertyChangeListener(PropertyChangeListener l) {
 		propertyChangeSupport.removePropertyChangeListener(l);
 	}
@@ -226,7 +234,8 @@ implements Iconic, Stateful,
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
 	 */
-	public IconTip iconForId(String iconId) {
+	@Override
+	public ImageIcon iconForId(String iconId) {
 		return iconHelper.iconForId(iconId);
 	}
 
@@ -236,6 +245,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @param listener The listener.
 	 */
+	@Override
 	public void addIconListener(IconListener listener) {
 		stateHandler().assertAlive();
 		iconHelper.addIconListener(listener);
@@ -247,6 +257,7 @@ implements Iconic, Stateful,
 	 * 
 	 * @param listener The listener.
 	 */
+	@Override
 	public void removeIconListener(IconListener listener) {
 		iconHelper.removeIconListener(listener);
 	}

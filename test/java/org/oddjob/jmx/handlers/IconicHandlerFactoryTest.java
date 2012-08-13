@@ -2,6 +2,7 @@ package org.oddjob.jmx.handlers;
 
 import javax.management.Notification;
 import javax.management.NotificationListener;
+import javax.swing.ImageIcon;
 
 import junit.framework.TestCase;
 
@@ -9,7 +10,6 @@ import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
@@ -33,7 +33,7 @@ public class IconicHandlerFactoryTest extends TestCase {
 			helper.removeIconListener(listener);
 		}
 		
-		public IconTip iconForId(String iconId) {
+		public ImageIcon iconForId(String iconId) {
 			return helper.iconForId(iconId);
 		}
 	}
@@ -84,9 +84,9 @@ public class IconicHandlerFactoryTest extends TestCase {
 			new IconicHandlerFactory.ClientIconicHandlerFactory(
 					).createClientHandler(iconic, toolkit);
 
-		IconTip result = h.iconForId(IconHelper.EXECUTING);
+		ImageIcon result = h.iconForId(IconHelper.EXECUTING);
 		
-		assertEquals("Executing", result.getToolTip());
+		assertEquals("Executing", result.getDescription());
 	}
 	
 	

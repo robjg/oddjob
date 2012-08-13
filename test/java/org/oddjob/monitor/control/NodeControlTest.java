@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
@@ -23,7 +24,6 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.IconTip;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.model.JobTreeModel;
 import org.oddjob.monitor.model.JobTreeNode;
@@ -72,9 +72,9 @@ public class NodeControlTest extends TestCase {
 			listener.iconEvent(new IconEvent(this, "apple"));
 		}
 		
-		public IconTip iconForId(String id) {
+		public ImageIcon iconForId(String id) {
 			assertEquals("apple", id);
-			return new IconTip(new byte[0], "apple");
+			return new ImageIcon(new byte[0], "apple");
 		}
 		
 		public void removeIconListener(IconListener listener) {
@@ -129,7 +129,7 @@ public class NodeControlTest extends TestCase {
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getToolTip());
+		assertEquals("apple", result.getIcon().getDescription());
 		
 		this.comp = tree;
 	}
@@ -185,7 +185,7 @@ public class NodeControlTest extends TestCase {
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getToolTip());
+		assertEquals("apple", result.getIcon().getDescription());
 		
 		OurIconic component = (OurIconic) new OddjobLookup(oddjob).lookup("x");
 		final DragPoint drag = oddjob.provideConfigurationSession().dragPointFor(component);
@@ -300,7 +300,7 @@ public class NodeControlTest extends TestCase {
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getToolTip());
+		assertEquals("apple", result.getIcon().getDescription());
 		
 		this.comp = tree;
 	}
