@@ -34,6 +34,11 @@ public class JobFolder
 
 	private static final Logger logger = Logger.getLogger(JobFolder.class);
 	
+	/** Icon. */
+	private static final ImageIcon icon = new ImageIcon(	
+            IconHelper.class.getResource("Open16.gif"),
+			"folder");
+	
 	/** Child helper. */
 	protected ChildHelper<Object> childHelper
 			= new ChildHelper<Object>(this);
@@ -129,14 +134,7 @@ public class JobFolder
 	 * of the Iconic interface.
 	 */
 	public ImageIcon iconForId(String iconId) {
-		if (iconId.equals("folder")) {
-		    return new ImageIcon(	
-		            IconHelper.class.getResource("Open16.gif"),
-					"folder");
-		} 
-		else {
-		    return null;
-		}
+		return icon;
 	}
 
 	/**

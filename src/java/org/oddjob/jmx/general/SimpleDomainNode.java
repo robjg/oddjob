@@ -22,20 +22,34 @@ import org.oddjob.structural.StructuralListener;
  */
 public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 
+	/** Used to count loggers. */
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
-	private final String loggerName = getClass().getName() + 
-			"." + instanceCount.incrementAndGet();
+	/** The icon. */
+    private final static ImageIcon icon = new ImageIcon(	
+            IconHelper.class.getResource("Open16.gif"),
+			"folder");
+
+	/** Logger for this instance. */
+	private final Logger logger = Logger.getLogger(getClass().getName() + 
+			"." + instanceCount.incrementAndGet());
 	
-	private final Logger logger = Logger.getLogger(loggerName);
-	
+	/** The name. */
 	private final String domain;
 	
+	/** Session. */
 	private final MBeanSession mBeanSession;
 
+	/** For structural. */
 	private final ChildHelper<MBeanNode> childHelper = 
 			new ChildHelper<MBeanNode>(this);
-	
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param domain The name.
+	 * @param mBeanSession The session.
+	 */
 	public SimpleDomainNode(String domain, MBeanSession mBeanSession) {
 		this.domain = domain;
 		this.mBeanSession = mBeanSession;
@@ -43,37 +57,38 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	
 	@Override
 	public String loggerName() {
-		return loggerName;
+		return logger.getName();
 	}
+	
+	@Override
+	public void initialise() {
+		logger.info("Initialising for Domain: " + domain);
+		
+		MBeanCache cache = mBeanSession.getMBeanCache();
+		try {
+			MBeanNode[] children = cache.findBeans(
+					new ObjectName(domain + ":*"));
+			
+			for (MBeanNode child : children) {
+				childHelper.addChild(child);
+				
+				// done after add to allow logger archiver to be added.
+				child.initialise();
+			}
+		} catch (Exception e) {
+			logger.error("Failed Querying MBeanServer", e);
+		} 
+	}
+	
 
 	@Override
 	public void addStructuralListener(StructuralListener listener) {
-		synchronized (childHelper) {
-			if (childHelper.isNoListeners()) {
-				MBeanCache cache = mBeanSession.getMBeanCache();
-				try {
-					MBeanNode[] children = cache.findBeans(
-							new ObjectName(domain + ":*"));
-					
-					for (MBeanNode child : children) {
-						childHelper.addChild(child);
-					}
-				} catch (Exception e) {
-					logger.error("Failed Querying MBeanServer", e);
-				} 
-			}
-			childHelper.addStructuralListener(listener);
-		}
+		childHelper.addStructuralListener(listener);
 	}
 	
 	@Override
 	public void removeStructuralListener(StructuralListener listener) {
-		synchronized (childHelper) {
-			childHelper.removeStructuralListener(listener);
-			if (childHelper.isNoListeners()) {
-				childHelper.removeAllChildren();
-			}
-		}
+		childHelper.removeStructuralListener(listener);
 	}
 	
 	
@@ -82,14 +97,7 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	 * of the Iconic interface.
 	 */
 	public ImageIcon iconForId(String iconId) {
-		if (iconId.equals("folder")) {
-		    return new ImageIcon(	
-		            IconHelper.class.getResource("Open16.gif"),
-					"folder");
-		} 
-		else {
-		    return null;
-		}
+		return icon;
 	}
 	
 	/**

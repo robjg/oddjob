@@ -43,25 +43,31 @@ import org.oddjob.script.InvokerArguments;
 public class SimpleMBeanNode implements 
 		MBeanNode, Describeable, LogEnabled, Iconic {
 
+	/** For logger names. */
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
-	private final String loggerName = getClass().getName() + 
-			"." + instanceCount.incrementAndGet();
-	
+	/** The icon. */
 	private static final ImageIcon icon = new ImageIcon(new ImageIcon(
 			SimpleDomainNode.class.getResource("mbean.gif")).getImage(
 					).getScaledInstance(16, 16, Image.SCALE_SMOOTH));
 
-	private final Logger logger = Logger.getLogger(loggerName);
+	/** The logger for this instance. */
+	private final Logger logger = Logger.getLogger(getClass().getName() + 
+			"." + instanceCount.incrementAndGet());
 	
+	/** Then name. */
 	private final ObjectName objectName;
-	
+
+	/** The server. */
 	private final MBeanServerConnection mBeanServer;
 	
+	/** For classes. */
 	private final ClassResolver classResolver;
 	
+	/** Info. */
 	private final MBeanInfo info;
 	
+	/** For DynaBean. */
 	private final ThisDynaClass dynaClass;
 	
 	/**
@@ -87,14 +93,45 @@ public class SimpleMBeanNode implements
 		
 		this.info = mBeanServer.getMBeanInfo(objectName);
 		
-		dynaClass = new ThisDynaClass(info.getAttributes());
+		dynaClass = new ThisDynaClass(info.getAttributes());	
 	}
 	
 	@Override
+	public void initialise() {
+		logger.info("MBean: " + objectName);
+		logger.info("Attributes:");
+		MBeanAttributeInfo[] attributeInfo = info.getAttributes();
+		for (MBeanAttributeInfo attr : attributeInfo) {
+			logger.info("  " + attr.getName() + ": " + attr.getType());
+		}
+		logger.info("Operations:");
+		MBeanOperationInfo[] operationInfo = info.getOperations();
+		for (MBeanOperationInfo op : operationInfo) {
+			StringBuilder params = new StringBuilder();
+			for (MBeanParameterInfo param : op.getSignature()) {
+				if (params.length() > 0) {
+					params.append(", ");
+				}
+				params.append(param.getType());
+			}
+			logger.info("  " + op.getName() + "(" + params.toString() + 
+					"): " + op.getReturnType());
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.logging.LogEnabled#loggerName()
+	 */
+	@Override
 	public String loggerName() {
-		return loggerName;
+		return logger.getName();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.script.Invoker#invoke(java.lang.String, org.oddjob.script.InvokerArguments)
+	 */
 	@Override
 	public Object invoke(String name, InvokerArguments args) {
 		
@@ -259,6 +296,10 @@ public class SimpleMBeanNode implements
 		return description;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.jmx.client.Destroyable#destroy()
+	 */
 	@Override
 	public void destroy() {
 	}

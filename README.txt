@@ -67,6 +67,8 @@ Changes in 1.2.0
   to a nested Oddjob as is, and not wrapped as an ArooaValue. 
 - Validate changes in Designer before closing the dialog so changes aren't
   lost if there is a problem.
+- Changed Iconic interface to just use ImageIcon instead of a bespoke 
+  wrapper class.
   
 Still To Do for 1.2.0
 ---------------------

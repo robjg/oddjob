@@ -11,5 +11,11 @@ package org.oddjob.logging;
  */
 public interface LogEnabled {
 	
+	/**
+	 * Provide the logger name. The name should be unique for each
+	 * component that is LogEnabled.
+	 * 
+	 * @return A logger name. Never Null.
+	 */
 	public String loggerName();
 }

@@ -1,5 +1,11 @@
 package org.oddjob.logging;
 
+/**
+ * Something that is able to accept log messages.
+ * 
+ * @author rob
+ *
+ */
 public interface LogEventSink {
 
 	/**

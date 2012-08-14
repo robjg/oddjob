@@ -99,7 +99,12 @@ implements Structural, BeanDirectoryOwner {
 		
 		for (String domain: domains) {
 			
-			childHelper.addChild(new SimpleDomainNode(domain, session));
+			DomainNode node = new SimpleDomainNode(domain, session);
+			
+			childHelper.addChild(node);
+			
+			// done after add to allow logger archiver to be added.
+			node.initialise();
 		}
 		
 		beanDirectory = new MBeanDirectory(session);

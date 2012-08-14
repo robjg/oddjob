@@ -12,6 +12,10 @@ import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.logging.LogEvent;
+import org.oddjob.logging.LogLevel;
+import org.oddjob.logging.LogListener;
+import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.script.ConvertableArguments;
 import org.oddjob.script.InvokerArguments;
 
@@ -70,4 +74,33 @@ public class SimpleMBeanNodeTest extends TestCase {
 
 		assertEquals(4.2, simple.rating, 0.01);
 	}
+	
+	public void testLogEnabled() throws Exception {
+		
+		final StringBuilder builder = new StringBuilder();
+		
+		class TestListener implements LogListener {
+			public void logEvent(LogEvent logEvent) {
+				builder.append(logEvent.getMessage() + "\n");
+			}
+		}
+		
+		
+		
+		SimpleMBeanNode test = new SimpleMBeanNode(
+				objectName, mBeanServer, 
+				new ClassLoaderClassResolver(getClass().getClassLoader()));
+		
+		Log4jArchiver archiver = new Log4jArchiver(test, "%m");
+		
+		archiver.addLogListener(new TestListener(), test, 
+				LogLevel.DEBUG, -1, 10000);
+		
+		test.initialise();
+		
+		System.out.println(builder.toString());
+		
+		assertTrue(builder.length() > 0);
+	}
+	
 }
