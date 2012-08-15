@@ -4,7 +4,7 @@ Oddjob-1.2.0
 Changes in 1.2.0
 ----------------
 - JMX client URLs can now connect with just hostname:port in the URL.
-- Introduced a new jms:service job that exposes attributes and operations
+- Introduced a new jmx:service job that exposes attributes and operations
   of MBeans for getting and setting and invoking by other Oddjob jobs.
 - Introduced a new Invoker interface for more general invocations of 
   InvokeType than the previous hard coded java methods and script snippets.

@@ -377,6 +377,7 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(1, null);
 		test.setJobs(1, job3);
 		
+		// This occasionally hangs - why?????
 		job1.stop();
 		
 		job1State.checkWait();

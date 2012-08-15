@@ -56,6 +56,8 @@ public class ManualWriter {
         		beanDoc.getName() + "</title>");
         out.println("  </head>");
         out.println("  <body>");
+        out.println("  [<a href=\"" + getIndexFile(beanDoc.getClassName()) +
+        		"\">Index</a>]");
         out.println("    <h1>" + beanDoc.getName() + "</h1>");
         if (beanDoc.getAllText() != null) {
         	out.println("    <hr/>");
@@ -175,6 +177,7 @@ public class ManualWriter {
     	
         out.println("<html>");
         out.println("  <head>");
+        out.println("  [<a href=\"../index.html\">Home</a>]");
         out.println("    <title>" + title + " - Contents</title>");
         out.println("  </head>");
         out.println("  <body>");
@@ -233,5 +236,21 @@ public class ManualWriter {
      */
     public String getFileName(String className) {
         return className.replace('.', '/') + ".html";
+    }
+    
+    /**
+     * Get the index file. This is a reference back and will depend
+     * on the package depth.
+     * 
+     * @return The file name.
+     */
+    public static String getIndexFile(String className) {
+    	
+    	String path = "";
+    	int start = 0;
+    	while ((start = className.indexOf('.', start) + 1) > 0) {
+    		path = path + "../";
+    	}
+    	return path + "index.html";
     }
 }
