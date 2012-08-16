@@ -10,7 +10,7 @@
 				</oddjob>
 				
 				<jmx:server id='server1' url='service:jmx:rmi://' root='${oj}' />
-				<jmx:client id='client1' url='${server1.address}' />
+				<jmx:client id='client1' connection='${server1.address}' />
 		
 				<echo>${client1/oj/fruit.text}</echo>
 				<set>

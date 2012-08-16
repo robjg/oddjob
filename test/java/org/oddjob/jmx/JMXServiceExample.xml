@@ -4,7 +4,7 @@
         <sequential id="sequential">
             <jobs>
                 <jmx:service id="jmx-service" 
-                  url="localhost:13013" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                  connection="localhost:13013" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
                 <echo id="echo-farm"><![CDATA[${jmx-service/"fruit:service=vendor,name=Pickles".Farm}]]></echo>
                 <set>
                     <values>

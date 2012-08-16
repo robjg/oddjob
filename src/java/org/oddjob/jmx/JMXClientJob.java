@@ -113,6 +113,18 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	 */
 	private long logPollingInterval = 5000;
 	
+	/** 
+	 * @oddjob.property url
+	 * @oddjob.description This property is now deprecated in favour of 
+	 * connection which reflects that the connection string no longer need 
+	 * not only be a full JMX URL. 
+	 * @oddjob.required No.
+	 */
+	@Deprecated
+	public void setUrl(String url) {
+		setConnection(url);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.oddjob.logging.LogArchiver#addLogListener(org.oddjob.logging.LogListener, java.lang.String, org.oddjob.logging.LogLevel, long, long)
 	 */

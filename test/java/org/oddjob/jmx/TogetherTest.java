@@ -250,7 +250,7 @@ public class TogetherTest extends TestCase {
 		String clientXml = 
 			"<oddjob id='this' xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" +
 			" <job>" +
-			"    <jmx:client id='client' name='Client' url='${this.args[0]}'/>" +
+			"    <jmx:client id='client' name='Client' connection='${this.args[0]}'/>" +
 			" </job>" +
 			"</oddjob>";
 			

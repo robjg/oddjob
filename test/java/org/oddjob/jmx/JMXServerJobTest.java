@@ -111,7 +111,7 @@ public class JMXServerJobTest extends TestCase {
 		server.start();
 		
 		JMXClientJob client = new JMXClientJob();
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.setArooaSession(new StandardArooaSession());
 	
 		client.run();
@@ -164,7 +164,7 @@ public class JMXServerJobTest extends TestCase {
 		JMXClientJob client = new JMXClientJob();
 		server1Session.registry.register("client", client);
 		client.setArooaSession(server1Session);
-		client.setUrl(server2.getAddress());
+		client.setConnection(server2.getAddress());
 		client.run();
 
 		// server1
@@ -231,7 +231,7 @@ public class JMXServerJobTest extends TestCase {
 		// client
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl((String) new OddjobLookup(oj).lookup("server.address"));
+		client.setConnection((String) new OddjobLookup(oj).lookup("server.address"));
 		client.run();
 
 		oj.setConfiguration(new XMLConfiguration("TEST", xml));
@@ -321,7 +321,7 @@ public class JMXServerJobTest extends TestCase {
 		// client
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 
 		Object proxy = ChildHelper.getChildren(client)[0];
@@ -356,7 +356,7 @@ public class JMXServerJobTest extends TestCase {
 		// client
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 		
 		Object proxy = ChildHelper.getChildren(client)[0];

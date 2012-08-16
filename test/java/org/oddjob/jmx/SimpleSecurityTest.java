@@ -88,7 +88,7 @@ public class SimpleSecurityTest extends TestCase {
 		credentials.setPassword("password");
 		
 		JMXClientJob client = new JMXClientJob();
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.setArooaSession(new StandardArooaSession());
 		client.setEnvironment(credentials.toValue());		
 		client.run();
@@ -157,7 +157,7 @@ public class SimpleSecurityTest extends TestCase {
 		credentials.setPassword("rainbow1");
 		
 		JMXClientJob client = new JMXClientJob();
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.setArooaSession(new StandardArooaSession());
 		client.setEnvironment(credentials.toValue());		
 		client.run();

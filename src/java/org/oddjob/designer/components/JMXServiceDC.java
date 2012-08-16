@@ -17,49 +17,34 @@ import org.oddjob.arooa.parsing.ArooaElement;
 /**
  *
  */
-public class ClientDC implements DesignFactory {
+public class JMXServiceDC implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
 
-		return new ClientDesign(element, parentContext);
+		return new JMXServiceDesign(element, parentContext);
 	}
 		
 }
 
-class ClientDesign extends BaseDC {
+class JMXServiceDesign extends BaseDC {
 
 	private final SimpleTextAttribute connection;
 	
 	private final SimpleDesignProperty environment;
 	
-	private final SimpleTextAttribute heartbeat;
 	
-	private final SimpleTextAttribute maxLoggerLines;
-	
-	private final SimpleTextAttribute maxConsoleLines;
-	
-	private final SimpleTextAttribute logPollingInterval;
-	
-	public ClientDesign(ArooaElement element, ArooaContext parentContext) {
+	public JMXServiceDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
 		connection = new SimpleTextAttribute("connection", this);
 		
 		environment = new SimpleDesignProperty("environment", this);
 		
-		heartbeat = new SimpleTextAttribute("heartbeat", this);
-		
-		maxLoggerLines = new SimpleTextAttribute("maxLoggerLines", this);
-		
-		maxConsoleLines = new SimpleTextAttribute("maxConsoleLines", this);
-
-		logPollingInterval = new SimpleTextAttribute("logPollingInterval", this);
 	}
 	
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, connection, environment, 
-				heartbeat, maxLoggerLines, maxConsoleLines, logPollingInterval };
+		return new DesignProperty[] { name, connection, environment };
 	}
 	
 	
@@ -71,13 +56,7 @@ class ClientDesign extends BaseDC {
 				.add(connection.view().setTitle("Connection"))
 				.add(environment.view().setTitle("Environment"))
 			)
-		.addFormItem(
-				new BorderedGroup("Advanced")
-				.add(heartbeat.view().setTitle("Heartbeat Interval"))
-				.add(maxLoggerLines.view().setTitle("Log Lines"))
-				.add(maxConsoleLines.view().setTitle("Console Lines"))
-				.add(logPollingInterval.view().setTitle("Log Interval"))
-			);
+		;
 	}
 		
 }

@@ -72,11 +72,11 @@ implements Runnable, Stateful, Resetable,
 	 * @oddjob.description The JMX service URL. This is can be either
 	 * the full blown convoluted JMX Service URL starting 
 	 * <code>service.jmx....</code> or it can just be the last part of the
-	 * form <code>hostname[:port][/instance-name].
+	 * form <code>hostname[:port][/instance-name]</code>.
 	 * @oddjob.required No. If not provided the client connects to the Platform 
-	 * MBean Server for the current VM. This is really only useful for testing.
+	 * MBean Server for the current VM.
 	 */
-	private String url;
+	private String connection;
 
 	/** The connector */ 
 	private JMXConnector cntor; 
@@ -171,15 +171,15 @@ implements Runnable, Stateful, Resetable,
 	 */
 	protected void onStart() throws Exception {
 		MBeanServerConnection mbsc;
-		if (url == null) {
+		if (connection == null) {
 			logger().info("Connecting to the Platform MBean Server...");
 			
 			mbsc = ManagementFactory.getPlatformMBeanServer();
 		}
 		else {
-			logger().info("Connecting to [" + url + "] ...");
+			logger().info("Connecting to [" + connection + "] ...");
 			
-			JMXServiceURL address = new JMXServiceURLHelper().parse(url);
+			JMXServiceURL address = new JMXServiceURLHelper().parse(connection);
 			cntor = JMXConnectorFactory.connect(address, environment);
 			mbsc = cntor.getMBeanServerConnection();
 		}
@@ -321,10 +321,10 @@ implements Runnable, Stateful, Resetable,
 	/**
 	 * Set naming service url.
 	 * 
-	 * @param url The name of the remote node in the naming service.
+	 * @param connection The name of the remote node in the naming service.
 	 */
-	public void setUrl(String lookup) {		
-		this.url = lookup;
+	public void setConnection(String lookup) {		
+		this.connection = lookup;
 	}
 	
 	/**
@@ -332,8 +332,8 @@ implements Runnable, Stateful, Resetable,
 	 * 
 	 * @return The name of the remote node in the naming service.
 	 */
-	public String getUrl() {		
-		return url;
+	public String getConnection() {		
+		return connection;
 	}
 
 	public Map<String, ?> getEnvironment() {

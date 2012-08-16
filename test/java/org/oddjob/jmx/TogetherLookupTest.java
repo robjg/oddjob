@@ -44,7 +44,7 @@ public class TogetherLookupTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(address);
+		client.setConnection(address);
 		
 		client.run();
 		
@@ -103,7 +103,7 @@ public class TogetherLookupTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(address);
+		client.setConnection(address);
 		
 		client.run();
 		
@@ -153,7 +153,7 @@ public class TogetherLookupTest extends TestCase {
 			"    <jmx:server id='server1'" +
 			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
 			"            root='${fruit}' />" +
-			"    <jmx:client id='fruit' url='${this.args[0]}' />" +
+			"    <jmx:client id='fruit' connection='${this.args[0]}' />" +
 			"   </jobs>" +
 			"  </sequential>" +
 			" </job>" +
@@ -173,7 +173,7 @@ public class TogetherLookupTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(address1);
+		client.setConnection(address1);
 		
 		client.run();
 		

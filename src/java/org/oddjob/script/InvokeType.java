@@ -18,14 +18,12 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 
 /**
- * @oddjob.description Invoke a java method or script snippet.
+ * @oddjob.description Invoke a java method or script snippet, 
+ * or JMX operation.
  * <p>
  * For a script, the source must be a <code>javax.script.Invocable</code>
  * object.
  * <p>
- * For a java method, the source specifies the object on which to invoke the
- * method. If the source is a class then the static method of the class is 
- * invoked.
  * 
  * @oddjob.example
  * 
@@ -76,7 +74,7 @@ implements ArooaValue, ArooaSessionAware {
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The function/method to call. 
+	 * @oddjob.description The function/method/operation to call. 
 	 * @oddjob.required Yes.
 	 */
 	private String function;

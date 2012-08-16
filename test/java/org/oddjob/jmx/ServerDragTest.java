@@ -105,7 +105,7 @@ public class ServerDragTest extends XMLTestCase {
 		ArooaSession clientSession = new StandardArooaSession();
 				
 		client = new JMXClientJob();
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.setArooaSession(clientSession);
 		
 		ComponentPool clientPool = clientSession.getComponentPool();

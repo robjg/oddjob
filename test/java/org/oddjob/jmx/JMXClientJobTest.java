@@ -146,7 +146,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 		
 		Object[] children = Helper.getChildren(client);
@@ -190,7 +190,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();			
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(address);
+		client.setConnection(address);
 		
 		client.run();
 
@@ -245,7 +245,7 @@ public class JMXClientJobTest extends TestCase {
 			
 			final JMXClientJob client = new JMXClientJob();			
 			client.setArooaSession(new StandardArooaSession());
-			client.setUrl(address);
+			client.setConnection(address);
 		
 			final int index = i;
 			
@@ -345,7 +345,7 @@ public class JMXClientJobTest extends TestCase {
 
 		server.start();
 		
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 		
 		DynaBean bean = (DynaBean) clientSession.registry.lookup("client/echo");
@@ -416,7 +416,7 @@ public class JMXClientJobTest extends TestCase {
 		JMXClientJob client = new JMXClientJob(); 
 		client.setArooaSession(localSession);
 		
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 		
 		// test we can look up a component in a nested registry.
@@ -467,7 +467,7 @@ public class JMXClientJobTest extends TestCase {
 		client.setArooaSession(new StandardArooaSession());
 		
 		Object server = new OddjobLookup(oddjob).lookup("server");
-		client.setUrl((String) PropertyUtils.getProperty(
+		client.setConnection((String) PropertyUtils.getProperty(
 				server, "address"));
 
 		client.run();
@@ -582,7 +582,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.run();
 		
 		Object[] children = Helper.getChildren(client);
@@ -705,7 +705,7 @@ public class JMXClientJobTest extends TestCase {
     		"<oddjob>" +
     		" <job>" +
     		"  <jmx:client xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " + 
-    		" id='client' url='${server-address}'/>" +
+    		" id='client' connection='${server-address}'/>" +
     		" </job>" +
     		"</oddjob>";
     	

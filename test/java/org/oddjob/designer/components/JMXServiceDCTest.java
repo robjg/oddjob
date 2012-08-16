@@ -18,13 +18,13 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jmx.JMXClientJob;
+import org.oddjob.jmx.JMXServiceJob;
 
 /**
  *
  */
-public class ClientDCTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(ClientDCTest.class);
+public class JMXServiceDCTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(JMXServiceDCTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -35,15 +35,13 @@ public class ClientDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<jmx:client xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " +
+				"<jmx:service xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " +
 				"  name='Test'" +
-				"  connection='localhost:2012'" +
-				"  heartbeat='5000' logPollingInterval='3000'" +
-				"  maxConsoleLines='200' maxLoggerLines='300'>" +
+				"  connection='localhost:2012'>" +
 				"  <environment>" +
 				"   <jmx:client-credentials username='username' password='password'/>" +
 				"  </environment>" +
-				"</jmx:client>";
+				"</jmx:service>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -57,17 +55,13 @@ public class ClientDCTest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		assertEquals(ClientDesign.class, design.getClass());
+		assertEquals(JMXServiceDesign.class, design.getClass());
 		
-		JMXClientJob test = (JMXClientJob) Helper.createComponentFromConfiguration(
+		JMXServiceJob test = (JMXServiceJob) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
 		assertEquals("localhost:2012", test.getConnection());
-		assertEquals(5000, test.getHeartbeat());
-		assertEquals(3000, test.getLogPollingInterval());
-		assertEquals(200, test.getMaxConsoleLines());
-		assertEquals(300, test.getMaxLoggerLines());
 		
 		Map<String, ?> env = test.getEnvironment();
 		String[] credentials = (String[]) env.get("jmx.remote.credentials");
@@ -78,7 +72,7 @@ public class ClientDCTest extends TestCase {
 
 	public static void main(String args[]) throws ArooaParseException {
 
-		ClientDCTest test = new ClientDCTest();
+		JMXServiceDCTest test = new JMXServiceDCTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);

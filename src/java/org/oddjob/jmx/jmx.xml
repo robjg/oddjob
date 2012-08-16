@@ -14,8 +14,8 @@
             className='org.oddjob.jmx.JMXServerJob' 
             designFactory='org.oddjob.designer.components.ServerDC'/>
         <arooa:bean-def element='service'
-            className='org.oddjob.jmx.JMXServiceJob' 
-            designFactory='org.oddjob.designer.components.ClientDC'/>
+            className='org.oddjob.jmx.JMXServiceJob'
+            designFactory='org.oddjob.designer.components.JMXServiceDC'/>
         
     </components>
 </arooa:descriptor>

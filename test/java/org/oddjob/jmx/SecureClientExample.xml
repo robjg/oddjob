@@ -1,5 +1,5 @@
 <jmx:client xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"
-    url="service:jmx:rmi:///jndi/rmi://localhost/my-oddjob">
+    connection="localhost/my-oddjob">
     <environment>
         <jmx:client-credentials username="username"
             password="password"/>

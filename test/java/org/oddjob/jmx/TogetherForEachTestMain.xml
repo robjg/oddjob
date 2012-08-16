@@ -12,7 +12,7 @@
 							</configuration>
 						</oddjob>
 						<jmx:server id='server' url='service:jmx:rmi://' root='${oj}' />
-                        <jmx:client id='client' url='${server.address}'/>
+                        <jmx:client id='client' connection='${server.address}'/>
 					</jobs>
 				</sequential>
 			</jobs>

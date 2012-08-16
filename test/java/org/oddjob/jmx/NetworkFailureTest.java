@@ -54,7 +54,7 @@ public class NetworkFailureTest extends TestCase {
 		server.start();
 		
 		JMXClientJob client = new JMXClientJob();
-		client.setUrl(server.getAddress());
+		client.setConnection(server.getAddress());
 		client.setArooaSession(new StandardArooaSession());
 		client.setHeartbeat(500);
 		

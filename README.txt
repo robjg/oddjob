@@ -3,7 +3,9 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
-- JMX client URLs can now connect with just hostname:port in the URL.
+- JMX client URLs can now connect with just hostname:port in the URL. The
+  client 'url' property has been renamed 'connection' to reflect that it
+  doesn't just have to be an URL.
 - Introduced a new jmx:service job that exposes attributes and operations
   of MBeans for getting and setting and invoking by other Oddjob jobs.
 - Introduced a new Invoker interface for more general invocations of 

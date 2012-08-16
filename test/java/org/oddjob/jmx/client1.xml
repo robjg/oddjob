@@ -3,7 +3,7 @@
 		<sequential>
 			<jobs>
 				<echo>${this.args[0]}</echo>
-				<jmx:client id='client' url='${this.args[0]}' />
+				<jmx:client id='client' connection='${this.args[0]}' />
 				<echo id='echo'>${client/fruit.text}</echo>
 			</jobs>
 		</sequential>

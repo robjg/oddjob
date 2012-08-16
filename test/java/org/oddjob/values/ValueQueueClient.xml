@@ -18,7 +18,7 @@
                         </input>
                     </jobs>
                 </state:if>
-                <jmx:client id="remote" url="service:jmx:rmi:///jndi/rmi://localhost/my-queue-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <jmx:client id="remote" connection="localhost/my-queue-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
                 <echo><![CDATA[Sending ${value.to.queue} to ${remote/queue}]]></echo>
                 <set name="Add Value To Job Queue">
                     <values>

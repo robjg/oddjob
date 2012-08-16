@@ -56,7 +56,7 @@ public class IconicTest extends TestCase {
 		
 		JMXClientJob client = new JMXClientJob();
 		client.setArooaSession(new StandardArooaSession());
-		client.setUrl(address);
+		client.setConnection(address);
 		
 		client.run();
 		

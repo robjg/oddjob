@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.framework.SerializableJob;
+import org.oddjob.jmx.JMXServiceJob;
 
 /**
  * 
@@ -16,6 +17,21 @@ import org.oddjob.framework.SerializableJob;
  * <p>
  * This is a wrapper for {@link InvokeType}. The result of the
  * invocation is placed in the <code>result</code> property.
+ * 
+ * @oddjob.example
+ * 
+ * Invoking a method on a bean.
+ * 
+ * {@oddjob.xml.resource org/oddjob/script/InvokeJobMethod.xml}
+ *
+ * Where <code>EchoService</code> is:
+ * 
+ * {@oddjob.java.resource org/oddjob/script/EchoService.java}
+ * 
+ * @oddjob.example
+ *
+ * Examples elsewhere. The {@link JMXServiceJob} job has an example of 
+ * invoking a JMX operation.
  * 
  * @author rob
  *
@@ -41,7 +57,7 @@ public class InvokeJob extends SerializableJob {
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The values to use as arguments. 
-	 * @oddjob.required Must match the expected arguments..
+	 * @oddjob.required Must match the expected arguments.
 	 */
 	private transient List<ArooaValue> parameters;	
 	
