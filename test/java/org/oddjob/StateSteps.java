@@ -125,11 +125,14 @@ public class StateSteps {
 		if (!listener.isDone()) {
 			synchronized(listener) {
 				listener.wait(timeout);
+				logger.info("Timeout!" +
+						" on [" + stateful + "] to have states " + 
+						Arrays.toString(listener.steps));
 			}
 		}
 		
 		checkNow();
-		logger.info("Waiting complete");
+		logger.info("Waiting complete on [" + stateful + "]");
 	}
 
 	public long getTimeout() {

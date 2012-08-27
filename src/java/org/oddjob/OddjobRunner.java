@@ -2,6 +2,7 @@ package org.oddjob;
 
 import org.apache.log4j.Logger;
 import org.oddjob.state.IsStoppable;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
@@ -37,20 +38,11 @@ public class OddjobRunner {
 		this.oddjob = oddjob;
 		
 		String timeoutProperty = System.getProperty(KILLER_TIMEOUT_PROPERTY);
-		long timeout = 0L;
-		if (timeoutProperty != null) {
-			try {
-				timeout = new Long(timeoutProperty).longValue();
-			} catch (NumberFormatException e) {
-				logger.debug("Unparseable timeout property " + 
-						timeoutProperty);
-			}
-		}
-		if (timeout == 0L) {
+		if (timeoutProperty == null) {
 			killerTimeout = DEFAULT_KILLER_TIMEOUT;
 		}
 		else {
-			killerTimeout = timeout;
+			killerTimeout = Long.parseLong(timeoutProperty);
 		}
 	}
 	
@@ -110,8 +102,10 @@ public class OddjobRunner {
 		 * @see java.lang.Thread#run()
 		 */
 		public void run() {
-			
+
 			logger.info("Shutdown Hook Executing.");
+			
+			setDaemon(true);
 			
 			// killer will just kill process if we can't stop in 15 sec
 			killer = new Thread(new Runnable() {
@@ -135,9 +129,7 @@ public class OddjobRunner {
 			logger.debug("Starting killer thread.");
 			killer.setDaemon(true);
 			killer.start();
-			
-			// remember the last job event because we can't get it once
-			// Oddjob is destroyed.
+
 			StateEvent lastStateEvent = oddjob.lastStateEvent();
 
 			if (lastStateEvent.getState().isStoppable()) {
@@ -147,7 +139,9 @@ public class OddjobRunner {
 					oddjob.stop();
 					lastStateEvent = oddjob.lastStateEvent();
 				} catch (FailedToStopException e) {
-					logger.error(e.getMessage());
+					logger.error("Failed to stop Oddjob", e);
+					lastStateEvent = new StateEvent(
+							oddjob, ParentState.EXCEPTION, e);
 				}
 			}
 			
@@ -175,5 +169,4 @@ public class OddjobRunner {
 			}
 		}
 	}
-
 }

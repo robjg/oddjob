@@ -295,7 +295,9 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 			}
 			@Override
 			public E next() {
-				return next;
+				synchronized (missed) {
+					return next;
+				}
 			}
 			@Override
 			public void remove() {

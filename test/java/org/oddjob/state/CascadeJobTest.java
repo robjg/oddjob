@@ -347,9 +347,13 @@ public class CascadeJobTest extends TestCase {
 		DefaultExecutors executors = new DefaultExecutors();
 		
 		WaitJob job1 = new WaitJob();
+		job1.setName("Wait-1");
 		WaitJob job2 = new WaitJob();
+		job2.setName("Wait-2");
 		WaitJob job3 = new WaitJob();
+		job3.setName("Wait-3");
 		WaitJob job4 = new WaitJob();
+		job4.setName("Wait-4");
 				
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
