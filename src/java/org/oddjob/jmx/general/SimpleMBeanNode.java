@@ -19,6 +19,7 @@ import javax.management.MBeanParameterInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
 import javax.swing.ImageIcon;
 
 import org.apache.commons.beanutils.DynaBean;
@@ -227,7 +228,14 @@ public class SimpleMBeanNode implements
 	@Override
 	public Object get(String name) {
 		try {
-			return mBeanServer.getAttribute(objectName, name);
+			Object result = mBeanServer.getAttribute(objectName, name);
+			if (result instanceof CompositeData) {
+				return new CompositeDataDynaBean(
+						(CompositeData) result);
+			}
+			else {
+				return result;
+			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to get attribute " + name,
 					e);

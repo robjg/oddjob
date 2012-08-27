@@ -103,4 +103,22 @@ public class SimpleMBeanNodeTest extends TestCase {
 		assertTrue(builder.length() > 0);
 	}
 	
+	public void testGetMemory() throws Exception {
+		
+		SimpleMBeanNode test = new SimpleMBeanNode(
+				new ObjectName("java.lang:type=Memory"), mBeanServer, 
+				new ClassLoaderClassResolver(getClass().getClassLoader()));
+		
+		BeanUtilsPropertyAccessor accessor = new BeanUtilsPropertyAccessor();
+		
+		Object heapMemory = accessor.getProperty(test, "HeapMemoryUsage");
+		
+		assertEquals("CompositeData: [committed, init, max, used]", 
+				heapMemory.toString());
+		
+		Long used = accessor.getProperty(test, 
+				"HeapMemoryUsage.used", Long.class);
+		
+		assertTrue(used.longValue() > 0L);
+	}
 }

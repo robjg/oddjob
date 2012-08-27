@@ -1,8 +1,9 @@
 package org.oddjob;
 
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.util.OddjobLockTimeoutException;
 
 
 /**
@@ -14,30 +15,40 @@ import org.oddjob.state.StateEvent;
  * 
  * @author Rob Gordon
  */
-
 public interface Stateful {
 
 	/**
 	 * Add a job state listener.
 	 * 
 	 * @param listener The listener.
+	 * 
+	 * @throws OddjobLockTimeoutException If the state lock can't be acquired 
+	 * within the default timeout period.
+	 * @throw JobDestroyedException If state is already destroyed.
 	 */
-
-	public void addStateListener(StateListener listener) throws JobDestroyedException;
+	public void addStateListener(StateListener listener) 
+	throws JobDestroyedException, OddjobLockTimeoutException;
 
 	/**
 	 * Remove a job state listener.
 	 * 
 	 * @param listener The listener.
-	 */
-	
-	public void removeStateListener(StateListener listener);
+	 * 
+	 * @throws OddjobLockTimeoutException If the state lock can't be acquired 
+	 * within the default timeout period.
+	 */	
+	public void removeStateListener(StateListener listener)
+	throws OddjobLockTimeoutException;
 
 	/**
-	 * Get the last job state event.
+	 * Get the last state event.
 	 * 
-	 * @return
+	 * @return The last State Event
+	 * 
+	 * @throws OddjobLockTimeoutException If the state lock can't be acquired 
+	 * within the default timeout period.
+	 * 
 	 */
-	public StateEvent lastStateEvent();
+	public StateEvent lastStateEvent() throws OddjobLockTimeoutException;
 	
 }

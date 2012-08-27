@@ -122,7 +122,6 @@ implements ComponentWrapper, Serializable, Forceable {
 		
 		ComponentBoundry.push(loggerName(), wrapped);
 		try {
-			thread = Thread.currentThread();
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(JobState.EXECUTING);
@@ -137,6 +136,8 @@ implements ComponentWrapper, Serializable, Forceable {
 				new AtomicReference<Throwable>();
 			final AtomicReference<Object> callableResult = 
 				new AtomicReference<Object>();	
+			
+			thread = Thread.currentThread();
 			try {
 				configure();
 				
@@ -155,6 +156,9 @@ implements ComponentWrapper, Serializable, Forceable {
 				logger().error("Exception:", t);
 				exception.set(t);
 			} finally {
+				if (Thread.interrupted()) {
+					logger().debug("Clearing thread interrupted flag.");
+				}
 				thread = null;
 			}
 			
@@ -183,7 +187,6 @@ implements ComponentWrapper, Serializable, Forceable {
 				}
 			});
 		} finally {
-			thread = null;
 			ComponentBoundry.pop();
 		}
 	}
@@ -195,7 +198,7 @@ implements ComponentWrapper, Serializable, Forceable {
 		} else {
 			Thread t = thread;
 			if (t != null){
-				thread.interrupt();
+				t.interrupt();
 			}
 		}
 	}

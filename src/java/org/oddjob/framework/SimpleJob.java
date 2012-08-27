@@ -187,10 +187,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 			try {
 				onStop();
 				
-				synchronized (this) {
-					notifyAll();
-				}
-				
 				new StopWait(this).run();
 				
 				logger().info("Stopped.");

@@ -97,6 +97,10 @@ public class OddjobRunner {
 		 * cleanly. */
 		private Thread killer;
 		
+		public ShutdownHook() {
+			setDaemon(true);
+		}
+		
 		/*
 		 * (non-Javadoc)
 		 * @see java.lang.Thread#run()
@@ -104,8 +108,6 @@ public class OddjobRunner {
 		public void run() {
 
 			logger.info("Shutdown Hook Executing.");
-			
-			setDaemon(true);
 			
 			// killer will just kill process if we can't stop in 15 sec
 			killer = new Thread(new Runnable() {

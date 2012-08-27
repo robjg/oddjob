@@ -15,6 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
+import org.oddjob.util.OddjobLockTimeoutException;
 import org.oddjob.util.OddjobLockedException;
 
 
@@ -29,6 +30,17 @@ implements Stateful, StateLock {
 	
 	private static final Logger logger = Logger.getLogger(StateHandler.class);
 	
+	/** Lock timeout property. */
+	public static final String LOCK_TIMEOUT_PROPERTY = 
+			"oddjob.lock.timeout";
+	
+	/** Default lock timeout is 5 seconds. */
+	public static final long DEFAULT_LOCK_TIMEOUT = 5000;
+	
+	/** Lock timeout. */
+	private final long lockTimeout;
+
+	/** The ready state for this handler. */
 	private final S readyState;
 	
 	/** The source. */
@@ -60,23 +72,33 @@ implements Stateful, StateLock {
 	private final Condition alarm = lock.newCondition();
 	
 	/**
-	 * Constrctor.
+	 * Constructor.
 	 * 
 	 * @param source The source for events.
+	 * @param readyState The ready state.
 	 */
 	public StateHandler(Stateful source, S readyState) {
 		this.source = source;
 		lastEvent = new StateEvent(source, readyState, null);
 		this.readyState = readyState;
+		
+		String timeoutProperty = System.getProperty(LOCK_TIMEOUT_PROPERTY );
+		if (timeoutProperty == null) {
+			lockTimeout = DEFAULT_LOCK_TIMEOUT;
+		}
+		else {
+			lockTimeout = Long.parseLong(timeoutProperty);
+		}
 	}	
 	
 	/**
 	 * Get the last event.
 	 * 
 	 * @return The last event.
+	 * @throws OddjobLockTimeoutException 
 	 */
 	@Override
-	public StateEvent lastStateEvent() {
+	public StateEvent lastStateEvent() throws OddjobLockTimeoutException {
 		final AtomicReference<StateEvent> result = 
 			new AtomicReference<StateEvent>();
 		waitToWhen(new IsAnyState(), new Runnable() {
@@ -153,8 +175,11 @@ implements Stateful, StateLock {
 	
 	/**
 	 * Return the current state of the job.
+	 * 
+	 * @throws OddjobLockTimeoutException If the state lock can't be 
+	 * acquired in the timeout period.
 	 */
-	public State getState() {
+	public State getState() throws OddjobLockTimeoutException {
 		final AtomicReference<State> result = new AtomicReference<State>();
 		waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
@@ -185,8 +210,14 @@ implements Stateful, StateLock {
 
 	public boolean tryToWhen(StateCondition when, Runnable runnable) 
 	throws OddjobLockedException {
-		if (!lock.tryLock()) {
-			throw new OddjobLockedException(lock.toString());
+		try {
+			// Use a 0 timeout to honour fairness.
+			if (!lock.tryLock(0, TimeUnit.MILLISECONDS)) {
+				throw new OddjobLockedException(lock.toString());
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException("StateLock interrupted.");
 		}
 		try {
 			return doWhen(when, runnable);
@@ -196,15 +227,23 @@ implements Stateful, StateLock {
 		}
 	}
 
-	public boolean waitToWhen(StateCondition when, Runnable runnable) {
-		lock.lock();
+	public boolean waitToWhen(StateCondition when, Runnable runnable) 
+	throws OddjobLockTimeoutException {
+		try {
+			// Use a 0 timeout to honour fairness.
+			if (!lock.tryLock(lockTimeout, TimeUnit.MILLISECONDS)) {
+				throw new OddjobLockTimeoutException(lock.toString());
+			}
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new RuntimeException("StateLock interrupted.");
+		}
 		try {
 			return doWhen(when, runnable);
 		}
 		finally {
 			lock.unlock();
 		}
-		
 	}
 
 	/**
@@ -214,7 +253,8 @@ implements Stateful, StateLock {
 	 * @param when
 	 * @param runnable
 	 * 
-	 * @return
+	 * @return true if the test is true and the work is done, false 
+	 * otherwise.
 	 */
 	private boolean doWhen(StateCondition when, Runnable runnable) {
 		if (when.test(lastEvent.getState())) {			
@@ -259,9 +299,12 @@ implements Stateful, StateLock {
 	 * notification twice. 
 	 * 
 	 * @param listener The listener.
+	 * 
 	 * @throws JobDestroyedException 
+	 * @throws OddjobLockTimeoutException 
 	 */			
-	public void addStateListener(final StateListener listener) throws JobDestroyedException {
+	public void addStateListener(final StateListener listener) 
+	throws JobDestroyedException, OddjobLockTimeoutException {
 		assertAlive();
 		
 		waitToWhen(new IsAnyState(), new Runnable() {
@@ -285,8 +328,10 @@ implements Stateful, StateLock {
 	 * Remove a job state listener.
 	 * 
 	 * @param listener The listener.
+	 * @throws OddjobLockTimeoutException 
 	 */
-	public void removeStateListener(final StateListener listener) {
+	public void removeStateListener(final StateListener listener) 
+	throws OddjobLockTimeoutException {
 		waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
 			public void run() {
@@ -298,8 +343,9 @@ implements Stateful, StateLock {
 	/**
 	 * The number of listeners.
 	 * @return
+	 * @throws OddjobLockTimeoutException 
 	 */
-	public int listenerCount() {
+	public int listenerCount() throws OddjobLockTimeoutException {
 		final AtomicInteger size = new AtomicInteger();
 		waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
@@ -314,7 +360,7 @@ implements Stateful, StateLock {
 	 * Override toString.
 	 */
 	public String toString() {
-		return "JobStateHandler( " + getState().toString() + " )"; 
+		return "JobStateHandler( " + lastEvent.getState() + " )"; 
 	}
 
 	/**
