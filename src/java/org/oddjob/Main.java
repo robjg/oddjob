@@ -221,6 +221,14 @@ public class Main {
 		return theFile;
 	}
 	
+	/**
+	 * Process the properties in oddjob.properties in the users
+	 * home directory.
+	 * 
+	 * @return The properties. Null if there aren't any.
+	 * 
+	 * @throws IOException
+	 */
 	protected Properties processUserProperties() throws IOException {
 		
 		String homeDir = System.getProperty("user.home");		

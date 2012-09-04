@@ -2,6 +2,7 @@ package org.oddjob.state;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -80,43 +81,52 @@ public class StructuralStateHelper implements Stateful {
 		// Add a listener that tracks child changes.
 		structural.addStructuralListener(
 				new StructuralListener() {
-			public void childAdded(StructuralEvent event) {
-				synchronized(states) {
-					int index = event.getIndex();
-					Object child = event.getChild();
-	
-					StateHolder stateHolder = new StateHolder();
-	
-					ChildStateListener listener = new ChildStateListener(stateHolder);
-					listeners.add(index, listener);
 					
-					states.add(index, stateHolder);
-	
-					if (child instanceof Stateful) {
-						((Stateful) child).addStateListener(listener);
+			@Override
+			public void childAdded(final StructuralEvent event) {
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					@Override
+					public void run() {
+						int index = event.getIndex();
+						Object child = event.getChild();
+		
+						StateHolder stateHolder = new StateHolder();
+		
+						ChildStateListener listener = new ChildStateListener(stateHolder);
+						listeners.add(index, listener);
+						
+						states.add(index, stateHolder);
+		
+						if (child instanceof Stateful) {
+							((Stateful) child).addStateListener(listener);
+						}
+						else {
+							checkStates();
+						}
 					}
-					else {
-						checkStates();
-					}
-				}
+				});
 			}
 				
-			public void childRemoved(StructuralEvent event) {
-				synchronized(states) {					
-					int index = event.getIndex();
-					Object child = event.getChild();
+			@Override
+			public void childRemoved(final StructuralEvent event) {
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					@Override
+					public void run() {
+						int index = event.getIndex();
+						Object child = event.getChild();
 
 
-					StateListener listener = listeners.remove(index);
+						StateListener listener = listeners.remove(index);
 
-					if (child instanceof Stateful) {
-						((Stateful) child).removeStateListener(listener);
+						if (child instanceof Stateful) {
+							((Stateful) child).removeStateListener(listener);
+						}
+
+						states.remove(index);
+
+						checkStates();
 					}
-
-					states.remove(index);
-
-					checkStates();
-				}
+				});
 			}				
 		});
 	}
@@ -157,14 +167,17 @@ public class StructuralStateHelper implements Stateful {
 	}
 	
 	public State[] getChildStates() {
-		synchronized(states) {
-			State[] array = new State[states.size()];
-			int i = 0;
-			for (StateHolder holder : states) {
-				array[i++] = holder.state;
+		
+		return stateHandler.callLocked(new Callable<State[]>() {
+			@Override
+			public State[] call() throws Exception {
+				State[] array = new State[states.size()];
+				int i = 0;
+				for (StateHolder holder : states) {
+					array[i++] = holder.state;
+				}
+				return array;
 			}
-			return array;
-		}
+		});
 	}
-	
 }

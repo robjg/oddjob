@@ -52,10 +52,6 @@ public class OrderedStateChanger<S extends State> implements StateChanger<S> {
 	}
 	
 	private void runLocked(Runnable runnable) {
-		try {
-			stateLock.waitToWhen(new IsAnyState(), runnable);
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
-		}
+		stateLock.waitToWhen(new IsAnyState(), runnable);
 	}
 }

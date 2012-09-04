@@ -123,7 +123,7 @@ public class TransportableComponentTest extends TestCase {
 		// client side.
 		ClientSession clientSession = new ClientSessionImpl(				
 				mbs, 
-				new DummyNotificationProcessor(logger),
+				new DummyNotificationProcessor(),
 				new OurArooaSession(),
 				logger);
 		

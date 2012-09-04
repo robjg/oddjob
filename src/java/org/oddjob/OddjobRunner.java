@@ -8,6 +8,9 @@ import org.oddjob.state.StateListener;
 
 /**
  * A Wrapper for running Oddjob that ensures a smooth shutdown.
+ * <p>
+ * If Oddjob doesn't terminate then a timeout will just kill the JVM. The
+ * timeout is configurable but defaults to 15 seconds.
  * 
  * @author rob
  *
@@ -89,17 +92,18 @@ public class OddjobRunner {
 	
 	/**
 	 * Oddjob's shutdown hook.
+	 * <p>
+	 * This Class has evolved quite a lot though trial and error due to
+	 * a lack of understanding of JVM shutdown. Should this thread be a
+	 * daemon? Current thinking is no because you don't want other daemon
+	 * threads to terminate until Oddjob has been shutdown properly.
 	 *
 	 */
-	class ShutdownHook extends Thread {
+	class ShutdownHook extends OddjobShutdownThread {
 		
 		/** Killer thread will forcibly halt Oddjob if it hasn't terminated
 		 * cleanly. */
 		private Thread killer;
-		
-		public ShutdownHook() {
-			setDaemon(true);
-		}
 		
 		/*
 		 * (non-Javadoc)

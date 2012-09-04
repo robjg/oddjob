@@ -3,19 +3,22 @@
  */
 package org.oddjob.jmx.client;
 
-import org.apache.log4j.Logger;
+import java.util.concurrent.Future;
+
+import org.oddjob.scheduling.MockScheduledExecutorService;
+import org.oddjob.scheduling.MockScheduledFuture;
 
 /**
  * Dummy NotificationProcessor.
  *
  */
-public class DummyNotificationProcessor extends SimpleNotificationProcessor {
+public class DummyNotificationProcessor 
+extends MockScheduledExecutorService {
 
-	public DummyNotificationProcessor(Logger logger) {
-		super(logger);
+	@Override
+	public Future<?> submit(Runnable task) {
+		task.run();
+		return new MockScheduledFuture<Void>();
 	}
 	
-	public synchronized void enqueue(Runnable o) {
-		o.run();
-	}
 }

@@ -178,7 +178,7 @@ public class ClientNodeTest extends TestCase {
 		
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		
@@ -201,7 +201,7 @@ public class ClientNodeTest extends TestCase {
 		
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		
@@ -251,7 +251,7 @@ public class ClientNodeTest extends TestCase {
 		
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		
@@ -405,7 +405,7 @@ public class ClientNodeTest extends TestCase {
 
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		
@@ -471,7 +471,7 @@ public class ClientNodeTest extends TestCase {
 
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		
@@ -532,7 +532,7 @@ public class ClientNodeTest extends TestCase {
 		
 		ClientSessionImpl clientSession = new ClientSessionImpl(
 				mbs, 
-				new DummyNotificationProcessor(logger), 
+				new DummyNotificationProcessor(), 
 				new OurArooaSession(),
 				logger);
 		

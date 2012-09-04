@@ -1,6 +1,5 @@
 package org.oddjob.state;
 
-import org.oddjob.util.OddjobLockTimeoutException;
 import org.oddjob.util.OddjobLockedException;
 
 /**
@@ -42,12 +41,7 @@ public interface StateLock {
 	 * 
 	 * @return true if the condition was true and the action
 	 * executed.
-	 * 
-	 * @throws InterruptedException If the wait is interrupted.
-	 * @throws OddjobLockTimeoutException If the lock can not be acquired
-	 * within the timeout period.
 	 */
-	public boolean waitToWhen(StateCondition when, Runnable runnable)
-	throws InterruptedException, OddjobLockTimeoutException; 
+	public boolean waitToWhen(StateCondition when, Runnable runnable); 
 
 }

@@ -1,5 +1,8 @@
 package org.oddjob.jmx;
 
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.management.MBeanServerConnection;
 
 import org.oddjob.Structural;
@@ -7,7 +10,6 @@ import org.oddjob.jmx.client.ClientSession;
 import org.oddjob.jmx.client.ClientSessionImpl;
 import org.oddjob.jmx.client.RemoteLogPoller;
 import org.oddjob.jmx.client.ServerView;
-import org.oddjob.jmx.client.SimpleNotificationProcessor;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
@@ -67,18 +69,8 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 		
 	public static final long DEFAULT_LOG_POLLING_INTERVAL = 5000;
 	
-	/** 
-	 * @oddjob.property
-	 * @oddjob.description The heart beat interval, in milliseconds.
-	 * @oddjob.required Not, defaults to 5 seconds.
-	 */
-	private long heartbeat = 5000;
-	
 	/** The log poller thread */
 	private RemoteLogPoller logPoller;
-	
-	/** The notification processor thread */
-	private SimpleNotificationProcessor notificationProcessor; 
 	
 	/** Child helper */
 	private ChildHelper<Object> childHelper = new ChildHelper<Object>(this);
@@ -117,7 +109,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	 * @oddjob.property url
 	 * @oddjob.description This property is now deprecated in favour of 
 	 * connection which reflects that the connection string no longer need 
-	 * not only be a full JMX URL. 
+	 * only be a full JMX URL. 
 	 * @oddjob.required No.
 	 */
 	@Deprecated
@@ -211,11 +203,10 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	 * @throws Exception
 	 */
 	@Override
-	protected void doStart(MBeanServerConnection mbsc) throws Exception {
+	protected void doStart(MBeanServerConnection mbsc,
+			ScheduledExecutorService notificationProcessor)
+	throws Exception {
 			
-		notificationProcessor = new SimpleNotificationProcessor(logger());
-		notificationProcessor.start();
-		
 		clientSession = new ClientSessionImpl(
 				mbsc,
 				notificationProcessor,
@@ -236,11 +227,10 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 		
 		serverView.startStructural(childHelper);
 
-		notificationProcessor.enqueueDelayed(new Runnable() {
+		notificationProcessor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
 				try {
 					serverView.noop();
-					notificationProcessor.enqueueDelayed(this, heartbeat);
 				} catch (RuntimeException e) {
 					try {
 						doStop(WhyStop.HEARTBEAT_FAILURE, e);
@@ -253,7 +243,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 			public String toString() {
 				return "Heartbeat";
 			}
-		}, heartbeat);
+		}, getHeartbeat(), getHeartbeat(), TimeUnit.MILLISECONDS);
 		
 		logPoller.setLogPollingInterval(logPollingInterval);
 		
@@ -274,13 +264,9 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 		
 		childHelper.removeAllChildren();
 		
-		notificationProcessor.stopProcessor();
-		
 		clientSession.destroyAll();
 		
 		logPoller = null;
-		notificationProcessor = null;
-		
 	}
 		
 	@Override
@@ -330,13 +316,4 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	public void setLogPollingInterval(long logPollingInterval) {
 		this.logPollingInterval = logPollingInterval;
 	}
-	
-	public long getHeartbeat() {
-		return heartbeat;
-	}
-
-	public void setHeartbeat(long heartbeat) {
-		this.heartbeat = heartbeat;
-	}
-
 }

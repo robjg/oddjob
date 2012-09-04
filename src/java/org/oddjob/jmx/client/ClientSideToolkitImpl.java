@@ -16,6 +16,12 @@ import org.apache.log4j.Logger;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
 
+/**
+ * Implementation of {@link ClientSideToolkit}.
+ * 
+ * @author rob
+ *
+ */
 class ClientSideToolkitImpl implements ClientSideToolkit {
 	private static final Logger logger = Logger.getLogger(ClientSideToolkitImpl.class);
 
@@ -144,7 +150,7 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 						}
 					}
 				};
-				clientSession.getNotificationProcessor().enqueue(r);
+				clientSession.getNotificationProcessor().submit(r);
 			}
 						
 		} // handleNotification

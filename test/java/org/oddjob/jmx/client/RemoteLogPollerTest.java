@@ -265,7 +265,7 @@ public class RemoteLogPollerTest extends TestCase {
 
 		ClientSession clientSession = new ClientSessionImpl( 
 				mbs, 
-				new DummyNotificationProcessor(logger),
+				new DummyNotificationProcessor(),
 				new OurArooaSession(),
 				logger);
 		
@@ -320,7 +320,7 @@ public class RemoteLogPollerTest extends TestCase {
 
 		ClientSession clientSession = new ClientSessionImpl( 
 				mbs, 
-				new DummyNotificationProcessor(logger),
+				new DummyNotificationProcessor(),
 				new OurArooaSession(),
 				logger);
 

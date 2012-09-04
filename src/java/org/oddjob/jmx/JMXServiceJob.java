@@ -1,6 +1,8 @@
 package org.oddjob.jmx;
 
 import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.MBeanServerConnection;
 
@@ -90,7 +92,9 @@ implements Structural, BeanDirectoryOwner {
 	private BeanDirectory beanDirectory;
 	
 	@Override
-	protected void doStart(MBeanServerConnection mbsc) throws IOException {
+	protected void doStart(final MBeanServerConnection mbsc,
+			ScheduledExecutorService notificationProcessor)
+	throws IOException {
 		
 		SimpleMBeanSession session = new SimpleMBeanSession(
 				getArooaSession(), mbsc);
@@ -108,6 +112,26 @@ implements Structural, BeanDirectoryOwner {
 		}
 		
 		beanDirectory = new MBeanDirectory(session);
+		
+		notificationProcessor.scheduleAtFixedRate(new Runnable() {
+			public void run() {
+				try {
+					int count = mbsc.getMBeanCount();
+					logger().debug("Heartbeat with bean count " + count);
+				} catch (Exception e) {
+					try {
+						doStop(WhyStop.HEARTBEAT_FAILURE, e);
+					} catch (Exception e1) {
+						logger().error("Failed to stop.", e1);
+					}
+				}
+			}
+			@Override
+			public String toString() {
+				return "Heartbeat";
+			}
+		}, getHeartbeat(), getHeartbeat(), TimeUnit.MILLISECONDS);
+		
 	}
 
 	@Override

@@ -3,7 +3,8 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
-- State locks will now timeout to avoid the possibility of deadlock.
+- Introduce an OddjobShutdownThread interface so that jobs know they are 
+  being stopped from the shutdown thread.
 - JMX client URLs can now connect with just hostname:port in the URL. The
   client 'url' property has been renamed 'connection' to reflect that it
   doesn't just have to be an URL.

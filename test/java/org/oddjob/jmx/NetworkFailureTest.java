@@ -33,14 +33,8 @@ public class NetworkFailureTest extends TestCase {
 		
 		Map<String, Object> env = new HashMap<String, Object>();
 
-//		FailableSocketFactory csf =  
-//			new FailableSocketFactory(); 
-		
 		FailableSocketFactory ssf =  
 			new FailableSocketFactory(); 
-		
-//		env.put(RMIConnectorServer. 
-//				RMI_CLIENT_SOCKET_FACTORY_ATTRIBUTE,csf); 
 		
 		env.put(RMIConnectorServer. 
 				RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,ssf); 

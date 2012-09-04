@@ -6,7 +6,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Process -D arguments
+ * Process -D arguments passed to the Oddjob. This mimics the behaviour of
+ * -D properties passed to the JVM and set These are set as System
+ * properties.
  * 
  * @author rob
  *
@@ -15,6 +17,9 @@ public class SystemPropertyArgParser {
 
 	private final Pattern pattern;
 	
+	/** 
+	 * Constructor. 
+	 */
 	public SystemPropertyArgParser() {
 		pattern = Pattern.compile("-D([^=]+)=(.*)");
 	}

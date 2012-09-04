@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobServices;
+import org.oddjob.OddjobShutdownThread;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaParseException;
@@ -117,7 +118,7 @@ implements Stoppable {
      * @oddjob.description The root node of jobs to monitor.
      * @oddjob.required No.
      */
-	private transient Oddjob oddjob;
+	private transient volatile Oddjob oddjob;
 
 	private transient ConfigurationSession focus;
 	
@@ -332,6 +333,11 @@ implements Stoppable {
 		return frame.getTitle();
 	}
 	
+	/**
+	 * Add to the file history that will be used in the file menu.
+	 * 
+	 * @param file The file. If null then ignored.
+	 */
 	void addFileHistory(File file) {
 		if (file == null) {
 			return;
@@ -796,9 +802,6 @@ implements Stoppable {
 		removePropertyChangeListener(changeView);
 		removePropertyChangeListener(changeTitle);
 		
-		screen = new ScreenPresence(frame);		
-		
-		frame = null;
 		threadManager.close();
 		
 		return 0;	
@@ -807,8 +810,6 @@ implements Stoppable {
 	/**
 	 * Maybe close the window if it isn't vetoed be attempting to remove
 	 * Oddjob.
-	 * 
-	 * @throws PropertyVetoException 
 	 */
 	private void maybeCloseWindow() {
 
@@ -819,30 +820,57 @@ implements Stoppable {
 			return;
 		}
 		
-		final JFrame frame = this.frame;
-		SwingUtilities.invokeLater(new Runnable() {			
-			@Override
-			public void run() {
-				frame.dispose();
-			}
-		});
+		closeWindow();
+	}
+	
+	/**
+	 * Close window regardless. No veto here.
+	 */
+	private void closeWindow() {
 		
 		stop = true;
 		
+		// Wake up the log poller so it sees that we've stopped.
 		synchronized (OddjobExplorer.this) {
 			OddjobExplorer.this.notifyAll();
+		}
+		
+		final JFrame frame = this.frame;
+		if (frame != null) {
+			// This hangs from the shutdown hook. I don't know
+			// why. Invoking on the Event Dispatch thread makes no difference.
+			if (!(Thread.currentThread() instanceof OddjobShutdownThread)) {
+				frame.dispose();
+			}
+			this.frame = null;
 		}
 		
 		logger().debug("Monitor closed.");
 	}
 
 	public void onStop() throws FailedToStopException {
+		
+		// Note that we close window first otherwise changing
+		// window title deadlocks in the shutdown hook.
+		closeWindow();
+		
+		Oddjob oddjob = this.oddjob;
 		if (oddjob != null) {
 			oddjob.stop();
+			try {
+				setOddjob(null);
+			} catch (PropertyVetoException e) {
+				// stop should mean this doesn't happen - but just in case:
+				this.oddjob = null;
+			}
 		}
-		maybeCloseWindow();
 	}
 	
+	/**
+	 * Helper method to create a new Oddjob.
+	 * 
+	 * @return A new Oddjob.
+	 */
 	private Oddjob newOddjob() {
 
 		Oddjob oddjob = new Oddjob();

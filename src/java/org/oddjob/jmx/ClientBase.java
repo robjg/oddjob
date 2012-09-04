@@ -3,6 +3,8 @@ package org.oddjob.jmx;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.JMException;
@@ -60,6 +62,9 @@ implements Runnable, Stateful, Resetable,
 	
 	private final ServiceStateChanger stateChanger;
 	
+	/** The notification processor. */
+	private ScheduledExecutorService notificationProcessor; 
+	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description A name, can be any text.
@@ -81,6 +86,14 @@ implements Runnable, Stateful, Resetable,
 	/** The connector */ 
 	private JMXConnector cntor; 
 	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The heart beat interval, in milliseconds.
+	 * @oddjob.required Not, defaults to 5 seconds.
+	 */
+	private long heartbeat = 5000;
+	
+	/** Listener for why the server stopped. */
 	private ServerStoppedListener serverStoppedListener;
 	
 	/** 
@@ -186,10 +199,13 @@ implements Runnable, Stateful, Resetable,
 		
 		serverStoppedListener = new ServerStoppedListener(mbsc);
 			
-		doStart(mbsc);
+		notificationProcessor = Executors.newSingleThreadScheduledExecutor();
+		
+		doStart(mbsc, notificationProcessor);
 	}
 	
-	abstract protected void doStart(MBeanServerConnection mbsc) 
+	abstract protected void doStart(MBeanServerConnection mbsc, 
+			ScheduledExecutorService notificationProcessor) 
 	throws Exception;
 	
 	@Override
@@ -231,6 +247,9 @@ implements Runnable, Stateful, Resetable,
 
 		onStop(why);
 		
+		notificationProcessor.shutdownNow();
+		notificationProcessor = null;
+
 		if (why != WhyStop.HEARTBEAT_FAILURE) {
 			serverStoppedListener.remove();
 			
@@ -342,6 +361,14 @@ implements Runnable, Stateful, Resetable,
 
 	public void setEnvironment(Map<String, ?> environment) {
 		this.environment = environment;
+	}
+
+	public long getHeartbeat() {
+		return heartbeat;
+	}
+
+	public void setHeartbeat(long heartbeat) {
+		this.heartbeat = heartbeat;
 	}
 
 	@Override

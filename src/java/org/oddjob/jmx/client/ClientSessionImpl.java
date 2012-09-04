@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
@@ -34,7 +35,7 @@ public class ClientSessionImpl implements ClientSession {
 	
 	private final MBeanServerConnection serverConnection;
 
-	private final NotificationProcessor notificationProcessor;
+	private final ScheduledExecutorService notificationProcessor;
 
 	/**
 	 * Constructor.
@@ -46,7 +47,7 @@ public class ClientSessionImpl implements ClientSession {
 	 */
 	public ClientSessionImpl(
 			MBeanServerConnection serverConnection,
-			NotificationProcessor notificationProcessor,
+			ScheduledExecutorService notificationProcessor,
 			ArooaSession arooaSession,
 			Logger logger) {
 		this.serverConnection = serverConnection;
@@ -115,7 +116,7 @@ public class ClientSessionImpl implements ClientSession {
 		return serverConnection;
 	}
 	
-	public NotificationProcessor getNotificationProcessor() {
+	public ScheduledExecutorService getNotificationProcessor() {
 		return notificationProcessor;
 	}
 		

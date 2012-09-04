@@ -9,22 +9,23 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
 
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.general.Vendor;
 import org.oddjob.rmi.RMIRegistryJob;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
@@ -40,7 +41,8 @@ public class JMXServiceJobTest extends TestCase {
 	
 	Vendor simple = new Vendor("Hay Medows");
 	
-	protected void setUp() throws Exception {
+	protected void createServer(Map<String, ?> environment) 
+	throws Exception {
 		
 		
 		RMIRegistryJob rmi = new RMIRegistryJob();
@@ -55,16 +57,12 @@ public class JMXServiceJobTest extends TestCase {
 		mBeanServer.registerMBean(simple, objectName);		
 		
 		cntorServer = JMXConnectorServerFactory.newJMXConnectorServer(
-				serviceURL, null, mBeanServer);
+				serviceURL, environment, mBeanServer);
 		
 		cntorServer.start();
 		String address = cntorServer.getAddress().toString();
 		
 		logger.info("Server started. Clients may connect to: " + address);
-		
-//		synchronized(this) {
-//			wait(0);
-//		}
 	}
 	
 	@Override
@@ -92,7 +90,9 @@ public class JMXServiceJobTest extends TestCase {
 
 	}
 	
-	public void testExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException {
+	public void testExample() throws Exception {
+		
+		createServer(null);
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -169,5 +169,70 @@ public class JMXServiceJobTest extends TestCase {
 				oddjob.lastStateEvent().getState());
 
 		oddjob.destroy();
+	}
+	
+	public void testHeartBeat() throws Exception {
+		
+		
+		Map<String, Object> env = new HashMap<String, Object>();
+
+		FailableSocketFactory ssf =  
+			new FailableSocketFactory(); 
+		
+		env.put(RMIConnectorServer. 
+				RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE, ssf); 
+		
+		createServer(env);
+		
+		JMXServiceJob client = new JMXServiceJob();
+		client.setConnection("localhost:13013");
+		client.setArooaSession(new StandardArooaSession());
+		client.setHeartbeat(100);
+		
+		StateSteps clientStates = new StateSteps(client);
+		clientStates.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		client.run();
+		
+		clientStates.checkNow();
+		
+		clientStates.startCheck(ServiceState.STARTED, 
+				ServiceState.EXCEPTION);
+		
+		Thread.sleep(400);
+		
+		logger.info("Setting scoket to fail!");
+		
+		ssf.setFail(true);
+		
+		clientStates.checkWait();
+				
+		ssf.setFail(false);
+		
+		clientStates.startCheck(ServiceState.EXCEPTION, 
+				ServiceState.READY, 
+				ServiceState.STARTING,
+				ServiceState.STARTED);
+		
+		logger.debug("Client Running Again.");
+		
+		client.hardReset();
+		
+		client.run();
+		
+		clientStates.checkNow();
+		
+		client.stop();
+	}
+	
+	public static void main(String... args) throws Exception {
+
+		JMXServiceJobTest test = new JMXServiceJobTest();
+		test.createServer(null);
+		
+		System.in.read();
+		
+		test.tearDown();
 	}
 }
