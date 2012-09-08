@@ -11,6 +11,8 @@ import org.oddjob.jmx.client.ClientSessionImpl;
 import org.oddjob.jmx.client.RemoteLogPoller;
 import org.oddjob.jmx.client.ServerView;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
+import org.oddjob.jobs.job.StopJob;
+import org.oddjob.jobs.structural.ServiceManager;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogLevel;
@@ -23,12 +25,12 @@ import org.oddjob.structural.StructuralListener;
  * This job allows remote jobs to be monitored and controlled from 
  * a local Oddjob.
  * <p>
- * This job will run until it is manually stopped or until the remote server is
- * stopped. If this job is stopped it's state will be COMPLETE, if the server stops
- * this job's state will be INCOMPLETE.
+ * This service will run until it is manually stopped or until the connection
+ * to the remote server is lost. If this job is stopped it's state will be 
+ * COMPLETE, if the connection is lost the state state will be EXCEPTION.
  * <p>
  * To access and control jobs on a server from within a configuration file this
- * client job must have an id. If the client has an id of <code>'freds-pc'</code>
+ * client must have an id. If the client has an id of <code>'freds-pc'</code>
  * and the job on the server has an id of <code>'freds-job'</code>. The job on
  * the server can be accessed from the client using the expression
  * <code>${freds-pc/freds-job}</code>.
@@ -36,7 +38,27 @@ import org.oddjob.structural.StructuralListener;
  * 
  * @oddjob.example
  * 
- * To create a connection to a remote server.
+ * Connect to a remote server that is using the Platform MBean Server. This
+ * example also demonstrates using the value of a remote jobs property.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/PlatformMBeanClientExample.xml}
+ * 
+ * Note that the {@link StopJob} is required otherwise Oddjob wouldn't exit. An 
+ * Alternative to using stop, would be to make the client a child of a
+ * {@link ServiceManager} job.
+ * <p>
+ * Here's an example of the command used to launch it:
+ * <pre>
+ * java -jar C:\Users\rob\projects\oddjob\run-oddjob.jar -f C:\Users\rob\projects\oddjob\test\java\org\oddjob\jmx\PlatformMBeanClientExample.xml localhost:13013
+ * </pre>
+ * 
+ * This configuration is the client side of the first example in 
+ * {@link JMXServerJob}.
+ * 
+ * @oddjob.example
+ * 
+ * To create a connection to a remote server that is using an RMI registry
+ * using the full form of the JMX URL.
  * 
  * {@oddjob.xml.resource org/oddjob/jmx/ClientExample.xml}
  * 

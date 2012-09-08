@@ -1,0 +1,10 @@
+<oddjob xmlns:jmx="http://rgordon.co.uk/oddjob/jmx">
+  <job>
+    <sequential>
+      <jobs>
+        <jmx:server root="${echo}" />
+        <echo id="echo"><![CDATA[Hello from an Oddjob Server!]]></echo>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

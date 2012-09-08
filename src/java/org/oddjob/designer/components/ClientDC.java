@@ -13,9 +13,13 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
+import org.oddjob.jmx.JMXClientJob;
 
 /**
- *
+ * Design Component for {@link JMXClientJob}.
+ * 
+ * @author rob
+ * 
  */
 public class ClientDC implements DesignFactory {
 	

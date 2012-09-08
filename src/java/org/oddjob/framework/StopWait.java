@@ -30,10 +30,22 @@ public class StopWait {
 	
 	private final long timeout;
 	
+	/**
+	 * Constructor with default timeout.
+	 * 
+	 * @param stateful The thing to wait until stopped.
+	 */
 	public StopWait(Stateful stateful) {
 		this(stateful, 5000);
 	}
 	
+	/**
+	 * Constructor where timeout can be specified.
+	 * 
+	 * @param stateful The thing to wait until stopped.
+	 * @param timeout The timeout. Note that a timeout of 0 or less is
+	 * no timeout.
+	 */
 	public StopWait(Stateful stateful, long timeout) {
 		this.stateful = stateful;
 		if (stateful instanceof LogEnabled) {
@@ -45,6 +57,12 @@ public class StopWait {
 		this.timeout = timeout;
 	}
 	
+	/**
+	 * Run the stop wait. This will block until the job stops or the
+	 * timeout occurs.
+	 * 
+	 * @throws FailedToStopException If timeout occurs.
+	 */
 	public void run() throws FailedToStopException {		
 
 		if (new IsStoppable().test(

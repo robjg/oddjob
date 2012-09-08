@@ -1,10 +1,9 @@
 package org.oddjob;
 
 import org.apache.log4j.Logger;
-import org.oddjob.state.IsStoppable;
+import org.oddjob.framework.StopWait;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 
 /**
  * A Wrapper for running Oddjob that ensures a smooth shutdown.
@@ -59,27 +58,25 @@ public class OddjobRunner {
 		Runtime.getRuntime().addShutdownHook(new ShutdownHook());		
 		try {
 			oddjob.run();
+			
 			// This needs to be thought out a bit more.
 			// The logic goes along the lines of if the main
 			// thread get's here we need to wait until the Oddjob
 			// has completed and then we can destroy it. 
-			// mainly to close down executors, so the application
-			// can terminate.
+			// We do this by stopping the executors, and leave the destroying 
+			// of Oddjob to the Shutdown hook.
 			if (destroying) {
 				logger.debug("Oddjob execution thread complete via destroy from the shutdown hook.");
 			}
 			else {
-				logger.debug("Oddjob execution thread completed. " +
-						"Executers will be terminated when asynchronous jobs complete.");
+				logger.debug("Oddjob execution thread completed.");
 				
-			    oddjob.addStateListener(new StateListener() {
-			    	public void jobStateChange(StateEvent event) {
-			    		if (!new IsStoppable().test(event.getState())) {
-			    				oddjob.removeStateListener(this);
-			    				oddjob.stopExecutors();
-			    		}
-			    	}
-			    });
+				// Possibly wait for Oddjob to be in a stopped state.
+				new StopWait(oddjob, Long.MAX_VALUE).run();
+				
+				// Stopping executors should allow JVM to exit. Shutdown
+				// thread will take care of destroying Oddjob.
+				oddjob.stopExecutors();
 			}
 			
 		} catch (Throwable t) {

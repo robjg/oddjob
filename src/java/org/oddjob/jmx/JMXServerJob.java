@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.OddjobException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
@@ -29,7 +30,7 @@ import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 
 /**
- * @oddjob.description A job which allows a job hierarchy to
+ * @oddjob.description A service which allows a job hierarchy to
  * be monitored and managed remotely using a {@link JMXClientJob}. 
  * <p>
  * Security can be added using the environment property. Simple JMX security comes
@@ -48,10 +49,46 @@ import org.oddjob.util.ThreadManager;
  * <a href="http://java.sun.com/javase/6/docs/technotes/guides/jmx/tutorial/security.html">
  * The JMX Tutorial</a>.
  * <p>
+ * This service will use the Platform MBeanServer if no <code>url</code> 
+ * property is provided. Creating an unsecured Oddjob server on a private
+ * network can be achieved simply by launching Oddjob with a command line
+ * such as:</p>
+ * <pre>
+ * java -Dcom.sun.management.jmxremote.port=nnnn \
+ * -Dcom.sun.management.jmxremote.ssl=false \
+ * -Dcom.sun.management.jmxremote.authenticate=false \
+ * -jar run-oddjob.jar -f my-config.xml
+ * </pre>
+ * And then including this service somewhere in the configuration. Note that
+ * the properties must be to the left of the -jar, not to the right because
+ * the must be available to the JVM before Oddjob starts.
+ * <p>
+ * The <code>server.xml</code> Oddjob configration file in Oddjob's top
+ * level directory provides a simple Oddjob server that uses an RMI 
+ * Registry.
+ * <p>
+ * More information on Oddjob servers can be found in the User Guide under
+ * 'Sharing Jobs on the Network'.
+ * <p>
  * 
  * @oddjob.example
  * 
- * Creating a server.
+ * Creating a server using the platform MBean Server.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jmx/PlatformMBeanServerExample.xml}
+ * 
+ * This is probably the simplest way to launch Oddjob as a server.
+ * <p>
+ * Here's an example of the command used to launch it:
+ * <pre>
+ * java -Dcom.sun.management.jmxremote.port=13013 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -jar C:\Users\rob\projects\oddjob\run-oddjob.jar -f C:\Users\rob\projects\oddjob\test\java\org\oddjob\jmx\PlatformMBeanServerExample.xml
+ * </pre>
+ * For an example of a client to connect to this server see the first 
+ * example for {@link JMXClientJob}.
+ * 
+ * @oddjob.example
+ * 
+ * Creating a server using an RMI registry.
  * 
  * {@oddjob.xml.resource org/oddjob/jmx/ServerExample.xml}
  * 
@@ -90,9 +127,9 @@ public class JMXServerJob implements ArooaSessionAware {
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The JMX service URL. 
-	 * @oddjob.required No. If none is provided the server connects to the 
-	 * Platform MBean Server.
+	 * @oddjob.description The JMX service URL. If this is not provided the 
+	 * server connects to the Platform MBean Server.
+	 * @oddjob.required No. 
 	 */
 	private String url;
 
@@ -120,7 +157,11 @@ public class JMXServerJob implements ArooaSessionAware {
 	 */	
 	private ThreadManager threadManager;
 	
-	/** Useful for testing */
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The address of this server. This is mainly 
+	 * useful for testing 
+	 */
 	private String address;
 
 	/** Remember the registry so it can be used to resolve ids for the
@@ -146,6 +187,7 @@ public class JMXServerJob implements ArooaSessionAware {
 	 */
 	private Map<String, ?> environment;
 
+	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}

@@ -3,6 +3,11 @@ Oddjob-1.2.0
 
 Changes in 1.2.0
 ----------------
+- Oddjob will now not stop until it's root job is in a stopped state. This
+  is because a server with an RMI registry keep's Oddjob alive but
+  the newer servers using the PlatformMBean does not. A wait job is
+  no longer needed to stop Oddjob shutting down. The new service manager job 
+  will allow services to run in as 'daemon' services if required.
 - Introduce an OddjobShutdownThread interface so that jobs know they are 
   being stopped from the shutdown thread.
 - JMX client URLs can now connect with just hostname:port in the URL. The

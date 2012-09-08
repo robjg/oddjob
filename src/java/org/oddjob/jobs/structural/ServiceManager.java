@@ -17,7 +17,7 @@ import org.oddjob.state.StateOperator;
  * and flags an exception.
  * <p>
  * Because this job completes even though it's children are active this
- * job is analogous to created daemon threads in that the services will
+ * job is analogous to creating daemon threads in that the services will
  * not stop Oddjob from shutting down once all other jobs have completed.
  * During Oddjob's shutdown cycle the services will still be stopped in an 
  * orderly fashion.
@@ -27,19 +27,28 @@ import org.oddjob.state.StateOperator;
  * <p>
  * If this job is used with standard jobs this job will behave much like
  * {@link SequentialJob} except that when a child job is re-run the 
- * reflected state will be one of READY, INCOMPLETE, COMPLETE or EXCEPTION
- * depending on the other child jobs.
+ * reflected state will not be ACTIVE as it would with the Sequential job.
  * <p>
  * Services will be stopped in revere order so that if one service depends
  * on another, the dependent service will be stopped first.
  * 
  * @oddjob.example
  * 
- * Starting two services.
+ * Starting two services. To perform odd jobs, in a workshop for instance,
+ * this first 'job' is to turn on the lights and turn on any machines
+ * required. The service manager encompasses this idea - and this example
+ * embelishes the idea. Real odd jobs for Oddjob will involve activities 
+ * such as starting services such as a data source or a server connection.
+ * The concept however is still the same.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/SimpleServiceExample.xml}
  * 
- * The services are started in order. Once both services have 
+ * The services are started in order. Once both services have started
+ * a job is performed that requires both services. If this configuration
+ * were running from the command line, Oddjob would stop the services
+ * as it shut down. First the machine would be turned of and then finally
+ * the lights would be turned out. 
+ * 
  * @author Rob Gordon
  *  
  */

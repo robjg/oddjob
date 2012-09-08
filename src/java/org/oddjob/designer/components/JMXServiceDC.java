@@ -1,5 +1,5 @@
 /*
- * (c) Rob Gordon 2005.
+ * (c) Rob Gordon 2012.
  */
 package org.oddjob.designer.components;
 
@@ -13,9 +13,12 @@ import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
+import org.oddjob.jmx.JMXServiceJob;
 
 /**
- *
+ * Design Component for {@link JMXServiceJob}
+ * 
+ * @author rob
  */
 public class JMXServiceDC implements DesignFactory {
 	
@@ -33,6 +36,7 @@ class JMXServiceDesign extends BaseDC {
 	
 	private final SimpleDesignProperty environment;
 	
+	private final SimpleTextAttribute heartbeat;
 	
 	public JMXServiceDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
@@ -41,10 +45,12 @@ class JMXServiceDesign extends BaseDC {
 		
 		environment = new SimpleDesignProperty("environment", this);
 		
+		heartbeat = new SimpleTextAttribute("heartbeat", this);		
 	}
 	
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, connection, environment };
+		return new DesignProperty[] { name, connection, environment, 
+				heartbeat };
 	}
 	
 	
@@ -55,6 +61,10 @@ class JMXServiceDesign extends BaseDC {
 				new BorderedGroup("Connection Details")
 				.add(connection.view().setTitle("Connection"))
 				.add(environment.view().setTitle("Environment"))
+			)
+		.addFormItem(
+				new BorderedGroup("Advanced")
+				.add(heartbeat.view().setTitle("Heartbeat Interval"))
 			)
 		;
 	}

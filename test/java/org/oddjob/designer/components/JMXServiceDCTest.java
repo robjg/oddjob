@@ -37,7 +37,7 @@ public class JMXServiceDCTest extends TestCase {
 		String xml =  
 				"<jmx:service xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " +
 				"  name='Test'" +
-				"  connection='localhost:2012'>" +
+				"  connection='localhost:2012' heartbeat='700'>" +
 				"  <environment>" +
 				"   <jmx:client-credentials username='username' password='password'/>" +
 				"  </environment>" +
@@ -62,6 +62,7 @@ public class JMXServiceDCTest extends TestCase {
 		
 		assertEquals("Test", test.getName());
 		assertEquals("localhost:2012", test.getConnection());
+		assertEquals(700L, test.getHeartbeat());
 		
 		Map<String, ?> env = test.getEnvironment();
 		String[] credentials = (String[]) env.get("jmx.remote.credentials");

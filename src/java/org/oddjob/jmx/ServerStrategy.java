@@ -26,7 +26,7 @@ abstract public class ServerStrategy {
 	
 	public static ServerStrategy stratagyFor(String url) throws MalformedURLException {
 		if (url == null) {
-			return new PlatfromMBeanServerStrategy();
+			return new PlatformMBeanServerStrategy();
 		}
 		else {
 			return new ConnectorServerStrategy(url);
@@ -86,8 +86,8 @@ class ConnectorServerStrategy extends ServerStrategy {
 	}
 }
 
-class PlatfromMBeanServerStrategy extends ServerStrategy {
-	private static final Logger logger = Logger.getLogger(PlatfromMBeanServerStrategy.class);	
+class PlatformMBeanServerStrategy extends ServerStrategy {
+	private static final Logger logger = Logger.getLogger(PlatformMBeanServerStrategy.class);	
 	
 	@Override
 	public MBeanServer findServer() {

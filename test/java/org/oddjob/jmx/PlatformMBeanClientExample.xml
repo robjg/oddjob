@@ -1,0 +1,12 @@
+<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'
+  id='this'>
+  <job>
+    <sequential>
+      <jobs>
+        <jmx:client id='remote' connection='${this.args[0]}'/>
+        <echo>${remote/echo.text}</echo>
+        <stop job="${remote}"/>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>
