@@ -62,7 +62,7 @@ import org.oddjob.state.WorstStateOp;
  * 
  * Examples Elsewhere.
  * <ul>
- *  <li>The scheduling example (<code>examples/scheduling/dailyftp.xml</code>
+ *  <li>The scheduling example (<code>examples/scheduling/dailyftp.xml</code>)
  *  uses a trigger to send an email if one of the FTP transfers fails.</li>
  * </ul> 
  * 

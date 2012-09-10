@@ -63,7 +63,7 @@ implements Runnable, Stateful, Resetable,
 	private final ServiceStateChanger stateChanger;
 	
 	/** The notification processor. */
-	private ScheduledExecutorService notificationProcessor; 
+	private volatile ScheduledExecutorService notificationProcessor; 
 	
 	/** 
 	 * @oddjob.property
@@ -84,7 +84,7 @@ implements Runnable, Stateful, Resetable,
 	private String connection;
 
 	/** The connector */ 
-	private JMXConnector cntor; 
+	private volatile JMXConnector cntor; 
 	
 	/** 
 	 * @oddjob.property
@@ -94,7 +94,7 @@ implements Runnable, Stateful, Resetable,
 	private long heartbeat = 5000;
 	
 	/** Listener for why the server stopped. */
-	private ServerStoppedListener serverStoppedListener;
+	private volatile ServerStoppedListener serverStoppedListener;
 	
 	/** 
 	 * @oddjob.property
@@ -242,21 +242,36 @@ implements Runnable, Stateful, Resetable,
 		}
 	}
 	
-	protected void doStop(final WhyStop why, final Exception cause) 
-	throws JMException, IOException {
+	protected void doStop(final WhyStop why, final Exception cause) {
 
+		// There is a small possibility that the SERVER_STOPPED and 
+		// HEARTBEAT_FAIURE happen simultaneously. 
+		ServerStoppedListener serverStoppedListener;
+		synchronized (this) {
+			serverStoppedListener = this.serverStoppedListener;
+			if (serverStoppedListener == null) {
+				return;
+			}
+			this.serverStoppedListener = null;
+		}
+		
+		if (why == WhyStop.STOP_REQUEST ) {
+			serverStoppedListener.remove();
+		}
+		
 		onStop(why);
 		
 		notificationProcessor.shutdownNow();
 		notificationProcessor = null;
 
-		if (why != WhyStop.HEARTBEAT_FAILURE) {
-			serverStoppedListener.remove();
-			
-			if (cntor != null) {
+		if (why ==  WhyStop.STOP_REQUEST && cntor != null) {
+			try {
 				cntor.close();
+			} catch (IOException e) {
+				logger.debug("Failed to close connection: " + e);
 			}
 		}
+		cntor = null;
 		
 		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 			public void run() {
@@ -409,9 +424,14 @@ implements Runnable, Stateful, Resetable,
 			}
 		}
 		
-		public void remove() throws JMException, IOException {
-			mbsc.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), 
-						this);
+		public void remove() {
+			try {
+				mbsc.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), 
+							this);
+			} catch (Exception e) {
+				logger.debug("Failed to remote MBeanServer NotificationListener: " +  
+						e);
+			} 
 		}
 	}
 	

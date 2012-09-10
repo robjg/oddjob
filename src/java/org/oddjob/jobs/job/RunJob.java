@@ -159,14 +159,10 @@ implements Structural, Stoppable, ConfigurationOwner {
 		
 		if (job instanceof Stateful) {
 			listener = new StateListener() {
-				synchronized public void jobStateChange(StateEvent event) {
+				public void jobStateChange(StateEvent event) {
 					synchronized (states) {
 						states.add(event.getState());
-						stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-							public void run() {
-								stateHandler.wake();
-							}
-						});
+						states.notifyAll();
 					}
 				}
 			};
@@ -192,6 +188,20 @@ implements Structural, Stoppable, ConfigurationOwner {
 							now = states.removeFirst();
 							logger().debug("State received "+ now);
 						}
+						else {
+							logger().debug("Waiting for job to finish executing");
+							iconHelper.changeIcon(IconHelper.SLEEPING);
+							try {
+								states.wait(0);
+							} catch (InterruptedException e) {
+								logger().debug("Sleep interupted.");
+								Thread.currentThread().interrupt();
+							}
+							// Stop should already have set Icon to Stopping.
+							if (!stop) {
+								iconHelper.changeIcon(IconHelper.EXECUTING);
+							}
+						}
 					}
 					
 					if (now != null) {
@@ -210,10 +220,6 @@ implements Structural, Stoppable, ConfigurationOwner {
 						}
 						continue;
 					}
-					
-					logger().debug("Waiting for job to finish executing");
-					
-					sleep(0);
 				}
 			}
 			finally {

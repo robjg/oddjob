@@ -41,7 +41,7 @@ import org.oddjob.state.StateOperator;
  * such as starting services such as a data source or a server connection.
  * The concept however is still the same.
  * 
- * {@oddjob.xml.resource org/oddjob/jobs/structural/SimpleServiceExample.xml}
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/ServiceManagerExample.xml}
  * 
  * The services are started in order. Once both services have started
  * a job is performed that requires both services. If this configuration
