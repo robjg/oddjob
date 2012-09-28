@@ -1,5 +1,48 @@
-Oddjob-1.2.0
+Oddjob-1.3.0
 ============
+
+Changes in 1.3.0
+----------------
+- New Swing Panel is available that provides Oddjob jobs as simple Buttons.
+  It is not yet an Oddjob element but can be added with 
+  <bean class='org.oddjob.swing.OddjobPanel'/>
+
+Still To Do for 1.3.0
+---------------------
+
+- Use a ServerSide file system for choosing files on server component 
+  designer forms.
+- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
+  Explorer.
+- Finish OddjobPanel. Add a status bar and possibly a logging/console
+  window.
+
+
+
+Deferred to A Later Version
+---------------------------
+- Look at what happens when there are exceptions in a timer. Should there be
+  a haltOnException flag. Should an Exception in a timer be indicated as
+  an exception state not an incomplete state?
+- Should If job work on asynchronous completion of a job?
+- Add Security to the WebApp (with a Read Only role).  
+- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
+  browser without the need for a separate Servlet Container.
+- Improve the AJAX JSF front end to be more AJAXy.
+- Introduce the idea of Read only configuration that can't be modified if
+  it's been loaded from a non modifiable resource, i.e. from the class path.
+- Check a configuration hasn't been modified by someone else before a 
+  modification is saved back from designer.
+- Add Undo functionality to Oddjob configuration.
+- Document conversions. Possibly include conversions in the Reference.
+- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
+  copy some of it's feature including; overwrite, force, failonerror, verbose,
+  preservelastmodified. Add the ability to back up the moved files like Linux does.
+- Introduce a FilterType that can filter files by modified date, created date,
+  or match against a regular expression.
+- Need better protection from exceptions in the DetailModel.setSelectedContext
+  method.
+
 
 Changes in 1.2.0
 ----------------
@@ -77,41 +120,7 @@ Changes in 1.2.0
 - Validate changes in Designer before closing the dialog so changes aren't
   lost if there is a problem.
 - Changed Iconic interface to just use ImageIcon instead of a bespoke 
-  wrapper class.
-  
-Still To Do for 1.2.0
----------------------
-
-Deferred to A Later Version
----------------------------
-- Look at what happens when there are exceptions in a timer. Should there be
-  a haltOnException flag. Should an Exception in a timer be indicated as
-  an exception state not an incomplete state?
-- Should If job work on asynchronous completion of a job?
-- Document State better in the user guide. Include why structural jobs 
-  COMPLETE when they have no child because editing a node involves removing
-  it and re-adding it.
-- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
-  Explorer.
-- Use a ServerSide file system for choosing files on server component 
-  designer forms.
-- Add Security to the WebApp (with a Read Only role).  
-- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
-  browser without the need for a separate Servlet Container.
-- Improve the AJAX JSF front end to be more AJAXy.
-- Introduce the idea of Read only configuration that can't be modified if
-  it's been loaded from a non modifiable resource, i.e. from the class path.
-- Check a configuration hasn't been modified by someone else before a 
-  modification is saved back from designer.
-- Add Undo functionality to Oddjob configuration.
-- Document conversions. Possibly include conversions in the Reference.
-- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
-  copy some of it's feature including; overwrite, force, failonerror, verbose,
-  preservelastmodified. Add the ability to back up the moved files like Linux does.
-- Introduce a FilterType that can filter files by modified date, created date,
-  or match against a regular expression.
-- Need better protection from exceptions in the DetailModel.setSelectedContext
-  method.
+  wrapper class.  
 
 Changes in 1.1.0
 ----------------

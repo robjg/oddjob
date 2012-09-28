@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bean class="org.oddjob.swing.OddjobPanel">
+                    <jobs>
+                        <echo/>
+                        <wait/>
+                        <input>
+                            <requests>
+                                <input-message><![CDATA[Hey 
+
+Well That Worked!
+
+A Multiline Message.]]></input-message>
+                            </requests>
+                        </input>
+                    </jobs>
+                </bean>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

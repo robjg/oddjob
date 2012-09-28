@@ -5,7 +5,6 @@ import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.JMException;
 import javax.management.MBeanServerConnection;
@@ -17,25 +16,11 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.log4j.Logger;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.framework.BaseComponent;
-import org.oddjob.framework.ComponentBoundry;
-import org.oddjob.images.IconHelper;
+import org.oddjob.FailedToStopException;
+import org.oddjob.framework.SimpleService;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
-import org.oddjob.logging.LogEnabled;
-import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ServiceState;
-import org.oddjob.state.ServiceStateChanger;
-import org.oddjob.state.ServiceStateHandler;
 
 /**
  * Shared implementation for JMX clients.
@@ -43,9 +28,7 @@ import org.oddjob.state.ServiceStateHandler;
  * @author rob
  *
  */
-abstract public class ClientBase extends BaseComponent 
-implements Runnable, Stateful, Resetable,
-		Stoppable, LogEnabled {
+abstract public class ClientBase extends SimpleService {
 
 	protected enum WhyStop {
 		STOP_REQUEST,
@@ -53,25 +36,9 @@ implements Runnable, Stateful, Resetable,
 		HEARTBEAT_FAILURE
 	}
 	
-	private static final AtomicInteger instanceCount = new AtomicInteger();
-	
-	private final Logger logger = Logger.getLogger(getClass().getName() + 
-			"." + instanceCount.incrementAndGet());
-	
-	protected final ServiceStateHandler stateHandler; 
-	
-	private final ServiceStateChanger stateChanger;
-	
 	/** The notification processor. */
 	private volatile ScheduledExecutorService notificationProcessor; 
-	
-	/** 
-	 * @oddjob.property
-	 * @oddjob.description A name, can be any text.
-	 * @oddjob.required No. 
-	 */
-	private String name;
-	
+		
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The JMX service URL. This is can be either
@@ -105,78 +72,11 @@ implements Runnable, Stateful, Resetable,
 	private Map<String, ?> environment;
 	
 	/**
-	 * Constructor.
+	 * Construct a new instance.
 	 * 
 	 */
 	public ClientBase() {
-		stateHandler = new ServiceStateHandler(this);
-		stateChanger = new ServiceStateChanger(stateHandler, iconHelper, 
-				new Persistable() {					
-			@Override
-			public void persist() throws ComponentPersistException {
-				save();
-			}
-		});
-	}
-	
-	@Override
-	protected Logger logger() {
-		return logger;
-	}
-	
-	@Override
-	public String loggerName() {
-		return logger.getName();
-	}
-	
-	@Override
-	protected ServiceStateHandler stateHandler() {
-		return stateHandler;
-	}
-	
-	protected ServiceStateChanger getStateChanger() {
-		return stateChanger;
-	}
-    
-	
-	public void run() {
-		ComponentBoundry.push(logger().getName(), this);
-		try {
-			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ServiceState.STARTING);
-					
-				}
-			})) {
-				return;
-			}
-			logger().info("Starting.");
-			
-			try {
-				configure(ClientBase.this);
-				
-				onStart();
-				
-            	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-            		public void run() {
-            			getStateChanger().setState(ServiceState.STARTED);
-            		}   
-            	});				
-			}
-			catch (final Throwable e) {
-				logger().warn("Exception starting:", e);
-				
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						getStateChanger().setStateException(e);
-					}
-				});
-			}
-		}
-		finally {
-			ComponentBoundry.pop();
-		}
-	}
+	}	
 	
 	/**
 	 * 
@@ -207,39 +107,10 @@ implements Runnable, Stateful, Resetable,
 	abstract protected void doStart(MBeanServerConnection mbsc, 
 			ScheduledExecutorService notificationProcessor) 
 	throws Exception;
-	
+		
 	@Override
-	public void stop() {
-		ComponentBoundry.push(logger().getName(), this);
-		try {
-			logger().debug("Stop requested.");
-			
-			if (!stateHandler.waitToWhen(new IsStoppable(), 
-					new Runnable() {
-						public void run() {
-						}
-			})) {
-				logger().debug("Stop ignored - not running.");
-				return;
-			}
-	
-			iconHelper.changeIcon(IconHelper.STOPPING);
-			
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					try {
-						doStop(WhyStop.STOP_REQUEST, null);
-					} 
-					catch (Exception e) {
-						iconHelper.changeIcon(IconHelper.EXECUTING);
-						getStateChanger().setStateException(e);
-					}
-				}
-			});
-		}
-		finally {
-			ComponentBoundry.pop();
-		}
+	protected void onStop() throws FailedToStopException {
+		doStop(WhyStop.STOP_REQUEST, null);
 	}
 	
 	protected void doStop(final WhyStop why, final Exception cause) {
@@ -268,7 +139,7 @@ implements Runnable, Stateful, Resetable,
 			try {
 				cntor.close();
 			} catch (IOException e) {
-				logger.debug("Failed to close connection: " + e);
+				logger().debug("Failed to close connection: " + e);
 			}
 		}
 		cntor = null;
@@ -294,63 +165,6 @@ implements Runnable, Stateful, Resetable,
 	}
 	
 	abstract protected void onStop(WhyStop why);
-	
-	/**
-	 * Perform a soft reset on the job.
-	 */
-	@Override
-	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ServiceState.READY);
-	
-					logger().info("Soft Reset complete." );
-				}
-			});
-		} finally {
-			ComponentBoundry.pop();
-		}
-	}
-	
-	/**
-	 * Perform a hard reset on the job.
-	 */
-	@Override
-	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ServiceState.READY);
-	
-					logger().info("Hard Reset complete." );
-				}
-			});
-		} finally {
-			ComponentBoundry.pop();
-		}
-	}
-
-	
-	/**
-	 * Get the name.
-	 * 
-	 * @return The name.
-	 */
-	public String getName() {
-		return name;
-	}
-	
-	/**
-	 * Set the name
-	 * 
-	 * @param name The name.
-	 */
-	public void setName(String name) {
-		this.name = name;
-	}
 	
 	/**
 	 * Set naming service url.
@@ -386,16 +200,6 @@ implements Runnable, Stateful, Resetable,
 		this.heartbeat = heartbeat;
 	}
 
-	@Override
-	public String toString() {
-	    if (name == null) {
-	        return getClass().getSimpleName();
-	    }
-	    else {
-	        return name;
-	    }
-	}
-
 	private class ServerStoppedListener implements NotificationListener {
 		
 		private final MBeanServerConnection mbsc;
@@ -429,36 +233,10 @@ implements Runnable, Stateful, Resetable,
 				mbsc.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), 
 							this);
 			} catch (Exception e) {
-				logger.debug("Failed to remote MBeanServer NotificationListener: " +  
+				logger().debug("Failed to remote MBeanServer NotificationListener: " +  
 						e);
 			} 
 		}
 	}
 	
-	
-	@Override
-	protected void onDestroy() {		
-		super.onDestroy();
-		
-		stop();
-	}
-	
-	/**
-	 * Internal method to fire state.
-	 */
-	@Override
-	protected void fireDestroyedState() {
-		
-		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stateHandler().setState(ServiceState.DESTROYED);
-				stateHandler().fireEvent();
-			}
-		})) {
-			throw new IllegalStateException("[" + ClientBase.this + 
-					"[ Failed set state DESTROYED");
-		}
-		logger().debug("[" + this + "] Destroyed.");				
-	}
-
 }

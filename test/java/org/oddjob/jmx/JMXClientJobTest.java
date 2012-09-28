@@ -17,6 +17,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -167,8 +168,9 @@ public class JMXClientJobTest extends TestCase {
 	/** 
 	 * Tracking down a problem with the next test.
 	 * @throws ArooaConversionException 
+	 * @throws FailedToStopException 
 	 */
-	public void testPrinciplesOfNextTest() throws ArooaConversionException {
+	public void testPrinciplesOfNextTest() throws ArooaConversionException, FailedToStopException {
 		
 		String xml =
 			"<oddjob id='this' xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" +
@@ -210,7 +212,7 @@ public class JMXClientJobTest extends TestCase {
 		assertEquals(1, children.length);
 		assertEquals("X", children[0].toString());
 		
-		client.onDestroy();
+		client.destroy();
 		
 		oj.destroy();
 	}
@@ -255,7 +257,11 @@ public class JMXClientJobTest extends TestCase {
 							client.run();
 							WaitForChildren wait = new WaitForChildren(client);
 							wait.waitFor(1);
-							client.stop();
+							try {
+								client.stop();
+							} catch (FailedToStopException e) {
+								throw new RuntimeException(e);
+							}
 							if (Helper.getJobState(client) == ServiceState.COMPLETE) {
 								ok[index] = true;
 							}

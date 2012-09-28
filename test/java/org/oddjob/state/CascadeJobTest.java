@@ -367,8 +367,7 @@ public class CascadeJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		StateSteps job1State = new StateSteps(job1);		
-		job1State.startCheck(JobState.READY, JobState.EXECUTING, 
-				JobState.COMPLETE);
+		job1State.startCheck(JobState.READY, JobState.EXECUTING);
 		
 		StateSteps job2State = new StateSteps(job2);		
 		job2State.startCheck(JobState.READY);
@@ -381,7 +380,9 @@ public class CascadeJobTest extends TestCase {
 		test.setJobs(1, null);
 		test.setJobs(1, job3);
 		
-		// This occasionally hangs - why?????
+		job1State.checkWait();
+		job1State.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		
 		job1.stop();
 		
 		job1State.checkWait();

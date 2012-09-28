@@ -190,7 +190,7 @@ public class TogetherLookupTest extends TestCase {
 		assertEquals(new Address(new ServerId(url.getURLPath()), new Path("apples")).toString(),
 				crawler.addressFor(apples).toString());		
 		
-		client.onDestroy();
+		client.destroy();
 		
 		oddjob1.destroy();
 		

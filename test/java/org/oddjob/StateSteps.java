@@ -101,11 +101,15 @@ public class StateSteps {
 			}
 			else {
 				throw new IllegalStateException(
-						"Not enough states: expected " + 
+						"Not enough states for [" + stateful + "]: expected " + 
 						listener.steps.length + " " + 
 						Arrays.toString(listener.steps) + 
 						", was only first " + listener.index + ".");
 			}
+		}
+		catch (IllegalStateException e) {
+			logger.error(e);
+			throw e;
 		}
 		finally {
 			stateful.removeStateListener(listener);
@@ -122,16 +126,20 @@ public class StateSteps {
 				" on [" + stateful + "] to have states " + 
 				Arrays.toString(listener.steps));
 		
-		if (!listener.isDone()) {
-			synchronized(listener) {
+		synchronized(listener) {
+			
+			if (!listener.isDone()) {
+				
 				listener.wait(timeout);
-				logger.info("Timeout!" +
+				
+				logger.info("Woken or Timedout " +
 						" on [" + stateful + "] to have states " + 
 						Arrays.toString(listener.steps));
 			}
 		}
 		
 		checkNow();
+		
 		logger.info("Waiting complete on [" + stateful + "]");
 	}
 

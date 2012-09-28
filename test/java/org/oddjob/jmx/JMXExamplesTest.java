@@ -6,6 +6,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.FragmentHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -45,7 +46,7 @@ public class JMXExamplesTest extends TestCase {
 		}
 	}
 	
-	public void testSimpleClientServerExample() throws ArooaParseException {
+	public void testSimpleClientServerExample() throws ArooaParseException, FailedToStopException {
 		
 		Properties props = new Properties();
 		props.setProperty("hosts.freds.pc", "localhost");
