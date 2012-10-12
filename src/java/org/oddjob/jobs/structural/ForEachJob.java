@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -31,14 +33,17 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.DesignFactory;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigConfigurationSession;
+import org.oddjob.arooa.parsing.ConfigSessionEvent;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.reflect.PropertyAccessor;
@@ -50,6 +55,7 @@ import org.oddjob.arooa.registry.SimpleComponentPool;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardPropertyManager;
+import org.oddjob.arooa.utils.ListenerSupportBase;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.ForEachRootDC;
@@ -228,7 +234,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	private transient ExecutorService executorService;
 
 	/** The job threads. */
-	private transient List<Future<?>> jobThreads;
+	private transient Map<Runnable, Future<?>> jobThreads;
 	
     
     /**
@@ -326,7 +332,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * @param value
 	 * @throws ArooaParseException
 	 */
-	protected void loadConfigFor(Object value) throws ArooaParseException {
+	protected Runnable loadConfigFor(Object value) throws ArooaParseException {
 		
 		logger().debug("Creating child for [" + value + "]");
 		
@@ -348,22 +354,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		
 		ConfigurationHandle handle = parser.parse(configuration);
 		
-		Runnable root = (Runnable) seed.job;
+		Runnable root = seed.job;
 
 		if (root == null) {
 			logger().info("No child job created.");
-			return;
+			return null;
 		}
-
-		// Configure the root so we can see the name if it uses the
-		// current value.
-		handle.getDocumentContext().getSession(
-				).getComponentPool().configure(root);
 		
-		configurationHandles.put(root, handle);			
-		
-	    childHelper.addChild(root);
-	    
 	    if (root instanceof Stateful) {
 	    	((Stateful) root).addStateListener(new StateListener() {
 				
@@ -375,31 +372,53 @@ implements Stoppable, Loadable, ConfigurationOwner {
 					if (state.isReady()) {
 					    ready.add((Runnable) source);
 					}
-					else if (state.isComplete()) {
+					
+					if (state.isComplete()) {
+						ready.remove(source);
 						complete.add(source);
 					}
 				}
 			});
 	    }
 	    else {
-	    	// Support for none stateful jobs. Should we support this?
-	    	ready.add(root);
+	    	throw new UnsupportedOperationException("Job " + root + 
+	    			" not Stateful.");
 	    }	    
+	    
+		configurationHandles.put(root, handle);			
+		
+		// Configure the root so we can see the name if it 
+	    // uses the current value.
+		seed.session.getComponentPool().configure(root);
+		
+		// Must happen after configure so we see the correct value
+		// in the job tree.
+		childHelper.addChild(root);
+		
+	    return root;
 	}
 
+	/**
+	 * Remove a child and clear up it's configuration.
+	 * 
+	 * @param child The child.
+	 */
 	private void remove(Object child) {
 		
-		childHelper.removeChild(child);
-
 		ConfigurationHandle handle = configurationHandles.get(child);
 		handle.getDocumentContext().getRuntime().destroy();
 	}
 	
+	/**
+	 * Setup and load the first jobs.
+	 * <p>
+	 * if {@link #preLoad} is 0 all will be loaded otherwise up to
+	 * that number will be loaded.
+	 * 
+	 * @throws ArooaParseException
+	 */
 	protected void preLoad() throws ArooaParseException {
 	    
-		if (values == null) {
-			throw new IllegalStateException("No values supplied.");
-		}
 		if (configuration == null) {
 			throw new IllegalStateException("No configuration.");
 		}
@@ -413,36 +432,49 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		}
 		
         configurationOwnerSupport.setConfigurationSession(
-				new ForeachConfigurationSession(
-						new ConfigConfigurationSession(
-								getArooaSession(), configuration)));
+				new ForeachConfigurationSession());
         
 	    logger().debug("Creating children from configuration.");
 	    
 		configurationHandles = new HashMap<Object, ConfigurationHandle>();
 		ready = new LinkedList<Runnable>();
 		complete = new LinkedList<Stateful>();
-		jobThreads = new ArrayList<Future<?>>();
+		jobThreads = new HashMap<Runnable, Future<?>>();
 		
-		iterator = values.iterator();
+		if (values == null) {
+			logger().info("No Values.");
+			iterator = Collections.emptyList().iterator();
+		}
+		else {
+			iterator = values.iterator();
+		}
 		
-		loadNext();
+		while ((preLoad < 1 || ready.size() < preLoad) &&
+				(loadNext() != null));
 	}
 	
-	private boolean loadNext() throws ArooaParseException {
+	/**
+	 * Loads the next Job.
+	 * 
+	 * @return The next job or null if there isn't one.
+	 * 
+	 * @throws ArooaParseException
+	 */
+	private Runnable loadNext() throws ArooaParseException {
 		
-		// load child jobs for each value
-		while (preLoad < 1 || ready.size() < preLoad) {
-			if (iterator.hasNext()) {
-				loadConfigFor(iterator.next());
-			}
-			else {
-				return false;
-			}
-		}		
-		return true;
+		if (iterator.hasNext()) {
+			return loadConfigFor(iterator.next());
+		}
+		else {
+			return null;
+		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.Loadable#load()
+	 */
+	@Override
 	public void load() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
@@ -468,11 +500,16 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		}
 	};
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.Loadable#unload()
+	 */
 	@Override
 	public void unload() {
 		reset();
 	}
 	
+	@Override
 	public boolean isLoadable() {
 		return configurationHandles == null;
 	}
@@ -488,50 +525,41 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		ExecutionWatcher executionWatcher = 
 			new ExecutionWatcher(new Runnable() {
 				public void run() {
+					stop = false;
 					ForEachJob.super.startChildStateReflector();
 				}
 		});
 		
-		while (!stop) {
+		List<Runnable> readyNow = new ArrayList<Runnable>(ready);
+				
+		for (int i = 0; i < readyNow.size() && !stop; ++i) {
 			
-			loadNext();
+			Runnable job = readyNow.get(i);
 			
-			while (purgeAfter > 0 && complete.size() > purgeAfter) {
+			if (parallel) {
 				
-				remove(complete.removeFirst());
-			}
-			
-			if (ready.size() > 0) {
-				
-				Runnable child = ready.peekFirst();
-				
-				Runnable job = executionWatcher.addJob(child);	
-				
-				if (parallel) {
-					Future<?> future = executorService.submit(job);
-					jobThreads.add(future);
-				}
-				else {
-					job.run();
-					
-					// Test we can still execute children.
-					if (!new SequentialHelper().canContinueAfter(child)) {
-						logger().info("Job [" + child + "] failed. Can't continue.");
-						break;
-					}				
-				}
-				// Only remove if execution is continuing.
-				ready.removeFirst();
+				parallelRun(executionWatcher, job);
 			}
 			else {
-				break;
+				
+				final Runnable runnable = executionWatcher.addJob(job);	
+					
+				runnable.run();
+					
+				// Test we can still execute children.
+				if (!new SequentialHelper().canContinueAfter(job)) {
+					logger().info("Job [" + job + "] failed. Can't continue.");
+					break;
+				}
+				
+				Runnable next = purgeAndLoad();
+				if (next != null) {
+					readyNow.add(next);
+				}
 			}
 		}		
 		
-		if (stop) {
-			stop = false;
-		}
-		else {
+		if (!stop) {
 			// We need to do this force consistent state transitions. 
 			// This precludes the situation that all child jobs
 			// have completed before the execute method completes
@@ -544,8 +572,56 @@ implements Stoppable, Loadable, ConfigurationOwner {
 					}
 				});
 			}
-			executionWatcher.start();
 		}
+		executionWatcher.start();
+	}
+	
+	private synchronized void parallelRun(
+			final ExecutionWatcher executionWatcher, 
+			final Runnable job) {
+		
+		Runnable runnable = new Runnable() {
+			public void run() {
+				
+				job.run();
+				
+				if (stop) {
+					return;
+				}
+				
+				try {
+					Runnable next = purgeAndLoad();
+					if (next != null) {
+						parallelRun(executionWatcher, next);
+					}
+				} catch (ArooaParseException e) {
+					logger().error(e);
+				}
+			}
+		};
+
+		Runnable toSubmit = executionWatcher.addJob(runnable);
+		Future<?> future = executorService.submit(toSubmit);
+		
+		jobThreads.put(job, future);
+	}
+	
+	
+	
+	/**
+	 * Helper method to purge complete jobs (if the <code>purgeAfter</code>
+	 * property is set) and to load the next jobs to run.
+	 * 
+	 * @throws ArooaParseException
+	 */
+	private synchronized Runnable purgeAndLoad() throws ArooaParseException {
+		
+		while (purgeAfter > 0 && complete.size() > purgeAfter) {
+			
+			remove(complete.removeFirst());
+		}
+		
+		return loadNext();
 	}
 	
 	@Override
@@ -558,13 +634,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	protected void onStop() throws FailedToStopException {
 		super.onStop();
 
-		Iterable<Future<?>> jobThreads = this.jobThreads;
+		Map<Runnable, Future<?>> jobThreads = this.jobThreads;
 		if (jobThreads == null) {
 			return;
 		}
 
-		for (Future<?> future : jobThreads) {
-			future.cancel(false);
+		for (Map.Entry<Runnable, Future<?>> future : jobThreads.entrySet()) {
+			future.getValue().cancel(false);
 		}
 		
 		super.startChildStateReflector();
@@ -580,17 +656,28 @@ implements Stoppable, Loadable, ConfigurationOwner {
     /**
      * This provides a bean for current properties.
      */
-    public static class LocalBean {
+    public class LocalBean implements ArooaSessionAware {
     	
     	private final int index;
     	private final Object current;
 
-    	private Object job;
+    	private ArooaSession session;
+    	
+    	private Runnable job;
+    	
+    	private int structuralPosition = -1;
+    	private ConfigurationHandle handle;
     	
     	LocalBean (int index, Object value) {
     		this.index = index;
     		this.current = value;
     	}
+    	
+    	@Override
+    	public void setArooaSession(ArooaSession session) {
+    		this.session = session;
+    	}
+    	
     	public Object getCurrent() {
     		return current;
     	}
@@ -599,8 +686,37 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	}
     	
     	@ArooaComponent
-	    public void setJob(Object child) {
-	    	job = child;
+	    public void setJob(final Runnable child) {
+	    	
+    		// Do this locked so editing can't happen when job is being
+    		// stopped or reset or suchlike.
+    		stateHandler.callLocked(new Callable<Void>() {
+    			@Override
+    			public Void call() throws Exception {
+    		    	if (child == null) {
+    		    		structuralPosition = childHelper.removeChild(job);
+			    	    handle = configurationHandles.remove(job);
+			    	    jobThreads.remove(job);
+			    	    ready.remove(job);
+    		    	}
+    		    	else {
+    		    		// Replacement after edit.
+    		    		if (structuralPosition != -1) {
+    		    			
+    			    		// Configure the root so we can see the name if it 
+    			    	    // uses the current value.
+    			    		session.getComponentPool().configure(child);
+    			    		
+    			    	    childHelper.insertChild(structuralPosition, child);
+    			    	    configurationHandles.put(child, handle);
+    		    		}
+    		    	}
+    		    	
+    		    	job = child;
+    		    	
+    				return null;
+    			}
+    		});
 	    }
     }
 
@@ -877,42 +993,90 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	/**
 	 * Only the root foreach should result in a drag point..
 	 */
-	class ForeachConfigurationSession implements ConfigurationSession {
+	class ForeachConfigurationSession 
+	extends ListenerSupportBase<SessionStateListener>
+	implements ConfigurationSession {
 
-		private final ConfigurationSession delegate;
+		private final ConfigurationSession mainSession;
 		
-		public ForeachConfigurationSession(ConfigurationSession delegate) {
-			this.delegate = delegate;
+		private ConfigurationSession lastModifiedChildSession;
+		
+		public ForeachConfigurationSession() {
+			this.mainSession = new ConfigConfigurationSession(
+					getArooaSession(), configuration);
 		}
 		
 		public DragPoint dragPointFor(Object component) {
 			// required for the Design Inside action.
 			if (component == ForEachJob.this) {
-				return delegate.dragPointFor(component);
+				return mainSession.dragPointFor(component);
 			}
 			else {
+				for (ConfigurationHandle configHandle : 
+							configurationHandles.values()) {
+					
+					ConfigurationSession confSession = 
+							new HandleConfigurationSession(configHandle);
+						
+					DragPoint dragPoint = confSession.dragPointFor(component);
+					
+					if (dragPoint != null) {
+						
+						confSession.addSessionStateListener(new SessionStateListener() {
+							
+							@Override
+							public void sessionSaved(ConfigSessionEvent event) {
+								lastModifiedChildSession = null;
+								Iterable<SessionStateListener> listeners = copy();
+								for (SessionStateListener listener : listeners) {
+									listener.sessionSaved(event);
+								}
+							}
+							
+							@Override
+							public void sessionModifed(ConfigSessionEvent event) {
+								lastModifiedChildSession = event.getSource();
+								Iterable<SessionStateListener> listeners = copy();
+								for (SessionStateListener listener : listeners) {
+									listener.sessionModifed(event);
+								}
+							}
+						});
+						
+						return dragPoint;
+					}
+				}
+				
 				return null;
 			}
 		}
 		
 		public ArooaDescriptor getArooaDescriptor() {
-			return delegate.getArooaDescriptor();
+			return mainSession.getArooaDescriptor();
 		}
 		
 		public void save() throws ArooaParseException {
-			delegate.save();
+			if (lastModifiedChildSession != null) {
+				lastModifiedChildSession.save();
+			}
+			else {
+				mainSession.save();
+			}
 		}
 		
 		public boolean isModified() {
-			return delegate.isModified();
+			return lastModifiedChildSession != null || 
+					mainSession.isModified();
 		}
 		
 		public void addSessionStateListener(SessionStateListener listener) {
-			delegate.addSessionStateListener(listener);
+			super.addListener(listener);
+			mainSession.addSessionStateListener(listener);
 		}
 		
 		public void removeSessionStateListener(SessionStateListener listener) {
-			delegate.removeSessionStateListener(listener);
+			super.removeListener(listener);
+			mainSession.removeSessionStateListener(listener);
 		}
 	}
 }

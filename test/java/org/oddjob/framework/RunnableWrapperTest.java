@@ -142,8 +142,10 @@ public class RunnableWrapperTest extends TestCase {
         ((ArooaSessionAware) proxy).setArooaSession(session);
         ((ArooaContextAware) proxy).setArooaContext(context);
         
-        MyListener l = new MyListener();
-        ((Stateful) proxy).addStateListener(l);
+        MyStateListener stateListener = new MyStateListener();
+        ((Stateful) proxy).addStateListener(stateListener);
+        
+        assertSame(proxy, stateListener.lastEvent.getSource());
         
         ((Runnable) proxy).run();
         
@@ -152,20 +154,20 @@ public class RunnableWrapperTest extends TestCase {
         
         assertTrue(test.ran);
         assertEquals("JobState", JobState.COMPLETE, 
-                l.lastEvent.getState());
+                stateListener.lastEvent.getState());
         
         session.saved = null;
         
         ((Resetable) proxy).hardReset();
         assertEquals("JobState", JobState.READY, 
-                l.lastEvent.getState());
+                stateListener.lastEvent.getState());
 	
         assertEquals(proxy, session.saved);
         
         ((Forceable) proxy).force();
         
         assertEquals("JobState", JobState.COMPLETE, 
-                l.lastEvent.getState());
+                stateListener.lastEvent.getState());
     }
 
     /**
@@ -189,7 +191,7 @@ public class RunnableWrapperTest extends TestCase {
         
         ((ArooaSessionAware) proxy).setArooaSession(session);
         
-        MyListener l = new MyListener();
+        MyStateListener l = new MyStateListener();
         ((Stateful) proxy).addStateListener(l);
         ((Runnable) proxy).run();
         assertEquals("JobState", JobState.EXCEPTION, 
@@ -200,7 +202,7 @@ public class RunnableWrapperTest extends TestCase {
     }
     
     /** Listener fixture. */
-    private class MyListener implements StateListener {
+    private class MyStateListener implements StateListener {
         StateEvent lastEvent;
         public void jobStateChange(StateEvent event) {
             lastEvent = event;

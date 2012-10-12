@@ -18,7 +18,8 @@ import org.oddjob.Structural;
  * @author Rob Gordon
  */
 
-public class ChildHelper<E> implements Structural, Iterable<E> {
+public class ChildHelper<E> 
+implements Structural, Iterable<E>, ChildList<E> {
 
 	/** Contains the child jobs. */
 	private final List<E> jobList = 
@@ -52,6 +53,7 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 	 * @param index The index.
 	 * @param child The child.
 	 */
+	@Override
 	public void insertChild(int index, E child) {
 		if (child == null) {
 			throw new NullPointerException("Attempt to add a null child.");
@@ -68,6 +70,14 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 		notifyChildAdded(event);
 	}
 	
+	/**
+	 * Add a child to the end of the list.
+	 * 
+	 * @param child The child. Must not be null.
+	 * 
+	 * @return The index the child was added at.
+	 */
+	@Override
 	public int addChild(E child) {
 		if (child == null) {
 			throw new NullPointerException("Attempt to add a null child.");
@@ -95,8 +105,11 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 	 * 
 	 * @param index The index of the child to remove.
 	 * @return The child removed.
+	 * 
+	 * @throws IndexOutOfBoundsException If there is no child at the index.
 	 */
-	public E removeChildAt(int index) {
+	@Override
+	public E removeChildAt(int index) throws IndexOutOfBoundsException {
 		E child = null;
 		
 		StructuralEvent event;
@@ -112,7 +125,16 @@ public class ChildHelper<E> implements Structural, Iterable<E> {
 		return child;
 	}
 	
-	public int removeChild(Object child) {
+	/**
+	 * Remove a child.
+	 * 
+	 * @param child The child to be removed.
+	 * @return The index the child was removed from.
+	 * 
+	 * @throws IllegalStateException If the child is not our child.
+	 */
+	@Override
+	public int removeChild(Object child) throws IllegalStateException {
 		int index = -1;
 		
 		StructuralEvent event;

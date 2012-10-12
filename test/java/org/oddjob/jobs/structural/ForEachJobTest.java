@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +29,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.OurDirs;
+import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaParseException;
@@ -98,6 +100,11 @@ public class ForEachJobTest extends TestCase {
 		public void setIndex(int index) {
 			this.index = index;
 		}
+		
+		@Override
+		public String toString() {
+			return getClass().getSimpleName() + " index " + index;
+		}
 	}
 	
 	private class ChildCatcher implements StructuralListener {
@@ -133,6 +140,8 @@ public class ForEachJobTest extends TestCase {
 			
 		test.run();
 		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		
 		assertEquals(2, children.children.size());
 		
 		OurJob job1 = (OurJob) children.children.get(0);
@@ -146,6 +155,25 @@ public class ForEachJobTest extends TestCase {
 		assertEquals(1, job2.index);
 		assertTrue(job2.ran);
 		
+	}
+	
+	public void testWithEmptyList() {
+
+		String xml = "<foreach/>";
+		
+		ForEachJob test = new ForEachJob();
+		test.setArooaSession(new OddjobSessionFactory().createSession());
+		test.setConfiguration(new XMLConfiguration("XML", xml));
+		test.setValues(Collections.emptyList());
+		
+		StateSteps state = new StateSteps(test);
+		
+		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.READY);
+		
+		test.run();
+		
+		state.checkNow();
 	}
 	
 	public void testLoadOnJobTwoValues() throws ArooaParseException {
@@ -994,6 +1022,11 @@ public class ForEachJobTest extends TestCase {
     	public void setNumber(int number) {
 			this.number = number;
 		}
+    	
+    	@Override
+    	public String toString() {
+    		return getClass().getSimpleName() + " " + number;
+    	}
     }
     
     /**

@@ -1,7 +1,11 @@
 package org.oddjob.swing;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
@@ -15,18 +19,23 @@ import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
+import javax.swing.border.EtchedBorder;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
+import org.oddjob.Oddjob;
 import org.oddjob.OddjobServices;
 import org.oddjob.OddjobShutdownThread;
 import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
@@ -37,11 +46,14 @@ import org.oddjob.framework.SimpleService;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.input.InputHandler;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
 /**
- * Provide a simple panel with buttons on to run Oddjob jobs.
+ * Provide a simple panel with buttons on, that run Oddjob jobs.
  * <p>
  * 
  * @author rob
@@ -68,7 +80,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	private int columns = 2;
 	
 	/** The frame */
-	private volatile transient JFrame frame;
+	private volatile transient FrameWithStatus frame;
 	
 	/**
 	 * Constructor.
@@ -109,7 +121,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 		
 		JPanel panel = new JPanel(new GridLayout(rows, columns, 10, 10));
 				
-		for (Runnable job : jobs) {
+		for (final Runnable job : jobs) {
 		
 			JobButtonAction action = new JobButtonAction(job);
 			
@@ -118,6 +130,26 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 			JButton button = new JButton(action);
 			
 			panel.add(button);
+			
+			if (job instanceof Stateful) {
+				((Stateful) job).addStateListener(new StateListener() {
+					
+					@Override
+					public void jobStateChange(StateEvent event) {
+						if (StateConditions.FINISHED.test(
+								event.getState())) {
+							
+							String status = job.toString() + ": " +
+									event.getState();
+							if (event.getException() != null) {
+								status += " " + event.getException();
+							}
+							
+							frame.setStatus(status);
+						}
+					}
+				});
+			}
 		}
 		
 		JPanel padding = new JPanel();
@@ -136,9 +168,20 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 		
 		
 		JScrollPane scroll = new JScrollPane(panel);
-		scroll.setPreferredSize(screen.getSize());
 		
-		frame = new JFrame();
+		frame = new FrameWithStatus();
+		screen.fit(frame);
+		
+		frame.addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				screen = new ScreenPresence(e.getComponent());
+			}
+			@Override
+			public void componentResized(ComponentEvent e) {
+				screen = new ScreenPresence(e.getComponent());
+			}
+		});
 		
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -159,8 +202,9 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		frame.setTitle(this.toString());
 		
-		frame.getContentPane().add(scroll);
-		frame.pack();
+		scroll.setBorder(BorderFactory.createEtchedBorder(
+				EtchedBorder.RAISED));
+		frame.getContentPane().add(scroll, BorderLayout.CENTER);
 		
 		frame.setVisible(true);
 		
@@ -396,4 +440,21 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 		completeConstruction();
 	}
 
+	
+	static class FrameWithStatus extends JFrame {
+		private static final long serialVersionUID = 2012092800L;
+		
+		private final JLabel status = new JLabel("Oddjob " + Oddjob.VERSION);
+		
+		public FrameWithStatus() {
+			Container container = getContentPane();
+			container.setLayout(new BorderLayout());
+			
+			container.add(status, BorderLayout.SOUTH);
+		}		
+		
+		public void setStatus(String status) {
+			this.status.setText(status);
+		}
+	}
 }
