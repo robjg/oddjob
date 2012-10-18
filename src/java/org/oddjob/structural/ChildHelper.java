@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
@@ -20,7 +21,8 @@ import org.oddjob.Structural;
 
 public class ChildHelper<E> 
 implements Structural, Iterable<E>, ChildList<E> {
-
+	private static final Logger logger = Logger.getLogger(ChildHelper.class);
+	
 	/** Contains the child jobs. */
 	private final List<E> jobList = 
 		new ArrayList<E>();
@@ -404,7 +406,20 @@ implements Structural, Iterable<E>, ChildList<E> {
 			this.event = event;
 		}
 		
-		abstract public void dispatch(StructuralListener listener);
+		final void dispatch(StructuralListener listener) {
+			try {
+				doDispatch(listener);
+			}
+			catch (RuntimeException e) {
+				logger.error("Failed dispatching " + 
+						getClass().getSimpleName() + " event to listener " + 
+						listener, e);
+			}
+		}
+		
+		
+		abstract void doDispatch(StructuralListener listener) 
+		throws RuntimeException;
 	}
 	
 	/**
@@ -415,11 +430,13 @@ implements Structural, Iterable<E>, ChildList<E> {
 		public ChildAdded(StructuralEvent event) {
 			super(event);
 		}
+		
 		@Override
-		public void dispatch(StructuralListener listener) {
-			listener.childAdded(event);
+		void doDispatch(StructuralListener listener) {
 			
+			listener.childAdded(event);			
 		}
+		
 	}
 	
 	/**
@@ -431,9 +448,9 @@ implements Structural, Iterable<E>, ChildList<E> {
 			super(event);
 		}
 		@Override
-		public void dispatch(StructuralListener listener) {
-			listener.childRemoved(event);
+		public void doDispatch(StructuralListener listener) {
 			
+			listener.childRemoved(event);
 		}
 	}
 	
@@ -448,7 +465,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 			copy = new ArrayList<StructuralListener>(listeners);
 		}		
 		for (StructuralListener l : copy) {
-			l.childAdded(event);
+			new ChildAdded(event).dispatch(l);
 		}
 	}
 	
@@ -463,7 +480,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 			copy = new ArrayList<StructuralListener>(listeners);
 		}		
 		for (StructuralListener l : copy) {
-			l.childRemoved(event);
+			new ChildRemoved(event).dispatch(l);
 		}
 	}
 		

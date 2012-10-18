@@ -14,6 +14,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
 import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -72,9 +73,13 @@ implements ComponentWrapper, Serializable, Forceable {
 		completeConstruction();
 	}
 
+	/**
+	 * Complete construction. Called by constructor and post
+	 * deserialisation.
+	 */
 	private void completeConstruction() {
 		this.dynaBean = new WrapDynaBean(wrapped);
-		stateHandler = new JobStateHandler(this);
+		stateHandler = new JobStateHandler((Stateful) proxy);
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override

@@ -20,6 +20,8 @@ import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
+import org.oddjob.arooa.registry.BeanDirectory;
+import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.general.Vendor;
@@ -72,16 +74,31 @@ public class JMXServiceJobTest extends TestCase {
 	}
 	
 	private class ChildCatcher implements StructuralListener {
+				
 		final Map<String, Object> children = 
 				new HashMap<String, Object>();
 		
 		public void childAdded(StructuralEvent event) {
+			
+			// Check for bug where directory was set after children
+			// created.
+			if (event.getSource() instanceof BeanDirectoryOwner) {
+				BeanDirectoryOwner directoryOwner = 
+						(BeanDirectoryOwner) event.getSource();
+				BeanDirectory directory = directoryOwner.provideBeanDirectory();
+				if (directory == null) {
+					throw new NullPointerException(
+							"This is the bug - directory is null!!!");
+				}
+			}
+			
 			Object child = event.getChild();
 			String name = child.toString();
 			if (children.containsKey(name)) {
 				throw new IllegalStateException();
 			}
 			children.put(name, child);
+		
 		}
 		
 		public void childRemoved(StructuralEvent event) {
@@ -98,14 +115,22 @@ public class JMXServiceJobTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/jmx/JMXServiceExample.xml", 
 				getClass().getClassLoader()));
+		
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Object test = lookup.lookup("jmx-service");
+		
+		// here to catch a bug with BeanDirectoryOwner
+		ChildCatcher domainsCatcher = new ChildCatcher();
+
+		((Structural) test).addStructuralListener(domainsCatcher);
+		
 		oddjob.run();
 		
 		assertEquals(ParentState.ACTIVE, 
 				oddjob.lastStateEvent().getState());
-		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
-				
-		Object test = lookup.lookup("jmx-service");
 		
 		// Test Bean Directory
 
@@ -121,9 +146,7 @@ public class JMXServiceJobTest extends TestCase {
 		assertEquals(94.23, lookup.lookup(
 				"invoke-quote.result", double.class), 0.01);
 		
-		ChildCatcher domainsCatcher = new ChildCatcher();
-
-		((Structural) test).addStructuralListener(domainsCatcher);
+		// Check domains 
 		
 		assertTrue(domainsCatcher.children.containsKey("fruit"));
 				
@@ -135,7 +158,6 @@ public class JMXServiceJobTest extends TestCase {
 		fruitDomain.addStructuralListener(fruitCatcher);
 		
 		assertTrue(fruitCatcher.children.size() == 1);
-		
 		
 		oddjob.stop();
 		

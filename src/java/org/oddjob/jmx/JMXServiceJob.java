@@ -99,6 +99,8 @@ implements Structural, BeanDirectoryOwner {
 		SimpleMBeanSession session = new SimpleMBeanSession(
 				getArooaSession(), mbsc);
 		
+		beanDirectory = new MBeanDirectory(session);
+		
 		String[] domains = mbsc.getDomains();
 		
 		for (String domain: domains) {
@@ -110,9 +112,7 @@ implements Structural, BeanDirectoryOwner {
 			// done after add to allow logger archiver to be added.
 			node.initialise();
 		}
-		
-		beanDirectory = new MBeanDirectory(session);
-		
+				
 		notificationProcessor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
 				try {

@@ -396,7 +396,7 @@ implements Stoppable, ConsoleOwner {
 					os.close();
 					bis.close();
 				} catch (IOException e) {
-					logger().error("Failed copying stream.", e);
+					logger().error("Failed copying process stdout.", e);
 				}
 			}
 		});
@@ -417,7 +417,7 @@ implements Stoppable, ConsoleOwner {
 						os.close();
 						bis.close();
 					} catch (IOException e) {
-						logger().error("Failed copying stream.", e);
+						logger().error("Failed copying process stderr.", e);
 					}
 				}	
 			});
