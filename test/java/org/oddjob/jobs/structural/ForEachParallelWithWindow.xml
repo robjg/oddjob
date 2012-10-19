@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <foreach id="foreach" parallel="true" preLoad="2" purgeAfter="3">
+            <values>
+                <bean class="org.oddjob.jobs.structural.ForEachParallelTest$BigList"/>
+            </values>
+            <configuration>
+                <xml>
+                    <foreach id="loop">
+                        <job>
+                            <wait name="Wait ${loop.current}"/>
+                        </job>
+                    </foreach>
+                </xml>
+            </configuration>
+        </foreach>
+    </job>
+</oddjob>

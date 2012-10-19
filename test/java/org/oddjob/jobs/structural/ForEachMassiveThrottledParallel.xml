@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <foreach id="foreach" parallel="true" preLoad="5" purgeAfter="3">
+            <values>
+                <bean class="org.oddjob.jobs.structural.ForEachParallelTest$BigList" listSize="1000"/>
+            </values>
+            <configuration>
+                <xml>
+                    <foreach id="loop">
+                        <job>
+                            <wait name="Wait ${loop.current}" pause="10"/>
+                        </job>
+                    </foreach>
+                </xml>
+            </configuration>
+            <executorService>
+                <throttle limit="3"/>
+            </executorService>
+        </foreach>
+    </job>
+</oddjob>
