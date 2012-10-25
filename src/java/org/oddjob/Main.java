@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.ConsoleAppender;
@@ -15,6 +17,8 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
+import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
+import org.oddjob.arooa.deploy.ListDescriptorBean;
 import org.oddjob.input.ConsoleInputHandler;
 import org.oddjob.input.StdInInputHandler;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
@@ -121,16 +125,8 @@ public class Main {
 		
 		oddjob.setName(name);
 		
-		if (oddballsPath != null) {
-			oddjob.setDescriptorFactory(
-					new OddballsDescriptorFactory(
-							new FileConvertlets().pathToFiles(
-									oddballsPath)));
-		}
-		else if (oddballsDir != null) {
-			oddjob.setDescriptorFactory(
-					new OddballsDirDescriptorFactory(oddballsDir));			
-		}
+		oddjob.setDescriptorFactory(
+				resolveOddballs(oddballsPath, oddballsDir));
 		
 		if (System.console() == null) {
 			oddjob.setInputHandler(new StdInInputHandler());
@@ -149,6 +145,35 @@ public class Main {
 		return new OddjobRunner(oddjob);
 	}
 
+    protected ArooaDescriptorFactory resolveOddballs(String oddballsPath,
+    		File oddballsDir) {
+    	
+    	List<ArooaDescriptorFactory> descriptors = 
+    			new ArrayList<ArooaDescriptorFactory>();
+		
+		if (oddballsPath != null) {
+			descriptors.add(
+					new OddballsDescriptorFactory(
+							new FileConvertlets().pathToFiles(
+									oddballsPath)));
+		}
+		
+		if (oddballsDir != null) {
+			descriptors.add(
+					new OddballsDirDescriptorFactory(oddballsDir));			
+		}
+    	
+    	switch (descriptors.size()) {
+    	case 0:
+    		return null;
+    	case 1:
+    		return descriptors.get(0);
+    	default:
+    		return new ListDescriptorBean(descriptors);
+    	}
+    	
+    }
+    
     /**
      * Configure logging from a log file.
      * 
