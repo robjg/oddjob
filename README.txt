@@ -6,6 +6,11 @@ Changes in 1.3.0
 - New Swing Panel is available that provides Oddjob jobs as simple Buttons.
   It is not yet an Oddjob element but can be added with 
   <bean class='org.oddjob.swing.OddjobPanel'/>
+- Change foreach so that a parallel foreach can have a run window (i.e. 
+  preLoad and purgeAfter properties). Also individual foreach jobs may now 
+  be configured with designer.
+- Developer Guide documentation has been improved especially around 
+  using Oddballs.
 
 Still To Do for 1.3.0
 ---------------------
@@ -14,10 +19,10 @@ Still To Do for 1.3.0
   designer forms.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
-- Finish OddjobPanel. Add a status bar and possibly a logging/console
-  window.
-
-
+- Introduce a witheach job that behaves like foreach except that values
+  are 'pushed' into it.
+- Add serialisation of services.
+- Document synthetic annotations in the Developer Guide.
 
 Deferred to A Later Version
 ---------------------------

@@ -161,10 +161,17 @@ implements ComponentWrapper, Serializable, Forceable {
 				logger().error("Exception:", t);
 				exception.set(t);
 			} finally {
-				if (Thread.interrupted()) {
-					logger().debug("Clearing thread interrupted flag.");
-				}
-				thread = null;
+				stateHandler.callLocked(new Callable<Void>() {
+					@Override
+					public Void call() {
+						if (Thread.interrupted()) {
+							logger().debug("Clearing thread interrupted flag.");
+						}
+						thread = null;
+						return null;
+					}
+				});
+				
 			}
 			
 			logger().info("Finished.");
@@ -201,10 +208,16 @@ implements ComponentWrapper, Serializable, Forceable {
 		if (wrapped instanceof Stoppable) {
 			((Stoppable) wrapped).stop();
 		} else {
-			Thread t = thread;
-			if (t != null){
-				t.interrupt();
-			}
+			stateHandler.callLocked(new Callable<Void>() {
+				@Override
+				public Void call() {
+					Thread t = thread;
+					if (t != null){
+						t.interrupt();
+					}
+					return null;
+				}
+			});
 		}
 	}
 

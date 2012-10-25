@@ -94,6 +94,13 @@ implements ComponentWrapper {
 			logger().info("Starting.");
 			
         	try {
+        		if (Thread.interrupted()) {
+        			throw new InterruptedException(
+        					"Service Thread interrupt flag set. " +
+        					"Please ensure previous jobs clean up after " +
+        					"themselves to guarantee consistent behaviour.");
+        		}
+        		
         		configure();
         		
         		service.start();
