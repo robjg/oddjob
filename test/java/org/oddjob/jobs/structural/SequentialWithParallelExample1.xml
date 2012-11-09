@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <parallel>
+                    <jobs>
+                        <wait pause="5000"/>
+                        <wait pause="5000"/>
+                    </jobs>
+                </parallel>
+                <echo name="This Will Never Run"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

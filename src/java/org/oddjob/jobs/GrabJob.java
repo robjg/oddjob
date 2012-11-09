@@ -25,7 +25,7 @@ import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsDone;
+import org.oddjob.state.IsDoneOrCrashed;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
@@ -271,7 +271,7 @@ implements
 		public void jobStateChange(StateEvent event) {
 			final State state = event.getState();
 
-			if (new IsDone().test(state)) {
+			if (new IsDoneOrCrashed().test(state)) {
 				outcome.removeStateListener(this);
 				listener = null;			
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {

@@ -96,7 +96,8 @@ public class OverridingExecutorServiceTest extends TestCase {
 		oddjobStates.checkWait();
 				
 		oddjobStates.startCheck(ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.COMPLETE);
+				ParentState.ACTIVE, ParentState.STARTED, 
+				ParentState.COMPLETE);
 		
 		states1.checkWait();
 		states2.checkWait();

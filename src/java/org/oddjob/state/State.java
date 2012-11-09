@@ -28,12 +28,14 @@ public interface State {
 	public boolean isStoppable();
 	
 	/**
-	 * Can a state be passed over to enable it's siblings to 
+	 * Has the work of the job been done? A Job will be 
+	 * {@link JobState#COMPLETE} or a service {@link ServiceState#STARTED}
+	 * Used by {@link CascadeJob} to see if a jobs immediate sibling can
 	 * be executed.
 	 * 
 	 * @return true/false;
 	 */
-	public boolean isPassable();
+	public boolean isDone();
 	
 	/**
 	 * Is a job or service complete?

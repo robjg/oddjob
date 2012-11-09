@@ -320,7 +320,7 @@ public class SequentialJobTest extends TestCase {
 
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
@@ -328,7 +328,7 @@ public class SequentialJobTest extends TestCase {
 		
 		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		
@@ -356,7 +356,7 @@ public class SequentialJobTest extends TestCase {
 		
 		StateSteps states = new StateSteps(sequential1);
 		states.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
@@ -364,7 +364,7 @@ public class SequentialJobTest extends TestCase {
 		
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		

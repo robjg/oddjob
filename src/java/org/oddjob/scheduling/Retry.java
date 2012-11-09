@@ -85,7 +85,7 @@ public class Retry extends TimerBase {
 	protected void rescheduleOn(State state) throws ComponentPersistException {
 	    State completeOrNot = new CompleteOrNotOp().evaluate(state);
 	    if (completeOrNot.isComplete()) {
-	    	setNextDue(null);
+	    	internalSetNextDue(null);
 	    }
 	    else {
 

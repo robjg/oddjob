@@ -30,7 +30,7 @@ public class IconSteps {
 		
 		private boolean done;
 		
-		private String failureMessage;
+		private IllegalStateException failureException;
 		
 		public Listener(String[] steps) {
 			this.steps = steps;
@@ -39,7 +39,7 @@ public class IconSteps {
 		@Override
 		public void iconEvent(IconEvent event) {
 			String position;
-			if (failureMessage != null) {
+			if (failureException != null) {
 				position = "(failure pending)";
 			}
 			else {
@@ -50,9 +50,9 @@ public class IconSteps {
 					"] " + position + " from [" + event.getSource() + "]");
 			
 			if (index >= steps.length) {
-				failureMessage = 
+				failureException = new IllegalStateException(
 					"More icons than expected: " + event.getIconId() + 
-					" (index " + index + ")";
+					" (index " + index + ")");
 			}
 			else {
 				if (event.getIconId() == steps[index]) {
@@ -65,10 +65,10 @@ public class IconSteps {
 				}
 				else {
 					done = true;
-					failureMessage = 
+					failureException = new IllegalStateException(
 							"Expected " + steps[index] + 
 							", was " + event.getIconId() + 
-							" (index " + index + ")";
+							" (index " + index + ")");
 					synchronized(this) {
 						notifyAll();
 					}
@@ -94,8 +94,8 @@ public class IconSteps {
 		
 		try {
 			if (listener.done) {
-				if (listener.failureMessage != null) {
-					throw new IllegalStateException(listener.failureMessage);
+				if (listener.failureException != null) {
+					throw listener.failureException;
 				}
 			}
 			else {

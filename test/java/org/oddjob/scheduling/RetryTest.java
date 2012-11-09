@@ -135,7 +135,7 @@ public class RetryTest extends TestCase {
 		
 		oddjobServices.runnable.run();
 
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		assertEquals(2 * 60 * 1000, oddjobServices.delay);
 		assertEquals(
@@ -207,7 +207,7 @@ public class RetryTest extends TestCase {
 		
 		oddjobServices.runnable.run();
 
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		assertEquals(0, oddjobServices.delay);
 		assertEquals(
@@ -397,7 +397,7 @@ public class RetryTest extends TestCase {
 		
 		StateSteps steps = new StateSteps(test);
 		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 				
 		CountSchedule count = new CountSchedule();
 		count.setCount(3);
@@ -434,7 +434,7 @@ public class RetryTest extends TestCase {
 		steps.checkNow();
 		
 		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 		
 		test.run();
 		
@@ -616,11 +616,11 @@ public class RetryTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 
 		job.start();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		SimpleJob stop = new SimpleJob() {
 			@Override
@@ -647,12 +647,12 @@ public class RetryTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 
 		job.start();
 		job.complete();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		test.stop();
 		
@@ -741,7 +741,7 @@ public class RetryTest extends TestCase {
 	    	StateSteps oddjobStates = new StateSteps(oddjob);
 	    	oddjobStates.startCheck(ParentState.READY, 
 	    			ParentState.EXECUTING, 
-	    			ParentState.ACTIVE);
+	    			ParentState.STARTED);
 	    	
 	    	StateSteps existsStates = new StateSteps(exists);
 	    	existsStates.startCheck(JobState.READY, 
@@ -753,7 +753,7 @@ public class RetryTest extends TestCase {
 	    	oddjobStates.checkNow();
 	    	existsStates.checkWait();
 	    	
-	    	oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY);
+	    	oddjobStates.startCheck(ParentState.STARTED, ParentState.READY);
 	    	
 	    	oddjob.stop();
 	    	

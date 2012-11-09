@@ -5,6 +5,7 @@ package org.oddjob.scheduling;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.ParseException;
 
 import junit.framework.TestCase;
 
@@ -34,7 +35,7 @@ public class TimerDesFaTest extends TestCase {
 	
 	DesignInstance design;
 	
-	public void testCreate() throws ArooaParseException, URISyntaxException {
+	public void testCreate() throws ArooaParseException, URISyntaxException, ParseException {
 		
 		String xml =  
 			"<scheduling:timer xmlns:scheduling='http://rgordon.co.uk/oddjob/scheduling'" + 
@@ -86,6 +87,8 @@ public class TimerDesFaTest extends TestCase {
 		
 		design = parser.getDesign();
 		
+		assertEquals(TimerDesign.class, design.getClass());
+		
 		Timer timer = (Timer) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
@@ -97,7 +100,7 @@ public class TimerDesFaTest extends TestCase {
 	}
 
 	public static void main(String args[]) 
-	throws ArooaParseException, URISyntaxException {
+	throws ArooaParseException, URISyntaxException, ParseException {
 
 		TimerDesFaTest test = new TimerDesFaTest();
 		test.testCreate();

@@ -4,14 +4,14 @@ import junit.framework.TestCase;
 
 public class ServiceManagerStateOpTest extends TestCase {
 
-	public void testEvaluateSingleOp() {
+	public void testEvaluateSingleJobOp() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
 		
 		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.READY));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -24,25 +24,43 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(JobState.COMPLETE));
 	}
 	
-	public void testEvaluateSingleOpService() {
+	public void testEvaluateSingleServiceOp() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
 		
 		assertEquals(ParentState.READY, 
 				test.evaluate(ServiceState.READY));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING));
 		
 		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(ServiceState.STARTED));
-		
+				
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.EXCEPTION));
 				
 		assertEquals(ParentState.COMPLETE, 
 				test.evaluate(ServiceState.COMPLETE));
 	}
+	
+	public void testAssociative() {
+
+		ServiceManagerStateOp test = new ServiceManagerStateOp();
+		
+		ParentState[] values = ParentState.values();
+		
+		for (int i = 0; i < values.length - 1; ++i) {
+			for (int j = 0; j < values.length - 1; ++j) {
+				ParentState oneWay = test.evaluate(values[i], values[j]);
+				ParentState otherWay = test.evaluate(values[j], values[i]);
+				
+				assertSame("Failed on i=" + i + ", j = " + j,
+						oneWay, otherWay);
+			}
+		}
+	}
+
 	
 	public void testEvaluateTwoOps() {
 		
@@ -66,10 +84,10 @@ public class ServiceManagerStateOpTest extends TestCase {
 		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.EXECUTING, JobState.READY));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.EXECUTING));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.COMPLETE));
 
 		assertEquals(ParentState.INCOMPLETE, 
@@ -96,7 +114,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.COMPLETE, JobState.READY));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.COMPLETE, JobState.EXECUTING));
 		
 		assertEquals(ParentState.COMPLETE, 
@@ -143,10 +161,10 @@ public class ServiceManagerStateOpTest extends TestCase {
 		assertEquals(ParentState.READY, 
 				test.evaluate(ServiceState.STARTING, ServiceState.READY));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.STARTED));
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.COMPLETE));
 		
 		assertEquals(ParentState.EXCEPTION, 

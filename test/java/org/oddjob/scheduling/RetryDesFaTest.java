@@ -54,6 +54,8 @@ public class RetryDesFaTest extends TestCase {
 		
 		design = parser.getDesign();
 		
+		assertEquals(RetryDesign.class, design.getClass());
+		
 		Retry test = (Retry) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		

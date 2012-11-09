@@ -24,6 +24,8 @@ public class SequentialHelper {
 		if (child instanceof Stateful) {
 			state = ((Stateful) child).lastStateEvent().getState();
 		}
-		return state.isPassable();
+		
+		StateCondition condition = StateConditions.FAILURE;
+		return ! (condition.test(state));
 	}	
 }

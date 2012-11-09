@@ -7,6 +7,7 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.Helper;
 import org.oddjob.OddjobDescriptorFactory;
@@ -19,7 +20,6 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.EchoJob;
 
 /**
  *
@@ -60,11 +60,11 @@ public class EchoDCTest extends TestCase {
 		
 		assertEquals(EchoDesign.class, design.getClass());
 		
-		EchoJob test = (EchoJob) Helper.createComponentFromConfiguration(
+		DynaBean test = (DynaBean) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals("Test", test.getName());
-		assertEquals("Hello", test.getText());
+		assertEquals("Test", test.get("name"));
+		assertEquals("Hello", test.get("text"));
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

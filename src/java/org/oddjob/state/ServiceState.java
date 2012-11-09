@@ -20,7 +20,7 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -55,7 +55,7 @@ public enum ServiceState implements State {
 			return true;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -90,7 +90,7 @@ public enum ServiceState implements State {
 			return true;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return true;
 		}
 		@Override
@@ -124,7 +124,7 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return true;
 		}
 		@Override
@@ -159,7 +159,7 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -193,7 +193,7 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override

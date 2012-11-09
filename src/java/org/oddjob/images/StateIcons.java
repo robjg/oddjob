@@ -25,6 +25,7 @@ public class StateIcons {
 		iconIds.put(ParentState.READY, IconHelper.READY);
 		iconIds.put(ParentState.EXECUTING, IconHelper.EXECUTING);
 		iconIds.put(ParentState.ACTIVE, IconHelper.ACTIVE);
+		iconIds.put(ParentState.STARTED, IconHelper.STARTED);
 		iconIds.put(ParentState.INCOMPLETE, IconHelper.NOT_COMPLETE);
 		iconIds.put(ParentState.COMPLETE, IconHelper.COMPLETE);
 		iconIds.put(ParentState.EXCEPTION, IconHelper.EXCEPTION);

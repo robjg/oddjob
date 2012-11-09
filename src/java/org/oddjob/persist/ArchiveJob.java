@@ -19,7 +19,7 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsDone;
+import org.oddjob.state.IsDoneOrCrashed;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
@@ -224,7 +224,7 @@ implements
 
 				State state = event.getState();
 
-				if (new IsDone().test(state)) {
+				if (new IsDoneOrCrashed().test(state)) {
 
 					if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 						public void run() {

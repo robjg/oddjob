@@ -174,8 +174,8 @@ public class TogetherTest extends TestCase {
 		
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE, 
-				ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.STARTED, ParentState.COMPLETE);
 		
 		oddjob.run();
 
@@ -242,7 +242,7 @@ public class TogetherTest extends TestCase {
 		
 		serverOddjob.run();
 	
-		assertEquals(ParentState.ACTIVE, serverOddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, serverOddjob.lastStateEvent().getState());
 		
 		String serverAddress = (String) new OddjobLookup(
 				serverOddjob).lookup("server.address");
@@ -282,7 +282,7 @@ public class TogetherTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		Object client = new OddjobLookup(oddjob).lookup("client");
 		

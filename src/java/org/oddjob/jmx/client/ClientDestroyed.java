@@ -13,7 +13,7 @@ public class ClientDestroyed implements State {
 		return false;
 	}
 	@Override
-	public boolean isPassable() {
+	public boolean isDone() {
 		return false;
 	}
 	@Override

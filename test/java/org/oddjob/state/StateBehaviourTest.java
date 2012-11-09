@@ -115,12 +115,12 @@ public class StateBehaviourTest extends TestCase {
 		
 		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 		
-		assertEquals(JobState.READY, 
+		assertEquals(JobState.COMPLETE, 
 				((Stateful) echo).lastStateEvent().getState());
 		
 		((Stoppable) sequential).stop();
 		
-		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}
@@ -148,13 +148,13 @@ public class StateBehaviourTest extends TestCase {
 		Object echo = lookup.lookup("echo");
 		
 		
-		StateSteps checker = new StateSteps((Stateful) sequential);
-		checker.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+		StateSteps sequentialStates = new StateSteps((Stateful) sequential);
+		sequentialStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		((Runnable) sequential).run();
 		
-		checker.checkNow();
+		sequentialStates.checkNow();
 		
 		assertEquals(ServiceState.STARTED, 
 				((Stateful) service).lastStateEvent().getState());
@@ -163,7 +163,7 @@ public class StateBehaviourTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
 				((Stateful) echo).lastStateEvent().getState());
@@ -200,7 +200,7 @@ public class StateBehaviourTest extends TestCase {
 		
 		StateSteps checker = new StateSteps((Stateful) sequential);
 		checker.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		((Runnable) sequential).run();
 		
@@ -210,7 +210,7 @@ public class StateBehaviourTest extends TestCase {
 		
 		checker.checkNow();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
 				((Stateful) echo).lastStateEvent().getState());

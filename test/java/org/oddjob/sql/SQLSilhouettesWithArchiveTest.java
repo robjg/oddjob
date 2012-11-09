@@ -33,7 +33,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		

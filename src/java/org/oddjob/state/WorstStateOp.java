@@ -1,5 +1,7 @@
 package org.oddjob.state;
 
+import static org.oddjob.state.ParentState.*;
+
 import org.oddjob.Structural;
 
 /**
@@ -21,6 +23,18 @@ import org.oddjob.Structural;
  */
 public class WorstStateOp implements StateOperator {
 	
+	private static final ParentState[][] STATE_MATRIX = {
+		{ READY,      null, ACTIVE,     STARTED,    INCOMPLETE, READY,      EXCEPTION, null },
+		{ null,       null, null,       null,       null,       null,       null,      null },
+		{ ACTIVE,     null, ACTIVE,     ACTIVE,     INCOMPLETE, ACTIVE,     EXCEPTION, null },
+		{ STARTED,    null, ACTIVE,     STARTED,    INCOMPLETE, STARTED,    EXCEPTION, null },
+		{ INCOMPLETE, null, INCOMPLETE, INCOMPLETE, INCOMPLETE, INCOMPLETE, EXCEPTION, null },
+		{ READY,      null, ACTIVE,     STARTED,    INCOMPLETE, COMPLETE,   EXCEPTION, null },
+		{ EXCEPTION,  null, EXCEPTION,  EXCEPTION,  EXCEPTION, EXCEPTION,   EXCEPTION, null },
+		{ null,       null, null,       null,       null,      null,        null,      null },
+	};
+	
+	
 	@Override
 	public ParentState evaluate(State... states) {
 		
@@ -33,23 +47,10 @@ public class WorstStateOp implements StateOperator {
 			state = new ParentStateConverter().toStructuralState(states[0]);
 			
 			for (int i = 1; i < states.length; ++i) {
-				State next = states[i];
+				ParentState next = new ParentStateConverter().toStructuralState(
+						states[i]);
 
-				if (state.isStoppable() || next.isStoppable()){
-					state = ParentState.ACTIVE;
-				}
-				else if (state.isException() || next.isException()) {
-					state = ParentState.EXCEPTION;
-				}
-				else if (state.isIncomplete() || next.isIncomplete()){
-					state = ParentState.INCOMPLETE;
-				}
-				else if (state.isReady() || next.isReady()){
-					state = ParentState.READY;
-				}
-				else {
-					state = ParentState.COMPLETE;
-				}
+				state = STATE_MATRIX[state.ordinal()][next.ordinal()];
 			}
 		}
 		

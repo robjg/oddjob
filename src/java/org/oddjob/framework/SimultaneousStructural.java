@@ -2,6 +2,7 @@ package org.oddjob.framework;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -29,7 +30,7 @@ implements Stoppable {
 	private volatile transient ExecutorService executorService;
 
 	/** The job threads. */
-	private volatile transient List<Future<?>> jobThreads;
+	private volatile transient List<Future<?>> futures;
 	
 	/**
 	 * Set the {@link ExecutorService}.
@@ -74,7 +75,7 @@ implements Stoppable {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
-	protected void execute() throws InterruptedException {
+	protected void execute() throws InterruptedException, ExecutionException {
 		if (executorService == null) {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
@@ -83,11 +84,12 @@ implements Stoppable {
 		ExecutionWatcher executionWatcher = 
 			new ExecutionWatcher(new Runnable() {
 				public void run() {
+					stop = false;
 					SimultaneousStructural.super.startChildStateReflector();
 				}
 		});
 		
-		jobThreads = new ArrayList<Future<?>>();
+		futures = new ArrayList<Future<?>>();
 		
 		for (Runnable child : childHelper) {
 			if (stop) {
@@ -95,29 +97,36 @@ implements Stoppable {
 			}
 			Future<?> future = executorService.submit(
 					executionWatcher.addJob(child));
-			jobThreads.add(future);
+			futures.add(future);
 		}
 		
 		if (stop) {
-			stop = false;
+			return;
 		}
+		
+		if (isJoin()) {
+			logger().info("Join property is set, waiting for threads to finish.");
+			for (Future<?> future : futures) {
+				future.get();
+			}
+		}		
 		else {
-			if (jobThreads.size() > 0) {
+			if (futures.size() > 0) {
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
 						getStateChanger().setState(ParentState.ACTIVE);
 					}
 				});
 			}
-			executionWatcher.start();
 		}
+		executionWatcher.start();
 	}
 
 	@Override
 	protected void onStop() throws FailedToStopException {
 		super.onStop();
 
-		Iterable<Future<?>> jobThreads = this.jobThreads;
+		Iterable<Future<?>> jobThreads = this.futures;
 		if (jobThreads == null) {
 			return;
 		}
@@ -134,4 +143,7 @@ implements Stoppable {
 		// This is started by us so override and do nothing.
 	}
 	
+	public boolean isJoin() {
+		return false;
+	}
 }

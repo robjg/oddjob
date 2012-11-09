@@ -3,6 +3,14 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Parallel has been given a join property that restores the pre Version 1.0
+  behaviour of waiting for the parallel threads to complete before 
+  continuing. Note that it's use is discouraged!
+- A new Parent State of STARTED has been introduced to better reflect
+  child service states. Timer and Retry now uses STARTED instead of ACTIVE.
+- Cascade now works correctly with the STARTED state of services.
+- Timer and Retyr now allow the nextDue property to be set while the timer 
+  is running.
 - New Swing Panel is available that provides Oddjob jobs as simple Buttons.
   It is not yet an Oddjob element but can be added with 
   <bean class='org.oddjob.swing.OddjobPanel'/>
@@ -15,6 +23,13 @@ Changes in 1.3.0
 Still To Do for 1.3.0
 ---------------------
 
+- Add Parent Started State to User Guide. Document thread.
+- Support parallel services in Service Manager.
+- Write test for, and document, Parallel Join. Document uncertainty of
+  states.
+- Write tests for setting nextDue while timer running.
+- Find bug with destroying JMX Client - see Stack Exceptions in 
+  TogetherTest#testClientServerLoopback.
 - Use a ServerSide file system for choosing files on server component 
   designer forms.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
@@ -23,6 +38,7 @@ Still To Do for 1.3.0
   are 'pushed' into it.
 - Add serialisation of services.
 - Document synthetic annotations in the Developer Guide.
+- Document conversions. Possibly include conversions in the Reference.
 
 Deferred to A Later Version
 ---------------------------
@@ -39,7 +55,6 @@ Deferred to A Later Version
 - Check a configuration hasn't been modified by someone else before a 
   modification is saved back from designer.
 - Add Undo functionality to Oddjob configuration.
-- Document conversions. Possibly include conversions in the Reference.
 - Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
   copy some of it's feature including; overwrite, force, failonerror, verbose,
   preservelastmodified. Add the ability to back up the moved files like Linux does.

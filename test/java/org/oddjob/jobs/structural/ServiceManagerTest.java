@@ -24,10 +24,11 @@ public class ServiceManagerTest extends TestCase {
 	
 	public static class Lights implements Service {
 		
-		String are = "off";
+		volatile String are = "off";
 		
 		@Override
 		public void start() throws Exception {
+			Thread.sleep(10);
 			are = "on";
 		}
 		
@@ -48,10 +49,14 @@ public class ServiceManagerTest extends TestCase {
 
 	public static class MachineThatGoes implements Service {
 		
-		String goes;
+		volatile String goes;
+		volatile String reallyGoes;
 		
 		@Override
 		public void start() throws Exception {
+			// Try to mess up threading a bit.
+			Thread.sleep(20);
+			reallyGoes = goes;
 		}
 		
 		@Override
@@ -64,7 +69,7 @@ public class ServiceManagerTest extends TestCase {
 		}
 		
 		public String getGoes() {
-			return goes;
+			return reallyGoes;
 		}
 		
 		@Override
@@ -297,6 +302,80 @@ public class ServiceManagerTest extends TestCase {
 				((Stateful) lights).lastStateEvent().getState());
 		
 		testState.checkNow();
+		
+		oddjob.destroy();	
+	}
+	
+	public void testParallelExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/ServiceManagerParallel.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING,
+				ParentState.ACTIVE,
+				ParentState.COMPLETE);		
+		
+		oddjob.run();		
+		
+		oddjobStates.checkWait();
+		
+		console.close();
+		
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(1, lines.length);
+				
+		assertEquals("The lights are on and the machine goes ping.", lines[0].trim());
+				
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		ServiceManager test = lookup.lookup("service-manager", 
+				ServiceManager.class);
+		Object lights = lookup.lookup("lights");
+		Object machine = lookup.lookup("machine");
+		
+		StateEvent testState = test.lastStateEvent();
+		assertEquals(ParentState.COMPLETE, testState.getState());
+		
+		StateSteps lightsState = new StateSteps((Stateful) lights);
+		lightsState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		
+		StateSteps machineState = new StateSteps((Stateful) machine);
+		machineState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		
+		oddjob.stop();
+		
+		lightsState.checkNow();
+		machineState.checkNow();
+		
+		assertEquals(testState, test.lastStateEvent());
+		
+		lightsState.startCheck(ServiceState.COMPLETE, ServiceState.READY);
+		
+		((Resetable) lights).hardReset();
+
+		lightsState.checkNow();
+		
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		
+		lightsState.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		((Runnable) lights).run();
+		
+		lightsState.checkNow();
+		
+		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
 		oddjob.destroy();	
 	}

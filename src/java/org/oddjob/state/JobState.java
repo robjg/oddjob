@@ -21,8 +21,8 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
-			return true;
+		public boolean isDone() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -55,8 +55,8 @@ public enum JobState implements State {
 			return true;
 		}
 		@Override
-		public boolean isPassable() {
-			return true;
+		public boolean isDone() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -91,7 +91,7 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -125,7 +125,7 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return true;
 		}
 		@Override
@@ -160,7 +160,7 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -194,7 +194,7 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override

@@ -137,7 +137,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		StateSteps oddjob1State = new StateSteps(oddjob1);
 		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 		oddjob1.run();
 
 		oddjob1State.checkWait();
@@ -165,7 +165,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		logger.info("First Oddjob, starting second run.");
 		
 		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 		
 		oddjob1.run();
 		
@@ -193,7 +193,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		StateSteps oddjob2State = new StateSteps(oddjob2);
 		oddjob2State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 		
 		oddjob2.run();
 		
@@ -277,7 +277,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		logger.info("Oddjob1 has stopped. State is: " + oddjob1.lastStateEvent().getState());
 		
 		assertEquals(ParentState.EXECUTING, ojRec.get(1).getState());
-		assertEquals(ParentState.ACTIVE, ojRec.get(2).getState());
+		assertEquals(ParentState.STARTED, ojRec.get(2).getState());
 		assertEquals(ParentState.INCOMPLETE, ojRec.get(3).getState());
 		assertEquals(4, ojRec.size());
 		
@@ -288,24 +288,24 @@ public class TimerRetryCombinationTest extends TestCase {
 		logger.info("Timer has stopped. State is: " + timer.lastStateEvent().getState());
 		
 		assertEquals(ParentState.EXECUTING, timerRec.get(1).getState());
-		assertEquals(ParentState.ACTIVE, timerRec.get(2).getState());
+		assertEquals(ParentState.STARTED, timerRec.get(2).getState());
 		assertEquals(ParentState.INCOMPLETE, timerRec.get(3).getState());
 		assertEquals(4, timerRec.size());
 		
 		assertEquals(ParentState.EXECUTING, retryRec.get(1).getState());
-		assertEquals(ParentState.ACTIVE, retryRec.get(2).getState());
+		assertEquals(ParentState.STARTED, retryRec.get(2).getState());
 		assertEquals(ParentState.INCOMPLETE, retryRec.get(3).getState());
 		assertEquals(ParentState.READY, retryRec.get(4).getState());
 		assertEquals(ParentState.EXECUTING, retryRec.get(5).getState());
-		assertEquals(ParentState.ACTIVE, retryRec.get(6).getState());
+		assertEquals(ParentState.STARTED, retryRec.get(6).getState());
 		assertEquals(ParentState.INCOMPLETE, retryRec.get(7).getState());
 		assertEquals(ParentState.READY, retryRec.get(8).getState());
 		assertEquals(ParentState.EXECUTING, retryRec.get(9).getState());
-		assertEquals(ParentState.ACTIVE, retryRec.get(10).getState());
+		assertEquals(ParentState.STARTED, retryRec.get(10).getState());
 		assertEquals(ParentState.INCOMPLETE, retryRec.get(11).getState());
 		assertEquals(ParentState.READY, retryRec.get(12).getState());
 		assertEquals(ParentState.EXECUTING, retryRec.get(13).getState());
-		assertEquals(ParentState.ACTIVE, retryRec.get(14).getState());
+		assertEquals(ParentState.STARTED, retryRec.get(14).getState());
 		assertEquals(ParentState.INCOMPLETE, retryRec.get(15).getState());
 		assertEquals(16, retryRec.size());
 		
@@ -354,7 +354,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		oddjob1.run();
 
-		assertEquals(ParentState.ACTIVE, oddjob1.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob1.lastStateEvent().getState());
 		
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oddjob1);

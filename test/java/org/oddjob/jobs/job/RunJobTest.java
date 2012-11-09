@@ -258,14 +258,14 @@ public class RunJobTest extends TestCase {
 				IconHelper.SLEEPING);
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE);
+				ParentState.STARTED);
 
 		Thread t = new Thread(test);
 		t.start();
 		
 		icons.checkWait();
 		icons.startCheck(IconHelper.SLEEPING, IconHelper.EXECUTING, 
-				IconHelper.ACTIVE);
+				IconHelper.STARTED);
 		
 		job.fireJobState(ServiceState.STARTED);
 
@@ -274,7 +274,7 @@ public class RunJobTest extends TestCase {
 		t.join();
 		
 		states.checkNow();
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		job.fireJobState(ServiceState.DESTROYED);
 		
@@ -346,7 +346,7 @@ public class RunJobTest extends TestCase {
 		StateSteps states = new StateSteps(oddjob);
 
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE);
+				ParentState.STARTED);
 		
 		Thread t = new Thread(oddjob);
 		t.start();
@@ -366,7 +366,7 @@ public class RunJobTest extends TestCase {
 		
 		states.checkNow();
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		logger.info("*** Stopping Oddjob *** ");
 		

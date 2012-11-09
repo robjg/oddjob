@@ -215,7 +215,7 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oj.run();
     	
-    	assertEquals(ParentState.ACTIVE, oj.lastStateEvent().getState());
+    	assertEquals(ParentState.STARTED, oj.lastStateEvent().getState());
     	
     	Object r = new OddjobLookup(oj).lookup("s");
     	assertEquals("0", PropertyUtils.getProperty(r, "result"));

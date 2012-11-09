@@ -151,7 +151,7 @@ public class OrStateTest extends TestCase {
 
 		StateSteps state = new StateSteps(test);
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.EXECUTING,
 				ParentState.COMPLETE);
 		
 		test.run();

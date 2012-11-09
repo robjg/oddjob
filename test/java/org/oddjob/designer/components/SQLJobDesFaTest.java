@@ -2,6 +2,7 @@ package org.oddjob.designer.components;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Helper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -55,15 +56,15 @@ public class SQLJobDesFaTest extends TestCase {
 		
 		assertEquals(SqlDesign.class, design.getClass());
 		
-		SQLJob test = (SQLJob) Helper.createComponentFromConfiguration(
+		DynaBean test = (DynaBean) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals(true, test.isCallable());
-		assertEquals(true, test.isAutocommit());
-		assertEquals(true, test.isEscapeProcessing());
-		assertEquals("go", test.getDelimiter());
-		assertEquals(SQLJob.DelimiterType.ROW, test.getDelimiterType());
-		assertEquals(SQLJob.OnError.CONTINUE, test.getOnError());
+		assertEquals(true, test.get("callable"));
+		assertEquals(true, test.get("autocommit"));
+		assertEquals(true, test.get("escapeProcessing"));
+		assertEquals("go", test.get("delimiter"));
+		assertEquals(SQLJob.DelimiterType.ROW, test.get("delimiterType"));
+		assertEquals(SQLJob.OnError.CONTINUE, test.get("onError"));
 		
 	}
 

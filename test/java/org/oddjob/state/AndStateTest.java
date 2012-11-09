@@ -3,7 +3,6 @@ package org.oddjob.state;
 
 import java.io.File;
 import java.util.Properties;
-import java.util.concurrent.Future;
 
 import junit.framework.TestCase;
 
@@ -13,8 +12,8 @@ import org.oddjob.StateSteps;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.framework.ServicesJob;
+import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
-import org.oddjob.scheduling.MockScheduledFuture;
 
 public class AndStateTest extends TestCase {
 
@@ -141,16 +140,10 @@ public class AndStateTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, listener.result);
 	}
-	
-	private class NowExecutor extends MockScheduledExecutorService {
-
-		public Future<?> submit(Runnable runnable) {
-			runnable.run();
-			return new MockScheduledFuture<Void>();
-		}
-	}
-	
+		
 	public void testExample() throws ArooaParseException {
+		
+		DefaultExecutors defaultServices = new DefaultExecutors();
 		
 		OurDirs dirs = new OurDirs();
 		
@@ -168,7 +161,7 @@ public class AndStateTest extends TestCase {
 		ArooaSession session = helper.getSession();
 		
 		ServicesJob.ServiceDefinition def = new ServicesJob.ServiceDefinition();
-		def.setService(new NowExecutor());
+		def.setService(defaultServices.getPoolExecutor());
 		
 		ServicesJob services = new ServicesJob();
 		services.setRegisteredServices(0, def);
@@ -177,10 +170,12 @@ public class AndStateTest extends TestCase {
 		
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.COMPLETE);
+				ParentState.COMPLETE);
 		
 		test.run();
 		
 		states.checkNow();
+		
+		defaultServices.stop();
     }
 }

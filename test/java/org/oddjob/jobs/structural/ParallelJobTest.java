@@ -366,7 +366,6 @@ public class ParallelJobTest extends TestCase {
 		oddjobState.checkNow();
 		
 		oddjob.destroy();
-		
 	}
 	
 	public static class MyService implements Service {
@@ -374,6 +373,7 @@ public class ParallelJobTest extends TestCase {
 		public void start() {}
 		public void stop() {}
 	}
+	
 	
 	public void testParallelServices() throws FailedToStopException, InterruptedException {
 		
@@ -391,32 +391,86 @@ public class ParallelJobTest extends TestCase {
 		test.setJobs(0, (Runnable) service1);
 		test.setJobs(1, (Runnable) service2);
 		
-		StateSteps steps = new StateSteps(test);
+		StateSteps parallelStates = new StateSteps(test);
 		
-		steps.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE);
+		parallelStates.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.STARTED);
 		
-		StateSteps service1State = new StateSteps((Stateful) service1);
-		service1State.startCheck(ServiceState.READY, 
+		StateSteps service1States = new StateSteps((Stateful) service1);
+		service1States.startCheck(ServiceState.READY, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
-		StateSteps service2State = new StateSteps((Stateful) service2);
-		service2State.startCheck(ServiceState.READY, 
+		StateSteps service2States = new StateSteps((Stateful) service2);
+		service2States.startCheck(ServiceState.READY, 
 				ServiceState.STARTING, ServiceState.STARTED);
-		
 		
 		test.run();
 		
-		steps.checkNow();
+		parallelStates.checkWait();
 		
-		service1State.checkWait();
-		service2State.checkWait();
+		service1States.checkWait();
+		service2States.checkWait();
 		
-		steps.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		service1States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		service2States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
 		
 		test.stop();
 
-		steps.checkNow();
+		service1States.checkNow();
+		service2States.checkNow();
+		parallelStates.checkNow();
+		
+		defaultServices.stop();
+	}	
+	
+	public void testJoin() throws FailedToStopException, InterruptedException {
+		
+		DefaultExecutors defaultServices = new DefaultExecutors();
+		
+		ParallelJob test = new ParallelJob();
+		test.setJoin(true);
+		
+		test.setExecutorService(defaultServices.getPoolExecutor());
+		
+		Object service1 = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		Object service2 = new OddjobComponentResolver().resolve(
+				new MyService(), null);
+		
+		test.setJobs(0, (Runnable) service1);
+		test.setJobs(1, (Runnable) service2);
+		
+		StateSteps parallelStates = new StateSteps(test);
+		
+		parallelStates.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.STARTED);
+		
+		StateSteps service1States = new StateSteps((Stateful) service1);
+		service1States.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		StateSteps service2States = new StateSteps((Stateful) service2);
+		service2States.startCheck(ServiceState.READY, 
+				ServiceState.STARTING, ServiceState.STARTED);
+		
+		test.run();
+		
+		parallelStates.checkWait();
+		
+		service1States.checkWait();
+		service2States.checkWait();
+		
+		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		service1States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		service2States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		
+		test.stop();
+
+		
+		service1States.checkNow();
+		service2States.checkNow();
+		parallelStates.checkNow();
 		
 		defaultServices.stop();
 	}	
@@ -436,7 +490,55 @@ public class ParallelJobTest extends TestCase {
 		steps.checkWait();
 		
 		test.destroy();
+	}
+	
+	public static class SlowToStartService {
 		
+		public void start() throws InterruptedException {
+			Thread.sleep(100);
+		}
 		
+		public void stop() {
+			
+		}
+	}
+	
+	public void testParallelServiceExample() throws InterruptedException, FailedToStopException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/ParallelServicesExample.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.STARTED);		
+		
+		oddjob.run();		
+		
+		oddjobStates.checkWait();
+		
+		console.close();
+		
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(1, lines.length);
+		
+		assertEquals("The lights are on and the machine goes ping.", 
+				lines[0].trim());
+				
+		oddjobStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		
+		oddjob.stop();
+		
+		oddjobStates.checkNow();
+		
+		oddjob.destroy();
 	}
 }

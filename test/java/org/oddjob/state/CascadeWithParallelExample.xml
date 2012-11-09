@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+            <jobs>
+                <parallel>
+                    <jobs>
+                        <wait pause="5000"/>
+                        <wait pause="4000"/>
+                    </jobs>
+                </parallel>
+                <echo/>
+            </jobs>
+        </state:cascade>
+    </job>
+</oddjob>

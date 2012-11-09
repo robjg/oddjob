@@ -189,7 +189,7 @@ public class TimerStopTest extends TestCase {
 		StateSteps state = new StateSteps(test);
 		
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.READY);
+				ParentState.EXECUTING, ParentState.STARTED, ParentState.READY);
 		
 		logger.info("** First Run **");
 		
@@ -201,7 +201,7 @@ public class TimerStopTest extends TestCase {
 				job.lastStateEvent().getState());
 
 		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		logger.info("** Second Run **");
 		
@@ -249,7 +249,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -275,7 +275,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		assertEquals(expectedCurrent2, test.getCurrent());
 		assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
@@ -290,7 +290,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent3 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -357,7 +357,7 @@ public class TimerStopTest extends TestCase {
 				Mockito.longThat(delay), 
 				Mockito.eq(TimeUnit.MILLISECONDS));
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(

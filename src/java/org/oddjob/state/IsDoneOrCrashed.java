@@ -1,16 +1,16 @@
 package org.oddjob.state;
 
 /**
- * Test if the job/service has finished.
+ * Test if the job/service has finished or has crashed.
  * 
  * @author rob
  *
  */
-public class IsDone implements StateCondition {
+public class IsDoneOrCrashed implements StateCondition {
 
 	@Override
 	public boolean test(State state) {
-		if (state.isComplete() || 
+		if (state.isDone() || 
 				state.isIncomplete() ||
 				state.isException()) {
 			return true;

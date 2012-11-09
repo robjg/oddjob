@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
@@ -28,7 +29,9 @@ import org.oddjob.state.OrderedStateChanger;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateChanger;
 import org.oddjob.state.ParentStateHandler;
+import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
 import org.oddjob.state.StateOperator;
@@ -63,6 +66,8 @@ implements
 		
 	/** Stop flag. */
 	protected transient volatile boolean stop;
+	
+	protected transient CountDownLatch begun;
 	
 	/**
 	 * Default Constructor.
@@ -137,21 +142,15 @@ implements
 
 			try {
 				configure();
-								
-				// set icon to sleeping now because begin might
-				// set it to executing and we don't want to override
-				// this.
-				iconHelper.changeIcon(IconHelper.SLEEPING);
 				
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						stateHandler.setState(ParentState.ACTIVE);
-						stateHandler.fireEvent();
-					}
-				});
+				// Used to ensure consistent states.
+				begun = new CountDownLatch(1);
 				
 				begin();
 				
+				setStateStartingAndIconSleeping();
+				
+				begun.countDown();
 			}
 			catch (final Throwable e) {
 				logger().warn("Job Exception:", e);
@@ -168,6 +167,28 @@ implements
 		}
 	}
 	
+	/**
+	 * Utility method to set the state to STARTED but the icon to SLEEPING.
+	 */
+	protected final void setStateStartingAndIconSleeping() {
+		
+		stateHandler.waitToWhen(
+				new StateCondition() {
+					@Override
+					public boolean test(State state) {
+						return state.isStoppable() && state != ParentState.STARTED;
+					}
+				}, new Runnable() {
+					@Override
+					public void run() {
+						stateHandler.setState(ParentState.STARTED);
+						stateHandler.fireEvent();
+						iconHelper.changeIcon(IconHelper.SLEEPING);
+						
+					}
+				});
+	}
+		
 	/**
 	 * Implementation for a typical stop. Subclasses must implement 
 	 * Stoppable to take advantage of it.

@@ -213,7 +213,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 							executed = true;
 						}
 						// when the thread of control has moved has passed a job.						
-						if (now.isPassable() && 
+						if (now.isDone() && 
 								(executed || !now.isReady())) {
 							logger().debug("Job has executed. State is " + now);
 							break;

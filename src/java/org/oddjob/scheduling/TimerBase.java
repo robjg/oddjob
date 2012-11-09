@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
@@ -26,10 +27,12 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
+import org.oddjob.util.OddjobLockedException;
 
 /**
  * Common functionality for Timers.
@@ -193,26 +196,66 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 	
 	/**
-	 * @throws ComponentPersistException 
+	 * @throws ComponentPersistException
+	 * @throws OddjobLockedException 
+	 * 
 	 * @oddjob.property reschedule 
 	 * @oddjob.description Reschedule from the given date/time.
-	 * @oddjob.required Only available when running.
+	 * @oddjob.required Only available once the timer has started.
 	 */ 
 	@ArooaHidden
-	public void setReschedule(Date reSchedule) throws ComponentPersistException {
+	public void setReschedule(final Date reSchedule) throws ComponentPersistException, OddjobLockedException {
+		
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			if (!stateHandler().tryToWhen(StateConditions.STARTED, 
+				new Runnable() {
+					@Override
+					public void run() {
+						logger().info("Rescheduling with " + reSchedule); 
+						
+						try {
+							CancelAndStopChild();
+							scheduleFrom(reSchedule);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				})) {
+				logger().info("Can only reschedule once the timer has started.");
+			}
+		}	
+		finally {
+			ComponentBoundry.pop();
+		}
+	}
+	
+	/**
+	 * Cancel and child jobs that are submitted and stop any that are 
+	 * running. This should only be run while locked because it
+	 * temporarily sets the stop flag to fool the state listener into
+	 * not rescheduling.
+	 * 
+	 * @throws FailedToStopException
+	 */
+	protected void CancelAndStopChild() throws FailedToStopException {
+		
+		Future<?> future = this.future;
 		if (future != null) {
-			future.cancel(true);
+			future.cancel(false);
 			future = null;
 		}
 		
-		scheduleFrom(reSchedule);
+		stop = true;
+		childHelper.stopChildren();
+		stop = false;
 	}
 	
 	protected void scheduleFrom(Date date) throws ComponentPersistException {
 	    logger().debug("Scheduling from [" + date + "]");
 
 	    if (date == null) {
-	    	setNextDue(null);
+	    	internalSetNextDue(null);
 	    }
 	    else {
 		    ScheduleContext context = new ScheduleContext(
@@ -220,10 +263,10 @@ abstract public class TimerBase extends ScheduleBase {
 	
 		    current = schedule.nextDue(context);
 		    if (current == null) {
-		    	setNextDue(null);
+		    	internalSetNextDue(null);
 		    }
 		    else {
-		    	setNextDue(current.getFromDate());
+		    	internalSetNextDue(current.getFromDate());
 		    }
 	    }
 	}
@@ -248,7 +291,40 @@ abstract public class TimerBase extends ScheduleBase {
 	public void setClock(Clock clock) {
 		this.clock = clock;
 	}
-		
+	
+	/**
+	 * Manually set the Next Due Date.
+	 * 
+	 * @param nextDue The Next Due Date. May be null.
+	 * 
+	 * @throws OddjobLockedException
+	 */
+	@ArooaHidden
+	public void setNextDue(final Date nextDue) throws OddjobLockedException {
+		ComponentBoundry.push(loggerName(), this);
+		try {			
+			if (!stateHandler().tryToWhen(StateConditions.STARTED,
+				new Runnable() {
+					@Override
+					public void run() {
+						logger().info("Manually setting nextDue to " + 
+								nextDue); 
+						try {
+							CancelAndStopChild();
+							internalSetNextDue(nextDue);
+						} catch (Exception e) {
+							throw new RuntimeException(e);
+						}
+					}
+				})) {
+				logger().info("Can't set nextDue until timer has STARTED."); 
+			}
+		}	
+		finally {
+			ComponentBoundry.pop();
+		}
+	}
+	
 	/**
 	 * Get the next due date.
 	 * 
@@ -264,7 +340,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * @param nextDue The date schedule is next due.
 	 * @throws ComponentPersistException 
 	 */
-	protected void setNextDue(Date nextDue) throws ComponentPersistException {
+	protected void internalSetNextDue(Date nextDue) throws ComponentPersistException {
 		
 		Date oldNextDue = this.nextDue;
 		this.nextDue = nextDue;	
@@ -317,73 +393,90 @@ abstract public class TimerBase extends ScheduleBase {
 	 * @oddjob.required Yes.
 	 */
 	@ArooaComponent
-	public synchronized void setJob(Runnable job) {
+	public void setJob(Runnable job) {
+		
 		if (job == null) {
 			childHelper.removeChildAt(0);
 		}
 		else {
+			if (! (job instanceof Stateful)) {
+				throw new IllegalStateException("Child job must be Stateful. [" +
+						job + "] is of class " + job.getClass().getName());
+			}
 			childHelper.insertChild(0, job);
 		}
 	}
 	
-	
+	/**
+	 * Implementation provided by sub classes so limits are available in
+	 * {@link #scheduleFrom(Date)}.
+	 * 
+	 * @return The limits, or null. Retry has limits, timer doesn't.
+	 */
 	abstract protected Interval getLimits();
 	
+	/**
+	 * Implementation provided by sub classes to decide how to reschedule based
+	 * on the state of the child job.
+	 * 
+	 * @param state The completion state of the child job.
+	 * 
+	 * @throws ComponentPersistException
+	 */
 	abstract protected void rescheduleOn(State state) 
 	throws ComponentPersistException;
 
+	/**
+	 * Implementation provided by sub classes to decide what kind of reset to send
+	 * to the child. Timer sends a hard reset, Retry sends a soft reset.
+	 * 
+	 * @param job The child job that will be reset.
+	 */
 	abstract protected void reset(Resetable job);
 	
 	/**
-	 * Listen for changed child job states. Not these could come in on
+	 * Listen for changed child job states. Note these could come in on
 	 * a different thread to that which launched the Executor.
 	 *
 	 */
 	class RescheduleStateListener implements StateListener {
 		
-		private final Thread executionThread;
-		
-		private State state;
-		
-		RescheduleStateListener(Thread executionThread) {
-			this.executionThread = executionThread;
-		}
-		
-		synchronized void changeToActive() {
-			if (state.isStoppable()) {
-				iconHelper.changeIcon(IconHelper.ACTIVE);
-			}
-		}
-		
 		@Override
 		public void jobStateChange(StateEvent event) {
-			state = event.getState();
 			
 			if (stop) {
 			    event.getSource().removeStateListener(this);
 				return;
 			}
 			
+			State state = event.getState();
+			
 			if (state.isReady()) {
 				return;
 			}
+			
 			if (state.isStoppable()) {
-				iconHelper.changeIcon(IconHelper.EXECUTING);
-				return;
-			}
-			
-			// Get this far and it's a completion state.
-			
-			synchronized (this) {
-				// If the child job was executing asynchronously
-				// we need to ensure the ACTIVE icon has been broadcast
-				// so that icon progression is always predictable.
-				if (Thread.currentThread() != executionThread) {
-					iconHelper.changeIcon(IconHelper.ACTIVE);
+				// I.e. STARTED
+				if (state.isDone()) {
+					
+					logger().debug("Child state is [" + 
+							state + "], changing state to started.");
+					
+					iconHelper.changeIcon(IconHelper.SLEEPING);
+					
+					return;
+				}
+				// I.e EXECUTING and ACTIVE
+				else {
+					
+					logger().debug("Child state is [" + 
+							state + "], changing icon.");
+					
+					iconHelper.changeIcon(IconHelper.STARTED);
+					return;
 				}
 			}
-
-
+			
 			// Order is important! Must remove this before scheduling again.
 		    event.getSource().removeStateListener(this);
 		    
@@ -399,8 +492,7 @@ abstract public class TimerBase extends ScheduleBase {
 								getStateChanger().setStateException(e);
 							}
 						});
-			}
-			
+			}			
 		}
 	}
 	
@@ -410,8 +502,19 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
+			
 			ComponentBoundry.push(loggerName(), this);
 			try {
+				try {
+					// Wait for the timer to start to ensure predicatable
+					// state transitions.
+					begun.await();
+				} catch (InterruptedException e) {
+					logger().warn("Interrupted.");
+					Thread.currentThread().interrupt();
+					return;
+				}
+				
 				Runnable job = childHelper.getChild();
 
 				if (stop) {
@@ -423,39 +526,32 @@ abstract public class TimerBase extends ScheduleBase {
 
 				lastDue = nextDue;
 				
-				if (job != null) {
-
-					try {
-						RescheduleStateListener rescheduleListner = 
-							new RescheduleStateListener(Thread.currentThread());
-
-						if (job instanceof Resetable) {
-							reset((Resetable) job);
-						}
-
-						if (job instanceof Stateful) {
-
-							((Stateful) job).addStateListener(rescheduleListner);
-						}
-
-						job.run();
-
-						rescheduleListner.changeToActive();
-
-						logger().info("Finished running [" + 
-								job + "]");
-					}
-					catch (final Exception t) {
-						logger().error("Failed running scheduled job.", t);
-						stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-							public void run() {
-								getStateChanger().setStateException(t);
-							}
-						});
-					}
+				if (job == null) {
+					logger().warn("Nothing to run. Job is null!");
+					return;
 				}
-				else {
-					logger().warn("Nothing to run.");
+				
+				try {
+					if (job instanceof Resetable) {
+						reset((Resetable) job);
+					}
+
+					((Stateful) job).addStateListener(
+							new RescheduleStateListener());
+					
+					job.run();
+
+					logger().info("Finished executing [" + 
+							job + "]");
+					
+				}
+				catch (final Exception t) {
+					logger().error("Failed running scheduled job.", t);
+					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+						public void run() {
+							getStateChanger().setStateException(t);
+						}
+					});
 				}
 			} finally {
 				ComponentBoundry.pop();

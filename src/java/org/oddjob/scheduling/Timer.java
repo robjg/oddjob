@@ -66,6 +66,11 @@ import org.oddjob.state.StateOperator;
  * using the <i>from</i> properties instead of the <i>at/in/on</i> properties
  * of schedules.
  * 
+ * <h4>Re-Scheduling</h4>
+ * 
+ * A job can be rescheduled using a different given time by setting 
+ * the <code>reschedule<code> property to be the new time to reschedule from. 
+ * 
  * <h4>Retrying Failed Jobs</h4>
  * 
  * Nest a {@link Retry} job.
@@ -147,7 +152,7 @@ public class Timer extends TimerBase {
 						currentInterval.getToDate()))) {
 
 			logger().info("Setting next due from value of last current property.");
-			setNextDue(currentInterval.getFromDate());
+			internalSetNextDue(currentInterval.getFromDate());
 		}
 		else {
 			logger().info("Calculating schedule from current clock date time.");
@@ -181,7 +186,7 @@ public class Timer extends TimerBase {
 	protected void rescheduleOn(State state) throws ComponentPersistException {
 	    State completeOrNot = new CompleteOrNotOp().evaluate(state);
 	    if (!(completeOrNot.isComplete()) && haltOnFailure) {
-	    	setNextDue(null);
+	    	internalSetNextDue(null);
 	    }
 	    else {
 	    	Date use = getCurrent().getUseNext();

@@ -16,7 +16,12 @@ public class ParentStateConverter {
 			return ParentState.READY;
 		}
 		else if (state.isStoppable()) {
-			return ParentState.ACTIVE;
+			if (state.isDone()) {
+				return ParentState.STARTED;
+			}
+			else {
+				return ParentState.ACTIVE;
+			}
 		}
 		else if (state.isIncomplete()) {
 			return ParentState.INCOMPLETE;

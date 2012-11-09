@@ -132,10 +132,9 @@ public class Helper {
     public static Object createComponentFromConfiguration(ArooaConfiguration config) 
     throws ArooaParseException {
 	    
-    	ArooaDescriptor descriptor = new OddjobDescriptorFactory(
-			).createDescriptor(null);
+    	ArooaSession session = new OddjobSessionFactory().createSession();
     	
-    	StandardFragmentParser parser = new StandardFragmentParser(descriptor);
+    	StandardFragmentParser parser = new StandardFragmentParser(session);
     	
     	parser.setArooaType(ArooaType.COMPONENT);
     	

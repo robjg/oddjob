@@ -91,14 +91,22 @@ public class CascadeJob extends StructuralJob<Object> {
 		final ExecutionWatcher executionWatcher = 
 			new ExecutionWatcher(new Runnable() {
 				public void run() {
+					stop = false;
 					CascadeJob.super.startChildStateReflector();
 				}
 		});
 		
+		// Used to flag the first execution. This is  used
+		// to set the state to active.
 		final AtomicBoolean first = new AtomicBoolean(true);
+		
+		// This runnable is run each time the state of the currently
+		// started child isDone.
 		new Runnable() {
 			@Override
 			public void run() {
+				
+				// Find the next runnable, ignoring folders.
 				Runnable next = null;
 				while (children.hasNext()) {
 					Object child = children.next();
@@ -109,7 +117,6 @@ public class CascadeJob extends StructuralJob<Object> {
 				}
 				
 				if (next == null || stop) {
-					stop = false;
 					executionWatcher.start();
 					return;
 				}
@@ -117,11 +124,11 @@ public class CascadeJob extends StructuralJob<Object> {
 				final Runnable _this = this;
 				((Stateful) next).addStateListener(new StateListener() {
 					public void jobStateChange(StateEvent event) {
-						if (!new IsDone().test(event.getState())) {
+						if (!new IsDoneOrCrashed().test(event.getState())) {
 							return;
 						}
 						event.getSource().removeStateListener(this);
-						if (event.getState().isPassable()) {
+						if (event.getState().isDone()) {
 							_this.run();
 						}
 						else {

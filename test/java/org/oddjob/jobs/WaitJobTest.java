@@ -93,24 +93,26 @@ public class WaitJobTest extends TestCase {
 		test.setState(StateConditions.INCOMPLETE);
 		test.setPause(9999999);
 		
-		IconSteps icons = new IconSteps(test);
-		icons.startCheck("ready", "executing", "sleeping");
+		IconSteps waitIcons = new IconSteps(test);
+		waitIcons.startCheck("ready", "executing", "sleeping");
 		
 		Thread t = new Thread(test);
 		
 		t.start();
 		
-		icons.checkWait();
+		waitIcons.checkWait();
 		
-		icons.startCheck("sleeping", "executing", "sleeping");
+		waitIcons.startCheck("sleeping", "executing", "sleeping");
 		
 		sample.run();
 		
-		icons.checkWait();
+		// occasionally we get more icons than expected, sleeping index 3
+		// which should be completely impossible...
+		waitIcons.checkWait();
 		
 		test.stop();
 		
-		icons.startCheck("sleeping", "stopping", "complete");
+		waitIcons.startCheck("sleeping", "stopping", "complete");
 		
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
@@ -197,7 +199,7 @@ public class WaitJobTest extends TestCase {
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE, 
-				ParentState.COMPLETE);
+				ParentState.STARTED, ParentState.COMPLETE);
 				
 		oddjob.run();
 		

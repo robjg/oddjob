@@ -148,13 +148,13 @@ public class TriggerTest extends TestCase {
 		test.setExecutorService(services.getPoolExecutor());
 		
 		StateSteps testState = new StateSteps(test);
-		testState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
 		testState.checkNow();
 		
-		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		logger.info("Running dependant.");
 		
@@ -171,7 +171,7 @@ public class TriggerTest extends TestCase {
 		testState.checkNow();
 
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE);
+				ParentState.STARTED);
 		
 		// trigger won't fire because event is the same.
 		test.run();
@@ -180,7 +180,7 @@ public class TriggerTest extends TestCase {
 		
 		testState.checkNow();
 		
-		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		if (new Date().equals(dependant.lastStateEvent().getTime())) {
 			logger.info("Sleeping for a millisecond.");
@@ -218,13 +218,13 @@ public class TriggerTest extends TestCase {
 		StateSteps testState = new StateSteps(test);
 		
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE);
+				ParentState.STARTED);
 		
 		test.run();
 
 		testState.checkNow();
 		
-		testState.startCheck(ParentState.ACTIVE, ParentState.EXCEPTION);
+		testState.startCheck(ParentState.STARTED, ParentState.EXCEPTION);
 		
 		depends.run();
 						
@@ -236,7 +236,7 @@ public class TriggerTest extends TestCase {
 		test.hardReset();
 		
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.INCOMPLETE);
+				ParentState.STARTED, ParentState.INCOMPLETE);
 		
 		test.run();
 		
@@ -264,7 +264,7 @@ public class TriggerTest extends TestCase {
 		StateSteps testState = new StateSteps(test);
 		
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.COMPLETE);
+				ParentState.STARTED, ParentState.COMPLETE);
 		
 		test.run();
 		depends.run();
@@ -303,13 +303,13 @@ public class TriggerTest extends TestCase {
 		
 		StateSteps state = new StateSteps(test);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE);
+				ParentState.STARTED);
 		
 		test.run();
 		
 		state.checkNow();
 				
-		state.startCheck(ParentState.ACTIVE, ParentState.READY);
+		state.startCheck(ParentState.STARTED, ParentState.READY);
 		
 		test.stop();
 		
@@ -386,7 +386,7 @@ public class TriggerTest extends TestCase {
 		
 		copy.run();
 		
-		assertEquals(ParentState.ACTIVE, copy.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, copy.lastStateEvent().getState());
 		assertEquals(JobState.READY, sample.lastStateEvent().getState());
 		
 		on.hardReset();
@@ -430,7 +430,7 @@ public class TriggerTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		on.hardReset();
 		on.run();
@@ -453,7 +453,7 @@ public class TriggerTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		on.run();
 				
@@ -499,7 +499,7 @@ public class TriggerTest extends TestCase {
 		oddjob.setOddjobExecutors(services);
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
 		Runnable runnable = (Runnable) new OddjobLookup(oddjob).lookup("thing1");
 		runnable.run();
@@ -546,7 +546,7 @@ public class TriggerTest extends TestCase {
 		oddjob.setOddjobExecutors(services);
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
 		Object on = new OddjobLookup(oddjob).lookup("thing1");
 		
@@ -575,10 +575,10 @@ public class TriggerTest extends TestCase {
 				getClass().getClassLoader()));
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
 		StateSteps states = new StateSteps(oddjob);
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -609,14 +609,14 @@ public class TriggerTest extends TestCase {
 		
 		StateSteps testStates = new StateSteps(test);
 		testStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
 		testStates.checkNow();
-		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		Runnable thing1 = (Runnable) lookup.lookup("thing1");
 		thing1.run();
@@ -650,14 +650,14 @@ public class TriggerTest extends TestCase {
 		
 		StateSteps testStates = new StateSteps(test);
 		testStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
 		testStates.checkNow();
-		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		Runnable ourJob = (Runnable) lookup.lookup("our-job");
 		ourJob.run();
@@ -699,7 +699,7 @@ public class TriggerTest extends TestCase {
 		waitState.checkWait();
 		
 		StateSteps testState = new StateSteps(test);
-		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		

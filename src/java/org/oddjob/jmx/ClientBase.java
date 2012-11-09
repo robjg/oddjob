@@ -5,6 +5,7 @@ import java.lang.management.ManagementFactory;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.management.JMException;
 import javax.management.MBeanServerConnection;
@@ -104,6 +105,13 @@ abstract public class ClientBase extends SimpleService {
 		doStart(mbsc, notificationProcessor);
 	}
 	
+	/**
+	 * Overridden by subclasses to provide a specific startup. 
+	 * 
+	 * @param mbsc
+	 * @param notificationProcessor
+	 * @throws Exception
+	 */
 	abstract protected void doStart(MBeanServerConnection mbsc, 
 			ScheduledExecutorService notificationProcessor) 
 	throws Exception;
@@ -133,6 +141,12 @@ abstract public class ClientBase extends SimpleService {
 		onStop(why);
 		
 		notificationProcessor.shutdownNow();
+		try {
+			notificationProcessor.awaitTermination(0, TimeUnit.MILLISECONDS);
+		} catch (InterruptedException e1) {
+			Thread.currentThread().interrupt();
+		}
+		
 		notificationProcessor = null;
 
 		if (why ==  WhyStop.STOP_REQUEST && cntor != null) {
@@ -158,7 +172,7 @@ abstract public class ClientBase extends SimpleService {
 					break;
 				default:
 					getStateChanger().setState(ServiceState.COMPLETE);
-					logger().info("Stopped.");
+					logger().debug("Stopped because stop was requested.");
 				}
 			}
 		});

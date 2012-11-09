@@ -9,8 +9,9 @@ import org.oddjob.Structural;
  * <li>If any child is EXCEPTION then evaluate to EXCEPTION.</li>
  * <li>If any child is INCOMPLETE then evaluate to INCOMPLETE.</li>
  * <li>If any child is READY then evaluate to READY.</li>
- * <li>If any child is ACTIVE/EXECUTING then evaluate to COMPLETE.</li>
- * <li>Evaluate to COMPLETE.</li>
+ * <li>If any child is ACTIVE/EXECUTING then evaluate to ACTIVE.</li>
+ * <li>Otherwise all children must be COMPLETE or STARTED so evaluate 
+ * to COMPLETE.</li>
  * </ul>
  * 
  * <p>
@@ -32,7 +33,8 @@ public class ServiceManagerStateOp implements StateOperator {
 		if (states.length > 0) {
 			
 			state = new ParentStateConverter().toStructuralState(states[0]);
-			if (state.isStoppable()) {
+			
+			if (state.isDone()) {
 				state = ParentState.COMPLETE;
 			}
 			
@@ -47,6 +49,9 @@ public class ServiceManagerStateOp implements StateOperator {
 				}
 				else if (state.isReady() || next.isReady()){
 					state = ParentState.READY;
+				}
+				else if (!state.isDone() || !next.isDone()) {
+					state = ParentState.ACTIVE;
 				}
 				else {
 					state = ParentState.COMPLETE;

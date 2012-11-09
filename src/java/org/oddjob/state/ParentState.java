@@ -23,8 +23,8 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
-			return true;
+		public boolean isDone() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -58,7 +58,7 @@ public enum ParentState implements State {
 			return true;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -94,7 +94,43 @@ public enum ParentState implements State {
 			return true;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
+			return false;
+		}
+		@Override
+		public boolean isComplete() {
+			return false;
+		}
+		@Override
+		public boolean isIncomplete() {
+			return false;
+		}
+		@Override
+		public boolean isException() {
+			return false;
+		}
+		@Override
+		public boolean isDestroyed() {
+			return false;
+		}
+	},
+	
+	/**
+	 * Indicates that child jobs are active. This will be the case when
+	 * the execution thread has passed on but a child job is 
+	 * still active or executing.
+	 */	
+	STARTED() {
+		@Override
+		public boolean isReady() {
+			return false;
+		}
+		@Override
+		public boolean isStoppable() {
+			return true;
+		}
+		@Override
+		public boolean isDone() {
 			return true;
 		}
 		@Override
@@ -131,7 +167,7 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -168,7 +204,7 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return true;
 		}
 		@Override
@@ -206,7 +242,7 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override
@@ -240,7 +276,7 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isPassable() {
+		public boolean isDone() {
 			return false;
 		}
 		@Override

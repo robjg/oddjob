@@ -249,15 +249,17 @@ public class Trigger extends ScheduleBase {
 				// state listeners have been notified.
 				on.lastStateEvent();
 
-				iconHelper.changeIcon(IconHelper.EXECUTING);
+				iconHelper.changeIcon(IconHelper.STARTED);
 
 				Runnable job = childHelper.getChild();
 
-				if (job != null) {
-
+				if (job == null) {
+					logger().warn("Nothing to run. Job is null!");
+				}
+				else {
 					// Note reset isn't necessary because this is a
 					// single execution only.
-
+	
 					try {
 						job.run();
 						save();
@@ -266,7 +268,7 @@ public class Trigger extends ScheduleBase {
 						logger().error("Failed running triggered job.", t);
 					}
 				}
-
+				
 				childStateReflector.start();
 			}
 			finally {

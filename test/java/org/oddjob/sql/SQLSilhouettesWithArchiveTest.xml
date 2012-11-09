@@ -27,7 +27,7 @@
                         <bean class="org.oddjob.sql.HSQLSerializationFactory" table="oddjob_silhouettes"/>
                     </serializationFactory>
                 </sql-persister-service>
-                <parallel>
+                <parallel join="true">
                     <jobs>
                         <scheduling:timer id="timer1" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                             <schedule>
@@ -48,9 +48,9 @@
                                     <job>
                                         <sequential>
                                             <jobs>
-                                                <echo>Running at ${timer1.current.fromDate}</echo>
+                                                <echo><![CDATA[Running at ${timer1.current.fromDate}]]></echo>
                                                 <sequence id="counter"/>
-                                                <echo>I've run ${counter.current} times.</echo>
+                                                <echo><![CDATA[I've run ${counter.current} times.]]></echo>
                                             </jobs>
                                         </sequential>
                                     </job>
@@ -74,7 +74,7 @@
                                         <value value="${silhouettes.persister(things2)}"/>
                                     </archiver>
                                     <job>
-                                        <echo>Running at ${timer2.current.fromDate}</echo>
+                                        <echo><![CDATA[Running at ${timer2.current.fromDate}]]></echo>
                                     </job>
                                 </archive>
                             </job>

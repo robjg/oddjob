@@ -11,9 +11,11 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Helper;
 import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobSessionFactory;
 import org.oddjob.OurDirs;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -163,13 +165,13 @@ public class ArchiveJobTest extends TestCase {
 
 		StateSteps testStates = new StateSteps(test);
 		testStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 
 		testStates.checkWait();
 
-		testStates.startCheck(ParentState.ACTIVE, 
+		testStates.startCheck(ParentState.STARTED, 
 				ParentState.READY);
 		
 		test.stop();		
@@ -197,7 +199,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.COMPLETE);
+				ParentState.STARTED, ParentState.COMPLETE);
 		
 		oddjob.run();
 		
@@ -217,6 +219,8 @@ public class ArchiveJobTest extends TestCase {
 	
 	public void testStateChangesForAsynchronousJobs() throws InterruptedException {
 		
+		ArooaSession session = new OddjobSessionFactory().createSession();
+		
 		DefaultExecutors executors = new DefaultExecutors();
 		
 		FlagState depends = new FlagState();
@@ -231,21 +235,22 @@ public class ArchiveJobTest extends TestCase {
 		final MapPersister persister = new MapPersister();
 
 		ArchiveJob test = new ArchiveJob();
+		test.setArooaSession(session);
 		test.setJob(trigger);
 		test.setArchiver(persister);
 		test.setArchiveIdentifier("Client_Report");
 		
 		StateSteps states = new StateSteps(test);
-		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.STARTED);
 		IconSteps icons = new IconSteps(test);
-		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.ACTIVE);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.STARTED);
 		test.run();
 		
 		states.checkNow();
 		icons.checkNow();
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
-		icons.startCheck(IconHelper.ACTIVE, IconHelper.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		icons.startCheck(IconHelper.STARTED, IconHelper.COMPLETE);
 		
 		depends.run();
 		
