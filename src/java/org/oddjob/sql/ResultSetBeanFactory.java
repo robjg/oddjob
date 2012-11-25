@@ -1,23 +1,27 @@
 package org.oddjob.sql;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.oddjob.arooa.beanutils.MagicBeanDefinition;
-import org.oddjob.arooa.beanutils.MagicBeanProperty;
+import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 
+/**
+ * Helper class that creates beans out of result sets.
+ * 
+ * @author rob
+ *
+ */
 public class ResultSetBeanFactory {
 
 	private static AtomicInteger instance = new AtomicInteger();
 	
-	private final ResultSet resultSet;
+	private final ResultSetExtractor resultSetExtractor;
 	
 	private final ArooaClass arooaClass;
 
@@ -25,30 +29,27 @@ public class ResultSetBeanFactory {
 	
 	public ResultSetBeanFactory(ResultSet resultSet,
 			PropertyAccessor accessor,
-			ClassLoader loader) throws SQLException, ClassNotFoundException {
+			DatabaseDialect dialect) throws SQLException, ClassNotFoundException {
 		
 		this.accessor = accessor;
 		
-		MagicBeanDefinition magicDef = new MagicBeanDefinition();
-		magicDef.setName("QueryBean-" + instance.getAndIncrement());
-	
-		ResultSetMetaData metaData = resultSet.getMetaData();
+		MagicBeanClassCreator magicDef = new MagicBeanClassCreator(
+				"QueryBean-" + instance.getAndIncrement());
+
+		this.resultSetExtractor = dialect.resultSetExtractorFor(resultSet);
 		
-		for (int i = 1; i <= metaData.getColumnCount(); ++i) {
+		for (int i = 1; i <= resultSetExtractor.getColumnCount(); ++i) {
 			
-			MagicBeanProperty prop = new MagicBeanProperty();
-			prop.setName(metaData.getColumnName(i));
-			prop.setType(metaData.getColumnClassName(i));
-			
-			magicDef.setProperties(i - 1, prop);
+			magicDef.addProperty(
+					resultSetExtractor.getColumnName(i), 
+					resultSetExtractor.getColumnType(i));
 		}
 		
-		this.resultSet = resultSet;
-		this.arooaClass = magicDef.createMagic(loader);
+		this.arooaClass = magicDef.create();
 	}
 	
 	public Object next() throws SQLException {
-		if (!resultSet.next()) {
+		if (!resultSetExtractor.next()) {
 			return null;
 		}
 		
@@ -59,7 +60,7 @@ public class ResultSetBeanFactory {
 		String[] properties = overview.getProperties();
 		for (int i = 0; i < properties.length; ++i) {
 			accessor.setProperty(bean, properties[i], 
-					resultSet.getObject(i + 1));
+					resultSetExtractor.getColumn(i + 1));
 		}
 		return bean;
 	}

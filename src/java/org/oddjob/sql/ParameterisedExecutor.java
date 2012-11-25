@@ -67,6 +67,8 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     /** Autocommit flag. Default value is false */
     private boolean autocommit = false;
     
+    private DatabaseDialect dialect;
+    
     /** The session. */
 	private transient ArooaSession session;
 
@@ -181,9 +183,9 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 								session.getTools().getArooaConverter());
 				
 				ResultSetBeanFactory beanFactory = new ResultSetBeanFactory(
-						results, 
-						accessor, 
-						getClass().getClassLoader());
+						results, accessor, 
+						dialect == null ? 
+								new BasicGenericDialect() : dialect);
 
 				List<?> rows= beanFactory.all();
 
@@ -410,5 +412,13 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 	 */
 	public int getSuccessfulSQLCount() {
 		return successfulSQLCount;
+	}
+
+	public DatabaseDialect getDialect() {
+		return dialect;
+	}
+
+	public void setDialect(DatabaseDialect dialect) {
+		this.dialect = dialect;
 	}
 }
