@@ -2,14 +2,14 @@
   <job>
     <sequential>
       <jobs>
-      <serviceman id="service-manager">
+      <sequential id="service-manager" stateOperator="SERVICES">
         <jobs>
           <bean id="lights" 
             class="org.oddjob.jobs.structural.ServiceManagerTest$Lights"/>
           <bean id='machine'
             class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatBreaks"/>
         </jobs>
-      </serviceman>
+      </sequential>
       <echo>This will never run.</echo>
       </jobs>
     </sequential>

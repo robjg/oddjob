@@ -38,7 +38,6 @@ import org.oddjob.structural.StructuralListener;
  * 
  * @author Rob Gordon
  */
-
 public abstract class StructuralJob<E> extends BasePrimary
 implements 
 		Runnable, Serializable, 
@@ -76,7 +75,8 @@ implements
 	private void completeConstruction() {
 		stateHandler = new ParentStateHandler(this);		
 		childHelper = new ChildHelper<E>(this);
-		structuralState = new StructuralStateHelper(childHelper, getStateOp());
+		structuralState = new StructuralStateHelper(childHelper, 
+				getInitialStateOp());
 		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -93,11 +93,17 @@ implements
 		return stateHandler;
 	}
 	
-	protected StateChanger<ParentState> getStateChanger() {
+	protected final StateChanger<ParentState> getStateChanger() {
 		return stateChanger;
 	}
 	
-	abstract protected StateOperator getStateOp();
+	/**
+	 * Subclasses must provide the {@link StateOperator} that will decide
+	 * how to evaluate the children's state.
+	 * 
+	 * @return A State Operator. Must not be null.
+	 */
+	abstract protected StateOperator getInitialStateOp();
 	
 	/**
 	 * Execute this job.

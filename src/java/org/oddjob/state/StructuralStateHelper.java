@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.structural.StructuralEvent;
@@ -17,6 +18,8 @@ import org.oddjob.structural.StructuralListener;
  *
  */
 public class StructuralStateHelper implements Stateful {
+	private static final Logger logger = Logger.getLogger(
+			StructuralStateHelper.class);
 
 	/** The structural we're helping. */
 	private final Structural structural;
@@ -34,7 +37,7 @@ public class StructuralStateHelper implements Stateful {
 		new ArrayList<StateListener>();
 
 	/** The {@link StateOperator}. */
-	private final StateOperator operator;
+	private StateOperator stateOperator;
 
 	/** Holder is required because the position of the children
 	 * can move. The state listener uses a holder instead
@@ -76,7 +79,7 @@ public class StructuralStateHelper implements Stateful {
 	 */
 	public StructuralStateHelper(Structural structural, StateOperator operator) {
 		this.structural = structural;
-		this.operator = operator;
+		this.stateOperator = operator;
 		
 		// Add a listener that tracks child changes.
 		structural.addStructuralListener(
@@ -149,8 +152,9 @@ public class StructuralStateHelper implements Stateful {
 					stateArgs[i++] = holder.state; 
 				}
 				
-				ParentState state = operator.evaluate(stateArgs);
+				ParentState state = stateOperator.evaluate(stateArgs);
 						
+				// don't fire a new state if it is the same as the last.
 				if (state == stateHandler.getState()) {
 					return;
 				}
@@ -179,5 +183,23 @@ public class StructuralStateHelper implements Stateful {
 				return array;
 			}
 		});
+	}
+
+	public StateOperator getStateOperator() {
+		return stateOperator;
+	}
+
+	public void setStateOperator(StateOperator stateOperator) {
+		
+		if (stateOperator == null || 
+				stateOperator.equals(this.stateOperator)) {
+			return;
+		}
+
+		logger.info("Changing State Operator from " + this.stateOperator +
+				" to " + stateOperator);
+		
+		this.stateOperator = stateOperator;
+		checkStates();
 	}
 }

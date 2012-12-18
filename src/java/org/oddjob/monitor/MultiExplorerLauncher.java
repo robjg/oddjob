@@ -11,7 +11,7 @@ import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.monitor.model.FileHistory;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 
 /**
  * @oddjob.description A container that allows multiple {@link OddjobExplorer}s to run.
@@ -25,8 +25,8 @@ implements Stoppable  {
 	private static final long serialVersionUID = 2011101400L;
 	
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 	
 	/**

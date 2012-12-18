@@ -73,7 +73,7 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 
 
 /**
@@ -284,8 +284,8 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 	
 	/*

@@ -75,7 +75,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.values.properties.PropertiesType;
@@ -513,8 +513,8 @@ implements Loadable,
 	 * @see org.oddjob.framework.StructuralJob#getStateOp()
 	 */
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 
 	/**

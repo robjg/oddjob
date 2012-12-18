@@ -35,7 +35,7 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 
 /**
  * 
@@ -56,8 +56,8 @@ public class StructuralJobTest extends TestCase {
 		transient Runnable runnable;
 		
 		@Override
-		protected StateOperator getStateOp() {
-			return new WorstStateOp();
+		protected StateOperator getInitialStateOp() {
+			return new AnyActiveStateOp();
 		}
 		
 		void setJob(Runnable c) {
@@ -327,8 +327,8 @@ public class StructuralJobTest extends TestCase {
 		}
 		
 		@Override
-		protected StateOperator getStateOp() {
-			return new WorstStateOp();
+		protected StateOperator getInitialStateOp() {
+			return new AnyActiveStateOp();
 		}
 	}
 	
@@ -440,8 +440,8 @@ public class StructuralJobTest extends TestCase {
 		}
 		
 		@Override
-		protected StateOperator getStateOp() {
-			return new WorstStateOp();
+		protected StateOperator getInitialStateOp() {
+			return new AnyActiveStateOp();
 		}
 	}
 	

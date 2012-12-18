@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+            <jobs>
+                <parallel stateOperator="SERVICES">
+                    <jobs>
+                        <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights"/>
+                        <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine"/>
+                    </jobs>
+                </parallel>
+                <echo><![CDATA[The lights are ${lights.are} and the machine goes ${machine.goes}.]]></echo>
+            </jobs>
+        </state:cascade>
+    </job>
+</oddjob>

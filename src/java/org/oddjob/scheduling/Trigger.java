@@ -24,7 +24,7 @@ import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 
 /**
  * @oddjob.description A trigger runs it's job when the job being triggered
@@ -126,7 +126,7 @@ public class Trigger extends ScheduleBase {
 	
 	@Override
 	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+		return new AnyActiveStateOp();
 	}
 	
 	@Override

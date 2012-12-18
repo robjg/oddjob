@@ -12,9 +12,13 @@ import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobComponentResolver;
 import org.oddjob.Resetable;
 import org.oddjob.StateSteps;
+import org.oddjob.Stateful;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.framework.Service;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
@@ -217,6 +221,63 @@ public class CascadeJobTest extends TestCase {
 		job2Check.checkWait();
 		
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		
+		executors.stop();
+	}
+	
+	private static class OurService implements Service {
+		
+		@Override
+		public void start() throws Exception {
+		}
+		@Override
+		public void stop() throws FailedToStopException {
+		}
+	}
+	
+	public void testServiceAndException() throws FailedToStopException, InterruptedException {
+		DefaultExecutors executors = new DefaultExecutors();
+		
+		Stateful job1 = (Stateful) new OddjobComponentResolver().resolve(
+				new OurService(), new StandardArooaSession());
+		
+		FlagState job2 = new FlagState();
+		job2.setState(JobState.EXCEPTION);
+				
+		CascadeJob test = new CascadeJob();
+		test.setExecutorService(executors.getPoolExecutor());
+		
+		test.setJobs(0, job1);
+		test.setJobs(1, job2);
+
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		
+		StateSteps job2Check = new StateSteps(job2);
+		
+		job2Check.startCheck(JobState.READY, 
+				JobState.EXECUTING, JobState.EXCEPTION);
+		
+		test.run();
+
+		job2Check.checkWait();
+
+		new StopWait(test).run();
+		
+		assertEquals(ServiceState.STARTED, job1.lastStateEvent().getState());	
+		assertEquals(JobState.EXCEPTION, job2.lastStateEvent().getState());	
+		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());	
+		
+		job2Check.startCheck(JobState.EXCEPTION, JobState.READY, 
+				JobState.EXECUTING, JobState.COMPLETE);
+
+		job2.setState(JobState.COMPLETE);
+		job2.softReset();
+		job2.run();
+		
+		job2Check.checkWait();
+		
+		assertEquals(ServiceState.STARTED, job1.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
 		
 		executors.stop();
@@ -536,4 +597,33 @@ public class CascadeJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+	public void testWithParallel() throws InterruptedException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/state/CascadeWithParallelExample.xml",
+				getClass().getClassLoader()));
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);		
+		
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		oddjobStates.checkWait();
+
+		console.close();
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(3, lines.length);
+		assertEquals("Apples are guaranteed to be third.", lines[2].trim());
+		
+		oddjob.destroy();
+	}
 }

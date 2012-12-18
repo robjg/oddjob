@@ -5,11 +5,11 @@
             <jobs>
                 <parallel>
                     <jobs>
-                        <wait pause="5000"/>
-                        <wait pause="4000"/>
+                        <echo>Oranges could be first or second.</echo>
+                        <echo>Pears could be first or second.</echo>
                     </jobs>
                 </parallel>
-                <echo/>
+                <echo>Apples are guaranteed to be third.</echo>
             </jobs>
         </state:cascade>
     </job>

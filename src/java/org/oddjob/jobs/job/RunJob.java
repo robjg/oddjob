@@ -26,7 +26,7 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -80,7 +80,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 	}	
 	
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new StateOperator() {
 			@Override
 			public ParentState evaluate(State... states) {
@@ -115,7 +115,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 					return ParentState.READY;
 				}
 				else {
-					return new WorstStateOp().evaluate(states);
+					return new AnyActiveStateOp().evaluate(states);
 				}
 			}
 		};

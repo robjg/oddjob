@@ -1,23 +1,33 @@
 package org.oddjob.jobs.structural;
 
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.framework.OptionallyTransient;
 import org.oddjob.framework.SimultaneousStructural;
+import org.oddjob.scheduling.ExecutorThrottleType;
+import org.oddjob.state.CascadeJob;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.AnyActiveStateOp;
 
 /**
  * @oddjob.description
  * 
  * A job which executes it's child jobs in parallel.
  * <p>
- * The return state for this job depends on the return
- * states of all the children - Complete if all the 
- * children complete, exception if there are any exceptions
- * in the children, 
- * or not complete if any of the children fail to complete. 
+ * Once the child jobs are submitted, Oddjob's thread of execution continues
+ * on out of this job. The state is set to ACTIVE and will continue to
+ * change depending on the state of the child Jobs. The <code>join</code>
+ * property can be used to hold the thread of execution until the 
+ * submitted jobs have finished executing - but it's use is discouraged. 
+ * See the property documentation below for more information.
+ * 
+ * The state of job, including its modification by the 
+ * <code>stateOperator</code> property is identical to {@link SequentialJob}
+ * and is well documented there. Likewise with the transient property.
  * 
  * @oddjob.example
  * 
- * Two jobs running in parallel.
+ * Two jobs running in parallel. Note that the order of execution of the
+ * two child jobs is not predictable.
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/SimpleParallelExample.xml}
  * 
@@ -29,9 +39,30 @@ import org.oddjob.state.WorstStateOp;
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/ParallelServicesExample.xml}
  * 
+ * The {@link CascadeJob} will execute the final job only once both services
+ * have started, and it will continue be in a STARTED after execution has
+ * completed.
+ * <p>
+ * Adding a SERVICES stateOperator property will mean that parallel is
+ * COMPLETE once the services have started and so the whole cascade shows
+ * as complete.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/ParallelServicesExample2.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Examples elsewhere.
+ * <ul>
+ *  <li>{@link ExecutorThrottleType} has an example of limiting the number
+ *  of concurrently executing jobs.</li>
+ * </ul>
+ * 
+ * 
  * @author Rob Gordon
  */
-public class ParallelJob extends SimultaneousStructural {
+public class ParallelJob extends SimultaneousStructural
+implements OptionallyTransient {
+	
 	private static final long serialVersionUID = 2009031800L;
 	
 	/**
@@ -54,9 +85,39 @@ public class ParallelJob extends SimultaneousStructural {
 	 */
 	private volatile boolean join;
 	
+	/**
+	 * @oddjob.property transient
+	 * @oddjob.description Is this job transient. If true state will not
+	 * be persisted.
+	 * @oddjob.required No, default is false.
+	 * 
+	 * @param stateOperator The state operator to be applied to children's
+	 * states to derive our state.
+	 */
+	private boolean _transient;
+	
+	/**
+	 * @oddjob.property stateOperator
+	 * @oddjob.description Set the way the children's state is 
+	 * evaluated and reflected by the parent. Values can be WORST, 
+	 * ACTIVE, or SERVICES.
+	 * @oddjob.required No, default is ACTIVE.
+	 * 
+	 * @param stateOperator The state operator to be applied to children's
+	 * states to derive our state.
+	 */
+	@ArooaAttribute
+	public void setStateOperator(StateOperator stateOperator) {
+		this.structuralState.setStateOperator(stateOperator);
+	}
+	
+	public StateOperator getStateOperator() {
+		return this.structuralState.getStateOperator();
+	}
+	
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 
 	@Override
@@ -66,5 +127,17 @@ public class ParallelJob extends SimultaneousStructural {
 
 	public void setJoin(boolean join) {
 		this.join = join;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.framework.OptionallyTransient#isTransient()
+	 */
+	public boolean isTransient() {
+		return _transient;
+	}
+	
+	public void setTransient(boolean _transient)	 {
+		this._transient = _transient;
 	}
 }

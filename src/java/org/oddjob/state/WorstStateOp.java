@@ -8,15 +8,15 @@ import org.oddjob.Structural;
  * Implementation of a {@link StateOperator} that provides a parent state
  * as follows:
  * <ul>
- * <li>If any child is ACTIVE/EXECUTING then evaluate to ACTIVE.</li>
  * <li>If any child is EXCEPTION then evaluate to EXCEPTION.</li>
  * <li>If any child is INCOMPLETE then evaluate to INCOMPLETE.</li>
+ * <li>If any child is ACTIVE/EXECUTING then evaluate to ACTIVE.</li>
  * <li>If any child is READY then evaluate to READY.</li>
  * <li>Evaluate to COMPLETE.</li>
  * </ul>
  * 
- * This Operator is used in many {@link Structural}
- * jobs to calculate parent state.
+ * This Operator is legacy behaviour and has been replace by 
+ * {@link AnyActiveStateOp} in most {@link Structural} jobs.
  * 
  * @author rob
  *
@@ -57,4 +57,8 @@ public class WorstStateOp implements StateOperator {
 		return state;
 	}
 	
+	public String toString() {
+		
+		return getClass().getSimpleName();
+	}
 }

@@ -12,7 +12,6 @@ import org.oddjob.jmx.client.RemoteLogPoller;
 import org.oddjob.jmx.client.ServerView;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jobs.job.StopJob;
-import org.oddjob.jobs.structural.ServiceManager;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogLevel;

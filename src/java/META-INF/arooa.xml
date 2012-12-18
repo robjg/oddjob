@@ -4,6 +4,7 @@
         <arooa:descriptor>
             <conversions>
                 <value value='org.oddjob.state.StateConditions$Conversions'/>
+                <value value='org.oddjob.state.StateOperators$Conversions'/>
                 <value value='org.oddjob.values.types.DateType$Conversions'/>
                 <value value='org.oddjob.values.types.FormatType$Conversions'/>
                 <value value='org.oddjob.values.types.TokenizerType$Conversions'/>
@@ -41,7 +42,8 @@
                 <is element='launch' className='org.oddjob.jobs.LaunchJob'/>
                 <is element='oddjob' className='org.oddjob.Oddjob'
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
-                <is element='parallel' className='org.oddjob.jobs.structural.ParallelJob'/>
+                <is element='parallel' className='org.oddjob.jobs.structural.ParallelJob'
+                    designFactory='org.oddjob.designer.components.ParallelDC'/>
                 <is element='properties'
                     className='org.oddjob.values.properties.PropertiesJob'
                     designFactory='org.oddjob.values.properties.PropertiesDesFa'/>
@@ -61,8 +63,6 @@
                     designFactory='org.oddjob.designer.components.SequentialDC'/>
                 <is element='services' 
                     className='org.oddjob.framework.ServicesJob'/>
-                <is element='serviceman'
-                    className='org.oddjob.jobs.structural.ServiceManager'/>
                 <is element='set' className='org.oddjob.values.SetJob'/>
                 <is element='sql' className='org.oddjob.sql.SQLJob'
                     designFactory='org.oddjob.designer.components.SqlDC'/>

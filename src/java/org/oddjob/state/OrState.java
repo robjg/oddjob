@@ -27,7 +27,7 @@ public class OrState extends StateReflector {
 	private static final long serialVersionUID = 2009031800L;
 	
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new OrStateOp();
 	}
 	

@@ -2,7 +2,6 @@ package org.oddjob;
 
 import org.apache.log4j.Logger;
 import org.oddjob.framework.StopWait;
-import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 
 /**
@@ -74,6 +73,11 @@ public class OddjobRunner {
 				// Possibly wait for Oddjob to be in a stopped state.
 				new StopWait(oddjob, Long.MAX_VALUE).run();
 				
+				// Stop Oddjob - even though it's stopped. The stop
+				// message needs to be propagated down to the job tree
+				// to stop services that may have started threads.
+				oddjob.stop();
+				
 				// Stopping executors should allow JVM to exit. Shutdown
 				// thread will take care of destroying Oddjob.
 				oddjob.stopExecutors();
@@ -135,19 +139,6 @@ public class OddjobRunner {
 
 			StateEvent lastStateEvent = oddjob.lastStateEvent();
 
-			if (lastStateEvent.getState().isStoppable()) {
-				// Try stopping Oddjob. Do this even though destroy will also
-				// stop Oddjob, so we can capture the stopped state.
-				try {
-					oddjob.stop();
-					lastStateEvent = oddjob.lastStateEvent();
-				} catch (FailedToStopException e) {
-					logger.error("Failed to stop Oddjob", e);
-					lastStateEvent = new StateEvent(
-							oddjob, ParentState.EXCEPTION, e);
-				}
-			}
-			
 			logger.debug("Destroying Oddjob.");
 			destroying = true;
 			oddjob.destroy();

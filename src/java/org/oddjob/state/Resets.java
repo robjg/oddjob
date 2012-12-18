@@ -46,8 +46,8 @@ public class Resets extends StructuralJob<Object>{
 	private boolean soften;
 	
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 	
 	@Override

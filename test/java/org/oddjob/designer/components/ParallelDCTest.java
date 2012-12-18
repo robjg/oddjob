@@ -1,6 +1,3 @@
-/*
- * (c) Rob Gordon 2005.
- */
 package org.oddjob.designer.components;
 
 import junit.framework.TestCase;
@@ -16,14 +13,14 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.structural.SequentialJob;
+import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.state.WorstStateOp;
 
 /**
  *
  */
-public class SequentialDCTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(SequentialDCTest.class);
+public class ParallelDCTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(ParallelDCTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -34,13 +31,13 @@ public class SequentialDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<sequential name='Test' independent='true'" +
+				"<parallel name='Test' join='true'" +
 				"            stateOperator='WORST' transient='true'>" +
 				" <jobs>" +
 				"  <echo/>" +
 				"  <echo/>" +
 				" </jobs>" +
-				"</sequential>";
+				"</parallel>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -54,13 +51,13 @@ public class SequentialDCTest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		assertEquals(SequentialDesign.class, design.getClass());
+		assertEquals(ParallelDesign.class, design.getClass());
 		
-		SequentialJob test = (SequentialJob) Helper.createComponentFromConfiguration(
+		ParallelJob test = (ParallelJob) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
-		assertEquals(true, test.isIndependent());
+		assertEquals(true, test.isJoin());
 		assertEquals(WorstStateOp.class, test.getStateOperator().getClass());
 		assertEquals(true, test.isTransient());
 		
@@ -71,7 +68,7 @@ public class SequentialDCTest extends TestCase {
 
 	public static void main(String args[]) throws ArooaParseException {
 
-		SequentialDCTest test = new SequentialDCTest();
+		ParallelDCTest test = new ParallelDCTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);

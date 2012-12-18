@@ -3,13 +3,16 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Parallel and Sequential have been given a stateOperator property that
+  allows how they interpret their child states to vary. The SERVICES 
+  state operator does what serviceman used to do and so it has been removed.
 - Parallel has been given a join property that restores the pre Version 1.0
   behaviour of waiting for the parallel threads to complete before 
   continuing. Note that it's use is discouraged!
 - A new Parent State of STARTED has been introduced to better reflect
   child service states. Timer and Retry now uses STARTED instead of ACTIVE.
 - Cascade now works correctly with the STARTED state of services.
-- Timer and Retyr now allow the nextDue property to be set while the timer 
+- Timer and Retry now allow the nextDue property to be set while the timer 
   is running.
 - New Swing Panel is available that provides Oddjob jobs as simple Buttons.
   It is not yet an Oddjob element but can be added with 
@@ -24,9 +27,6 @@ Still To Do for 1.3.0
 ---------------------
 
 - Add Parent Started State to User Guide. Document thread.
-- Support parallel services in Service Manager.
-- Write test for, and document, Parallel Join. Document uncertainty of
-  states.
 - Write tests for setting nextDue while timer running.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.

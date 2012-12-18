@@ -53,7 +53,7 @@ implements Stoppable {
 	
 		
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new StateOperator() {
 			public ParentState evaluate(State... states) {
 				if (states.length == 0) {

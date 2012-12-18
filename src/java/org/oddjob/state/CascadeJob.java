@@ -12,6 +12,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
+import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.jobs.structural.SequentialJob;
 
 /**
@@ -23,7 +24,13 @@ import org.oddjob.jobs.structural.SequentialJob;
  * it can continue. This job's thread of execution passes onwards after the
  * cascade has been set up. This job will complete asynchronously once all
  * it's children have completed.
- * <p>
+ * 
+ * <h4>State Operator</h4>
+ * This job doesn't currently expose a State Operator property as 
+ * {@link SequentialJob} does. The state behaviour is equivalent to the
+ * WORST state operator, which is what is desired in most situations. A
+ * <code>stateOperator</code> property may be added in future versions
+ * if needed.
  * 
  * @oddjob.example
  * 
@@ -31,9 +38,15 @@ import org.oddjob.jobs.structural.SequentialJob;
  * 
  * {@oddjob.xml.resource org/oddjob/state/CascadeExample.xml}
  * 
+ * @oddjob.example
+ * 
+ * Showing cascade being used with {@link ParallelJob}. The cascade will
+ * wait for the parallel job to finish before running the third job.
+ * 
+ * {@oddjob.xml.resource org/oddjob/state/CascadeWithParallelExample.xml}
+ * 
  * @author Rob Gordon
  */
-
 public class CascadeJob extends StructuralJob<Object> {
 	
 	private static final long serialVersionUID = 2010081100L;
@@ -169,7 +182,7 @@ public class CascadeJob extends StructuralJob<Object> {
 	}
 	
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new WorstStateOp();
 	}
 			

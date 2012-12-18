@@ -47,7 +47,7 @@ public class StructuralStateHelperTest extends TestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 	
 		StructuralStateHelper test = new StructuralStateHelper(
-				childHelper, new WorstStateOp());
+				childHelper, new AnyActiveStateOp());
 		
 		test.addStateListener(new OurStateListener());
 		
@@ -109,7 +109,7 @@ public class StructuralStateHelperTest extends TestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 		
 		StructuralStateHelper test = new StructuralStateHelper(
-				childHelper, new WorstStateOp());
+				childHelper, new AnyActiveStateOp());
 		
 		test.addStateListener(new OurStateListener());
 		childHelper.insertChild(0, j1);
@@ -126,7 +126,7 @@ public class StructuralStateHelperTest extends TestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 		
 		StructuralStateHelper test = new StructuralStateHelper(
-				childHelper, new WorstStateOp());
+				childHelper, new AnyActiveStateOp());
 		
 		test.addStateListener(new OurStateListener());
 
@@ -145,7 +145,7 @@ public class StructuralStateHelperTest extends TestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 	
 		StructuralStateHelper h = new StructuralStateHelper(
-				childHelper, new WorstStateOp());
+				childHelper, new AnyActiveStateOp());
 		
 		h.addStateListener(new OurStateListener());
 		
@@ -179,7 +179,7 @@ public class StructuralStateHelperTest extends TestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 		
 		StructuralStateHelper test = new StructuralStateHelper(
-				childHelper, new WorstStateOp());
+				childHelper, new AnyActiveStateOp());
 		
 		OurStateful job = new OurStateful();
 

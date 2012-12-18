@@ -128,8 +128,8 @@ public class ServiceManagerTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		ServiceManager test = lookup.lookup("service-manager", 
-				ServiceManager.class);
+		SequentialJob test = lookup.lookup("service-manager", 
+				SequentialJob.class);
 		Object lights = lookup.lookup("lights");
 		Object machine = lookup.lookup("machine");
 		
@@ -188,8 +188,8 @@ public class ServiceManagerTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		ServiceManager test = lookup.lookup("service-manager", 
-				ServiceManager.class);
+		SequentialJob test = lookup.lookup("service-manager", 
+				SequentialJob.class);
 		
 		StateSteps testState = new StateSteps(test);
 		testState.startCheck(ParentState.READY, 
@@ -238,12 +238,12 @@ public class ServiceManagerTest extends TestCase {
 		String xml =
 				"<oddjob>" +
 				" <job>" +
-				"  <serviceman id='service-manager'>" +
+				"  <sequential id='service-manager' stateOperator='SERVICES'>" +
 				"   <jobs>" +
 				"    <bean id='lights' " +
 				"       class='org.oddjob.jobs.structural.ServiceManagerTest$Lights'/>" +
 				"   </jobs>" +
-				"  </serviceman>" +
+				"  </sequential>" +
 				" </job>" +
 				"</oddjob>";
 		
@@ -259,8 +259,8 @@ public class ServiceManagerTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		ServiceManager test = lookup.lookup("service-manager", 
-				ServiceManager.class);
+		SequentialJob test = lookup.lookup("service-manager", 
+				SequentialJob.class);
 		
 		StateSteps testState = new StateSteps(test);
 		testState.startCheck(ParentState.READY, 
@@ -339,8 +339,8 @@ public class ServiceManagerTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		ServiceManager test = lookup.lookup("service-manager", 
-				ServiceManager.class);
+		SequentialJob test = lookup.lookup("service-manager", 
+				SequentialJob.class);
 		Object lights = lookup.lookup("lights");
 		Object machine = lookup.lookup("machine");
 		

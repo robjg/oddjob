@@ -20,7 +20,7 @@ public class AndState extends StateReflector {
 	private static final long serialVersionUID = 2010082000L;
 		
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new AndStateOp();
 	}
 }

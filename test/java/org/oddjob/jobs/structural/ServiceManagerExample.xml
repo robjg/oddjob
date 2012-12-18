@@ -2,7 +2,7 @@
   <job>
     <sequential>
       <jobs>
-      <serviceman id="service-manager">
+      <sequential id="service-manager" stateOperator="SERVICES">
         <jobs>
           <bean id="lights" 
             class="org.oddjob.jobs.structural.ServiceManagerTest$Lights"/>
@@ -10,7 +10,7 @@
             class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes"
             goes="ping"/>
         </jobs>
-      </serviceman>
+      </sequential>
       <echo>The lights are ${lights.are} and the machine goes ${machine.goes}.</echo>
       </jobs>
     </sequential>

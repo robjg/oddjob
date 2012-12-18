@@ -54,7 +54,7 @@ public class SequentialJobInOddjobTest extends TestCase {
 		assertEquals(JobState.READY, 
 				Helper.getJobState(lookup.lookup("3")));
 		
-		assertEquals(ParentState.EXCEPTION, 
+		assertEquals(ParentState.STARTED, 
 				Helper.getJobState(lookup.lookup("test")));
 
 		oddjob.stop();

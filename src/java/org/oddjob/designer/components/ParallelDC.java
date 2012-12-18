@@ -17,44 +17,43 @@ import org.oddjob.arooa.parsing.ArooaElement;
 /**
  *
  */
-public class SequentialDC implements DesignFactory {
+public class ParallelDC implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
 
-		return new SequentialDesign(element, parentContext);
+		return new ParallelDesign(element, parentContext);
 	}
-		
 }
 
-class SequentialDesign extends BaseDC {
+class ParallelDesign extends BaseDC {
 
-	private final SimpleTextAttribute independent;
+	private final SimpleTextAttribute join;
 
 	private final SimpleTextAttribute stateOp;
 	
-	private final IndexedDesignProperty jobs;
-	
 	private final SimpleTextAttribute _transient;
 	
-	public SequentialDesign(ArooaElement element, ArooaContext parentContext) {
+	private final IndexedDesignProperty jobs;
+	
+	public ParallelDesign(ArooaElement element, ArooaContext parentContext) {
 		
 		super(element, parentContext);
 		
-		jobs = new IndexedDesignProperty("jobs", this);
-		
-		independent = new SimpleTextAttribute("independent", this);
+		join = new SimpleTextAttribute("join", this);
 		
 		stateOp = new SimpleTextAttribute("stateOperator", this);
 		
 		_transient = new SimpleTextAttribute("transient", this);
+		
+		jobs = new IndexedDesignProperty("jobs", this);		
 	}
 	
 	public Form detail() {
 		return new StandardForm(this)
 				.addFormItem(basePanel())
 				.addFormItem(new BorderedGroup("Optional Behaviour")
-					.add(independent.view().setTitle("Independent"))
+					.add(join.view().setTitle("Join"))
 					.add(stateOp.view().setTitle("State Operator"))
 					.add(_transient.view().setTitle("Transient")))
 				.addFormItem(new BorderedGroup("Jobs")
@@ -64,7 +63,7 @@ class SequentialDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, independent, _transient, stateOp, jobs };
+				name, join, _transient, stateOp, jobs };
 	}
 
 }

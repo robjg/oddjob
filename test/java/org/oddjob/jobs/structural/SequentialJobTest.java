@@ -19,6 +19,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.persist.MapPersister;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.MirrorState;
@@ -404,4 +405,89 @@ public class SequentialJobTest extends TestCase {
 		oddjob.destroy();	
 	}
 
+	public void testPersistence() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml = 
+				"<oddjob>" +
+				" <job>" +
+				"  <sequential id='seq'>" +
+				"   <jobs>" +
+				"    <state:flag xmlns:state='http://rgordon.co.uk/oddjob/state'/>" +
+				"   </jobs>" +
+				"  </sequential>" +
+				" </job>" +
+				"</oddjob>";
+				 
+		MapPersister persister = new MapPersister();
+		
+		{
+			Oddjob oddjob1 = new Oddjob();
+			oddjob1.setConfiguration(new XMLConfiguration("XML", xml));
+			oddjob1.setPersister(persister);
+			oddjob1.run();
+			
+			assertEquals(ParentState.COMPLETE, oddjob1.lastStateEvent().getState());
+					
+			oddjob1.destroy();
+		}
+		
+		{
+			Oddjob oddjob2 = new Oddjob();
+			oddjob2.setConfiguration(new XMLConfiguration("XML", xml));
+			oddjob2.setPersister(persister);
+			
+			oddjob2.load();
+			
+			assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
+			
+			OddjobLookup lookup = new OddjobLookup(oddjob2);
+			
+			Stateful seq = lookup.lookup("seq", Stateful.class);
+			
+			assertEquals(ParentState.COMPLETE, seq.lastStateEvent().getState());
+		}		
+	}
+	
+	public void testPersistenceWhenTransient() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml = 
+				"<oddjob>" +
+				" <job>" +
+				"  <sequential id='seq' transient='true'>" +
+				"   <jobs>" +
+				"    <state:flag xmlns:state='http://rgordon.co.uk/oddjob/state'/>" +
+				"   </jobs>" +
+				"  </sequential>" +
+				" </job>" +
+				"</oddjob>";
+				 
+		MapPersister persister = new MapPersister();
+		
+		{
+			Oddjob oddjob1 = new Oddjob();
+			oddjob1.setConfiguration(new XMLConfiguration("XML", xml));
+			oddjob1.setPersister(persister);
+			oddjob1.run();
+			
+			assertEquals(ParentState.COMPLETE, oddjob1.lastStateEvent().getState());
+					
+			oddjob1.destroy();
+		}
+		
+		{
+			Oddjob oddjob2 = new Oddjob();
+			oddjob2.setConfiguration(new XMLConfiguration("XML", xml));
+			oddjob2.setPersister(persister);
+			
+			oddjob2.load();
+			
+			assertEquals(ParentState.READY, oddjob2.lastStateEvent().getState());
+			
+			OddjobLookup lookup = new OddjobLookup(oddjob2);
+			
+			Stateful seq = lookup.lookup("seq", Stateful.class);
+			
+			assertEquals(ParentState.READY, seq.lastStateEvent().getState());
+		}		
+	}
 }

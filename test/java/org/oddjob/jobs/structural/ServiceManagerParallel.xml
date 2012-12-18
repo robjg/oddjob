@@ -3,7 +3,7 @@
     <job>
         <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
             <jobs>
-                <serviceman id="service-manager">
+                <sequential id="service-manager" stateOperator="SERVICES">
                     <jobs>
                         <parallel>
                             <jobs>
@@ -12,7 +12,7 @@
                             </jobs>
                         </parallel>
                     </jobs>
-                </serviceman>
+                </sequential>
                 <echo><![CDATA[The lights are ${lights.are} and the machine goes ${machine.goes}.]]></echo>
             </jobs>
         </state:cascade>

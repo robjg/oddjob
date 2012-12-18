@@ -9,6 +9,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.registry.Path;
+import org.oddjob.framework.OptionallyTransient;
 import org.oddjob.framework.Transient;
 
 /**
@@ -111,8 +112,13 @@ implements OddjobPersister {
 				logger.debug("[" + proxy + "] not Serializable - will not persist.");
 				return;
 			}
-			if ((proxy instanceof Transient)) {
+			if (proxy instanceof Transient) {
 				logger.debug("[" + proxy + "] is Transient - will not persist.");
+				return;
+			}
+			if (proxy instanceof OptionallyTransient && 
+					((OptionallyTransient) proxy).isTransient()) {
+				logger.debug("[" + proxy + "] is OptionallyTransient - will not persist.");
 				return;
 			}
 			if (include != null && !include.contains(id)) {

@@ -94,8 +94,8 @@ public class JoinJob extends StructuralJob<Runnable> {
 	}		
 	
 	@Override
-	protected StateOperator getStateOp() {
-		return new WorstStateOp();
+	protected StateOperator getInitialStateOp() {
+		return new AnyActiveStateOp();
 	}
 	
 }

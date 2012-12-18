@@ -541,4 +541,38 @@ public class ParallelJobTest extends TestCase {
 		
 		oddjob.destroy();
 	}
+	
+	public void testParallelServiceThatCompletesExample() 
+	throws InterruptedException, FailedToStopException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/ParallelServicesExample2.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);		
+		
+		oddjob.run();		
+		
+		oddjobStates.checkWait();
+		
+		console.close();
+		
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals(1, lines.length);
+		
+		assertEquals("The lights are on and the machine goes ping.", 
+				lines[0].trim());
+						
+		oddjob.destroy();
+	}
 }

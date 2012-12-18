@@ -84,7 +84,7 @@ public class IfJob extends StructuralJob<Object>
 	}
 		
 	@Override
-	protected StateOperator getStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new StateOperator() {
 			public ParentState evaluate(State... states) {
 

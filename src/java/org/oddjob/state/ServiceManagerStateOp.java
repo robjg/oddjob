@@ -61,4 +61,8 @@ public class ServiceManagerStateOp implements StateOperator {
 		return state;
 	}
 	
+	public String toString() {
+		
+		return getClass().getSimpleName();
+	}
 }
