@@ -1,8 +1,8 @@
 package org.oddjob.sql;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -11,30 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A {@link ResultSetExtractor} that uses simple java types for most
- * column types. This was introduced for Oracle which uses it's own types
- * and this might not always be desirable.
- * <p>
- * This class is still a work in progress.
- * <p>
+ * Something that is able to extract a value from a column based on the
+ * SQL Type.
  * 
  * @author rob
  *
  */
-public class DefaultResultSetExtractor implements ResultSetExtractor {
-	
-	public interface Extractor<T> {
+public abstract class ColumnExtractor<T> {
 		
-		public Class<T> getType();
-		
-		public T extract(ResultSet rs, int columnIndex) throws SQLException;
-	}
-	
-	private static final Map<Integer, Extractor<?>> EXTRACTOR_TYPES = 
-			new HashMap<Integer, Extractor<?>>();
-	
-	public static final Extractor<Boolean> BOOLEAN_EXTRACTOR = 
-			new Extractor<Boolean>() {
+	public static final ColumnExtractor<Boolean> BOOLEAN_EXTRACTOR = 
+			new ColumnExtractor<Boolean>() {
 		@Override
 		public java.lang.Class<Boolean> getType() {
 			return Boolean.class;
@@ -52,8 +38,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 
-	public static final Extractor<Short> SHORT_EXTRACTOR = 
-			new Extractor<Short>() {
+	public static final ColumnExtractor<Short> SHORT_EXTRACTOR = 
+			new ColumnExtractor<Short>() {
 		@Override
 		public java.lang.Class<Short> getType() {
 			return Short.class;
@@ -71,8 +57,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Integer> INT_EXTRACTOR = 
-			new Extractor<Integer>() {
+	public static final ColumnExtractor<Integer> INT_EXTRACTOR = 
+			new ColumnExtractor<Integer>() {
 		@Override
 		public java.lang.Class<Integer> getType() {
 			return Integer.class;
@@ -90,8 +76,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Long> LONG_EXTRACTOR = 
-			new Extractor<Long>() {
+	public static final ColumnExtractor<Long> LONG_EXTRACTOR = 
+			new ColumnExtractor<Long>() {
 		@Override
 		public java.lang.Class<Long> getType() {
 			return Long.class;
@@ -109,8 +95,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Double> DOUBLE_EXTRACTOR = 
-			new Extractor<Double>() {
+	public static final ColumnExtractor<Double> DOUBLE_EXTRACTOR = 
+			new ColumnExtractor<Double>() {
 		@Override
 		public java.lang.Class<Double> getType() {
 			return Double.class;
@@ -128,8 +114,27 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<String> STRING_EXTRACTOR = 
-			new Extractor<String>() {
+	public static final ColumnExtractor<BigDecimal> BIG_DECIMAL_EXTRACTOR = 
+			new ColumnExtractor<BigDecimal>() {
+		@Override
+		public java.lang.Class<BigDecimal> getType() {
+			return BigDecimal.class;
+		}
+		@Override
+		public BigDecimal extract(ResultSet rs, int columnIndex) 
+		throws SQLException {
+			BigDecimal column = rs.getBigDecimal(columnIndex);
+			if (rs.wasNull()) {
+				return null;
+			}
+			else {
+				return column;
+			}
+		}
+	};
+	
+	public static final ColumnExtractor<String> STRING_EXTRACTOR = 
+			new ColumnExtractor<String>() {
 		@Override
 		public java.lang.Class<String> getType() {
 			return String.class;
@@ -141,8 +146,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Date> DATE_EXTRACTOR = 
-			new Extractor<Date>() {
+	public static final ColumnExtractor<Date> DATE_EXTRACTOR = 
+			new ColumnExtractor<Date>() {
 		@Override
 		public java.lang.Class<Date> getType() {
 			return Date.class;
@@ -154,8 +159,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Time> TIME_EXTRACTOR = 
-			new Extractor<Time>() {
+	public static final ColumnExtractor<Time> TIME_EXTRACTOR = 
+			new ColumnExtractor<Time>() {
 		@Override
 		public java.lang.Class<Time> getType() {
 			return Time.class;
@@ -167,8 +172,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Timestamp> TIMESTAMP_EXTRACTOR = 
-			new Extractor<Timestamp>() {
+	public static final ColumnExtractor<Timestamp> TIMESTAMP_EXTRACTOR = 
+			new ColumnExtractor<Timestamp>() {
 		@Override
 		public java.lang.Class<Timestamp> getType() {
 			return Timestamp.class;
@@ -180,8 +185,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
-	public static final Extractor<Object> DEFAULT_EXTRACTOR = 
-			new Extractor<Object>() {
+	public static final ColumnExtractor<Object> DEFAULT_EXTRACTOR = 
+			new ColumnExtractor<Object>() {
 		@Override
 		public java.lang.Class<Object> getType() {
 			return Object.class;
@@ -193,6 +198,9 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		}
 	};
 	
+	private static final Map<Integer, ColumnExtractor<?>> EXTRACTOR_TYPES = 
+			new HashMap<Integer, ColumnExtractor<?>>();
+	
 	static {
 		EXTRACTOR_TYPES.put(Types.BIT, 			SHORT_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.TINYINT, 		SHORT_EXTRACTOR);
@@ -202,8 +210,8 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		EXTRACTOR_TYPES.put(Types.FLOAT, 		DOUBLE_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.REAL, 		DOUBLE_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.DOUBLE, 		DOUBLE_EXTRACTOR);
-		EXTRACTOR_TYPES.put(Types.NUMERIC, 		DOUBLE_EXTRACTOR);
-		EXTRACTOR_TYPES.put(Types.DECIMAL, 		DOUBLE_EXTRACTOR);
+		EXTRACTOR_TYPES.put(Types.NUMERIC, 		BIG_DECIMAL_EXTRACTOR);
+		EXTRACTOR_TYPES.put(Types.DECIMAL, 		BIG_DECIMAL_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.CHAR, 		STRING_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.VARCHAR, 		STRING_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.LONGVARCHAR,	STRING_EXTRACTOR);
@@ -214,62 +222,26 @@ public class DefaultResultSetExtractor implements ResultSetExtractor {
 		EXTRACTOR_TYPES.put(Types.ROWID, 		LONG_EXTRACTOR);
 	}
 	
-	private final ResultSet resultSet;
-	
-	private final Extractor<?>[] columnTypes;
-	
-	private final String[] columnNames;
-
-	private final int columnCount;
-	
-	public DefaultResultSetExtractor(ResultSet rs) 
-	throws SQLException {
-		
-		this.resultSet = rs;
-				
-		ResultSetMetaData metaData = rs.getMetaData();
-		
-		this.columnCount = metaData.getColumnCount();
-				
-		this.columnTypes = new Extractor[columnCount];
-		this.columnNames = new String[columnCount];
-		
-		for (int i = 0; i < columnTypes.length; ++i) {
-			
-			int columnType = metaData.getColumnType(i + 1);
-			Extractor<?> extractor = EXTRACTOR_TYPES.get(columnType);
-			if (extractor == null) {
-				extractor = DEFAULT_EXTRACTOR;
-			}
-			columnTypes[i] = extractor;
-			
-			columnNames[i] = metaData.getColumnName(i + 1);
-		}
+	@SuppressWarnings("unchecked")
+	public static <X> ColumnExtractor<X> getColumnExtractor(Integer sqlType) {
+		return (ColumnExtractor<X>) EXTRACTOR_TYPES.get(sqlType);
 	}
 	
-	@Override
-	public Object getColumn(int columnIndex) throws SQLException {
-		return columnTypes[columnIndex - 1].extract(resultSet, columnIndex);
-	}
+	/**
+	 * Get the class of this Column Extractor.
+	 * 
+	 * @return The class, never null.
+	 */
+	abstract public Class<T> getType();
 	
-	@Override
-	public Class<?> getColumnType(int columnIndex) {
-		return columnTypes[columnIndex - 1].getType();
-	}
-	
-	@Override
-	public String getColumnName(int columnIndex) {
-		return columnNames[columnIndex - 1];
-	}
-	
-	@Override
-	public int getColumnCount() {
-		return columnCount;
-	}
-	
-	@Override
-	public boolean next() throws SQLException {
-		return resultSet.next();
-	}
+	/**
+	 * Extract the value from the column.
+	 * 
+	 * @param rs
+	 * @param columnIndex
+	 * @return
+	 * @throws SQLException
+	 */
+	abstract public T extract(ResultSet rs, int columnIndex) throws SQLException;
 	
 }

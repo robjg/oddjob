@@ -11,6 +11,15 @@ import java.sql.SQLException;
  */
 public interface DatabaseDialect {
 
+	/**
+	 * Provide an {@link ResultSetExtractor}.
+	 * 
+	 * @param resultSet The result set.
+	 * 
+	 * @return The extranctor. never null.
+	 * 
+	 * @throws SQLException
+	 */
 	public ResultSetExtractor resultSetExtractorFor(ResultSet resultSet)
 	throws SQLException;
 }

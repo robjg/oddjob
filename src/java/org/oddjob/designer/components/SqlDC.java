@@ -58,6 +58,8 @@ class SqlDesign extends BaseDC {
 	
 	private final SimpleTextAttribute keepFormat;
 
+	private final SimpleDesignProperty dialect;
+	
 	public SqlDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 
@@ -86,6 +88,8 @@ class SqlDesign extends BaseDC {
 		delimiterType = new SimpleTextAttribute("delimiterType", this);
 		
 		keepFormat = new SimpleTextAttribute("keepFormat", this);
+		
+		dialect = new SimpleDesignProperty("dialect", this);
 	}
 	
 	public Form detail() {
@@ -112,13 +116,17 @@ class SqlDesign extends BaseDC {
 						.add(keepFormat.view().setTitle("Keep Format"))
 						.add(encoding.view().setTitle("Encoding"))
 					)
+					.add(new FieldGroup("Advanced")
+						.add(dialect.view().setTitle("Database Dialect"))
+					)
 				);					
 	}
 			
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { name, connection, input, 
-				parameters, autocommit, callable, escapeProcessing, onError, results,
-				expandProperties, delimiter, delimiterType, keepFormat, encoding};
+				parameters, autocommit, callable, escapeProcessing, 
+				onError, results, expandProperties, delimiter, 
+				delimiterType, keepFormat, encoding, dialect};
 	}
 }

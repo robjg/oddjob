@@ -3,6 +3,10 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Added a Database Dialect to SQLJob. This allows result processing to
+  be tailored for different databases if required.
+- Add SQL tests for Oracle. Add a database dialect based on column type
+  that is needed for some Oracle column types.
 - Parallel and Sequential have been given a stateOperator property that
   allows how they interpret their child states to vary. The SERVICES 
   state operator does what serviceman used to do and so it has been removed.
@@ -26,7 +30,9 @@ Changes in 1.3.0
 Still To Do for 1.3.0
 ---------------------
 
-- Add Parent Started State to User Guide. Document thread.
+- Add a zero length string check to Check Job.
+- Add a Grep Job.
+- Add Parent Started State to User Guide. Document thread, and services.
 - Write tests for setting nextDue while timer running.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.

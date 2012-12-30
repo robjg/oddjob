@@ -37,7 +37,7 @@ class TimerDesign extends BaseDC {
 	
 	private final SimpleTextAttribute skipMissedRuns;
 	
-	private final SimpleTextAttribute clock;
+	private final SimpleDesignProperty clock;
 	
 	private final SimpleDesignProperty job;
 	
@@ -53,7 +53,7 @@ class TimerDesign extends BaseDC {
 		
 		skipMissedRuns = new SimpleTextAttribute("skipMissedRuns", this);
 		
-		clock = new SimpleTextAttribute("clock", this);
+		clock = new SimpleDesignProperty("clock", this);
 		
 		job = new SimpleDesignProperty(
 				"job", this);

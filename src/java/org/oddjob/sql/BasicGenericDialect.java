@@ -46,7 +46,19 @@ public class BasicGenericDialect implements DatabaseDialect {
 				logger.warn("Can't Load Class " + typeName + ", defaulting to Object.");
 			}
 		}
-		
+
+		if (logger.isDebugEnabled()) {
+			StringBuilder message = new StringBuilder("Columns and Types:");
+			for (int i = 0; i < columnCount; ++i) {
+				if (i > 0) {
+					message.append(", ");
+				}
+				message.append(columnNames[i]);
+				message.append("=");
+				message.append(columnTypes[i].getName());
+			}
+			logger.debug(message.toString());
+		}
 		
 		return new ResultSetExtractor() {
 			

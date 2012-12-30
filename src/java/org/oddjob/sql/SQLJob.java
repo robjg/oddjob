@@ -494,6 +494,28 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
     	return executor.isEscapeProcessing();
     }
 
+	/** 
+	 * @oddjob.property dialect
+	 * @oddjob.description Allows a {@link DatabaseDialect} to be provided 
+	 * that can tune the way the result set is processed.
+     * 
+	 * @oddjob.required No. A default is used.
+	 * 
+     * @param dialect The Database Dialect.
+     */
+    public void setDialect(DatabaseDialect dialect) {
+        executor.setDialect(dialect);
+    }
+ 
+    /**
+     * Getter for dialect.
+     * 
+     * @return
+     */
+    public DatabaseDialect getDialect() {
+    	return executor.getDialect();
+    }    
+    
     /**
 	 * @oddjob.property onError
 	 * @oddjob.description What to do when a statement fails:

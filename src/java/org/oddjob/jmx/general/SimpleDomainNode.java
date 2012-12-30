@@ -10,6 +10,7 @@ import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageIconStable;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
@@ -26,7 +27,7 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
 	/** The icon. */
-    private final static ImageIcon icon = new ImageIcon(	
+    private final static ImageIcon icon = new ImageIconStable(	
             IconHelper.class.getResource("Open16.gif"),
 			"folder");
 

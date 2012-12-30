@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="oracle.jdbc.driver.OracleDriver" password="${oracle.password}" url="${oracle.url}" username="${oracle.user}">
+                            <classLoader>
+                                <url-class-loader>
+                                    <urls>
+                                        <file file="${oracle.home}/jdbc/lib/ojdbc6.jar"/>
+                                    </urls>
+                                </url-class-loader>
+                            </classLoader>
+                        </connection>
+                    </connection>
+                </variables>
+                <sql delimiter="/" delimiterType="ROW" id="create-tables" name="Create Tables">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE ${oracle.schema}.test_numeric_types';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/
+
+CREATE TABLE ${oracle.schema}.test_numeric_types (
+  a_single_digit_number NUMBER(1),
+  a_double_digit_number NUMBER(2),
+  a_three_digit_number NUMBER(3),
+  a_six_digit_number NUMBER(6),
+  a_ten_digit_number NUMBER(10),
+  a_thirty_eight_digit_number NUMBER(38),
+  a_small_decimal NUMBER(2, 4),
+  a_small_precise_decimal NUMBER(38, 38),
+  a_medium_decimal NUMBER(9, 2),
+  a_large_decimal NUMBER(38, 2),
+  a_number NUMBER,
+  an_integer INTEGER,
+  a_binary_float BINARY_FLOAT,
+  a_binary_double BINARY_DOUBLE
+)
+/
+
+INSERT INTO ${oracle.schema}.test_numeric_types (
+  a_single_digit_number,
+  a_double_digit_number,
+  a_three_digit_number,
+  a_six_digit_number,
+  a_ten_digit_number,
+  a_thirty_eight_digit_number,
+  a_small_decimal,
+  a_small_precise_decimal,
+  a_medium_decimal,
+  a_large_decimal,
+  a_number,
+  an_integer,
+  a_binary_float,
+  a_binary_double
+)
+VALUES (
+  9,
+  99,
+  999,
+  999888,
+  9998887776,
+  99988877766655544433322211199988877766,
+  0.0099,
+  0.99988877766655544433322211199988877766,
+  9998887.77,
+  999888777666555444333222111999888777.66,
+  9.0E+125,
+  99988877766655544433322211199988877766,
+  1.0E+38,
+  1.0E+100
+)
+/
+
+]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-sheet>
+                            <output>
+                                <logout/>
+                            </output>
+                        </sql-results-sheet>
+                    </results>
+                </sql>
+                <sql id="query-awkward-types" name="Query Awkward Types">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[SELECT *
+FROM ${oracle.schema}.test_numeric_types
+                         ]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-bean/>
+                    </results>
+                </sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

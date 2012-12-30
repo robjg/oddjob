@@ -59,8 +59,9 @@ public class ResultSetBeanFactory {
 		
 		String[] properties = overview.getProperties();
 		for (int i = 0; i < properties.length; ++i) {
-			accessor.setProperty(bean, properties[i], 
-					resultSetExtractor.getColumn(i + 1));
+			String property = properties[i];
+			Object value = resultSetExtractor.getColumn(i + 1);
+			accessor.setProperty(bean, property, value);
 		}
 		return bean;
 	}

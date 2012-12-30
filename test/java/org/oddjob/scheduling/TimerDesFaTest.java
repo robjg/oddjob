@@ -54,6 +54,13 @@ public class TimerDesFaTest extends TestCase {
 			"   <job>" +
 			"    <echo>Do Something Useful</echo>" +
 			"   </job>" +
+			"   <clock>" +
+			"     <bean class='org.oddjob.scheduling.ManualClock'>" +
+			"      <date>" +
+			"       <date date='2012-12-27 08:00'/>" +
+			"      </date>" +
+			"     </bean>" +
+			"   </clock>" +
 			"</scheduling:timer>";
 		
     	ArooaDescriptor descriptor =
@@ -97,6 +104,8 @@ public class TimerDesFaTest extends TestCase {
 		assertEquals(true, timer.isHaltOnFailure());
 		assertEquals(true, timer.isSkipMissedRuns());
 		assertEquals(1, Helper.getChildren(timer).length);
+//		assertEquals(DateHelper.parseDateTime("2012-12-27 08:00"), 
+//				timer.getClock().getDate());
 	}
 
 	public static void main(String args[]) 

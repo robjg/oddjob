@@ -106,13 +106,15 @@ public class TimerTest extends TestCase {
 		Runnable runnable;
 		long delay;
 
+		ScheduledFuture<Void> future = new MockScheduledFuture<Void>();
+		
 		public ScheduledFuture<?> schedule(Runnable runnable, long delay,
 				TimeUnit unit) {
 
 			OurScheduledExecutorService.this.delay = delay;
 			OurScheduledExecutorService.this.runnable = runnable;
 
-			return new MockScheduledFuture<Void>();
+			return future;
 		}
 	};
 	
@@ -175,7 +177,7 @@ public class TimerTest extends TestCase {
 		//
 		// Check reset and run again works as expected.
 		
-		clock.setDate("2020-12-25 00:00:01");
+		clock.setDateText("2020-12-25 00:00:01");
 		
 		timerStates.startCheck(ParentState.COMPLETE, ParentState.READY);
 		timerIcons.startCheck(IconHelper.COMPLETE, IconHelper.READY);
@@ -289,13 +291,13 @@ public class TimerTest extends TestCase {
 		assertEquals(22 * 60 * 60 * 1000, oddjobServices.delay);
 		
 		// simulate job longer than next due;
-		clock.setDate("2009-03-04 13:00");
+		clock.setDateText("2009-03-04 13:00");
 		oddjobServices.runnable.run();
 
 		assertEquals(0, oddjobServices.delay);
 		
 		// next one runs quick.
-		clock.setDate("2009-03-04 18:00");
+		clock.setDateText("2009-03-04 18:00");
 		oddjobServices.runnable.run();
 
 		assertEquals(18 * 60 * 60 * 1000, oddjobServices.delay);
@@ -327,7 +329,7 @@ public class TimerTest extends TestCase {
 		assertEquals(22 * 60 * 60 * 1000, oddjobServices.delay);
 		
 		// simulate job longer than next due;
-		clock.setDate("2009-03-04 13:00");
+		clock.setDateText("2009-03-04 13:00");
 		oddjobServices.runnable.run();
 
 		// next one runs the next day.
@@ -956,6 +958,64 @@ public class TimerTest extends TestCase {
 		oddjob2.run();
 		
 		assertEquals(24 * 60 * 60 * 1000L, executors2.executor.delay);		
+	}
+	
+	private class OurFuture extends MockScheduledFuture<Void> {
+		boolean cancelled;
+		
+		@Override
+		public boolean cancel(boolean mayInterruptIfRunning) {
+			this.cancelled = true;
+			return true;
+		}
+	}
+	
+	public void testSetNextDue() throws ArooaPropertyException, ArooaConversionException, FailedToStopException, ParseException {
+	
+		ManualClock clock = new ManualClock("2012-12-27 08:00");
+		
+		OurFuture future = new OurFuture();
+		OurOddjobExecutor executors = new OurOddjobExecutor();
+		executors.executor.future = future;
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/scheduling/TimerSetNextDueExample.xml",
+    			getClass().getClassLoader()));
+    	oddjob.setOddjobExecutors(executors);
+    	oddjob.setExport("clock", new ArooaObject(clock));
+
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+    	
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	Timer test = lookup.lookup("timer", Timer.class);
+    	
+    	assertEquals(DateHelper.parseDate("9999-12-31"), test.getNextDue());
+    	
+    	assertNotNull(executors.executor.runnable);
+    	assertEquals(252045619200000L, executors.executor.delay);
+    	assertEquals(false, future.cancelled);
+    	
+    	
+    	Runnable set = lookup.lookup("set", Runnable.class);
+    
+    	set.run();
+    	
+    	assertEquals(DateHelper.parseDateTime("2012-12-27 08:02"), 
+    			test.getNextDue());
+    	
+    	assertEquals((long) (2 * 60 * 1000), executors.executor.delay);
+    	assertEquals(true, future.cancelled);
+    	
+    	oddjob.stop();
+    	
+    	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+    	
+    	
+    	oddjob.destroy();
 	}
 	
 }

@@ -32,6 +32,7 @@ import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageIconStable;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.script.InvokerArguments;
 
@@ -48,9 +49,10 @@ public class SimpleMBeanNode implements
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
 	/** The icon. */
-	private static final ImageIcon icon = new ImageIcon(new ImageIcon(
+	private static final ImageIcon icon = new ImageIconStable(new ImageIcon(
 			SimpleDomainNode.class.getResource("mbean.gif")).getImage(
-					).getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+					).getScaledInstance(16, 16, Image.SCALE_SMOOTH),
+					"MBean");
 
 	/** The logger for this instance. */
 	private final Logger logger = Logger.getLogger(getClass().getName() + 

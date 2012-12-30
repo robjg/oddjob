@@ -21,14 +21,14 @@ public class ManualClock implements Clock {
     private Date date;
 
     public ManualClock(String time) {
-    	setDate(time);
+    	setDateText(time);
     }
     
     public ManualClock() {
     	
     }
     
-    public void setDate(String time) {
+    public void setDateText(String time) {
         logger.debug("Setting date [" + time + "]");
         try {
         	date = DateHelper.parseDateTime(time);
@@ -38,6 +38,10 @@ public class ManualClock implements Clock {
         }
     }
 
+    public void setDate(Date date) {
+    	this.date = date;
+    }
+    
     public Date getDate() {
         return date;
     }

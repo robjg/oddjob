@@ -34,67 +34,67 @@ public class IconHelper implements Iconic {
 	public static final String INVALID = "invalid"; 
 	
 	public static final ImageIcon nullIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("diamond.gif"),
 				"Null Icon");
 	
 	public static final ImageIcon initializingIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("triangle.gif"),
 				"Initialising");
 
 	public static final ImageIcon readyIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("right_blue.gif"),
 				"Ready");
 
 	public static final ImageIcon executingIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("triangle_green.gif"),
 				"Executing");
 
 	public static final ImageIcon completeIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("tick_green.gif"),
 				"Complete");
 
 	public static final ImageIcon notCompleteIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("cross.gif"),
 				"Not Complete");
 
 	public static final ImageIcon stoppingIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("triangle_red.gif"),
 				"Stopping");
 
 	public static final ImageIcon stoppedIcon
-	= new ImageIcon(
+	= new ImageIconStable(
 			IconHelper.class.getResource("square_red.gif"),
 			"Stopped");
 
 	public static final ImageIcon sleepingIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("dot_blue.gif"),
 				"Sleeping");
 
 	public static final ImageIcon invalidIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("cross_red.gif"),
 				"Invalid");
 
 	public static final ImageIcon exceptionIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("asterix_red.gif"),
 				"Exception");
 
 	public static final ImageIcon startedIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 				IconHelper.class.getResource("dot_green.gif"),
 				"Started");
 
 	public static final ImageIcon activeIcon
-		= new ImageIcon(
+		= new ImageIconStable(
 			IconHelper.class.getResource("right_green.gif"),
 			"Active");
 	

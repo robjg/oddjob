@@ -13,6 +13,7 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.sql.BasicGenericDialect;
 import org.oddjob.sql.SQLJob;
 
 public class SQLJobDesFaTest extends TestCase {
@@ -41,6 +42,9 @@ public class SQLJobDesFaTest extends TestCase {
 			"   <results>" +
 			"    <sql-results-sheet/>" +
 			"   </results>" +
+			"   <dialect>" +
+			"    <bean class='org.oddjob.sql.BasicGenericDialect'/>" +
+			"   </dialect>" +
 			"</sql>";
 		
     	ArooaDescriptor descriptor = 
@@ -65,6 +69,7 @@ public class SQLJobDesFaTest extends TestCase {
 		assertEquals("go", test.get("delimiter"));
 		assertEquals(SQLJob.DelimiterType.ROW, test.get("delimiterType"));
 		assertEquals(SQLJob.OnError.CONTINUE, test.get("onError"));
+		assertEquals(BasicGenericDialect.class, test.get("dialect").getClass());
 		
 	}
 

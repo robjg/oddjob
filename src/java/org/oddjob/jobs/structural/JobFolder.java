@@ -10,6 +10,7 @@ import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageIconStable;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -35,7 +36,7 @@ public class JobFolder
 	private static final Logger logger = Logger.getLogger(JobFolder.class);
 	
 	/** Icon. */
-	private static final ImageIcon icon = new ImageIcon(	
+	private static final ImageIcon icon = new ImageIconStable(	
             IconHelper.class.getResource("Open16.gif"),
 			"folder");
 	

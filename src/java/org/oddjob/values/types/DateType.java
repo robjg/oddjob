@@ -17,6 +17,10 @@ import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.arooa.convert.ConvertletException;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.util.Clock;
+import org.oddjob.util.DateProvider;
+import org.oddjob.util.DateShortcuts;
+import org.oddjob.util.DefaultClock;
 
 /**
  * @oddjob.description Define a Date.
@@ -87,6 +91,7 @@ public class DateType implements ArooaValue, Serializable {
 		}
 	}
 	
+	
     /**
      * @oddjob.property
      * @oddjob.description A date in text, if a format is specified it is
@@ -110,6 +115,15 @@ public class DateType implements ArooaValue, Serializable {
      */
     private String timeZone;
 	    
+    
+    /**
+     * @oddjob.property
+     * @oddjob.description The clock to use if a date shortcut is
+     * specified. This is mainly here for tests.
+     * @oddjob.required No, defaults to the current time clock.  
+     */
+    private Clock clock;
+    
     public Calendar toCalandar() throws ParseException {
 		Date date = toDate();
 		
@@ -126,21 +140,40 @@ public class DateType implements ArooaValue, Serializable {
 		return cal;
     }
     
+    /**
+     * Convert this type to a date.
+     * 
+     * @return A date. May be null if the date property is null.
+     * 
+     * @throws ParseException
+     */
     public Date toDate() throws ParseException {
+    	
     	if (date == null) {
     		return null;
     	} 
     	
-    	if (format == null) {
-       		return DateHelper.parseDateTime(date, timeZone);
-    	}
-       	
-    	SimpleDateFormat sdf = new SimpleDateFormat(format);
+    	TimeZone theTimeZone = null;
     	if (timeZone != null) {
-    		sdf.setTimeZone(TimeZone.getTimeZone(timeZone));
+    		theTimeZone = TimeZone.getTimeZone(timeZone);
     	}
-    	
-    	return sdf.parse(date);
+    			
+    	if (format == null) {
+    		DateProvider provider = DateShortcuts.getShortcut(date);
+    		if (provider != null) {
+    			return provider.dateFor(getClock(), theTimeZone);
+    		}
+    		else {
+    			return DateHelper.parseDateTime(date, theTimeZone);
+    		}
+    	}
+    	else {
+	    	SimpleDateFormat sdf = new SimpleDateFormat(format);
+	    	if (theTimeZone != null) {
+	    		sdf.setTimeZone(theTimeZone);
+	    	}
+	    	return sdf.parse(date);
+    	}
     }
     
     public void setDate(String date) {
@@ -167,7 +200,21 @@ public class DateType implements ArooaValue, Serializable {
     	return timeZone;
     }
     
+	public Clock getClock() {
+		if (clock == null) {
+			return new DefaultClock();
+		}
+		else {
+			return clock;
+		}
+	}
+
+	public void setClock(Clock clock) {
+		this.clock = clock;
+	}
+	
     public String toString() {
     	return "DateType: " + date;
     }
+
 }

@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="oracle.jdbc.driver.OracleDriver" password="${oracle.password}" url="${oracle.url}" username="${oracle.user}">
+                            <classLoader>
+                                <url-class-loader>
+                                    <urls>
+                                        <file file="${oracle.home}/jdbc/lib/ojdbc6.jar"/>
+                                    </urls>
+                                </url-class-loader>
+                            </classLoader>
+                        </connection>
+                    </connection>
+                </variables>
+                <sql delimiter="/" delimiterType="ROW" id="create-tables" name="Create Tables">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE ${oracle.schema}.test_char_types';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/
+
+CREATE TABLE ${oracle.schema}.test_char_types (
+  a_char CHAR(10),
+  an_nchar NCHAR(10),
+  a_varchar VARCHAR2(10),
+  an_nvarchar NVARCHAR2(10),
+  a_clob CLOB,
+  an_nclob NCLOB,
+  a_long LONG
+)
+/
+
+INSERT INTO ${oracle.schema}.test_char_types (
+  a_char,
+  an_nchar,
+  a_varchar,
+  an_nvarchar,
+  a_clob,
+  an_nclob,
+  a_long  
+)
+VALUES (
+  'apples',
+  'oranges',
+  'pears',
+  'bananas',
+  'kiwis',
+  'tangarines',
+  'grapes'
+)
+/
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE ${oracle.schema}.test_numeric_types';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/
+
+CREATE TABLE ${oracle.schema}.test_numeric_types (
+  a_single_digit_number NUMBER(1),
+  a_double_digit_number NUMBER(2),
+  a_three_digit_number NUMBER(3),
+  a_six_digit_number NUMBER(6),
+  a_ten_digit_number NUMBER(10),
+  a_thirty_eight_digit_number NUMBER(38),
+  a_small_decimal NUMBER(2, 4),
+  a_small_precise_decimal NUMBER(38, 38),
+  a_medium_decimal NUMBER(9, 2),
+  a_large_decimal NUMBER(38, 2),
+  a_number NUMBER,
+  an_integer INTEGER,
+  a_float FLOAT
+)
+/
+
+INSERT INTO ${oracle.schema}.test_numeric_types (
+  a_single_digit_number,
+  a_double_digit_number,
+  a_three_digit_number,
+  a_six_digit_number,
+  a_ten_digit_number,
+  a_thirty_eight_digit_number,
+  a_small_decimal,
+  a_small_precise_decimal,
+  a_medium_decimal,
+  a_large_decimal,
+  a_number,
+  an_integer,
+  a_float 
+)
+VALUES (
+  9,
+  99,
+  999,
+  999888,
+  9998887776,
+  99988877766655544433322211199988877766,
+  0.0099,
+  0.99988877766655544433322211199988877766,
+  9998887.77,
+  999888777666555444333222111999888777.66,
+  9.0E+125,
+  99988877766655544433322211199988877766,
+  1.0E+100
+)
+/
+
+BEGIN
+  EXECUTE IMMEDIATE 'DROP TABLE ${oracle.schema}.test_date_types';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -942 THEN
+      RAISE;
+    END IF;
+END;
+/
+
+CREATE TABLE ${oracle.schema}.test_date_types(
+  a_date DATE,
+  a_timestamp TIMESTAMP,
+  a_year_interval INTERVAL YEAR(5) TO MONTH,
+  a_day_interval INTERVAL DAY(4) TO SECOND
+)
+/
+
+INSERT INTO ${oracle.schema}.test_date_types (
+  a_date,
+  a_timestamp,
+  a_year_interval,
+  a_day_interval
+) 
+VALUES (
+  '28-dec-2012',
+  '28-dec-2012 18:45:23.045',
+  INTERVAL '1000-01' YEAR(5) TO MONTH,
+  INTERVAL '500 5:12:10.222' DAY(3) TO SECOND
+)
+/
+]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-sheet>
+                            <output>
+                                <logout/>
+                            </output>
+                        </sql-results-sheet>
+                    </results>
+                </sql>
+                <sql id="query-char-types" name="Query Char Types">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[SELECT *
+FROM ${oracle.schema}.test_char_types
+                         ]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-bean/>
+                    </results>
+                    <dialect>
+                        <value value="${dialect}"/>
+                    </dialect>
+                </sql>
+                <sql id="query-numeric-types" name="Query Numeric Types">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[SELECT *
+FROM ${oracle.schema}.test_numeric_types
+                         ]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-bean/>
+                    </results>
+                    <dialect>
+                        <value value="${dialect}"/>
+                    </dialect>
+                </sql>
+                <sql id="query-date-types" name="Query Date Types">
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[SELECT *
+FROM ${oracle.schema}.test_date_types
+                         ]]></buffer>
+                    </input>
+                    <results>
+                        <sql-results-bean/>
+                    </results>
+                    <dialect>
+                        <value value="${dialect}"/>
+                    </dialect>
+                </sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

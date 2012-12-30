@@ -128,7 +128,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testInitialiseBeforeDue() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -143,7 +143,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	
     public void testInitialiseDuringDue() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 12:10");
+    	clock.setDateText("2003-12-25 12:10");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -159,7 +159,7 @@ public class ScheduleCalculatorTest extends TestCase {
 
     public void testInitialiseAfterDue() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 14:10");
+    	clock.setDateText("2003-12-25 14:10");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -175,7 +175,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testComplete() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -194,7 +194,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testCompleteComplete() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -214,7 +214,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testFailNoException() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -231,7 +231,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testCompleteFailNoException() throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -250,14 +250,14 @@ public class ScheduleCalculatorTest extends TestCase {
     
     public void testExceptionScheduleOnce() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     			
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
 
     	schedCalc.initialise();
     			
-    	clock.setDate("2003-12-25 12:00");
+    	clock.setDateText("2003-12-25 12:00");
     	schedCalc.calculateRetry();
     	
 		assertEquals("scheduleDate", "2003-12-25 12:00", scheduleDate);
@@ -269,7 +269,7 @@ public class ScheduleCalculatorTest extends TestCase {
     
 	public void testExceptionScheduleTwice() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     	
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
@@ -277,7 +277,7 @@ public class ScheduleCalculatorTest extends TestCase {
     	schedCalc.initialise();
     	
 		
-    	clock.setDate("2003-12-25 12:00");
+    	clock.setDateText("2003-12-25 12:00");
     	schedCalc.calculateRetry();
     	schedCalc.calculateRetry();
     	
@@ -292,14 +292,14 @@ public class ScheduleCalculatorTest extends TestCase {
 	// to the normal schedule.
 	public void testExceptionScheduleThrice() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     	
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
 
     	schedCalc.initialise();
     	
-    	clock.setDate("2003-12-25 12:00");
+    	clock.setDateText("2003-12-25 12:00");
     	schedCalc.calculateRetry();
     	schedCalc.calculateRetry();
     	schedCalc.calculateRetry();
@@ -316,7 +316,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	// to the normal schedule, then back to the retry.
 	public void testExceptionScheduleFourth() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     	
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
@@ -327,7 +327,7 @@ public class ScheduleCalculatorTest extends TestCase {
     	schedCalc.calculateRetry();
     	schedCalc.calculateRetry();
     	schedCalc.calculateRetry();
-    	clock.setDate("2003-12-26 12:00");
+    	clock.setDateText("2003-12-26 12:00");
     	schedCalc.calculateRetry();
     	
 		assertEquals("scheduleDate", "2003-12-26 12:00", scheduleDate);
@@ -345,7 +345,7 @@ public class ScheduleCalculatorTest extends TestCase {
     public void testCompletes()
 	throws InterruptedException, ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     	
 		// set schedule
 		DateSchedule dateSchedule = new DateSchedule();
@@ -377,7 +377,7 @@ public class ScheduleCalculatorTest extends TestCase {
     public void testPersitence() 
     throws Exception {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
 
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule);
 		schedCalc.addScheduleListener(new SL());
@@ -398,7 +398,7 @@ public class ScheduleCalculatorTest extends TestCase {
 
     public void testPersistence2() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 11:00");
+    	clock.setDateText("2003-12-25 11:00");
     	
 		
 		CountSchedule countSchedule = new CountSchedule();
@@ -433,7 +433,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	// test the retry is limited by the main schedule
 	public void testLimitedRetry() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 13:55");
+    	clock.setDateText("2003-12-25 13:55");
     	
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
@@ -467,7 +467,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	// test behaviour of a retry after the next due interval.
 	public void testRetryAfterInterval() throws ParseException {
     	ManualClock clock = new ManualClock();
-    	clock.setDate("2003-12-25 14:05");
+    	clock.setDateText("2003-12-25 14:05");
     	
 		ScheduleCalculator schedCalc = new ScheduleCalculator(clock, schedule, retrySchedule);
 		schedCalc.addScheduleListener(new SL());
