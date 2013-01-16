@@ -25,6 +25,7 @@ import org.oddjob.schedules.schedules.YearlySchedule;
 import org.oddjob.state.CompleteOrNotOp;
 import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
+import org.oddjob.values.SetJob;
 
 /**
  * @oddjob.description Provides a simple timer for periodic or once only 
@@ -63,13 +64,26 @@ import org.oddjob.state.StateOperator;
  * <p>
  * If a timer is started after the initial execution time but within the interval
  * of the schedule - execution will happen immediately. Extended intervals are created
- * using the <i>from</i> properties instead of the <i>at/in/on</i> properties
- * of schedules.
+ * using the <code>from</code> properties instead of the <code>at/in/on</code> 
+ * properties of schedules.
  * 
- * <h4>Re-Scheduling</h4>
+ * <h4>Changing The Next Due Time</h4>
  * 
- * A job can be rescheduled using a different given time by setting 
- * the <code>reschedule<code> property to be the new time to reschedule from. 
+ * There are two ways to change the next due date of a timer. They both
+ * require that the timer has been started but is not yet executing, and they
+ * both involve dynamically setting properties of the job which can be done
+ * via the 'Job' -&gt; 'Set Property' menu item in Oddjob Explorer or via
+ * the {@link SetJob} job within Oddjob.
+ * <p>
+ * The first method is to set the next due date directly with the 
+ * <code>nextDue</code> property. The existing timer is cancelled and the
+ * job rescheduled to run at this time. If the time is in the past, the job
+ * will run immediately.
+ * </p>
+ * The second method is to set the the <code>reschedule<code> property with
+ * a date and time. The next due date is calculated by applying the date
+ * and time the schedule. This is particularly useful for advancing a
+ * timer.
  * 
  * <h4>Retrying Failed Jobs</h4>
  * 
@@ -111,6 +125,26 @@ import org.oddjob.state.StateOperator;
  * 
  * The job will be stopped after 10 seconds. If the job has already completed
  * the stop will have no affect.
+ * 
+ * @oddjob.example
+ * 
+ * Manually setting the next due date of the timer. When the set job is 
+ * run manually the job will be schedule to run at the new time.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TimerSetNextDueExample.xml}
+ * 
+ * Note that the <code>current<code> interval property is not changed, so
+ * the echo job shows 'Running at 9999-12-31 00:00:00.000'.
+ * 
+ * @oddjob.example
+ * 
+ * Manually rescheduling the timer. When the set job is run manually, the
+ * timer will advance to it's next scheduled slot.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/TimerSetRescheduleExample.xml}
+ * 
+ * Note that the unlike above, <code>current<code> interval property 
+ * changes when the time is rescheduled.
  * 
  * @author Rob Gordon.
  */

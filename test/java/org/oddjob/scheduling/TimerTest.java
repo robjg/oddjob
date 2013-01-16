@@ -1010,6 +1010,63 @@ public class TimerTest extends TestCase {
     	assertEquals((long) (2 * 60 * 1000), executors.executor.delay);
     	assertEquals(true, future.cancelled);
     	
+    	executors.executor.runnable.run();
+    	
+    	assertEquals("Running at 9999-12-31 00:00:00.000", lookup.lookup("echo.text"));
+    	
+    	oddjob.stop();
+    	
+    	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+    	
+    	
+    	oddjob.destroy();
+	}
+	
+	public void testSetReshedule() throws ArooaPropertyException, ArooaConversionException, FailedToStopException, ParseException {
+		
+		ManualClock clock = new ManualClock("2013-01-16 08:00");
+		
+		OurFuture future = new OurFuture();
+		OurOddjobExecutor executors = new OurOddjobExecutor();
+		executors.executor.future = future;
+		
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/scheduling/TimerSetRescheduleExample.xml",
+    			getClass().getClassLoader()));
+    	oddjob.setOddjobExecutors(executors);
+    	oddjob.setExport("clock", new ArooaObject(clock));
+
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+    	
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	Timer test = lookup.lookup("timer", Timer.class);
+    	
+    	assertEquals(DateHelper.parseDateTime("2013-01-16 23:00:"), 
+    			test.getNextDue());
+    	
+    	assertNotNull(executors.executor.runnable);
+    	assertEquals(15 * 60 * 60 * 1000L, executors.executor.delay);
+    	assertEquals(false, future.cancelled);
+    	
+    	Runnable set = lookup.lookup("set", Runnable.class);
+    
+    	set.run();
+    	
+    	assertEquals(DateHelper.parseDateTime("2013-01-17 23:00"), 
+    			test.getNextDue());
+    	
+    	assertEquals((long) (39 * 60 * 60 * 1000L), executors.executor.delay);
+    	assertEquals(true, future.cancelled);
+    	
+    	executors.executor.runnable.run();
+    	
+    	assertEquals("Running at 2013-01-17 23:00:00.000", 
+    			lookup.lookup("echo.text"));
+    	
     	oddjob.stop();
     	
     	assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
@@ -1017,5 +1074,4 @@ public class TimerTest extends TestCase {
     	
     	oddjob.destroy();
 	}
-	
 }

@@ -26,7 +26,7 @@ public class DateShortcuts {
 			@Override
 			public Date dateFor(Clock clock, TimeZone timeZone) {
 				
-				Calendar now = Calendar.getInstance(timeZone);
+				Calendar now = getCalendarInstance(timeZone);
 				now.setTime(clock.getDate());
 				
 				return now.getTime();
@@ -38,15 +38,15 @@ public class DateShortcuts {
 			@Override
 			public Date dateFor(Clock clock, TimeZone timeZone) {
 				
-				Calendar now = Calendar.getInstance(timeZone);
+				Calendar now = getCalendarInstance(timeZone);
 				now.setTime(clock.getDate());
 
-				Calendar tomorrow = Calendar.getInstance(timeZone);
-				tomorrow.clear();
-				tomorrow.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
+				Calendar today = getCalendarInstance(timeZone);
+				today.clear();
+				today.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
 						now.get(Calendar.DATE));
 				
-				return tomorrow.getTime();
+				return today.getTime();
 			}
 		},
 		
@@ -55,10 +55,10 @@ public class DateShortcuts {
 			@Override
 			public Date dateFor(Clock clock, TimeZone timeZone) {
 				
-				Calendar now = Calendar.getInstance(timeZone);
+				Calendar now = getCalendarInstance(timeZone);
 				now.setTime(clock.getDate());
 
-				Calendar tomorrow = Calendar.getInstance(timeZone);
+				Calendar tomorrow = getCalendarInstance(timeZone);
 				tomorrow.clear();
 				tomorrow.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
 						now.get(Calendar.DATE) + 1);
@@ -72,20 +72,36 @@ public class DateShortcuts {
 			@Override
 			public Date dateFor(Clock clock, TimeZone timeZone) {
 				
-				Calendar now = Calendar.getInstance(timeZone);
+				Calendar now = getCalendarInstance(timeZone);
 				now.setTime(clock.getDate());
 
-				Calendar tomorrow = Calendar.getInstance(timeZone);
-				tomorrow.clear();
-				tomorrow.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
-						now.get(Calendar.DATE - 1));
+				Calendar yesterday = getCalendarInstance(timeZone);
+				yesterday.clear();
+				yesterday.set(now.get(Calendar.YEAR), now.get(Calendar.MONTH),
+						now.get(Calendar.DATE) - 1);
 				
-				return tomorrow.getTime();
+				return yesterday.getTime();
 			}
 		},
 		
 		;
 	}
+	
+	/**
+	 * Helper function to cope with null time zone.
+	 * @param timeZone The time zone. May be null.
+	 * 
+	 * @return A calendar.
+	 */
+	static Calendar getCalendarInstance(TimeZone timeZone) {
+		if (timeZone == null) {
+			return Calendar.getInstance();
+		}
+		else {
+			return Calendar.getInstance(timeZone);
+		}
+	}
+	
 	
 	static {
 

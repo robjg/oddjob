@@ -5,7 +5,7 @@
             <jobs>
                 <scheduling:timer id="timer" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                     <schedule>
-                        <schedules:date on="9999-12-31" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                        <schedules:daily at="23:00" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
                     </schedule>
                     <clock>
                         <value value="${clock}"/>
@@ -18,7 +18,11 @@
                     <jobs>
                         <set id="set">
                             <values>
-                                <date date="2012-12-27 08:02" key="timer.nextDue"/>
+                                <date date="TOMORROW" key="timer.reschedule">
+                                    <clock>
+                                        <value value="${clock}"/>
+                                    </clock>
+                                </date>
                             </values>
                         </set>
                     </jobs>

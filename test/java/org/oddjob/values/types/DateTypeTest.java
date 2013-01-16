@@ -24,6 +24,7 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.scheduling.ManualClock;
 
 /**
  * 
@@ -191,5 +192,31 @@ public class DateTypeTest extends TestCase {
 		
 		oj.destroy();
 		
+	}
+	
+	public void testDateShortcuts() throws ParseException {
+
+		DateType test = new DateType();
+		test.setClock(new ManualClock("2013-01-16 07:30"));
+		
+		test.setDate("TODAY");
+		
+		assertEquals(DateHelper.parseDateTime("2013-01-16 00:00"), 
+				test.toDate());
+		
+		test.setDate("NOW");
+		
+		assertEquals(DateHelper.parseDateTime("2013-01-16 07:30"), 
+				test.toDate());
+		
+		test.setDate("TOMORROW");
+		
+		assertEquals(DateHelper.parseDateTime("2013-01-17 00:00"), 
+				test.toDate());
+		
+		test.setDate("YESTERDAY");
+		
+		assertEquals(DateHelper.parseDateTime("2013-01-15 00:00"), 
+				test.toDate());
 	}
 }

@@ -45,6 +45,14 @@ import org.oddjob.util.DefaultClock;
  * <p>
  * This date type can also be used to specify a java Calendar property which
  * Oddjob's inbuilt conversion will currently not do from text.
+ * <p>
+ * Since v1.3 The date can also be specified using one of these shortcuts:
+ * <dl>
+ * <dt>NOW</dt><dd>The date and time now.</dd>
+ * <dt>TODAY</dt><dd>The date as of midnight.</dd>
+ * <dt>YESTERDAY</dt><dd>The date yesterday at midnight.</dd>
+ * <dt>TOMORROW</dt><dd>The date tomorrow at midnight.</dd>
+ * </dl>
  * 
  * @oddjob.example A simple example of specifying a date.
  *

@@ -1,17 +1,17 @@
 <oddjob>
-    <job>
-        <!-- #sequential { -->
-        <sequential>
-            <jobs>
-                <variables id="vars">
-                    <xmas>
-                        <date timeZone="US/Hawaii" date="2009-12-25"/>
-                    </xmas>
-                </variables>
-                <echo>Christmas in Hawaii starts at ${vars.xmas}.</echo>
-            </jobs>
-        </sequential>
-        <!-- } #sequential -->
-    </job>
+  <job>
+    <!-- #sequential { -->
+    <sequential>
+      <jobs>
+        <variables id="vars">
+          <xmas>
+            <date timeZone="US/Hawaii" date="2009-12-25" />
+          </xmas>
+        </variables>
+        <echo>Christmas in Hawaii starts at ${vars.xmas}.</echo>
+      </jobs>
+    </sequential>
+    <!-- } #sequential -->
+  </job>
 </oddjob>
  

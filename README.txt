@@ -3,6 +3,13 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- The Date Type now supports the use of shortcuts for NOW, TODAY, TOMORROW
+  and YESTERDAY.
+- The Timer job now supports setting the nextDue property to reschedule a 
+  job. Setting the reschedule property has been improved and documented.
+- A serializable wrapper around ImageIcon has been added to Iconic to solve
+  serialization problems between different versions of Java 1.6 on client 
+  and server.
 - Added a Database Dialect to SQLJob. This allows result processing to
   be tailored for different databases if required.
 - Add SQL tests for Oracle. Add a database dialect based on column type
@@ -33,10 +40,9 @@ Still To Do for 1.3.0
 - Add a zero length string check to Check Job.
 - Add a Grep Job.
 - Add Parent Started State to User Guide. Document thread, and services.
-- Write tests for setting nextDue while timer running.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.
-- Use a ServerSide file system for choosing files on server component 
+- Use a server side file system for choosing files on server component 
   designer forms.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.

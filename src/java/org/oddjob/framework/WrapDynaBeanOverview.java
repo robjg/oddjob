@@ -27,7 +27,8 @@ public class WrapDynaBeanOverview implements BeanOverview {
 			throws ArooaNoPropertyException {
 		DynaProperty dynaProperty = dynaClass.getDynaProperty(property);
 		if (dynaProperty == null) {
-			throw new ArooaNoPropertyException(property, dynaClass.getClass());
+			throw new ArooaNoPropertyException(
+					property, dynaClass.getClass(), getProperties());
 		}
 		
 		Class<?> propertyType;
@@ -62,7 +63,8 @@ public class WrapDynaBeanOverview implements BeanOverview {
 	public boolean isIndexed(String property) throws ArooaNoPropertyException {
 		DynaProperty dynaProperty = dynaClass.getDynaProperty(property);
 		if (dynaProperty == null) {
-			throw new ArooaNoPropertyException(property, dynaClass.getClass());
+			throw new ArooaNoPropertyException(property, 
+					dynaClass.getClass(), getProperties());
 		}
 		return dynaProperty.isIndexed();
 	}
@@ -70,7 +72,8 @@ public class WrapDynaBeanOverview implements BeanOverview {
 	public boolean isMapped(String property) throws ArooaNoPropertyException {
 		DynaProperty dynaProperty = dynaClass.getDynaProperty(property);
 		if (dynaProperty == null) {
-			throw new ArooaNoPropertyException(property, dynaClass.getClass());
+			throw new ArooaNoPropertyException(property, 
+					dynaClass.getClass(), getProperties());
 		}
 		return dynaProperty.isMapped();
 	}
