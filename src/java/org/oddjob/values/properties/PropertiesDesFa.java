@@ -104,6 +104,10 @@ class PropertiesTypeDesign extends DesignValueBase {
 	}
 }
 
+/**
+ * Shared between the Properties Job and Type.
+ *
+ */
 class PropertiesDesign {
 
 	private final MappedDesignProperty values;
@@ -157,6 +161,8 @@ class PropertiesDesign {
 
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
+				extract,
+				prefix,
 				values, 
 				sets,
 				fromXML,

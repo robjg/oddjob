@@ -30,16 +30,21 @@ public class PropertiesJobDesFaTest extends TestCase {
 			"<properties name='A Test'" +
 			"		     id='this'" +
 			"            environment='env'" +
+			"            extract='ba'" +
+			"            prefix='foo'" +
+			"            override='true'" +
+			"            substitute='true'" +
+			"            fromXML='false'" +
 			"                  >" +
 			"   <sets>" +
 			"    <properties>" +
 			"     <values>" +
-			"      <value key='snack.fruit' value='apple'/>" +
+			"      <value key='ba.snack.fruit' value='apple'/>" +
 			"     </values>" +
 			"    </properties>" +
 			"   </sets>" +
 			"   <values>" +
-			"      <value key='snack.carbs' value='cracker'/>" +
+			"      <value key='ba.snack.carbs' value='cracker'/>" +
 			"   </values>" +
 			"</properties>";
 		
@@ -54,15 +59,21 @@ public class PropertiesJobDesFaTest extends TestCase {
 		
 		design = parser.getDesign();
 		
+		assertEquals(PropertiesJobDesign.class, design.getClass());
+		
 		PropertiesJob test = (PropertiesJob) Helper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("env", test.getEnvironment());
-		
+		assertEquals("ba", test.getExtract());
+		assertEquals("foo", test.getPrefix());
+		assertEquals(true, test.isOverride());
+		assertEquals(true, test.isSubstitute());
+				
 		test.run();
 		
-		assertEquals("apple", test.getProperties().get("snack.fruit"));
-		assertEquals("cracker", test.getProperties().get("snack.carbs"));
+		assertEquals("apple", test.getProperties().get("foo.snack.fruit"));
+		assertEquals("cracker", test.getProperties().get("foo.snack.carbs"));
 		
 	}
 
