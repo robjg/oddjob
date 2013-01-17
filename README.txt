@@ -3,6 +3,7 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Add a zero length string check to Check Job. Also added a Designer.
 - Added a Grep Job that can search files or any other input for text or
   a regular expression.
 - The Date Type now supports the use of shortcuts for NOW, TODAY, TOMORROW
@@ -39,8 +40,6 @@ Changes in 1.3.0
 Still To Do for 1.3.0
 ---------------------
 
-- Add a zero length string check to Check Job.
-- Add a Grep Job.
 - Add Parent Started State to User Guide. Document thread, and services.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.

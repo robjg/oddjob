@@ -88,6 +88,13 @@ implements Runnable, Serializable, ArooaSessionAware {
 	
 	/** 
 	 * @oddjob.property
+	 * @oddjob.description The value to check.
+	 * @oddjob.required No, but the check value is not null will fail.
+	 */
+	private transient Boolean z;
+	
+	/** 
+	 * @oddjob.property
 	 * @oddjob.description The value must be equal to this. 
 	 * @oddjob.required No.
 	 */
@@ -128,7 +135,7 @@ implements Runnable, Serializable, ArooaSessionAware {
 	 */
 	private transient ArooaValue ge;
 	
-	private transient ArooaSession session;
+	private transient ArooaConverter converter;
 	
 	/**
 	 * @oddjob.property
@@ -156,6 +163,25 @@ implements Runnable, Serializable, ArooaSessionAware {
 					public String toString() {
 						return "value [" + value + "] should" +
 								(null_ ? "" : " not" ) + " be null";
+					}
+				},
+				new Check() {
+					@Override
+					public boolean required() {
+						return z != null;
+					}
+					@Override
+					public boolean check() {
+						return value != null && 
+								(value.toString().length() == 0) 
+								== z.booleanValue();
+					}
+					@Override
+					public String toString() {
+						return "[" + value + 
+								"] should be of " +
+								(z.booleanValue() ? "" : "none") + 
+								" zero length";
 					}
 				},
 				new Check() {
@@ -306,7 +332,6 @@ implements Runnable, Serializable, ArooaSessionAware {
 	 */
 	Object convert(ArooaValue rhs) {
 		
-		ArooaConverter converter = session.getTools().getArooaConverter();
 		try {
 			return converter.convert(rhs, value.getClass());
 		} catch (NoConversionAvailableException e) {
@@ -318,7 +343,7 @@ implements Runnable, Serializable, ArooaSessionAware {
 	
 	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
-		this.session = session;
+		this.converter = session.getTools().getArooaConverter();
 	}
 	
 	public String getName() {
@@ -338,6 +363,14 @@ implements Runnable, Serializable, ArooaSessionAware {
 		this.null_ = value;
 	}
 	
+	public Boolean getZ() {
+		return z;
+	}
+
+	public void setZ(Boolean z) {
+		this.z = z;
+	}
+
 	public Object getValue() {
 		return value;
 	}

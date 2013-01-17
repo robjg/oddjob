@@ -10,6 +10,8 @@
         <check value='orange' ge='orange' />
         <check value='anything' null='false' />
         <check value='${missing}' null='true' />
+        <check value='pear' z='false' />
+        <check value='' z='true' />
       </jobs>
     </sequential>
   </job>

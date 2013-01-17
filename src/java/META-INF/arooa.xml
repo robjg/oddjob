@@ -20,7 +20,8 @@
                 <is element='archive' className='org.oddjob.persist.ArchiveJob'/>
                 <is element='archive-browser' className='org.oddjob.persist.ArchiveBrowserJob'/>
                 <is element='bean-report' className='org.oddjob.jobs.BeanReportJob'/>
-                <is element='check' className='org.oddjob.jobs.CheckJob'/>
+                <is element='check' className='org.oddjob.jobs.CheckJob'
+                    designFactory='org.oddjob.jobs.CheckJobDesFa'/>
                 <is element='depends' className='org.oddjob.jobs.job.DependsJob'
                     designFactory='org.oddjob.designer.components.JustJobDC'/>
                 <is element='echo' className='org.oddjob.jobs.EchoJob'

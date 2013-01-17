@@ -292,6 +292,40 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+	public void checkZeroLengthStrings() {
+		
+		CheckJob test = new CheckJob();
+		test.setArooaSession(new OurSession());
+
+		test.setValue("apples");
+		test.setZ(false);
+		test.setNull(false);
+
+		test.run();
+		
+		assertEquals(0, test.getResult());
+		
+		test.setValue("");
+		
+		test.run();
+		
+		assertEquals(1, test.getResult());
+		
+		test.setValue(null);
+		
+		test.run();
+		
+		assertEquals(1, test.getResult());
+		
+		test.setValue("apples");
+		
+		test.setZ(true);
+		
+		test.run();
+		
+		assertEquals(1, test.getResult());
+	}
+	
 	public void testTextExample() {
 				
 		Oddjob oddjob = new Oddjob();
