@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <grep ignoreCase="true" lineNumbers="true" text="red">
+            <in>
+                <buffer><![CDATA[5 green cars.
+2 red buses.
+1 RED lorry.
+]]></buffer>
+            </in>
+            <out>
+                <stdout/>
+            </out>
+        </grep>
+    </job>
+</oddjob>

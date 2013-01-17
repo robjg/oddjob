@@ -1,0 +1,4 @@
+Some apples are red.
+All oranges are orange.
+Few pears are red.
+Most "pears are green".
