@@ -3,6 +3,8 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Added a Grep Job that can search files or any other input for text or
+  a regular expression.
 - The Date Type now supports the use of shortcuts for NOW, TODAY, TOMORROW
   and YESTERDAY.
 - The Timer job now supports setting the nextDue property to reschedule a 
