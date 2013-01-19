@@ -109,6 +109,12 @@ import org.oddjob.io.FileType;
  * elsewhere in Oddjob by wrapping them with an 
  * {@link IdentifiableValueType}. See example 2 for an example of this.
  * 
+ * <h3>Caveats</h3>
+ * SQLServer stored procedures with parameters must be made using the JDBC
+ * style call. E.g. { call sp_help(?) } otherwise an exception is thrown
+ * from <code>getParameterMetaData</code>.
+ * 
+ * 
  * @oddjob.example
  *
  * A simple example shows first the execution of multiple statements, 

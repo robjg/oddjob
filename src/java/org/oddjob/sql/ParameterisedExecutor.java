@@ -1,6 +1,5 @@
 package org.oddjob.sql;
 
-import java.sql.Statement;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ParameterMetaData;
@@ -8,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
@@ -102,7 +103,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
      * @throws BusException 
      * @throws ClassNotFoundException 
      */
-    public void execute(String sql) throws SQLException, NoConversionAvailableException, ConversionFailedException, BusException, ClassNotFoundException {
+    public void execute(String sql) throws SQLException, ArooaConversionException, BusException, ClassNotFoundException {
 		logger.info("Executing: " + sql);
 		++executedSQLCount;
 		
@@ -114,40 +115,10 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 		}
         statement.setEscapeProcessing(escapeProcessing);
 
-		ParameterMetaData paramMetaData = statement.getParameterMetaData();
-		ArooaConverter converter = session.getTools().getArooaConverter();
-		ArooaDescriptor descriptor = session.getArooaDescriptor();
+		ParameterHandler parameterHandler = getParameterHandler();
 		
-		int paramCount = paramMetaData.getParameterCount();
-		if ((parameters == null ? 0 : parameters.size()) < paramCount) {
-			throw new IllegalStateException("Parameters expected " + paramCount);
-		}
+		parameterHandler.preExecute();
 		
-		for (int i = 1; i <= paramCount; ++i) {
-			int mode = paramMetaData.getParameterMode(i);
-			if (mode == ParameterMetaData.parameterModeIn
-					|| mode == ParameterMetaData.parameterModeInOut) {
-				
-				ArooaValue value = parameters.get(i - 1).getValue();
-				String className = paramMetaData.getParameterClassName(i);				
-				Class<?> required = descriptor.getClassResolver().findClass(className);
-				Object converted = converter.convert(value, required); 
-				
-				logger.info("Setting parameter " + i + " to [" + converted + "]");
-				if (converted == null) {
-					statement.setNull(i, paramMetaData.getParameterType(i));
-				}
-				else {
-					statement.setObject(i, converted);
-				}
-			}
-			else {
-				logger.info("Registering parameter " + i + " as an Out Parameter");
-				((CallableStatement) statement).registerOutParameter(
-						i, paramMetaData.getParameterType(i));
-			}
-		}
-
 		try {
 			statement.execute();
 			
@@ -157,23 +128,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 				warnings = warnings.getNextWarning();
 			}
 						
-			if (statement instanceof CallableStatement) {
-				
-				CallableStatement callable = (CallableStatement) statement;
-				
-				for (int i = 1; i <= paramCount; ++i) {
-					int mode = paramMetaData.getParameterMode(i);
-					if (mode == ParameterMetaData.parameterModeOut
-							|| mode == ParameterMetaData.parameterModeInOut) {
-						Object out = callable.getObject(i);
-
-						logger.info("Setting parameter " + i + " to [" + out + "]");										
-						ArooaValue value = converter.convert(out, ArooaValue.class);
-				
-						parameters.get(i - 1).setValue(value);
-					}
-				}
-			}
+			parameterHandler.postExecute();
 			
 			ResultSet results = statement.getResultSet();
 			if (results != null) {
@@ -205,7 +160,125 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			statement = null;
 		}
 	}
+    
+    /**
+     * Private helper to decide on parameter handling strategy.
+     * 
+     * @return Handler. Never null.
+     * @throws SQLException
+     */
+    private ParameterHandler getParameterHandler() throws SQLException {
+    	
+		if (parameters != null && parameters.size() > 0 ) {
+			return new ParameterHandlerImpl();
+		}
+		else {
+			return new ParameterHandler() {
+				@Override
+				public void preExecute() throws SQLException,
+						ArooaConversionException {
+					// Do Nothing
+					
+				}
+				@Override
+				public void postExecute() throws SQLException,
+						ArooaConversionException {
+					// Do Nothing
+				}
+			};
+		}
+		
+    }
+    
+    /**
+     * For parameter handling strategy.
+     *
+     */
+    private interface ParameterHandler {
+    
+    	void preExecute() throws SQLException, ArooaConversionException;
+    	
+    	void postExecute() throws SQLException, ArooaConversionException;
+    }
+    
+    /**
+     * Parameter handling implementation.
+     *
+     */
+    private class ParameterHandlerImpl implements ParameterHandler {
+    	
+		private final ParameterMetaData paramMetaData;
+		
+		private final int paramCount;
 
+		private final ArooaConverter converter;
+		private final ArooaDescriptor descriptor;
+
+		public ParameterHandlerImpl() throws SQLException {
+			this.paramMetaData = statement.getParameterMetaData();
+			this.paramCount = paramMetaData.getParameterCount();
+			
+			this.converter = session.getTools().getArooaConverter();
+			this.descriptor = session.getArooaDescriptor();
+		}
+		
+    	@Override
+    	public void preExecute() throws SQLException, ArooaConversionException {
+			if (parameters.size() < paramCount) {
+				throw new IllegalStateException("Parameters expected " + paramCount);
+			}
+			
+			for (int i = 1; i <= paramCount; ++i) {
+				int mode = paramMetaData.getParameterMode(i);
+				if (mode == ParameterMetaData.parameterModeIn
+						|| mode == ParameterMetaData.parameterModeInOut) {
+					
+					ArooaValue value = parameters.get(i - 1).getValue();
+					String className = paramMetaData.getParameterClassName(i);				
+					Class<?> required = descriptor.getClassResolver().findClass(className);
+					Object converted = converter.convert(value, required); 
+					
+					logger.info("Setting parameter " + i + " to [" + converted + "]");
+					if (converted == null) {
+						statement.setNull(i, paramMetaData.getParameterType(i));
+					}
+					else {
+						statement.setObject(i, converted);
+					}
+				}
+				else {
+					logger.info("Registering parameter " + i + " as an Out Parameter");
+					((CallableStatement) statement).registerOutParameter(
+							i, paramMetaData.getParameterType(i));
+				}
+			}
+    	}
+    	
+    	@Override
+    	public void postExecute() throws SQLException, ArooaConversionException {
+    		
+			if (statement instanceof CallableStatement) {
+				
+				CallableStatement callable = (CallableStatement) statement;
+				int paramCount = paramMetaData.getParameterCount();
+				
+				for (int i = 1; i <= paramCount; ++i) {
+					int mode = paramMetaData.getParameterMode(i);
+					if (mode == ParameterMetaData.parameterModeOut
+							|| mode == ParameterMetaData.parameterModeInOut) {
+						Object out = callable.getObject(i);
+
+						logger.info("Setting parameter " + i + " to [" + out + "]");										
+						ArooaValue value = converter.convert(out, ArooaValue.class);
+				
+						parameters.get(i - 1).setValue(value);
+					}
+				}
+			}
+    	}
+    }
+    
+    
     /**
      * Cancel the statement. Used by {@link SQLJob#stop()}. 
      */
