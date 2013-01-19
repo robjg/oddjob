@@ -105,7 +105,7 @@ public class SQLScriptJobTest extends TestCase {
 
 		test.run();
 		
-		assertEquals(new Integer(10), PropertyUtils.getProperty(
+		assertEquals(new Long(10), PropertyUtils.getProperty(
 				test, "results.row.count"));
 	}
 	

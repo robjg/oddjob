@@ -3,6 +3,7 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Upgrade HSQL lib to 2.2.9.
 - Add a zero length string check to Check Job. Also added a Designer.
 - Added a Grep Job that can search files or any other input for text or
   a regular expression.
