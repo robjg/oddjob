@@ -2,11 +2,18 @@ package org.oddjob.beanbus;
 
 import java.util.List;
 
+/**
+ * Provide batching of beans. Unfinished and untested.
+ * 
+ * @author rob
+ *
+ * @param <T>
+ */
 public class Batcher<T> implements Destination<T>, BusAware {
 
 	private int batchSize;
 
-	private Destination<List<T>> next;
+	private Destination<? super Iterable<T>> next;
 	
 	private List<T> batch;
 	
@@ -14,7 +21,7 @@ public class Batcher<T> implements Destination<T>, BusAware {
 	
 	private BadBeanHandler<List<? super T>> badBeanHandler;
 	
-	public void accept(T bean) throws CrashBusException {	
+	public void accept(T bean) throws BusCrashException {	
 
 		batch.add(bean);
 		if (++count == batchSize) {
@@ -22,7 +29,7 @@ public class Batcher<T> implements Destination<T>, BusAware {
 		}
 	}
 	
-	protected void dispatch() throws CrashBusException {
+	protected void dispatch() throws BusCrashException {
 		if (count == 0) {
 			return;
 		}
@@ -33,7 +40,7 @@ public class Batcher<T> implements Destination<T>, BusAware {
 		}
 		catch (BadBeanException e) {
 			if (badBeanHandler == null) {
-				throw new CrashBusException("No Bad Bean Handler.", e);				
+				throw new BusCrashException("No Bad Bean Handler.", e);				
 			}
 			else {
 				badBeanHandler.handle(batch, e);
@@ -43,21 +50,13 @@ public class Batcher<T> implements Destination<T>, BusAware {
 	}
 
 	@Override
-	public void setBus(BeanBus driver) {
+	public void setBeanBus(BusConductor driver) {
 		
-		driver.addBusListener(new BusListener() {
-			
+		driver.addBusListener(new BusListenerAdapter() {
+						
 			@Override
-			public void busStarting(BusEvent event) {
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
+			public void tripEnding(BusEvent event) throws BusCrashException {
 				dispatch();				
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
 			}
 			
 			@Override
@@ -68,7 +67,7 @@ public class Batcher<T> implements Destination<T>, BusAware {
 		});
 		
 		if (next instanceof BusAware) {
-			((BusAware) next).setBus(driver);
+			((BusAware) next).setBeanBus(driver);
 		}
 	}
 	
@@ -80,11 +79,11 @@ public class Batcher<T> implements Destination<T>, BusAware {
 		this.batchSize = batchSize;
 	}
 	
-	public Destination<List<T>> getNext() {
+	public Destination<? super Iterable<T>> getNext() {
 		return next;
 	}
 
-	public void setNext(Destination<List<T>> next) {
+	public void setNext(Destination<? super Iterable<T>> next) {
 		this.next = next;
 	}
 

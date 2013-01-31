@@ -3,9 +3,9 @@ package org.oddjob.sql;
 import org.apache.log4j.Logger;
 import org.oddjob.beanbus.BadBeanException;
 import org.oddjob.beanbus.BadBeanHandler;
-import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusAware;
-import org.oddjob.beanbus.CrashBusException;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.sql.SQLJob.OnError;
 
 public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
@@ -14,16 +14,16 @@ public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
 	
 	private SQLJob.OnError onError = null;
 	
-	private BeanBus bus;
+	private BusConductor bus;
 	
 	@Override
-	public void setBus(BeanBus bus) {
+	public void setBeanBus(BusConductor bus) {
 		this.bus = bus;
 	}
 	
 	@Override
 	public void handle(String sql, BadBeanException e)
-			throws CrashBusException {
+			throws BusCrashException {
 		
 		logger.info("Failed executing: " + sql + 
 				"\n\t" + e.getCause().getMessage());
@@ -37,11 +37,11 @@ public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
 		case CONTINUE:
 			break;
 		case STOP:
-			bus.stop();
+			bus.requestBusStop();
 			break;
 		case ABORT:
 			logger.error("Aborting...");
-			throw new CrashBusException(e);
+			throw new BusCrashException(e);
 		}
 	}
 

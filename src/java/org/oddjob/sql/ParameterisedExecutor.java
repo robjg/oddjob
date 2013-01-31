@@ -23,12 +23,12 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.CrashBusException;
+import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.BusCrashException;
 
 /**
  * Handles the execution of a single SQL statement at a time.
@@ -72,7 +72,6 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     
     /** The session. */
 	private transient ArooaSession session;
-
 	
 	@Override
 	public void setArooaSession(ArooaSession session) {
@@ -80,7 +79,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 	}
 	
 	@Override
-	public void accept(String sql) throws BadBeanException {
+	public void accept(String sql) throws BadBeanException, BusCrashException {
     	try {
     		execute(sql);
     	} 
@@ -294,31 +293,31 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     }
     
 	@Override
-	public void setBus(BeanBus bus) {
-		bus.addBusListener(new BusListener() {
+	public void setBeanBus(BusConductor bus) {
+		bus.addBusListener(new BusListenerAdapter() {
 			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {
+			public void busStarting(BusEvent event) throws BusCrashException {
 				if (connection == null) {
-					throw new CrashBusException("No Connection.");
+					throw new BusCrashException("No Connection.");
 				}
 				try {
 					connection.setAutoCommit(autocommit);
 					logger.info("Setting autocommit " + autocommit);
 				}
 				catch (SQLException e) {
-					throw new CrashBusException(e);
+					throw new BusCrashException(e);
 				}
 				successfulSQLCount = 0;
 				executedSQLCount = 0;
 			}
 			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
+			public void busStopping(BusEvent event) throws BusCrashException {
         		if (!isAutocommit()) {
 		        	try {
 						connection.commit();
 						logger.info("Connection committed.");
 					} catch (SQLException e) {
-						throw new CrashBusException("Failed to commit.", e);
+						throw new BusCrashException("Failed to commit.", e);
 					}
         		}
 			}
@@ -350,7 +349,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			}
 		});
 		if (resultProcessor instanceof BusAware) {
-			((BusAware) resultProcessor).setBus(bus);
+			((BusAware) resultProcessor).setBeanBus(bus);
 		}
 	}
 	

@@ -74,8 +74,10 @@ import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BadBeanException;
 import org.oddjob.beanbus.BadBeanFilter;
-import org.oddjob.beanbus.CrashBusException;
-import org.oddjob.beanbus.SimpleBus;
+import org.oddjob.beanbus.BasicBeanBus;
+import org.oddjob.beanbus.BeanBusCommand;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusException;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
 
@@ -233,10 +235,18 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 */
 	public void run() {
 		
+    	final BasicBeanBus<String> bus = new BasicBeanBus<String>(
+    			new BeanBusCommand() {
+    				@Override
+    				public void run() throws BusCrashException {
+    					parser.stop();
+    				}
+    			});
+    	
 		if (results == null) {
 			executor.setResultProcessor(new SQLResultsProcessor() {
 				@Override
-				public void accept(Object bean) throws BadBeanException, CrashBusException {
+				public void accept(Object bean) throws BadBeanException, BusCrashException {
 				}
 			});
 		}
@@ -245,19 +255,36 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 		}
 		
 	    parser.setArooaSession(session);
+	    parser.setBeanBus(bus);
+	    parser.setTo(bus);
+	    
 	    executor.setArooaSession(session);
-		
+	    executor.setBeanBus(bus);
+	    
+	    errorHandler.setBeanBus(bus);
+	    
     	BadBeanFilter<String> errorFilter = new BadBeanFilter<String>();
     	errorFilter.setBadBeanHandler(errorHandler);
+    	errorFilter.setBeanBus(bus);
     	
-    	parser.setTo(errorFilter);
+    	bus.setTo(errorFilter);
     	
-    	errorFilter.setTo(executor);
+    	errorFilter.setTo(new SQLExecutor() {
+			@Override
+			public void accept(String sql) throws BadBeanException, BusCrashException {
+				executor.accept(sql);
+				bus.cleanBus();
+			}
+		});
+    	errorFilter.setBeanBus(bus);
     	
-    	SimpleBus<String> bus = new SimpleBus<String>();
-    	bus.setDriver(parser);
-
-    	bus.run();
+    	try {
+			bus.startBus();
+	    	parser.go();
+	    	bus.stopBus();
+		} catch (BusException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

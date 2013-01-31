@@ -97,24 +97,16 @@ implements Destination<Iterable<?>>, BusAware, ArooaSessionAware {
 	}
 
 	@Override
-	public void setBus(BeanBus bus) {
-		bus.addBusListener(new BusListener() {
+	public void setBeanBus(BusConductor bus) {
+		bus.addBusListener(new BusListenerAdapter() {
 			
 			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {
+			public void busStarting(BusEvent event) throws BusCrashException {
 				if (output == null) {
-					throw new CrashBusException("No output.");
+					throw new BusCrashException("No output.");
 				}						
 			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
-			}
-			
+						
 			@Override
 			public void busTerminated(BusEvent event) {
 				event.getSource().removeBusListener(this);

@@ -5,12 +5,11 @@ import java.util.List;
 
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.CrashBusException;
+import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.BusCrashException;
 
 /**
  * @oddjob.description Captures SQL results in a bean that 
@@ -113,23 +112,15 @@ implements SQLResultsProcessor, BusAware {
 	
 	@ArooaHidden
 	@Override
-	public void setBus(BeanBus bus) {
-		bus.addBusListener(new BusListener() {
+	public void setBeanBus(BusConductor bus) {
+		bus.addBusListener(new BusListenerAdapter() {
 			
 			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {				
+			public void busStarting(BusEvent event) throws BusCrashException {				
 				rowSets.clear();
 				updateCounts.clear();
 				rowCount = 0;
 				updateCount = 0;
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
 			}
 			
 			@Override
@@ -141,7 +132,7 @@ implements SQLResultsProcessor, BusAware {
 	}
 	
 	@Override
-	public void accept(Object bean) throws BadBeanException, CrashBusException {
+	public void accept(Object bean) throws BadBeanException, BusCrashException {
 		if (bean instanceof List<?>) {
 			List<?> beans = (List<?>) bean;
 			rowSets.add(beans);

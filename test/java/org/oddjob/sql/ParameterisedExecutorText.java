@@ -18,7 +18,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.CrashBusException;
+import org.oddjob.beanbus.BusCrashException;
 
 public class ParameterisedExecutorText extends TestCase {
 
@@ -79,13 +79,13 @@ public class ParameterisedExecutorText extends TestCase {
 		
 		@Override
 		public void accept(Object bean) throws BadBeanException,
-				CrashBusException {
+				BusCrashException {
 			last = bean;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void testBeanTypes() throws BadBeanException, ArooaConversionException {
+	public void testBeanTypes() throws BadBeanException, ArooaConversionException, BusCrashException {
 
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
@@ -172,7 +172,7 @@ public class ParameterisedExecutorText extends TestCase {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void testNullParameter() throws BadBeanException, ArooaConversionException {
+	public void testNullParameter() throws BadBeanException, ArooaConversionException, BusCrashException {
 
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");

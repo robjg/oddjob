@@ -11,14 +11,11 @@ import org.oddjob.Oddjob;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BeanSheetTest.Fruit;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.CrashBusException;
-import org.oddjob.beanbus.StageEvent;
-import org.oddjob.beanbus.StageListener;
-import org.oddjob.beanbus.StageNotifier;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
@@ -36,10 +33,9 @@ public class SQLResultsSheetTest extends TestCase {
 		logger.info("-----------------------------  " + getName() + "  ----------------");
 	}
 		
-	private class OurBus implements BeanBus {
+	private class OurBus implements BusConductor {
 
 		BusListener busListener;
-		StageListener stageListener;
 		
 		@Override
 		public void addBusListener(BusListener listener) {
@@ -50,50 +46,24 @@ public class SQLResultsSheetTest extends TestCase {
 		}
 		
 		@Override
-		public void addStageListener(StageListener listener) {
-			assertNull(this.stageListener);
-			assertNotNull(listener);
-			
-			this.stageListener = listener;
-		}
-		
-		@Override
 		public void removeBusListener(BusListener listener) {
 			assertEquals(this.busListener, listener);
 			assertNotNull(listener);
 			this.busListener = null;
 		}
-		
+
 		@Override
-		public void removeStageListener(StageListener listener) {
-			assertEquals(this.stageListener, listener);
-			assertNotNull(listener);
-			this.stageListener = null;
-		}
-		
-		@Override
-		public void run() {
+		public void cleanBus() throws BusCrashException {
 			throw new RuntimeException("Unexpected.");
 		}
 		
 		@Override
-		public void stop() {
+		public void requestBusStop() {
 			throw new RuntimeException("Unexpected.");
 		}
 	}
 
-	private class OurStage implements StageNotifier {
-		@Override
-		public void addStageListener(StageListener listener) {
-			throw new RuntimeException("Unexpected.");
-		}
-		@Override
-		public void removeStageListener(StageListener listener) {
-			throw new RuntimeException("Unexpected.");
-		}
-	}
-	
-	public void testNoHeaders() throws BadBeanException, CrashBusException {
+	public void testNoHeaders() throws BadBeanException, BusCrashException {
 		
 		SQLResultsSheet test = new SQLResultsSheet();
 		
@@ -106,16 +76,15 @@ public class SQLResultsSheetTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		
 		OurBus bus = new OurBus();
-		OurStage stage = new OurStage();
 		
-		test.setBus(bus);
+		test.setBeanBus(bus);
 		
 		bus.busListener.busStarting(new BusEvent(bus));
-		bus.stageListener.stageStarting(new StageEvent(stage, "stuff"));
+		bus.busListener.tripBeginning(new BusEvent(bus));
 		
 		test.accept(Arrays.asList(values));
 		
-		bus.stageListener.stageComplete(new StageEvent(stage, "stuff"));
+		bus.busListener.tripEnding(new BusEvent(bus));
 		bus.busListener.busStopping(new BusEvent(bus));
 		bus.busListener.busTerminated(new BusEvent(bus));
 		
@@ -127,7 +96,6 @@ public class SQLResultsSheetTest extends TestCase {
 		assertEquals(expected, out.toString());
 		
 		assertNull(bus.busListener);
-		assertNull(bus.stageListener);
 	}
 	
 	private Object[] createFruit() {

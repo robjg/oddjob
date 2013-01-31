@@ -25,24 +25,16 @@ public class BeanTrap<T> implements Destination<T>,
 	};
 	
 	@Override
-	public void setBus(BeanBus driver) {
-		driver.addBusListener(new BusListener() {
+	public void setBeanBus(BusConductor driver) {
+		driver.addBusListener(new BusListenerAdapter() {
 			@Override
 			public void busStarting(BusEvent event) {
 				trapped.clear();
 			}
 
 			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
-			}
-			
-			@Override
 			public void busTerminated(BusEvent event) {
 				event.getSource().removeBusListener(this);
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
 			}
 		});
 	}

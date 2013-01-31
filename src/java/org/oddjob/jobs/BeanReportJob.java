@@ -8,11 +8,9 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
+import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BeanSheet;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.Destination;
-import org.oddjob.beanbus.Driver;
-import org.oddjob.beanbus.SimpleBus;
 
 /**
  * @oddjob.description Create a simple listing of the properties of 
@@ -37,7 +35,7 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 	 * @oddjob.description The beans to report on. 
 	 * @oddjob.required Yes.
 	 */
-	private Iterable<?> beans;
+	private Iterable<? extends Object> beans;
 	
 	/** 
 	 * @oddjob.property
@@ -94,26 +92,17 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 			}
 		});
 		
-		SimpleBus<Iterable<Object>> bus = 
-			new SimpleBus<Iterable<Object>>();
+		BasicBeanBus<Iterable<? extends Object>> bus = 
+			new BasicBeanBus<Iterable<? extends Object>>();
+		bus.setTo(sheet);
 		
-		bus.setDriver(new Driver<Iterable<Object>>() {
-
-			@Override
-			public void go() throws BusException {
-				sheet.accept(beans);
-			}
-
-			@Override
-			public void setTo(Destination<? super Iterable<Object>> to) {
-			}
-
-			@Override
-			public void stop() {
-			}
-		});
-		
-		bus.run();
+		try {
+			bus.startBus();
+			bus.accept(beans);
+			bus.stopBus();
+		} catch (BusException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	
@@ -125,11 +114,11 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 		this.name = name;
 	}
 
-	public Iterable<?> getBeans() {
+	public Iterable<? extends Object> getBeans() {
 		return beans;
 	}
 
-	public void setBeans(Iterable<?> beans) {
+	public void setBeans(Iterable<? extends Object> beans) {
 		this.beans = beans;
 	}
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-public class SimpleBusDriverTest extends TestCase {
+public class IterableBusDriverTest extends TestCase {
 
 	private interface Food {
 		
@@ -34,16 +34,12 @@ public class SimpleBusDriverTest extends TestCase {
 		fruit.add(new Apple());
 		fruit.add(new Apple());
 		
-		SimpleBus<Fruit> test = new SimpleBus<Fruit>();
-		
-		IterableDriver<Apple> driver = new IterableDriver<Apple>();
-		driver.setIterable(fruit);
-		
-		test.setDriver(driver);
+		IterableBusDriver<Apple> test = new IterableBusDriver<Apple>();
+		test.setBeans(fruit);
 		
 		Results results = new Results();
 		
-		driver.setTo(results);
+		test.setTo(results);
 		
 		test.run();
 		

@@ -6,7 +6,7 @@ public class FilterSection<F, T> implements Section<F, T>, BusAware {
 
 	private Destination<? super T> to;
 	
-	public void accept(F bean) throws BadBeanException, CrashBusException {
+	public void accept(F bean) throws BadBeanException, BusCrashException {
 
 		T filtered = filter.filter(bean);
 		
@@ -34,9 +34,9 @@ public class FilterSection<F, T> implements Section<F, T>, BusAware {
 	}
 	
 	@Override
-	public void setBus(BeanBus driver) {
+	public void setBeanBus(BusConductor driver) {
 		if (to instanceof BusAware) {
-			((BusAware) to).setBus(driver);
+			((BusAware) to).setBeanBus(driver);
 		}
 	}
 }

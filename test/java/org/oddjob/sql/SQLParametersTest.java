@@ -206,4 +206,19 @@ public class SQLParametersTest extends TestCase {
 		
 		oddjob.destroy();
 	}
+	
+//	public void testHSQLAssumptionsReMultipleResultSets() throws ArooaConversionException, SQLException {
+//		
+//		ConnectionType connectionType = new ConnectionType();
+//		connectionType.setDriver("org.hsqldb.jdbc.JDBCDriver");
+//		connectionType.setUrl("jdbc:hsqldb:mem:testdb;shutdown=true");
+//		connectionType.setUsername("sa");
+//
+//		Connection connection = connectionType.toValue();
+//		
+//		Statement setupStmt = connection.createStatement();
+//		setupStmt.executeUpdate("");
+//		// TOOD: - finish.
+//		
+//	}
 }

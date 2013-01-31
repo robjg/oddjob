@@ -11,15 +11,13 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BeanSheet;
 import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.CrashBusException;
-import org.oddjob.beanbus.StageEvent;
-import org.oddjob.beanbus.StageListener;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
 
@@ -145,38 +143,36 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 
 	@Override
 	@ArooaHidden
-	public void setBus(BeanBus bus) {
+	public void setBeanBus(BusConductor bus) {
 		
-		final StageListener stageListener = new StageListener() {
-			
-			@Override
-			public void stageStarting(StageEvent event) {
-				elapsedTime = System.currentTimeMillis();
-			}
-			
-			@Override
-			public void stageComplete(StageEvent event) {
-				if (!dataOnly) {
-					new StreamPrinter(output).println();
-				}
-			}
-		};
 		
 		bus.addBusListener(new BusListener() {
 			
 			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {
+			public void busStarting(BusEvent event) throws BusCrashException {
 				if (output == null) {
 					try {
 						output = new StdoutType().toValue();
 					} catch (ArooaConversionException e) {
-						throw new CrashBusException(e);
+						throw new BusCrashException(e);
 					}
 				}						
 			}
 			
 			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
+			public void tripBeginning(BusEvent event) {
+				elapsedTime = System.currentTimeMillis();
+			}
+			
+			@Override
+			public void tripEnding(BusEvent event) {
+				if (!dataOnly) {
+					new StreamPrinter(output).println();
+				}
+			}
+			
+			@Override
+			public void busStopping(BusEvent event) throws BusCrashException {
 			}
 			
 			@Override
@@ -186,7 +182,6 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 			@Override
 			public void busTerminated(BusEvent event) {
 				event.getSource().removeBusListener(this);
-				event.getSource().removeStageListener(stageListener);
 				try {
 					if (output != null) {
 						output.close();
@@ -198,6 +193,5 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 			}			
 		});
 
-		bus.addStageListener(stageListener);
 	}	
 }

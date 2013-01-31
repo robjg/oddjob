@@ -16,12 +16,12 @@ public class BusEvent extends EventObject {
 	 *  
 	 * @param source The source of the event.
 	 */
-	public BusEvent(BeanBus source) {
+	public BusEvent(BusConductor source) {
 		super(source);
 	}
 	
 	@Override
-	public BeanBus getSource() {
-		return (BeanBus) super.getSource();
+	public BusConductor getSource() {
+		return (BusConductor) super.getSource();
 	}
 }

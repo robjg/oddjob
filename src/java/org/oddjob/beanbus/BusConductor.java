@@ -1,14 +1,18 @@
 package org.oddjob.beanbus;
 
 /**
- * Something that notifies anything that wants to know about events
- * happening to the bus.
+ * Provides co-ordination for a {@link BeanBus}.
+ * <p>
  * 
  * @author rob
  *
  */
-public interface BusNotifier {
+public interface BusConductor {
 
+	public void cleanBus() throws BusCrashException;
+	
+	public void requestBusStop() throws BusCrashException;	
+	
 	/**
 	 * Add a listener.
 	 * 

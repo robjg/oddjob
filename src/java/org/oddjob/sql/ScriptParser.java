@@ -14,17 +14,13 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.runtime.ExpressionParser;
 import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusAware;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.CrashBusException;
+import org.oddjob.beanbus.BusListenerAdapter;
 import org.oddjob.beanbus.Destination;
-import org.oddjob.beanbus.Driver;
-import org.oddjob.beanbus.StageListener;
-import org.oddjob.beanbus.StageNotifier;
-import org.oddjob.beanbus.StageSupport;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
 /**
@@ -33,7 +29,7 @@ import org.oddjob.sql.SQLJob.DelimiterType;
  * @author rob
  */
 public class ScriptParser 
-implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
+implements ArooaSessionAware, BusAware {
 	
 	private static final Logger logger = Logger.getLogger(ScriptParser.class);
 	
@@ -77,12 +73,7 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 	 * Where to send parsed SQL.
 	 */
 	private Destination<? super String> to;
-	
-	/**
-	 * Supports notification around each statement being executed.
-	 */
-	private final StageSupport stageSupport = new StageSupport(this);
-	
+		
 	/**
 	 * Stop flag.
 	 */
@@ -183,7 +174,6 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 		this.encoding = encoding;
 	}
 
-	@Override
 	public void go() throws BusException {
 
 		stop = false;
@@ -202,7 +192,7 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
     					new InputStreamReader(input, encoding));
         	}
 		} catch (UnsupportedEncodingException e1) {
-			throw new CrashBusException(e1);
+			throw new BusCrashException(e1);
 		}
 
         while (!stop) {
@@ -210,7 +200,7 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 			try {
 				line = in.readLine();
 			} catch (IOException e) {
-				throw new CrashBusException(e);
+				throw new BusCrashException(e);
 			}
             if (line == null) {
             	break;
@@ -269,10 +259,14 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
         }
 	}
 
-	private void dispatch(String sql) throws BadBeanException, CrashBusException {
-		stageSupport.fireStageStarting("Sql Statement", sql);
+	/**
+	 * 
+	 * @param sql
+	 * @throws BadBeanException
+	 * @throws BusCrashException
+	 */
+	private void dispatch(String sql) throws BadBeanException, BusCrashException {
 		to.accept(sql);
-		stageSupport.fireStageComplete();		
 	}
 	
 	String replaceProperties(String line) throws ArooaConversionException {
@@ -282,30 +276,25 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 	}
 	
 	@Override
-	public void setBus(BeanBus bus) {
-		bus.addBusListener(new BusListener() {
+	public void setBeanBus(BusConductor bus) {
+		bus.addBusListener(new BusListenerAdapter() {
 			
 			@Override
 			public void busTerminated(BusEvent event) {
+				event.getSource().removeBusListener(this);
 			}
 			
 			@Override
-			public void busStopping(BusEvent event) throws CrashBusException {
-				event.getSource().removeBusListener(this);
+			public void busStopping(BusEvent event) throws BusCrashException {
 				try {
 					input.close();
 				} catch (IOException e) {
-					throw new CrashBusException(e);
+					throw new BusCrashException(e);
 				}
 			}
-			
-			@Override
-			public void busStarting(BusEvent event) throws CrashBusException {
-			}
-			
+						
 			@Override
 			public void busCrashed(BusEvent event, BusException e) {
-				event.getSource().removeBusListener(this);
 				try {
 					input.close();
 				} catch (IOException ioe) {
@@ -314,27 +303,12 @@ implements ArooaSessionAware, Driver<String>, BusAware, StageNotifier {
 				
 			}
 		});
-		if (to instanceof BusAware) {
-			((BusAware) to).setBus(bus);
-		}
 	}
 	
-	@Override
-	public void addStageListener(StageListener listener) {
-		stageSupport.addStageListener(listener);
-	}
-	
-	@Override
-	public void removeStageListener(StageListener listener) {
-		stageSupport.removeStageListener(listener);
-	}
-
-	@Override
 	public void setTo(Destination<? super String> to) {
 		this.to = to;
 	}
 	
-	@Override
 	public void stop() {
 		stop = true;
 	}

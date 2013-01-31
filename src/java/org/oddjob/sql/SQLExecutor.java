@@ -1,8 +1,7 @@
 package org.oddjob.sql;
 
-import java.sql.SQLException;
-
 import org.oddjob.beanbus.BadBeanException;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.Destination;
 
 /**
@@ -18,8 +17,9 @@ public interface SQLExecutor extends Destination<String> {
 	 * 
 	 * @param sql The SQL. Never expected to be null.
 	 * 
-	 * @throws SQLException
+	 * @throws BadBeanException
+	 * @throws BusCrashException
 	 */
-    public void accept(String sql) throws BadBeanException;
+    public void accept(String sql) throws BadBeanException, BusCrashException;
 
 }

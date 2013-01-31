@@ -24,7 +24,7 @@ import org.oddjob.state.AnyActiveStateOp;
  * 
  * <h4>State Operator</h4>
  * 
- * The <b><code>stateOperator</b><code> property changes the way in which
+ * The <b><code>stateOperator</b></code> property changes the way in which
  * this jobs state reflects its child states. Oddjob currently supports the
  * following State Operators:
  * <dl>
