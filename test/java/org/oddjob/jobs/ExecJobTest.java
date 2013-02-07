@@ -145,7 +145,7 @@ public class ExecJobTest extends TestCase {
 		job.stop();
 		t.join();
 
-		logger.debug("" + buf.getText());
+		logger.debug("Output: [" + buf.getText() + "]");
 		
 		assertEquals(1, lines.length);
 		
@@ -158,7 +158,7 @@ public class ExecJobTest extends TestCase {
 		job.setCommand("java rubbish");
 		
 		job.run();
-		assertEquals(JobState.INCOMPLETE, job.lastStateEvent().getState());		
+		assertEquals(JobState.INCOMPLETE, job.lastStateEvent().getState());
 	}
 
 	public void testOutput() throws IOException {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <oddjob file="${this.dir}/MagicBeansInner.xml">
+            <descriptorFactory>
+                <arooa:magic-beans xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+                      namespace="oddjob:magic" prefix="magic">
+                    <definitions>
+                        <is element="filespec">
+                            <properties>
+                                <is name="description" type="java.lang.String"/>
+                                <is name="file" type="java.io.File" 
+                                    configured="ATTRIBUTE"/>
+                                <is name="maxSize" type="java.lang.Long"/>
+                            </properties>
+                        </is>
+                    </definitions>
+                </arooa:magic-beans>
+            </descriptorFactory>
+        </oddjob>
+    </job>
+</oddjob>

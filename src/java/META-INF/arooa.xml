@@ -93,6 +93,8 @@
                 <is element='input-message' className='org.oddjob.input.requests.InputMessage'/>
                 <is element='input-file' className='org.oddjob.input.requests.InputFile'/>
                 <is element='logout' className='org.oddjob.logging.log4j.LogoutType'/>
+                <!-- is element='magic-bean' className='org.oddjob.values.types.MagicBeanType'/ -->
+                <is element='magic-class' className='org.oddjob.values.types.MagicClassType'/>
                 <is element='schedule' className='org.oddjob.schedules.ScheduleType'/>
                 <is element='oddballs'
                     className='org.oddjob.oddballs.OddballsDescriptorFactory'/>

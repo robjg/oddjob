@@ -12,6 +12,15 @@ import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 
+/**
+ * Copy the properties of a bean to another bean.
+ * 
+ * 
+ * @author rob
+ *
+ * @param <F>
+ * @param <T>
+ */
 public class BeanCopy<F, T> 
 implements Section<F, T>, ArooaSessionAware {
 

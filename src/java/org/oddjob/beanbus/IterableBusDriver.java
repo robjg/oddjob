@@ -19,8 +19,14 @@ implements Runnable, Stoppable {
 	
 	private volatile boolean stop;
 	
+	private String name;
+	
 	@Override
 	public void run() {
+		
+		if (beans == null) {
+			throw new NullPointerException("No beans.");
+		}
 		
 		stop = false;
 		
@@ -62,5 +68,23 @@ implements Runnable, Stoppable {
 	 */
 	public void setBeans(Iterable<T> iterable) {
 		this.beans = iterable;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+		if (name == null) {
+			return getClass().getSimpleName();
+		}
+		else {
+			return name;
+		}
 	}
 }

@@ -386,43 +386,15 @@ implements Stoppable, ConsoleOwner {
 		
 		final InputStream processStdOut = proc.getInputStream();
 
-		Thread outT = new Thread(new Runnable() {			
-			public void run() {		
-				try {
-					BufferedInputStream bis = new BufferedInputStream(processStdOut);
-					OutputStream os = new LoggingOutputStream(stdout, LogLevel.INFO, 
-							consoleArchive);
-					IO.copy(bis, os);
-					os.close();
-					bis.close();
-				} catch (IOException e) {
-					logger().error("Failed copying process stdout.", e);
-				}
-			}
-		});
-		outT.start();		
+		CopyStream outThread = 
+				new CopyStream("stdout", processStdOut, stdout);
+		outThread.start();		
 		
-		Thread  errT = null;
+		CopyStream errThread = null;
 		if (!redirectStderr) { 
 			final InputStream processStdErr = proc.getErrorStream();
-			errT = new Thread(new Runnable() {
-
-				public void run() {
-					try {
-						BufferedInputStream bis = new BufferedInputStream(
-								processStdErr);
-						OutputStream os = new LoggingOutputStream(stderr, 
-								LogLevel.ERROR, consoleArchive);
-						IO.copy(bis, os);
-						os.close();
-						bis.close();
-					} catch (IOException e) {
-						logger().error("Failed copying process stderr.", e);
-					}
-				}	
-			});
-	
-			errT.start();
+			errThread = new CopyStream("stderr", processStdErr, stderr);
+			errThread.start();
 		}
 		
 		// copy input.
@@ -445,6 +417,11 @@ implements Stoppable, ConsoleOwner {
 			proc.destroy();
 			proc = null;
 			
+			if (errThread != null) {
+				errThread.close();
+			}
+			outThread.close();
+			
 			synchronized (this) {
 				// wake up the stop wait.
 				notifyAll();
@@ -454,6 +431,39 @@ implements Stoppable, ConsoleOwner {
 		return exitValue;
 	}
 
+	private class CopyStream extends Thread {
+		
+		private final String name;
+		
+		private final InputStream stream;
+		
+		private final OutputStream to;
+		
+		public CopyStream(String name, InputStream stream, OutputStream to) {
+			this.name = name;
+			this.stream = new BufferedInputStream(stream);
+			this.to = to;
+		}
+		
+		public void run() {
+			try {
+				OutputStream os = new LoggingOutputStream(to, 
+						LogLevel.ERROR, consoleArchive);
+				IO.copy(stream, os);
+				os.close();
+			} catch (IOException e) {
+				logger().error("Failed copying process " + name + ".", e);
+			}
+		}	
+		
+		void close() throws InterruptedException, IOException {
+			join();
+			stream.close();
+		}
+		
+	}
+	
+	
 	/*
 	 *  (non-Javadoc)
 	 * @see org.oddjob.framework.BaseComponent#onStop()

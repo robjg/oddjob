@@ -56,7 +56,7 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.values.VariablesJob;
 
 /**
- *
+ * A {@link DesignFactory} for {@link VariablesJob}
  */
 public class VariablesDC implements DesignFactory {
 	
@@ -510,9 +510,13 @@ class VariablesModel extends AbstractMultiTypeModel {
 		ElementMappings mappings = context.getSession(
 				).getArooaDescriptor().getElementMappings();
 		
+		ArooaSession session = context.getSession();
+		
 		InstantiationContext instantiationContext = 
 			new InstantiationContext(ArooaType.VALUE, 
-					new SimpleArooaClass(ArooaValue.class));
+					new SimpleArooaClass(ArooaValue.class),
+					session.getArooaDescriptor().getClassResolver(),
+					session.getTools().getArooaConverter());
 		
 		ArooaElement[] supportedElements = 
 			mappings.elementsFor(instantiationContext);

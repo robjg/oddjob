@@ -8,7 +8,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.LazyDynaMap;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.beanutils.MagicBeanDefinition;
-import org.oddjob.arooa.beanutils.MagicBeanProperty;
+import org.oddjob.arooa.beanutils.MagicBeanDescriptorProperty;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.WrapDynaBean;
@@ -88,9 +88,9 @@ public class AccessorDescriberTest extends TestCase {
 		ArooaSession session = new StandardArooaSession();
 		
 		MagicBeanDefinition def = new MagicBeanDefinition();
-		def.setName("Foo");
+		def.setElement("Foo");
 		
-		MagicBeanProperty prop0 = new MagicBeanProperty();
+		MagicBeanDescriptorProperty prop0 = new MagicBeanDescriptorProperty();
 		prop0.setName("Fruit");
 		prop0.setType(String.class.getName());
 		

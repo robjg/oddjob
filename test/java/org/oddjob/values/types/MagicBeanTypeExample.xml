@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <myClass>
+                        <magic-class name="fruit">
+                            <properties>
+                                <value key="type" value="java.lang.String"/>
+                                <value key="quantity" value="java.lang.Integer"/>
+                            </properties>
+                        </magic-class>
+                    </myClass>
+                    <myBean>
+                        <convert>
+                            <value>
+                                <bean class="org.oddjob.values.types.MagicBeanType">
+                                    <magicClass>
+                                        <value value="${vars.myClass}"/>
+                                    </magicClass>
+                                    <properties>
+                                        <value key="type" value="Apple"/>
+                                        <value key="quantity" value="24"/>
+                                    </properties>
+                                </bean>
+                            </value>
+                        </convert>
+                    </myBean>
+                </variables>
+                <echo id="e"><![CDATA[We have ${vars.myBean.is.quantity} ${vars.myBean.is.type}(s).]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

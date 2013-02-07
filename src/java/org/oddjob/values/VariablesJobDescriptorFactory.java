@@ -22,6 +22,14 @@ import org.oddjob.arooa.reflect.ArooaInstantiationException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.designer.components.VariablesDC;
 
+/**
+ * A {@link ArooaDescriptorFactory} for {@link VariablesJob}. This is 
+ * required because the Variables Job needs it's own {@link ArooaClass}
+ * to be able to set the properties correctly.
+ * 
+ * @author rob
+ *
+ */
 public class VariablesJobDescriptorFactory implements ArooaDescriptorFactory {
 	
 	public static final ArooaElement VARIABLES = new ArooaElement("variables");

@@ -7,6 +7,12 @@ import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.deploy.NoAnnotations;
 
+/**
+ * Provide a {@link BeanDescriptor} for {@link VariablesJob}.
+ * 
+ * @author rob
+ *
+ */
 public class VariablesJobArooa implements ArooaBeanDescriptor {
 
 	public String getComponentProperty() {

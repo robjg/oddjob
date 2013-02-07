@@ -3,6 +3,8 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+- Improve support for Magic Beans which are beans that can be created
+  dynamically within Oddjob.
 - Upgrade HSQL lib to 2.2.9.
 - Add a zero length string check to Check Job. Also added a Designer.
 - Added a Grep Job that can search files or any other input for text or
@@ -40,22 +42,28 @@ Changes in 1.3.0
 
 Still To Do for 1.3.0
 ---------------------
-
+- BeanBus
+  - Remove BusAware and ensure BeanBus is being set correctly as a service.
+  - Change destination to be a Collection.
+- Properties load needs log messages. Involves adding toString() to all 
+  Oddjob InputStream types.
+- Add the ability to change the log level from the UI. Add LogLevel TRACE and
+  NONE to match Log4j. Add a job that will change Logger log levels.
 - Add Parent Started State to User Guide. Document thread, and services.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.
-- Use a server side file system for choosing files on server component 
-  designer forms.
-- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
-  Explorer.
 - Introduce a witheach job that behaves like foreach except that values
   are 'pushed' into it.
-- Add serialisation of services.
 - Document synthetic annotations in the Developer Guide.
 - Document conversions. Possibly include conversions in the Reference.
 
 Deferred to A Later Version
 ---------------------------
+- Add serialisation of services.
+- Use a server side file system for choosing files on server component 
+  designer forms.
+- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
+  Explorer.
 - Look at what happens when there are exceptions in a timer. Should there be
   a haltOnException flag. Should an Exception in a timer be indicated as
   an exception state not an incomplete state?

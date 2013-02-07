@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bean class="org.oddjob.beanbus.IterableBusDriver" id="bus">
+            <beans>
+                <value value="${iterable}"/>
+            </beans>
+            <to>
+                <bean class="org.oddjob.beanbus.BeanCopy">
+                    <arooaClass>
+                        <magic-class name="BeanCopyTestMagiClass">
+                            <properties>
+                                <value key="snack" value="java.lang.String"/>
+                                <value key="number" value="java.lang.Integer"/>
+                                <value key="COST" value="java.lang.Double"/>
+                            </properties>
+                        </magic-class>
+                    </arooaClass>
+                    <to>
+                        <bean class="org.oddjob.beanbus.DestinationCollectionAdapter">
+                            <collection>
+                                <list/>
+                            </collection>
+                        </bean>
+                    </to>
+                    <mappings>
+                        <value key="fruit" value="snack"/>
+                        <value key="quantity" value="number"/>
+                        <value key="price" value="COST"/>
+                    </mappings>
+                </bean>
+            </to>
+        </bean>
+    </job>
+</oddjob>

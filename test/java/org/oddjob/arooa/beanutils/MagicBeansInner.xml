@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+  <job>
+    <foreach>
+      <values>
+        <list>
+          <values>
+            <magic:filespec description="Big File" file="/files/big"
+              maxSize="1000000" xmlns:magic="oddjob:magic" />
+            <magic:filespec description="Medium File"
+              file="/files/medium" maxSize="20000" xmlns:magic="oddjob:magic" />
+            <magic:filespec description="Small File"
+              file="/files/small" maxSize="3000" xmlns:magic="oddjob:magic" />
+          </values>
+        </list>
+      </values>
+      <configuration>
+        <xml>
+          <foreach id="each">
+            <job>
+              <echo>
+Checking ${each.current.description} (${each.current.file})
+less than ${each.current.maxSize} bytes...</echo>
+            </job>
+          </foreach>
+        </xml>
+      </configuration>
+    </foreach>
+  </job>
+</oddjob>
