@@ -13,15 +13,17 @@ import org.oddjob.arooa.types.ValueFactory;
  *
  * @param <T> The type of the beans to be collected.
  */
-public class BeanTrap<T> implements Destination<T>, 
-		Iterable<T>, 
+public class BeanTrap<T> extends AbstractDestination<T> 
+implements Iterable<T>, 
 		ValueFactory<List<T>>,
 		BusAware {
 
 	private final List<T> trapped = new ArrayList<T>();
 	
-	public void accept(T bean) {
+	@Override
+	public boolean add(T bean) {
 		trapped.add(bean);
+		return true;
 	};
 	
 	@Override

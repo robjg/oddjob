@@ -6,20 +6,23 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.oddjob.beanbus.AbstractDestination;
+
 public class SQLScriptProcessorTest extends TestCase {
 
 	String EOL = System.getProperty("line.separator");
 	
-	class SqlCapture implements SQLExecutor {
+	class SqlCapture extends AbstractDestination<String> {
 		
 		List<String> results = new ArrayList<String>();
 		
 		@Override
-		public void accept(String sql) {
+		public boolean add(String sql) {
 			String s = sql.trim();
 			if (s.length() > 0) {
 				results.add(s);
 			}
+			return true;
 		}
 	}
 	

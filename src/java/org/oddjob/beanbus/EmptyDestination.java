@@ -1,8 +1,9 @@
 package org.oddjob.beanbus;
 
-public class EmptyDestination<T> implements Destination<T>{
+public class EmptyDestination<T> extends AbstractDestination<T> {
 
-	public void accept(T bean) {
-		
+	@Override
+	public boolean add(T bean) {
+		return false;
 	};
 }

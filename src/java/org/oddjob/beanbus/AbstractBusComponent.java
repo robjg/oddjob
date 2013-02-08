@@ -1,11 +1,17 @@
 package org.oddjob.beanbus;
 
+import java.util.Collection;
+
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
 
 /**
  * A base class for Jobs and Services that provide an {@link BeanBus}.
+ * <p>
+ * Implementations must ensure {@link #startBus() and {@link stopBus()}
+ * are called and must provide a {@link #requestStopBus()} method.
+ * 
  * 
  * @author rob
  *
@@ -29,7 +35,7 @@ implements BeanBusService, ServiceProvider {
 		beanBus.startBus();
 	}
 	
-	protected void accept(T bean) throws BadBeanException, BusCrashException {
+	protected void accept(T bean) throws BusCrashException {
 		beanBus.accept(bean);
 	}
 	
@@ -71,11 +77,11 @@ implements BeanBusService, ServiceProvider {
 	 * 
 	 * @param to
 	 */
-	public void setTo(Destination<? super T> to) {
+	public void setTo(Collection<? super T> to) {
 		beanBus.setTo(to);
 	}
 	
-	public Destination<? super T> getTo() {
+	public Collection<? super T> getTo() {
 		return beanBus.getTo();
 	}
 	

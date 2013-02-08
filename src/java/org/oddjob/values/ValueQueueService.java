@@ -17,7 +17,7 @@ import org.oddjob.jobs.structural.ForEachJob;
  * @author rob
  *
  */
-public class ValueQueueService {
+public class ValueQueueService implements ValueConsumer<Object> {
 
 	/** The queue. */
 	private final LinkedList<Object> queue = new LinkedList<Object>();
@@ -107,6 +107,7 @@ public class ValueQueueService {
 	 * 
 	 * @param object
 	 */
+	@Override
 	public void setValue(Object object) {
 		synchronized (queue) {
 			if (!started) {

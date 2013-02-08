@@ -65,6 +65,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.util.Collection;
 
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
@@ -72,11 +73,9 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BadBeanException;
 import org.oddjob.beanbus.BadBeanFilter;
-import org.oddjob.beanbus.BasicBeanBus;
-import org.oddjob.beanbus.BeanBusCommand;
-import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BeanBusService;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
@@ -184,7 +183,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 * {@link SQLResultsBean} or {@link SQLResultsSheet}.
 	 * @oddjob.required No, defaults to none. 
 	 */
-	private transient SQLResultsProcessor results;
+	private transient Collection<Object> results;
 	
 	/** The session. */
 	private transient ArooaSession session;
@@ -235,54 +234,32 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 */
 	public void run() {
 		
-    	final BasicBeanBus<String> bus = new BasicBeanBus<String>(
-    			new BeanBusCommand() {
-    				@Override
-    				public void run() throws BusCrashException {
-    					parser.stop();
-    				}
-    			});
-    	
-		if (results == null) {
-			executor.setResultProcessor(new SQLResultsProcessor() {
-				@Override
-				public void accept(Object bean) throws BadBeanException, BusCrashException {
-				}
-			});
-		}
-		else {
-	    	executor.setResultProcessor(results);
-		}
+		BusConductor conductor = parser.getService(
+				BeanBusService.BEAN_BUS_SERVICE_NAME);
+		
+	    executor.setResultProcessor(results);
 		
 	    parser.setArooaSession(session);
-	    parser.setBeanBus(bus);
-	    parser.setTo(bus);
 	    
 	    executor.setArooaSession(session);
-	    executor.setBeanBus(bus);
+	    executor.setBeanBus(conductor);
 	    
-	    errorHandler.setBeanBus(bus);
+	    errorHandler.setBeanBus(conductor);
 	    
     	BadBeanFilter<String> errorFilter = new BadBeanFilter<String>();
     	errorFilter.setBadBeanHandler(errorHandler);
-    	errorFilter.setBeanBus(bus);
+    	errorFilter.setBeanBus(conductor);
     	
-    	bus.setTo(errorFilter);
+    	parser.setTo(errorFilter);
     	
-    	errorFilter.setTo(new SQLExecutor() {
-			@Override
-			public void accept(String sql) throws BadBeanException, BusCrashException {
-				executor.accept(sql);
-				bus.cleanBus();
-			}
-		});
-    	errorFilter.setBeanBus(bus);
+    	errorFilter.setTo(executor);
+    	errorFilter.setBeanBus(conductor);
     	
     	try {
-			bus.startBus();
 	    	parser.go();
-	    	bus.stopBus();
 		} catch (BusException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -293,11 +270,11 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 		executor.stop();
 	}
 		
-	public SQLResultsProcessor getResults() {
+	public Collection<Object> getResults() {
 		return results;
 	}
 
-	public void setResults(SQLResultsProcessor results) {
+	public void setResults(Collection<Object> results) {
 		this.results = results;
 	}
 	

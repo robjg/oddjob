@@ -110,9 +110,9 @@ public class BeanSheetTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
 		
-		test.accept(Arrays.asList(values));
+		test.add(Arrays.asList(values));
 
-		test.accept(Arrays.asList(values));
+		test.add(Arrays.asList(values));
 		
 		String expected = 
 			"The Colour     size   type    variety" + EOL + 
@@ -139,7 +139,7 @@ public class BeanSheetTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
 		
-		test.accept(Arrays.asList(values));
+		test.add(Arrays.asList(values));
 
 		String expected = 
 			"Red and Green  7.6    Apple   Cox" + EOL +

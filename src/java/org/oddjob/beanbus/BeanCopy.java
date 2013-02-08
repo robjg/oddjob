@@ -1,5 +1,6 @@
 package org.oddjob.beanbus;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,14 +22,14 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  * @param <F>
  * @param <T>
  */
-public class BeanCopy<F, T> 
+public class BeanCopy<F, T> extends AbstractDestination<F>
 implements Section<F, T>, ArooaSessionAware {
 
 	private static AtomicInteger instance = new AtomicInteger();
 	
 	private ArooaClass arooaClass;
 	
-	private Destination<? super T> to;
+	private Collection<? super T> to;
 	
 	private PropertyAccessor accessor;
 	
@@ -44,7 +45,7 @@ implements Section<F, T>, ArooaSessionAware {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void accept(F bean) throws BadBeanException, BusCrashException {
+	public boolean add(F bean) {
 		
 		if (arooaClass == null) {
 			arooaClass = createClassFromBean(bean);			
@@ -62,7 +63,9 @@ implements Section<F, T>, ArooaSessionAware {
 					accessor.getProperty(bean, from));
 		}
 
-		to.accept((T) toBean);
+		to.add((T) toBean);
+		
+		return true;
 	}
 	
 	protected ArooaClass createClassFromBean(F bean) {
@@ -91,11 +94,11 @@ implements Section<F, T>, ArooaSessionAware {
 	}
 	
 	@Override
-	public void setTo(Destination<? super T> to) {
+	public void setTo(Collection<? super T> to) {
 		this.to = to;
 	}
 	
-	public Destination<? super T> getTo() {
+	public Collection<? super T> getTo() {
 		return to;
 	}
 	

@@ -1,6 +1,8 @@
 package org.oddjob.beanbus;
 
-public interface Section<F, T> extends Destination<F> {
+import java.util.Collection;
 
-	public void setTo(Destination<? super T> to);
+public interface Section<F, T> extends Collection<F> {
+
+	public void setTo(Collection<? super T> to);
 }

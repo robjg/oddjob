@@ -1,5 +1,6 @@
 package org.oddjob.beanbus;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -9,43 +10,36 @@ import java.util.List;
  *
  * @param <T>
  */
-public class Batcher<T> implements Destination<T>, BusAware {
+public class Batcher<T> extends AbstractDestination<T>
+implements BusAware {
 
 	private int batchSize;
 
-	private Destination<? super Iterable<T>> next;
+	private Collection<? super Iterable<T>> next;
 	
 	private List<T> batch;
 	
 	private int count;
-	
-	private BadBeanHandler<List<? super T>> badBeanHandler;
-	
-	public void accept(T bean) throws BusCrashException {	
+
+	@Override
+	public boolean add(T bean) {	
 
 		batch.add(bean);
 		if (++count == batchSize) {
 			dispatch();
 		}
+		
+		return true;
 	}
 	
-	protected void dispatch() throws BusCrashException {
+	protected void dispatch() {
 		if (count == 0) {
 			return;
 		}
 		count = 0;
 
-		try {
-			next.accept(batch);
-		}
-		catch (BadBeanException e) {
-			if (badBeanHandler == null) {
-				throw new BusCrashException("No Bad Bean Handler.", e);				
-			}
-			else {
-				badBeanHandler.handle(batch, e);
-			}
-		}
+		next.add(batch);
+		
 		batch.clear();
 	}
 
@@ -79,20 +73,11 @@ public class Batcher<T> implements Destination<T>, BusAware {
 		this.batchSize = batchSize;
 	}
 	
-	public Destination<? super Iterable<T>> getNext() {
+	public Collection<? super Iterable<T>> getNext() {
 		return next;
 	}
 
-	public void setNext(Destination<? super Iterable<T>> next) {
+	public void setNext(Collection<? super Iterable<T>> next) {
 		this.next = next;
 	}
-
-	public BadBeanHandler<List<? super T>> getBadBeanHandler() {
-		return badBeanHandler;
-	}
-
-	public void setBadBeanHandler(BadBeanHandler<List<? super T>> badBeanHandler) {
-		this.badBeanHandler = badBeanHandler;
-	}
-	
 }

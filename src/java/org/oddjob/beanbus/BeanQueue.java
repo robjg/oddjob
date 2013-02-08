@@ -17,7 +17,8 @@ import org.oddjob.arooa.life.Configured;
  *
  * @param <E>
  */
-public class BeanQueue<E> implements Destination<E>, Iterable<E>, BusAware {
+public class BeanQueue<E> extends AbstractDestination<E>
+implements Iterable<E>, BusAware {
 
 	private int capacity;
 
@@ -58,12 +59,13 @@ public class BeanQueue<E> implements Destination<E>, Iterable<E>, BusAware {
 	}
 	
 	@Override
-	public void accept(E bean) throws BadBeanException, BusCrashException {
+	public boolean add(E bean) {
 		try {
 			queue.put(bean);
 		} catch (InterruptedException e) {
 			Thread.interrupted();
 		}
+		return true;
 	}
 	
 	@Override

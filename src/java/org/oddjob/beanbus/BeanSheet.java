@@ -27,8 +27,8 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  * @author rob
  *
  */
-public class BeanSheet 
-implements Destination<Iterable<?>>, BusAware, ArooaSessionAware {
+public class BeanSheet extends AbstractDestination<Iterable<?>>
+implements BusAware, ArooaSessionAware {
 
 	private static final Logger logger = Logger.getLogger(BeanSheet.class);
 	
@@ -62,7 +62,7 @@ implements Destination<Iterable<?>>, BusAware, ArooaSessionAware {
 	}
 
 	@Override
-	public void accept(Iterable<?> beans) {
+	public boolean add(Iterable<?> beans) {
 		
 		if (beans == null) {
 			throw new NullPointerException("No beans.");
@@ -94,6 +94,8 @@ implements Destination<Iterable<?>>, BusAware, ArooaSessionAware {
 		}		
 
 		out.flush();
+		
+		return true;
 	}
 
 	@Override

@@ -19,11 +19,13 @@ public class IterableBusDriverTest extends TestCase {
 		
 	}
 	
-	private class Results implements Destination<Food> {
+	private class Results extends AbstractDestination<Food> {
 		List<Food> list = new ArrayList<Food>();
 
-		public void accept(Food bean) {
+		@Override
+		public boolean add(Food bean) {
 			list.add(bean);
+			return true;
 		};
 	}
 	

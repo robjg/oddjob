@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusAware;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListenerAdapter;
-import org.oddjob.beanbus.BusCrashException;
 
 /**
  * @oddjob.description Captures SQL results in a bean that 
@@ -87,8 +87,8 @@ import org.oddjob.beanbus.BusCrashException;
  * @author rob
  *
  */
-public class SQLResultsBean 
-implements SQLResultsProcessor, BusAware {
+public class SQLResultsBean extends AbstractDestination<Object>
+implements BusAware {
 	
 	/** 
 	 * @oddjob.property
@@ -132,7 +132,7 @@ implements SQLResultsProcessor, BusAware {
 	}
 	
 	@Override
-	public void accept(Object bean) throws BadBeanException, BusCrashException {
+	public boolean add(Object bean) {
 		if (bean instanceof List<?>) {
 			List<?> beans = (List<?>) bean;
 			rowSets.add(beans);
@@ -148,10 +148,11 @@ implements SQLResultsProcessor, BusAware {
 			this.updateCount += updateCount.getCount();
 		}
 		else {
-			throw new BadBeanException(bean, "Unexpected bean type: " +
+			throw new IllegalArgumentException("Unexpected bean type: " +
 					bean.getClass());
 		}
 		
+		return true;
 	}
 	
 	/** 

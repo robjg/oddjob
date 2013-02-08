@@ -10,14 +10,14 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BeanSheet;
 import org.oddjob.beanbus.BusAware;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
 
@@ -53,8 +53,8 @@ import org.oddjob.util.StreamPrinter;
  * @author rob
  *
  */
-public class SQLResultsSheet implements SQLResultsProcessor, 
-		ArooaSessionAware, BusAware {
+public class SQLResultsSheet extends AbstractDestination<Object>
+implements ArooaSessionAware, BusAware {
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsSheet.class);
 	
@@ -85,12 +85,12 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 	}
 	
 	@Override
-	public void accept(Object bean) throws BadBeanException {
+	public boolean add(Object bean) {
 		
 		elapsedTime = System.currentTimeMillis() - elapsedTime;
 		
 		if (output == null) {
-			return;
+			return false;
 		}
 		
 		if (bean instanceof List<?>) {
@@ -103,7 +103,7 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 			sheet.setArooaSession(session);
 			sheet.setNoHeaders(dataOnly);
 			
-			sheet.accept(iterable);			
+			sheet.add(iterable);			
 			
 			if (!dataOnly) {
 				new StreamPrinter(output).println();
@@ -121,8 +121,10 @@ public class SQLResultsSheet implements SQLResultsProcessor,
 			}
 		}
 		else {
-			throw new BadBeanException(bean, "Unexpected bean type.");
+			throw new IllegalArgumentException("Unexpected bean type.");
 		}		
+		
+		return true;
 	}
 
 	public OutputStream getOutput() {

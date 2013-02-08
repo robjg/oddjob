@@ -62,7 +62,7 @@ public class BeanCopyTest extends TestCase {
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		List<?> results = lookup.lookup(
-				"bus.to.to.collection", List.class);
+				"bus.to.to", List.class);
 		
 		DynaBean bean1 = (DynaBean) results.get(0);
 		assertEquals("apple", bean1.get("snack"));
@@ -99,7 +99,7 @@ public class BeanCopyTest extends TestCase {
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		List<?> results = lookup.lookup(
-				"bus.to.to.collection", List.class);
+				"bus.to.to", List.class);
 		
 		DynaBean bean1 = (DynaBean) results.get(0);
 		assertEquals("apple", bean1.get("snack"));
@@ -154,7 +154,7 @@ public class BeanCopyTest extends TestCase {
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		List<?> results = lookup.lookup(
-				"bus.to.to.collection", List.class);
+				"bus.to.to", List.class);
 		
 		BeanTo bean1 = (BeanTo) results.get(0);
 		assertEquals("apple", bean1.snack);

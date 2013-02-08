@@ -11,11 +11,7 @@
                         <class name="org.oddjob.beanbus.BeanCopyTest$BeanTo"/>
                     </arooaClass>
                     <to>
-                        <bean class="org.oddjob.beanbus.DestinationCollectionAdapter">
-                            <collection>
-                                <list/>
-                            </collection>
-                        </bean>
+                      <list/>
                     </to>
                     <mappings>
                         <value key="fruit" value="snack"/>

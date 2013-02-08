@@ -79,11 +79,10 @@ public class BasicBeanBusTest extends TestCase {
 		assertEquals("apple", results.get(0));
 	}
 	
-	private class BadDestination implements Destination<Object> {
+	private class BadDestination extends AbstractDestination<Object> {
 		@Override
-		public void accept(Object bean) throws BadBeanException,
-				BusCrashException {
-			throw new BadBeanException(bean);
+		public boolean add(Object bean) {
+			throw new IllegalArgumentException();
 		}
 	}
 	

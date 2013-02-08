@@ -1,6 +1,7 @@
 package org.oddjob.beanbus;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -11,7 +12,7 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	private final List<BusListener> busListeners = 
 			new ArrayList<BusListener>();
 	
-	private Destination<? super T> to;
+	private Collection<? super T> to;
 
 	private boolean started = false;
 	
@@ -63,7 +64,7 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	}		
 	
 	@Override
-	public void accept(T bean) throws BadBeanException, BusCrashException {
+	public void accept(T bean) throws BusCrashException {
 		
 		if (!started) {
 			throw new IllegalStateException("Bus not started.");
@@ -74,22 +75,24 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 		
 		try {
-			to.accept(bean);
+			to.add(bean);
 		}
-		catch (BadBeanException e) {
+		catch (IllegalArgumentException e) {
 			
 			BusCrashException e2 = new BusCrashException("Unhandled " + 
-					BadBeanException.class.getName(), e);
+					IllegalArgumentException.class.getName(), e);
 			
 			crashBus(e2);
 			
 			throw e2;
 		}
-		catch (BusCrashException e) {
+		catch (RuntimeException e) {
 			
-			crashBus(e);
+			BusCrashException e2 = new BusCrashException(e);
 			
-			throw e;
+			crashBus(e2);
+			
+			throw e2;
 		}
 		
 	}
@@ -98,6 +101,8 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	public void cleanBus() throws BusCrashException {
 		
 		// should it be an exception to clean a bus that hasn't had beans?
+		// No - because to components could both ask to clean the bus
+		// between trips.
 		if (tripping) {
 			tripEnd();
 		}
@@ -265,11 +270,11 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 	}
 
-	public Destination<? super T> getTo() {
+	public Collection<? super T> getTo() {
 		return to;
 	}
 
-	public void setTo(Destination<? super T> to) {
+	public void setTo(Collection<? super T> to) {
 		this.to = to;
 	}
 

@@ -1,5 +1,7 @@
 package org.oddjob.beanbus;
 
+import java.util.Collection;
+
 /**
  * Something that will catch bad beans and pass them to a handler.
  * 
@@ -7,25 +9,28 @@ package org.oddjob.beanbus;
  *
  * @param <T>
  */
-public class BadBeanFilter<T> implements Section<T, T>, BusAware {
+public class BadBeanFilter<T> extends AbstractDestination<T>
+implements Section<T, T>, BusAware {
 
-	private BadBeanHandler<? super T> badBeanHandler;
+	private Collection<? super BadBeanTransfer<T>> badBeanHandler;
 
-	private Destination<? super T> to;
+	private Collection<? super T> to;
 	
-	public void accept(T bean) 
-	throws BusCrashException {
+	@Override
+	public boolean add(T bean) {
 		
 		try {
-			to.accept(bean);
+			to.add(bean);
 		}
-		catch (BadBeanException e) {
-			badBeanHandler.handle(bean, e);
+		catch (IllegalArgumentException e) {
+			badBeanHandler.add(new BadBeanTransfer<T>(bean, e));
 		}
+		
+		return true;
 	};
 	
 	@Override
-	public void setTo(Destination<? super T> to) {
+	public void setTo(Collection<? super T> to) {
 		this.to = to;
 	}
 	
@@ -46,11 +51,12 @@ public class BadBeanFilter<T> implements Section<T, T>, BusAware {
 		});
 	}
 	
-	public BadBeanHandler<? super T> getBadBeanHandler() {
+	public Collection<? super BadBeanTransfer<T>> getBadBeanHandler() {
 		return badBeanHandler;
 	}
 
-	public void setBadBeanHandler(BadBeanHandler<? super T> badBeanHandler) {
+	public void setBadBeanHandler(
+			Collection<? super BadBeanTransfer<T>> badBeanHandler) {
 		this.badBeanHandler = badBeanHandler;
 	}
 }

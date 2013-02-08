@@ -10,6 +10,7 @@ import java.util.List;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
+import org.mockito.Mockito;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
@@ -17,7 +18,8 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BadBeanException;
+import org.oddjob.beanbus.AbstractDestination;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 
 public class ParameterisedExecutorText extends TestCase {
@@ -73,20 +75,22 @@ public class ParameterisedExecutorText extends TestCase {
 
 	}
 	
-	private class Results implements SQLResultsProcessor {
+	private class Results extends AbstractDestination<Object> {
 
 		Object last;
 		
 		@Override
-		public void accept(Object bean) throws BadBeanException,
-				BusCrashException {
+		public boolean add(Object bean) {
 			last = bean;
+			return true;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void testBeanTypes() throws BadBeanException, ArooaConversionException, BusCrashException {
+	public void testBeanTypes() throws ArooaConversionException, BusCrashException {
 
+		BusConductor conducter = Mockito.mock(BusConductor.class);
+		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -94,7 +98,7 @@ public class ParameterisedExecutorText extends TestCase {
 		ct.setPassword("");
 		
 		ParameterisedExecutor test = new ParameterisedExecutor();
-		
+		test.setBeanBus(conducter);
 		test.setConnection(ct.toValue());
 		
 		StandardArooaSession session = new StandardArooaSession();
@@ -112,7 +116,7 @@ public class ParameterisedExecutorText extends TestCase {
 			"myNumeric NUMERIC, " +
 			"myDecimal DECIMAL)";
 		
-		test.accept(create);
+		test.add(create);
 		
 		ValueType v1 = new ValueType();
 		v1.setValue(new ArooaObject("1"));
@@ -142,12 +146,12 @@ public class ParameterisedExecutorText extends TestCase {
 		String insert = 
 			"insert into numbers values (?, ?, ?, ?, ?, ?)";
 		
-		test.accept(insert);
+		test.add(insert);
 		
 		String select = 
 			"select * from numbers";
 		
-		test.accept(select);
+		test.add(select);
 		
 		Object bean = ((List<Object>) results.last).get(0);
 		
@@ -168,12 +172,14 @@ public class ParameterisedExecutorText extends TestCase {
 		assertEquals(BigDecimal.class, beanOverview.getPropertyType("MYNUMERIC"));
 		assertEquals(BigDecimal.class, beanOverview.getPropertyType("MYDECIMAL"));
 		
-		test.accept("shutdown");
+		test.add("shutdown");
 	}
 	
 	@SuppressWarnings("unchecked")
-	public void testNullParameter() throws BadBeanException, ArooaConversionException, BusCrashException {
+	public void testNullParameter() throws ArooaConversionException, BusCrashException {
 
+		BusConductor conducter = Mockito.mock(BusConductor.class);
+		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -181,6 +187,7 @@ public class ParameterisedExecutorText extends TestCase {
 		ct.setPassword("");
 		
 		ParameterisedExecutor test = new ParameterisedExecutor();
+		test.setBeanBus(conducter);
 		
 		test.setConnection(ct.toValue());
 		
@@ -194,7 +201,7 @@ public class ParameterisedExecutorText extends TestCase {
 			"create table thing(" +
 			"stuff VARCHAR(10))";
 		
-		test.accept(create);
+		test.add(create);
 		
 		ValueType v1 = new ValueType();
 
@@ -203,12 +210,12 @@ public class ParameterisedExecutorText extends TestCase {
 		String insert = 
 			"insert into thing (stuff) values (?)";
 		
-		test.accept(insert);
+		test.add(insert);
 		
 		String select = 
 			"select * from thing";
 		
-		test.accept(select);
+		test.add(select);
 		
 		Object bean = ((List<Object>) results.last).get(0);
 		
@@ -216,7 +223,7 @@ public class ParameterisedExecutorText extends TestCase {
 		
 		assertEquals(null, accessor.getProperty(bean, "STUFF"));
 		
-		test.accept("shutdown");
+		test.add("shutdown");
 	}
 	
 }

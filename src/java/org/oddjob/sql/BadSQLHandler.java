@@ -1,14 +1,16 @@
 package org.oddjob.sql;
 
 import org.apache.log4j.Logger;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BadBeanHandler;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.AbstractDestination;
+import org.oddjob.beanbus.BadBeanTransfer;
 import org.oddjob.beanbus.BusAware;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.sql.SQLJob.OnError;
 
-public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
+public class BadSQLHandler 
+extends AbstractDestination<BadBeanTransfer<String>>
+implements BusAware {
 
 	private static final Logger logger = Logger.getLogger(BadSQLHandler.class);
 	
@@ -22,11 +24,12 @@ public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
 	}
 	
 	@Override
-	public void handle(String sql, BadBeanException e)
-			throws BusCrashException {
+	public boolean add(BadBeanTransfer<String> bad) {
+		
+		String sql = bad.getBadBean();
 		
 		logger.info("Failed executing: " + sql + 
-				"\n\t" + e.getCause().getMessage());
+				"\n\t" + bad.getException().getCause().getMessage());
 		
 		OnError onError = this.onError;
 		if (onError == null) {
@@ -37,12 +40,18 @@ public class BadSQLHandler implements BadBeanHandler<String>, BusAware {
 		case CONTINUE:
 			break;
 		case STOP:
-			bus.requestBusStop();
+			try {
+				bus.requestBusStop();
+			} catch (BusCrashException e) {
+				throw new RuntimeException(e);
+			}
 			break;
 		case ABORT:
 			logger.error("Aborting...");
-			throw new BusCrashException(e);
+			throw bad.getException();
 		}
+		
+		return true;
 	}
 
 

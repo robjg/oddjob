@@ -7,20 +7,14 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 
-import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.runtime.ExpressionParser;
 import org.oddjob.arooa.runtime.ParsedExpression;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusAware;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.AbstractBusComponent;
 import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListenerAdapter;
-import org.oddjob.beanbus.Destination;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
 /**
@@ -28,10 +22,8 @@ import org.oddjob.sql.SQLJob.DelimiterType;
  * 
  * @author rob
  */
-public class ScriptParser 
-implements ArooaSessionAware, BusAware {
-	
-	private static final Logger logger = Logger.getLogger(ScriptParser.class);
+public class ScriptParser extends AbstractBusComponent<String>
+implements ArooaSessionAware {
 	
     /**
      * Keep the format of a SQL block.
@@ -69,11 +61,6 @@ implements ArooaSessionAware, BusAware {
 	 */
 	private InputStream input;
 	
-	/**
-	 * Where to send parsed SQL.
-	 */
-	private Destination<? super String> to;
-		
 	/**
 	 * Stop flag.
 	 */
@@ -174,9 +161,23 @@ implements ArooaSessionAware, BusAware {
 		this.encoding = encoding;
 	}
 
-	public void go() throws BusException {
+	public void go() throws BusException, IOException {
 
 		stop = false;
+		
+		startBus();
+		
+		try {
+			doProcessing();
+			
+	        stopBus();
+		}
+		finally {
+			input.close();
+		}
+	}
+	
+	protected void doProcessing() throws BusException {
 		
         StringBuffer sql = new StringBuffer();
         
@@ -213,7 +214,7 @@ implements ArooaSessionAware, BusAware {
                 try {
 					line = replaceProperties(line);
 				} catch (ArooaConversionException e) {
-					throw new BadBeanException(line, e);
+					throw new IllegalArgumentException(line, e);
 				}
             }
             if (!keepFormat) {
@@ -259,14 +260,18 @@ implements ArooaSessionAware, BusAware {
         }
 	}
 
+	@Override
+	protected void requestStopBus() throws BusCrashException {
+		stop();
+	}
+	
 	/**
-	 * 
 	 * @param sql
-	 * @throws BadBeanException
+	 * 
 	 * @throws BusCrashException
 	 */
-	private void dispatch(String sql) throws BadBeanException, BusCrashException {
-		to.accept(sql);
+	private void dispatch(String sql) throws BusCrashException {
+		accept(sql);
 	}
 	
 	String replaceProperties(String line) throws ArooaConversionException {
@@ -274,41 +279,7 @@ implements ArooaSessionAware, BusAware {
 		ParsedExpression parsed = lineParser.parse(line);
 		return parsed.evaluate(session, String.class);
 	}
-	
-	@Override
-	public void setBeanBus(BusConductor bus) {
-		bus.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws BusCrashException {
-				try {
-					input.close();
-				} catch (IOException e) {
-					throw new BusCrashException(e);
-				}
-			}
-						
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
-				try {
-					input.close();
-				} catch (IOException ioe) {
-					logger.error(ioe);
-				}
-				
-			}
-		});
-	}
-	
-	public void setTo(Destination<? super String> to) {
-		this.to = to;
-	}
-	
+		
 	public void stop() {
 		stop = true;
 	}

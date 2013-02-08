@@ -10,12 +10,11 @@ import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BeanSheetTest.Fruit;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
@@ -63,7 +62,7 @@ public class SQLResultsSheetTest extends TestCase {
 		}
 	}
 
-	public void testNoHeaders() throws BadBeanException, BusCrashException {
+	public void testNoHeaders() throws BusCrashException {
 		
 		SQLResultsSheet test = new SQLResultsSheet();
 		
@@ -82,7 +81,7 @@ public class SQLResultsSheetTest extends TestCase {
 		bus.busListener.busStarting(new BusEvent(bus));
 		bus.busListener.tripBeginning(new BusEvent(bus));
 		
-		test.accept(Arrays.asList(values));
+		test.add(Arrays.asList(values));
 		
 		bus.busListener.tripEnding(new BusEvent(bus));
 		bus.busListener.busStopping(new BusEvent(bus));

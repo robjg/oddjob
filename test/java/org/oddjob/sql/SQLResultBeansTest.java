@@ -3,14 +3,11 @@ package org.oddjob.sql;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusCrashException;
-
 import junit.framework.TestCase;
 
 public class SQLResultBeansTest extends TestCase {
 
-	public void testRows() throws BadBeanException, BusCrashException {
+	public void testRows() {
 		
 		List<String> list = new ArrayList<String>();
 		list.add("apple");
@@ -18,7 +15,7 @@ public class SQLResultBeansTest extends TestCase {
 		
 		SQLResultsBean test = new SQLResultsBean();
 		
-		test.accept(list);
+		test.add(list);
 		
 		Object[] row = test.getRows();
 		
@@ -26,13 +23,13 @@ public class SQLResultBeansTest extends TestCase {
 		assertEquals("orange", row[1]);
 	}
 	
-	public void testEmptyRows() throws BadBeanException, BusCrashException {
+	public void testEmptyRows() {
 		
 		List<String> list = new ArrayList<String>();
 		
 		SQLResultsBean test = new SQLResultsBean();
 		
-		test.accept(list);
+		test.add(list);
 		
 		Object[] row = test.getRows();
 		

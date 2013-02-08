@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -22,13 +23,13 @@ import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BadBeanException;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusAware;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusListenerAdapter;
-import org.oddjob.beanbus.BusCrashException;
 
 /**
  * Handles the execution of a single SQL statement at a time.
@@ -36,8 +37,8 @@ import org.oddjob.beanbus.BusCrashException;
  * @author rob
  *
  */
-public class ParameterisedExecutor 
-implements ArooaSessionAware, SQLExecutor, BusAware  {
+public class ParameterisedExecutor extends AbstractDestination<String> 
+implements ArooaSessionAware, BusAware  {
 
 	private static final Logger logger = Logger.getLogger(SQLJob.class);
 	
@@ -57,7 +58,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     private int executedSQLCount = 0;
 
     /** The to pass results to. */
-	private SQLResultsProcessor resultProcessor;
+	private Collection<Object> resultProcessor;
 
 	/** The statement. */
 	private PreparedStatement statement;
@@ -73,22 +74,26 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     /** The session. */
 	private transient ArooaSession session;
 	
+	private BusConductor busConductor;
+	
+	
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}
 	
 	@Override
-	public void accept(String sql) throws BadBeanException, BusCrashException {
+	public boolean add(String sql) {
     	try {
     		execute(sql);
+    		
+    		busConductor.cleanBus();
     	} 
-    	catch (BadBeanException e) {
-    		throw e;
-    	}
     	catch (Exception e) {
-    		throw new BadBeanException(sql, e);
+    		throw new IllegalArgumentException(sql, e);
     	}
+    	
+    	return true;
     }
     
     /**
@@ -130,7 +135,21 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			parameterHandler.postExecute();
 			
 			ResultSet results = statement.getResultSet();
-			if (results != null) {
+			
+			if (results == null) {
+				
+				int updateCount = statement.getUpdateCount();
+				logger.info("" + updateCount + " row(s) affected.");
+				
+				if (resultProcessor != null) {
+					resultProcessor.add(new UpdateCount(updateCount));
+				}
+			}
+			else if (resultProcessor == null) {
+				
+				logger.info("No result processor, discarding reults.");
+			}
+			else {
 				
 				PropertyAccessor accessor = session.getTools(
 						).getPropertyAccessor().accessorWithConversions(
@@ -144,12 +163,8 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 				List<?> rows= beanFactory.all();
 
 				logger.info("" + rows.size() + " row(s) returned.");
-				resultProcessor.accept(rows);
-			}
-			else {
-				int updateCount = statement.getUpdateCount();
-				logger.info("" + updateCount + " row(s) affected.");
-				resultProcessor.accept(new UpdateCount(updateCount));
+				
+				resultProcessor.add(rows);
 			}
 			
 			++successfulSQLCount;
@@ -276,8 +291,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 			}
     	}
     }
-    
-    
+        
     /**
      * Cancel the statement. Used by {@link SQLJob#stop()}. 
      */
@@ -294,6 +308,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
     
 	@Override
 	public void setBeanBus(BusConductor bus) {
+		this.busConductor = bus;
 		bus.addBusListener(new BusListenerAdapter() {
 			@Override
 			public void busStarting(BusEvent event) throws BusCrashException {
@@ -358,7 +373,7 @@ implements ArooaSessionAware, SQLExecutor, BusAware  {
 	 * 
 	 * @param processor The result processor to pass results to.
 	 */
-	public void setResultProcessor(SQLResultsProcessor processor) {
+	public void setResultProcessor(Collection<Object> processor) {
 		this.resultProcessor = processor;
 	}
 

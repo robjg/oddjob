@@ -1,20 +1,27 @@
 package org.oddjob.beanbus;
 
-public class FilterSection<F, T> implements Section<F, T>, BusAware {
+import java.util.Collection;
+
+public class FilterSection<F, T> extends AbstractDestination<F> 
+implements Section<F, T>, BusAware {
 
 	private Filter<? super F, ? extends T> filter;
 
-	private Destination<? super T> to;
+	private Collection<? super T> to;
 	
-	public void accept(F bean) throws BadBeanException, BusCrashException {
+	@Override
+	public boolean add(F bean) {
 
 		T filtered = filter.filter(bean);
 		
 		if (filtered == null) {
-			return;
+			return false;
+		}
+		else {
+			to.add(filtered);
+			return true;
 		}
 		
-		to.accept(filtered);
 	};
 		
 	public Filter<? super F, ? extends T> getFilter() {
@@ -25,11 +32,11 @@ public class FilterSection<F, T> implements Section<F, T>, BusAware {
 		this.filter = filter;
 	}
 
-	public Destination<? super T> getTo() {
+	public Collection<? super T> getTo() {
 		return to;
 	}
 
-	public void setTo(Destination<? super T> receiver) {
+	public void setTo(Collection<? super T> receiver) {
 		this.to = receiver;
 	}
 	
