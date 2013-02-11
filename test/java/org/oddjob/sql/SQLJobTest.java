@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -35,6 +36,8 @@ public class SQLJobTest extends TestCase {
 	
 	public void testSql() throws Exception {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -48,11 +51,12 @@ public class SQLJobTest extends TestCase {
 		buffer.configured();
 		
 		SQLResultsBean beans = new SQLResultsBean();
+		beans.setArooaSession(session);
 		test.setResults(beans);
 		
 		test.setConnection(ct.toValue());
 		test.setInput(buffer.toInputStream());
-		test.setArooaSession(new StandardArooaSession());
+		test.setArooaSession(session);
 		test.run();
 
 		buffer.setText("create table TEST(greeting VARCHAR(20))");

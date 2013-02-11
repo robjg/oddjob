@@ -35,10 +35,6 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 			throw new IllegalStateException("Bus already started.");
 		}
 		
-		if (to == null) {
-			throw new NullPointerException("No To.");
-		}
-		
 		fireBusStarting();
 		
 		started = true;
@@ -75,7 +71,9 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 		
 		try {
-			to.add(bean);
+			if (to != null) {
+				to.add(bean);
+			}
 		}
 		catch (IllegalArgumentException e) {
 			

@@ -65,7 +65,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
-import java.util.Collection;
 
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
@@ -183,7 +182,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 * {@link SQLResultsBean} or {@link SQLResultsSheet}.
 	 * @oddjob.required No, defaults to none. 
 	 */
-	private transient Collection<Object> results;
+	private transient SQLResultHandler results;
 	
 	/** The session. */
 	private transient ArooaSession session;
@@ -236,8 +235,11 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 		
 		BusConductor conductor = parser.getService(
 				BeanBusService.BEAN_BUS_SERVICE_NAME);
-		
-	    executor.setResultProcessor(results);
+
+		if (results != null) {
+			results.setBeanBus(conductor);
+		}
+		executor.setResultProcessor(results);
 		
 	    parser.setArooaSession(session);
 	    
@@ -270,11 +272,11 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 		executor.stop();
 	}
 		
-	public Collection<Object> getResults() {
+	public SQLResultHandler getResults() {
 		return results;
 	}
 
-	public void setResults(Collection<Object> results) {
+	public void setResults(SQLResultHandler results) {
 		this.results = results;
 	}
 	

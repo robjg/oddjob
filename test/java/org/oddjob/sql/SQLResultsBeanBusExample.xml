@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <sql name="Setup Data">
+                    <connection>
+                        <identify id="connection">
+                            <value>
+                                <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                            </value>
+                        </identify>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[
+create table FRUIT(
+   TYPE varchar(16),
+   VARIETY varchar(16),
+   COLOUR varchar(32),
+   SIZE double);
+
+insert into FRUIT values ('Apple', 'Cox', 'Red and Green', 7.6);
+
+insert into FRUIT values ('Orange', 'Jaffa', 'Orange', 9.245);
+        
+				]]></buffer>
+                    </input>
+                </sql>
+                <sql id="select">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[
+select * from FRUIT;
+				]]></buffer>
+                    </input>
+                    <results>
+                        <bean class="org.oddjob.sql.SQLResultsBeanBus">
+                            <to>
+                               <list/>
+                            </to>
+                        </bean>
+                    </results>
+                </sql>
+                <sql name="Shutdown">
+                    <connection>
+                        <value value="${connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[
+shutdown;
+				]]></buffer>
+                    </input>
+                    <results>
+                        <bean class="org.oddjob.sql.SQLResultsBeanBus">
+                            <to>
+                                <identify id="result-list">
+                                    <value>
+                                        <list/>
+                                    </value>
+                                </identify>
+                            </to>
+                        </bean>
+                    </results>
+                </sql>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

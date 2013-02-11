@@ -81,7 +81,7 @@ public class SQLResultsSheetTest extends TestCase {
 		bus.busListener.busStarting(new BusEvent(bus));
 		bus.busListener.tripBeginning(new BusEvent(bus));
 		
-		test.add(Arrays.asList(values));
+		test.writeBeans(Arrays.asList(values));
 		
 		bus.busListener.tripEnding(new BusEvent(bus));
 		bus.busListener.busStopping(new BusEvent(bus));

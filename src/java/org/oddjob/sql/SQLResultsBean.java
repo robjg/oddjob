@@ -3,8 +3,8 @@ package org.oddjob.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
@@ -87,8 +87,10 @@ import org.oddjob.beanbus.BusListenerAdapter;
  * @author rob
  *
  */
-public class SQLResultsBean extends AbstractDestination<Object>
+public class SQLResultsBean extends BeanFactoryResultHandler
 implements BusAware {
+	
+	private static final Logger logger = Logger.getLogger(SQLResultsBean.class);
 	
 	/** 
 	 * @oddjob.property
@@ -109,6 +111,7 @@ implements BusAware {
 	
 	private int updateCount;
 	
+	private List<Object> beans;
 	
 	@ArooaHidden
 	@Override
@@ -124,6 +127,16 @@ implements BusAware {
 			}
 			
 			@Override
+			public void tripBeginning(BusEvent event) throws BusCrashException {
+				beans = new ArrayList<Object>();
+			}
+			
+			@Override
+			public void tripEnding(BusEvent event) throws BusCrashException {
+				addBeans(beans);
+			}
+			
+			@Override
 			public void busTerminated(BusEvent event) {
 				event.getSource().removeBusListener(this);
 			}			
@@ -132,27 +145,33 @@ implements BusAware {
 	}
 	
 	@Override
-	public boolean add(Object bean) {
-		if (bean instanceof List<?>) {
-			List<?> beans = (List<?>) bean;
-			rowSets.add(beans);
-	
-			rowCount += beans.size();
-		}
-		else if (bean instanceof UpdateCount) {
+	protected void accept(Object bean) {
+		
+		if (bean instanceof UpdateCount) {
 			
 			UpdateCount updateCount = (UpdateCount) bean;
 			
 			updateCounts.add(new Integer(updateCount.getCount()));
 			
 			this.updateCount += updateCount.getCount();
+			this.beans = null;
 		}
 		else {
-			throw new IllegalArgumentException("Unexpected bean type: " +
-					bean.getClass());
+			beans.add(bean);
 		}
+	}
+	
+	public void addBeans(List<?> beans) {
 		
-		return true;
+		if (beans != null) {
+			
+			logger.info("Adding rowSets " + rowSets.size() + " of " +
+					beans.size() + " beans.");
+			
+			rowSets.add(beans);
+			
+			rowCount += beans.size();
+		}
 	}
 	
 	/** 

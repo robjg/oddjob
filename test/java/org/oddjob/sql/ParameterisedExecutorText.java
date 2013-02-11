@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.AssertionFailedError;
@@ -18,7 +19,6 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 
@@ -75,18 +75,22 @@ public class ParameterisedExecutorText extends TestCase {
 
 	}
 	
-	private class Results extends AbstractDestination<Object> {
+	private class Results extends BeanFactoryResultHandler {
 
-		Object last;
+		List<Object> beans = new ArrayList<Object>();
 		
 		@Override
-		public boolean add(Object bean) {
-			last = bean;
-			return true;
+		public void setBeanBus(BusConductor busConductor) {
+		}
+		
+		@Override
+		public void accept(Object bean) {
+			if (!(bean instanceof UpdateCount)) {
+				beans.add(bean);
+			}
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void testBeanTypes() throws ArooaConversionException, BusCrashException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);
@@ -105,6 +109,7 @@ public class ParameterisedExecutorText extends TestCase {
 		test.setArooaSession(session);
 		
 		Results results = new Results();
+		results.setArooaSession(session);
 		test.setResultProcessor(results);
 		
 		String create = 
@@ -153,7 +158,7 @@ public class ParameterisedExecutorText extends TestCase {
 		
 		test.add(select);
 		
-		Object bean = ((List<Object>) results.last).get(0);
+		Object bean = results.beans.get(0);
 		
 		PropertyAccessor accessor = session.getTools().getPropertyAccessor();
 		
@@ -175,7 +180,6 @@ public class ParameterisedExecutorText extends TestCase {
 		test.add("shutdown");
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void testNullParameter() throws ArooaConversionException, BusCrashException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);
@@ -195,6 +199,7 @@ public class ParameterisedExecutorText extends TestCase {
 		test.setArooaSession(session);
 		
 		Results results = new Results();
+		results.setArooaSession(session);
 		test.setResultProcessor(results);
 		
 		String create = 
@@ -217,7 +222,7 @@ public class ParameterisedExecutorText extends TestCase {
 		
 		test.add(select);
 		
-		Object bean = ((List<Object>) results.last).get(0);
+		Object bean = results.beans.get(0);
 		
 		PropertyAccessor accessor = session.getTools().getPropertyAccessor();
 		

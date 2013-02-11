@@ -3,14 +3,16 @@ package org.oddjob.jobs;
 import java.io.OutputStream;
 
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
-import org.oddjob.beanbus.BasicBeanBus;
+import org.oddjob.beanbus.BeanBusService;
 import org.oddjob.beanbus.BeanSheet;
-import org.oddjob.beanbus.BusException;
+import org.oddjob.beanbus.IterableBusDriver;
+import org.oddjob.io.StdoutType;
 
 /**
  * @oddjob.description Create a simple listing of the properties of 
@@ -78,9 +80,16 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 		}
 		
 		if (output == null) {
-			throw new NullPointerException("No output.");
+			try {
+				output = new StdoutType().toValue();
+			} catch (ArooaConversionException e) {
+				throw new RuntimeException(e);
+			}
 		}
 
+		IterableBusDriver<Object> iterableBusDriver = 
+				new IterableBusDriver<Object>();
+	
 		final BeanSheet sheet = new BeanSheet();
 		sheet.setArooaSession(session);
 		sheet.setOutput(output);
@@ -91,18 +100,13 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 				return beanView;
 			}
 		});
+		sheet.setBeanBus(iterableBusDriver.getService(
+				BeanBusService.BEAN_BUS_SERVICE_NAME));
 		
-		BasicBeanBus<Iterable<? extends Object>> bus = 
-			new BasicBeanBus<Iterable<? extends Object>>();
-		bus.setTo(sheet);
+		iterableBusDriver.setBeans(beans);
+		iterableBusDriver.setTo(sheet);
 		
-		try {
-			bus.startBus();
-			bus.accept(beans);
-			bus.stopBus();
-		} catch (BusException e) {
-			throw new RuntimeException(e);
-		}
+		iterableBusDriver.run();
 	}
 
 	

@@ -81,7 +81,7 @@ public class BeanSheetTest extends TestCase {
 	
 	String EOL = System.getProperty("line.separator");
 
-	private Object[] createFruit() {
+	private Fruit[] createFruit() {
 		
 		Fruit fruit1 = new Fruit();
 		fruit1.setType("Apple");
@@ -95,24 +95,39 @@ public class BeanSheetTest extends TestCase {
 		fruit2.setColour("Orange");
 		fruit2.setSize(9.245);
 
-		return new Object[] { fruit1, fruit2 };
+		return new Fruit[] { fruit1, fruit2 };
 	}
 	
 	
-	public void testFruitReport() {
+	public void testFruitReport() throws BusCrashException {
 
+		BasicBeanBus<Fruit> bus = new BasicBeanBus<Fruit>();
+		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
-		Object[] values = createFruit(); 
+		Fruit[] values = createFruit(); 
 		
 		BeanSheet test = new BeanSheet();
 		test.setOutput(out);
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
+		test.setBeanBus(bus);
 		
-		test.add(Arrays.asList(values));
+		bus.setTo(test);
+		
+		bus.startBus();
+		
+		for (Fruit bean: values) {
+			bus.accept(bean);
+		}
 
-		test.add(Arrays.asList(values));
+		bus.cleanBus();
+		
+		for (Fruit bean: values) {
+			bus.accept(bean);
+		}
+		
+		bus.stopBus();
 		
 		String expected = 
 			"The Colour     size   type    variety" + EOL + 
@@ -139,7 +154,7 @@ public class BeanSheetTest extends TestCase {
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
 		
-		test.add(Arrays.asList(values));
+		test.writeBeans(Arrays.asList(values));
 
 		String expected = 
 			"Red and Green  7.6    Apple   Cox" + EOL +

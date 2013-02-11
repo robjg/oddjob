@@ -27,7 +27,7 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  * @author rob
  *
  */
-public class BeanSheet extends AbstractDestination<Iterable<?>>
+public class BeanSheet extends AbstractDestination<Object>
 implements BusAware, ArooaSessionAware {
 
 	private static final Logger logger = Logger.getLogger(BeanSheet.class);
@@ -51,6 +51,8 @@ implements BusAware, ArooaSessionAware {
 	private ArooaConverter converter;
 	
 	private BeanViews beanViews;
+	
+	private final List<Object> beans = new ArrayList<Object>();
 
 	@ArooaHidden
 	@Override
@@ -62,7 +64,13 @@ implements BusAware, ArooaSessionAware {
 	}
 
 	@Override
-	public boolean add(Iterable<?> beans) {
+	public boolean add(Object bean) {
+		
+		beans.add(bean);
+		return true;
+	}
+
+	public void writeBeans(Iterable<?> beans) {
 		
 		if (beans == null) {
 			throw new NullPointerException("No beans.");
@@ -94,10 +102,10 @@ implements BusAware, ArooaSessionAware {
 		}		
 
 		out.flush();
-		
-		return true;
 	}
-
+	
+	
+	
 	@Override
 	public void setBeanBus(BusConductor bus) {
 		bus.addBusListener(new BusListenerAdapter() {
@@ -109,6 +117,12 @@ implements BusAware, ArooaSessionAware {
 				}						
 			}
 						
+			@Override
+			public void tripEnding(BusEvent event) throws BusCrashException {
+				writeBeans(beans);
+				beans.clear();
+			}
+			
 			@Override
 			public void busTerminated(BusEvent event) {
 				event.getSource().removeBusListener(this);

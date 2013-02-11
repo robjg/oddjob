@@ -20,6 +20,7 @@ public class StreamPrinter {
 		
 		try {
 			out.write(EOL);
+			out.flush();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -30,6 +31,7 @@ public class StreamPrinter {
 		try {
 			out.write(s.getBytes());
 			out.write(EOL);
+			out.flush();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

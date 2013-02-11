@@ -1,8 +1,8 @@
 package org.oddjob.sql;
 
-import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -10,14 +10,12 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BeanSheet;
 import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListener;
+import org.oddjob.beanbus.BusListenerAdapter;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
 
@@ -53,7 +51,7 @@ import org.oddjob.util.StreamPrinter;
  * @author rob
  *
  */
-public class SQLResultsSheet extends AbstractDestination<Object>
+public class SQLResultsSheet extends BeanFactoryResultHandler
 implements ArooaSessionAware, BusAware {
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsSheet.class);
@@ -78,55 +76,51 @@ implements ArooaSessionAware, BusAware {
 	/** Used to display elapsed time. */
 	private long elapsedTime = System.currentTimeMillis();
 	
+	private final List<Object> beans = new ArrayList<Object>();
+	
 	@Override
 	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
+		super.setArooaSession(session);
 		this.session = session;
 	}
 	
 	@Override
-	public boolean add(Object bean) {
+	protected void accept(Object bean) {
+		
+		beans.add(bean);
+	}
+
+	public void writeBeans(List<Object> beans) {
 		
 		elapsedTime = System.currentTimeMillis() - elapsedTime;
 		
-		if (output == null) {
-			return false;
-		}
-		
-		if (bean instanceof List<?>) {
-			List<?> iterable = (List<?>) bean;
+		if (beans.size() > 0 && 
+				beans.get(0) instanceof UpdateCount &&
+				!dataOnly) {
 			
+			UpdateCount updateCount = (UpdateCount) beans.get(0);
+				
+			new StreamPrinter(output).println("[" + updateCount.getCount() + " rows affected, " +
+				elapsedTime + " ms.]");
+		}
+		else {
+		
 			BeanSheet sheet = new BeanSheet();
-			sheet.setOutput(new FilterOutputStream(output) {
-				public void close() throws IOException {};{}
-			});
 			sheet.setArooaSession(session);
 			sheet.setNoHeaders(dataOnly);
-			
-			sheet.add(iterable);			
-			
+			sheet.setOutput(output);
+		
+			sheet.writeBeans(beans);
+		
 			if (!dataOnly) {
 				new StreamPrinter(output).println();
-				new StreamPrinter(output).println("[" + iterable.size() + " rows, " +
+				new StreamPrinter(output).println("[" + beans.size() + " rows, " +
 						elapsedTime + " ms.]");
 			}
 		}
-		else if (bean instanceof UpdateCount) {
-			
-			if (!dataOnly) {
-				UpdateCount updateCount = (UpdateCount) bean;
-					
-				new StreamPrinter(output).println("[" + updateCount.getCount() + " rows affected, " +
-					elapsedTime + " ms.]");
-			}
-		}
-		else {
-			throw new IllegalArgumentException("Unexpected bean type.");
-		}		
-		
-		return true;
 	}
-
+	
 	public OutputStream getOutput() {
 		return output;
 	}
@@ -148,7 +142,7 @@ implements ArooaSessionAware, BusAware {
 	public void setBeanBus(BusConductor bus) {
 		
 		
-		bus.addBusListener(new BusListener() {
+		bus.addBusListener(new BusListenerAdapter() {
 			
 			@Override
 			public void busStarting(BusEvent event) throws BusCrashException {
@@ -168,17 +162,12 @@ implements ArooaSessionAware, BusAware {
 			
 			@Override
 			public void tripEnding(BusEvent event) {
+				writeBeans(beans);
+				beans.clear();
+				
 				if (!dataOnly) {
 					new StreamPrinter(output).println();
 				}
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws BusCrashException {
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
 			}
 			
 			@Override

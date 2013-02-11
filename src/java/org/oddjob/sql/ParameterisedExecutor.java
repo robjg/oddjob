@@ -9,7 +9,6 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -21,7 +20,6 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusAware;
@@ -58,7 +56,7 @@ implements ArooaSessionAware, BusAware  {
     private int executedSQLCount = 0;
 
     /** The to pass results to. */
-	private Collection<Object> resultProcessor;
+	private SQLResultHandler resultProcessor;
 
 	/** The statement. */
 	private PreparedStatement statement;
@@ -142,7 +140,7 @@ implements ArooaSessionAware, BusAware  {
 				logger.info("" + updateCount + " row(s) affected.");
 				
 				if (resultProcessor != null) {
-					resultProcessor.add(new UpdateCount(updateCount));
+					resultProcessor.handleUpdate(updateCount, dialect);
 				}
 			}
 			else if (resultProcessor == null) {
@@ -151,20 +149,7 @@ implements ArooaSessionAware, BusAware  {
 			}
 			else {
 				
-				PropertyAccessor accessor = session.getTools(
-						).getPropertyAccessor().accessorWithConversions(
-								session.getTools().getArooaConverter());
-				
-				ResultSetBeanFactory beanFactory = new ResultSetBeanFactory(
-						results, accessor, 
-						dialect == null ? 
-								new BasicGenericDialect() : dialect);
-
-				List<?> rows= beanFactory.all();
-
-				logger.info("" + rows.size() + " row(s) returned.");
-				
-				resultProcessor.add(rows);
+				resultProcessor.handleResultSet(results, dialect);
 			}
 			
 			++successfulSQLCount;
@@ -363,9 +348,6 @@ implements ArooaSessionAware, BusAware  {
 		        
 			}
 		});
-		if (resultProcessor instanceof BusAware) {
-			((BusAware) resultProcessor).setBeanBus(bus);
-		}
 	}
 	
 	/**
@@ -373,7 +355,7 @@ implements ArooaSessionAware, BusAware  {
 	 * 
 	 * @param processor The result processor to pass results to.
 	 */
-	public void setResultProcessor(Collection<Object> processor) {
+	public void setResultProcessor(SQLResultHandler processor) {
 		this.resultProcessor = processor;
 	}
 

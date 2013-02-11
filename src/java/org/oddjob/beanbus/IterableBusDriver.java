@@ -15,7 +15,7 @@ import org.oddjob.Stoppable;
 public class IterableBusDriver<T> extends AbstractBusComponent<T> 
 implements Runnable, Stoppable {
 
-	private Iterable<T> beans;
+	private Iterable<? extends T> beans;
 	
 	private volatile boolean stop;
 	
@@ -30,7 +30,7 @@ implements Runnable, Stoppable {
 		
 		stop = false;
 		
-		Iterator<T> current = beans.iterator();
+		Iterator<? extends T> current = beans.iterator();
 		
 		try {
 			startBus();
@@ -57,7 +57,7 @@ implements Runnable, Stoppable {
 		stop();
 	}
 	
-	public Iterable<T> getBeans() {
+	public Iterable<? extends T> getBeans() {
 		return beans;
 	}
 
@@ -66,7 +66,7 @@ implements Runnable, Stoppable {
 	 * 
 	 * @param iterable
 	 */
-	public void setBeans(Iterable<T> iterable) {
+	public void setBeans(Iterable<? extends T> iterable) {
 		this.beans = iterable;
 	}
 

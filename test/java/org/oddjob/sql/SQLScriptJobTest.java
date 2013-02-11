@@ -11,6 +11,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
@@ -29,6 +30,8 @@ public class SQLScriptJobTest extends TestCase {
 	
 	public void testSql() throws Exception {
 		
+		ArooaSession session = new StandardArooaSession();
+		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -45,14 +48,17 @@ public class SQLScriptJobTest extends TestCase {
 		SQLJob test = new SQLJob();
 		test.setConnection(ct.toValue());
 		test.setInput(buffer.toInputStream());
-		test.setArooaSession(new StandardArooaSession());
+		test.setArooaSession(session);
 		test.run();
 		
 		SQLJob results = new SQLJob();
+		
 		SQLResultsBean beans = new SQLResultsBean();
+		beans.setArooaSession(session);
+		
 		results.setResults(beans);
 		
-		results.setArooaSession(new StandardArooaSession());
+		results.setArooaSession(session);
 		results.setConnection(ct.toValue());
 		
 		buffer.setText("select * from TEST");
@@ -67,6 +73,8 @@ public class SQLScriptJobTest extends TestCase {
 	
 	
 	public void testInOddjob() throws Exception {
+		
+		ArooaSession session = new StandardArooaSession();
 		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
@@ -83,7 +91,7 @@ public class SQLScriptJobTest extends TestCase {
 		test = new SQLJob();
 		test.setConnection(ct.toValue());
 		test.setInput(buffer.toInputStream());
-		test.setArooaSession(new StandardArooaSession());
+		test.setArooaSession(session);
 		test.run();
 		
 		Oddjob oj = new Oddjob();
@@ -100,8 +108,12 @@ public class SQLScriptJobTest extends TestCase {
 		buffer.configured();
 		
 		test.setInput(buffer.toInputStream());
-		test.setResults(new SQLResultsBean());
-		test.setArooaSession(new StandardArooaSession());
+		
+		SQLResultsBean beans = new SQLResultsBean();
+		beans.setArooaSession(session);
+		
+		test.setResults(beans);
+		test.setArooaSession(session);
 
 		test.run();
 		
