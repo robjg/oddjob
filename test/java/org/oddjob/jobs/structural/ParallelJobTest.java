@@ -136,6 +136,96 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
+	public void testOneObject() throws InterruptedException {
+		
+		Object job1 = new Object();
+
+		DefaultExecutors defaultServices = new DefaultExecutors();
+		
+		ParallelJob test = new ParallelJob();
+		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
+		test.setExecutorService(defaultServices.getPoolExecutor());
+
+		test.setJobs(0, job1);
+		
+		test.run();
+	
+		steps.checkWait();
+		
+		
+		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+		
+		test.hardReset();
+		
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+		
+		test.run();
+		
+		steps.checkWait();
+		
+		defaultServices.stop();
+	}
+	
+	public void testTwoJobsAndAnObject() throws InterruptedException {
+		
+		Object job1 = new Object();
+		FlagState job2 = new FlagState(JobState.COMPLETE);
+		FlagState job3 = new FlagState(JobState.COMPLETE);
+
+		DefaultExecutors defaultServices = new DefaultExecutors();
+		
+		ParallelJob test = new ParallelJob();
+		
+		StateSteps steps = new StateSteps(test);
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
+		test.setExecutorService(defaultServices.getPoolExecutor());
+
+		test.setJobs(0, job1);
+		test.setJobs(1, job2);
+		test.setJobs(2, job3);
+		
+		test.run();
+	
+		steps.checkWait();
+		
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		
+		steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+		
+		test.hardReset();
+		
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());
+		assertEquals(JobState.READY, job3.lastStateEvent().getState());
+		
+		steps.checkNow();
+		
+		steps.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
+		test.run();
+		
+		steps.checkWait();
+		
+		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, job3.lastStateEvent().getState());
+		
+		defaultServices.stop();
+	}
+	
 	public void testThrottledExecution() throws InterruptedException {
 		
 		FlagState job1 = new FlagState(JobState.COMPLETE);

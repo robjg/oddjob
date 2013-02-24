@@ -28,8 +28,6 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.DesignFactory;
@@ -46,11 +44,9 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SessionStateListener;
-import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
-import org.oddjob.arooa.registry.SimpleBeanRegistry;
+import org.oddjob.arooa.registry.LinkedBeanRegistry;
 import org.oddjob.arooa.registry.SimpleComponentPool;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.StandardArooaParser;
@@ -64,6 +60,7 @@ import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNotExecuting;
 import org.oddjob.state.IsStoppable;
@@ -73,7 +70,6 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
 
 
 /**
@@ -338,7 +334,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		
 		ArooaSession existingSession = getArooaSession();
 		
-		PseudoRegistry psudoRegistry = new PseudoRegistry(
+		BeanRegistry psudoRegistry = new LinkedBeanRegistry(
 				existingSession.getBeanRegistry(),
 				existingSession.getTools().getPropertyAccessor(),
 				existingSession.getTools().getArooaConverter());
@@ -777,60 +773,6 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	}
     }
     
-    class PseudoRegistry extends SimpleBeanRegistry {
-    	private final BeanDirectory existingDirectory;    	
-    	    	
-    	PseudoRegistry(BeanDirectory existingDirectory,
-    			PropertyAccessor propertyAccessor,
-    			ArooaConverter converter) {
-    		super(propertyAccessor, converter);
-    		this.existingDirectory = existingDirectory;
-    	}
-    			
-		/**
-		 * First try our local registry then the parent.
-		 * 
-		 */
-    	public Object lookup(String path) {
-			Object component = super.lookup(path);
-			if (component == null) {
-				return existingDirectory.lookup(path);
-			}
-			return component;
-    	}
-    	
-    	@Override
-    	public <T> T lookup(String path, Class<T> required)
-    			throws ArooaConversionException {
-			T component = super.lookup(path, required);
-			if (component == null) {
-				return existingDirectory.lookup(path, required);
-			}
-			return component;
-    	}
-    	
-    	
-    	
-		/**
-		 * This stops serialisation working for child components. Need to revisit
-		 * this if it becomes a requirement!
-		 */
-		public String getIdFor(Object component) {
-			return null;
-		}
-		
-		@Override
-		public synchronized <T> Iterable<T> getAllByType(Class<T> type) {
-			List<T> results = new ArrayList<T>();
-			for (T t : super.getAllByType(type)) {
-				results.add(t);
-			}
-			for (T t : existingDirectory.getAllByType(type)) {
-				results.add(t);
-			}
-			return results;
-		}
-    }
     
     class PseudoComponentPool extends SimpleComponentPool {
     	

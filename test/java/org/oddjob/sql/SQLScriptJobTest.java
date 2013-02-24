@@ -14,6 +14,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.BusService;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
 import org.oddjob.state.ParentState;
@@ -55,6 +56,8 @@ public class SQLScriptJobTest extends TestCase {
 		
 		SQLResultsBean beans = new SQLResultsBean();
 		beans.setArooaSession(session);
+		beans.setBusConductor(results.getServices(
+				).getService(BusService.BEAN_BUS_SERVICE_NAME));
 		
 		results.setResults(beans);
 		
@@ -111,6 +114,8 @@ public class SQLScriptJobTest extends TestCase {
 		
 		SQLResultsBean beans = new SQLResultsBean();
 		beans.setArooaSession(session);
+		beans.setBusConductor(test.getServices(
+				).getService(BusService.BEAN_BUS_SERVICE_NAME));
 		
 		test.setResults(beans);
 		test.setArooaSession(session);

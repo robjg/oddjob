@@ -1,4 +1,4 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.destinations;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -6,6 +6,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
@@ -19,6 +21,11 @@ import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
 import org.oddjob.arooa.reflect.FallbackBeanView;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.beanbus.AbstractDestination;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.BusListenerAdapter;
 
 /**
  * @oddjob.description Create a simple database style report from a list
@@ -28,7 +35,7 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  *
  */
 public class BeanSheet extends AbstractDestination<Object>
-implements BusAware, ArooaSessionAware {
+implements ArooaSessionAware {
 
 	private static final Logger logger = Logger.getLogger(BeanSheet.class);
 	
@@ -54,6 +61,8 @@ implements BusAware, ArooaSessionAware {
 	
 	private final List<Object> beans = new ArrayList<Object>();
 
+	private String name;
+	
 	@ArooaHidden
 	@Override
 	public void setArooaSession(ArooaSession session) {
@@ -106,7 +115,7 @@ implements BusAware, ArooaSessionAware {
 	
 	
 	
-	@Override
+	@Inject
 	public void setBeanBus(BusConductor bus) {
 		bus.addBusListener(new BusListenerAdapter() {
 			
@@ -125,7 +134,6 @@ implements BusAware, ArooaSessionAware {
 			
 			@Override
 			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
 				try {
 					if (output != null) {
 						output.close();
@@ -305,5 +313,24 @@ implements BusAware, ArooaSessionAware {
 		char[] buff = new char[size];
 		Arrays.fill(buff, padding);
 		return new String(buff);
+	}
+	
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+
+		if (name == null) {
+			return getClass().getSimpleName();
+		}
+		else {
+			return name;
+		}
 	}
 }

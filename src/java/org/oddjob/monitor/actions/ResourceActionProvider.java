@@ -29,6 +29,7 @@ public class ResourceActionProvider implements ActionProvider {
 		this.session = session;
 	}
 	
+	@Override
 	public ExplorerAction[] getExplorerActions() {
 		
 		URL[] urls = session.getArooaDescriptor().getClassResolver().getResources(

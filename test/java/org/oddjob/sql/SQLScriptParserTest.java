@@ -6,8 +6,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.beanbus.BeanTrap;
 import org.oddjob.beanbus.BusException;
+import org.oddjob.beanbus.destinations.BeanCapture;
 import org.oddjob.io.BufferType;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
@@ -15,7 +15,7 @@ public class SQLScriptParserTest extends TestCase {
 
 	public void testNoDelimiter() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -28,7 +28,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(1, stmts.size());
 		assertEquals("SIMPLE TEXT", stmts.get(0));
@@ -36,7 +36,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testOneEmptyLine() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -49,7 +49,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(2, stmts.size());
 		assertEquals("LINE ONE", stmts.get(0));
@@ -58,7 +58,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testLotsOfEmptyLines() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -71,7 +71,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(2, stmts.size());
 		assertEquals("LINE ONE", stmts.get(0));
@@ -80,7 +80,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testWindowsLines() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -93,7 +93,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(2, stmts.size());
 		assertEquals("LINE ONE", stmts.get(0));
@@ -102,7 +102,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testComments() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -115,7 +115,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(1, stmts.size());
 		assertEquals("LINE TWO", stmts.get(0));
@@ -123,7 +123,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testDefaultDelimited() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		
@@ -136,7 +136,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(3, stmts.size());
 		assertEquals("ONE", stmts.get(0));
@@ -146,7 +146,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testNonRowDelimiterOnSeperateLine() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setDelimiter("@");
@@ -162,7 +162,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(3, stmts.size());
 		assertEquals("ONE", stmts.get(0));
@@ -172,7 +172,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testGoDelimiter() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setDelimiter("GO");
@@ -187,7 +187,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(3, stmts.size());
 		assertEquals("ONE", stmts.get(0));
@@ -197,7 +197,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testGoDelimiterWithBlankLines() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setDelimiter("GO");
@@ -212,7 +212,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(3, stmts.size());
 		assertEquals("ONE", stmts.get(0));
@@ -222,7 +222,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testGoDelimiterWithBlankLines2() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setDelimiter("GO");
@@ -237,7 +237,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals("ONE", stmts.get(0));
 		assertEquals("TWO", stmts.get(1));
@@ -247,7 +247,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testGoDelimiterWithMultipleLines() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setDelimiter("GO");
@@ -278,7 +278,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals("ONE BANANA", stmts.get(0));
 		assertEquals("TWO  BANANAS", stmts.get(1));
@@ -288,7 +288,7 @@ public class SQLScriptParserTest extends TestCase {
 	
 	public void testReplaceProperties() throws IOException, BusException {
 		
-		BeanTrap<String> results = new BeanTrap<String>();
+		BeanCapture<String> results = new BeanCapture<String>();
 		
 		ScriptParser test = new ScriptParser();
 		test.setExpandProperties(true);
@@ -307,7 +307,7 @@ public class SQLScriptParserTest extends TestCase {
 		
 		test.go();
 		
-		List<String> stmts = results.toValue();
+		List<String> stmts = results.getBeans();
 		
 		assertEquals(1, stmts.size());
 		assertEquals("THIS IS OK", stmts.get(0));

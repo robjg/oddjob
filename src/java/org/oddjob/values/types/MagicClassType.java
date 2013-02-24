@@ -10,7 +10,7 @@ import org.oddjob.arooa.beanutils.MagicBeanDescriptorFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.types.ValueFactory;
-import org.oddjob.beanbus.BeanCopy;
+import org.oddjob.beanbus.destinations.BeanCopy;
 
 /**
  * @oddjob.description Definition for a Magic Bean, which is a bean that 

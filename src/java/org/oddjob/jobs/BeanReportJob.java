@@ -9,9 +9,9 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
-import org.oddjob.beanbus.BeanBusService;
-import org.oddjob.beanbus.BeanSheet;
-import org.oddjob.beanbus.IterableBusDriver;
+import org.oddjob.beanbus.BusService;
+import org.oddjob.beanbus.destinations.BeanSheet;
+import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.io.StdoutType;
 
 /**
@@ -100,8 +100,8 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 				return beanView;
 			}
 		});
-		sheet.setBeanBus(iterableBusDriver.getService(
-				BeanBusService.BEAN_BUS_SERVICE_NAME));
+		sheet.setBeanBus(iterableBusDriver.getServices().getService(
+				BusService.BEAN_BUS_SERVICE_NAME));
 		
 		iterableBusDriver.setBeans(beans);
 		iterableBusDriver.setTo(sheet);

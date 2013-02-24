@@ -3,10 +3,16 @@ package org.oddjob.sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.inject.Inject;
+
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.BusListenerAdapter;
 
 /**
  * A {@link SQLResultHandler} that creates beans.
@@ -18,6 +24,8 @@ abstract public class BeanFactoryResultHandler
 implements SQLResultHandler, ArooaSessionAware {
 
 	private PropertyAccessor accessor;
+	
+	private volatile boolean stop;
 	
 	@ArooaHidden
 	@Override
@@ -41,7 +49,7 @@ implements SQLResultHandler, ArooaSessionAware {
 				dialect == null ? 
 						new BasicGenericDialect() : dialect);
 
-		for (Object next = beanFactory.next(); next != null; 
+		for (Object next = beanFactory.next(); !stop && next != null; 
 				next = beanFactory.next()) {
 			accept(next);
 		}
@@ -55,4 +63,20 @@ implements SQLResultHandler, ArooaSessionAware {
 	
 	abstract protected void accept(Object bean);
 	
+	@Inject
+	public void setBusConductor(BusConductor busConductor) {
+
+		busConductor.addBusListener(new BusListenerAdapter() {
+			
+			@Override
+			public void busStarting(BusEvent event) throws BusCrashException {
+				stop = false;
+			}
+			
+			@Override
+			public void busStopRequested(BusEvent event) {
+				stop = true;
+			}
+		});
+	}
 }

@@ -4,13 +4,12 @@ import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.registry.ServiceProvider;
-import org.oddjob.arooa.registry.Services;
 
 /**
  * A base class for Jobs and Services that provide an {@link BeanBus}.
  * <p>
  * Implementations must ensure {@link #startBus() and {@link stopBus()}
- * are called and must provide a {@link #requestStopBus()} method.
+ * are called and must provide a {@link #stopTheBus()} method.
  * 
  * 
  * @author rob
@@ -18,20 +17,25 @@ import org.oddjob.arooa.registry.Services;
  * @param <T> The type of beans on the bus.
  */
 abstract public class AbstractBusComponent<T> 
-implements BeanBusService, ServiceProvider {
+implements BusServiceProvider, ServiceProvider {
 	
 	private static final Logger logger = Logger.getLogger(AbstractBusComponent.class);
 	
 	private final BasicBeanBus<T> beanBus = new BasicBeanBus<T>(
-			new BeanBusCommand() {
+			new Runnable() {
 				@Override
-				public void run() throws BusCrashException {
-					requestStopBus();
+				public void run() {
+					stopTheBus();
 				}
-			});
+			}) {
+		public String toString() {
+			return BasicBeanBus.class.getSimpleName() + " for " + 
+					AbstractBusComponent.this.toString();
+		}
+	};
 	
 	protected void startBus() throws BusCrashException {
-		logger.info("Starting Bus.");
+		logger.debug("Starting Bus.");
 		beanBus.startBus();
 	}
 	
@@ -40,36 +44,23 @@ implements BeanBusService, ServiceProvider {
 	}
 	
 	protected void stopBus() throws BusCrashException {
-		logger.info("Stopping Bus.");
+		logger.debug("Stopping Bus.");
 		beanBus.stopBus();
 	}
 
-	protected abstract void requestStopBus() throws BusCrashException;
-	
-	@Override
-	public BusConductor getService(String serviceName)
-			throws IllegalArgumentException {
-		if (BEAN_BUS_SERVICE_NAME.equals(serviceName)) {
-			return beanBus;
-		}
-		else {
-			return null;
-		}
+	protected void requestBusStop() {
+		beanBus.requestBusStop();
 	}
 	
-	@Override
-	public String serviceNameFor(Class<?> theClass, String flavour) {
-		if (BeanBusService.class == theClass) {
-			return BEAN_BUS_SERVICE_NAME;
-		}
-		else {
-			return null;
-		}
-	}
+	/**
+	 * Implementation override this to perform the action of 
+	 * stopping the bus.
+	 */
+	protected abstract void stopTheBus();
 	
 	@Override
-	public Services getServices() {
-		return this;
+	public BusService getServices() {
+		return new BusService(beanBus);
 	}
 		
 	/**

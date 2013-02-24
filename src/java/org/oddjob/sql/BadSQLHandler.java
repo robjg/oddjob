@@ -1,16 +1,15 @@
 package org.oddjob.sql;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BadBeanTransfer;
-import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.sql.SQLJob.OnError;
 
 public class BadSQLHandler 
-extends AbstractDestination<BadBeanTransfer<String>>
-implements BusAware {
+extends AbstractDestination<BadBeanTransfer<String>> {
 
 	private static final Logger logger = Logger.getLogger(BadSQLHandler.class);
 	
@@ -18,7 +17,7 @@ implements BusAware {
 	
 	private BusConductor bus;
 	
-	@Override
+	@Inject
 	public void setBeanBus(BusConductor bus) {
 		this.bus = bus;
 	}
@@ -40,11 +39,7 @@ implements BusAware {
 		case CONTINUE:
 			break;
 		case STOP:
-			try {
 				bus.requestBusStop();
-			} catch (BusCrashException e) {
-				throw new RuntimeException(e);
-			}
 			break;
 		case ABORT:
 			logger.error("Aborting...");

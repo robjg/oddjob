@@ -11,6 +11,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
@@ -22,7 +24,6 @@ import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.AbstractDestination;
-import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
@@ -36,7 +37,7 @@ import org.oddjob.beanbus.BusListenerAdapter;
  *
  */
 public class ParameterisedExecutor extends AbstractDestination<String> 
-implements ArooaSessionAware, BusAware  {
+implements ArooaSessionAware {
 
 	private static final Logger logger = Logger.getLogger(SQLJob.class);
 	
@@ -276,25 +277,14 @@ implements ArooaSessionAware, BusAware  {
 			}
     	}
     }
-        
-    /**
-     * Cancel the statement. Used by {@link SQLJob#stop()}. 
-     */
-    public void stop() {
-    	Statement stmt = this.statement;
-    	if (stmt != null) {
-    		try {
-				stmt.cancel();
-			} catch (SQLException e) {
-				logger.debug("Failed to cancel.", e);
-			}
-    	}
-    }
-    
-	@Override
+            
+	@Inject
 	public void setBeanBus(BusConductor bus) {
 		this.busConductor = bus;
 		bus.addBusListener(new BusListenerAdapter() {
+			
+			private boolean rollbackOnly;
+			
 			@Override
 			public void busStarting(BusEvent event) throws BusCrashException {
 				if (connection == null) {
@@ -307,20 +297,43 @@ implements ArooaSessionAware, BusAware  {
 				catch (SQLException e) {
 					throw new BusCrashException(e);
 				}
+				rollbackOnly = false;
 				successfulSQLCount = 0;
 				executedSQLCount = 0;
 			}
+			
+			@Override
+			public void busStopRequested(BusEvent event) {
+		    	Statement stmt = ParameterisedExecutor.this.statement;
+		    	if (stmt != null) {
+		    		try {
+						stmt.cancel();
+					} catch (SQLException e) {
+						logger.debug("Failed to cancel.", e);
+					}
+		    	}
+		    	rollbackOnly = true;
+			}
+			
 			@Override
 			public void busStopping(BusEvent event) throws BusCrashException {
         		if (!isAutocommit()) {
 		        	try {
-						connection.commit();
-						logger.info("Connection committed.");
+		        		if (rollbackOnly) {
+		        			connection.rollback();
+							logger.info("Connection Rolled Back.");
+		        		}
+		        		else {
+							connection.commit();
+							logger.info("Connection committed.");
+		        		}
 					} catch (SQLException e) {
-						throw new BusCrashException("Failed to commit.", e);
+						throw new BusCrashException(
+								"Failed to Commit/Rollback.", e);
 					}
         		}
 			}
+			
 			@Override
 			public void busCrashed(BusEvent event, BusException e) {
 				if (connection != null && !isAutocommit()) {
@@ -334,8 +347,6 @@ implements ArooaSessionAware, BusAware  {
 			}
 			@Override
 			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
-				
 				if (connection != null) {
 					try {
 						connection.close();

@@ -19,6 +19,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.BusService;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
 import org.oddjob.jobs.BeanReportJob;
@@ -52,6 +53,8 @@ public class SQLJobTest extends TestCase {
 		
 		SQLResultsBean beans = new SQLResultsBean();
 		beans.setArooaSession(session);
+		beans.setBusConductor(test.getServices(
+				).getService(BusService.BEAN_BUS_SERVICE_NAME));
 		test.setResults(beans);
 		
 		test.setConnection(ct.toValue());
@@ -267,7 +270,7 @@ public class SQLJobTest extends TestCase {
 				"org/oddjob/sql/SqlJobContinueOnFailureTest.xml",
 				getClass().getClassLoader()));
 		
-		oddjob.setArgs(new String[] { "STOP", "false" });
+		oddjob.setArgs(new String[] { "STOP", "true" });
 		oddjob.run();
 
 		assertEquals(ParentState.COMPLETE, 

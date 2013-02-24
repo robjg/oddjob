@@ -1,4 +1,4 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.destinations;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -50,7 +50,7 @@ public class BeanCopyTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/beanbus/BeanCopyNoClass.xml", getClass()
+				"org/oddjob/beanbus/destinations/BeanCopyNoClass.xml", getClass()
 						.getClassLoader()));
 		oddjob.setExport("iterable", new ArooaObject(in));
 		
@@ -87,7 +87,7 @@ public class BeanCopyTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/beanbus/BeanCopyMagicClass.xml", getClass()
+				"org/oddjob/beanbus/destinations/BeanCopyMagicClass.xml", getClass()
 						.getClassLoader()));
 		oddjob.setExport("iterable", new ArooaObject(in));
 		
@@ -142,7 +142,7 @@ public class BeanCopyTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/beanbus/BeanCopyJavaClass.xml", getClass()
+				"org/oddjob/beanbus/destinations/BeanCopyJavaClass.xml", getClass()
 						.getClassLoader()));
 		oddjob.setExport("iterable", new ArooaObject(in));
 		

@@ -66,7 +66,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	
 	private static final long serialVersionUID = 2012091900L;
 
-	protected transient ChildHelper<Runnable> childHelper; 
+	protected transient ChildHelper<Object> childHelper; 
 	
 	/** The executor to use. */
 	private volatile transient ExecutorService executorService;
@@ -93,7 +93,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	}
 	
 	private void completeConstruction() {
-		childHelper = new ChildHelper<Runnable>(this);
+		childHelper = new ChildHelper<Object>(this);
 	}
 		
 	/**
@@ -115,14 +115,22 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 		
 		actions = new ArrayList<JobButtonAction>();
 		
-		Runnable[] jobs = childHelper.getChildren(new Runnable[0]);
+		Object[] jobs = childHelper.getChildren();
 		
 		int rows = (int) Math.ceil((double) jobs.length / columns);
 		
 		JPanel panel = new JPanel(new GridLayout(rows, columns, 10, 10));
 				
-		for (final Runnable job : jobs) {
+		for (Object child : jobs) {
 		
+			if (! (child instanceof Runnable)) {
+				logger().info("Child [" + child + 
+						"] is not Runnable - ignoring.");
+				continue;
+			}
+			
+			final Runnable job = (Runnable) child;
+
 			JobButtonAction action = new JobButtonAction(job);
 			
 			actions.add(action);

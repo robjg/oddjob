@@ -2,6 +2,8 @@ package org.oddjob.beanbus;
 
 import java.util.List;
 
+import org.oddjob.beanbus.destinations.BeanCapture;
+
 import junit.framework.TestCase;
 
 public class BasicBeanBusTest extends TestCase {
@@ -44,12 +46,18 @@ public class BasicBeanBusTest extends TestCase {
 		public void busCrashed(BusEvent event, BusException e) {
 			++crashed;
 		}
+		
+		@Override
+		public void busStopRequested(BusEvent event) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	
 	public void testStandardLifecycle() throws BusException {
 		
-		BeanTrap<String> trap = new BeanTrap<String>();
+		BeanCapture<String> trap = new BeanCapture<String>();
 		
 		OurListener listener = new OurListener();
 		
@@ -74,7 +82,7 @@ public class BasicBeanBusTest extends TestCase {
 		assertEquals(1, listener.terminated);
 		assertEquals(0, listener.crashed);
 		
-		List<String> results = trap.toValue();
+		List<String> results = trap.getBeans();
 		
 		assertEquals("apple", results.get(0));
 	}
@@ -126,7 +134,7 @@ public class BasicBeanBusTest extends TestCase {
 	
 	public void testCleaningLifecycle() throws BusException {
 		
-		BeanTrap<String> trap = new BeanTrap<String>();
+		BeanCapture<String> trap = new BeanCapture<String>();
 		
 		OurListener listener = new OurListener();
 		
@@ -194,7 +202,7 @@ public class BasicBeanBusTest extends TestCase {
 	
 	public void testBusState() throws BusException {
 		
-		BeanTrap<String> trap = new BeanTrap<String>();
+		BeanCapture<String> trap = new BeanCapture<String>();
 		
 		OurListener listener = new OurListener();
 		

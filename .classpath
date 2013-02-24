@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="test/java"/>
 	<classpathentry kind="src" path="tools/java"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/projects.arooa"/>
-	<classpathentry kind="lib" path="test/lib/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="test/lib/hsqldb.jar"/>
 	<classpathentry exported="true" kind="lib" path="opt/lib/commons-io-2.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v7.0">

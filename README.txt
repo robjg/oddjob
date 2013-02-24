@@ -3,9 +3,15 @@ Oddjob-1.3.0
 
 Changes in 1.3.0
 ----------------
+
+- Add a bean-bus element that supports constructing arbitory bean busses.
+- Change SQLJob to support bean bus components allowing result beans to be 
+  streamed into any Collection - most usefully a Queue.
+- Many improvements to the BeanBus framework including changing bean bus
+  destinations to be any Collection.
 - Improve support for Magic Beans which are beans that can be created
   dynamically within Oddjob.
-- Upgrade HSQL lib to 2.2.9.
+- Upgraded HSQL lib to 2.2.9.
 - Add a zero length string check to Check Job. Also added a Designer.
 - Added a Grep Job that can search files or any other input for text or
   a regular expression.

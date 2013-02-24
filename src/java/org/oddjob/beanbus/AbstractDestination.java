@@ -58,7 +58,7 @@ abstract public class AbstractDestination<E> implements Collection<E>  {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends E> c) {
+	final public boolean addAll(Collection<? extends E> c) {
 		for (E e : c) {
 			add(e);
 		}

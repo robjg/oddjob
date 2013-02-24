@@ -1,7 +1,16 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.destinations;
 
 import java.util.Collection;
 import java.util.List;
+
+import javax.inject.Inject;
+
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.beanbus.AbstractDestination;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.BusListenerAdapter;
 
 /**
  * Provide batching of beans. Unfinished and untested.
@@ -10,8 +19,7 @@ import java.util.List;
  *
  * @param <T>
  */
-public class Batcher<T> extends AbstractDestination<T>
-implements BusAware {
+public class Batcher<T> extends AbstractDestination<T> {
 
 	private int batchSize;
 
@@ -43,7 +51,8 @@ implements BusAware {
 		batch.clear();
 	}
 
-	@Override
+	@ArooaHidden
+	@Inject
 	public void setBeanBus(BusConductor driver) {
 		
 		driver.addBusListener(new BusListenerAdapter() {
@@ -53,16 +62,8 @@ implements BusAware {
 				dispatch();				
 			}
 			
-			@Override
-			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
-			}
-			
 		});
 		
-		if (next instanceof BusAware) {
-			((BusAware) next).setBeanBus(driver);
-		}
 	}
 	
 	public int getBatchSize() {

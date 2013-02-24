@@ -47,7 +47,7 @@ public class SQLResultBeansTest extends TestCase {
 		BasicBeanBus<String> beanBus = new BasicBeanBus<String>();
 		
 		test.setArooaSession(new StandardArooaSession());
-		test.setBeanBus(beanBus);
+		test.setBusConductor(beanBus);
 		
 		beanBus.startBus();
 		

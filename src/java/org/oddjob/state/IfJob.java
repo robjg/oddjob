@@ -74,7 +74,7 @@ public class IfJob extends StructuralJob<Object>
 	 * @oddjob.required At least one.
 	 */
 	@ArooaComponent
-	public void setJobs(int index, Runnable job) {
+	public void setJobs(int index, Object job) {
 	    if (job == null) {
 	    	childHelper.removeChildAt(index);
 	    }
@@ -116,8 +116,20 @@ public class IfJob extends StructuralJob<Object>
 		if (childHelper.size() < 1) {
 			return;
 		}
+
+		Object child = childHelper.getChildAt(0);
+		if (!(child instanceof Stateful)) {
+			logger().info("Child [" + child + 
+					"] is not Stateful - ignoring.");
+			return;
+		}
+		if (!(child instanceof Runnable)) {
+			logger().info("Child [" + child + 
+					"] is not Runnable - ignoring.");
+			return;
+		}
 		
-		Stateful depends = (Stateful) childHelper.getChildAt(0);
+		Stateful depends = (Stateful) child;
 		
 		((Runnable) depends).run();
 		

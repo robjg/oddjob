@@ -1,8 +1,12 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.drivers;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Stoppable;
+import org.oddjob.beanbus.AbstractBusComponent;
+import org.oddjob.beanbus.BeanBus;
+import org.oddjob.beanbus.BusException;
 
 /**
  * A Runnable that can be used as an Oddjob job to take beans from an
@@ -15,11 +19,17 @@ import org.oddjob.Stoppable;
 public class IterableBusDriver<T> extends AbstractBusComponent<T> 
 implements Runnable, Stoppable {
 
+	private static final Logger logger = Logger.getLogger(IterableBusDriver.class);
+	
 	private Iterable<? extends T> beans;
 	
 	private volatile boolean stop;
 	
 	private String name;
+	
+	private volatile int count;
+	
+	private volatile Thread executionThread;
 	
 	@Override
 	public void run() {
@@ -35,12 +45,26 @@ implements Runnable, Stoppable {
 		try {
 			startBus();
 		
-			while (!stop && current.hasNext()) {
+			while (!stop) {
+				synchronized (this) {
+					executionThread = Thread.currentThread(); 
+				}
+				if (!current.hasNext()) {
+					break;
+				}
+				synchronized (this) {
+					executionThread = null;
+					Thread.interrupted();
+				}
 				
 				accept(current.next());
+				
+				++count;
 			}			
 			
 			stopBus();
+			
+			logger.info("Accepted " + count + " beans.");
 		} 
 		catch (BusException e) {
 				throw new RuntimeException(e);
@@ -49,12 +73,18 @@ implements Runnable, Stoppable {
 	
 	@Override
 	public void stop() {
-		this.stop = true;
+		requestBusStop();
 	}
 	
 	@Override
-	protected void requestStopBus() throws BusCrashException {
-		stop();
+	protected void stopTheBus() {
+		this.stop = true;
+		synchronized (this) {
+			if (executionThread != null) {
+				logger.debug("Interrupting execution thread.");
+				executionThread.interrupt();
+			}
+		}
 	}
 	
 	public Iterable<? extends T> getBeans() {
@@ -76,6 +106,10 @@ implements Runnable, Stoppable {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public int getCount() {
+		return count;
 	}
 	
 	@Override

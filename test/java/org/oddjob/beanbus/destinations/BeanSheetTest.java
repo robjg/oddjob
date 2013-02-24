@@ -1,4 +1,4 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.destinations;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
@@ -9,6 +9,9 @@ import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.beanbus.BasicBeanBus;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.destinations.BeanSheet;
 
 public class BeanSheetTest extends TestCase {
 

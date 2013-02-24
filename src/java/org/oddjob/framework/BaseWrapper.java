@@ -46,7 +46,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
      * 
      * @return The component being proxied.
      */
-	abstract public Object getWrapped();
+	abstract protected Object getWrapped();
 	
 	/**
 	 * Sub classes must provide a dyna bean for properties.

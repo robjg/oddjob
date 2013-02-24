@@ -21,7 +21,7 @@ import org.oddjob.state.ParentState;
  * @author rob
  *
  */
-abstract public class SimultaneousStructural extends StructuralJob<Runnable> 
+abstract public class SimultaneousStructural extends StructuralJob<Object> 
 implements Stoppable {
 
 	private static final long serialVersionUID = 2009031800L;
@@ -57,7 +57,7 @@ implements Stoppable {
 	 * @param child A child
 	 */
 	@ArooaComponent
-	public void setJobs(int index, Runnable child) {
+	public void setJobs(int index, Object child) {
 	    logger().debug(
 	    		"Adding child [" + 
 	    		child + "], index [" + 
@@ -91,12 +91,21 @@ implements Stoppable {
 		
 		futures = new ArrayList<Future<?>>();
 		
-		for (Runnable child : childHelper) {
+		for (Object child : childHelper) {
 			if (stop) {
 				break;
 			}
+			
+			if (!(child instanceof Runnable)) {
+				logger().info("Child [" + child + 
+						"] is not Runnable - ignoring.");
+				continue;
+			}
+
+			Runnable job = (Runnable) child;
+			
 			Future<?> future = executorService.submit(
-					executionWatcher.addJob(child));
+					executionWatcher.addJob(job));
 			futures.add(future);
 		}
 		

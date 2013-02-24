@@ -1079,12 +1079,38 @@ implements Loadable,
 	 * The object which is the Oddjob root.
 	 *
 	 */
-	public class OddjobRoot implements Stateful, ServiceProvider {
+	public class OddjobRoot implements Stateful, ServiceProvider, 
+			ConfigurationOwner {
 		
 		private final OddjobServices oddjobServices;
 		
 		OddjobRoot(OddjobServices services) {
 			this.oddjobServices = services;
+		}
+		
+		@Override
+		public void addOwnerStateListener(OwnerStateListener listener) {
+			Oddjob.this.addOwnerStateListener(listener);
+		}
+		
+		@Override
+		public void removeOwnerStateListener(OwnerStateListener listener) {
+			Oddjob.this.removeOwnerStateListener(listener);
+		}
+
+		@Override
+		public DesignFactory rootDesignFactory() {
+			return Oddjob.this.rootDesignFactory();
+		}
+	
+		@Override
+		public ArooaElement rootElement() {
+			return Oddjob.this.rootElement();
+		}
+		
+		@Override
+		public ConfigurationSession provideConfigurationSession() {
+			return Oddjob.this.provideConfigurationSession();
 		}
 		
 	    public void setJob(Object child) {

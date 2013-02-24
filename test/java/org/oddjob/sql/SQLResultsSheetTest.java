@@ -10,11 +10,9 @@ import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.beanbus.BeanSheetTest.Fruit;
-import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListener;
+import org.oddjob.beanbus.destinations.BeanSheetTest.Fruit;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
@@ -32,36 +30,6 @@ public class SQLResultsSheetTest extends TestCase {
 		logger.info("-----------------------------  " + getName() + "  ----------------");
 	}
 		
-	private class OurBus implements BusConductor {
-
-		BusListener busListener;
-		
-		@Override
-		public void addBusListener(BusListener listener) {
-			assertNull(this.busListener);
-			assertNotNull(listener);
-			
-			this.busListener = listener;
-		}
-		
-		@Override
-		public void removeBusListener(BusListener listener) {
-			assertEquals(this.busListener, listener);
-			assertNotNull(listener);
-			this.busListener = null;
-		}
-
-		@Override
-		public void cleanBus() throws BusCrashException {
-			throw new RuntimeException("Unexpected.");
-		}
-		
-		@Override
-		public void requestBusStop() {
-			throw new RuntimeException("Unexpected.");
-		}
-	}
-
 	public void testNoHeaders() throws BusCrashException {
 		
 		SQLResultsSheet test = new SQLResultsSheet();
@@ -74,27 +42,20 @@ public class SQLResultsSheetTest extends TestCase {
 		test.setDataOnly(true);
 		test.setArooaSession(new StandardArooaSession());
 		
-		OurBus bus = new OurBus();
+		BasicBeanBus<Object> bus = new BasicBeanBus<Object>();
 		
-		test.setBeanBus(bus);
+		test.setBusConductor(bus);
 		
-		bus.busListener.busStarting(new BusEvent(bus));
-		bus.busListener.tripBeginning(new BusEvent(bus));
-		
+		bus.startBus();
 		test.writeBeans(Arrays.asList(values));
 		
-		bus.busListener.tripEnding(new BusEvent(bus));
-		bus.busListener.busStopping(new BusEvent(bus));
-		bus.busListener.busTerminated(new BusEvent(bus));
-		
+		bus.stopBus();
 		
 		String expected = 
 			"Red and Green  7.6    Apple   Cox" + EOL +
 			"Orange         9.245  Orange  Jaffa" + EOL;
 		
 		assertEquals(expected, out.toString());
-		
-		assertNull(bus.busListener);
 	}
 	
 	private Object[] createFruit() {

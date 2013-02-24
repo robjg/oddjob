@@ -44,6 +44,12 @@ public interface BusListener extends EventListener {
 	void busStopping(BusEvent event) throws BusCrashException;
 	
 	/**
+	 * 
+	 * @param event
+	 */
+	void busStopRequested(BusEvent event);
+	
+	/**
 	 * The bus has terminated. Called after either a <code>busStopping</code>
 	 * or <code>busCrashed</code> notification. Always called.
 	 * 

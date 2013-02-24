@@ -5,17 +5,18 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.BeanSheet;
-import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
 
@@ -52,7 +53,7 @@ import org.oddjob.util.StreamPrinter;
  *
  */
 public class SQLResultsSheet extends BeanFactoryResultHandler
-implements ArooaSessionAware, BusAware {
+implements ArooaSessionAware {
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsSheet.class);
 	
@@ -137,12 +138,12 @@ implements ArooaSessionAware, BusAware {
 		this.dataOnly = dataOnly;
 	}
 
-	@Override
 	@ArooaHidden
-	public void setBeanBus(BusConductor bus) {
+	@Inject
+	public void setBusConductor(BusConductor busConductor) {
+		super.setBusConductor(busConductor);
 		
-		
-		bus.addBusListener(new BusListenerAdapter() {
+		busConductor.addBusListener(new BusListenerAdapter() {
 			
 			@Override
 			public void busStarting(BusEvent event) throws BusCrashException {
@@ -169,10 +170,9 @@ implements ArooaSessionAware, BusAware {
 					new StreamPrinter(output).println();
 				}
 			}
-			
+
 			@Override
 			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
 				try {
 					if (output != null) {
 						output.close();

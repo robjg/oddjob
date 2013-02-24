@@ -261,9 +261,11 @@ implements ArooaSessionAware {
 	}
 
 	@Override
-	protected void requestStopBus() throws BusCrashException {
-		stop();
+	protected void stopTheBus() {
+		stop = true;
 	}
+	
+	
 	
 	/**
 	 * @param sql
@@ -281,7 +283,7 @@ implements ArooaSessionAware {
 	}
 		
 	public void stop() {
-		stop = true;
+		requestBusStop();
 	}
 
 	public InputStream getInput() {

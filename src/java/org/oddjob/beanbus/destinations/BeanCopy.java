@@ -1,4 +1,4 @@
-package org.oddjob.beanbus;
+package org.oddjob.beanbus.destinations;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -8,10 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.beanbus.AbstractDestination;
+import org.oddjob.beanbus.BusFilter;
 
 /**
  * Copy the properties of a bean to another bean.
@@ -23,9 +26,11 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  * @param <T>
  */
 public class BeanCopy<F, T> extends AbstractDestination<F>
-implements Section<F, T>, ArooaSessionAware {
+implements BusFilter<F, T>, ArooaSessionAware {
 
 	private static AtomicInteger instance = new AtomicInteger();
+
+	private String name;
 	
 	private ArooaClass arooaClass;
 	
@@ -36,6 +41,7 @@ implements Section<F, T>, ArooaSessionAware {
 	private Map<String, String> mappings = 
 			new LinkedHashMap<String, String>();
 		
+	@ArooaHidden
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		ArooaTools tools = session.getTools();
@@ -104,5 +110,13 @@ implements Section<F, T>, ArooaSessionAware {
 	
 	public void setMappings(String from, String to) {
 		mappings.put(from, to);
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

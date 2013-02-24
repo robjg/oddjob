@@ -11,7 +11,10 @@ public interface BusConductor {
 
 	public void cleanBus() throws BusCrashException;
 	
-	public void requestBusStop() throws BusCrashException;	
+	/**
+	 * Request that the bus stop. This may be called asynchronously.
+	 */
+	public void requestBusStop();	
 	
 	/**
 	 * Add a listener.

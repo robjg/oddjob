@@ -22,6 +22,10 @@ public class BusListenerAdapter implements BusListener {
 	}
 	
 	@Override
+	public void busStopRequested(BusEvent event) {
+	}
+	
+	@Override
 	public void busStopping(BusEvent event) throws BusCrashException {
 	}
 	

@@ -3,9 +3,10 @@ package org.oddjob.sql;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.BusAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
@@ -87,8 +88,7 @@ import org.oddjob.beanbus.BusListenerAdapter;
  * @author rob
  *
  */
-public class SQLResultsBean extends BeanFactoryResultHandler
-implements BusAware {
+public class SQLResultsBean extends BeanFactoryResultHandler {
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsBean.class);
 	
@@ -114,9 +114,11 @@ implements BusAware {
 	private List<Object> beans;
 	
 	@ArooaHidden
-	@Override
-	public void setBeanBus(BusConductor bus) {
-		bus.addBusListener(new BusListenerAdapter() {
+	@Inject
+	public void setBusConductor(BusConductor busConductor) {
+		super.setBusConductor(busConductor);
+		
+		busConductor.addBusListener(new BusListenerAdapter() {
 			
 			@Override
 			public void busStarting(BusEvent event) throws BusCrashException {				
@@ -135,11 +137,6 @@ implements BusAware {
 			public void tripEnding(BusEvent event) throws BusCrashException {
 				addBeans(beans);
 			}
-			
-			@Override
-			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
-			}			
 		});
 		
 	}

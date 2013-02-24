@@ -12,19 +12,19 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	private final List<BusListener> busListeners = 
 			new ArrayList<BusListener>();
 	
-	private Collection<? super T> to;
+	private volatile Collection<? super T> to;
 
 	private boolean started = false;
 	
 	private boolean tripping = false;
 	
-	private final BeanBusCommand stopBusCommand;
+	private final Runnable stopBusCommand;
 	
 	public BasicBeanBus() {
 		this(null);
 	}
 	
-	public BasicBeanBus(BeanBusCommand stopBusCommand) {
+	public BasicBeanBus(Runnable stopBusCommand) {
 		this.stopBusCommand = stopBusCommand;
 	}
 	
@@ -66,8 +66,14 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 			throw new IllegalStateException("Bus not started.");
 		}
 		
+		// if this is the first bean, start the trip.
 		if (!tripping) {
 			tripBegin();
+			
+			// place here so we only log once.
+			if (to == null) {
+				logger.info("To is not set. All beans will be ignored.");
+			}
 		}
 		
 		try {
@@ -108,7 +114,10 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	}
 	
 	@Override
-	public void requestBusStop() throws BusCrashException {
+	public void requestBusStop() {
+		
+		fireBusStopRequested();
+		
 		if (stopBusCommand != null) {
 			stopBusCommand.run();
 		}		
@@ -216,6 +225,16 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 	}
 	
+	protected void fireBusStopRequested() {
+		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		
+		BusEvent event = new BusEvent(this);
+		
+		for (BusListener listener : copy) {
+			listener.busStopRequested(event);
+		}
+	}
+	
 	protected void fireBusStopping() throws BusCrashException {
 		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
 		
@@ -276,7 +295,7 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		this.to = to;
 	}
 
-	public BeanBusCommand getStopBusCommand() {
+	public Runnable getStopBusCommand() {
 		return stopBusCommand;
 	}
 

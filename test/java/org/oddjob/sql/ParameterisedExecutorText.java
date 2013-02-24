@@ -80,10 +80,6 @@ public class ParameterisedExecutorText extends TestCase {
 		List<Object> beans = new ArrayList<Object>();
 		
 		@Override
-		public void setBeanBus(BusConductor busConductor) {
-		}
-		
-		@Override
 		public void accept(Object bean) {
 			if (!(bean instanceof UpdateCount)) {
 				beans.add(bean);

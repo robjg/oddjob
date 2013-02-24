@@ -105,14 +105,17 @@ implements ComponentWrapper, Serializable, Forceable {
 		return stateChanger;
 	}
 	
-	public Object getWrapped() {
+	@Override
+	protected Object getWrapped() {
 		return wrapped;
 	}
 
+	@Override
 	protected DynaBean getDynaBean() {
 		return dynaBean;
 	}
 
+	@Override
 	protected Object getProxy() {
 		return proxy;
 	}

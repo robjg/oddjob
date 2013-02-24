@@ -72,10 +72,11 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BadBeanFilter;
-import org.oddjob.beanbus.BeanBusService;
+import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusException;
+import org.oddjob.beanbus.BusServiceProvider;
+import org.oddjob.beanbus.destinations.BadBeanFilter;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
 
@@ -137,7 +138,8 @@ import org.oddjob.io.FileType;
  * @author rob and Ant.
  */
 public class SQLJob
-implements Runnable, Serializable, ArooaSessionAware, Stoppable {
+implements Runnable, Serializable, ArooaSessionAware, Stoppable,
+		BusServiceProvider {
 	private static final long serialVersionUID = 20051106;
 		
 //	private static final Logger logger = Logger.getLogger(SqlJob.class);
@@ -198,9 +200,16 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 * For serialisation.
 	 */
     private void completeConstruction() {
-    	executor = new ParameterisedExecutor();    	
     	parser = new ScriptParser();
+    	
+    	BusConductor conductor = parser.getServices().getService(
+    			BusService.BEAN_BUS_SERVICE_NAME);
+    	
+    	executor = new ParameterisedExecutor();    	
+    	executor.setBeanBus(conductor);
+    	
     	errorHandler = new BadSQLHandler();     	
+    	errorHandler.setBeanBus(conductor);
     }
 	
 	@Override
@@ -233,29 +242,18 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	 */
 	public void run() {
 		
-		BusConductor conductor = parser.getService(
-				BeanBusService.BEAN_BUS_SERVICE_NAME);
-
-		if (results != null) {
-			results.setBeanBus(conductor);
-		}
 		executor.setResultProcessor(results);
 		
 	    parser.setArooaSession(session);
 	    
 	    executor.setArooaSession(session);
-	    executor.setBeanBus(conductor);
-	    
-	    errorHandler.setBeanBus(conductor);
 	    
     	BadBeanFilter<String> errorFilter = new BadBeanFilter<String>();
     	errorFilter.setBadBeanHandler(errorHandler);
-    	errorFilter.setBeanBus(conductor);
     	
     	parser.setTo(errorFilter);
     	
     	errorFilter.setTo(executor);
-    	errorFilter.setBeanBus(conductor);
     	
     	try {
 	    	parser.go();
@@ -269,13 +267,27 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable {
 	@Override
 	public void stop() {
 		parser.stop();
-		executor.stop();
 	}
-		
+
+	@Override
+	public BusService getServices() {
+		return new BusService(parser);
+	}
+	
+	/**
+	 * Getter for results.
+	 * 
+	 * @return Result Handler. May be null.
+	 */
 	public SQLResultHandler getResults() {
 		return results;
 	}
 
+	/**
+	 * Setter for results.
+	 * 
+	 * @param results Result Handler. May be null.
+	 */
 	public void setResults(SQLResultHandler results) {
 		this.results = results;
 	}
