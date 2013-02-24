@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <queue>
+                        <bean class="org.oddjob.beanbus.destinations.BeanQueue"/>
+                    </queue>
+                </variables>
+                <parallel id="parallel">
+                    <jobs>
+                        <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="producer" name="Producer">
+                            <beans>
+                                <list>
+                                    <values>
+                                        <value value="apple"/>
+                                        <value value="orange"/>
+                                        <value value="pear"/>
+                                    </values>
+                                </list>
+                            </beans>
+                            <to>
+                                <value value="${vars.queue}"/>
+                            </to>
+                        </bean>
+                        <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="consumer" name="Consumer">
+                            <beans>
+                                <value value="${vars.queue}"/>
+                            </beans>
+                            <to>
+                                <list/>
+                            </to>
+                        </bean>
+                    </jobs>
+                </parallel>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
