@@ -12,9 +12,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class SQLResultsBeanBusTest extends TestCase {
+public class SQLResultsBusTest extends TestCase {
 
-	private static final Logger logger = Logger.getLogger(SQLResultsBeanBusTest.class);
+	private static final Logger logger = Logger.getLogger(SQLResultsBusTest.class);
 	
 	@Override
 	protected void setUp() throws Exception {
@@ -28,7 +28,7 @@ public class SQLResultsBeanBusTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/sql/SQLResultsBeanBusExample.xml",
+				"org/oddjob/sql/SQLResultsBusExample.xml",
 				getClass().getClassLoader()));
 		
 		oddjob.run();
@@ -41,6 +41,28 @@ public class SQLResultsBeanBusTest extends TestCase {
 		List<?> results = lookup.lookup("select.results.to", List.class);
 		
 		assertEquals(2, results.size());
+		
+		oddjob.destroy();
+		
+	}
+	
+	public void testExample2() throws ArooaPropertyException, ArooaConversionException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/sql/SQLResultsBusExample2.xml",
+				getClass().getClassLoader()));
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		List<?> results = lookup.lookup("bean-capture.beans", List.class);
+		
+		assertEquals(3, results.size());
 		
 		oddjob.destroy();
 		

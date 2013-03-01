@@ -3,6 +3,7 @@ package org.oddjob.state;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
@@ -28,9 +29,13 @@ public class StructuralStateHelper implements Stateful {
 	private final ParentStateHandler stateHandler = 
 		new ParentStateHandler(this);
 	
-	/** The states of the children. */
-	private final List<StateHolder> states = 
-		new ArrayList<StateHolder>();
+	/** The states of the children. *
+	 * References are required because the position of the children
+	 * can move. The state listener uses a reference instead
+	 * of an index to insert state.
+	 */
+	private final List<AtomicReference<State>> states = 
+		new ArrayList<AtomicReference<State>>();
 	
 	/** The listeners listening to the children. */
 	private final List<StateListener> listeners = 
@@ -39,30 +44,27 @@ public class StructuralStateHelper implements Stateful {
 	/** The {@link StateOperator}. */
 	private StateOperator stateOperator;
 
-	/** Holder is required because the position of the children
-	 * can move. The state listener uses a holder instead
-	 * of an index to insert state.
-	 */
-	class StateHolder {
-		private State state = ParentState.COMPLETE;
-	}
-
 	/**
 	 * Listens to a single child's state.
 	 */
 	class ChildStateListener implements StateListener {
 
-		private final StateHolder holder;
+		private final AtomicReference<State> holder;
 		
-		public ChildStateListener(StateHolder holder) {
+		public ChildStateListener(AtomicReference<State> holder) {
 			this.holder = holder;
 		}
 		
 		@Override
 		public synchronized void jobStateChange(StateEvent event) {
-			holder.state = event.getState();
 			
-			checkStates();
+			State previous = holder.getAndSet(event.getState());
+			
+			// Don't check when listener initially added as this happens
+			// in when child added.
+			if (previous != null) {
+				checkStates();
+			}
 		};
 		
 		@Override
@@ -93,19 +95,23 @@ public class StructuralStateHelper implements Stateful {
 						int index = event.getIndex();
 						Object child = event.getChild();
 		
-						StateHolder stateHolder = new StateHolder();
+						AtomicReference<State> stateHolder = 
+								new AtomicReference<State>();
 		
-						ChildStateListener listener = new ChildStateListener(stateHolder);
-						listeners.add(index, listener);
-						
-						states.add(index, stateHolder);
+						ChildStateListener listener = 
+								new ChildStateListener(stateHolder);
 		
 						if (child instanceof Stateful) {
 							((Stateful) child).addStateListener(listener);
 						}
 						else {
-							checkStates();
+							stateHolder.set(ParentState.COMPLETE);
 						}
+						
+						listeners.add(index, listener);
+						states.add(index, stateHolder);
+						
+						checkStates();
 					}
 				});
 			}
@@ -148,8 +154,8 @@ public class StructuralStateHelper implements Stateful {
 			public void run() {
 				State[] stateArgs = new State[states.size()];
 				int i = 0;
-				for (StateHolder holder : states) {
-					stateArgs[i++] = holder.state; 
+				for (AtomicReference<State> holder : states) {
+					stateArgs[i++] = holder.get(); 
 				}
 				
 				ParentState state = stateOperator.evaluate(stateArgs);
@@ -177,8 +183,8 @@ public class StructuralStateHelper implements Stateful {
 			public State[] call() throws Exception {
 				State[] array = new State[states.size()];
 				int i = 0;
-				for (StateHolder holder : states) {
-					array[i++] = holder.state;
+				for (AtomicReference<State> holder : states) {
+					array[i++] = holder.get();
 				}
 				return array;
 			}

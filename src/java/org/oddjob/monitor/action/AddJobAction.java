@@ -88,7 +88,7 @@ public class AddJobAction extends JobFormAction implements FormAction {
 		component = explorerContext.getThisComponent();
 		
 		ConfigContextSearch search = new ConfigContextSearch();
-		configurationSession = search.sessionFor(explorerContext);
+		configurationSession = search.sessionForAddJob(explorerContext);
 
 		dragPoint = null;
 		

@@ -28,7 +28,7 @@ import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 
 /**
  * Handles the execution of a single SQL statement at a time.
@@ -74,6 +74,85 @@ implements ArooaSessionAware {
 	private transient ArooaSession session;
 	
 	private BusConductor busConductor;
+	
+	private final TrackingBusListener busListener = 
+			new TrackingBusListener() {
+		private boolean rollbackOnly;
+		
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			if (connection == null) {
+				throw new BusCrashException("No Connection.");
+			}
+			try {
+				connection.setAutoCommit(autocommit);
+				logger.info("Setting autocommit " + autocommit);
+			}
+			catch (SQLException e) {
+				throw new BusCrashException(e);
+			}
+			rollbackOnly = false;
+			successfulSQLCount = 0;
+			executedSQLCount = 0;
+		}
+		
+		@Override
+		public void busStopRequested(BusEvent event) {
+	    	Statement stmt = ParameterisedExecutor.this.statement;
+	    	if (stmt != null) {
+	    		try {
+					stmt.cancel();
+				} catch (SQLException e) {
+					logger.debug("Failed to cancel.", e);
+				}
+	    	}
+	    	rollbackOnly = true;
+		}
+		
+		@Override
+		public void busStopping(BusEvent event) throws BusCrashException {
+    		if (!isAutocommit()) {
+	        	try {
+	        		if (rollbackOnly) {
+	        			connection.rollback();
+						logger.info("Connection Rolled Back.");
+	        		}
+	        		else {
+						connection.commit();
+						logger.info("Connection committed.");
+	        		}
+				} catch (SQLException e) {
+					throw new BusCrashException(
+							"Failed to Commit/Rollback.", e);
+				}
+    		}
+		}
+		
+		@Override
+		public void busCrashed(BusEvent event) {
+			if (connection != null && !isAutocommit()) {
+	        	try {
+					connection.rollback();
+					logger.info("Connection rolled back.");
+				} catch (SQLException sqlException) {
+					logger.error("Failed to rollback.", sqlException);
+				}
+			}
+		}
+		@Override
+		public void busTerminated(BusEvent event) {
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger.error("Failed closing connection.", e);
+				}
+			}
+			
+	        logger.info(successfulSQLCount + " of " + executedSQLCount + " SQL statements executed successfully");   	
+	        
+		}
+	};
 	
 	
 	@Override
@@ -279,86 +358,9 @@ implements ArooaSessionAware {
     }
             
 	@Inject
-	public void setBeanBus(BusConductor bus) {
-		this.busConductor = bus;
-		bus.addBusListener(new BusListenerAdapter() {
-			
-			private boolean rollbackOnly;
-			
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {
-				if (connection == null) {
-					throw new BusCrashException("No Connection.");
-				}
-				try {
-					connection.setAutoCommit(autocommit);
-					logger.info("Setting autocommit " + autocommit);
-				}
-				catch (SQLException e) {
-					throw new BusCrashException(e);
-				}
-				rollbackOnly = false;
-				successfulSQLCount = 0;
-				executedSQLCount = 0;
-			}
-			
-			@Override
-			public void busStopRequested(BusEvent event) {
-		    	Statement stmt = ParameterisedExecutor.this.statement;
-		    	if (stmt != null) {
-		    		try {
-						stmt.cancel();
-					} catch (SQLException e) {
-						logger.debug("Failed to cancel.", e);
-					}
-		    	}
-		    	rollbackOnly = true;
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws BusCrashException {
-        		if (!isAutocommit()) {
-		        	try {
-		        		if (rollbackOnly) {
-		        			connection.rollback();
-							logger.info("Connection Rolled Back.");
-		        		}
-		        		else {
-							connection.commit();
-							logger.info("Connection committed.");
-		        		}
-					} catch (SQLException e) {
-						throw new BusCrashException(
-								"Failed to Commit/Rollback.", e);
-					}
-        		}
-			}
-			
-			@Override
-			public void busCrashed(BusEvent event, BusException e) {
-				if (connection != null && !isAutocommit()) {
-		        	try {
-						connection.rollback();
-						logger.info("Connection rolled back.");
-					} catch (SQLException e1) {
-						logger.error("Failed to rollback.", e1);
-					}
-				}
-			}
-			@Override
-			public void busTerminated(BusEvent event) {
-				if (connection != null) {
-					try {
-						connection.close();
-					} catch (SQLException e) {
-						logger.error("Failed closing connection.", e);
-					}
-				}
-				
-		        logger.info(successfulSQLCount + " of " + executedSQLCount + " SQL statements executed successfully");   	
-		        
-			}
-		});
+	public void setBeanBus(BusConductor busConductor) {
+		this.busConductor = busConductor;
+		this.busListener.setBusConductor(busConductor);
 	}
 	
 	/**

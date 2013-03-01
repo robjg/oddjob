@@ -1,6 +1,9 @@
 package org.oddjob.beanbus.mega;
 
 
+import java.util.Collection;
+
+import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
@@ -14,18 +17,21 @@ import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.ContextConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusListener;
 import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusServiceProvider;
+import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
 
 /**
  *
- * @oddjob.description 
+ * @oddjob.description A job that allows the construction of a 
+ * {@link BeanBus}.
+ * <p>
+ * A Bean Bus is an assembly of {@link Collection}s.
  * 
  * 
  * @oddjob.example
@@ -47,43 +53,8 @@ implements ConfigurationOwner, BusServiceProvider {
 	/** Support for configuration modification. */
 	private transient ConfigurationOwnerSupport configurationOwnerSupport;
 	
-	private BusConductor busConductor;
+	private transient volatile BusConductor busConductor;
 	
-	private final BusConductor delgatingBusConductor = new BusConductor() {
-		
-		@Override
-		public void requestBusStop() {
-			if (busConductor == null) {
-				throw new NullPointerException("Bus Conductor unset.");
-			}
-			busConductor.requestBusStop();
-		}
-		
-		@Override
-		public void removeBusListener(BusListener listener) {
-			if (busConductor == null) {
-				throw new NullPointerException("Bus Conductor unset.");
-			}
-			busConductor.removeBusListener(listener);
-		}
-		
-		@Override
-		public void cleanBus() throws BusCrashException {
-			if (busConductor == null) {
-				throw new NullPointerException("Bus Conductor unset.");
-			}
-			busConductor.cleanBus();
-		}
-		
-		@Override
-		public void addBusListener(BusListener listener) {
-			if (busConductor == null) {
-				throw new NullPointerException("Bus Conductor unset.");
-			}
-			busConductor.addBusListener(listener);
-		}
-	};
-		
 	/**
 	 * Only constructor.
 	 */
@@ -181,30 +152,100 @@ implements ConfigurationOwner, BusServiceProvider {
 		
 		Object[] children = childHelper.getChildren();
 
-		for (Object child : children) {
-			
-			if (child instanceof BusServiceProvider) {
-				busConductor = ((BusServiceProvider) child).getServices(
-						).getService(BusService.BEAN_BUS_SERVICE_NAME);
+		StatefulBusConductorAdaptor adaptor = null;
+		
+		try {
+			for (Object child : children) {
+				
+				if (child instanceof BusServiceProvider) {
+					busConductor = ((BusServiceProvider) child).getServices(
+							).getService(SimpleBusService.BEAN_BUS_SERVICE_NAME);
+				}
+	
+				if (busConductor == null && adaptor == null && 
+						child instanceof Stateful) {
+					adaptor = new StatefulBusConductorAdaptor(
+							(Stateful) child);
+					busConductor = adaptor;
+				}
+				
+				if (child instanceof BusPart) {
+					
+					// We need to identify the bus conductor before the 
+					// first bus part.
+					if (busConductor == null) {
+						throw new IllegalStateException("No Bus Conductor!");
+					}
+					
+					((BusPart) child).prepare(busConductor);
+				}
 			}
 			
-			if (child instanceof BusPart) {
-				((BusPart) child).prepare();
+			
+			for (Object child : children) {
+				
+				if (child instanceof Runnable) {
+					((Runnable) child).run();
+				}
 			}
 		}
-		
-		for (Object child : children) {
-			
-			if (child instanceof Runnable) {
-				((Runnable) child).run();
+		finally {
+			if (adaptor != null) {
+				adaptor.close();
 			}
-		}
-		
+			busConductor = null;
+		}		
 	}	
 
 	@Override
+	protected void onReset() {
+		super.onReset();
+		busConductor = null;
+	}
+	
+	@Override
 	public BusService getServices() {
-		return new BusService(delgatingBusConductor);
+		return new BusService() {
+			
+			@Override
+			public String serviceNameFor(Class<?> theClass, String flavour) {
+				if (BusConductor.class == theClass) {
+					return BEAN_BUS_SERVICE_NAME;
+				}
+				else {
+					return null;
+				}
+			}
+			
+			@Override
+			public BusConductor getService(String serviceName)
+					throws IllegalArgumentException {
+				if (busConductor == null) {
+					throw new NullPointerException(
+							"Bus Service Not Available until the Bus is Running.");
+				}
+				return busConductor;
+			}
+			
+			@Override
+			public String toString() {
+				BusConductor busConductor = MegaBeanBus.this.busConductor;
+				if (busConductor == null) {
+					return "No Bus Service Until Running.";
+				}
+				else {
+					return busConductor.toString();
+				}
+			}
+		};
+	}
+
+	public BusConductor getBusConductor() {
+		return busConductor;
+	}
+
+	public void setBusConductor(BusConductor busConductor) {
+		this.busConductor = busConductor;
 	}
 	
 }

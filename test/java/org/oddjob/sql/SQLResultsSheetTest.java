@@ -44,7 +44,7 @@ public class SQLResultsSheetTest extends TestCase {
 		
 		BasicBeanBus<Object> bus = new BasicBeanBus<Object>();
 		
-		test.setBusConductor(bus);
+		test.setBusConductor(bus.getBusConductor());
 		
 		bus.startBus();
 		test.writeBeans(Arrays.asList(values));
@@ -54,6 +54,19 @@ public class SQLResultsSheetTest extends TestCase {
 		String expected = 
 			"Red and Green  7.6    Apple   Cox" + EOL +
 			"Orange         9.245  Orange  Jaffa" + EOL;
+		
+		assertEquals(expected, out.toString());
+		
+		// Check it can be re-run.
+		
+		out = new ByteArrayOutputStream();
+		test.setOutput(out);
+		
+		bus.startBus();
+		
+		test.writeBeans(Arrays.asList(values));
+		
+		bus.stopBus();
 		
 		assertEquals(expected, out.toString());
 	}

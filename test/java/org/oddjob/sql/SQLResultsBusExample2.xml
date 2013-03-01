@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <connection>
+                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                    </connection>
+                </variables>
+                <sql>
+                    <connection>
+                        <value value="${vars.connection}"/>
+                    </connection>
+                    <input>
+                        <buffer><![CDATA[CREATE TABLE fruit(
+  type VARCHAR(20))
+
+INSERT INTO fruit VALUES ('apple');
+INSERT INTO fruit VALUES ('orange');
+INSERT INTO fruit VALUES ('pear');
+
+]]></buffer>
+                    </input>
+                </sql>
+                <bean-bus id="bean-bus">
+                    <parts>
+                        <sql>
+                            <connection>
+                                <value value="${vars.connection}"/>
+                            </connection>
+                            <input>
+                                <buffer><![CDATA[SELECT type FROM fruit]]></buffer>
+                            </input>
+                            <results>
+                                <sql-results-bus>
+                                    <to>
+                                        <value value="${bean-capture}"/>
+                                    </to>
+                                </sql-results-bus>
+                            </results>
+                        </sql>
+                        <bus:bean-capture id="bean-capture" xmlns:bus="oddjob:beanbus"/>
+                    </parts>
+                </bean-bus>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

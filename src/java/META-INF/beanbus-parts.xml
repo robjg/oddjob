@@ -13,5 +13,7 @@
         className='org.oddjob.beanbus.destinations.BeanQueue'/>
     <arooa:bean-def element='bean-sheet' 
         className='org.oddjob.beanbus.destinations.BeanSheet'/>
+    <arooa:bean-def element='only-filter' 
+        className='org.oddjob.beanbus.destinations.OnlyFilter'/>
 	</components>
 </arooa:descriptor>

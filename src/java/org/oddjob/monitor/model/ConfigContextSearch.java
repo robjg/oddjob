@@ -48,6 +48,29 @@ public class ConfigContextSearch {
 	}
 	
 	/**
+	 * Find the configuration session for add job which will
+	 * include the configuration session for the current component.
+	 * 
+	 * @param context The context. Must not be null.
+	 * 
+	 * @return The session, or null if one can't be found. This is 
+	 * unlikely for add job.
+	 */
+	public ConfigurationSession sessionForAddJob(ExplorerContext context) {
+
+		AncestorSearch search = new AncestorSearch(context);
+		
+		ConfigurationOwner configOwner = 
+			(ConfigurationOwner) search.getValue(
+					ConfigContextInialiser.CONFIG_OWNER);
+		
+		if (configOwner != null) {
+			return configOwner.provideConfigurationSession();
+		}
+		return null;
+	}
+	
+	/**
 	 * Provide the appropriate {@link DragPoint}.
 	 * 
 	 * @param context

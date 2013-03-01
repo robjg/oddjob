@@ -35,7 +35,7 @@ public class IconHelperTest extends TestCase {
 	
 	public void testSameIdNotFired() {
 		
-		IconHelper test = new IconHelper(new OurIconic());
+		IconHelper test = new IconHelper(new OurIconic(), IconHelper.READY);
 
 		OurListener listener = new OurListener();
 		

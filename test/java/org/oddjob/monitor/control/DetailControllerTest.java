@@ -76,6 +76,8 @@ public class DetailControllerTest extends TestCase {
 
 		DetailModel detailModel = new DetailModel();
 		
+		// Test fails sometimes with NPE. Not sure why. 
+		// Something to do with swing.
 		DetailController test = new DetailController(
 				detailModel, new DetailView(detailModel));
 		tree.addTreeSelectionListener(test);

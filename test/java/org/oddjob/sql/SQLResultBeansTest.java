@@ -47,20 +47,21 @@ public class SQLResultBeansTest extends TestCase {
 		BasicBeanBus<String> beanBus = new BasicBeanBus<String>();
 		
 		test.setArooaSession(new StandardArooaSession());
-		test.setBusConductor(beanBus);
+		test.setBusConductor(beanBus.getBusConductor());
 		
 		beanBus.startBus();
 		
-		beanBus.accept("ignored");
+		// Start the trip.
+		beanBus.add("ignored");
 		
 		test.accept("Apple");
 		
-		beanBus.cleanBus();
+		beanBus.getBusConductor().cleanBus();
 		
 		assertEquals("Apple", test.getRow());
 		assertEquals(1, test.getRowCount());
 		
-		beanBus.accept("ignored");
+		beanBus.add("ignored");
 		
 		test.accept("Pear");
 		test.accept("Banana");
@@ -73,5 +74,43 @@ public class SQLResultBeansTest extends TestCase {
 		assertEquals("Banana", test.getRowSets()[1][1]);
 		
 		assertEquals(3, test.getRowCount());
+		
+		// test restarts.
+		
+		beanBus.startBus();
+
+		beanBus.add("ignored");
+		
+		test.accept("Apple");
+		
+		beanBus.stopBus();
+		
+		assertEquals("Apple", test.getRow());
+		assertEquals(1, test.getRowCount());
+		
 	}
+	
+	public void testSetBeanBusTwice() throws BusCrashException {
+		
+		SQLResultsBean test = new SQLResultsBean();
+		
+		BasicBeanBus<String> beanBus = new BasicBeanBus<String>();
+		
+		test.setArooaSession(new StandardArooaSession());
+		
+		test.setBusConductor(beanBus.getBusConductor());
+		test.setBusConductor(beanBus.getBusConductor());
+		
+		beanBus.startBus();
+		
+		// Start the trip.
+		beanBus.add("ignored");
+		
+		test.accept("Apple");
+		
+		beanBus.stopBus();
+		
+		assertEquals("Apple", test.getRow());
+		assertEquals(1, test.getRowCount());
+	}		
 }

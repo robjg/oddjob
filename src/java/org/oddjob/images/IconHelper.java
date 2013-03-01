@@ -69,9 +69,9 @@ public class IconHelper implements Iconic {
 				"Stopping");
 
 	public static final ImageIcon stoppedIcon
-	= new ImageIconStable(
-			IconHelper.class.getResource("square_red.gif"),
-			"Stopped");
+		= new ImageIconStable(
+				IconHelper.class.getResource("square_red.gif"),
+				"Stopped");
 
 	public static final ImageIcon sleepingIcon
 		= new ImageIconStable(
@@ -122,18 +122,27 @@ public class IconHelper implements Iconic {
 	private List<IconListener> listeners = new ArrayList<IconListener>();
 	private final Map<String, ImageIcon> iconMap;
 	
-	public IconHelper(Iconic source) {
-		this(source, defaultIconMap);
+	/**
+	 * Constructor with default icon map.
+	 * 
+	 * @param source The source for events.
+	 * @param intialId The initial icon id.
+	 */
+	public IconHelper(Iconic source, String initialId) {
+		this(source, initialId, defaultIconMap);
 	}
 	
 	/**
 	 * Constructor.
 	 * 
 	 * @param source The source for events.
+	 * @param intialId The initial icon id.
+	 * @param iconMap The map of ids to icons to use.
 	 */
-	public IconHelper(Iconic source, Map<String, ImageIcon> iconMap) {
+	public IconHelper(Iconic source, String initialId,
+			Map<String, ImageIcon> iconMap) {
 		this.source = source;
-		lastEvent = new IconEvent(source, READY);
+		lastEvent = new IconEvent(source, initialId);
 		this.iconMap = iconMap;
 	}
 	

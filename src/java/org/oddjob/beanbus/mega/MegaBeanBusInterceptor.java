@@ -7,6 +7,14 @@ import org.oddjob.arooa.life.ClassResolverClassLoader;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.SessionOverrideContext;
 
+/**
+ * A {@link ParsingInterceptor} provided by a {@link MegaBeanBus} to
+ * provide specialised parsing of the configuration to
+ * allow bean bus elements to be used.
+ * 
+ * @author rob
+ *
+ */
 public class MegaBeanBusInterceptor implements ParsingInterceptor {
 
 	@Override

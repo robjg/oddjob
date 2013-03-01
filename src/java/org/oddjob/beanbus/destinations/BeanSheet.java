@@ -25,7 +25,7 @@ import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 
 /**
  * @oddjob.description Create a simple database style report from a list
@@ -62,6 +62,34 @@ implements ArooaSessionAware {
 	private final List<Object> beans = new ArrayList<Object>();
 
 	private String name;
+	
+	private final TrackingBusListener busListener = 
+			new TrackingBusListener() {
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			if (output == null) {
+				throw new BusCrashException("No output.");
+			}						
+		}
+					
+		@Override
+		public void tripEnding(BusEvent event) throws BusCrashException {
+			writeBeans(beans);
+			beans.clear();
+		}
+		
+		@Override
+		public void busTerminated(BusEvent event) {
+			try {
+				if (output != null) {
+					output.close();
+				}
+			}
+			catch (IOException ioe) {
+				logger.error("Failed to close output.", ioe);
+			}
+		}			
+	};
 	
 	@ArooaHidden
 	@Override
@@ -113,37 +141,10 @@ implements ArooaSessionAware {
 		out.flush();
 	}
 	
-	
-	
+	@ArooaHidden
 	@Inject
-	public void setBeanBus(BusConductor bus) {
-		bus.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {
-				if (output == null) {
-					throw new BusCrashException("No output.");
-				}						
-			}
-						
-			@Override
-			public void tripEnding(BusEvent event) throws BusCrashException {
-				writeBeans(beans);
-				beans.clear();
-			}
-			
-			@Override
-			public void busTerminated(BusEvent event) {
-				try {
-					if (output != null) {
-						output.close();
-					}
-				}
-				catch (IOException ioe) {
-					logger.error("Failed to close output.", ioe);
-				}
-			}			
-		});
+	public void setBeanBus(BusConductor busConductor) {
+		busListener.setBusConductor(busConductor);
 	}
 	
 	interface Row {
@@ -281,6 +282,14 @@ implements ArooaSessionAware {
 		}
 	}
 	
+	@Override
+	public boolean isEmpty() {
+		return beans.size() == 0;
+	}
+	
+	public int getBeanCount() {
+		return beans.size();
+	}
 	
 	public OutputStream getOutput() {
 		return output;

@@ -6,6 +6,8 @@ import java.util.Set;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Describeable;
+import org.oddjob.Iconic;
+import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.framework.ComponentWrapper;
 import org.oddjob.framework.ProxyGenerator;
@@ -37,9 +39,12 @@ public class CollectionProxyGenerator extends ProxyGenerator<Collection<?>> {
 				Set<Class<?>> interfaces = new HashSet<Class<?>>();
 				interfaces.add(Object.class);
 				interfaces.add(ArooaSessionAware.class);
+				interfaces.add(ArooaLifeAware.class);
 				interfaces.add(DynaBean.class);
 				interfaces.add(LogEnabled.class);
 				interfaces.add(Describeable.class);
+				interfaces.add(Iconic.class);
+				interfaces.add(BusPart.class);
 				
 				return (Class[]) interfaces.toArray(
 						new Class[interfaces.size()]);		

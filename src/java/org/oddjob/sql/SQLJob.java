@@ -72,7 +72,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BusService;
+import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusServiceProvider;
@@ -203,7 +203,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
     	parser = new ScriptParser();
     	
     	BusConductor conductor = parser.getServices().getService(
-    			BusService.BEAN_BUS_SERVICE_NAME);
+    			SimpleBusService.BEAN_BUS_SERVICE_NAME);
     	
     	executor = new ParameterisedExecutor();    	
     	executor.setBeanBus(conductor);
@@ -270,8 +270,8 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	}
 
 	@Override
-	public BusService getServices() {
-		return new BusService(parser);
+	public SimpleBusService getServices() {
+		return new SimpleBusService(parser);
 	}
 	
 	/**

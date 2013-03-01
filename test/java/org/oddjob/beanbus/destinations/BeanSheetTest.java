@@ -114,20 +114,20 @@ public class BeanSheetTest extends TestCase {
 		test.setOutput(out);
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
-		test.setBeanBus(bus);
+		test.setBeanBus(bus.getBusConductor());
 		
 		bus.setTo(test);
 		
 		bus.startBus();
 		
 		for (Fruit bean: values) {
-			bus.accept(bean);
+			bus.add(bean);
 		}
 
-		bus.cleanBus();
+		bus.getBusConductor().cleanBus();
 		
 		for (Fruit bean: values) {
-			bus.accept(bean);
+			bus.add(bean);
 		}
 		
 		bus.stopBus();

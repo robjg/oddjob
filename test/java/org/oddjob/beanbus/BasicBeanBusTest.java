@@ -43,7 +43,7 @@ public class BasicBeanBusTest extends TestCase {
 		}
 
 		@Override
-		public void busCrashed(BusEvent event, BusException e) {
+		public void busCrashed(BusEvent event) {
 			++crashed;
 		}
 		
@@ -63,13 +63,13 @@ public class BasicBeanBusTest extends TestCase {
 		
 		BasicBeanBus<String> test = new BasicBeanBus<String>();
 		test.setTo(trap);
-		test.addBusListener(listener);
+		test.getBusConductor().addBusListener(listener);
 		test.startBus();
 		
 		assertEquals(1, listener.starting);
 		assertEquals(0, listener.beginning);
 		
-		test.accept("apple");
+		test.add("apple");
 		
 		assertEquals(1, listener.beginning);
 		
@@ -100,17 +100,17 @@ public class BasicBeanBusTest extends TestCase {
 		
 		BasicBeanBus<String> test = new BasicBeanBus<String>();
 		test.setTo(new BadDestination());
-		test.addBusListener(listener);
+		test.getBusConductor().addBusListener(listener);
 		test.startBus();
 		
 		assertEquals(1, listener.starting);
 		assertEquals(0, listener.beginning);
 		
 		try {
-			test.accept("apple");
+			test.add("apple");
 			fail("Should fail.");
 		}
-		catch (BusCrashException e) {
+		catch (RuntimeException e) {
 			// expected
 		}
 		
@@ -140,7 +140,7 @@ public class BasicBeanBusTest extends TestCase {
 		
 		BasicBeanBus<String> test = new BasicBeanBus<String>();
 		test.setTo(trap);
-		test.addBusListener(listener);
+		test.getBusConductor().addBusListener(listener);
 		
 		// start stop.
 		
@@ -158,19 +158,19 @@ public class BasicBeanBusTest extends TestCase {
 		
 		assertEquals(2, listener.starting);
 		
-		test.accept("apple");
+		test.add("apple");
 		
 		assertEquals(1, listener.beginning);
 		
-		test.cleanBus();
+		test.getBusConductor().cleanBus();
 		
 		assertEquals(1, listener.ending);
 		
-		test.accept("pear");
+		test.add("pear");
 		
 		assertEquals(2, listener.beginning);
 		
-		test.cleanBus();
+		test.getBusConductor().cleanBus();
 		
 		assertEquals(2, listener.ending);
 		
@@ -185,11 +185,11 @@ public class BasicBeanBusTest extends TestCase {
 		// no clean before stop
 		test.startBus();
 		
-		test.accept("orange");
+		test.add("orange");
 		
-		test.cleanBus();
+		test.getBusConductor().cleanBus();
 		
-		test.accept("kiwi");
+		test.add("kiwi");
 		
 		test.stopBus();
 		
@@ -208,7 +208,7 @@ public class BasicBeanBusTest extends TestCase {
 		
 		BasicBeanBus<String> test = new BasicBeanBus<String>();
 		test.setTo(trap);
-		test.addBusListener(listener);
+		test.getBusConductor().addBusListener(listener);
 		
 		// stop before started..
 		

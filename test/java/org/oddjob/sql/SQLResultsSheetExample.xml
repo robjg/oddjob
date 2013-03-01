@@ -1,29 +1,28 @@
 <oddjob xmlns:s="http://rgordon.co.uk/oddjob/schedules">
-	<job>
-        <sql>
-           	<connection>
-	            <connection driver="org.hsqldb.jdbcDriver"
-	            		url="jdbc:hsqldb:mem:test" 
-	            		username="sa" password=""/>
-           	</connection>
-           	<input>
-           		<buffer>
-           	create table FRUIT(
-                TYPE varchar(16),
-                VARIETY varchar(16),
-                COLOUR varchar(32),
-                SIZE double);
-			insert into FRUIT values ('Apple', 'Cox', 'Red and Green', 7.6);
-		    insert into FRUIT values ('Orange', 'Jaffa', 'Orange', 9.245);
-        
-			select * from FRUIT;
-            
-			shutdown;
-				</buffer>
-			</input>
-			<results>
-				<sql-results-sheet/>
-			</results>
-		</sql>
-	</job>
+  <job>
+    <sql>
+      <connection>
+        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+          username="sa" password="" />
+      </connection>
+      <input>
+        <buffer>
+create table FRUIT(
+  TYPE varchar(16),
+  VARIETY varchar(16),
+  COLOUR varchar(32),
+  SIZE double);
+insert into FRUIT values ('Apple', 'Cox', 'Red and Green', 7.6);
+insert into FRUIT values ('Orange', 'Jaffa', 'Orange', 9.245);
+
+select * from FRUIT;
+
+shutdown;
+        </buffer>
+      </input>
+      <results>
+        <sql-results-sheet />
+      </results>
+    </sql>
+  </job>
 </oddjob>

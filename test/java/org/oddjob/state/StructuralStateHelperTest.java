@@ -159,6 +159,7 @@ public class StructuralStateHelperTest extends TestCase {
 		public void addStateListener(StateListener listener) {
 			assertNull(this.listener);
 			this.listener = listener;
+			listener.jobStateChange(new StateEvent(this, JobState.READY));
 		}
 		
 		public void removeStateListener(StateListener listener) {

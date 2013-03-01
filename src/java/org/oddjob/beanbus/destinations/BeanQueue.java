@@ -14,7 +14,7 @@ import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 
 /**
  * A Queue for beans. A work in progress.
@@ -38,22 +38,24 @@ implements Iterable<E> {
 	
 	private int taken;
 	
+	private final TrackingBusListener busListener = 
+			new TrackingBusListener() {
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			logger.debug("Clearing Queue on Start.");
+			queue.clear();
+			taken = 0;
+		}
+		
+		@Override
+		public void busStopping(BusEvent event) throws BusCrashException {
+			stop();
+		}		
+	};
+	
 	@Inject
-	public void setBeanBus(BusConductor bus) {
-		bus.addBusListener(new BusListenerAdapter() {
-									
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {
-				logger.debug("Clearing Queue on Start.");
-				queue.clear();
-				taken = 0;
-			}
-			
-			@Override
-			public void busStopping(BusEvent event) throws BusCrashException {
-				stop();
-			}
-		});
+	public void setBeanBus(BusConductor busConductor) {
+		busListener.setBusConductor(busConductor);
 	}
 	
 	@Configured
@@ -88,6 +90,11 @@ implements Iterable<E> {
 	@Override
 	public Iterator<E> iterator() {
 		return new BlockerIterator();
+	}
+	
+	@Override
+	public boolean isEmpty() {
+		return getSize() == 0;
 	}
 	
 	/**

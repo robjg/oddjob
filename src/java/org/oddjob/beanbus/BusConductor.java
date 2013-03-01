@@ -1,5 +1,7 @@
 package org.oddjob.beanbus;
 
+import org.oddjob.beanbus.destinations.Batcher;
+
 /**
  * Provides co-ordination for a {@link BeanBus}.
  * <p>
@@ -9,10 +11,18 @@ package org.oddjob.beanbus;
  */
 public interface BusConductor {
 
+	/**
+	 * Cleaning the bus will cause the trip to end and a new one to 
+	 * begin. Intended for components such as {@link Batcher} so that
+	 * they can flush the bus.
+	 * 
+	 * @throws BusCrashException
+	 */
 	public void cleanBus() throws BusCrashException;
 	
 	/**
-	 * Request that the bus stop. This may be called asynchronously.
+	 * Request that the bus stop. This may, and probably will,
+	 * be called asynchronously.
 	 */
 	public void requestBusStop();	
 	

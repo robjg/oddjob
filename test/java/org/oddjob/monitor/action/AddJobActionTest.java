@@ -44,6 +44,11 @@ public class AddJobActionTest extends TestCase {
 		public ExplorerContext getParent() {
 			return parent;
 		}
+		
+		@Override
+		public Object getValue(String key) {
+			return null;
+		}
 	}
 	
 	XMLConfiguration config;

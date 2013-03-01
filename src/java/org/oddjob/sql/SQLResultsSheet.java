@@ -15,7 +15,7 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
@@ -78,6 +78,48 @@ implements ArooaSessionAware {
 	private long elapsedTime = System.currentTimeMillis();
 	
 	private final List<Object> beans = new ArrayList<Object>();
+	
+	private final TrackingBusListener busListener = 
+			new TrackingBusListener() {
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			if (output == null) {
+				try {
+					output = new StdoutType().toValue();
+				} catch (ArooaConversionException e) {
+					throw new BusCrashException(e);
+				}
+			}						
+		}
+		
+		@Override
+		public void tripBeginning(BusEvent event) {
+			elapsedTime = System.currentTimeMillis();
+		}
+		
+		@Override
+		public void tripEnding(BusEvent event) {
+			writeBeans(beans);
+			beans.clear();
+			
+			if (!dataOnly) {
+				new StreamPrinter(output).println();
+			}
+		}
+
+		@Override
+		public void busTerminated(BusEvent event) {
+			try {
+				if (output != null) {
+					output.close();
+				}
+			}
+			catch (IOException ioe) {
+				logger.error("Failed to close output.", ioe);
+			}
+		}			
+	};
+	
 	
 	@Override
 	@ArooaHidden
@@ -142,47 +184,6 @@ implements ArooaSessionAware {
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
 		super.setBusConductor(busConductor);
-		
-		busConductor.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {
-				if (output == null) {
-					try {
-						output = new StdoutType().toValue();
-					} catch (ArooaConversionException e) {
-						throw new BusCrashException(e);
-					}
-				}						
-			}
-			
-			@Override
-			public void tripBeginning(BusEvent event) {
-				elapsedTime = System.currentTimeMillis();
-			}
-			
-			@Override
-			public void tripEnding(BusEvent event) {
-				writeBeans(beans);
-				beans.clear();
-				
-				if (!dataOnly) {
-					new StreamPrinter(output).println();
-				}
-			}
-
-			@Override
-			public void busTerminated(BusEvent event) {
-				try {
-					if (output != null) {
-						output.close();
-					}
-				}
-				catch (IOException ioe) {
-					logger.error("Failed to close output.", ioe);
-				}
-			}			
-		});
-
+		this.busListener.setBusConductor(busConductor);
 	}	
 }

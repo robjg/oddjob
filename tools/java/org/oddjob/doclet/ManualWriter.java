@@ -150,7 +150,7 @@ public class ManualWriter {
         	}
         }
         out.println("    <hr/>");
-        out.println("    <font size='-1' align='center'>(c) Rob Gordon 2005 - 2011</font>");
+        out.println("    <font size='-1' align='center'>(c) Rob Gordon 2005 - 2013</font>");
         out.println("	 </body>");
         out.println("  </html>");
 

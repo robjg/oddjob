@@ -36,11 +36,11 @@ select * from FRUIT;
 				]]></buffer>
                     </input>
                     <results>
-                        <bean class="org.oddjob.sql.SQLResultsBeanBus">
+                        <sql-results-bus>
                             <to>
                                <list/>
                             </to>
-                        </bean>
+                        </sql-results-bus>
                     </results>
                 </sql>
                 <sql name="Shutdown">
@@ -52,17 +52,6 @@ select * from FRUIT;
 shutdown;
 				]]></buffer>
                     </input>
-                    <results>
-                        <bean class="org.oddjob.sql.SQLResultsBeanBus">
-                            <to>
-                                <identify id="result-list">
-                                    <value>
-                                        <list/>
-                                    </value>
-                                </identify>
-                            </to>
-                        </bean>
-                    </results>
                 </sql>
             </jobs>
         </sequential>

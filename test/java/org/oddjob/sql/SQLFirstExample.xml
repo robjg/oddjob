@@ -20,7 +20,7 @@ create table GREETINGS(STYLE varchar(20),
        
 insert into GREETINGS values('nice', 'Hello')
 
-insert into GREETINGS values('gumpy', 'Bah Humbug')
+insert into GREETINGS values('grumpy', 'Bah Humbug')
 ]]>
             </buffer>
           </input>

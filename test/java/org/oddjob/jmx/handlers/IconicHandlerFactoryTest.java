@@ -19,7 +19,7 @@ public class IconicHandlerFactoryTest extends TestCase {
 
 	class OurIconic implements Iconic {
 		
-		IconHelper helper = new IconHelper(this);
+		IconHelper helper = new IconHelper(this, IconHelper.READY);
 
 		{
 			helper.changeIcon(IconHelper.EXECUTING);

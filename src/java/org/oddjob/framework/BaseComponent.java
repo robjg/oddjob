@@ -46,7 +46,8 @@ implements Iconic, Stateful,
 	/**
 	 * Used to notify clients of an icon change.
 	 */
-	protected final IconHelper iconHelper = new IconHelper(this);
+	protected final IconHelper iconHelper = new IconHelper(
+			this, IconHelper.READY);
 	
 	/** 
 	 * A state handler to delegate state change functionality to. 

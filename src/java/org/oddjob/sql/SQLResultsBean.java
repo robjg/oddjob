@@ -10,7 +10,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 
 /**
  * @oddjob.description Captures SQL results in a bean that 
@@ -113,32 +113,33 @@ public class SQLResultsBean extends BeanFactoryResultHandler {
 	
 	private List<Object> beans;
 	
+	private final TrackingBusListener busListener = new TrackingBusListener() {
+		
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {				
+			rowSets.clear();
+			updateCounts.clear();
+			rowCount = 0;
+			updateCount = 0;
+		}
+		
+		@Override
+		public void tripBeginning(BusEvent event) throws BusCrashException {
+			beans = new ArrayList<Object>();
+		}
+		
+		@Override
+		public void tripEnding(BusEvent event) throws BusCrashException {
+			addBeans(beans);
+		}
+	};
+
 	@ArooaHidden
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
 		super.setBusConductor(busConductor);
-		
-		busConductor.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {				
-				rowSets.clear();
-				updateCounts.clear();
-				rowCount = 0;
-				updateCount = 0;
-			}
-			
-			@Override
-			public void tripBeginning(BusEvent event) throws BusCrashException {
-				beans = new ArrayList<Object>();
-			}
-			
-			@Override
-			public void tripEnding(BusEvent event) throws BusCrashException {
-				addBeans(beans);
-			}
-		});
-		
+
+		busListener.setBusConductor(busConductor);
 	}
 	
 	@Override

@@ -878,8 +878,11 @@ public class TimerTest extends TestCase {
     	
     	oddjob.load();
     	
-    	Stateful wait = new OddjobLookup(oddjob).lookup(
-    			"long-job", Stateful.class);
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	Stateful wait = lookup.lookup("long-job", Stateful.class);
+    	
+    	Stateful timer = lookup.lookup("timer", Stateful.class);
     	
     	StateSteps waitStates = new StateSteps(wait);
     	
@@ -887,7 +890,16 @@ public class TimerTest extends TestCase {
     			JobState.READY, 
     			JobState.EXECUTING);
     	
-    	new Thread(oddjob).start();
+    	StateSteps timerStates = new StateSteps(timer);
+    	
+    	timerStates.startCheck( 
+    			ParentState.READY, 
+    			ParentState.EXECUTING,
+    			ParentState.STARTED,
+    			ParentState.COMPLETE);
+    	
+    	Thread t = new Thread(oddjob);
+    	t.start();
     	
     	waitStates.checkWait();
     	
@@ -902,10 +914,18 @@ public class TimerTest extends TestCase {
     	
     	executors.executor.runnable.run();
     	
-    	states.checkWait();
+    	timerStates.checkWait();
+ 
+    	// We can't guarantee order because timer might complete before
+    	// sequential starts reflecting child states.
+//    	states.checkWait();
     	
-    	oddjob.destroy();
+    	t.join();
     	
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	oddjob.destroy();    	
 	}
 	
 	public void testTimerCrashPersistance() {

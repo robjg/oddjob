@@ -14,15 +14,18 @@ import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.beanbus.BusService;
+import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
 import org.oddjob.jobs.BeanReportJob;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
 public class SQLJobTest extends TestCase {
@@ -54,7 +57,7 @@ public class SQLJobTest extends TestCase {
 		SQLResultsBean beans = new SQLResultsBean();
 		beans.setArooaSession(session);
 		beans.setBusConductor(test.getServices(
-				).getService(BusService.BEAN_BUS_SERVICE_NAME));
+				).getService(SimpleBusService.BEAN_BUS_SERVICE_NAME));
 		test.setResults(beans);
 		
 		test.setConnection(ct.toValue());
@@ -162,6 +165,21 @@ public class SQLJobTest extends TestCase {
 		assertEquals("Hello", lines[0].trim());
 		assertEquals("Hello", lines[1].trim());
 		
+		// Run query twice - check bug where results were doubling up.
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		Object query = lookup.lookup("query");
+		((Resetable) query).hardReset();
+		assertEquals(JobState.READY, 
+				((Stateful) query).lastStateEvent().getState());
+		((Runnable) query).run();
+		assertEquals(JobState.COMPLETE, 
+				((Stateful) query).lastStateEvent().getState());
+		
+		assertEquals("Hello", lookup.lookup("query.results.row.TEXT"));
+		
+		// Shutdown
+		
 		Connection connection = new OddjobLookup(oddjob).lookup(
 				"vars.connection", Connection.class);
 		
@@ -170,6 +188,8 @@ public class SQLJobTest extends TestCase {
 		shutdown.setConnection(connection);
 		shutdown.setInput(new ByteArrayInputStream("shutdown".getBytes()));
 		shutdown.run();
+		
+		oddjob.destroy();
 	}
 	
 	public void testInOddjobEmptyResultSet() throws Exception {

@@ -40,7 +40,7 @@ implements BusServiceProvider, ServiceProvider {
 	}
 	
 	protected void accept(T bean) throws BusCrashException {
-		beanBus.accept(bean);
+		beanBus.add(bean);
 	}
 	
 	protected void stopBus() throws BusCrashException {
@@ -49,7 +49,7 @@ implements BusServiceProvider, ServiceProvider {
 	}
 
 	protected void requestBusStop() {
-		beanBus.requestBusStop();
+		beanBus.getBusConductor().requestBusStop();
 	}
 	
 	/**
@@ -59,8 +59,8 @@ implements BusServiceProvider, ServiceProvider {
 	protected abstract void stopTheBus();
 	
 	@Override
-	public BusService getServices() {
-		return new BusService(beanBus);
+	public SimpleBusService getServices() {
+		return new SimpleBusService(beanBus.getBusConductor());
 	}
 		
 	/**

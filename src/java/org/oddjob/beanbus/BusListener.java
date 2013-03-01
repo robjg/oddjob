@@ -62,8 +62,7 @@ public interface BusListener extends EventListener {
 	 * stopping and any time in between.
 	 * 
 	 * @param event
-	 * @param e The exception thrown by the bus crashing.
 	 */
-	void busCrashed(BusEvent event, BusException e);
+	void busCrashed(BusEvent event);
 	
 }

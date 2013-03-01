@@ -12,7 +12,7 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.beanbus.TrackingBusListener;
 
 /**
  * A {@link SQLResultHandler} that creates beans.
@@ -26,6 +26,19 @@ implements SQLResultHandler, ArooaSessionAware {
 	private PropertyAccessor accessor;
 	
 	private volatile boolean stop;
+	
+	private final TrackingBusListener busListener = 
+			new TrackingBusListener() {
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			stop = false;
+		}
+		
+		@Override
+		public void busStopRequested(BusEvent event) {
+			stop = true;
+		}
+	};
 	
 	@ArooaHidden
 	@Override
@@ -63,20 +76,9 @@ implements SQLResultHandler, ArooaSessionAware {
 	
 	abstract protected void accept(Object bean);
 	
+	@ArooaHidden
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
-
-		busConductor.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busStarting(BusEvent event) throws BusCrashException {
-				stop = false;
-			}
-			
-			@Override
-			public void busStopRequested(BusEvent event) {
-				stop = true;
-			}
-		});
+		busListener.setBusConductor(busConductor);
 	}
 }

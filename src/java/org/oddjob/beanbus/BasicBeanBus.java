@@ -1,17 +1,13 @@
 package org.oddjob.beanbus;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
-public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
+public class BasicBeanBus<T> extends AbstractDestination<T>
+implements BeanBus<T> {
 	private static final Logger logger = Logger.getLogger(BasicBeanBus.class);
 
-	private final List<BusListener> busListeners = 
-			new ArrayList<BusListener>();
-	
 	private volatile Collection<? super T> to;
 
 	private boolean started = false;
@@ -20,10 +16,47 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	
 	private final Runnable stopBusCommand;
 	
+	private final AbstractBusConductor busConductor = 
+			new AbstractBusConductor() {
+		
+		@Override
+		public void requestBusStop() {
+			busConductor.fireBusStopRequested(started);
+			
+			if (stopBusCommand != null) {
+				stopBusCommand.run();
+			}		
+		}
+		
+		@Override
+		public void cleanBus() throws BusCrashException {
+			// should it be an exception to clean a bus that hasn't had beans?
+			// No - because two components could both ask to clean the bus
+			// between trips.
+			if (tripping) {
+				tripEnd();
+			}		
+		}
+		
+		@Override
+		public String toString() {
+			return BusConductor.class.getSimpleName() + " for " +
+					BasicBeanBus.class.getSimpleName();
+		}
+	};
+	
+	/**
+	 * Constructor for an unstoppable bus.
+	 */
 	public BasicBeanBus() {
 		this(null);
 	}
 	
+	/**
+	 * Constructor for a stoppable bus.
+	 * 
+	 * @param stopBusCommand
+	 */
 	public BasicBeanBus(Runnable stopBusCommand) {
 		this.stopBusCommand = stopBusCommand;
 	}
@@ -35,7 +68,7 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 			throw new IllegalStateException("Bus already started.");
 		}
 		
-		fireBusStarting();
+		busConductor.fireBusStarting();
 		
 		started = true;
 	}
@@ -52,15 +85,15 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 		
 		try {
-			fireBusStopping();
+			busConductor.fireBusStopping();
 		}
 		finally {
-			terminateBus();
+			terminateBus(BusPhase.BUS_STOPPED);
 		}
 	}		
 	
 	@Override
-	public void accept(T bean) throws BusCrashException {
+	public boolean add(T bean) {
 		
 		if (!started) {
 			throw new IllegalStateException("Bus not started.");
@@ -68,7 +101,13 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		
 		// if this is the first bean, start the trip.
 		if (!tripping) {
-			tripBegin();
+			try {
+				tripBegin();
+			} catch (BusCrashException e) {
+				crashBus(BusPhase.TRIP_BEGINNING, e);
+				
+				throw new RuntimeException(e);
+			}
 			
 			// place here so we only log once.
 			if (to == null) {
@@ -77,50 +116,20 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		}
 		
 		try {
-			if (to != null) {
-				to.add(bean);
+			if (to == null) {
+				return false;
 			}
-		}
-		catch (IllegalArgumentException e) {
-			
-			BusCrashException e2 = new BusCrashException("Unhandled " + 
-					IllegalArgumentException.class.getName(), e);
-			
-			crashBus(e2);
-			
-			throw e2;
+			else {
+				return to.add(bean);
+			}
 		}
 		catch (RuntimeException e) {
 			
-			BusCrashException e2 = new BusCrashException(e);
+			crashBus(BusPhase.BUS_RUNNING, e);
 			
-			crashBus(e2);
-			
-			throw e2;
+			throw e;
 		}
 		
-	}
-	
-	@Override
-	public void cleanBus() throws BusCrashException {
-		
-		// should it be an exception to clean a bus that hasn't had beans?
-		// No - because to components could both ask to clean the bus
-		// between trips.
-		if (tripping) {
-			tripEnd();
-		}
-		
-	}
-	
-	@Override
-	public void requestBusStop() {
-		
-		fireBusStopRequested();
-		
-		if (stopBusCommand != null) {
-			stopBusCommand.run();
-		}		
 	}
 	
 	private void tripBegin() throws BusCrashException {
@@ -130,10 +139,10 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 			
 			tripping = true;
 			
-			fireTripBeginning();			
+			busConductor.fireTripBeginning();			
 		}
 		catch (BusCrashException e) {
-			crashBus(e);
+			crashBus(BusPhase.TRIP_BEGINNING, e);
 			
 			throw e;
 		}
@@ -142,34 +151,34 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	private void tripEnd() throws BusCrashException {
 		
 		try {
-			fireTripEnding();
+			busConductor.fireTripEnding();
 			
 			tripping = false;
 			
 			onTripEnd();
 		}
 		catch (BusCrashException e) {
-			crashBus(e);
+			crashBus(BusPhase.TRIP_ENDING, e);
 			
 			throw e;
 		}
 	}
 	
-	private void crashBus(BusCrashException e) {
+	private void crashBus(BusPhase phase, Exception e) {
 	
 		try {
-			fireBusCrashed(e);
+			busConductor.fireBusCrashed(phase, e);
 		}
 		finally {
-			terminateBus();
+			terminateBus(BusPhase.BUS_CRASHED);
 		}
 	}
 	
-	private void terminateBus() {
+	private void terminateBus(BusPhase phase) {
 		
 		started = false;
 		
-		fireBusTerminated();
+		busConductor.fireBusTerminated();
 	}
 	
 	protected void onTripBegin() {
@@ -185,108 +194,6 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 		
 	}
 	
-	@Override
-	public void addBusListener(BusListener listener) {
-		busListeners.add(listener);
-	}
-	
-	@Override
-	public void removeBusListener(BusListener listener) {
-		busListeners.remove(listener);
-	}
-	
-	protected void fireBusStarting() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			listener.busStarting(event);
-		}
-	}
-	
-	protected void fireTripBeginning() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			listener.tripBeginning(event);
-		}
-	}
-	
-	protected void fireTripEnding() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			listener.tripEnding(event);
-		}
-	}
-	
-	protected void fireBusStopRequested() {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			listener.busStopRequested(event);
-		}
-	}
-	
-	protected void fireBusStopping() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-
-		BusCrashException busCrashException = null;
-		
-		for (BusListener listener : copy) {
-			try {
-				listener.busStopping(event);
-			}
-			catch (BusCrashException e) {
-				busCrashException = e;
-			}
-		}
-		if (busCrashException != null) {
-			throw busCrashException;
-		}
-	}
-	
-	protected void fireBusTerminated() {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			try {
-				listener.busTerminated(event);
-			}
-			catch (Throwable t) {
-				logger.info("Exception from Listener [" 
-						+ listener + "]", t);
-			}
-		}
-	}
-	
-	protected void fireBusCrashed(BusException e) {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
-		
-		BusEvent event = new BusEvent(this);
-		
-		for (BusListener listener : copy) {
-			try {
-				listener.busCrashed(event, e);
-			}
-			catch (Throwable t) {
-				logger.info("Exception from Listener [" 
-						+ listener + "]", t);
-			}
-		}
-	}
-
 	public Collection<? super T> getTo() {
 		return to;
 	}
@@ -298,5 +205,8 @@ public class BasicBeanBus<T> implements BusConductor, BeanBus<T> {
 	public Runnable getStopBusCommand() {
 		return stopBusCommand;
 	}
-
+	
+	public BusConductor getBusConductor() {
+		return busConductor;
+	}
 }

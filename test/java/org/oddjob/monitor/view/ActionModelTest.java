@@ -39,7 +39,7 @@ public class ActionModelTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(ActionModelTest.class); 
 	
-	class OurSessionLite extends MockConfigurationSession {
+	private class OurSessionLite extends MockConfigurationSession {
 		
 		ArooaDescriptor descriptor = new StandardArooaDescriptor();
 		
@@ -54,7 +54,7 @@ public class ActionModelTest extends TestCase {
 		}
 	}
 	
-	class ParentContext extends MockExplorerContext {
+	private class ParentContext extends MockExplorerContext {
 		
 		ConfigurationSession session = new OurSessionLite();
 		
@@ -72,7 +72,7 @@ public class ActionModelTest extends TestCase {
 		}
 	}
 	
-	class OurExplorerContext extends MockExplorerContext {
+	private class OurExplorerContext extends MockExplorerContext {
 		
 		Object thisComponent;
 		
@@ -91,6 +91,11 @@ public class ActionModelTest extends TestCase {
 		@Override
 		public ExplorerContext getParent() {
 			return new ParentContext();
+		}
+		
+		@Override
+		public Object getValue(String key) {
+			return null;
 		}
 	}
 	
@@ -181,7 +186,7 @@ public class ActionModelTest extends TestCase {
 		assertFalse(menuItems.get(i).isVisible());
 	}
 
-	class RootContext extends MockExplorerContext {
+	private class RootContext extends MockExplorerContext {
 		
 		Oddjob thisComponent;
 		
