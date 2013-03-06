@@ -12,7 +12,7 @@ import java.util.Set;
  * will implement all interfaces from the original component as well
  * as those provided by the {@link WrapperFactory}.
  * <p>
- * If the wrapped component is an instance of an {@link Adaptor} the 
+ * If the wrapped component is an instance of an {@link ComponentAdapter} the 
  * underlying component interface will be used instead.
  * 
  * @author rob
@@ -35,8 +35,8 @@ public class ProxyGenerator<T> {
 			ClassLoader classLoader) {
 
 		Object component;
-		if (wrapped instanceof Adaptor) {
-			component = ((Adaptor) wrapped).getComponent();
+		if (wrapped instanceof ComponentAdapter) {
+			component = ((ComponentAdapter) wrapped).getComponent();
 		}
 		else {
 			component = wrapped;

@@ -3,7 +3,6 @@ package org.oddjob.beanbus;
 import java.util.Collection;
 
 import org.apache.log4j.Logger;
-import org.oddjob.arooa.registry.ServiceProvider;
 
 /**
  * A base class for Jobs and Services that provide an {@link BeanBus}.
@@ -17,7 +16,7 @@ import org.oddjob.arooa.registry.ServiceProvider;
  * @param <T> The type of beans on the bus.
  */
 abstract public class AbstractBusComponent<T> 
-implements BusServiceProvider, ServiceProvider {
+implements BusServiceProvider, Outbound<T> {
 	
 	private static final Logger logger = Logger.getLogger(AbstractBusComponent.class);
 	
@@ -68,6 +67,7 @@ implements BusServiceProvider, ServiceProvider {
 	 * 
 	 * @param to
 	 */
+	@Override
 	public void setTo(Collection<? super T> to) {
 		beanBus.setTo(to);
 	}

@@ -79,7 +79,7 @@ implements WrapperInvocationHandler, Serializable {
 	 * @param destination
 	 */
 	private void addMethods(Class<?> from, Object destination) {
-		Method[] ms = from.getDeclaredMethods();
+		Method[] ms = from.getMethods();
 		for (int i = 0; i < ms.length; ++i) {
 			methods.put(ms[i], destination);
 		}
@@ -96,7 +96,8 @@ implements WrapperInvocationHandler, Serializable {
 		
 		Object destination = methods.get(method);
 		if (destination == null) {
-			throw new IllegalStateException("Unknown method " + method);
+			throw new IllegalStateException("Unknown method " + method +
+					" for [" + wrapped + "].");
 		}
 		
 		return method.invoke(destination, args);

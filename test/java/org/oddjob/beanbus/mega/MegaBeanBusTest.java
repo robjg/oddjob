@@ -74,8 +74,6 @@ public class MegaBeanBusTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		
-		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 	
 		@SuppressWarnings("unchecked")

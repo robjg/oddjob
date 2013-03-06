@@ -13,9 +13,6 @@
                             </values>
                         </list>
                     </beans>
-                    <to>
-                        <value value="${list}"/>
-                    </to>
                 </bus:iterable-driver>
                 <bus:bean-capture id="list" xmlns:bus="oddjob:beanbus"/>
             </parts>

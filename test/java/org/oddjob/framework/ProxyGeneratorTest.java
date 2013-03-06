@@ -88,7 +88,7 @@ public class ProxyGeneratorTest extends TestCase {
 		}
 	}
 	
-	class VegetableAdaptor implements Fruit, Adaptor {
+	class VegetableAdaptor implements Fruit, ComponentAdapter {
 		final Vegetable vegetable;
 		
 		public VegetableAdaptor(Vegetable vegetable) {

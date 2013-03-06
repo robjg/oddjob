@@ -68,10 +68,17 @@ public class OddjobRunner {
 				logger.debug("Oddjob execution thread complete via destroy from the shutdown hook.");
 			}
 			else {
-				logger.debug("Oddjob execution thread completed.");
+				logger.debug("Oddjob execution thread completed." +
+						" May wait for Oddjob, it's state is " + 
+						oddjob.lastStateEvent().getState() + ".");
 				
 				// Possibly wait for Oddjob to be in a stopped state.
 				new StopWait(oddjob, Long.MAX_VALUE).run();
+				
+				logger.debug("Oddjob is finished, state " +
+						oddjob.lastStateEvent().getState() + ", " +
+						" stopping anyway because services might be" +
+						" still running.");
 				
 				// Stop Oddjob - even though it's stopped. The stop
 				// message needs to be propagated down to the job tree

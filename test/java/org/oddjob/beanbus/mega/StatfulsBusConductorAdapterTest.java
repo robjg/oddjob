@@ -57,8 +57,8 @@ public class StatfulsBusConductorAdapterTest extends TestCase {
 		
 		FlagState flag = new FlagState();
 		
-		StatefulBusConductorAdaptor test = 
-				new StatefulBusConductorAdaptor(flag);
+		StatefulBusConductorAdapter test = 
+				new StatefulBusConductorAdapter(flag);
 		
 		OurBusListener listener = new OurBusListener();
 		

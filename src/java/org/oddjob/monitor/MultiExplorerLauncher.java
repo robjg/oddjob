@@ -8,8 +8,11 @@ import org.oddjob.OddjobServices;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.view.ScreenPresence;
+import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.monitor.model.FileHistory;
+import org.oddjob.state.IsStoppable;
+import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.AnyActiveStateOp;
 
@@ -97,6 +100,14 @@ implements Stoppable  {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
+		final ExecutionWatcher executionWatcher = 
+				new ExecutionWatcher(new Runnable() {
+					public void run() {
+						stop = false;
+						MultiExplorerLauncher.super.startChildStateReflector();
+					}
+			});
+		
 		MultiViewController controller = new MultiViewController() {
 			
 			@Override
@@ -121,13 +132,28 @@ implements Stoppable  {
 				
 				childHelper.insertChild(childHelper.size(), explorer);
 				
-				oddjobServices.getOddjobExecutors().getPoolExecutor().execute(explorer);
+				oddjobServices.getOddjobExecutors().getPoolExecutor(
+						).execute(executionWatcher.addJob(explorer));
 			}
 		};
 		
-		controller.launchNewExplorer(null);		
+		controller.launchNewExplorer(null);
+		
+		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			public void run() {
+				getStateChanger().setState(ParentState.ACTIVE);
+			}
+		});
+		
+		executionWatcher.start();
+
 	}
 
+	@Override
+	protected void startChildStateReflector() {
+		// This is started by us so override and do nothing.
+	}
+	
 	@Override
 	protected void onReset() {
 		super.onReset();

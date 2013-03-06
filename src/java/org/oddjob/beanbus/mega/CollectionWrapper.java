@@ -32,7 +32,8 @@ import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
 
 /**
- * Wraps a Service object and adds state to it. 
+ * Wraps a Collection object so that it can be added to an 
+ * {@link MegaBeanBus}. 
  * <p>
  * 
  * @author Rob Gordon.
@@ -224,7 +225,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	 * @see java.lang.Object#toString()
 	 */
     public String toString() {
-        return getWrapped().getClass().getSimpleName();
+        return getWrapped().toString();
     }    
     
     public boolean contains(String name, String key) {

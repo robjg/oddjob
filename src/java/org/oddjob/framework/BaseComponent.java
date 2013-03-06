@@ -19,7 +19,7 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.RuntimeEvent;
-import org.oddjob.arooa.runtime.RuntimeListenerAdaptor;
+import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.state.IsAnyState;
@@ -80,7 +80,7 @@ implements Iconic, Stateful,
 					". Methods are already available and handled internally.");
 		}
 		
-		context.getRuntime().addRuntimeListener(new RuntimeListenerAdaptor() {
+		context.getRuntime().addRuntimeListener(new RuntimeListenerAdapter() {
 			@Override
 			public void afterInit(RuntimeEvent event) throws ArooaException {
 				onInitialised();

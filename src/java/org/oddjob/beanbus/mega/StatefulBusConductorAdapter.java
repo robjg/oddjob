@@ -20,11 +20,11 @@ import org.oddjob.state.StateListener;
  * @author rob
  *
  */
-public class StatefulBusConductorAdaptor extends AbstractBusConductor
+public class StatefulBusConductorAdapter extends AbstractBusConductor
 implements BusConductor {
 
 	private static final Logger logger = 
-			Logger.getLogger(StatefulBusConductorAdaptor.class);
+			Logger.getLogger(StatefulBusConductorAdapter.class);
 	
 	private final Stateful stateful; 
 
@@ -82,7 +82,7 @@ implements BusConductor {
 			};
 	
 	
-	public StatefulBusConductorAdaptor(Stateful stateful) {
+	public StatefulBusConductorAdapter(Stateful stateful) {
 		this.stateful = stateful;
 		stateful.addStateListener(stateListener);
 	}

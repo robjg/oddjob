@@ -21,6 +21,7 @@ import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusServiceProvider;
+import org.oddjob.beanbus.Outbound;
 import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
@@ -54,6 +55,8 @@ implements ConfigurationOwner, BusServiceProvider {
 	private transient ConfigurationOwnerSupport configurationOwnerSupport;
 	
 	private transient volatile BusConductor busConductor;
+	
+	private boolean noAutoLink;
 	
 	/**
 	 * Only constructor.
@@ -147,12 +150,15 @@ implements ConfigurationOwner, BusServiceProvider {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void execute() throws Exception {
 		
 		Object[] children = childHelper.getChildren();
 
-		StatefulBusConductorAdaptor adaptor = null;
+		StatefulBusConductorAdapter adaptor = null;
+		
+		Object previousChild = null;
 		
 		try {
 			for (Object child : children) {
@@ -164,7 +170,7 @@ implements ConfigurationOwner, BusServiceProvider {
 	
 				if (busConductor == null && adaptor == null && 
 						child instanceof Stateful) {
-					adaptor = new StatefulBusConductorAdaptor(
+					adaptor = new StatefulBusConductorAdapter(
 							(Stateful) child);
 					busConductor = adaptor;
 				}
@@ -179,6 +185,22 @@ implements ConfigurationOwner, BusServiceProvider {
 					
 					((BusPart) child).prepare(busConductor);
 				}
+				
+				if (!noAutoLink && previousChild != null && 
+						child instanceof Collection) {
+					
+					Outbound outbound = new OutboundStrategies(
+							).outboundFor(previousChild, getArooaSession());
+					
+					if (outbound != null) {
+						outbound.setTo((Collection) child);
+					
+						logger().info("Automatically Linked Outbound [" + 
+							previousChild + "] to [" + child + "]");
+					}
+				}
+				
+				previousChild = child;
 			}
 			
 			
@@ -246,6 +268,14 @@ implements ConfigurationOwner, BusServiceProvider {
 
 	public void setBusConductor(BusConductor busConductor) {
 		this.busConductor = busConductor;
+	}
+
+	public boolean isNoAutoLink() {
+		return noAutoLink;
+	}
+
+	public void setNoAutoLink(boolean noAutoLink) {
+		this.noAutoLink = noAutoLink;
 	}
 	
 }

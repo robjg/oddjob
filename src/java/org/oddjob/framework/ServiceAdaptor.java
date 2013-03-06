@@ -6,7 +6,7 @@ package org.oddjob.framework;
  * @author rob
  *
  */
-public interface ServiceAdaptor extends Service, Adaptor {
+public interface ServiceAdaptor extends Service, ComponentAdapter {
 
 	/**
 	 * The component being adapted.

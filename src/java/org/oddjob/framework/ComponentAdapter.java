@@ -6,7 +6,7 @@ package org.oddjob.framework;
  * @author rob
  *
  */
-public interface Adaptor {
+public interface ComponentAdapter {
 
 	/**
 	 * Get the component being adapted.
