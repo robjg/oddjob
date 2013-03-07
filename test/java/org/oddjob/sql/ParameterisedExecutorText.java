@@ -12,6 +12,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.mockito.Mockito;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
@@ -78,6 +79,10 @@ public class ParameterisedExecutorText extends TestCase {
 	private class Results extends BeanFactoryResultHandler {
 
 		List<Object> beans = new ArrayList<Object>();
+
+		public Results(ArooaSession session) {
+			super(session);
+		}
 		
 		@Override
 		public void accept(Object bean) {
@@ -104,8 +109,7 @@ public class ParameterisedExecutorText extends TestCase {
 		StandardArooaSession session = new StandardArooaSession();
 		test.setArooaSession(session);
 		
-		Results results = new Results();
-		results.setArooaSession(session);
+		Results results = new Results(session);
 		test.setResultProcessor(results);
 		
 		String create = 
@@ -194,8 +198,7 @@ public class ParameterisedExecutorText extends TestCase {
 		StandardArooaSession session = new StandardArooaSession();
 		test.setArooaSession(session);
 		
-		Results results = new Results();
-		results.setArooaSession(session);
+		Results results = new Results(session);
 		test.setResultProcessor(results);
 		
 		String create = 

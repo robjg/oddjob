@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
@@ -88,7 +89,7 @@ import org.oddjob.beanbus.TrackingBusListener;
  * @author rob
  *
  */
-public class SQLResultsBean extends BeanFactoryResultHandler {
+public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsBean.class);
 	
@@ -137,13 +138,11 @@ public class SQLResultsBean extends BeanFactoryResultHandler {
 	@ArooaHidden
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
-		super.setBusConductor(busConductor);
-
 		busListener.setBusConductor(busConductor);
 	}
 	
 	@Override
-	protected void accept(Object bean) {
+	protected Object filter(Object bean) {
 		
 		if (bean instanceof UpdateCount) {
 			
@@ -157,6 +156,8 @@ public class SQLResultsBean extends BeanFactoryResultHandler {
 		else {
 			beans.add(bean);
 		}
+		
+		return bean;
 	}
 	
 	public void addBeans(List<?> beans) {

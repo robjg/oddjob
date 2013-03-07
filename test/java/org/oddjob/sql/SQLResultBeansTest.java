@@ -3,11 +3,10 @@ package org.oddjob.sql;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oddjob.arooa.standard.StandardArooaSession;
+import junit.framework.TestCase;
+
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
-
-import junit.framework.TestCase;
 
 public class SQLResultBeansTest extends TestCase {
 
@@ -46,7 +45,6 @@ public class SQLResultBeansTest extends TestCase {
 		
 		BasicBeanBus<String> beanBus = new BasicBeanBus<String>();
 		
-		test.setArooaSession(new StandardArooaSession());
 		test.setBusConductor(beanBus.getBusConductor());
 		
 		beanBus.startBus();
@@ -54,7 +52,7 @@ public class SQLResultBeansTest extends TestCase {
 		// Start the trip.
 		beanBus.add("ignored");
 		
-		test.accept("Apple");
+		test.filter("Apple");
 		
 		beanBus.getBusConductor().cleanBus();
 		
@@ -63,8 +61,8 @@ public class SQLResultBeansTest extends TestCase {
 		
 		beanBus.add("ignored");
 		
-		test.accept("Pear");
-		test.accept("Banana");
+		test.filter("Pear");
+		test.filter("Banana");
 		
 		beanBus.stopBus();
 		
@@ -81,7 +79,7 @@ public class SQLResultBeansTest extends TestCase {
 
 		beanBus.add("ignored");
 		
-		test.accept("Apple");
+		test.filter("Apple");
 		
 		beanBus.stopBus();
 		
@@ -96,8 +94,6 @@ public class SQLResultBeansTest extends TestCase {
 		
 		BasicBeanBus<String> beanBus = new BasicBeanBus<String>();
 		
-		test.setArooaSession(new StandardArooaSession());
-		
 		test.setBusConductor(beanBus.getBusConductor());
 		test.setBusConductor(beanBus.getBusConductor());
 		
@@ -106,7 +102,7 @@ public class SQLResultBeansTest extends TestCase {
 		// Start the trip.
 		beanBus.add("ignored");
 		
-		test.accept("Apple");
+		test.filter("Apple");
 		
 		beanBus.stopBus();
 		

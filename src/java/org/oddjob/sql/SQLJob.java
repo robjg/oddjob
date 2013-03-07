@@ -65,6 +65,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.util.Collection;
 
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
@@ -72,10 +73,12 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusException;
+import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusServiceProvider;
+import org.oddjob.beanbus.Destination;
+import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.beanbus.destinations.BadBeanFilter;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
@@ -184,7 +187,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * {@link SQLResultsBean} or {@link SQLResultsSheet}.
 	 * @oddjob.required No, defaults to none. 
 	 */
-	private transient SQLResultHandler results;
+	private transient Collection<Object> results;
 	
 	/** The session. */
 	private transient ArooaSession session;
@@ -242,7 +245,15 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 */
 	public void run() {
 		
-		executor.setResultProcessor(results);
+		SQLResultHandler resultHandler = null;
+		
+		if (results != null) {			
+			resultHandler = new SQLResultsBus(results, session);
+			resultHandler.setBusConductor(parser.getServices(
+					).getService(BusService.BEAN_BUS_SERVICE_NAME));
+		}
+		
+		executor.setResultProcessor(resultHandler);
 		
 	    parser.setArooaSession(session);
 	    
@@ -279,7 +290,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * 
 	 * @return Result Handler. May be null.
 	 */
-	public SQLResultHandler getResults() {
+	public Collection<Object> getResults() {
 		return results;
 	}
 
@@ -288,7 +299,8 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * 
 	 * @param results Result Handler. May be null.
 	 */
-	public void setResults(SQLResultHandler results) {
+	@Destination
+	public void setResults(Collection<Object> results) {
 		this.results = results;
 	}
 	

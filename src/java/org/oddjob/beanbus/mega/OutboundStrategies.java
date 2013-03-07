@@ -70,7 +70,7 @@ public class OutboundStrategies implements OutboundStrategy {
 		return new OutboundStrategy() {
 			
 			@Override
-			public <T> Outbound<T> outboundFor(final Object component,
+			public <T> Outbound<T> outboundFor(Object component,
 					ArooaSession session) {
 				
 				// The component may be a proxy so we have to find
@@ -79,7 +79,7 @@ public class OutboundStrategies implements OutboundStrategy {
 				ComponentTrinity trinity = componentPool.trinityFor(
 						component);
 				
-				Object realComponent = trinity.getTheComponent();
+				final Object realComponent = trinity.getTheComponent();
 				
 				PropertyAccessor accessor = 
 						session.getTools().getPropertyAccessor();
@@ -102,7 +102,7 @@ public class OutboundStrategies implements OutboundStrategy {
 					@Override
 					public void setTo(Collection<? super T> destination) {
 						try {
-							setToMethod.invoke(component, destination);
+							setToMethod.invoke(realComponent, destination);
 						} catch (RuntimeException e) {
 							throw e;
 						} catch (Exception e) {

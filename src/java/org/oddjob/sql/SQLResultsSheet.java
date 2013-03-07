@@ -12,6 +12,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
@@ -52,7 +53,7 @@ import org.oddjob.util.StreamPrinter;
  * @author rob
  *
  */
-public class SQLResultsSheet extends BeanFactoryResultHandler
+public class SQLResultsSheet extends AbstractFilter<Object, Object>
 implements ArooaSessionAware {
 	
 	private static final Logger logger = Logger.getLogger(SQLResultsSheet.class);
@@ -124,16 +125,15 @@ implements ArooaSessionAware {
 	@Override
 	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
-		super.setArooaSession(session);
 		this.session = session;
 	}
-	
-	@Override
-	protected void accept(Object bean) {
-		
-		beans.add(bean);
-	}
 
+	@Override
+	protected Object filter(Object from) {
+		beans.add(from);
+		return from;
+	}
+	
 	public void writeBeans(List<Object> beans) {
 		
 		elapsedTime = System.currentTimeMillis() - elapsedTime;
@@ -183,7 +183,6 @@ implements ArooaSessionAware {
 	@ArooaHidden
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
-		super.setBusConductor(busConductor);
 		this.busListener.setBusConductor(busConductor);
 	}	
 }

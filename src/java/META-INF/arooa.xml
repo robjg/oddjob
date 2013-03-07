@@ -105,7 +105,6 @@
                     designFactory='org.oddjob.values.properties.PropertiesDesFa'/>
                 <is element='sql-results-bean' className='org.oddjob.sql.SQLResultsBean'/>
                 <is element='sql-results-sheet' className='org.oddjob.sql.SQLResultsSheet'/>
-                <is element='sql-results-bus' className='org.oddjob.sql.SQLResultsBus'/>
                 <is element='throttle'
                     className='org.oddjob.scheduling.ExecutorThrottleType'/>
                 <is element='tokenizer'

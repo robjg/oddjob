@@ -36,11 +36,7 @@ select * from FRUIT;
 				]]></buffer>
                     </input>
                     <results>
-                        <sql-results-bus>
-                            <to>
                                <list/>
-                            </to>
-                        </sql-results-bus>
                     </results>
                 </sql>
                 <sql name="Shutdown">

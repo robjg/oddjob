@@ -2,15 +2,8 @@ package org.oddjob.sql;
 
 import java.util.Collection;
 
-import javax.inject.Inject;
-
-import org.apache.log4j.Logger;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.beanbus.BeanBus;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.beanbus.mega.MegaBeanBus;
 
 /**
@@ -35,59 +28,20 @@ import org.oddjob.beanbus.mega.MegaBeanBus;
  */
 public class SQLResultsBus extends BeanFactoryResultHandler {
 	
-	private static final Logger logger = Logger.getLogger(SQLResultsBus.class);
+	private final Collection<? super Object> to;
 	
-	private volatile Collection<? super Object> to;
-	
-	private int count = 0;
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			
-			if (to == null) {
-				logger.info("No To Destination. Beans will be ignored.");
-			}
-		}
-		
-		@Override
-		public void busStopping(BusEvent event) throws BusCrashException {
-			logger.info("Sent " + count + " beans to destination [" + 
-					to + "]");
-		}
-	};
+	public SQLResultsBus(Collection<? super Object> to, 
+			ArooaSession session) {
+		super(session);
+		this.to = to;
+	}
 	
 	@Override
 	protected void accept(Object bean) {
 				
 		if (to != null) {
 			to.add(bean);
-			++count;
 		}
 	}
 	
-	public void setTo(Collection<? super Object> to) {
-		this.to = to;
-	}
-	
-	public Collection<? super Object> getTo() {
-		return to;
-	}
-	
-	
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		super.setBusConductor(busConductor);
-		
-		busListener.setBusConductor(busConductor);
-	}
-	
-	@Override
-	public String toString() {
-		return getClass().getSimpleName() + " to [" + to +
-				"], count=" + count;
-	}
 }

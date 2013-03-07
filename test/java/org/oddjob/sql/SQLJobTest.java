@@ -55,7 +55,6 @@ public class SQLJobTest extends TestCase {
 		buffer.configured();
 		
 		SQLResultsBean beans = new SQLResultsBean();
-		beans.setArooaSession(session);
 		beans.setBusConductor(test.getServices(
 				).getService(SimpleBusService.BEAN_BUS_SERVICE_NAME));
 		test.setResults(beans);

@@ -55,7 +55,6 @@ public class SQLScriptJobTest extends TestCase {
 		SQLJob results = new SQLJob();
 		
 		SQLResultsBean beans = new SQLResultsBean();
-		beans.setArooaSession(session);
 		beans.setBusConductor(results.getServices(
 				).getService(SimpleBusService.BEAN_BUS_SERVICE_NAME));
 		
@@ -113,7 +112,6 @@ public class SQLScriptJobTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		
 		SQLResultsBean beans = new SQLResultsBean();
-		beans.setArooaSession(session);
 		beans.setBusConductor(test.getServices(
 				).getService(SimpleBusService.BEAN_BUS_SERVICE_NAME));
 		

@@ -3,6 +3,8 @@ package org.oddjob.sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.oddjob.beanbus.BusConductor;
+
 /**
  * Handles results from a query.
  * 
@@ -18,5 +20,6 @@ public interface SQLResultHandler {
 	public void handleUpdate(int updateCount,
 			DatabaseDialect dialect)
 	throws SQLException, ClassNotFoundException;
-	
+		
+	public void setBusConductor(BusConductor busConductor);
 }

@@ -3,16 +3,11 @@ package org.oddjob.sql;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.inject.Inject;
-
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.BusListenerAdapter;
 
 /**
  * A {@link SQLResultHandler} that creates beans.
@@ -21,28 +16,13 @@ import org.oddjob.beanbus.TrackingBusListener;
  *
  */
 abstract public class BeanFactoryResultHandler 
-implements SQLResultHandler, ArooaSessionAware {
+implements SQLResultHandler {
 
 	private PropertyAccessor accessor;
 	
 	private volatile boolean stop;
 	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			stop = false;
-		}
-		
-		@Override
-		public void busStopRequested(BusEvent event) {
-			stop = true;
-		}
-	};
-	
-	@ArooaHidden
-	@Override
-	public void setArooaSession(ArooaSession session) {
+	public BeanFactoryResultHandler(ArooaSession session) {
 		this.accessor = session.getTools(
 				).getPropertyAccessor().accessorWithConversions(
 						session.getTools().getArooaConverter());
@@ -76,9 +56,19 @@ implements SQLResultHandler, ArooaSessionAware {
 	
 	abstract protected void accept(Object bean);
 	
-	@ArooaHidden
-	@Inject
+	@Override
 	public void setBusConductor(BusConductor busConductor) {
-		busListener.setBusConductor(busConductor);
+		busConductor.addBusListener(new BusListenerAdapter() {
+			
+			@Override
+			public void busStopRequested(BusEvent event) {
+				stop = true;
+			}
+			
+			@Override
+			public void busTerminated(BusEvent event) {
+				event.getSource().removeBusListener(this);
+			}
+		});
 	}
 }
