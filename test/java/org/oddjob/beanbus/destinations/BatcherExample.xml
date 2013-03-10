@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bean-bus>
+            <parts>
+                <bus:iterable-driver id="bean-bus" xmlns:bus="oddjob:beanbus">
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="Apple"/>
+                                <value value="Orange"/>
+                                <value value="Pear"/>
+                                <value value="Kiwi"/>
+                                <value value="Banana"/>
+                            </values>
+                        </list>
+                    </beans>
+                </bus:iterable-driver>
+                <bean id="batcher" batchSize="2" class="org.oddjob.beanbus.destinations.Batcher"/>
+                <bus:bean-capture id="results" xmlns:bus="oddjob:beanbus"/>
+            </parts>
+        </bean-bus>
+    </job>
+</oddjob>
