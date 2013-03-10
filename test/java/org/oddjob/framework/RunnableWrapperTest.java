@@ -6,6 +6,7 @@ package org.oddjob.framework;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 import junit.framework.TestCase;
 
@@ -212,9 +213,12 @@ public class RunnableWrapperTest extends TestCase {
     
     public void testStop() throws InterruptedException, FailedToStopException {
     	
+    	final CountDownLatch latch = new CountDownLatch(1);
+    	
     	Runnable test = new Runnable() {
 			@Override
 			public void run() {   					
+				latch.countDown();
 				synchronized(this) {
 					try {
 						wait();
@@ -243,6 +247,7 @@ public class RunnableWrapperTest extends TestCase {
     	t.start();
     	
     	states.checkWait();
+    	latch.await();
     	
     	Stoppable stoppable = (Stoppable) wrapper;
     	

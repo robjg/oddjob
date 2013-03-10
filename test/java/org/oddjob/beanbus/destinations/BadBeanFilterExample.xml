@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bean-bus noAutoLink="true">
+            <parts>
+                <bus:iterable-driver id="driver" xmlns:bus="oddjob:beanbus">
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="Good Apple"/>
+                                <value value="Rotton Apple"/>
+                                <value value="Good Apple"/>
+                            </values>
+                        </list>
+                    </beans>
+                    <to>
+                        <value value="${filter}"/>
+                    </to>
+                </bus:iterable-driver>
+                <bus:bad-bean-filter id="filter" xmlns:bus="oddjob:beanbus">
+                    <badBeanHandler>
+                        <value value="${bad}"/>
+                    </badBeanHandler>
+                    <to>
+                        <value value="${qa}"/>
+                    </to>
+                </bus:bad-bean-filter>
+                <bean class="org.oddjob.beanbus.destinations.BadBeanFilterTest$RottonAppleDetector" id="qa">
+                    <to>
+                        <value value="${good}"/>
+                    </to>
+                </bean>
+                <bus:bean-capture id="good" name="Good Beans" xmlns:bus="oddjob:beanbus"/>
+                <bus:bean-capture id="bad" name="Bad Beans" xmlns:bus="oddjob:beanbus"/>
+            </parts>
+        </bean-bus>
+    </job>
+</oddjob>

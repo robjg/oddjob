@@ -17,13 +17,31 @@ import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusFilter;
 
 /**
- * Copy the properties of a bean to another bean.
+ * @oddjob.description Copy the properties of a bean to another bean.
  * 
+ * @oddjob.example
+ * 
+ * Copy beans into bean properties given by the class.
+ * 
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanCopyJavaClass.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Copy beans into a dynamically created bean.
+ * 
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanCopyMagicClass.xml}
+ * 
+ * @oddjob.example
+ * 
+ * Copy beans into a dynamically created bean the properties of which match
+ * the source bean.
+ * 
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanCopyNoClass.xml}
  * 
  * @author rob
  *
- * @param <F>
- * @param <T>
+ * @param <F> From
+ * @param <T> To
  */
 public class BeanCopy<F, T> extends AbstractDestination<F>
 implements BusFilter<F, T>, ArooaSessionAware {

@@ -9,6 +9,13 @@ import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.TrackingBusListener;
 
+/**
+ * Only allow a certain number of beans passed.
+ * 
+ * @author rob
+ *
+ * @param <F>
+ */
 public class OnlyFilter<F> extends AbstractFilter<F, F>{
 
 	private int only;

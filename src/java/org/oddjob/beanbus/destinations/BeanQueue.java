@@ -17,11 +17,19 @@ import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.TrackingBusListener;
 
 /**
- * A Queue for beans. A work in progress.
+ * @oddjob.description A Queue for beans. A work in progress.
+ * 
+ * @oddjob.example 
+ * 
+ * A simple example.
+ * 
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample.xml}
+ * 
+ * 
  * 
  * @author rob
  *
- * @param <E>
+ * @param <E> The type of element on the queue.
  */
 public class BeanQueue<E> extends AbstractDestination<E>
 implements Iterable<E> {

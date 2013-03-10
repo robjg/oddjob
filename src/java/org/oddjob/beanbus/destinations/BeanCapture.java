@@ -15,6 +15,17 @@ import org.oddjob.beanbus.TrackingBusListener;
 /**
  * A {@link BusFilter} that collects beans in a list.
  * 
+ * @oddjob.example
+ * 
+ * There are many examples elsewhere.
+ * <ul>
+ * 	<li>{@link Batcher}</li>
+ * 	<li>{@link BeanCopy}</li>
+ *  <li>{@link BeanQueue}</li>
+ *  <li>{@link OnlyFilter}</li>
+ * </ul>
+ * 
+ * 
  * @author rob
  *
  * @param <T> The type of the beans to be collected.
