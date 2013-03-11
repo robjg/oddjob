@@ -83,7 +83,7 @@ implements BusFilter<F, T>, ArooaSessionAware {
 			String from = mapping.getKey();
 			String to = mapping.getValue();
 			
-			accessor.setSimpleProperty(toBean, to, 
+			accessor.setProperty(toBean, to, 
 					accessor.getProperty(bean, from));
 		}
 
@@ -136,5 +136,15 @@ implements BusFilter<F, T>, ArooaSessionAware {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	@Override
+	public String toString() {
+		if (name == null) {
+			return getClass().getSimpleName();
+		}
+		else {
+			return name;
+		}
 	}
 }

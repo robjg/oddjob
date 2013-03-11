@@ -170,4 +170,69 @@ public class BeanCopyTest extends TestCase {
 		
 		oddjob.destroy();
 	}
+	
+	public static class Meal {
+		
+		private final Fruit fruit;
+		
+		public Meal(Fruit fruit) {
+			this.fruit = fruit;
+		}
+		
+		public Fruit getFruit() {
+			return fruit;
+		}
+		
+	}
+	
+	public static class Snack {
+		private final BeanTo bean = new BeanTo();
+		
+		public BeanTo getBean() {
+			return bean;
+		}
+	}
+	
+	public void testCopyWithNestedBeans() throws ArooaPropertyException, ArooaConversionException {
+
+		List<Meal> in = Arrays.asList(
+				new Meal(new Fruit("apple", 5, 2.45)),
+				new Meal(new Fruit("pear", 2, 1.25)));
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/beanbus/destinations/BeanCopyNestedBeans.xml", getClass()
+						.getClassLoader()));
+		oddjob.setExport("list-of-beans", new ArooaObject(in));
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		List<?> results = lookup.lookup(
+				"results.beans", List.class);
+		
+		Snack snack1 = (Snack) results.get(0);
+		
+		BeanTo bean1 = snack1.getBean();
+				
+		assertEquals("apple", bean1.snack);
+		assertEquals(5, bean1.number);
+		assertEquals(2.45, bean1.COST);
+		
+		Snack snack2 = (Snack) results.get(1);
+		
+		BeanTo bean2 = snack2.getBean();
+		
+		assertEquals("pear", bean2.snack);
+		assertEquals(2, bean2.number);
+		assertEquals(1.25, bean2.COST);
+		
+		assertEquals(2, results.size());
+		
+		oddjob.destroy();
+	}
 }
