@@ -12,6 +12,8 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
+import org.oddjob.IconSteps;
+import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -201,12 +203,22 @@ public class MegaBeanBusTest extends TestCase {
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Iconic results = (Iconic) lookup.lookup("results");
+		
+		IconSteps icons = new IconSteps(results);
+		icons.startCheck(CollectionWrapper.INACTIVE, 
+				CollectionWrapper.ACTIVE, CollectionWrapper.INACTIVE);
+		
 		oddjob.run();
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
-		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
+
+		icons.checkNow();
 		
 		assertEquals(new Integer(4950), lookup.lookup(
 				"results.total", Integer.class));
@@ -221,6 +233,101 @@ public class MegaBeanBusTest extends TestCase {
 		
 		assertEquals(new Integer(4950), lookup.lookup(
 				"results.total", Integer.class));
+		
+		oddjob.destroy();
+	}
+	
+	public static class OurSliperyDestination extends AbstractDestination<Integer> {
+
+		int crashed;
+		int terminated;
+		
+		
+		final TrackingBusListener busListener = new TrackingBusListener() {
+			@Override
+			public void busStarting(BusEvent event) throws BusCrashException {
+				throw new BusCrashException("Slippery Destination!");
+			}
+			@Override
+			public void busCrashed(BusEvent event) {
+				++crashed;
+			}
+			@Override
+			public void busTerminated(BusEvent event) {
+				++terminated;
+			}
+		};
+		
+		@Override
+		public boolean add(Integer e) {
+			throw new RuntimeException("Unexpected.");
+		}
+		
+		@Inject
+		public void setBusConductor(BusConductor busConductor) {
+			busListener.setBusConductor(busConductor);
+		}
+		
+		public int getCrashed() {
+			return crashed;
+		}
+		
+		public int getTerminated() {
+			return terminated;
+		}
+	}
+	
+	public void testWithBadBusPart() throws ArooaPropertyException, ArooaConversionException {
+		
+		String xml = 
+				"<oddjob>" +
+				" <job>" +
+				"  <bean-bus id='test'>" +
+				"   <parts>" +
+				"    <bean class='" + NumberGenerator.class.getName() + "'>" +
+				"     <to><value value='${results}'/></to>" +
+				"    </bean>" +
+				"    <bean class='" + OurSliperyDestination.class.getName() + "' " +
+				"          id='results'/>" +
+				"   </parts>" +
+				"  </bean-bus>" +
+				" </job>" +
+				"</oddjob>";
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Iconic results = (Iconic) lookup.lookup("results");
+		
+		IconSteps icons = new IconSteps(results);
+		icons.startCheck(CollectionWrapper.INACTIVE, 
+				CollectionWrapper.ACTIVE, CollectionWrapper.INACTIVE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.EXCEPTION, 
+				oddjob.lastStateEvent().getState());
+
+		icons.checkNow();
+		
+		assertEquals(new Integer(1), lookup.lookup(
+				"results.crashed", Integer.class));
+		assertEquals(new Integer(1), lookup.lookup(
+				"results.terminated", Integer.class));
+		
+		Object test = lookup.lookup("test");
+		((Resetable) test).hardReset();
+		((Runnable) test).run();
+		
+		assertEquals(new Integer(2), lookup.lookup(
+				"results.crashed", Integer.class));
+		assertEquals(new Integer(2), lookup.lookup(
+				"results.terminated", Integer.class));
+		
 		
 		oddjob.destroy();
 	}

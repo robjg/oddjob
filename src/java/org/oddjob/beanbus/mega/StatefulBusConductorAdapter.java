@@ -26,9 +26,15 @@ implements BusConductor {
 	private static final Logger logger = 
 			Logger.getLogger(StatefulBusConductorAdapter.class);
 	
+	// javacc via ant wont resolve FINISHED if it's in-lined
+	// No idea why!!!!
+	private final static StateCondition FINISHED = StateConditions.FINISHED;
+	
 	private final Stateful stateful; 
 
-	boolean started;
+	private volatile boolean started;
+	
+	private volatile boolean crashed;
 	
 	private final StateListener stateListener =
 			new StateListener() {
@@ -37,45 +43,53 @@ implements BusConductor {
 				public void jobStateChange(StateEvent event) {
 					State state = event.getState();
 					
-					if (state.isStoppable() && !started) {
+					if (state.isReady()) {
+						crashed = false;
+					}
+					else if (state.isStoppable() && !started) {
 						
 						try {
 							fireBusStarting();
-							started = true;
+							
+							try {
+								fireTripBeginning();
+							} catch (BusCrashException e) {
+								fireBusCrashed(BusPhase.TRIP_BEGINNING, e);
+								crashed = true;
+							}
 						} catch (BusCrashException e) {
 							fireBusCrashed(BusPhase.BUS_STARTING, e);
+							crashed = true;
 						}
-						try {
-							fireTripBeginning();
-						} catch (BusCrashException e) {
-							fireBusCrashed(BusPhase.TRIP_BEGINNING, e);
-						}
-					}
-					
-					// javacc via ant wont resolve FINISHED if it's in-lined
-					// No idea why!!!!
-					StateCondition finished = StateConditions.FINISHED;
-					if (finished.test(state) && started) {
 						
-						if (state.isException()) {
-							fireBusCrashed(BusPhase.BUS_RUNNING, 
-									new BusCrashException(
-									"Stateful Conductor Exception", 
-									event.getException()));
-						}
-						else {
-							try {
-								fireTripEnding();
-							} catch (BusCrashException e) {
-								fireBusCrashed(BusPhase.TRIP_ENDING, e);
+						started = true;						
+					}
+					else if (FINISHED.test(state) && started) {
+						
+						if (!crashed) {
+							if (state.isException()) {
+								fireBusCrashed(BusPhase.BUS_RUNNING, 
+										new BusCrashException(
+										"Stateful Conductor Exception", 
+										event.getException()));
 							}
-							try {
-								fireBusStopping();
-							} catch (BusCrashException e) {
-								fireBusCrashed(BusPhase.BUS_STOPPING, e);
+							else {
+								try {
+									fireTripEnding();
+									
+									try {
+										fireBusStopping();
+									} catch (BusCrashException e) {
+										fireBusCrashed(BusPhase.BUS_STOPPING, e);
+									}
+								} catch (BusCrashException e) {
+									fireBusCrashed(BusPhase.TRIP_ENDING, e);
+								}
 							}
-							
 						}
+						
+						fireBusTerminated();
+						
 						started = false;
 					}
 				}

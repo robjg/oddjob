@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -25,6 +26,7 @@ import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.Outbound;
 import org.oddjob.beanbus.TrackingBusListener;
 
 /**
@@ -35,7 +37,7 @@ import org.oddjob.beanbus.TrackingBusListener;
  *
  */
 public class BeanSheet extends AbstractDestination<Object>
-implements ArooaSessionAware {
+implements ArooaSessionAware, Outbound<Object> {
 
 	private static final Logger logger = Logger.getLogger(BeanSheet.class);
 	
@@ -62,6 +64,8 @@ implements ArooaSessionAware {
 	private final List<Object> beans = new ArrayList<Object>();
 
 	private String name;
+	
+	private Collection<? super Object> to;
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
@@ -104,6 +108,11 @@ implements ArooaSessionAware {
 	public boolean add(Object bean) {
 		
 		beans.add(bean);
+		
+		if (to != null) {
+			to.add(bean);
+		}
+		
 		return true;
 	}
 
@@ -143,7 +152,7 @@ implements ArooaSessionAware {
 	
 	@ArooaHidden
 	@Inject
-	public void setBeanBus(BusConductor busConductor) {
+	public void setBusConductor(BusConductor busConductor) {
 		busListener.setBusConductor(busConductor);
 	}
 	
@@ -341,5 +350,13 @@ implements ArooaSessionAware {
 		else {
 			return name;
 		}
+	}
+
+	public Collection<? super Object> getTo() {
+		return to;
+	}
+
+	public void setTo(Collection<? super Object> to) {
+		this.to = to;
 	}
 }

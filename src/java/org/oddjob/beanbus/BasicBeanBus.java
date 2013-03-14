@@ -68,7 +68,15 @@ implements BeanBus<T> {
 			throw new IllegalStateException("Bus already started.");
 		}
 		
-		busConductor.fireBusStarting();
+		try {
+			busConductor.fireBusStarting();
+		}
+		catch (BusCrashException e) {
+			busConductor.fireBusCrashed(BusPhase.BUS_STARTING, e);
+			busConductor.fireBusTerminated();
+			
+			throw e;
+		}
 		
 		started = true;
 	}
@@ -77,7 +85,7 @@ implements BeanBus<T> {
 	public void stopBus() throws BusCrashException {
 		
 		if (!started) {
-			throw new IllegalStateException("Bus not started.");
+			throw new IllegalStateException("Bus Not Started.");
 		}
 		
 		if (tripping) {
@@ -96,7 +104,7 @@ implements BeanBus<T> {
 	public boolean add(T bean) {
 		
 		if (!started) {
-			throw new IllegalStateException("Bus not started.");
+			throw new IllegalStateException("Bus Not Started.");
 		}
 		
 		// if this is the first bean, start the trip.

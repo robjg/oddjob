@@ -21,7 +21,7 @@ import org.oddjob.logging.LogEnabled;
  * @author rob
  *
  */
-public class CollectionProxyGenerator extends ProxyGenerator<Collection<?>> {
+public class CollectionProxyGenerator<E> extends ProxyGenerator<Collection<E>> {
 
 	/**
 	 * Generate the collection.
@@ -31,10 +31,10 @@ public class CollectionProxyGenerator extends ProxyGenerator<Collection<?>> {
 	 * 
 	 * @return The collection.
 	 */
-	public Object generate(Collection<?> collection, ClassLoader classLoader) {
-		return generate(collection, new WrapperFactory<Collection<?>>() {
+	public Object generate(Collection<E> collection, ClassLoader classLoader) {
+		return generate(collection, new WrapperFactory<Collection<E>>() {
 			@Override
-			public Class<?>[] wrappingInterfacesFor(Collection<?> wrapped) {
+			public Class<?>[] wrappingInterfacesFor(Collection<E> wrapped) {
 					
 				Set<Class<?>> interfaces = new HashSet<Class<?>>();
 				interfaces.add(Object.class);
@@ -45,13 +45,14 @@ public class CollectionProxyGenerator extends ProxyGenerator<Collection<?>> {
 				interfaces.add(Describeable.class);
 				interfaces.add(Iconic.class);
 				interfaces.add(BusPart.class);
+				interfaces.add(Collection.class);
 				
 				return (Class[]) interfaces.toArray(
 						new Class[interfaces.size()]);		
 			}
 			@Override
-			public ComponentWrapper wrapperFor(Collection<?> wrapped, Object proxy) {
-				CollectionWrapper wrapper = new CollectionWrapper(wrapped, proxy);
+			public ComponentWrapper wrapperFor(Collection<E> wrapped, Object proxy) {
+				CollectionWrapper<E> wrapper = new CollectionWrapper<E>(wrapped, proxy);
 				return wrapper;
 			}
 		}, classLoader);

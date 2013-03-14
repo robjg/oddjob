@@ -2,9 +2,9 @@ package org.oddjob.beanbus;
 
 import java.util.List;
 
-import org.oddjob.beanbus.destinations.BeanCapture;
-
 import junit.framework.TestCase;
+
+import org.oddjob.beanbus.destinations.BeanCapture;
 
 public class BasicBeanBusTest extends TestCase {
 
@@ -128,6 +128,7 @@ public class BasicBeanBusTest extends TestCase {
 		}
 		catch (IllegalStateException e) {
 			// expected
+			assertEquals("Bus Not Started.", e.getMessage());
 		}
 		
 	}
@@ -248,4 +249,102 @@ public class BasicBeanBusTest extends TestCase {
 		assertEquals(1, listener.terminated);
 	}
 		
+	private class CrashingOnStartListener extends OurListener {
+		
+		@Override
+		public void busStarting(BusEvent event) throws BusCrashException {
+			
+			throw new BusCrashException("Bang!");
+		}
+	}
+	
+	public void testCrashedByListenerWhenStarting() throws BusCrashException {
+		
+		CrashingOnStartListener listener = new CrashingOnStartListener();
+		
+		BasicBeanBus<String> test = new BasicBeanBus<String>();
+		
+		test.getBusConductor().addBusListener(listener);
+		
+		try {
+			test.startBus();
+			fail("Should Throw Exception");
+		}
+		catch (BusCrashException e) {
+			assertEquals("Bang!", e.getMessage());
+		}
+		
+		assertEquals(0, listener.starting);
+		assertEquals(0, listener.beginning);
+		assertEquals(0, listener.ending);
+		assertEquals(0, listener.stopping);
+		assertEquals(1, listener.terminated);
+		assertEquals(1, listener.crashed);
+		
+		try {
+			test.add("apple");
+			fail("Should Throw Exception");
+		}
+		catch (IllegalStateException e) {
+			// expected.
+			assertEquals("Bus Not Started.", e.getMessage());
+		}
+		
+		try {
+			test.stopBus();
+			fail("Should Throw Exception");
+		}
+		catch (IllegalStateException e) {
+			// expected.
+			assertEquals("Bus Not Started.", e.getMessage());
+		}
+	}
+	
+	private class CrashingOnCleanListener extends OurListener {
+		
+		@Override
+		public void tripEnding(BusEvent event) throws BusCrashException {
+			throw new BusCrashException("Bang!");
+		}
+		
+	}
+	
+	public void testCrashedByListenerWhenCleaning() throws BusCrashException {
+		
+		CrashingOnCleanListener listener = new CrashingOnCleanListener();
+		
+		BasicBeanBus<String> test = new BasicBeanBus<String>();
+		
+		test.getBusConductor().addBusListener(listener);
+		
+		test.startBus();
+		
+		assertEquals(1, listener.starting);
+		assertEquals(0, listener.beginning);
+		
+		test.add("apple");
+		
+		assertEquals(1, listener.beginning);
+		
+		try {
+			test.getBusConductor().cleanBus();
+		}
+		catch (BusCrashException e) {
+			assertEquals("Bang!", e.getMessage());
+		}
+		
+		try {
+			test.stopBus();
+			fail("Should Throw Exception");
+		}
+		catch (IllegalStateException e) {
+			// expected.
+			assertEquals("Bus Not Started.", e.getMessage());
+		}
+		
+		assertEquals(0, listener.stopping);
+		assertEquals(0, listener.ending);
+		assertEquals(1, listener.terminated);
+		assertEquals(1, listener.crashed);
+	}
 }

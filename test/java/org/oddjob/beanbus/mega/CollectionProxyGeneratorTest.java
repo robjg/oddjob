@@ -14,6 +14,8 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.BusListenerAdapter;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 
@@ -45,7 +47,8 @@ public class CollectionProxyGeneratorTest extends TestCase {
 	
 	@Override
 	protected void setUp() throws Exception {
-		CollectionProxyGenerator test = new CollectionProxyGenerator();
+		CollectionProxyGenerator<String> test = 
+				new CollectionProxyGenerator<String>();
 
 		proxy = test.generate(
 				new OurDestination(), getClass().getClassLoader());
@@ -56,11 +59,39 @@ public class CollectionProxyGeneratorTest extends TestCase {
 	@Override
 	protected void tearDown() throws Exception {
 		((ArooaLifeAware) proxy).destroy();
-	}
+	}	
 	
+	@SuppressWarnings("unchecked")
 	public void testCollection() {
 		
 		assertTrue(proxy instanceof Collection);
+		
+		BasicBeanBus<String> bus = new BasicBeanBus<String>();
+		bus.getBusConductor().addBusListener(new BusListenerAdapter() {
+			@Override
+			public void busStarting(BusEvent event) throws BusCrashException {
+				throw new BusCrashException("Crash");
+			}
+		}); 
+		
+		((BusPart) proxy).prepare(bus.getBusConductor());
+		
+		try {
+			bus.startBus();
+			fail("Should Throw Exception");
+		} catch (BusCrashException e) {
+			assertEquals("Crash", e.getMessage());
+		}
+		
+		try {
+			((Collection<String>) proxy).add("apples");
+			fail("Should Throw Exception");
+		}
+		catch (RuntimeException e) {
+			assertEquals("Crash", 
+					e.getCause().getCause().getCause().getMessage());
+		}
+		
 	}
 	
 	public void testDescribeable() {

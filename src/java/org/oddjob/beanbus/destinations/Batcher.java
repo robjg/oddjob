@@ -29,7 +29,7 @@ import org.oddjob.beanbus.TrackingBusListener;
  * @param <T> The type of bean being batched.
  */
 public class Batcher<T> extends AbstractDestination<T>
-implements BusFilter<T, Iterable<T>> {
+implements BusFilter<T, Collection<T>> {
 
 	private static final Logger logger = Logger.getLogger(Batcher.class);
 	
@@ -37,7 +37,7 @@ implements BusFilter<T, Iterable<T>> {
 	
 	private int batchSize;
 
-	private Collection<? super Iterable<T>> to;
+	private Collection<? super Collection<T>> to;
 	
 	private volatile List<T> batch;
 	
@@ -140,12 +140,12 @@ implements BusFilter<T, Iterable<T>> {
 		this.batchSize = batchSize;
 	}
 	
-	public Collection<? super Iterable<T>> getTo() {
+	public Collection<? super Collection<T>> getTo() {
 		return to;
 	}
 
 	@Override
-	public void setTo(Collection<? super Iterable<T>> next) {
+	public void setTo(Collection<? super Collection<T>> next) {
 		this.to = next;
 	}
 	

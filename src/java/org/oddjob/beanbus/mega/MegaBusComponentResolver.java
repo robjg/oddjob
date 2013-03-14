@@ -26,6 +26,7 @@ implements ComponentProxyResolver {
 		this.existing = existing;
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object resolve(final Object component, ArooaSession session) {
 

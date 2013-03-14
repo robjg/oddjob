@@ -100,7 +100,7 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 				return beanView;
 			}
 		});
-		sheet.setBeanBus(iterableBusDriver.getServices().getService(
+		sheet.setBusConductor(iterableBusDriver.getServices().getService(
 				SimpleBusService.BEAN_BUS_SERVICE_NAME));
 		
 		iterableBusDriver.setBeans(beans);

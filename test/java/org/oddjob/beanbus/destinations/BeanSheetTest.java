@@ -114,7 +114,7 @@ public class BeanSheetTest extends TestCase {
 		test.setOutput(out);
 		test.setArooaSession(new StandardArooaSession());
 		test.setBeanViews(new OurViews());
-		test.setBeanBus(bus.getBusConductor());
+		test.setBusConductor(bus.getBusConductor());
 		
 		bus.setTo(test);
 		

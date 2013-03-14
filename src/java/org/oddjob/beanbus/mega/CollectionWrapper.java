@@ -5,6 +5,7 @@ package org.oddjob.beanbus.mega;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
@@ -38,9 +39,9 @@ import org.oddjob.logging.LogHelper;
  * 
  * @author Rob Gordon.
  */
-public class CollectionWrapper
+public class CollectionWrapper<E>
 implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart, 
-		LogEnabled, Describeable, Iconic, ArooaLifeAware {
+		LogEnabled, Describeable, Iconic, ArooaLifeAware, Collection<E> {
 	
 	public static final String INACTIVE = "inactive";
 	
@@ -66,12 +67,12 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	
     private Logger theLogger;
     
-    private final Collection<?> wrapped;
+    private final Collection<E> wrapped;
     
     private final transient DynaBean dynaBean;
     
     private final Object proxy;
-    	
+    
     private ArooaSession session;
     
     private final IconHelper iconHelper = new IconHelper(
@@ -80,6 +81,11 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
     private final TrackingBusListener busListener = 
     		new TrackingBusListener() {
 		
+    	@Override
+    	public void busCrashed(BusEvent event) {
+    		busCrashException = event.getBusCrashException();
+    	};
+    	
 		@Override
 		public void busTerminated(BusEvent event) {
 			iconHelper.changeIcon(INACTIVE);
@@ -87,18 +93,22 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		
 		@Override
 		public void busStarting(BusEvent event) throws BusCrashException {
+			busCrashException = null;
 			iconHelper.changeIcon(ACTIVE);
 		}
 		
 	};
     
+	/** A job that isn't a bus service won't know the bus has crashed. */
+	private volatile Exception busCrashException;
+	
     /**
      * Constructor.
      * 
      * @param collection
      * @param proxy
      */
-    public CollectionWrapper(Collection<?> collection, Object proxy) {
+    public CollectionWrapper(Collection<E> collection, Object proxy) {
     	this.proxy = proxy;
         this.wrapped = collection;
         this.dynaBean = new WrapDynaBean(wrapped);    	
@@ -212,10 +222,13 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		iconHelper.removeIconListener(listener);
 	}
 	
+	// Object Methods
+	
 	/*
 	 *  (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object other) {
 		return other == getProxy();
 	}
@@ -224,42 +237,52 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	 *  (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
     public String toString() {
         return getWrapped().toString();
     }    
     
+	@Override
     public boolean contains(String name, String key) {
     	return getDynaBean().contains(name, key);
     }
     
+	@Override
     public Object get(String name) {
     	return getDynaBean().get(name);
     }
 
+	@Override
     public Object get(String name, int index) {
     	return getDynaBean().get(name, index);
     }
     
+	@Override
     public Object get(String name, String key) {
     	return getDynaBean().get(name, key);
     }
     
+	@Override
     public DynaClass getDynaClass() {
     	return getDynaBean().getDynaClass();
     }
     
+	@Override
     public void remove(String name, String key) {
     	getDynaBean().remove(name, key);
     }
     
+	@Override
     public void set(String name, int index, Object value) {
     	getDynaBean().set(name, index, value);
     }
     
+	@Override
     public void set(String name, Object value) {
     	getDynaBean().set(name, value);
     }
     
+	@Override
     public void set(String name, String key, Object value) {
     	getDynaBean().set(name, key, value);
     }
@@ -272,5 +295,79 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	public Map<String, String> describe() {
 		return new UniversalDescriber(session).describe(
 				getWrapped());
+	}
+	
+	// Collection Methods
+	//
+	
+	@Override
+	public boolean add(E e) {
+		if (busCrashException != null) {
+			throw new RuntimeException(busCrashException);
+		}
+		return wrapped.add(e);
+	}
+	
+	@Override
+	public boolean addAll(Collection<? extends E> c) {
+		if (busCrashException != null) {
+			throw new RuntimeException(busCrashException);
+		}
+		return wrapped.addAll(c);
+	}
+	
+	@Override
+	public void clear() {
+		wrapped.clear();
+	}
+	
+	@Override
+	public boolean contains(Object o) {
+		return wrapped.contains(o);
+	}
+	
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return wrapped.containsAll(c);
+	}
+	
+	@Override
+	public boolean isEmpty() {
+		return wrapped.isEmpty();
+	}
+	
+	@Override
+	public Iterator<E> iterator() {
+		return wrapped.iterator();
+	}
+	
+	@Override
+	public boolean remove(Object o) {
+		return wrapped.remove(o);
+	}
+	
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return wrapped.removeAll(c);
+	}
+	
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return wrapped.retainAll(c);
+	}
+	
+	@Override
+	public int size() {
+		return wrapped.size();
+	}
+	
+	@Override
+	public Object[] toArray() {
+		return wrapped.toArray();
+	}
+	
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return wrapped.toArray(a);
 	}
 }
