@@ -14,6 +14,8 @@ import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.BasicBeanBus;
+import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.destinations.BeanQueue;
 import org.oddjob.state.ParentState;
 
@@ -21,17 +23,22 @@ public class BeanQueueTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(BeanQueueTest.class);
 	
-	public void testQueueStop() throws InterruptedException {
-	
+	public void testQueueStop() throws InterruptedException, BusCrashException {
+
 		final BeanQueue<String> test = new BeanQueue<String>();
-		test.configured();
+		test.init();
 		
-		test.add("apple");
+		BasicBeanBus<String> bus = new BasicBeanBus<String>();
+		bus.setTo(test);
+		test.setBeanBus(bus.getBusConductor());
+		
+		bus.startBus();
+		
+		bus.add("apple");
 		
 		final List<String> results = new ArrayList<String>();
-		final CountDownLatch latch = new CountDownLatch(2);
-		
-		
+		final CountDownLatch latch = new CountDownLatch(1);
+				
 		Thread t = new Thread() {
 			public void run() {
 				
@@ -41,6 +48,7 @@ public class BeanQueueTest extends TestCase {
 				}
 			}
 		};
+
 		t.start();
 		
 		test.add("pear");
@@ -50,7 +58,7 @@ public class BeanQueueTest extends TestCase {
 		// Ensure it's blocking
 		Thread.sleep(100);
 		
-		test.stop();
+		bus.stopBus();
 		
 		t.join();
 		
@@ -62,7 +70,7 @@ public class BeanQueueTest extends TestCase {
 	public void testStopBeforeEmpty() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<String>();
-		test.configured();
+		test.init();
 		
 		test.add("apple");
 		test.add("pear");
@@ -92,7 +100,7 @@ public class BeanQueueTest extends TestCase {
 	public void testStartConsumingFirst() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<String>();
-		test.configured();
+		test.init();
 		
 		final List<String> results = new ArrayList<String>();
 		
@@ -123,7 +131,7 @@ public class BeanQueueTest extends TestCase {
 	public void testMulitipleConsumers() throws InterruptedException {
 
 		final BeanQueue<Integer> test = new BeanQueue<Integer>();
-		test.configured();
+		test.init();
 		
 		class Consumer implements Runnable {
 			
@@ -208,6 +216,51 @@ public class BeanQueueTest extends TestCase {
 		assertEquals("apple", results.get(0));
 		assertEquals("orange", results.get(1));
 		assertEquals("pear", results.get(2));
+		
+		oddjob.destroy();
+	}
+	
+	public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/beanbus/destinations/BeanQueueExample2.xml", getClass()
+						.getClassLoader()));
+		
+		StateSteps states = new StateSteps(oddjob);
+		states.startCheck(ParentState.READY,
+				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
+		oddjob.run();
+		
+		states.checkWait();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		List<?> results = lookup.lookup(
+				"results.beans", List.class);
+		
+		assertEquals("Apple", results.get(0));
+		assertEquals("Orange", results.get(1));
+		assertEquals("Banana", results.get(2));
+		assertEquals("Pear", results.get(3));
+		assertEquals("Kiwi", results.get(4));
+		
+		
+		Object parallel = lookup.lookup("parallel");
+		
+		((Resetable) parallel).hardReset();
+		((Runnable) parallel).run();
+		
+		results = lookup.lookup(
+				"results.beans", List.class);
+		
+		assertEquals("Apple", results.get(0));
+		assertEquals("Orange", results.get(1));
+		assertEquals("Banana", results.get(2));
+		assertEquals("Pear", results.get(3));
+		assertEquals("Kiwi", results.get(4));
 		
 		oddjob.destroy();
 	}

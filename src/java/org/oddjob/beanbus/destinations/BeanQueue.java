@@ -9,7 +9,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.Configured;
+import org.oddjob.arooa.life.Initialised;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
@@ -26,13 +28,12 @@ import org.oddjob.beanbus.TrackingBusListener;
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample.xml}
  * 
  * 
- * 
  * @author rob
  *
  * @param <E> The type of element on the queue.
  */
 public class BeanQueue<E> extends AbstractDestination<E>
-implements Iterable<E> {
+implements Iterable<E>, Stoppable {
 
 	private static final Logger logger = Logger.getLogger(BeanQueue.class);
 	
@@ -44,15 +45,16 @@ implements Iterable<E> {
 	
 	private String name;
 	
-	private int taken;
+	private volatile int taken;
+	
+	private volatile int waitingConusmers;
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
 		@Override
 		public void busStarting(BusEvent event) throws BusCrashException {
 			logger.debug("Clearing Queue on Start.");
-			queue.clear();
-			taken = 0;
+			reset();
 		}
 		
 		@Override
@@ -66,14 +68,20 @@ implements Iterable<E> {
 		busListener.setBusConductor(busConductor);
 	}
 	
-	@Configured
-	public void configured() {
+	@Initialised
+	public void init() {
 		if (capacity == 0) {
 			queue = new LinkedBlockingDeque<Object>();
 		}
 		else {
 			queue = new ArrayBlockingQueue<Object>(capacity);
 		}
+	}
+	
+	@Configured
+	public void reset() {
+		queue.clear();
+		taken = 0;
 	}
 	
 	public void stop() {
@@ -118,7 +126,9 @@ implements Iterable<E> {
 		@Override
 		public boolean hasNext() {
 			
-			next = null;
+			if (next != null) {
+				return true;
+			}
 			
 			Object first = queue.poll();
 			
@@ -126,10 +136,16 @@ implements Iterable<E> {
 
 				// queue must be empty.
 				try {
+					++waitingConusmers;
+					
 					first = queue.take();
 				} catch (InterruptedException e) {
+					logger.info("Inturrupted waiting for next value.");
 					return false;
 				}				
+				finally {
+					--waitingConusmers;
+				}
 			}
 			
 			if (first == STOP) {
@@ -152,7 +168,12 @@ implements Iterable<E> {
 		
 		@Override
 		public E next() {
-			return next;
+			try {
+				return next;
+			}
+			finally {
+				next = null;
+			}
 		}
 		
 		@Override
@@ -184,6 +205,22 @@ implements Iterable<E> {
 		return taken;
 	}
 
+	public int getCapacity() {
+		return capacity;
+	}
+
+	public void setCapacity(int capacity) {
+		if (this.queue != null) {
+			throw new IllegalStateException(
+					"Capicity can't be dynamic because the queue has already been created.");
+		}
+		this.capacity = capacity;
+	}
+
+	public int getWaitingConusmers() {
+		return waitingConusmers;
+	}
+
 	@Override
 	public String toString() {
 		if (name == null) {
@@ -193,4 +230,5 @@ implements Iterable<E> {
 			return name;
 		}
 	}
+
 }

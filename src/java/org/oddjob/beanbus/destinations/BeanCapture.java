@@ -1,6 +1,7 @@
 package org.oddjob.beanbus.destinations;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -65,5 +66,10 @@ public class BeanCapture<T> extends AbstractFilter<T, T> {
 	
 	public int getCount() {
 		return beans.size();
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		return beans.iterator();
 	}
 }

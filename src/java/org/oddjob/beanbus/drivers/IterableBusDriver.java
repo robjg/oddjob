@@ -7,6 +7,8 @@ import org.oddjob.Stoppable;
 import org.oddjob.beanbus.AbstractBusComponent;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusException;
+import org.oddjob.framework.HardReset;
+import org.oddjob.framework.SoftReset;
 
 /**
  * A Runnable that can be used as an Oddjob job to take beans from an
@@ -30,6 +32,12 @@ implements Runnable, Stoppable {
 	private volatile int count;
 	
 	private volatile Thread executionThread;
+	
+	@HardReset
+	@SoftReset
+	public void reset() {
+		count = 0;
+	}
 	
 	@Override
 	public void run() {
