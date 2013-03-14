@@ -22,9 +22,11 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.script.Invocable;
 
 import org.apache.log4j.Logger;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.util.OddjobConfigException;
 
@@ -78,7 +80,7 @@ public class ScriptJob extends SerializableJob {
 	 * @oddjob.property
 	 * @oddjob.description The name of the language the script 
 	 * is in.
-	 * @oddjob.required Yes.
+	 * @oddjob.required No. Defaults to JavaScript.
 	 */
     private transient String language;
     
@@ -138,13 +140,16 @@ public class ScriptJob extends SerializableJob {
     /** The thing that was compiles and/or run. */
     private transient Evaluatable evaluatable;
     
+    /** ClassLoader to find Script Engines on. May be null. */
+    private transient ClassLoader classLoader;
+    
     /*
      *  (non-Javadoc)
      * @see org.oddjob.framework.SimpleJob#execute()
      */
     protected int execute() throws IOException {
-    	ScriptCompiler compiler = new ScriptCompiler();
-        compiler.setLanguage(language);
+    	ScriptCompiler compiler = new ScriptCompiler(language,
+    			classLoader);
         
         if (input == null) {
         	throw new OddjobConfigException("No script provided!");
@@ -270,5 +275,15 @@ public class ScriptJob extends SerializableJob {
 
 	public Object getResult() {
 		return result;
+	}
+
+	public ClassLoader getClassLoader() {
+		return classLoader;
+	}
+
+	@ArooaHidden
+	@Inject
+	public void setClassLoader(ClassLoader classLoader) {
+		this.classLoader = classLoader;
 	}
 }

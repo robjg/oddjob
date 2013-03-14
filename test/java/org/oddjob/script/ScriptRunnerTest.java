@@ -10,9 +10,7 @@ public class ScriptRunnerTest extends TestCase {
 
 	public void testSimpleEval() throws ScriptException, NoSuchMethodException {
 
-		ScriptCompiler compiler = new ScriptCompiler();
-		
-		compiler.setLanguage("JavaScript");
+		ScriptCompiler compiler = new ScriptCompiler(null, null);
 		
 		Evaluatable evaluatable = compiler.compileScript(
 				new StringReader("var result = 'hello';"));

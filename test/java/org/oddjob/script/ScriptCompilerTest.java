@@ -11,9 +11,7 @@ public class ScriptCompilerTest extends TestCase {
 
 	public void testCompile() throws ScriptException {
 		
-		ScriptCompiler test = new ScriptCompiler();
-		
-		test.setLanguage("JavaScript");
+		ScriptCompiler test = new ScriptCompiler(null, null);
 		
 		Evaluatable evaluatable = test.compileScript(
 				new StringReader("result = 'hello';"));
@@ -27,9 +25,7 @@ public class ScriptCompilerTest extends TestCase {
 
 	public void testNoVarAtComile() throws ScriptException {
 		
-		ScriptCompiler test = new ScriptCompiler();
-		
-		test.setLanguage("JavaScript");
+		ScriptCompiler test = new ScriptCompiler(null, null);
 		
 		Evaluatable evaluatable = test.compileScript(
 				new StringReader("result = fruit;"));
@@ -46,9 +42,8 @@ public class ScriptCompilerTest extends TestCase {
 	
 	public void testInvocable() throws ScriptException, NoSuchMethodException {
 		
-		ScriptCompiler test = new ScriptCompiler();
+		ScriptCompiler test = new ScriptCompiler(null, null);
 		
-		test.setLanguage("JavaScript");
 
 		Evaluatable evaluatable = 
 			test.compileScript(

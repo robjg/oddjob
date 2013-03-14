@@ -26,28 +26,41 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
 /**
- * This class is used to run BSF scripts
+ * This class is used to run Compile scripts.
  *
  */
 public class ScriptCompiler {
 
     /** Script language */
-    private String language;
+    private final String language;
 
     private Invocable invocable;
     
+    private final ClassLoader classLoader;
+    
+    /**
+     * Constructor.
+     * 
+     * @param language The language. Default to JavaScript.
+     */
+    public ScriptCompiler(String language, ClassLoader classLoader) {
+        if (language == null) {
+            this.language = "JavaScript";
+        }
+        else {
+        	this.language = language;
+        }
+        this.classLoader = classLoader;
+	}
+    
     /**
      * Do the work.
-     *
-     * @exception BuildException if someting goes wrong exectuing the script.
      */
     public Evaluatable compileScript(Reader reader) {
-        if (language == null) {
-            throw new RuntimeException("script language must be specified");
-        }
 
         try {
-            ScriptEngineManager manager = new ScriptEngineManager ();
+            ScriptEngineManager manager = new ScriptEngineManager(
+            		classLoader);
 
             ScriptEngine engine = manager.getEngineByName(language);
 
@@ -69,23 +82,11 @@ public class ScriptCompiler {
     }
 
     /**
-     * Defines the language (required).
-     *
-     * @param language the scripting language name for the script.
+     * The Invocable that result from the last compilation if the 
+     * engine supports it. Null otherwise.
+     * 
+     * @return An Invocable or null.
      */
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    /**
-     * Get the script language
-     *
-     * @return the script language
-     */
-    public String getLanguage() {
-        return language;
-    }
-    
     public Invocable getInvocable() {
     	return invocable;
     }
