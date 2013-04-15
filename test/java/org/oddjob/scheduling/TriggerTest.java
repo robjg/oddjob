@@ -95,7 +95,7 @@ public class TriggerTest extends TestCase {
 	private class OurJob extends SimpleJob {
 		private StateListener listenerCheck;
 		
-		int ran;
+		volatile int ran;
 		
 		private JobState state = JobState.COMPLETE;
 		

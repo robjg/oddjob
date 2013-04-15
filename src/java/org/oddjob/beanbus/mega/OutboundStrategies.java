@@ -7,6 +7,8 @@ import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
+import org.oddjob.arooa.deploy.ArooaAnnotationsUtil;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.beanbus.Destination;
@@ -30,7 +32,7 @@ public class OutboundStrategies implements OutboundStrategy {
 						component, session);
 		
 		if (outbound == null) {			
-			outbound = hasServiceAnnotationsStrategy().outboundFor(
+			outbound = hasDestinationAnnotationStrategy().outboundFor(
 					component, session);
 		}
 		
@@ -66,7 +68,7 @@ public class OutboundStrategies implements OutboundStrategy {
 	 * 
 	 * @return
 	 */
-	public OutboundStrategy hasServiceAnnotationsStrategy() {
+	public OutboundStrategy hasDestinationAnnotationStrategy() {
 		return new OutboundStrategy() {
 			
 			@Override
@@ -81,7 +83,7 @@ public class OutboundStrategies implements OutboundStrategy {
 				
 				final Object realComponent = trinity.getTheComponent();
 				
-				PropertyAccessor accessor = 
+				final PropertyAccessor accessor = 
 						session.getTools().getPropertyAccessor();
 				
 				ArooaBeanDescriptor beanDescriptor = 
@@ -94,22 +96,42 @@ public class OutboundStrategies implements OutboundStrategy {
 				
 				final Method setToMethod = annotations.methodFor(Destination.class.getName());
 				
-				if (setToMethod == null) {
-					return null;
+				if (setToMethod != null) {
+					return new Outbound<T>() {
+						@Override
+						public void setTo(Collection<? super T> destination) {
+							try {
+								setToMethod.invoke(realComponent, destination);
+							} catch (RuntimeException e) {
+								throw e;
+							} catch (Exception e) {
+								throw new RuntimeException(e);
+							}
+						}
+					};
 				}
 				
-				return new Outbound<T>() {
-					@Override
-					public void setTo(Collection<? super T> destination) {
-						try {
-							setToMethod.invoke(realComponent, destination);
-						} catch (RuntimeException e) {
-							throw e;
-						} catch (Exception e) {
-							throw new RuntimeException(e);
+				final String property = new ArooaAnnotationsUtil(
+						annotations).findSingleAnnotatedProperty(
+								Destination.class.getName());
+				
+				if (property != null) {
+					return new Outbound<T>() {
+						@Override
+						public void setTo(Collection<? super T> destination) {
+							try {
+								accessor.setProperty(realComponent, 
+										property, destination);
+							} catch (ArooaPropertyException e) {
+								throw e;
+							} catch (RuntimeException e) {
+								throw e;
+							}
 						}
-					}
-				};
+					};
+				}
+				
+				return null;
 			}
 		};
 	}

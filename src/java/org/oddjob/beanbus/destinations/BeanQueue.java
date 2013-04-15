@@ -27,6 +27,12 @@ import org.oddjob.beanbus.TrackingBusListener;
  * 
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample.xml}
  * 
+ * @oddjob.example 
+ * 
+ * An example in BeanBus.
+ * 
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample2.xml}
+ * 
  * 
  * @author rob
  *
