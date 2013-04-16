@@ -34,6 +34,7 @@ import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.state.ParentState;
@@ -328,6 +329,154 @@ public class MegaBeanBusTest extends TestCase {
 		assertEquals(new Integer(2), lookup.lookup(
 				"results.terminated", Integer.class));
 		
+		
+		oddjob.destroy();
+	}
+	
+	public static class OutboundCapture extends AbstractDestination<String> {
+		
+		private List<Collection<String>> outbounds = 
+				new ArrayList<Collection<String>>();
+
+		@Override
+		public boolean add(String e) {
+			outbounds.get(outbounds.size() - 1).add(e);
+			return true;
+		}
+		
+		@Destination
+		public void setOutbound(Collection<String> outbound) {
+			this.outbounds.add(outbound);
+		}
+		
+		public List<Collection<String>> getOutbounds() {
+			return outbounds;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void testNoAutoLink() throws ArooaPropertyException, ArooaConversionException {
+		
+		List<String> ourList = new ArrayList<String>();
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/beanbus/mega/MegaBeanBusNoAutoLink.xml", 
+				getClass().getClassLoader()));
+		oddjob.setExport("our-list", new ArooaObject(ourList));
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+	
+		List<List<String>> outbounds = lookup.lookup("capture.outbounds", List.class);
+		
+		assertEquals(1, outbounds.size());
+		
+		List<String> results = outbounds.get(0);
+		
+		assertSame(ourList, results);
+		
+		assertEquals("Apple", results.get(0));
+		assertEquals("Orange", results.get(1));
+		assertEquals("Pear", results.get(2));
+		assertEquals(3, results.size());
+				
+		List<String> outboundList = lookup.lookup("list.beans", List.class);
+		assertEquals(0, outboundList.size());
+
+		Object bus = lookup.lookup("bus");
+
+		((Resetable) bus).hardReset();
+
+		((Runnable) bus).run();
+		
+		outbounds = lookup.lookup("capture.outbounds", List.class);
+		
+		assertEquals(3, outbounds.size());
+		
+		results = outbounds.get(2);
+		
+		assertSame(ourList, results);
+		
+		oddjob.destroy();		
+	}
+	
+	public static class ThingWithOutbound {
+		
+		private Collection<String> outbound;
+
+		public Collection<String> getOutbound() {
+			return outbound;
+		}
+
+		public void setOutbound(Collection<String> outbound) {
+			this.outbound = outbound;
+		}
+	}
+	
+	public static class ComplicatedOutbound extends AbstractDestination<String> {
+		
+		private ThingWithOutbound thing;
+		
+		@Override
+		public boolean add(String e) {
+			thing.outbound.add(e);
+			return true;
+		}
+
+		public ThingWithOutbound getThing() {
+			return thing;
+		}
+
+
+		public void setThing(ThingWithOutbound thing) {
+			this.thing = thing;
+		}
+		
+		@Destination
+		public void acceptOutbound(Collection<String> outbound) {
+			this.thing.setOutbound(outbound);
+		}
+		
+	}
+	
+	/**
+	 * Need to ensure the order of configuration and auto linking is OK.
+	 */
+	public void testWithComplicatedOutbound() throws ArooaPropertyException, ArooaConversionException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/beanbus/mega/MegaBeanBusComplexOutbound.xml", 
+				getClass().getClassLoader()));
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+	
+		@SuppressWarnings("unchecked")
+		List<String> results = lookup.lookup("list.beans", List.class);
+
+		assertEquals("Apple", results.get(0));
+		assertEquals("Orange", results.get(1));
+		assertEquals("Pear", results.get(2));
+		assertEquals(3, results.size());
+		
+		@SuppressWarnings("unchecked")
+		Collection<String> outbound = lookup.lookup(
+				"capture.thing.outbound", Collection.class);
+		
+		@SuppressWarnings("unchecked")
+		Collection<String> beanCapture = lookup.lookup(
+				"list", Collection.class);
+		
+		assertSame(beanCapture, outbound);
 		
 		oddjob.destroy();
 	}

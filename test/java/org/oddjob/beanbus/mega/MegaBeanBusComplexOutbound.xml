@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bean class="org.oddjob.beanbus.mega.MegaBeanBus" id="bus" noAutoLink="false">
+            <parts>
+                <bus:iterable-driver xmlns:bus="oddjob:beanbus">
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="Apple"/>
+                                <value value="Orange"/>
+                                <value value="Pear"/>
+                            </values>
+                        </list>
+                    </beans>
+                </bus:iterable-driver>
+                <bean class="org.oddjob.beanbus.mega.MegaBeanBusTest$ComplicatedOutbound" id="capture">
+                    <thing>
+                        <is/>
+                    </thing>
+                </bean>
+                <bus:bean-capture id="list" xmlns:bus="oddjob:beanbus"/>
+            </parts>
+        </bean>
+    </job>
+</oddjob>
