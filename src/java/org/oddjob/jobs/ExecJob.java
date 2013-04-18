@@ -384,16 +384,14 @@ implements Stoppable, ConsoleOwner {
 		
 		proc = processBuilder.start();
 		
-		final InputStream processStdOut = proc.getInputStream();
-
-		CopyStream outThread = 
-				new CopyStream("stdout", processStdOut, stdout);
+		Thread outThread = 
+				new CopyStream("stdout", proc.getInputStream(), stdout);
 		outThread.start();		
 		
-		CopyStream errThread = null;
+		Thread errThread = null;
 		if (!redirectStderr) { 
-			final InputStream processStdErr = proc.getErrorStream();
-			errThread = new CopyStream("stderr", processStdErr, stderr);
+			errThread = new CopyStream("stderr", 
+					proc.getErrorStream(), stderr);
 			errThread.start();
 		}
 		
@@ -414,13 +412,16 @@ implements Stoppable, ConsoleOwner {
 		finally {
 			thread = null;
 
-			proc.destroy();
-			proc = null;
-			
 			if (errThread != null) {
-				errThread.close();
+				errThread.join();
 			}
-			outThread.close();
+			outThread.join();
+			
+			// A destroy is required even if the process has terminated
+			// because otherwise file descriptors are left open.
+			// This must happen after the stream readers have finished
+			// otherwise it causes Stream Closed exceptions.
+			proc.destroy();
 			
 			synchronized (this) {
 				// wake up the stop wait.
@@ -446,21 +447,33 @@ implements Stoppable, ConsoleOwner {
 		}
 		
 		public void run() {
+			OutputStream os = new LoggingOutputStream(to, 
+					LogLevel.ERROR, consoleArchive);
 			try {
-				OutputStream os = new LoggingOutputStream(to, 
-						LogLevel.ERROR, consoleArchive);
 				IO.copy(stream, os);
-				os.close();
 			} catch (IOException e) {
-				logger().error("Failed copying process " + name + ".", e);
+				// Check process hasn't been destroyed. If it has then
+				// there could be an intermittent java.io.IOException: Bad file descriptor
+				// which might be related to this issue:
+				// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=5101298.
+				if (!stop) {
+					logger().error("Failed copying process " + name + ".", e);
+				}
+			}
+			finally {
+				try {
+					os.close();
+				} catch (IOException e) {
+					logger().error("Failed closing os for " + name + ".", e);
+				}
+				try {
+					stream.close();
+				} catch (IOException e) {
+					logger().error("Failed closing process os for " + name + ".", e);
+				}
+				
 			}
 		}	
-		
-		void close() throws InterruptedException, IOException {
-			join();
-			stream.close();
-		}
-		
 	}
 	
 	
@@ -474,6 +487,7 @@ implements Stoppable, ConsoleOwner {
 		if (proc == null) {
 			return;
 		}
+		
 		proc.destroy();
 		
 		for (int i = 0; i < 3 && thread != null; ++i) {

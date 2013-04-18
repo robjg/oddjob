@@ -197,6 +197,9 @@ public class PropertiesBase implements ArooaContextAware {
 				props.load(input);
 			}
 			
+			logger.info("Loaded " + props.size() + 
+					" properties from " + input);
+			
 			return props;
 		}
 		finally {
