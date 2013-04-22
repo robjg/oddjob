@@ -28,6 +28,7 @@ import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.Outbound;
 import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.io.StdoutType;
 
 /**
  * @oddjob.description Create a simple database style report from a list
@@ -72,7 +73,11 @@ implements ArooaSessionAware, Outbound<Object> {
 		@Override
 		public void busStarting(BusEvent event) throws BusCrashException {
 			if (output == null) {
-				throw new BusCrashException("No output.");
+				try {
+					output = new StdoutType().toValue();
+				} catch (ArooaConversionException e) {
+					throw new RuntimeException(e);
+				}
 			}						
 		}
 					

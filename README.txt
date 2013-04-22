@@ -48,13 +48,8 @@ Changes in 1.3.0
 
 Still To Do for 1.3.0
 ---------------------
-- BeanBus
-  - Remove BusAware and ensure BeanBus is being set correctly as a service.
-  - Change destination to be a Collection.
-- Properties load needs log messages. Involves adding toString() to all 
-  Oddjob InputStream types.
 - Add the ability to change the log level from the UI. Add LogLevel TRACE and
-  NONE to match Log4j. Add a job that will change Logger log levels.
+  NONE to match Log4j.
 - Add Parent Started State to User Guide. Document thread, and services.
 - Find bug with destroying JMX Client - see Stack Exceptions in 
   TogetherTest#testClientServerLoopback.

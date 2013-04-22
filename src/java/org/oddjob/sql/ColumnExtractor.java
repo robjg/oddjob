@@ -1,5 +1,6 @@
 package org.oddjob.sql;
 
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.ResultSet;
@@ -8,6 +9,7 @@ import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +20,23 @@ import java.util.Map;
  *
  */
 public abstract class ColumnExtractor<T> {
-		
+
+	public static final Map<Integer, String> SQL_TYPE_NAMES =
+			new LinkedHashMap<Integer, String>();
+
+	static {
+		Field[] fields = Types.class.getFields();
+		for (Field field: fields) {
+			try {
+				SQL_TYPE_NAMES.put((Integer) field.get(null), field.getName());
+			} catch (IllegalArgumentException e) {
+				throw new RuntimeException(e);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}		
+	}
+	
 	public static final ColumnExtractor<Boolean> BOOLEAN_EXTRACTOR = 
 			new ColumnExtractor<Boolean>() {
 		@Override
