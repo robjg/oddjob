@@ -4,7 +4,6 @@
 package org.oddjob.jmx.server;
 
 import javax.management.Notification;
-import javax.management.ObjectName;
 import javax.swing.ImageIcon;
 
 import junit.framework.TestCase;
@@ -35,11 +34,6 @@ public class IconicInfoTest extends TestCase {
 	private class OurServerSession extends MockServerSession {
 		
 		ArooaSession session = new StandardArooaSession();
-		
-		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
 		
 		@Override
 		public ArooaSession getArooaSession() {
@@ -79,7 +73,7 @@ public class IconicInfoTest extends TestCase {
 				iconic, sm, new OurHierarchicalRegistry()); 
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				iconic, 
+				iconic, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		

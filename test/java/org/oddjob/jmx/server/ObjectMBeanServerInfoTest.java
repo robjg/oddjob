@@ -6,8 +6,6 @@ import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.ArooaSession;
@@ -38,11 +36,6 @@ public class ObjectMBeanServerInfoTest extends TestCase {
 	private class OurServerSession extends MockServerSession {
 		
 		ArooaSession session = new StandardArooaSession();
-		
-		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
 		
 		@Override
 		public ArooaSession getArooaSession() {
@@ -85,7 +78,7 @@ public class ObjectMBeanServerInfoTest extends TestCase {
 				myJob, sm, new OurDirectory());
 		
 		final OddjobMBean ojmb = new OddjobMBean(
-				myJob, 
+				myJob, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		

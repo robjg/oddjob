@@ -3,7 +3,7 @@ package org.oddjob.jmx;
 import javax.management.ObjectName;
 
 /**
- * Stores Object to name mapping.
+ * Provide a two way Object to ObjectName mapping.
  * 
  * @author rob
  *
@@ -24,7 +24,7 @@ public interface ObjectNames {
 	 * 
 	 * @param objectName The object name.
 	 * 
-	 * @return The proxy.
+	 * @return The proxy. Null if none exsists for the given name.
 	 */
 	Object objectFor(ObjectName objectName);
 }

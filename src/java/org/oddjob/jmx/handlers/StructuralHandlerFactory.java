@@ -145,7 +145,10 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 								new ChildMatch<ObjectName>(childNames) {
 									protected void insertChild(int index, ObjectName childName) {
 										Object childProxy = toolkit.getClientSession().create(childName);
-										structuralHelper.insertChild(index, childProxy);
+										// child proxy will be null if the toolkit can't create it.
+										if (childProxy != null) {
+											structuralHelper.insertChild(index, childProxy);
+										}
 									};
 									@Override
 									protected void removeChildAt(int index) {
@@ -325,11 +328,22 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		}
 		
 		public void destroy() {
+			
+			// Stop receiving event from Oddjob
 			structural.removeStructuralListener(listener);
-			// use our listener to remove children.
+			
+			// And use our listener to remove children.
 			while (children.size() > 0) {
+				final int index = children.size() - 1;
 				StructuralEvent dummyEvent = new StructuralEvent(structural,
-						new Object(), children.size() - 1);
+						new Object() {
+							@Override
+							public String toString() {
+								return "Dummy Child " + index + 
+										" of Destructing Parent [" +
+										structural + "]";
+							}
+						}, index);
 				listener.childRemoved(dummyEvent);
 			}
 		}

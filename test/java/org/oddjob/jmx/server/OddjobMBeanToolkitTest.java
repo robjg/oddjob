@@ -4,7 +4,6 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.Notification;
-import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
@@ -14,14 +13,6 @@ import org.oddjob.jmx.client.MockClientHandlerResolver;
 
 public class OddjobMBeanToolkitTest extends TestCase {
 
-	private class OurServerSession extends MockServerSession {
-	
-		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
-	}
-	
 	private class OurServerContext extends MockServerContext {
 		OurSIMF simf = new OurSIMF();
 
@@ -84,11 +75,9 @@ public class OddjobMBeanToolkitTest extends TestCase {
 		
 		Object node = new Object();
 
-		OurServerSession session = new OurServerSession();
-		
 		OurServerContext context = new OurServerContext();
 		
-		new OddjobMBean(node, session, context);
+		new OddjobMBean(node, OddjobMBeanFactory.objectName(0), null, context);
 
 		ServerSideToolkit toolkit = context.simf.toolkit;
 		

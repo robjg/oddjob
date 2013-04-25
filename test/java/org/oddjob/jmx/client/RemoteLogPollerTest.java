@@ -228,11 +228,6 @@ public class RemoteLogPollerTest extends TestCase {
 		ArooaSession session = new StandardArooaSession();
 		
 		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
-		
-		@Override
 		public ArooaSession getArooaSession() {
 			return session;
 		}
@@ -254,7 +249,7 @@ public class RemoteLogPollerTest extends TestCase {
 		serverContext.simf = imf;
 		
 		OddjobMBean mb = new OddjobMBean(
-				component, 
+				component,OddjobMBeanFactory.objectName(0), 
 				new OurServerSession(), 
 				serverContext);
 		
@@ -309,7 +304,7 @@ public class RemoteLogPollerTest extends TestCase {
 		serverContext.simf = imf;
 		
 		OddjobMBean mb = new OddjobMBean(
-				component, 
+				component, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		

@@ -274,9 +274,16 @@ public class BeanDirectoryHandlerFactory implements
 
 				Object object = serverToolkit.getServerSession().objectFor(objectName);
 				
-				String id = directory.getIdFor(object);
+				if (object == null) {
+					// This will happen when a job tree is changin quicker on the server than
+					// the client can keep up with.
+					return null;
+				}
+				else {
+					String id = directory.getIdFor(object);
 
-				return id;
+					return id;
+				}
 			}
 
 			if (LOOKUP.equals(operation)) {

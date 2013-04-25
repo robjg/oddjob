@@ -1,55 +1,52 @@
-<oddjob xmlns:si="http://rgordon.co.uk/oddjob/scheduling"
-		xmlns:state="http://rgordon.co.uk/oddjob/state"
-        xmlns:jmx="http://rgordon.co.uk/oddjob/jmx">
-	<job>
-		<sequential>
-			<jobs>
-				<si:trigger id="stop" on="${bothRan}">
-					<job>
-						<sequential id="stopall">
-							<jobs>
-								<stop job='${client2}' />
-								<stop job='${server2}' />
-								<stop job='${client1}' />
-								<stop job='${server1}' />
-							</jobs>
-						</sequential>
-					</job>
-				</si:trigger>
-				<rmireg />
-				<jmx:server id='server1'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1' root='${stuff1}' />
-				<jmx:server id='server2'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server2' root='${stuff2}' />
-				<parallel>
-					<jobs>
-						<sequential id='stuff1'>
-							<jobs>
-								<echo id='fruit1'>apples</echo>
-								<jmx:client id='client2' name="Client 2" connection='${server2.address}' />
-								<wait for="${client2/fruit2.text}" />
-								<echo id="test1">${client2/fruit2.text}</echo>
-							</jobs>
-						</sequential>
-						<sequential id='stuff2'>
-							<jobs>
-								<echo id='fruit2'>oranges</echo>
-								<jmx:client id='client1' name="Client 1" connection='${server1.address}' />
-								<wait for="${client1/fruit1.text}" />
-								<echo id="test2">${client1/fruit1.text}</echo>
-							</jobs>
-						</sequential>
-						<sequential id="bothRan">
-							<jobs>
-								<wait for="${test1}" />
-								<wait for="${test2}" />
-								<state:mirror job="${test1}" />
-								<state:mirror job="${test2}" />
-							</jobs>
-						</sequential>
-					</jobs>
-				</parallel>
-			</jobs>
-		</sequential>
-	</job>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <si:trigger id="stop" on="${bothRan}" xmlns:si="http://rgordon.co.uk/oddjob/scheduling">
+                    <job>
+                        <sequential id="stopall">
+                            <jobs>
+                                <stop job="${client2}"/>
+                                <stop job="${server2}"/>
+                                <stop job="${client1}"/>
+                                <stop job="${server1}"/>
+                            </jobs>
+                        </sequential>
+                    </job>
+                </si:trigger>
+                <rmireg/>
+                <jmx:server id="server1" name="Server 1" root="${stuff1}" url="service:jmx:rmi://ignored/jndi/rmi://localhost/server1" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <jmx:server id="server2" name="Server2" root="${stuff2}" url="service:jmx:rmi://ignored/jndi/rmi://localhost/server2" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <parallel>
+                    <jobs>
+                        <sequential id="stuff1">
+                            <jobs>
+                                <echo id="fruit1"><![CDATA[apples]]></echo>
+                                <jmx:client connection="${server2.address}" id="client2" name="Client 2" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                                <wait for="${client2/fruit2.text}"/>
+                                <echo id="test1"><![CDATA[${client2/fruit2.text}]]></echo>
+                            </jobs>
+                        </sequential>
+                        <sequential id="stuff2">
+                            <jobs>
+                                <echo id="fruit2"><![CDATA[oranges]]></echo>
+                                <jmx:client connection="${server1.address}" id="client1" name="Client 1" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                                <wait for="${client1/fruit1.text}"/>
+                                <echo id="test2"><![CDATA[${client1/fruit1.text}]]></echo>
+                            </jobs>
+                        </sequential>
+                        <sequential id="bothRan">
+                            <jobs>
+                                <wait for="${test1}"/>
+                                <wait for="${test2}"/>
+                                <state:mirror job="${test1}" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                                <state:mirror job="${test2}" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                            </jobs>
+                        </sequential>
+                    </jobs>
+                </parallel>
+            </jobs>
+        </sequential>
+    </job>
 </oddjob>

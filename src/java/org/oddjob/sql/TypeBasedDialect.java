@@ -48,17 +48,16 @@ public class TypeBasedDialect implements DatabaseDialect {
 		}
 		
 		if (logger.isDebugEnabled()) {
-			StringBuilder message = new StringBuilder("Columns and Types:\n");
+			StringBuilder message = new StringBuilder("Columns and Types; Java Class, JDBC Sql Type, Database Type:\n");
 			for (int i = 0; i < columnCount; ++i) {
 				message.append(columnNames[i]);
 				message.append("=");
 				message.append(columnTypes[i].getType().getName());
-				message.append("(");
+				message.append(", ");
 				message.append(ColumnExtractor.SQL_TYPE_NAMES.get(
 						metaData.getColumnType(i + 1)));
-				message.append(",");
+				message.append(", ");
 				message.append(metaData.getColumnTypeName(i + 1));
-				message.append(")");
 				message.append("\n");
 			}
 			logger.debug(message.toString());

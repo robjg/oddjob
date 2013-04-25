@@ -20,7 +20,6 @@ public class ClientInterfaceManagerFactoryTest extends TestCase {
 		MockFoo foo = new MockFoo();
 		
 		class FooClientHandlerFactory extends MockClientInterfaceHandlerFactory<Foo> {
-			private static final long serialVersionUID = 0;
 			
 			public Foo createClientHandler(Foo proxy, ClientSideToolkit toolkit) {
 				return proxy;
@@ -88,7 +87,6 @@ public class ClientInterfaceManagerFactoryTest extends TestCase {
 		MockFoo foo = new MockFoo();
 
 		class FooClientHandlerFactory extends MockClientInterfaceHandlerFactory<Foo> {
-			private static final long serialVersionUID = 0;
 			public Foo createClientHandler(Foo proxy, ClientSideToolkit toolkit) {
 				return proxy;
 			};
@@ -99,7 +97,6 @@ public class ClientInterfaceManagerFactoryTest extends TestCase {
 		}
 		
 		class OClientHandlerFactory extends MockClientInterfaceHandlerFactory<Object> {
-			private static final long serialVersionUID = 0;
 			public Object createClientHandler(final Object proxy, 
 					ClientSideToolkit toolkit) {
 				return new Object() {

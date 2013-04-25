@@ -59,25 +59,31 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	/**
 	 * Constructor.
 	 * 
-	 * @param node The job this is shodowing.
+	 * @param node The job this is shadowing.
+	 * @param objectName The objectName for this node.
 	 * @param factory The factory for creating child OddjobMBeans. May be null only
 	 * if this MBean will never have children.
 	 * @param srvcon The server context The server context. Must not be null.
 	 * 
 	 * @throws RemoteException
 	 */
-	public OddjobMBean(Object node, ServerSession factory, 
-			ServerContext srvcon) {
+	public OddjobMBean(Object node, ObjectName objectName,
+			ServerSession factory, ServerContext srvcon) {
+		
 		if (node == null) {
 			throw new NullPointerException("Component must not be null");
+		}
+		if (objectName == null) {
+			throw new NullPointerException("Object Name must not be null");
 		}
 		if (srvcon == null) {
 			throw new NullPointerException("Server Context must not be null");
 		}
+		
 		this.node = node;
 		this.factory = factory;
 		this.srvcon = srvcon;
-		this.objectName = factory.nameFor(node);
+		this.objectName = objectName;
 		
 		ServerInterfaceManagerFactory imf = 
 			srvcon.getModel().getInterfaceManagerFactory();
@@ -175,8 +181,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 */
 	public Object invoke(final String actionName, final Object[] params, String[] signature)
 			throws MBeanException, ReflectionException {
-		String methodDescription = methodDescription(actionName, signature);
 		if (logger.isDebugEnabled()) {
+			String methodDescription = methodDescription(actionName, signature);
 			logger.debug("Invoking [" + 
 					methodDescription + "] on [" + node + "]");
 		}

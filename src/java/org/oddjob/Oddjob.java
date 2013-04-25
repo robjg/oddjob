@@ -68,14 +68,15 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.OddjobServicesBean;
 import org.oddjob.sql.SQLPersisterService;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsNotExecuting;
+import org.oddjob.state.IsNot;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.values.properties.PropertiesType;
@@ -673,7 +674,8 @@ implements Loadable,
 	public void load() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
+			stateHandler.waitToWhen(new IsNot(StateConditions.RUNNING), 
+					new Runnable() {
 				public void run() {
 				    try {
 						if (ourSession != null) {

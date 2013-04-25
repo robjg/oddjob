@@ -3,8 +3,6 @@
  */
 package org.oddjob.jmx.handlers;
 
-import javax.management.ObjectName;
-
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.ArooaSession;
@@ -47,11 +45,6 @@ public class LogEnabledHandlerFactoryTest extends TestCase {
 		ArooaSession session = new StandardArooaSession();
 		
 		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
-		
-		@Override
 		public ArooaSession getArooaSession() {
 			return session;
 		}
@@ -74,7 +67,7 @@ public class LogEnabledHandlerFactoryTest extends TestCase {
 				target, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				target, 
+				target, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		

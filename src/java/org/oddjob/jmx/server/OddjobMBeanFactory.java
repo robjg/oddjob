@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -30,7 +31,7 @@ public class OddjobMBeanFactory implements ServerSession {
 	private final ArooaSession session;
 	
 	/** Give each bean a serial number. */
-	private int serial = 0;
+	private final AtomicInteger serial = new AtomicInteger();
 
 	/** Keep track of MBeans by ObjectName so that we can destroy them 
 	 * when they're finished. */
@@ -53,25 +54,26 @@ public class OddjobMBeanFactory implements ServerSession {
 	/**
 	 * Create an MBean and register with the server using the generated name.
 	 * 
-	 * @param obj The object the MBean is wrapping.
-	 * @return The object name registered.
+	 * @param object The object the MBean is wrapping.
+	 * @return context The server context for the object.
+	 * 
 	 * @throws JMException If the MBean fails to register.
 	 */
-	public ObjectName createMBeanFor(Object obj, ServerContext context)
+	public ObjectName createMBeanFor(Object object, ServerContext context)
 	throws JMException {
-		ObjectName objName = null;
-		synchronized (this) {
-			objName = objectName(serial++);
-		}
 		
-		names.put(obj, objName);
+		ObjectName objName = objectName(serial.getAndIncrement());
 		
-		OddjobMBean ojmb = new OddjobMBean(obj, this, context);
+		OddjobMBean ojmb = new OddjobMBean(object, objName, this, context);
+		
 		server.registerMBean(ojmb, objName);
 		
-		mBeans.put(objName, ojmb);
+		synchronized (this) {
+			names.put(object, objName);
+			mBeans.put(objName, ojmb);
+		}
 		
-		logger.debug("Created and registered [" + obj + "] as OddjobMBean [" + objName.toString() + "]");
+		logger.debug("Created and registered [" + object + "] as OddjobMBean [" + objName.toString() + "]");
 		return objName;
 	}
 	
@@ -82,15 +84,27 @@ public class OddjobMBeanFactory implements ServerSession {
 	 * @throws JMException
 	 */
 	public void destroy(ObjectName objName) throws JMException {
-		server.unregisterMBean(objName);
-		OddjobMBean ojmb = mBeans.remove(objName);
-		names.remove(ojmb.getNode());
+
+		OddjobMBean ojmb = null;
+		
+		synchronized (this) {
+			ojmb = mBeans.remove(objName);
+			names.remove(ojmb.getNode());
+		}
 		
 		ojmb.destroy();
+		
+		server.unregisterMBean(objName);
 		
 		logger.debug("Unregistered and destroyed OddjobMBean [" + objName.toString() + "]");
 	}
 	
+	/**
+	 * Helper function to build the object name from the sequence number.
+	 * 
+	 * @param sequence The object sequence number.
+	 * @return A JMX object name.
+	 */
 	public static ObjectName objectName(int sequence) {
 		try {
 			NumberFormat f = new DecimalFormat("00000000");
@@ -103,11 +117,19 @@ public class OddjobMBeanFactory implements ServerSession {
 	}
 	
 	public ObjectName nameFor(Object object) {
-		return names.get(object);
+		synchronized (this) {
+			return names.get(object);
+		}
 	}
 	
 	public Object objectFor(ObjectName objectName) {
-		OddjobMBean mBean = mBeans.get(objectName);
+		OddjobMBean mBean = null;
+		synchronized (this) {
+			mBean = mBeans.get(objectName);
+			if (mBean == null) {
+				return null;
+			}
+		}
 		return mBean.getNode();
 	}
 	

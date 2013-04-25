@@ -3,24 +3,21 @@ package org.oddjob.jmx;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import javax.management.JMException;
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
 import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.relation.MBeanServerNotificationFilter;
+import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.framework.SimpleService;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
-import org.oddjob.state.IsStoppable;
+import org.oddjob.state.IsAnyState;
 import org.oddjob.state.ServiceState;
 
 /**
@@ -60,10 +57,7 @@ abstract public class ClientBase extends SimpleService {
 	 * @oddjob.required Not, defaults to 5 seconds.
 	 */
 	private long heartbeat = 5000;
-	
-	/** Listener for why the server stopped. */
-	private volatile ServerStoppedListener serverStoppedListener;
-	
+		
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The environment. Typically username/password
@@ -96,10 +90,11 @@ abstract public class ClientBase extends SimpleService {
 			JMXServiceURL address = new JMXServiceURLHelper().parse(connection);
 			cntor = JMXConnectorFactory.connect(address, environment);
 			mbsc = cntor.getMBeanServerConnection();
+			
+			cntor.addConnectionNotificationListener(
+					new ServerStoppedListener(), null, null);
 		}
 		
-		serverStoppedListener = new ServerStoppedListener(mbsc);
-			
 		notificationProcessor = Executors.newSingleThreadScheduledExecutor();
 		
 		doStart(mbsc, notificationProcessor);
@@ -125,31 +120,19 @@ abstract public class ClientBase extends SimpleService {
 
 		// There is a small possibility that the SERVER_STOPPED and 
 		// HEARTBEAT_FAIURE happen simultaneously. 
-		ServerStoppedListener serverStoppedListener;
+		ExecutorService notificationProcessor;
 		synchronized (this) {
-			serverStoppedListener = this.serverStoppedListener;
-			if (serverStoppedListener == null) {
+			notificationProcessor = this.notificationProcessor;
+			if (notificationProcessor == null) {
 				return;
 			}
-			this.serverStoppedListener = null;
+			this.notificationProcessor = null;
 		}
-		
-		if (why == WhyStop.STOP_REQUEST ) {
-			serverStoppedListener.remove();
-		}
+		notificationProcessor.shutdownNow();
 		
 		onStop(why);
 		
-		notificationProcessor.shutdownNow();
-		try {
-			notificationProcessor.awaitTermination(0, TimeUnit.MILLISECONDS);
-		} catch (InterruptedException e1) {
-			Thread.currentThread().interrupt();
-		}
-		
-		notificationProcessor = null;
-
-		if (why ==  WhyStop.STOP_REQUEST && cntor != null) {
+		if (why == WhyStop.STOP_REQUEST && cntor != null) {
 			try {
 				cntor.close();
 			} catch (IOException e) {
@@ -158,21 +141,24 @@ abstract public class ClientBase extends SimpleService {
 		}
 		cntor = null;
 		
-		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
 				switch (why) {
 				case HEARTBEAT_FAILURE:
 					getStateChanger().setStateException(cause);
-					logger().error("Stopped because of heartbeat Failure.", cause);
+					logger().error(
+							"Client stopped because of heartbeat Failure.", 
+							cause);
 					break;
 				case SERVER_STOPPED:
 					getStateChanger().setStateException(
-							new Exception("Server Stopped"));
-					logger().info("Stopped because server Stopped.");
+							new Exception("Server Stopped."));
+					logger().info("Client stopped because server Stopped.");
 					break;
 				default:
 					getStateChanger().setState(ServiceState.COMPLETE);
-					logger().debug("Stopped because stop was requested.");
+					logger().debug(
+							"Client stopped because stop was requested.");
 				}
 			}
 		});
@@ -214,42 +200,28 @@ abstract public class ClientBase extends SimpleService {
 		this.heartbeat = heartbeat;
 	}
 
-	private class ServerStoppedListener implements NotificationListener {
-		
-		private final MBeanServerConnection mbsc;
- 
-		public ServerStoppedListener(MBeanServerConnection mbsc) throws JMException, IOException {
-			this.mbsc = mbsc;
+	/**
+	 * Listener to detect when server has stopped.
+	 */
+	class ServerStoppedListener implements NotificationListener {
+	
+		@Override
+		public void handleNotification(Notification notification,
+				Object handback) {
+			String notificationType = notification.getType();
+			logger().debug("Connection Notification Listener recevied: " +
+					notificationType);
 			
-			MBeanServerNotificationFilter serverFilter = new MBeanServerNotificationFilter();
-			serverFilter.disableAllObjectNames();
-			serverFilter.enableObjectName(OddjobMBeanFactory.objectName(0));
-			mbsc.addNotificationListener(
-					new ObjectName("JMImplementation:type=MBeanServerDelegate"),
-					this, serverFilter, null);
-			
-		}
-		
-		public void handleNotification(Notification notification, Object handback) {
-			if ("JMX.mbean.unregistered".equals(notification.getType())) {
-				logger().debug("MBeanServerDelgate unregestered in server. Server has stopped.");
+			if (JMXConnectionNotification.CLOSED.equals(notificationType)) {
 				try {
 					doStop(WhyStop.SERVER_STOPPED, null);
 				} catch (Exception e1) {
-					logger().error("Failed to stop.", e1);
+					logger().error(
+							"Failed to stop from Connection Notification Listener:", 
+							e1);
 				}
-				
 			}
-		}
-		
-		public void remove() {
-			try {
-				mbsc.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), 
-							this);
-			} catch (Exception e) {
-				logger().debug("Failed to remote MBeanServer NotificationListener: " +  
-						e);
-			} 
+			
 		}
 	}
 	

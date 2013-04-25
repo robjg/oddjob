@@ -79,11 +79,6 @@ public class OddjobMBeanTest extends TestCase {
 		ArooaSession session = new StandardArooaSession();
 		
 		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
-		
-		@Override
 		public ArooaSession getArooaSession() {
 			return session;
 		}
@@ -104,7 +99,7 @@ public class OddjobMBeanTest extends TestCase {
 				myJob, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				myJob, 
+				myJob, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		
@@ -144,7 +139,7 @@ public class OddjobMBeanTest extends TestCase {
 		
 		// create and register MBean.
 		OddjobMBean ojmb = new OddjobMBean(
-				myJob, 
+				myJob, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		
@@ -251,7 +246,7 @@ public class OddjobMBeanTest extends TestCase {
 				sampleBean, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean test = new OddjobMBean(
-				sampleBean, 
+				sampleBean, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		
@@ -282,7 +277,7 @@ public class OddjobMBeanTest extends TestCase {
 				bean, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				bean, 
+				bean, OddjobMBeanFactory.objectName(0),
 				new OurServerSession(), 
 				serverContext);
 		

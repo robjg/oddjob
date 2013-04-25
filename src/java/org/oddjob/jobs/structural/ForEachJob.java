@@ -62,11 +62,12 @@ import org.oddjob.io.ExistsJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsNotExecuting;
+import org.oddjob.state.IsNot;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
@@ -474,7 +475,8 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	public void load() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			stateHandler.waitToWhen(new IsNotExecuting(), new Runnable() {
+			stateHandler.waitToWhen(new IsNot(StateConditions.RUNNING), 
+					new Runnable() {
 				public void run() {
 				    try {
 						if (configurationHandles != null) {

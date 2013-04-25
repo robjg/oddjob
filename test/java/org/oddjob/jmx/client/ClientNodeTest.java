@@ -440,11 +440,6 @@ public class ClientNodeTest extends TestCase {
 		ArooaSession session = new StandardArooaSession();
 		
 		@Override
-		public ObjectName nameFor(Object object) {
-			return OddjobMBeanFactory.objectName(0);
-		}
-		
-		@Override
 		public ArooaSession getArooaSession() {
 			return session;
 		}
@@ -462,8 +457,8 @@ public class ClientNodeTest extends TestCase {
 		ServerContext srvcon = new ServerContextImpl(o, sm, 
 				new OurHierarchicalRegistry());
 
-		Object mb = new OddjobMBean(
-				o, new OurServerSession(), srvcon);
+		Object mb = new OddjobMBean(o, OddjobMBeanFactory.objectName(0),
+				new OurServerSession(), srvcon);
 		
 		MBeanServer mbs = MBeanServerFactory.createMBeanServer();
 		ObjectName on = new ObjectName("oddjob:name=whatever");

@@ -4,9 +4,9 @@ Oddjob-1.3.0
 Changes in 1.3.0
 ----------------
 
-- Add a bean-bus element that supports constructing arbitory bean busses.
+- Add a bean-bus element that supports constructing arbitrary bean busses.
 - Change SQLJob to support bean bus components allowing result beans to be 
-  streamed into any Collection - most usefully a Queue.
+  streamed into any Collection.
 - Many improvements to the BeanBus framework including changing bean bus
   destinations to be any Collection.
 - Improve support for Magic Beans which are beans that can be created

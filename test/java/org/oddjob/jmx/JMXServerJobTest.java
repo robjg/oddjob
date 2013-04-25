@@ -26,9 +26,10 @@ import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
-import org.oddjob.state.IsNotExecuting;
+import org.oddjob.state.IsNot;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -347,11 +348,15 @@ public class JMXServerJobTest extends TestCase {
 		MyFolder folder = new MyFolder(0, 0, session.registry);		
 		folder.addChildren(3, 2);
 				
+		logger.info("**** Starting Server ****");
+		
 		JMXServerJob server = new JMXServerJob();
 		server.setRoot(folder);
 		server.setUrl("service:jmx:rmi://");
 		server.setArooaSession(session);
 		server.start();
+		
+		logger.info("**** Starting Client ****");
 		
 		// client
 		JMXClientJob client = new JMXClientJob();
@@ -364,21 +369,31 @@ public class JMXServerJobTest extends TestCase {
 		WaitForChildren w = new WaitForChildren(proxy);
 		w.waitFor(3);
 		
+		logger.info("**** Stopping Server ****");
+		
 		server.stop();
 
+		logger.info("**** Waiting For Client to Stop ****");
+		
 		WaitJob wj = new WaitJob();
-		wj.setState(new IsNotExecuting());
+		wj.setState(new IsNot(StateConditions.RUNNING));
 		wj.setFor(client);
 		wj.run();
 
-		// An exception is really a bug. Client should detect server
-		// stopped before heartbeat failure.
 		State last = client.lastStateEvent().getState();
-		if (last.isIncomplete()) {
-			// desired
-		}
-		else if (last.isException()) {
-			// a bug
+		logger.info("Client State: " + last);
+		
+		if (last.isException()) {
+			Throwable e = client.lastStateEvent().getException();
+			if ("Server Stopped.".equals(e.getMessage())) {
+				logger.info(e.getMessage());
+			}
+			else {
+				// Heart beat failure could happen first. Just log this.
+				// would be nice to guarantee that it didn't but I can't
+				// work that out.
+				logger.info("Client Exception is:", e);
+			}
 		}
 		else {
 			fail("Unexpected state: " + 

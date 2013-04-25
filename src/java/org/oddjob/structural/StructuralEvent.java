@@ -6,8 +6,10 @@ import java.util.EventObject;
 import org.oddjob.Structural;
 
 /**
- * This event is fire by an implementer of the Strucutral interface when its
- * strucuture changes.
+ * This event is fired by an implementer of the {@link Structural} interface 
+ * when its structure changes.
+ * 
+ * @see StructuralListener
  * 
  * @author Rob Gordon
  */
