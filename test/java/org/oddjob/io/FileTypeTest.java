@@ -207,6 +207,9 @@ public class FileTypeTest extends TestCase {
 		assertNull(result);		
 	}
 	
+	/**
+	 * Property will be blank.
+	 */
 	public void testNullInOddjob() throws Exception {
 		
 		String xml = 
@@ -233,7 +236,8 @@ public class FileTypeTest extends TestCase {
 		Properties props = 
 				lookup.lookup("props.properties", Properties.class);
 		
-		assertEquals(null, props.getProperty("no.file"));
+		assertEquals("", props.getProperty("no.file"));
+		
 		oddjob.destroy();
 	}
 	

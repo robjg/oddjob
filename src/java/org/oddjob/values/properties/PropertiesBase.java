@@ -241,7 +241,7 @@ public class PropertiesBase implements ArooaContextAware {
      */
 	public void setValues(String key, String value) {
 		if (value == null) {
-			values.remove(key);
+			values.put(key, "");
 		}
 		else {
 			values.put(key, value);

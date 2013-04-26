@@ -218,6 +218,7 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 		
+		// Sometimes the state goes to READY not ACTIVE - don't know why.
 		steps.checkWait();
 		
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());

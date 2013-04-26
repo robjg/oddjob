@@ -9,8 +9,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +61,8 @@ import org.oddjob.arooa.life.ArooaLifeAware;
  * {@oddjob.xml.resource org/oddjob/io/BufferAsLinesExample.xml}
  * 
  */
-public class BufferType implements ArooaValue, ArooaLifeAware {
+public class BufferType implements ArooaValue, ArooaLifeAware, Serializable {
+	private static final long serialVersionUID = 2013042500L;
 
 	public static class Conversions implements ConversionProvider {
 		
@@ -94,16 +98,24 @@ public class BufferType implements ArooaValue, ArooaLifeAware {
 	
 	private volatile ByteArrayOutputStream buffer;
 	
-	private volatile String text;
+	private volatile transient String text;
 	
-	private volatile String[] lines;
+	private volatile transient String[] lines;
 	
 	public InputStream toInputStream() {
 		if (buffer == null) {
 			return null;
 		}
 		else {
-			return new ByteArrayInputStream(buffer.toByteArray());
+			final byte[] bytes = buffer.toByteArray();
+			
+			return new ByteArrayInputStream(bytes) {
+				
+				public String toString() {
+					return BufferType.class.getSimpleName() + 
+							" InputStream: " + bytes.length + " bytes";
+				}
+			};
 		}
 	}
 	
@@ -175,7 +187,7 @@ public class BufferType implements ArooaValue, ArooaLifeAware {
 	
 	@Override
 	public void configured() {
-		buffer = new ByteArrayOutputStream();
+		buffer = new BufferTypeOutputStream();
 		
 		if (text != null) {
 			try {
@@ -200,8 +212,41 @@ public class BufferType implements ArooaValue, ArooaLifeAware {
 	}
 	
 	public String toString() {
-		return "Buffer (" + (buffer == null ? "unconfigured" :
-			buffer.size() + " bytes") + ")";
+		return "BufferType: " + (buffer == null ? "unconfigured" :
+			buffer.size() + " bytes");
+	}
+	
+	static class BufferTypeOutputStream extends ByteArrayOutputStream implements Serializable {
+		private static final long serialVersionUID = 2013042500L;
+		
+		/**
+		 * Custom serialisation.
+		 */
+		private void writeObject(ObjectOutputStream s) 
+		throws IOException {
+			s.defaultWriteObject();
+			byte[] bytes = this.toByteArray();
+			s.writeInt(bytes.length);
+			s.write(bytes);
+		}
+		
+		/**
+		 * Custom serialisation.
+		 */
+		private void readObject(ObjectInputStream s) 
+		throws IOException, ClassNotFoundException {
+			s.defaultReadObject();
+			int size = s.readInt();
+			byte[] bytes = new byte[size];
+			s.read(bytes);
+			write(bytes);
+		}		
+		
+		@Override
+		public synchronized String toString() {
+			return BufferType.class.getSimpleName() + " OutputStream: " +
+				size() + " bytes";
+		}
 	}
 	
 }

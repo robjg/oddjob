@@ -16,6 +16,17 @@ import java.util.TreeSet;
 public class Files {
 
 	/**
+	 * Expand a file that could contain wild cards.
+	 * 
+	 * @param file The file.
+	 * 
+	 * @return An array of files. Never null.
+	 */
+	public static File[] expand(File file) {
+		return new WildcardSpec(file).findFiles();
+	}
+	
+	/**
 	 * Expand an array of files which could contain wildcards into 
 	 * an actual array of files. The array will be sorted.
 	 * 
@@ -25,7 +36,7 @@ public class Files {
 	public static File[] expand(File[] files) {
 		SortedSet<File> results = new TreeSet<File>();
 		for (int i = 0; i < files.length; ++i) {
-			results.addAll(Arrays.asList(new WildcardSpec(files[i]).findFiles()));
+			results.addAll(Arrays.asList(expand(files[i])));
 		}
     	return (File[]) results.toArray(new File[0]);
 	}

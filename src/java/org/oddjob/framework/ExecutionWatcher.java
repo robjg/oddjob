@@ -21,7 +21,7 @@ public class ExecutionWatcher {
 	private final AtomicInteger executed = new AtomicInteger();
 	
 	/** Started. */
-	private boolean started;
+	private volatile boolean started;
 	
 	/**
 	 * Constructor.

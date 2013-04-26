@@ -13,6 +13,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
+import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -59,12 +60,19 @@ public class BufferTypeTest extends TestCase {
 		
 		OutputStream os = converter.convert(bt, OutputStream.class);
 
+		assertEquals("BufferType OutputStream: 0 bytes", os.toString());
+		
 		os.write('A');
 		os.close();
+		
+		assertEquals("BufferType OutputStream: 1 bytes", os.toString());
 		
 		assertEquals("A", converter.convert(bt, String.class));
 		
 		InputStream is = converter.convert(bt, InputStream.class);
+		
+		assertEquals("BufferType InputStream: 1 bytes", is.toString());
+		
 		int i = is.read();
 		assertEquals(65, i);
 		is.close();
@@ -352,14 +360,31 @@ public class BufferTypeTest extends TestCase {
 			" </job>" +
 			"</oddjob>";
 		
-		Oddjob oj = new Oddjob(); 
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
+		Oddjob oddjob = new Oddjob(); 
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
 		
-		oj.run();
+		oddjob.run();
 		
-		String result =  new OddjobLookup(oj).lookup(
+		String result =  new OddjobLookup(oddjob).lookup(
 				"v.xml", String.class);
 
 		assertEquals(String.format("<some-xml>Will this work?</some-xml>"), result);
+		
+		oddjob.destroy();
+	}
+	
+	public void testSerialize() throws IOException, ClassNotFoundException, NoConversionAvailableException, ConversionFailedException {
+		
+		BufferType type = new BufferType();
+		type.setText("Apples");
+		type.configured();
+		
+		BufferType copy = Helper.copy(type);
+		
+		ArooaConverter converter = new ConverterHelper().getConverter();
+		
+		String result = converter.convert(copy, String.class);
+		
+		assertEquals("Apples", result);
 	}
 }

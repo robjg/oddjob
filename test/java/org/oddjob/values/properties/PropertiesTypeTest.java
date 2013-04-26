@@ -223,6 +223,9 @@ public class PropertiesTypeTest extends TestCase {
 		assertEquals("apple", results.getProperty("snack.healthy.thing"));
 	}
 	
+	/**
+	 * Test null values are empty properties.
+	 */
 	public void testNullValue() throws IOException, ArooaConversionException {
 		
 		PropertiesType test = new PropertiesType();
@@ -230,6 +233,6 @@ public class PropertiesTypeTest extends TestCase {
 		
 		Properties results = test.toProperties();
 		
-		assertEquals(0, results.size());
+		assertEquals("", results.getProperty("foo"));
 	}
 }

@@ -91,8 +91,6 @@ implements OptionallyTransient {
 	 * be persisted.
 	 * @oddjob.required No, default is false.
 	 * 
-	 * @param stateOperator The state operator to be applied to children's
-	 * states to derive our state.
 	 */
 	private boolean _transient;
 	
@@ -111,6 +109,11 @@ implements OptionallyTransient {
 		this.structuralState.setStateOperator(stateOperator);
 	}
 	
+	/**
+	 * Getter for State Operator.
+	 * 
+	 * @return
+	 */
 	public StateOperator getStateOperator() {
 		return this.structuralState.getStateOperator();
 	}
