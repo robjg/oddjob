@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.jmx.JMXServiceJob;
@@ -17,6 +19,9 @@ import org.oddjob.jmx.JMXServiceJob;
  * <p>
  * This is a wrapper for {@link InvokeType}. The result of the
  * invocation is placed in the <code>result</code> property.
+ * <p>
+ * Note that stopping this job will simply attempt to interrupt the
+ * thread invoking the method. The outcome of this will obviously vary.
  * 
  * @oddjob.example
  * 
@@ -36,7 +41,9 @@ import org.oddjob.jmx.JMXServiceJob;
  * @author rob
  *
  */
-public class InvokeJob extends SerializableJob {
+public class InvokeJob extends SerializableJob 
+implements Stoppable {
+	
 	private static final long serialVersionUID = 2012080600L;
 	
 	/**
@@ -64,6 +71,8 @@ public class InvokeJob extends SerializableJob {
 	/** The result of the invocation. */
 	private transient Object result;
 	
+	private transient volatile Thread executingThread;
+	
 	/**
 	 * Constructor.
 	 */
@@ -88,7 +97,14 @@ public class InvokeJob extends SerializableJob {
 			delegate.setParameters(i, parameters.get(i));
 		}
 		
-		result = delegate.toValue();
+		executingThread = Thread.currentThread();
+		
+		try {
+			result = delegate.toValue();
+		}
+		finally {
+			executingThread = null;
+		}
 		
 		return 0;
 	}
@@ -96,6 +112,14 @@ public class InvokeJob extends SerializableJob {
 	@Override
 	protected void onReset() {
 		result = null;
+	}
+	
+	@Override
+	protected void onStop() throws FailedToStopException {
+		Thread thread = executingThread;
+		if (thread != null) {
+			thread.interrupt();
+		}
 	}
 	
 	public Invoker getSource() {

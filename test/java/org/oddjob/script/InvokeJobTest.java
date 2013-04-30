@@ -1,11 +1,17 @@
 package org.oddjob.script;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import junit.framework.TestCase;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.persist.OddjobPersister;
@@ -54,5 +60,34 @@ public class InvokeJobTest extends TestCase {
 		assertEquals("Hello", result2);
 		
 		oddjob2.destroy();
+	}
+	
+	
+	public static class Foo {
+		CountDownLatch inMethod = new CountDownLatch(1);
+		
+		public void takeALongTime() throws InterruptedException {
+			inMethod.countDown();
+			Thread.sleep(1000000);
+		}
+	}
+	
+	public void testStop() throws InterruptedException, FailedToStopException {
+		
+		Foo foo = new Foo();
+		
+		InvokeJob test = new InvokeJob();
+		test.setFunction("takeALongTime");
+		test.setSource(new MethodInvoker(foo));
+		test.setArooaSession(new StandardArooaSession());
+		
+		assertTrue(test instanceof Stoppable);
+		
+		Thread t = new Thread(test);
+		t.start();
+		
+		assertTrue(foo.inMethod.await(5, TimeUnit.SECONDS));
+		
+		test.stop();
 	}
 }
