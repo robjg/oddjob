@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <variables id="vars">
+            <props>
+                <properties>
+                    <input>
+                        <buffer><![CDATA[favourite.snack=${favourite.fruit}
+]]></buffer>
+                    </input>
+                </properties>
+            </props>
+        </variables>
+    </job>
+</oddjob>

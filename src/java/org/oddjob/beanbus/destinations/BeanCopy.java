@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
@@ -45,6 +46,7 @@ import org.oddjob.beanbus.BusFilter;
  */
 public class BeanCopy<F, T> extends AbstractDestination<F>
 implements BusFilter<F, T>, ArooaSessionAware {
+	private static final Logger logger = Logger.getLogger(BeanCopy.class);
 
 	private static AtomicInteger instance = new AtomicInteger();
 
@@ -94,8 +96,12 @@ implements BusFilter<F, T>, ArooaSessionAware {
 	
 	protected ArooaClass createClassFromBean(F bean) {
 		
+		String magicClassName = "BeanCopy-" + instance.incrementAndGet();
+		
+		logger.debug("Creating Magic Bean Class [" + magicClassName + "]");
+		
 		MagicBeanClassCreator creator = new MagicBeanClassCreator(
-				"BeanCopy-" + instance.incrementAndGet());
+				magicClassName);
 		
 		ArooaClass sourceClass = accessor.getClassName(bean);
 		BeanOverview overview = sourceClass.getBeanOverview(accessor);
@@ -106,6 +112,9 @@ implements BusFilter<F, T>, ArooaSessionAware {
 			String to = mapping.getValue();
 			
 			Class<?> propertyType = overview.getPropertyType(from);
+			
+			logger.debug("Adding property to copy [" + to + 
+					"] of type [" + propertyType + "]");
 			
 			creator.addProperty(to, propertyType);
 		}

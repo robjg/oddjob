@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bean-bus>
+                    <parts>
+                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
+                            <beans>
+                                <list>
+                                    <values>
+                                        <value value="Apples"/>
+                                        <value value="crash-the-bus"/>
+                                    </values>
+                                </list>
+                            </beans>
+                        </bus:iterable-driver>
+                        <bus:bean-queue id="bean-queue" xmlns:bus="oddjob:beanbus"/>
+                    </parts>
+                </bean-bus>
+                <bean-bus id="second-bus">
+                    <parts>
+                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
+                            <beans>
+                                <value value="${bean-queue}"/>
+                            </beans>
+                        </bus:iterable-driver>
+                        <bean class="org.oddjob.beanbus.mega.MegaBeanBusTest$DestinationWithLogger" id="thing-with-logging"/>
+                    </parts>
+                </bean-bus>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

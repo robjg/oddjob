@@ -12,6 +12,8 @@ import javax.inject.Inject;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
@@ -19,6 +21,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.ArooaDescriptor;
+import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -26,8 +29,11 @@ import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
+import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.AbstractDestination;
@@ -37,10 +43,17 @@ import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
+import org.oddjob.logging.LogEnabled;
+import org.oddjob.logging.LogEvent;
+import org.oddjob.logging.LogLevel;
+import org.oddjob.logging.LogListener;
+import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.state.ParentState;
 
 public class MegaBeanBusTest extends TestCase {
 
+	private static Logger logger = Logger.getLogger(MegaBeanBusTest.class);
+	
 	public void testSimpleLifecycle() {
 		
 
@@ -480,4 +493,179 @@ public class MegaBeanBusTest extends TestCase {
 		
 		oddjob.destroy();
 	}
+	
+	public static class DestinationWithLogger extends AbstractDestination<String> {
+
+		final TrackingBusListener busListener = new TrackingBusListener() {
+			@Override
+			public void busStarting(BusEvent event) throws BusCrashException {
+				logger.info("The Bus is Starting.");
+			}
+			
+			public void tripBeginning(BusEvent event) throws BusCrashException {
+				logger.info("A Trip is Beginning.");
+			}
+
+			public void tripEnding(BusEvent event) throws BusCrashException {
+				logger.info("A Trip is Ending.");
+
+			}
+			
+			public void busStopRequested(BusEvent event) {
+				logger.info("A Bus Stop is Requested.");
+			}
+			 
+			@Override
+			public void busStopping(BusEvent event) throws BusCrashException {
+				logger.info("The Bus is Stopping.");
+			}
+			
+			public void busCrashed(BusEvent event) {
+				logger.info("The Bus has Crashed.");
+			};
+			
+			public void busTerminated(BusEvent event) {
+				logger.info("The Bus has terminated.");
+			}
+		};
+		
+		@Override
+		public boolean add(String e) {
+			logger.info("We have received " + e + ".");
+			
+			if ("crash-the-bus".equals(e)) {
+				throw new IllegalArgumentException(e);
+			}
+			else {
+				busListener.getBusConductor().requestBusStop();
+			}
+			
+			return true;
+		}
+		
+		@Inject
+		public void setBusConductor(BusConductor busConductor) {
+			busListener.setBusConductor(busConductor);
+		}
+				
+	}
+	
+	/**
+     * Test logging.
+     * 
+     * @throws Exception
+     */
+    public void testDefaultLogger() throws Exception {
+    	
+    	final List<String> messages = new ArrayList<String>();
+    	
+    	class MyLogListener implements LogListener {
+    		public void logEvent(LogEvent logEvent) {
+    			messages.add(logEvent.getMessage().trim());
+    		}
+    	}
+    	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration(
+    			"org/oddjob/beanbus/mega/MegaLoggerTest.xml",
+    			getClass().getClassLoader()));
+
+    	oddjob.load();
+    	
+    	assertEquals(ParentState.READY, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
+    	
+    	Object thingWithLogging = lookup.lookup("thing-with-logging");
+    	
+    	String loggerName = ((LogEnabled) thingWithLogging).loggerName();
+    
+    	assertEquals(DestinationWithLogger.class.getName(),
+    			loggerName.substring(0, DestinationWithLogger.class.getName().length()));
+    	
+    	Logger.getLogger(loggerName).setLevel(Level.INFO);
+    	
+    	Log4jArchiver archiver = new Log4jArchiver(thingWithLogging, "%m%n");
+    	
+    	MyLogListener ll = new MyLogListener();
+    	archiver.addLogListener(ll, thingWithLogging, LogLevel.DEBUG, 0, 1000);
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	assertEquals("The Bus is Starting.", messages.get(1));
+    	assertEquals("A Trip is Beginning.", messages.get(2));
+		assertEquals("We have received Apples.", messages.get(3));
+    	assertEquals("A Bus Stop is Requested.", messages.get(4));
+		assertEquals("A Trip is Ending.", messages.get(5));
+    	assertEquals("The Bus is Stopping.", messages.get(6));
+    	assertEquals("The Bus has terminated.", messages.get(7));
+		
+    	assertEquals(8, messages.size());
+    	
+    	Object secondBus = lookup.lookup("second-bus");
+    	
+    	((Resetable) secondBus).hardReset();
+    	
+    	oddjob.run();
+    	
+    	assertEquals(ParentState.EXCEPTION, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	assertEquals("The Bus is Starting.", messages.get(9));
+    	assertEquals("A Trip is Beginning.", messages.get(10));
+		assertEquals("We have received crash-the-bus.", messages.get(11));
+    	assertEquals("The Bus has Crashed.", messages.get(12));
+    	assertEquals("The Bus has terminated.", messages.get(13));
+    	
+    	oddjob.destroy();
+    }
+
+	public void testCutPasteBusPartInvalidatesBus() throws ArooaParseException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/beanbus/mega/MegaBusCutTest.xml", 
+				getClass().getClassLoader()));
+		oddjob.run();
+
+    	assertEquals(ParentState.COMPLETE, 
+    			oddjob.lastStateEvent().getState());
+    	
+		Object busPart = new OddjobLookup(
+				oddjob).lookup("bus-part"); 
+		
+		DragPoint busPartPoint = oddjob.provideConfigurationSession().dragPointFor(
+				busPart);
+		
+		DragTransaction trn = busPartPoint.beginChange(ChangeHow.FRESH);
+		String copy = busPartPoint.copy();
+		busPartPoint.cut();
+		trn.commit();
+		
+		Object bus = new OddjobLookup(
+				oddjob).lookup("bus"); 
+		
+		DragPoint busPoint = oddjob.provideConfigurationSession().dragPointFor(
+				bus);
+		
+		trn = busPoint.beginChange(ChangeHow.FRESH);
+		busPoint.paste(-1, copy);
+		trn.commit();		
+		
+		Object driver = new OddjobLookup(
+				oddjob).lookup("driver"); 
+		
+		((Resetable) driver).hardReset();
+		((Runnable) driver).run();
+		
+    	assertEquals(ParentState.EXCEPTION, 
+    			oddjob.lastStateEvent().getState());
+		
+		oddjob.destroy();
+	}
+
 }

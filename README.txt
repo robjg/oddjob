@@ -48,18 +48,16 @@ Changes in 1.3.0
 
 Still To Do for 1.3.0
 ---------------------
-- Add the ability to change the log level from the UI. Add LogLevel TRACE and
-  NONE to match Log4j.
-- Add Parent Started State to User Guide. Document thread, and services.
-- Find bug with destroying JMX Client - see Stack Exceptions in 
-  TogetherTest#testClientServerLoopback.
-- Introduce a witheach job that behaves like foreach except that values
-  are 'pushed' into it.
-- Document synthetic annotations in the Developer Guide.
-- Document conversions. Possibly include conversions in the Reference.
 
 Deferred to A Later Version
 ---------------------------
+- Add Parent Started State to User Guide. Document thread, and services.
+- Document synthetic annotations in the Developer Guide.
+- Document conversions. Possibly include conversions in the Reference.
+- Introduce a witheach job that behaves like foreach except that values
+  are 'pushed' into it.
+- Add the ability to change the log level from the UI. Add LogLevel TRACE and
+  NONE to match Log4j.
 - Add serialisation of services.
 - Use a server side file system for choosing files on server component 
   designer forms.
@@ -83,8 +81,6 @@ Deferred to A Later Version
   preservelastmodified. Add the ability to back up the moved files like Linux does.
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
-- Need better protection from exceptions in the DetailModel.setSelectedContext
-  method.
 
 
 Changes in 1.2.0

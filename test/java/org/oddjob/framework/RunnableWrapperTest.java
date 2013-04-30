@@ -504,7 +504,13 @@ public class RunnableWrapperTest extends TestCase {
     			getClass().getClassLoader());  
     	
     	Logger.getLogger("AnyLogger").setLevel(Level.DEBUG);
-    	Logger.getLogger(((LogEnabled) proxy).loggerName()).setLevel(Level.DEBUG);
+    	
+    	String proxyLoggerName = ((LogEnabled) proxy).loggerName();
+    
+    	assertEquals(AnyLogger.class.getName(),
+    			proxyLoggerName.substring(0, AnyLogger.class.getName().length()));
+    	
+    	Logger.getLogger(proxyLoggerName).setLevel(Level.DEBUG);
     	
     	Log4jArchiver archiver = new Log4jArchiver(proxy, "%m%n");
     	

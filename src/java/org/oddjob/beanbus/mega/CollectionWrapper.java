@@ -21,6 +21,7 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.BusListener;
 import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.framework.ComponentBoundry;
@@ -184,13 +185,17 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	    	this.session.getComponentPool().configure(getProxy());
 	    	
 			logger().info("Prepared with Bus Conductor [" + busConductor + "]");
-			logger().info("In bus logging will be captured by the Bus Driver.");
 			
 		} finally {
 			ComponentBoundry.pop();
 		}
     }
         	
+	@Override
+	public BusConductor conductorForService(BusConductor busConductor) {
+		return new LoggingBusConductorFilter(busConductor);
+	}
+	
 	/**
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
@@ -305,7 +310,13 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		if (busCrashException != null) {
 			throw new RuntimeException(busCrashException);
 		}
-		return wrapped.add(e);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.add(e);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
@@ -313,61 +324,225 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		if (busCrashException != null) {
 			throw new RuntimeException(busCrashException);
 		}
-		return wrapped.addAll(c);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.addAll(c);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public void clear() {
-		wrapped.clear();
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			wrapped.clear();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean contains(Object o) {
-		return wrapped.contains(o);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.contains(o);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		return wrapped.containsAll(c);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.containsAll(c);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean isEmpty() {
-		return wrapped.isEmpty();
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.isEmpty();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public Iterator<E> iterator() {
-		return wrapped.iterator();
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.iterator();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean remove(Object o) {
-		return wrapped.remove(o);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.remove(o);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		return wrapped.removeAll(c);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.removeAll(c);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		return wrapped.retainAll(c);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.retainAll(c);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public int size() {
-		return wrapped.size();
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.size();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public Object[] toArray() {
-		return wrapped.toArray();
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.toArray();
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	@Override
 	public <T> T[] toArray(T[] a) {
-		return wrapped.toArray(a);
+		ComponentBoundry.push(loggerName(), wrapped);
+		try {
+			return wrapped.toArray(a);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
+	}
+	
+	class LoggingBusConductorFilter extends BusConductorFilter {
+		
+		public LoggingBusConductorFilter(BusConductor conductor) {
+			super(conductor);
+		}
+		
+		@Override
+		protected void busStarting(BusEvent event,
+				BusListener listener) throws BusCrashException {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.busStarting(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void tripBeginning(BusEvent event,
+				BusListener listener) throws BusCrashException {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.tripBeginning(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void tripEnding(BusEvent event,
+				BusListener listener) throws BusCrashException {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.tripEnding(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void busStopRequested(BusEvent event,
+				BusListener listener) {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.busStopRequested(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void busStopping(BusEvent event,
+				BusListener listener) throws BusCrashException {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.busStopping(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void busCrashed(BusEvent event,
+				BusListener listener) {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.busCrashed(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
+		@Override
+		protected void busTerminated(BusEvent event,
+				BusListener listener) {
+			ComponentBoundry.push(loggerName(), wrapped);
+			try {
+				super.busTerminated(event, listener);
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+		}
+		
 	}
 }

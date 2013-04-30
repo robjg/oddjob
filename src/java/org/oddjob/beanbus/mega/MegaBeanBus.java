@@ -19,10 +19,13 @@ import org.oddjob.arooa.parsing.ContextConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusServiceProvider;
 import org.oddjob.beanbus.Outbound;
 import org.oddjob.beanbus.SimpleBusService;
+import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
@@ -58,6 +61,12 @@ implements ConfigurationOwner, BusServiceProvider {
 	
 	private boolean noAutoLink;
 	
+	private transient ThreadLocal<BusPart> preparing;
+	
+	private transient boolean valid;
+	
+	private transient TrackingBusListener trackingBusListener;
+	
 	/**
 	 * Only constructor.
 	 */
@@ -66,8 +75,18 @@ implements ConfigurationOwner, BusServiceProvider {
 	}
 	
 	private void completeConstruction() {
+		preparing = new ThreadLocal<BusPart>();
 		configurationOwnerSupport =
-			new ConfigurationOwnerSupport(this);		
+			new ConfigurationOwnerSupport(this);
+		trackingBusListener = new TrackingBusListener() {
+			@Override
+			public void busStarting(BusEvent event) throws BusCrashException {
+				if (!valid) {
+					throw new BusCrashException(
+							"The Bus has changed. Run the whole bus again.");
+				}
+			}
+		};
 	}
 	
 	@Override
@@ -138,6 +157,8 @@ implements ConfigurationOwner, BusServiceProvider {
 	 */
 	@ArooaComponent
 	public void setParts(int index, Object child) {
+		valid = false;
+		
 		if (child == null) {
 			childHelper.removeChildAt(index);
 		}
@@ -183,7 +204,15 @@ implements ConfigurationOwner, BusServiceProvider {
 						throw new IllegalStateException("No Bus Conductor!");
 					}
 					
-					((BusPart) child).prepare(busConductor);
+					BusPart busPart = (BusPart) child;
+					
+					preparing.set(busPart);
+					try {
+						busPart.prepare(busConductor);
+					}
+					finally {
+						preparing.remove();
+					}
 				}
 				
 				if (!noAutoLink && previousChild != null && 
@@ -202,6 +231,9 @@ implements ConfigurationOwner, BusServiceProvider {
 				
 				previousChild = child;
 			}
+			
+			valid = true;
+			trackingBusListener.setBusConductor(busConductor);
 			
 			
 			for (Object child : children) {
@@ -242,10 +274,17 @@ implements ConfigurationOwner, BusServiceProvider {
 			@Override
 			public BusConductor getService(String serviceName)
 					throws IllegalArgumentException {
+				
+				BusConductor busConductor = MegaBeanBus.this.busConductor;
 				if (busConductor == null) {
 					throw new NullPointerException(
 							"Bus Service Not Available until the Bus is Running.");
 				}
+				BusPart busPart = preparing.get();
+				if (busPart != null) {
+					busConductor = busPart.conductorForService(busConductor);
+				}
+				
 				return busConductor;
 			}
 			

@@ -59,6 +59,6 @@ implements ArooaValue {
 	
 	@Override
 	public String toString() {
-		return "Properties";
+		return getClass().getSimpleName();
 	}
 }

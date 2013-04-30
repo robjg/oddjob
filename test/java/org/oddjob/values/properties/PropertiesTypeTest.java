@@ -3,7 +3,9 @@
  */
 package org.oddjob.values.properties;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
 
 import junit.framework.TestCase;
@@ -11,6 +13,7 @@ import junit.framework.TestCase;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 
@@ -235,4 +238,32 @@ public class PropertiesTypeTest extends TestCase {
 		
 		assertEquals("", results.getProperty("foo"));
 	}
+	
+	/**
+	 * Tracking down a bug where properties don't appear to be loaded in
+	 * variables from an input buffer - still don't know why because this
+	 * works.
+	 * 
+	 * @throws ArooaConversionException 
+	 * @throws ArooaPropertyException 
+	 */
+	public void testPropertiesInVaraiblesFromBuffer() throws ArooaPropertyException, ArooaConversionException {
+		
+		URL url = getClass().getResource("PropertiesInVariables.xml");
+		
+		Properties properties = new Properties();
+		properties.setProperty("favourite.fruit", "Apples");
+		
+		Oddjob oddjob = new Oddjob();		
+		oddjob.setFile(new File(url.getFile()));
+		oddjob.setProperties(properties);
+		
+		oddjob.run();
+		
+		Properties results = new OddjobLookup(oddjob).lookup("vars.props",
+				Properties.class);
+		
+		assertEquals("Apples", results.get("favourite.snack"));
+	}
+	
 }

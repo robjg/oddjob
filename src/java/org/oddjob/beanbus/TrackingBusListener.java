@@ -12,7 +12,7 @@ package org.oddjob.beanbus;
  */
 public class TrackingBusListener {
 
-	private BusConductor busConductor;
+	private volatile BusConductor busConductor;
 
 	private final BusListener listener = new BusListener() {
 		
@@ -84,5 +84,9 @@ public class TrackingBusListener {
 	}
 	
 	public void busTerminated(BusEvent event) {
+	}
+	
+	public BusConductor getBusConductor() {
+		return busConductor;
 	}
 }

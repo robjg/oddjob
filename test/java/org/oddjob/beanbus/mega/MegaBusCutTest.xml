@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+  <job>
+    <bean-bus id="bus">
+      <parts>
+        <bus:iterable-driver xmlns:bus="oddjob:beanbus"
+          id="driver">
+          <beans>
+            <list>
+              <values>
+                <value value="Apples" />
+              </values>
+            </list>
+          </beans>
+        </bus:iterable-driver>
+        <bus:bean-capture id="bus-part" xmlns:bus="oddjob:beanbus" />
+      </parts>
+    </bean-bus>
+  </job>
+</oddjob>
