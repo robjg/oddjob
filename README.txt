@@ -1,61 +1,18 @@
-Oddjob-1.3.0
+Oddjob-1.4.0
 ============
 
-Changes in 1.3.0
+Changes in 1.4.0
 ----------------
 
-- Add a bean-bus element that supports constructing arbitrary bean busses.
-- Change SQLJob to support bean bus components allowing result beans to be 
-  streamed into any Collection.
-- Many improvements to the BeanBus framework including changing bean bus
-  destinations to be any Collection.
-- Improve support for Magic Beans which are beans that can be created
-  dynamically within Oddjob.
-- Upgraded HSQL lib to 2.2.9.
-- Add a zero length string check to Check Job. Also added a Designer.
-- Added a Grep Job that can search files or any other input for text or
-  a regular expression.
-- The Date Type now supports the use of shortcuts for NOW, TODAY, TOMORROW
-  and YESTERDAY.
-- The Timer job now supports setting the nextDue property to reschedule a 
-  job. Setting the reschedule property has been improved and documented.
-- A serializable wrapper around ImageIcon has been added to Iconic to solve
-  serialization problems between different versions of Java 1.6 on client 
-  and server.
-- Added a Database Dialect to SQLJob. This allows result processing to
-  be tailored for different databases if required.
-- Add SQL tests for Oracle. Add a database dialect based on column type
-  that is needed for some Oracle column types.
-- Parallel and Sequential have been given a stateOperator property that
-  allows how they interpret their child states to vary. The SERVICES 
-  state operator does what serviceman used to do and so it has been removed.
-- Parallel has been given a join property that restores the pre Version 1.0
-  behaviour of waiting for the parallel threads to complete before 
-  continuing. Note that it's use is discouraged!
-- A new Parent State of STARTED has been introduced to better reflect
-  child service states. Timer and Retry now uses STARTED instead of ACTIVE.
-- Cascade now works correctly with the STARTED state of services.
-- Timer and Retry now allow the nextDue property to be set while the timer 
-  is running.
-- New Swing Panel is available that provides Oddjob jobs as simple Buttons.
-  It is not yet an Oddjob element but can be added with 
-  <bean class='org.oddjob.swing.OddjobPanel'/>
-- Change foreach so that a parallel foreach can have a run window (i.e. 
-  preLoad and purgeAfter properties). Also individual foreach jobs may now 
-  be configured with designer.
-- Developer Guide documentation has been improved especially around 
-  using Oddballs.
-
-Still To Do for 1.3.0
+Still To Do for 1.4.0
 ---------------------
-
-Deferred to A Later Version
----------------------------
+- Add an Oddjob Ant Task.
+- Improve Oddjob Ant Job as class loading is still problematic.
 - Add Parent Started State to User Guide. Document thread, and services.
-- Document synthetic annotations in the Developer Guide.
-- Document conversions. Possibly include conversions in the Reference.
 - Introduce a witheach job that behaves like foreach except that values
   are 'pushed' into it.
+- Document synthetic annotations in the Developer Guide.
+- Document conversions. Possibly include conversions in the Reference.
 - Add the ability to change the log level from the UI. Add LogLevel TRACE and
   NONE to match Log4j.
 - Add serialisation of services.
@@ -82,6 +39,52 @@ Deferred to A Later Version
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
 
+Deferred to A Later Version
+---------------------------
+
+Changes in 1.3.0
+----------------
+
+- Add a bean-bus element that supports constructing arbitrary bean busses.
+- Change SQLJob to support bean bus components allowing result beans to be 
+  streamed into any Collection.
+- Many improvements to the BeanBus framework including changing bean bus
+  destinations to be any Collection.
+- Improve support for Magic Beans which are beans that can be created
+  dynamically within Oddjob.
+- Upgraded HSQL lib to 2.2.9.
+- Add a zero length string check to Check Job. Also added a Designer.
+- Added a Grep Job that can search files or any other input for text or
+  a regular expression.
+- The Date Type now supports the use of shortcuts for NOW, TODAY, TOMORROW
+  and YESTERDAY.
+- The Timer and Retry jobs now support setting the nextDue property to 
+  change the execution time of job. Setting the reschedule property has 
+  been improved and documented.
+- A serializable wrapper around ImageIcon has been added to Iconic to solve
+  serialization problems between different versions of Java 1.6 on client 
+  and server.
+- Added a Database Dialect to SQLJob. This allows result processing to
+  be tailored for different databases if required.
+- Add SQL tests for Oracle. Add a database dialect based on column type
+  that is needed for some Oracle column types.
+- Parallel and Sequential have been given a stateOperator property that
+  allows how they interpret their child states to vary. The SERVICES 
+  state operator does what serviceman used to do and so it has been removed.
+- Parallel has been given a join property that restores the pre Version 1.0
+  behaviour of waiting for the parallel threads to complete before 
+  continuing. Note that it's use is discouraged!
+- A new Parent State of STARTED has been introduced to better reflect
+  child service states. Timer and Retry now uses STARTED instead of ACTIVE.
+- Cascade now works correctly with the STARTED state of services.
+- New Swing Panel is available that provides Oddjob jobs as simple Buttons.
+  It is not yet an Oddjob element but can be added with 
+  <bean class='org.oddjob.swing.OddjobPanel'/>
+- Change foreach so that a parallel foreach can have a run window (i.e. 
+  preLoad and purgeAfter properties). Also individual foreach jobs may now 
+  be configured with designer.
+- Developer Guide documentation has been improved especially around 
+  using Oddballs.
 
 Changes in 1.2.0
 ----------------

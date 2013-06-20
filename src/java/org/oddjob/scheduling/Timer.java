@@ -80,7 +80,7 @@ import org.oddjob.values.SetJob;
  * job rescheduled to run at this time. If the time is in the past, the job
  * will run immediately.
  * </p>
- * The second method is to set the the <code>reschedule<code> property with
+ * The second method is to set the the <code>reschedule</code> property with
  * a date and time. The next due date is calculated by applying the date
  * and time the schedule. This is particularly useful for advancing a
  * timer.

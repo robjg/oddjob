@@ -31,16 +31,12 @@ class IfDesign extends BaseDC {
 
 	private final SimpleTextAttribute state;
 	
-	private final SimpleTextAttribute not;
-	
 	private final IndexedDesignProperty jobs;
 
 	public IfDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
 		state = new SimpleTextAttribute("state", this);
-		
-		not = new SimpleTextAttribute("not", this);
 		
 		jobs = new IndexedDesignProperty("jobs", this);		
 	}
@@ -51,7 +47,6 @@ class IfDesign extends BaseDC {
 				.addFormItem(basePanel())
 				.addFormItem(new BorderedGroup("Properties")
 					.add(state.view().setTitle("State"))
-					.add(not.view().setTitle("Not"))
 					.add(jobs.view().setTitle("Jobs"))
 				);
 	}
@@ -59,7 +54,7 @@ class IfDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, state, not, jobs };
+				name, state, jobs };
 	}
 		
 }
