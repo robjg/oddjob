@@ -81,7 +81,8 @@ public class StructuralStateHelper implements Stateful {
 	 */
 	public StructuralStateHelper(Structural structural, StateOperator operator) {
 		this.structural = structural;
-		this.stateOperator = operator;
+		
+		setStateOperator(operator);
 		
 		// Add a listener that tracks child changes.
 		structural.addStructuralListener(

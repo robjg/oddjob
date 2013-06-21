@@ -238,6 +238,7 @@ public abstract class ColumnExtractor<T> {
 		EXTRACTOR_TYPES.put(Types.TIMESTAMP, 	TIMESTAMP_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.BOOLEAN, 		BOOLEAN_EXTRACTOR);
 		EXTRACTOR_TYPES.put(Types.ROWID, 		LONG_EXTRACTOR);
+		EXTRACTOR_TYPES.put(Types.CLOB, 		STRING_EXTRACTOR);
 	}
 	
 	@SuppressWarnings("unchecked")

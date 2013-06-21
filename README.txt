@@ -3,6 +3,7 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- Foreach now COMPLETEs when it has no values.
 
 Still To Do for 1.4.0
 ---------------------

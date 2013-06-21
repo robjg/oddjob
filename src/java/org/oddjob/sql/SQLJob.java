@@ -74,7 +74,6 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusException;
 import org.oddjob.beanbus.BusService;
 import org.oddjob.beanbus.BusServiceProvider;
 import org.oddjob.beanbus.Destination;
@@ -266,13 +265,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
     	
     	errorFilter.setTo(executor);
     	
-    	try {
-	    	parser.go();
-		} catch (BusException e) {
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+    	parser.run();
 	}
 
 	@Override

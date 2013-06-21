@@ -282,7 +282,18 @@ implements Stoppable, Loadable, ConfigurationOwner {
 
 	@Override
 	protected StateOperator getInitialStateOp() {
-		return new AnyActiveStateOp();
+		return new StateOperator() {
+			final StateOperator anyStateOp = new AnyActiveStateOp();
+			@Override
+			public ParentState evaluate(State... states) {
+				if (states.length == 0) {
+					return ParentState.COMPLETE;
+				}
+				else {
+					return anyStateOp.evaluate(states);
+				}
+			}
+		};
 	}
 	
 	/*

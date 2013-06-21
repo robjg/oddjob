@@ -26,7 +26,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -47,7 +47,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -69,7 +69,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -91,7 +91,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -113,7 +113,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -134,7 +134,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -160,7 +160,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -185,7 +185,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -210,7 +210,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -235,7 +235,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -276,7 +276,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		
@@ -305,7 +305,7 @@ public class SQLScriptParserTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.setTo(results);
 		
-		test.go();
+		test.run();
 		
 		List<String> stmts = results.getBeans();
 		

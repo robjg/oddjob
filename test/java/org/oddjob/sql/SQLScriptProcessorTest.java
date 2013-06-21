@@ -43,7 +43,7 @@ public class SQLScriptProcessorTest extends TestCase {
 		test.setInput(new ByteArrayInputStream(script.getBytes()));
 		test.setTo(capture);
 		
-		test.go();
+		test.run();
 		
 		assertEquals(2, capture.results.size());
 		

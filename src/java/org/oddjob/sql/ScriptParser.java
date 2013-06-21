@@ -14,6 +14,7 @@ import org.oddjob.arooa.runtime.ExpressionParser;
 import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.beanbus.AbstractBusComponent;
 import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.BusDriver;
 import org.oddjob.beanbus.BusException;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
@@ -23,7 +24,7 @@ import org.oddjob.sql.SQLJob.DelimiterType;
  * @author rob
  */
 public class ScriptParser extends AbstractBusComponent<String>
-implements ArooaSessionAware {
+implements BusDriver<String>, ArooaSessionAware {
 	
     /**
      * Keep the format of a SQL block.
@@ -161,19 +162,27 @@ implements ArooaSessionAware {
 		this.encoding = encoding;
 	}
 
-	public void go() throws BusException, IOException {
+	@Override
+	public void run() {
 
 		stop = false;
 		
-		startBus();
-		
 		try {
+			startBus();
+		
 			doProcessing();
 			
 	        stopBus();
 		}
+		catch (BusException e) {
+			throw new RuntimeException(e);
+		}
 		finally {
-			input.close();
+			try {
+				input.close();
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	

@@ -169,7 +169,7 @@ public class ForEachJobTest extends TestCase {
 		StateSteps state = new StateSteps(test);
 		
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.READY);
+				ParentState.COMPLETE);
 		
 		test.run();
 		
@@ -1124,5 +1124,5 @@ public class ForEachJobTest extends TestCase {
     	assertEquals("10", lines[2].trim());
     	
     	test.destroy();    	
-     }
+     }    
 }

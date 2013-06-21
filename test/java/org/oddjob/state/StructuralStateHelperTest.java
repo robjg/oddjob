@@ -144,12 +144,17 @@ public class StructuralStateHelperTest extends TestCase {
 	public void testEmpty() {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 	
-		StructuralStateHelper h = new StructuralStateHelper(
-				childHelper, new AnyActiveStateOp());
+		StructuralStateHelper test = new StructuralStateHelper(
+				childHelper, new StateOperator() {
+					@Override
+					public ParentState evaluate(State... states) {
+						return ParentState.COMPLETE;
+					}
+				});
 		
-		h.addStateListener(new OurStateListener());
+		test.addStateListener(new OurStateListener());
 		
-		assertEquals(ParentState.READY, state);
+		assertEquals(ParentState.COMPLETE, state);
 	}
 	
 	private class OurStateful extends MockStateful {
