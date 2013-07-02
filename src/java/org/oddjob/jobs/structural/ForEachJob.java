@@ -670,12 +670,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	private final int index;
     	private final Object current;
 
-    	private ArooaSession session;
+    	private volatile ArooaSession session;
+  
+    	/** The root job. Inject by parsing the nested configuration. */
+    	private volatile Runnable job;
     	
-    	private Runnable job;
-    	
-    	private int structuralPosition = -1;
-    	private ConfigurationHandle handle;
+    	private volatile int structuralPosition = -1;
+    	private volatile ConfigurationHandle handle;
     	
     	LocalBean (int index, Object value) {
     		this.index = index;
@@ -703,6 +704,12 @@ implements Stoppable, Loadable, ConfigurationOwner {
     			@Override
     			public Void call() throws Exception {
     		    	if (child == null) {
+    		    		if (job == null) {
+    		    			throw new NullPointerException(
+    		    					"This is an intermittent bug that I can't fix. " +
+    		    					"Current index is " + index);
+    		    		}
+    		    		
     		    		structuralPosition = childHelper.removeChild(job);
 			    	    handle = configurationHandles.remove(job);
 			    	    jobThreads.remove(job);

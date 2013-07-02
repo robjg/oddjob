@@ -139,13 +139,17 @@ implements ArooaSessionAware {
 		elapsedTime = System.currentTimeMillis() - elapsedTime;
 		
 		if (beans.size() > 0 && 
-				beans.get(0) instanceof UpdateCount &&
-				!dataOnly) {
+				beans.get(0) instanceof UpdateCount) {
 			
-			UpdateCount updateCount = (UpdateCount) beans.get(0);
+			if (dataOnly) {
+				logger.debug("Ignoring update counts for data only.");
+			}
+			else {
+				UpdateCount updateCount = (UpdateCount) beans.get(0);
 				
-			new StreamPrinter(output).println("[" + updateCount.getCount() + " rows affected, " +
-				elapsedTime + " ms.]");
+				new StreamPrinter(output).println("[" + updateCount.getCount() + " rows affected, " +
+						elapsedTime + " ms.]");
+			}
 		}
 		else {
 		
