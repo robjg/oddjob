@@ -395,13 +395,13 @@ implements Stoppable, ConsoleOwner {
 			errThread.start();
 		}
 		
+		OutputStream processStdIn = proc.getOutputStream();
 		// copy input.
 		if (stdin != null) {
-			OutputStream processStdIn = proc.getOutputStream();
 			IO.copy(stdin, processStdIn);
 			stdin.close();
-			processStdIn.close();
 		}
+		processStdIn.close();
 
 		thread = Thread.currentThread();
 		try {
