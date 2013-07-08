@@ -425,7 +425,7 @@ public class TriggerTest extends TestCase {
 		test.hardReset();
 		
 		if (System.currentTimeMillis() == test.lastStateEvent().getTime().getTime()) {
-			Thread.sleep(1);
+			Thread.sleep(2);
 		}
 		
 		test.run();
@@ -433,6 +433,9 @@ public class TriggerTest extends TestCase {
 		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		on.hardReset();
+		
+		assertEquals(JobState.READY, on.lastStateEvent().getState());
+		
 		on.run();
 		
 		assertEquals(new Integer(2), sequence.getCurrent());
