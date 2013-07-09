@@ -67,17 +67,19 @@ public class TokenizerType implements ArooaValue {
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The delimiter as a string.
+	 * @oddjob.description The delimiter. This is treated as plain 
+	 * text unless the regexp property is true, and then it is treated
+	 * as a regular expression.
 	 * @oddjob.required No.
 	 */
 	private String delimiter;
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The delimiter as a regular expression.
+	 * @oddjob.description True if The delimiter as a regular expression.
 	 * @oddjob.required No.
 	 */
-	private String regexp;
+	private boolean regexp;
 	
 	/**
 	 * @oddjob.property
@@ -107,9 +109,12 @@ public class TokenizerType implements ArooaValue {
 			return null; 
 		}
 
-		String regexp = this.regexp;
-		if (regexp == null && delimiter == null) {
-			regexp = DEFAULT_DELIMITER_REGEXP;
+		String delimiter = this.delimiter;
+		boolean regexp = this.regexp;
+		
+		if (delimiter == null) {
+			delimiter = DEFAULT_DELIMITER_REGEXP;
+			regexp = true;
 		}
 		
 		FlexibleTokenizerFactory tokenizerFactory = new FlexibleTokenizerFactory();
@@ -131,11 +136,11 @@ public class TokenizerType implements ArooaValue {
 		this.delimiter = delimiter;
 	}
 
-	public String getRegexp() {
+	public boolean isRegexp() {
 		return regexp;
 	}
 
-	public void setRegexp(String regexp) {
+	public void setRegexp(boolean regexp) {
 		this.regexp = regexp;
 	}
 

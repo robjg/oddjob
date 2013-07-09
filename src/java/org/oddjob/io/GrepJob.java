@@ -56,17 +56,18 @@ public class GrepJob implements Callable<Integer> {
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description Text to search for.
-	 * @oddjob.required No, not if a regexp is provided. 
+	 * @oddjob.description Text to search for. This is a regular expression
+	 * if the regexp property is set to true.
+	 * @oddjob.required Yes, not if a regexp is provided. 
 	 */
 	private String text;
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description A regular expression to match.
-	 * @oddjob.required No, not if text is provided. 
+	 * @oddjob.description Treat the text to match as a regular expression.
+	 * @oddjob.required No, Text is treated as plain text. 
 	 */
-	private String regexp;
+	private boolean regexp;
 	
 	/** 
 	 * @oddjob.property
@@ -152,15 +153,16 @@ public class GrepJob implements Callable<Integer> {
 			flags = Pattern.CASE_INSENSITIVE;
 		}
 		
-		Pattern grep;
-		if (text != null) {
-			grep = Pattern.compile(Pattern.quote(text), flags);
+		if (text == null) {
+			throw new NullPointerException("Nothing to search for.");
 		}
-		else if (regexp != null) {
-			grep = Pattern.compile(regexp, flags);
+		
+		Pattern grep;
+		if (regexp) {
+			grep = Pattern.compile(text, flags);
 		}
 		else {
-			throw new NullPointerException("Nothing to search for.");
+			grep = Pattern.compile(Pattern.quote(text), flags);
 		}
 		
 		PrintStream resultStream;
@@ -391,11 +393,11 @@ public class GrepJob implements Callable<Integer> {
 		this.text = text;
 	}
 
-	public String getRegexp() {
+	public boolean isRegexp() {
 		return regexp;
 	}
 
-	public void setRegexp(String regexp) {
+	public void setRegexp(boolean regexp) {
 		this.regexp = regexp;
 	}
 

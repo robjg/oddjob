@@ -15,7 +15,7 @@ public class TokenizerTypeTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
 			TokenizerTypeTest.class);
 	
-	public void testSimpelCSV() throws ParseException {
+	public void testSimpleCSV() throws ParseException {
 		
 		TokenizerType test = new TokenizerType();
 		test.setText("a, b, c");
@@ -25,6 +25,45 @@ public class TokenizerTypeTest extends TestCase {
 		assertEquals("a", result[0]);
 		assertEquals("b", result[1]);
 		assertEquals("c", result[2]);
+	}
+	
+	public void testTabDelimited() throws ParseException {
+		
+		TokenizerType test = new TokenizerType();
+		test.setText("a\tb\tc");
+		test.setDelimiter("\t");
+		
+		String[] result = test.parse();
+		
+		assertEquals("a", result[0]);
+		assertEquals("b", result[1]);
+		assertEquals("c", result[2]);
+	}
+	
+	public void testRegexpDelimited() throws ParseException {
+		
+		TokenizerType test = new TokenizerType();
+		test.setText("a,b;c");
+		test.setDelimiter("(,|;)");
+		test.setRegexp(true);
+		
+		String[] result = test.parse();
+		
+		assertEquals("a", result[0]);
+		assertEquals("b", result[1]);
+		assertEquals("c", result[2]);
+	}
+	
+	public void testQuoted() throws ParseException {
+		
+		TokenizerType test = new TokenizerType();
+		test.setText("a,'b,c'");
+		test.setQuote('\'');
+		
+		String[] result = test.parse();
+		
+		assertEquals("a", result[0]);
+		assertEquals("b,c", result[1]);
 	}
 	
 	public void testExample() {

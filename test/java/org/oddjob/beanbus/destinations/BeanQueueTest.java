@@ -23,6 +23,14 @@ public class BeanQueueTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(BeanQueueTest.class);
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("--------------------------  " + getName() + 
+				"  ------------------------");
+	}
+	
 	public void testQueueStop() throws InterruptedException, BusCrashException {
 
 		final BeanQueue<String> test = new BeanQueue<String>();
@@ -200,11 +208,12 @@ public class BeanQueueTest extends TestCase {
 		List<?> results = lookup.lookup(
 				"consumer.to", List.class);
 		
+		logger.info("Got " + results.size() + " results.");
+		
 		assertEquals("apple", results.get(0));
 		assertEquals("orange", results.get(1));
 		assertEquals("pear", results.get(2));
-		
-		
+				
 		Object parallel = lookup.lookup("parallel");
 		
 		((Resetable) parallel).hardReset();

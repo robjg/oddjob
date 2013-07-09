@@ -128,7 +128,8 @@ public class GrepJobTest extends TestCase {
 		
 		GrepJob test = new GrepJob();
 		// find only pears in quotes
-		test.setRegexp("\"[^\"]*\\bpears\\b[^\"]*\"");
+		test.setText("\"[^\"]*\\bpears\\b[^\"]*\"");
+		test.setRegexp(true);
 		test.setFiles(new File[] { testFile } );
 		test.setOut(results.toOutputStream());
 		test.setResults(resultBeans);
