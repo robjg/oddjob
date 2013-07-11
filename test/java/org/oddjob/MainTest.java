@@ -12,9 +12,6 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
-import org.oddjob.arooa.deploy.ListDescriptorBean;
-import org.oddjob.oddballs.OddballsDescriptorFactory;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
 import org.oddjob.state.ParentState;
 
@@ -97,7 +94,7 @@ public class MainTest extends TestCase {
 		Main test = new Main();
 
 		Oddjob oddjob = test.init(new String[] { 
-			"-oddballs", "someballs", "-nb", 
+			"-nb", 
 			"-f", dirs.base() + "/oddjob.xml" }).getOddjob();
 		
 		assertNull(oddjob.getDescriptorFactory());
@@ -220,26 +217,4 @@ public class MainTest extends TestCase {
 		state.checkWait();		
 	}
 	
-	public void testResolveOddballs() {
-		
-		Main test = new Main();
-		
-		ArooaDescriptorFactory result;
-		
-		result = test.resolveOddballs(null, null);
-		
-		assertEquals(null, result);
-		
-		result = test.resolveOddballs("my-oddball", null);
-
-		assertEquals(OddballsDescriptorFactory.class, result.getClass());
-		
-		result = test.resolveOddballs(null, new File("oddball-dir"));
-
-		assertEquals(OddballsDirDescriptorFactory.class, result.getClass());
-		
-		result = test.resolveOddballs("my-oddball", new File("oddball-dir"));
-
-		assertEquals(ListDescriptorBean.class, result.getClass());
-	}
 }

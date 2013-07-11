@@ -6,9 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.ConsoleAppender;
@@ -16,13 +14,6 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
-import org.oddjob.arooa.convert.convertlets.FileConvertlets;
-import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
-import org.oddjob.arooa.deploy.ListDescriptorBean;
-import org.oddjob.input.ConsoleInputHandler;
-import org.oddjob.input.StdInInputHandler;
-import org.oddjob.oddballs.OddballsDescriptorFactory;
-import org.oddjob.oddballs.OddballsDirDescriptorFactory;
 
 
 /**
@@ -40,8 +31,6 @@ public class Main {
 		return logger;
 	}
 	
-	public static final String ODDBALLS_DIR = "oddballs";
-	
 	public static final String USER_PROPERTIES = "oddjob.properties";
 
 	/**
@@ -53,18 +42,14 @@ public class Main {
 	 */
     public OddjobRunner init(String args[]) throws IOException {
 	    
+    	OddjobBuilder oddjobBuilder = new OddjobBuilder();
+    	
     	Properties props = processUserProperties();
     	
-		String oddjobFile = null;
-		String name = null;
 		String logConfig = null;
-		File oddballsDir = null;
-		String oddballsPath = null;
 		
 		String oddjobHome = System.getProperty("oddjob.home");
-		if (oddjobHome != null) {
-			oddballsDir = new File(oddjobHome, ODDBALLS_DIR);
-		}
+		oddjobBuilder.setOddjobHome(oddjobHome);
 		
 		int startArg = 0;
 		
@@ -80,22 +65,22 @@ public class Main {
 			    return null;
 			}
 			else if (arg.equals("-n") || arg.equals("-name")) {
-				name = args[++i];
+				oddjobBuilder.setName(args[++i]);
 				startArg += 2;
 			} else if (arg.equals("-l") || arg.equals("-log")) {
 			    logConfig = args[++i];
 				startArg += 2;
 			} else if (arg.equals("-f") || arg.equals("-file")) {
-				oddjobFile = args[++i];
+				oddjobBuilder.setOddjobFile(args[++i]);
 				startArg += 2;
 			} else if (arg.equals("-nb") || arg.equals("-noballs")) {
-				oddballsDir = null;
+				oddjobBuilder.setNoOddballs(true);
 				startArg += 1;
 			} else if (arg.equals("-ob") || arg.equals("-oddballs")) {
-				oddballsDir = new File(args[++i]);
+				oddjobBuilder.setOddballsDir(new File(args[++i]));
 				startArg += 2;
 			} else if (arg.equals("-op") || arg.equals("-obpath")) {
-				oddballsPath = args[++i];
+				oddjobBuilder.setOddballsPath(args[++i]);
 				startArg += 2;
 			} else if (arg.equals("--")) {
 				startArg += 1;
@@ -119,21 +104,7 @@ public class Main {
 		    Logger.getRootLogger().setLevel(Level.ERROR);
 		}
 		
-		final Oddjob oddjob = new Oddjob();
-		
-		oddjob.setFile(findFileToUse(oddjobFile, oddjobHome));
-		
-		oddjob.setName(name);
-		
-		oddjob.setDescriptorFactory(
-				resolveOddballs(oddballsPath, oddballsDir));
-		
-		if (System.console() == null) {
-			oddjob.setInputHandler(new StdInInputHandler());
-		}
-		else {
-			oddjob.setInputHandler(new ConsoleInputHandler());
-		}
+		Oddjob oddjob = oddjobBuilder.buildOddjob();
 		
 		oddjob.setProperties(props);
 		
@@ -145,35 +116,6 @@ public class Main {
 		return new OddjobRunner(oddjob);
 	}
 
-    protected ArooaDescriptorFactory resolveOddballs(String oddballsPath,
-    		File oddballsDir) {
-    	
-    	List<ArooaDescriptorFactory> descriptors = 
-    			new ArrayList<ArooaDescriptorFactory>();
-		
-		if (oddballsPath != null) {
-			descriptors.add(
-					new OddballsDescriptorFactory(
-							new FileConvertlets().pathToFiles(
-									oddballsPath)));
-		}
-		
-		if (oddballsDir != null) {
-			descriptors.add(
-					new OddballsDirDescriptorFactory(oddballsDir));			
-		}
-    	
-    	switch (descriptors.size()) {
-    	case 0:
-    		return null;
-    	case 1:
-    		return descriptors.get(0);
-    	default:
-    		return new ListDescriptorBean(descriptors);
-    	}
-    	
-    }
-    
     /**
      * Configure logging from a log file.
      * 
@@ -195,12 +137,12 @@ public class Main {
 		System.out.println("-v -version      Displays Oddjobs version.");
 	    // only works from Launch.
 		System.out.println("-cp -classpath   Extra classpath.");
-	    System.out.println("-f -file         job file.");
-	    System.out.println("-n -name         Oddjob name.");
+	    System.out.println("-f -file         Job file. Defaults to oddjob.xml");
+	    System.out.println("-n -name         Oddjob name. Used in logging.");
 	    System.out.println("-l -log          log4j properties file.");
-	    System.out.println("-ob -oddballs    Oddballs directory.");
-	    System.out.println("-nb -noballs     Run without Oddballs.");
-	    System.out.println("-op -obpath      Oddballs path.");
+	    System.out.println("-ob -oddballs    Oddballs directory. Defaults to ${oddjob.home}/oddballs");
+	    System.out.println("-nb -noballs     Run without Oddballs from the oddballs direcotry.");
+	    System.out.println("-op -obpath      Oddballs path. Oddballs that suppliment those in the Oddball directory.");
 	    System.out.println("--               Pass all remaining arguments through to Oddjob.");
 	    
 	}
@@ -211,39 +153,6 @@ public class Main {
 	 */
 	public void version() {
 	    System.out.println("Oddjob version: " + new Oddjob().getVersion());
-	}
-	
-	/**
-	 * Work out which file to use
-	 * 
-	 * @param oddjobFile
-	 * 
-	 * @return
-	 * 
-	 * @throws FileNotFoundException
-	 */
-	public File findFileToUse(String oddjobFile, String oddjobHome) 
-	throws FileNotFoundException {
-		
-		File theFile;
-		
-		if (oddjobFile == null) {
-			theFile = new File("oddjob.xml");
-			if (!theFile.exists() && oddjobHome != null) {
-				theFile = new File(oddjobHome, "oddjob.xml");
-			}
-			if (!theFile.exists()) {
-				throw new FileNotFoundException(
-						"oddjob.xml or ${oddjob.home}/oddjob.xml");
-			}
-		}
-		else {
-			theFile = new File(oddjobFile);
-			if (!theFile.exists()) {
-				throw new FileNotFoundException(oddjobFile);
-			}
-		}
-		return theFile;
 	}
 	
 	/**
