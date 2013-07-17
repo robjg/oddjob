@@ -65,7 +65,7 @@ public class DirectoryOddball implements OddballFactory {
 			descriptorFactory.createDescriptor(classLoader);
 		
 		if (maybeDescriptor == null) {
-			logger.debug("No arooa.xml in Oddball. Using a classes only.");
+			logger.debug("No arooa.xml in Oddball. Using for classes only.");
 			maybeDescriptor = new ClassesOnlyDescriptor(classLoader);
 		}
 		

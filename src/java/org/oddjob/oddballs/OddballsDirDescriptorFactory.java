@@ -46,11 +46,14 @@ public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 			throw new NullPointerException("Base Directory (i.e. oddballs) must be specified.");
 		}
 		
-		logger.info("Scanning " + baseDir.getPath() + " for Oddballs.");
+		logger.info("Scanning directory [" + baseDir.getPath() + "] for Oddballs.");
 		
 		File[] entries = baseDir.listFiles();
 		
 		if (entries == null) {
+			
+			logger.info("No Oddballs found.");
+			
 			return null;
 		}
 		

@@ -16,7 +16,6 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.destinations.BeanQueue;
 import org.oddjob.state.ParentState;
 
 public class BeanQueueTest extends TestCase {
@@ -208,19 +207,34 @@ public class BeanQueueTest extends TestCase {
 		List<?> results = lookup.lookup(
 				"consumer.to", List.class);
 		
-		logger.info("Got " + results.size() + " results.");
+		logger.info("** Got " + results.size() + " results.");
 		
 		assertEquals("apple", results.get(0));
 		assertEquals("orange", results.get(1));
 		assertEquals("pear", results.get(2));
 				
-		Object parallel = lookup.lookup("parallel");
+		// We must guarantee producer runs first because it must
+		// clear the queue.
 		
-		((Resetable) parallel).hardReset();
-		((Runnable) parallel).run();
+		Object producer = lookup.lookup("producer");
+		
+		logger.info("** Re-run producer.");
+		
+		((Resetable) producer).hardReset();
+		((Runnable) producer).run();
+		
+		Object consumer = lookup.lookup("consumer");
+		
+		logger.info("** Re-run consumer.");
+		
+		((Resetable) consumer).hardReset();
+		((Runnable) consumer).run();
+		
 		
 		results = lookup.lookup(
 				"consumer.to", List.class);
+		
+		logger.info("** Got " + results.size() + " results.");
 		
 		assertEquals("apple", results.get(0));
 		assertEquals("orange", results.get(1));

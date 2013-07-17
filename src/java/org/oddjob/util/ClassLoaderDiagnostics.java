@@ -18,7 +18,10 @@
 
 package org.oddjob.util;
 
+import java.io.IOException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -74,12 +77,24 @@ public class ClassLoaderDiagnostics implements Runnable {
             resource = resource.substring(1);
         }
 
-        URL url = classLoader.getResource(resource);
-        if (url != null) {
-            location = url.toExternalForm();
-            logger.info("Location of " + resource + " is " + location);
-        } else {
+        List<URL> urls;
+        try {
+			urls  = Collections.list(
+					classLoader.getResources(resource));
+		} 
+        catch (IOException e) {
+        	throw new RuntimeException(e);
+		}
+        
+        if (urls.size() == 0) {
             logger.info("Resource " + resource + " not found.");
+        }
+        else {
+            logger.info(urls.size() + " location(s) found for " + resource);
+            for (int i = 0; i < urls.size(); ++i) {
+            	logger.info("Location[" + i + "] is " + urls.get(i));
+            }
+            location = urls.get(0).toExternalForm();
         }
     }
 

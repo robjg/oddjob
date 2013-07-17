@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
@@ -23,6 +24,9 @@ import org.oddjob.oddballs.OddballsDirDescriptorFactory;
  */
 public class OddjobBuilder {
 
+	private static final Logger logger = Logger.getLogger(
+			OddjobBuilder.class);
+	
 	public static final String ODDBALLS_DIR = "oddballs";
 	
 	private String oddjobHome;
@@ -54,6 +58,7 @@ public class OddjobBuilder {
 		if (oddjobHome == null) {
 			oddjobHome =  findOddjobHome();
 		}
+		logger.info("Oddjob Home is [" + oddjobHome + "]");
 		
 		oddjob.setFile(findFileToUse(oddjobFile, oddjobHome));
 		
@@ -71,6 +76,11 @@ public class OddjobBuilder {
 		return oddjob;
 	}
 
+	/**
+	 * Find Oddjob Home based on this class location.
+	 * 
+	 * @return
+	 */
 	protected String findOddjobHome() {
 		
 		URL url = getClass().getResource(
@@ -122,6 +132,10 @@ public class OddjobBuilder {
     			new ArrayList<ArooaDescriptorFactory>();
 		
 		if (oddballsPath != null) {
+			
+			logger.info("Adding Descriptor Factory for path [" + 
+					oddballsPath + "]");
+			
 			descriptors.add(
 					new OddballsDescriptorFactory(
 							new FileConvertlets().pathToFiles(
@@ -129,12 +143,20 @@ public class OddjobBuilder {
 		}
 		
 		if (oddballsDir != null) {
+			
+			logger.info("Adding Descriptor Factory for Oddballs dir [" + 
+					oddballsDir + "]");
+
 			descriptors.add(
 					new OddballsDirDescriptorFactory(oddballsDir));			
 		}
 		
 		if (!noBalls) {
 			File defaultOddballsDir = new File(oddjobHome, ODDBALLS_DIR);
+			
+			logger.info("Adding Descriptor factory for default Oddballs from dir [" + 
+					defaultOddballsDir + "]");
+			
 			descriptors.add(
 					new OddballsDirDescriptorFactory(defaultOddballsDir));			
 		}
@@ -146,9 +168,9 @@ public class OddjobBuilder {
     		return descriptors.get(0);
     	default:
     		return new ListDescriptorBean(descriptors);
-    	}
-    	
+    	}    	
     }
+    
     
 	public String getOddjobFile() {
 		return oddjobFile;

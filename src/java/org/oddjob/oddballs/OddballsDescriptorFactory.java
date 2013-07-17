@@ -141,7 +141,10 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 		}
 
 		if (descriptor.size() == 0) {
-			logger.info("No Oddballs found.");
+			
+			logger.info("No Oddballs found for [" + 
+					Arrays.toString(files) + "]");
+			
 			return null;
 		}
 		else {

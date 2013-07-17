@@ -5,6 +5,7 @@ package org.oddjob.scheduling;
 
 import java.util.Date;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -95,7 +96,7 @@ public class TriggerTest extends TestCase {
 	private class OurJob extends SimpleJob {
 		private StateListener listenerCheck;
 		
-		volatile int ran;
+		AtomicInteger ran = new AtomicInteger();
 		
 		private JobState state = JobState.COMPLETE;
 		
@@ -105,7 +106,7 @@ public class TriggerTest extends TestCase {
 				
 		@Override			
 		protected int execute() throws Throwable {
-			ran++;
+			ran.incrementAndGet();
 			
 			switch (state) {
 			case COMPLETE: 
@@ -145,24 +146,25 @@ public class TriggerTest extends TestCase {
 		Trigger test = new Trigger();
 		test.setOn(dependant);
 		test.setJob(job);
+		test.setNewOnly(true);
 		test.setExecutorService(services.getPoolExecutor());
 		
 		StateSteps testState = new StateSteps(test);
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.STARTED);
-		
+
 		test.run();
 		
 		testState.checkNow();
 		
 		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
-		logger.info("Running dependant.");
+		logger.info("** Running dependant.");
 		
 		dependant.run();
 
 		testState.checkWait();
 				
-		assertEquals(1, job.ran);
+		assertEquals(1, job.ran.get());
 		
 		testState.startCheck(ParentState.COMPLETE, ParentState.READY);
 		
@@ -173,12 +175,14 @@ public class TriggerTest extends TestCase {
 		testState.startCheck(ParentState.READY, ParentState.EXECUTING,
 				ParentState.STARTED);
 		
+		logger.info("** Running trigger again.");
+		
 		// trigger won't fire because event is the same.
 		test.run();
 
-		assertEquals(1, job.ran);
-		
 		testState.checkNow();
+		
+		assertEquals(1, job.ran.get());
 		
 		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
@@ -187,14 +191,14 @@ public class TriggerTest extends TestCase {
 			Thread.sleep(1);
 		}
 		
-		logger.info("Running dependant again.");
+		logger.info("** Running dependant again.");
 		
 		dependant.hardReset();
 		dependant.run();
 		
 		testState.checkWait();
 		
-		assertEquals(2, job.ran);
+		assertEquals(2, job.ran.get());
 		
 		logger.info("Shutting down.");
 		
@@ -362,11 +366,16 @@ public class TriggerTest extends TestCase {
 		test.setJob(sample);
 		test.setNewOnly(true);
 
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED, ParentState.COMPLETE);
+		
 		test.run();
 		
 		on.run();
 		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		testStates.checkWait();
+		
 		assertEquals(test, session.saved);
 		
 		Trigger copy = (Trigger) Helper.copy(test);		
@@ -381,22 +390,29 @@ public class TriggerTest extends TestCase {
 		
 		if (new Date().equals(copy.lastStateEvent().getTime())) {
 			logger.info("Sleeping for a millisecond.");
-			Thread.sleep(1);
+			Thread.sleep(2);
 		}
 		
-		copy.run();
+		StateSteps copyStates = new StateSteps(copy);
+		copyStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED);
 		
-		assertEquals(ParentState.STARTED, copy.lastStateEvent().getState());
+		copy.run();
+
+		copyStates.checkNow();
 		assertEquals(JobState.READY, sample.lastStateEvent().getState());
+		
+		copyStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		on.hardReset();
 		
 		on.run();
 		
-		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
+		copyStates.checkWait();
+		
 		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
 	}
-
+ 
 	public void testReset() throws Exception {
 		
 		SequenceJob sequence = new SequenceJob();
@@ -412,11 +428,22 @@ public class TriggerTest extends TestCase {
 		test.setJob(sequence);
 		test.setState(StateConditions.INCOMPLETE);
 		test.setNewOnly(true);
+		
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED);
+		
 		test.run();
+		
+		testStates.checkNow();
+		testStates.startCheck(
+				ParentState.STARTED, ParentState.COMPLETE);
 		
 		assertEquals(null, sequence.getCurrent());
 		
 		on.run();
+		
+		testStates.checkWait();
 		
 		assertEquals(new Integer(1), sequence.getCurrent());
 		
@@ -436,7 +463,12 @@ public class TriggerTest extends TestCase {
 		
 		assertEquals(JobState.READY, on.lastStateEvent().getState());
 		
+		testStates.startCheck(
+				ParentState.STARTED, ParentState.COMPLETE);
+		
 		on.run();
+		
+		testStates.checkWait();
 		
 		assertEquals(new Integer(2), sequence.getCurrent());
 		

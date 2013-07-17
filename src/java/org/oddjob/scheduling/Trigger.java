@@ -13,6 +13,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
@@ -142,7 +143,7 @@ public class Trigger extends ScheduleBase {
 			
 			on.addStateListener(listener);
 			
-			logger().info("Wating for [" + on + "] to have state [" +
+			logger().info("Waiting for [" + on + "] to have state [" +
 					state + "]");
 	}
 	
@@ -282,8 +283,8 @@ public class Trigger extends ScheduleBase {
 		@Override
 		public synchronized void jobStateChange(StateEvent event) {
 			logger().debug("Trigger on [" + on + "] has state [" + 
-					event.getState() + "] at " +
-					event.getTime());
+					event.getState() + "] at [" +
+					DateHelper.formatDateTime(event.getTime()) + "]");
 			
 			if (event.getState().isDestroyed()) {
 				stateHandler().waitToWhen(new IsStoppable(), 
@@ -307,8 +308,9 @@ public class Trigger extends ScheduleBase {
 			
 			// don't fire if event time hasn't changed.
 			if (newOnly && event.getTime().equals(lastTime)) {
-				logger().info("Already had event for time " +
-						event.getTime() + ", not triggering.");
+				logger().info("Already had event for time [" +
+						DateHelper.formatDateTime(lastTime) + 
+						"], not triggering.");
 				return;
 			}
 			
