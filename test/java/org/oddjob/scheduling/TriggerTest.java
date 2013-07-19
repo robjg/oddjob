@@ -23,6 +23,7 @@ import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.SequenceJob;
@@ -186,9 +187,13 @@ public class TriggerTest extends TestCase {
 		
 		testState.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
-		if (new Date().equals(dependant.lastStateEvent().getTime())) {
-			logger.info("Sleeping for a millisecond.");
+		while (new Date().equals(dependant.lastStateEvent().getTime())) {
+			// Note that sleeping for 1 millisecond is operating system
+			// dependent and there is no guarantee that it is a millisecond 
+			// later after this operation - hence the while.
 			Thread.sleep(1);
+			logger.info("Slept until [" + 
+					DateHelper.formatDateTime(new Date()) + "]");
 		}
 		
 		logger.info("** Running dependant again.");
@@ -244,7 +249,6 @@ public class TriggerTest extends TestCase {
 		
 		test.run();
 		
-		Thread.sleep(1);
 		depends.run();
 		
 		testState.checkWait();
@@ -388,9 +392,10 @@ public class TriggerTest extends TestCase {
 
 		copy.hardReset();
 		
-		if (new Date().equals(copy.lastStateEvent().getTime())) {
-			logger.info("Sleeping for a millisecond.");
-			Thread.sleep(2);
+		while (new Date().equals(copy.lastStateEvent().getTime())) {
+			Thread.sleep(1);
+			logger.info("Slept until [" + 
+					DateHelper.formatDateTime(new Date()) + "]");
 		}
 		
 		StateSteps copyStates = new StateSteps(copy);
@@ -451,8 +456,10 @@ public class TriggerTest extends TestCase {
 		
 		test.hardReset();
 		
-		if (System.currentTimeMillis() == test.lastStateEvent().getTime().getTime()) {
-			Thread.sleep(2);
+		while (System.currentTimeMillis() == test.lastStateEvent().getTime().getTime()) {
+			Thread.sleep(1);
+			logger.info("Slept until [" + 
+					DateHelper.formatDateTime(new Date()) + "]");
 		}
 		
 		test.run();
