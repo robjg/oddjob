@@ -74,12 +74,22 @@ public class StructuralStateHelper implements Stateful {
 	};
 	
 	/**
-	 * Constructor.
+	 * Create a new instance that will track state changes in the children
+	 * of the given {@link Structural}. States of the children will be
+	 * combined using the given {@link StateOperator}.
 	 * 
-	 * @param structural
-	 * @param operator
+	 * @param structural The structural. Must not be null.
+	 * @param operator The operator that combines child state. Must not be
+	 * null.
 	 */
 	public StructuralStateHelper(Structural structural, StateOperator operator) {
+		if (structural == null) {
+			throw new NullPointerException("No Structural.");
+		}
+		if (operator == null) {
+			throw new NullPointerException("No State Operator.");
+		}
+		
 		this.structural = structural;
 		
 		setStateOperator(operator);
@@ -196,10 +206,18 @@ public class StructuralStateHelper implements Stateful {
 		return stateOperator;
 	}
 
+	/**
+	 * Change the State Operator to be used to combine child state.
+	 * 
+	 * @param stateOperator The State Operator. Must not be null.
+	 */
 	public void setStateOperator(StateOperator stateOperator) {
 		
-		if (stateOperator == null || 
-				stateOperator.equals(this.stateOperator)) {
+		if (stateOperator == null) {
+			throw new NullPointerException("State Operator must not be null."); 
+		}
+
+		if (stateOperator.equals(this.stateOperator)) {
 			return;
 		}
 
