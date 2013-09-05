@@ -65,6 +65,7 @@ public class MethodInvoker implements Invoker {
 		Method[] ms = cl.getMethods();
 		
 		Method found = null;
+		Method maybe = null;
 		Object[] args = null;
 		
 		for (Method m: ms) {
@@ -72,6 +73,8 @@ public class MethodInvoker implements Invoker {
 				continue;
 			}
 		
+			maybe = m;
+			
 			if (parameters.size() != m.getParameterTypes().length) {
 				continue;
 			}
@@ -92,8 +95,14 @@ public class MethodInvoker implements Invoker {
 		}
 		
 		if (found == null) {
-			throw new IllegalArgumentException("No method found on [" +
-					target + "] " + name);
+			if (maybe == null) {
+				throw new IllegalArgumentException("No method found on [" +
+						target + "] " + name);
+			}
+			else {
+				throw new IllegalArgumentException("No method with matching args on [" +
+						target + "], There is : " + maybe);
+			}
 		}
 		
 		return found.invoke(object, args);

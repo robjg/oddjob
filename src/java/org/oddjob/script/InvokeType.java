@@ -84,11 +84,20 @@ implements ArooaValue, ArooaSessionAware {
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The values to use as arguments. 
-	 * @oddjob.required Must match the expected arguments..
+	 * @oddjob.description The values to use as arguments. Note that the
+	 * <code>args</code> property may be more convenient for simple arguments.
+	 * @oddjob.required Must match the expected arguments.
 	 */
 	private List<ArooaValue> parameters = new ArrayList<ArooaValue>();
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description An alternative configuration for the values to use 
+	 * as arguments. This was added for convenience as setting up a lot
+	 * of simple arguments can be tedious. If this property is provided then
+	 * parameters is ignored.
+	 * @oddjob.required Must match the expected arguments.
+	 */
 	private Object[] args;
 	
 	/** Used to convert parameters. */

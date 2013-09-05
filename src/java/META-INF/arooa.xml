@@ -41,7 +41,8 @@
                     designFactory='org.oddjob.designer.components.ForEachDC'/>
                 <is element='grab' className='org.oddjob.jobs.GrabJob'/>
                 <is element='input' className='org.oddjob.input.InputJob'/>
-                <is element='invoke' className='org.oddjob.script.InvokeJob'/>
+                <is element='invoke' className='org.oddjob.script.InvokeJob'
+                    designFactory='org.oddjob.script.InvokeJobDF'/>
                 <is element='launch' className='org.oddjob.jobs.LaunchJob'/>
                 <is element='oddjob' className='org.oddjob.Oddjob'
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
