@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <invoke function="static totalPrice" id="invoke-totalPrice">
+            <args>
+                <tokenizer text="Red Apples, 24, 47.3"/>
+            </args>
+            <source>
+                <class name="org.oddjob.script.InvokeJobTest"/>
+            </source>
+        </invoke>
+    </job>
+</oddjob>

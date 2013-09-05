@@ -1,5 +1,6 @@
 package org.oddjob.script;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +45,9 @@ public class MethodInvoker implements Invoker {
 	}
 		
 	@Override
-	public Object invoke(String name, InvokerArguments parameters) {
+	public Object invoke(String name, InvokerArguments parameters) 
+	throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+
 		Class<?> cl;
 		
 		MethodName methodName = new MethodName(name); 
@@ -57,8 +60,7 @@ public class MethodInvoker implements Invoker {
 		}
 		else {
 			cl = object.getClass();
-		}
-		
+		}		
 		
 		Method[] ms = cl.getMethods();
 		
@@ -94,13 +96,7 @@ public class MethodInvoker implements Invoker {
 					target + "] " + name);
 		}
 		
-		try {
-			return found.invoke(object, args);
-		}
-		catch (Exception e) {
-			throw new RuntimeException("Failed invoking " + 
-					name, e);
-		}
+		return found.invoke(object, args);
 	}
 	
 	class MethodName {

@@ -3,11 +3,13 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- Invoke job has an addition Object[] configuration option for arguments 
+  that can be used with tokenizer to be more convenient for simple args.
 - Foreach now COMPLETEs when it has no values.
 
 Still To Do for 1.4.0
 ---------------------
-- Add an Oddjob Ant Task.
+- Improve Oddjob Ant Task.
 - Improve Oddjob Ant Job as class loading is still problematic.
 - Add Parent Started State to User Guide. Document thread, and services.
 - Introduce a witheach job that behaves like foreach except that values

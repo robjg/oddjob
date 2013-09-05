@@ -2,6 +2,8 @@ package org.oddjob.script;
 
 import java.io.IOException;
 
+import javax.script.ScriptException;
+
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.convert.DefaultConverter;
@@ -10,7 +12,7 @@ import org.oddjob.state.JobState;
 
 public class ScriptInvokerTest extends TestCase {
 
-	public void testInvokeScript() throws IOException {
+	public void testInvokeScript() throws IOException, ScriptException, NoSuchMethodException {
 
 		BufferType buffer = new BufferType();
 		buffer.setText("function snack(colour) {" +

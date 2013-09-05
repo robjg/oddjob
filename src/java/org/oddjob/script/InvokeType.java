@@ -67,14 +67,17 @@ implements ArooaValue, ArooaSessionAware {
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The java object or script Invocable on
-	 * which to invoke the method/function.
+	 * which to invoke the method/function. If the method is a Java static 
+	 * method then this is the class on which to invoke the method.
 	 * @oddjob.required Yes.
 	 */
 	private Invoker source;
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The function/method/operation to call. 
+	 * @oddjob.description The function/method/operation name to call. Note
+	 * that for a Java static method the method name must be prefixed with
+	 * the word static (see examples).
 	 * @oddjob.required Yes.
 	 */
 	private String function;
@@ -86,9 +89,14 @@ implements ArooaValue, ArooaSessionAware {
 	 */
 	private List<ArooaValue> parameters = new ArrayList<ArooaValue>();
 
+	private Object[] args;
+	
 	/** Used to convert parameters. */
 	private ArooaConverter converter;
 	
+	/**
+	 * Conversions.
+	 */
 	public static class Conversions implements ConversionProvider {
 		
 		public void registerWith(ConversionRegistry registry) {
@@ -112,7 +120,11 @@ implements ArooaValue, ArooaSessionAware {
 						public T convert(InvokeType from,
 								ArooaConverter converter)
 								throws ArooaConversionException {
-							return converter.convert(from.toValue(), to);
+							try {
+								return converter.convert(from.toValue(), to);
+							} catch (Throwable e) {
+								throw new ArooaConversionException(e);
+							}
 						}
 					};
 				}
@@ -126,13 +138,19 @@ implements ArooaValue, ArooaSessionAware {
 		converter = session.getTools().getArooaConverter();
 	}
 	
-	public Object toValue() throws ArooaConversionException {
+	public Object toValue() throws Throwable {
 		
 		if (source == null) {
-			throw new ArooaConversionException("No source.");
+			throw new IllegalStateException("No source.");
 		}
 	
-		Object[] paramArray = parameters.toArray();
+		Object[] paramArray;
+		if (args == null) {
+			paramArray = parameters.toArray();
+		}
+		else {
+			paramArray = args;
+		}
 		
 		logger.info("Invoking " + function + " with args " + 
 					Arrays.toString(paramArray));
@@ -173,6 +191,14 @@ implements ArooaValue, ArooaSessionAware {
 		else {
 			parameters.add(index, parameter);
 		}
+	}
+	
+	public Object[] getArgs() {
+		return args;
+	}
+
+	public void setArgs(Object[] args) {
+		this.args = args;
 	}
 	
 	@Override

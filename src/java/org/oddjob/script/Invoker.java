@@ -16,5 +16,6 @@ public interface Invoker {
 	 * 
 	 * @return The result of doing the invoking.
 	 */
-	public Object invoke(String name, InvokerArguments parameters);
+	public Object invoke(String name, InvokerArguments parameters)
+	throws Throwable;
 }

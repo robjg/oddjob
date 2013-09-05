@@ -1,6 +1,7 @@
 package org.oddjob.script;
 
 import javax.script.Invocable;
+import javax.script.ScriptException;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ConversionProvider;
@@ -37,7 +38,8 @@ public class ScriptInvoker implements Invoker {
 	}
 	
 	@Override
-	public Object invoke(String name, InvokerArguments arguments) {
+	public Object invoke(String name, InvokerArguments arguments) 
+	throws ScriptException, NoSuchMethodException {
 										
 		Object args[] = new Object[arguments.size()];
 		
@@ -49,12 +51,6 @@ public class ScriptInvoker implements Invoker {
 			}
 		}
 		
-		try {
-			return invocable.invokeFunction(name, args);
-		} catch (Exception e) {
-			throw new RuntimeException("Failed invoking " + 
-					name, e);
-		}
-	}
-	
+		return invocable.invokeFunction(name, args);
+	}	
 }

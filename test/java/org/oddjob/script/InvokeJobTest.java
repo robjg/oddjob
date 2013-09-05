@@ -5,6 +5,8 @@ import java.util.concurrent.TimeUnit;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -18,7 +20,16 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.ParentState;
 
 public class InvokeJobTest extends TestCase {
-
+	
+	private static final Logger logger = Logger.getLogger(InvokeJobTest.class);
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("--------------------  " + getName() + "  -------------------------");
+	}
+	
 	public void testMethodExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		OddjobPersister persister = new MapPersister();
@@ -88,6 +99,40 @@ public class InvokeJobTest extends TestCase {
 		
 		assertTrue(foo.inMethod.await(5, TimeUnit.SECONDS));
 		
-		test.stop();
+		test.stop();	
+	}
+	
+	public void testStaticMethodExample() throws ArooaPropertyException, ArooaConversionException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/script/InvokeJobStatic.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture capture = new ConsoleCapture();
+		capture.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		capture.close();
+		
+		assertEquals("Calculating price for Red Apples", 
+				capture.getLines()[0].trim());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+				
+		Double result = lookup.lookup("invoke-totalPrice.result", Double.class);
+		
+		assertEquals(1135.20, (double) result, 0.001);
+		
+		oddjob.destroy();		
+	}
+	
+	public static double totalPrice(String fruit, int quantity, double price) {
+		System.out.println("Calculating price for " + fruit);
+		return quantity * price;
 	}
 }

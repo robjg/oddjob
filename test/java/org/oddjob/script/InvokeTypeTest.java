@@ -57,7 +57,7 @@ public class InvokeTypeTest extends TestCase {
 		}
 	}
 	
-	public void testSimple() throws ArooaConversionException {
+	public void testSimple() throws Throwable {
 		
 		InvokeType test = new InvokeType();
 		
@@ -69,7 +69,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("simple", result);
 	}
 	
-	public void testStaticMethodOnObject() throws ArooaConversionException {
+	public void testStaticMethodOnObject() throws Throwable {
 		
 		
 		InvokeType test = new InvokeType();
@@ -82,7 +82,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("Apples", test.toValue());
 	}
 	
-	public void testClassMethodInvoke() throws ArooaConversionException {
+	public void testClassMethodInvoke() throws Throwable {
 		
 		
 		InvokeType test = new InvokeType();
@@ -94,7 +94,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals(Thing.class, test.toValue().getClass());
 	}
 	
-	public void testWrongParameters() throws ArooaConversionException {
+	public void testWrongParameters() throws Throwable {
 		
 		InvokeType test = new InvokeType();
 		test.setArooaSession(new StandardArooaSession());
@@ -113,7 +113,7 @@ public class InvokeTypeTest extends TestCase {
 		}
 	}
 
-	public void testNumberToString() throws ArooaConversionException {
+	public void testNumberToString() throws Throwable {
 		
 		InvokeType test = new InvokeType();
 		test.setArooaSession(new StandardArooaSession());
@@ -128,7 +128,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("1", result);
 	}
 
-	public void testNumbers() throws ArooaConversionException {
+	public void testNumbers() throws Throwable {
 		
 		InvokeType test = new InvokeType();
 		test.setArooaSession(new StandardArooaSession());
@@ -144,7 +144,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals(new Double(4), result);
 	}
 
-	public void testFiles() throws ArooaConversionException {
+	public void testFiles() throws Throwable {
 		
 		InvokeType test = new InvokeType();
 		test.setArooaSession(new StandardArooaSession());

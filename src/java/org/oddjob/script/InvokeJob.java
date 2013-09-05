@@ -22,6 +22,10 @@ import org.oddjob.jmx.JMXServiceJob;
  * <p>
  * Note that stopping this job will simply attempt to interrupt the
  * thread invoking the method. The outcome of this will obviously vary.
+ * <p>
+ * Oddjob will do it's best to convert arguments to the signature of
+ * the method or operation. An exception will result if it can't achieve 
+ * this.
  * 
  * @oddjob.example
  * 
@@ -34,8 +38,20 @@ import org.oddjob.jmx.JMXServiceJob;
  * {@oddjob.java.resource org/oddjob/script/EchoService.java}
  * 
  * @oddjob.example
+ * 
+ * Invoking a static method. Note that this uses args instead of parameters
+ * for convenience.
+ * 
+ * {@oddjob.xml.resource org/oddjob/script/InvokeJobStatic.xml}
+ * 
+ * @oddjob.example
  *
- * Examples elsewhere. The {@link JMXServiceJob} job has an example of 
+ * Examples elsewhere. 
+ * <p>
+ * See {@link InvokeType} for several more examples. Property configuration
+ * is the same for the type and the job.
+ * <p>
+ * The {@link JMXServiceJob} job has an example of 
  * invoking a JMX operation.
  * 
  * @author rob
@@ -49,24 +65,38 @@ implements Stoppable {
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The java object or script Invocable on
-	 * which to invoke the method/function.
+	 * which to invoke the method/function. If the method is a Java static 
+	 * method then this is the class on which to invoke the method.
 	 * @oddjob.required Yes.
 	 */
 	private transient Invoker source;
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The function/method to call. 
+	 * @oddjob.description The function/method/operation name to call. Note
+	 * that for a Java static method the method name must be prefixed with
+	 * the word static (see InvokeType examples).
 	 * @oddjob.required Yes.
 	 */
 	private String function;
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The values to use as arguments. 
+	 * @oddjob.description The values to use as arguments. Note that the
+	 * <code>args</code> property may be more convenient for simple arguments.
 	 * @oddjob.required Must match the expected arguments.
 	 */
 	private transient List<ArooaValue> parameters;	
+	
+	/**
+	 * @oddjob.property
+	 * @oddjob.description An alternative configuration for the values to use 
+	 * as arguments. This was added for convenience as setting up a lot
+	 * of simple arguments can be tedious. If this property is provided then
+	 * parameters is ignored.
+	 * @oddjob.required Must match the expected arguments.
+	 */
+	private transient Object[] args;
 	
 	/** The result of the invocation. */
 	private transient Object result;
@@ -92,6 +122,7 @@ implements Stoppable {
 		delegate.setArooaSession(getArooaSession());
 		delegate.setFunction(function);
 		delegate.setSource(source);
+		delegate.setArgs(args);
 		
 		for (int i = 0; i < parameters.size(); ++i) {
 			delegate.setParameters(i, parameters.get(i));
@@ -118,6 +149,7 @@ implements Stoppable {
 	protected void onStop() throws FailedToStopException {
 		Thread thread = executingThread;
 		if (thread != null) {
+			logger().info("Interrupting Invoke operation.");
 			thread.interrupt();
 		}
 	}
@@ -151,6 +183,14 @@ implements Stoppable {
 		}
 	}
 	
+	public Object[] getArgs() {
+		return args;
+	}
+
+	public void setArgs(Object[] args) {
+		this.args = args;
+	}
+	
 	public Object getResult() {
 		return result;
 	}
@@ -178,4 +218,5 @@ implements Stoppable {
 		result = s.readObject();
 		completeConstruction();
 	}
+
 }

@@ -136,7 +136,8 @@ public class SimpleMBeanNode implements
 	 * @see org.oddjob.script.Invoker#invoke(java.lang.String, org.oddjob.script.InvokerArguments)
 	 */
 	@Override
-	public Object invoke(String name, InvokerArguments args) {
+	public Object invoke(String name, InvokerArguments args) 
+	throws Exception {
 		
 		MBeanOperationInfo[] opInfos = info.getOperations();
 		
@@ -197,7 +198,7 @@ public class SimpleMBeanNode implements
 			logger.warn("Failed invoking" + name + "." +  
 					Arrays.toString(converted));
 			
-			throw new RuntimeException(e);
+			throw e;
 		}
 	}
 	
