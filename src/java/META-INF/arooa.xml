@@ -42,7 +42,7 @@
                 <is element='grab' className='org.oddjob.jobs.GrabJob'/>
                 <is element='input' className='org.oddjob.input.InputJob'/>
                 <is element='invoke' className='org.oddjob.script.InvokeJob'
-                    designFactory='org.oddjob.script.InvokeJobDF'/>
+                    designFactory='org.oddjob.script.InvokeEitherDF'/>
                 <is element='launch' className='org.oddjob.jobs.LaunchJob'/>
                 <is element='oddjob' className='org.oddjob.Oddjob'
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
@@ -89,7 +89,8 @@
                 <is element='file-persister' className='org.oddjob.persist.FilePersister'/>
                 <is element='format' className='org.oddjob.values.types.FormatType'
                     designFactory='org.oddjob.designer.elements.FormatDE'/>
-                <is element='invoke' className='org.oddjob.script.InvokeType'/>
+                <is element='invoke' className='org.oddjob.script.InvokeType'
+                    designFactory='org.oddjob.script.InvokeEitherDF'/>
                 <is element='input-text' className='org.oddjob.input.requests.InputText'/>
                 <is element='input-password' className='org.oddjob.input.requests.InputPassword'/>
                 <is element='input-confirm' className='org.oddjob.input.requests.InputConfirm'/>
