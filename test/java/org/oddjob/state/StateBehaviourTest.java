@@ -97,13 +97,14 @@ public class StateBehaviourTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
+		Object wait = lookup.lookup("wait");
 		Object sequential = lookup.lookup("sequential");
 		Object echo = lookup.lookup("echo");
 		
 		
-		StateSteps checker = new StateSteps((Stateful) sequential);
-		checker.startCheck(ParentState.READY, 
-				ParentState.EXECUTING);
+		StateSteps checker = new StateSteps((Stateful) wait);
+		checker.startCheck(JobState.READY, 
+				JobState.EXECUTING);
 		
 		new Thread((Runnable) sequential).start();
 		

@@ -31,13 +31,13 @@ import javax.swing.border.EtchedBorder;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
-import org.oddjob.Oddjob;
 import org.oddjob.OddjobServices;
 import org.oddjob.OddjobShutdownThread;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
+import org.oddjob.Version;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.registry.ServiceProvider;
@@ -452,7 +452,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	static class FrameWithStatus extends JFrame {
 		private static final long serialVersionUID = 2012092800L;
 		
-		private final JLabel status = new JLabel("Oddjob " + Oddjob.VERSION);
+		private final JLabel status = new JLabel(Version.getCurrentFullBuildMessage());
 		
 		public FrameWithStatus() {
 			Container container = getContentPane();

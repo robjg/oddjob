@@ -4,7 +4,7 @@
             <jobs>
                 <sequential id="sequential">
                     <jobs>
-                        <wait/>
+                        <wait id="wait"/>
                     </jobs>
                 </sequential>
                 <echo id="echo"/>

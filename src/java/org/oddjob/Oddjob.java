@@ -233,9 +233,6 @@ implements Loadable,
 	
     private static final long serialVersionUID = 2010051200L;
 	
-    /** Oddjob version. Set by Ant during build. */
-	public static final String VERSION = "@version@";
-	
     /** The archiver to which all console output will be captured. */
     public static final LogArchive CONSOLE = new LogArchiveImpl(
     		"CONSOLE_MAIN", LogArchiver.MAX_HISTORY);
@@ -1074,7 +1071,7 @@ implements Loadable,
 	 * @return The version.
 	 */
 	public String getVersion() {
-		return VERSION;
+		return Version.getCurrentVersionAndBuildDate();
 	}
 	
 	/**
