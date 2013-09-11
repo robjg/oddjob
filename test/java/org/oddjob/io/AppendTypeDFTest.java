@@ -1,7 +1,7 @@
 /*
  * (c) Rob Gordon 2005.
  */
-package org.oddjob.designer.elements;
+package org.oddjob.io;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,8 +24,8 @@ import org.oddjob.io.AppendType;
 /**
  *
  */
-public class FileOutputDETest extends TestCase {
-	private static final Logger logger = Logger.getLogger(FileOutputDETest.class);
+public class AppendTypeDFTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(AppendTypeDFTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -36,11 +36,7 @@ public class FileOutputDETest extends TestCase {
 	public void testCreate() throws ArooaParseException, IOException {
 		
 		String xml =  
-				"<append>" +
-				" <file>" +
-				"  <file file='test/myFile.txt'/>" +
-				" </file>" +
-				"</append>";
+				"<append file='test/myFile.txt'/>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -54,18 +50,17 @@ public class FileOutputDETest extends TestCase {
 		
 		design = parser.getDesign();
 		
-//		assertEquals(FileOutputDesign.class, design.getClass());
+		assertEquals(FileTypeDesign.class, design.getClass());
 		
 		AppendType test = (AppendType) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
-		assertEquals(new File("test/MyFile.txt").getCanonicalFile(), 
-				test.getFile());
+		assertEquals(new File("test/MyFile.txt"), test.getFile());
 	}
 
 	public static void main(String args[]) throws ArooaParseException, IOException {
 
-		FileOutputDETest test = new FileOutputDETest();
+		AppendTypeDFTest test = new AppendTypeDFTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);

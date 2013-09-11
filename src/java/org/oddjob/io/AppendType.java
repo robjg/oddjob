@@ -14,6 +14,7 @@ import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.arooa.convert.ConvertletException;
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 
 /**
  * @oddjob.description Specify a file for appending to.
@@ -33,19 +34,6 @@ public class AppendType implements ArooaValue {
 	public static class Conversions implements ConversionProvider {
 
 		public void registerWith(ConversionRegistry registry) {
-//	    	registry.register(AppendType.class, File.class, 
-//	    			new Convertlet<AppendType, File>() {
-//	    		public File convert(AppendType from) throws ConvertletException {
-//	    	    	return from.file;
-//	    		}
-//	    	});
-//	    	
-//	    	registry.register(AppendType.class, File[].class, 
-//	    			new Convertlet<AppendType, File[]>() {
-//	    		public File[] convert(AppendType from) throws ConvertletException {
-//	    	    	return new File[] { from.file };
-//	    		}
-//	    	});
 	    	
 	    	registry.register(AppendType.class, OutputStream.class, 
 	    			new Convertlet<AppendType, OutputStream>() {
@@ -77,6 +65,7 @@ public class AppendType implements ArooaValue {
      * 
      * @param file The file.
      */
+	@ArooaAttribute
     public void setFile(File file) {
         this.file = file;
     }

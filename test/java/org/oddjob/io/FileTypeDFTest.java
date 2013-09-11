@@ -1,7 +1,7 @@
 /*
  * (c) Rob Gordon 2005.
  */
-package org.oddjob.designer.elements;
+package org.oddjob.io;
 
 import java.io.File;
 
@@ -18,13 +18,14 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.io.FileTypeDesign;
 import org.oddjob.io.FileType;
 
 /**
  *
  */
-public class FileDETest extends TestCase {
-	private static final Logger logger = Logger.getLogger(FileDETest.class);
+public class FileTypeDFTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(FileTypeDFTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -49,7 +50,7 @@ public class FileDETest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		assertEquals(FileDesign.class, design.getClass());
+		assertEquals(FileTypeDesign.class, design.getClass());
 		
 		FileType test = (FileType) Helper.createTypeFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
@@ -60,12 +61,10 @@ public class FileDETest extends TestCase {
 
 	public static void main(String args[]) throws ArooaParseException {
 
-		FileDETest test = new FileDETest();
+		FileTypeDFTest test = new FileTypeDFTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);
 		view.run();
-		
 	}
-
 }

@@ -1,58 +1,57 @@
 /*
  * (c) Rob Gordon 2005.
  */
-package org.oddjob.designer.elements;
+package org.oddjob.io;
 
 import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.DesignValueBase;
+import org.oddjob.arooa.design.IndexedDesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
-import org.oddjob.arooa.design.etc.FileAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.io.FileType;
 
 /**
- * The {@link DesignFactory} for a {@link FileType}.
+ *
  */
-public class FileOutputDE implements DesignFactory {
+public class FilesTypeDF implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
 
-		return new FileDesign(element, parentContext);
+		return new FilesDesign(element, parentContext);
 	}
 }
 
-class FileOutputDesign extends DesignValueBase {
+class FilesDesign extends DesignValueBase {
 
-	private final FileAttribute file;
+	private final SimpleTextAttribute files;
 	
-	private final SimpleTextAttribute append;
+	private final IndexedDesignProperty list;
 	
-	public FileOutputDesign(ArooaElement element, ArooaContext parentContext) {
+	public FilesDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
-		file = new FileAttribute("file", this);
+		files = new SimpleTextAttribute(
+				"files", this);
 		
-		append = new SimpleTextAttribute(
-				"append", this);
-		
+		list = new IndexedDesignProperty(
+				"list", this);
 	}
 	
 	public Form detail() {
 		return new StandardForm(this).addFormItem(
 				new BorderedGroup("Files")
-				.add(file.view().setTitle("File"))
-				.add(append.view().setTitle("Append")));
+				.add(files.view().setTitle("File Spec"))
+				.add(list.view().setTitle("Files List")));
 	}
-	
+
 	@Override
 	public DesignProperty[] children() {
-		return new DesignProperty[] { file, append };
+		return new DesignProperty[] { files, list };
 	}
 }

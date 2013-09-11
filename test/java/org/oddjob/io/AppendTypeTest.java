@@ -8,7 +8,6 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
-import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
 public class AppendTypeTest extends TestCase {
@@ -26,13 +25,15 @@ public class AppendTypeTest extends TestCase {
 	}
 
 	public void testExample() throws Exception {
+		
 		FileUtils.forceMkdir(outputDir);
+		
+		File file = new File(getClass().getResource(
+				"AppendExample.xml").getFile());
 		
 		Oddjob oj = new Oddjob();
 		oj.setArgs(new String[] { outputDir.toString() });
-		oj.setConfiguration(new XMLConfiguration(
-				"org/oddjob/io/AppendExample.xml",
-				getClass().getClassLoader()));
+		oj.setFile(file);
 		oj.run();
 		
 		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());

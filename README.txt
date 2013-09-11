@@ -3,6 +3,8 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- AppendType is now configured with a file attribute like FileType and
+  it also shares the same designer.
 - Invoke job has an addition Object[] configuration option for arguments 
   that can be used with tokenizer to be more convenient for simple args.
 - Foreach now COMPLETEs when it has no values.

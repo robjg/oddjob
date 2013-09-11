@@ -1,7 +1,7 @@
 /*
  * (c) Rob Gordon 2005.
  */
-package org.oddjob.designer.elements;
+package org.oddjob.io;
 
 import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
@@ -16,20 +16,20 @@ import org.oddjob.arooa.parsing.ArooaElement;
 /**
  *
  */
-public class FileDE implements DesignFactory {
+public class FileTypeDF implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
 
-		return new FileDesign(element, parentContext);
+		return new FileTypeDesign(element, parentContext);
 	}
 }
 
-class FileDesign extends DesignValueBase {
+class FileTypeDesign extends DesignValueBase {
 
 	private FileAttribute file;
 	
-	public FileDesign(ArooaElement element, ArooaContext parentContext) {
+	public FileTypeDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
 		file = new FileAttribute("file", this);

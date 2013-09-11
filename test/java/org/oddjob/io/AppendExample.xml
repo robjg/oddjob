@@ -1,26 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
     <job>
         <sequential>
             <jobs>
                 <variables id="vars">
                     <myFile>
-                        <append>
-                            <file>
-                                <file file="${this.args[0]}/messages.txt"/>
-                            </file>
-                        </append>
+                        <append file="${this.args[0]}/messages.txt"/>
                     </myFile>
                 </variables>
-                <echo><![CDATA[Hello World]]>
+                <echo>
                     <output>
-                        <value value="${vars.myFile}" />
-                    </output>
-                </echo>
-                <echo><![CDATA[Goodbye World]]>
+                        <value value="${vars.myFile}"/>
+                    </output><![CDATA[Hello World]]></echo>
+                <echo>
                     <output>
-                        <value value="${vars.myFile}" />
-                    </output>
-                </echo>
+                        <value value="${vars.myFile}"/>
+                    </output><![CDATA[Goodbye World]]></echo>
             </jobs>
         </sequential>
     </job>

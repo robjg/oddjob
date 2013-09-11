@@ -27,16 +27,16 @@
 	</components>
 	<values>
         <arooa:bean-def element='append' 
-            className='org.oddjob.io.AppendType' />
+            className='org.oddjob.io.AppendType'
+            designFactory='org.oddjob.io.FileTypeDF'  />
 		<arooa:bean-def element='buffer' 
-			className='org.oddjob.io.BufferType' 
-		/>
+			className='org.oddjob.io.BufferType'/>
 		<arooa:bean-def element='file' 
 			className='org.oddjob.io.FileType' 
-			designFactory='org.oddjob.designer.elements.FileDE' />
+			designFactory='org.oddjob.io.FileTypeDF' />
 		<arooa:bean-def element='files' 
 			className='org.oddjob.io.FilesType'
-			designFactory='org.oddjob.designer.elements.FilesDE' />
+			designFactory='org.oddjob.io.FilesTypeDF' />
 		<arooa:bean-def element='resource' 
 			className='org.oddjob.io.ResourceType' />
         <arooa:bean-def element='stdin' 
