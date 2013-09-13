@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import javax.script.Invocable;
 
 import org.apache.log4j.Logger;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.util.OddjobConfigException;
 
@@ -140,7 +139,11 @@ public class ScriptJob extends SerializableJob {
     /** The thing that was compiles and/or run. */
     private transient Evaluatable evaluatable;
     
-    /** ClassLoader to find Script Engines on. May be null. */
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description ClassLoader to load the Script Engine.
+	 * @oddjob.required No. Automatically set to the current Oddjob class loader.
+	 */
     private transient ClassLoader classLoader;
     
     /*
@@ -281,7 +284,6 @@ public class ScriptJob extends SerializableJob {
 		return classLoader;
 	}
 
-	@ArooaHidden
 	@Inject
 	public void setClassLoader(ClassLoader classLoader) {
 		this.classLoader = classLoader;

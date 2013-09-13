@@ -60,7 +60,7 @@
                     designFactory='org.oddjob.designer.components.JustJobDC'/>
                 <arooa:bean-def element='script'
                     className='org.oddjob.script.ScriptJob'
-                    designFactory='org.oddjob.script.ScriptDesFa'/>
+                    designFactory='org.oddjob.script.ScriptJobDF'/>
                 <is element='sequence' className='org.oddjob.jobs.SequenceJob'/>
                 <is element='sequential'
                     className='org.oddjob.jobs.structural.SequentialJob'

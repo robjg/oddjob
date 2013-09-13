@@ -127,9 +127,12 @@ public class LauncherTest extends TestCase {
     	
     	URLClassLoaderType classLoader = new URLClassLoaderType();
     	classLoader.setFiles(new File[] { runJar });
-    	classLoader.setNoInherit(true);
-
+    	classLoader.setNoInherit(true);    	
+    	classLoader.configured();
+    	
     	ClassLoader context = Thread.currentThread().getContextClassLoader();
+    	assertNotNull(context);
+    	
     	try {
     		Thread.currentThread().setContextClassLoader(null);
     		

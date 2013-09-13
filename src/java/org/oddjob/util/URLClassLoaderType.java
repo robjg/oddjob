@@ -11,10 +11,19 @@ import java.util.List;
 import javax.inject.Inject;
 
 import org.apache.log4j.Logger;
+import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.types.ValueFactory;
+import org.oddjob.values.VariablesJob;
 
 /**
  * @oddjob.description A simple wrapper for URLClassloader. 
+ * <p>
+ * The class loader is created when this type is configured, and the same
+ * class loader is then shared with all jobs that reference this type.
+ * Because creating numerous class loader can use up the permgen heap space
+ * it is best to avoid creating the type in a loop. Instead add it to
+ * {@link VariablesJob} outside the loop and only reference it inside the
+ * loop.
  * 
  * @oddjob.example
  * 
@@ -25,11 +34,14 @@ import org.oddjob.arooa.types.ValueFactory;
  * @author rob
  *
  */
-public class URLClassLoaderType implements ValueFactory<ClassLoader> {
+public class URLClassLoaderType 
+implements ValueFactory<ClassLoader>, ArooaLifeAware {
 
 	private static final Logger logger = Logger.getLogger(URLClassLoaderType.class);
 	
 	private ClassLoader parent;
+	
+	private ClassLoader classLoader;
 	
 	private URL[] urls;
 	
@@ -38,6 +50,14 @@ public class URLClassLoaderType implements ValueFactory<ClassLoader> {
 	private boolean noInherit;
 	
 	public ClassLoader toValue() {
+		if (classLoader == null) {
+			throw new IllegalStateException("Not Configured!");
+		}
+		return classLoader;
+	}
+	
+	protected ClassLoader createClassLoader() {
+		
 		final StringBuilder toString = new StringBuilder();
 		
 		List<URL> allUrls = new ArrayList<URL>();
@@ -135,6 +155,20 @@ public class URLClassLoaderType implements ValueFactory<ClassLoader> {
 	public void setParent(ClassLoader parent) {
 		this.parent = parent;
 	}	
+	
+	@Override
+	public void initialised() {
+	}
+	
+	@Override
+	public void configured() {
+		classLoader = createClassLoader();
+	}
+	
+	@Override
+	public void destroy() {
+		classLoader = null;
+	}
 	
 	@Override
 	public String toString() {

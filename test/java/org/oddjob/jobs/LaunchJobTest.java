@@ -20,36 +20,42 @@ public class LaunchJobTest extends TestCase {
     	
     	ClassLoader existingContext = Thread.currentThread(
     			).getContextClassLoader();
-    	Thread.currentThread().setContextClassLoader(null);
+    	assertNotNull(existingContext);
     	
-		OurDirs dirs = new OurDirs();
-		
-		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+    	try {
+    		// Why do I set this to null?
+    		Thread.currentThread().setContextClassLoader(null);
     	
-    	Oddjob oddjob = new Oddjob();
-    	oddjob.setConfiguration(new XMLConfiguration(
-    			"org/oddjob/jobs/LaunchExample.xml",
-    			getClass().getClassLoader()));
-		oddjob.setArgs(new String[] { 
-				dirs.base().toString(),
-				Launcher.ODDJOB_MAIN_CLASS } );
-				
-		oddjob.run();
+			OurDirs dirs = new OurDirs();
+			
+			ConsoleCapture console = new ConsoleCapture();
+			console.capture(Oddjob.CONSOLE);
+			
+			Oddjob oddjob = new Oddjob();
+			oddjob.setConfiguration(new XMLConfiguration(
+					"org/oddjob/jobs/LaunchExample.xml",
+					getClass().getClassLoader()));
+			oddjob.setArgs(new String[] { 
+					dirs.base().toString(),
+					Launcher.ODDJOB_MAIN_CLASS } );
+					
+			oddjob.run();
+			
+			assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+			
+			console.close();
+			console.dump(logger);
+			
+			String[] lines = console.getLines();
+			assertEquals(1, lines.length);
+			assertTrue(lines[0].startsWith("URLClassLoader:"));
+			
+			oddjob.destroy();
 		
-		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
-		
-		console.close();
-		console.dump(logger);
-		
-		String[] lines = console.getLines();
-		assertEquals(1, lines.length);
-		assertTrue(lines[0].startsWith("URLClassLoader:"));
-		
-		oddjob.destroy();
-		
-    	Thread.currentThread().setContextClassLoader(existingContext);
+    	}
+    	finally {
+        	Thread.currentThread().setContextClassLoader(existingContext);
+    	}
     }
-
 	
 }

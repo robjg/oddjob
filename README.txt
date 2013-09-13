@@ -3,6 +3,9 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- The ScriptJob class loader can now be set.
+- URLClassLoader type now just creates one class loader when it's configured,
+  not a new one each time it was resolved.
 - AppendType is now configured with a file attribute like FileType and
   it also shares the same designer.
 - Invoke job has an addition Object[] configuration option for arguments 

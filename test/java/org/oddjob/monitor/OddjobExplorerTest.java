@@ -52,6 +52,13 @@ public class OddjobExplorerTest extends XMLTestCase {
 			return;
 		}
 		
+		if (Thread.currentThread().getContextClassLoader() == null) {
+			logger.warn("Context class loader is null -  " +
+					"What is setting this to null, " +
+					"and why doesn't it happen for other tests in this class????");
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		}
+		
 		XMLUnit.setIgnoreWhitespace(true);
 		
 		String xml = 

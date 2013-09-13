@@ -166,7 +166,11 @@ public class CallableWrapperTest extends TestCase {
     	oddjob.destroy();
     }
     
-	public void testConSimple() throws ClassNotFoundException, MalformedURLException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException {
+    /**
+     * Not sure why this test is here as it doesn't appear to have anything 
+     * to do with Callables.
+     */
+	public void testContextClassLoaderWhenRunningFromOddjob() throws ClassNotFoundException, MalformedURLException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException {
 		
 		OurDirs dirs = new OurDirs();
 		
@@ -181,6 +185,8 @@ public class CallableWrapperTest extends TestCase {
 		classLoaderType.setFiles(new File[] {
 				dirs.relative("test/classloader") });
 		classLoaderType.setParent(getClass().getClassLoader());
+		classLoaderType.configured();
+		
 		ClassLoader classLoader = classLoaderType.toValue();
 		
     	String xml = 

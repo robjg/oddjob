@@ -20,8 +20,8 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 /**
  *
  */
-public class ScriptDCTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(ScriptDCTest.class);
+public class ScriptDFTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(ScriptDFTest.class);
 	
 	DesignInstance design;
 	
@@ -32,7 +32,7 @@ public class ScriptDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-			"<script name='Test Script' language='JavaScript'" +
+			"<script id='this' name='Test Script' language='JavaScript'" +
 			"  resultVariable='result' resultForState='true'>" +
 			" <input>" +
 			"  <buffer>" +
@@ -42,6 +42,9 @@ public class ScriptDCTest extends TestCase {
 			" <beans>" +
 			"  <value key='fruit' value='apple'/>" +
 			" </beans>" +
+			" <classLoader>" +
+			"  <value value='${this.class.classLoader}'/>" +
+			" </classLoader>" +
 			"</script>";
 		
     	ArooaDescriptor descriptor = 
@@ -63,12 +66,13 @@ public class ScriptDCTest extends TestCase {
 		assertEquals("JavaScript", test.getLanguage());
 		assertEquals("apple", test.getBeans("fruit"));
 		assertEquals("result", test.getResultVariable());
+		assertEquals(ScriptJob.class.getClassLoader(), test.getClassLoader());
 		assertEquals(true, test.isResultForState());
 	}
 	
 	public static void main(String args[]) throws ArooaParseException {
 
-		ScriptDCTest test = new ScriptDCTest();
+		ScriptDFTest test = new ScriptDFTest();
 		test.testCreate();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);

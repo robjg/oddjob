@@ -22,7 +22,8 @@ import com.sun.javadoc.DocErrorReporter;
 import com.sun.javadoc.RootDoc;
 
 /**
- *
+ * The Doclet for creating the Oddjob reference.
+ * 
  * @author Rob Gordon.
  */
 public class ManualDoclet {
@@ -53,6 +54,7 @@ public class ManualDoclet {
 			URLClassLoaderType classLoaderType = new URLClassLoaderType();
 			classLoaderType.setFiles(files);
 			classLoaderType.setParent(getClass().getClassLoader());
+			classLoaderType.configured();
 			
 			factory.setExcludeParent(true);
 			

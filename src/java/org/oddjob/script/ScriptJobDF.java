@@ -17,9 +17,9 @@ import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.designer.components.BaseDC;
 
 /**
- *	DesignFactory for ths Script job.
+ *	DesignFactory for the {@link ScriptJob}.
  */
-public class ScriptDesFa implements DesignFactory {
+public class ScriptJobDF implements DesignFactory {
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {
@@ -40,6 +40,8 @@ class ScriptDesign extends BaseDC {
 	
 	private final MappedDesignProperty beans;
 
+	private final SimpleDesignProperty classLoader;
+	
 	public ScriptDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 
@@ -54,6 +56,9 @@ class ScriptDesign extends BaseDC {
 		
 		beans = new MappedDesignProperty(
 				"beans", this);
+		
+		classLoader = new SimpleDesignProperty(
+				"classLoader", this);
 	}		
 	
 	/*
@@ -69,12 +74,14 @@ class ScriptDesign extends BaseDC {
 					.add(beans.view().setTitle("Beans"))
 					.add(resultVariable.view().setTitle("Result Variable"))
 					.add(resultForState.view().setTitle("Result For State"))
+					.add(classLoader.view().setTitle("Class Loader"))
 				);
 	}
 
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, language, input, beans, resultVariable, resultForState };
+				name, language, input, beans, resultVariable, 
+					resultForState, classLoader };
 	}
 }

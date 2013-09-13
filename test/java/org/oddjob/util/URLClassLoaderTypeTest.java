@@ -65,6 +65,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 				dirs.relative("test/classloader").toString() + "]",
 				test.toString());
 		
+		test.configured();
 		ClassLoader classLoader = test.toValue();
 		
 		Oddjob oddjob = new Oddjob();
@@ -150,6 +151,8 @@ public class URLClassLoaderTypeTest extends TestCase {
 		test.setFiles(new File[] { });
 		test.setNoInherit(true);
 		
+		test.configured();
+		
 		ClassLoader loader = test.toValue();
 		
 		assertNull(loader.getParent());
@@ -182,6 +185,8 @@ public class URLClassLoaderTypeTest extends TestCase {
 		URLClassLoaderType first = new URLClassLoaderType();
 		first.setFiles(new File[] { dirs.relative("run-oddjob.jar")});
 		first.setNoInherit(true);
+		
+		first.configured();
 		
 		ClassLoader loader = first.toValue();
 		

@@ -11,6 +11,7 @@ import javax.swing.tree.TreePath;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
@@ -27,6 +28,7 @@ import org.oddjob.util.ThreadManager;
 
 public class DetailControllerTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(DetailControllerTest.class);
 	Component comp;
 	
 	class OurExplorerModel extends MockExplorerModel {
@@ -76,8 +78,14 @@ public class DetailControllerTest extends TestCase {
 
 		DetailModel detailModel = new DetailModel();
 		
+		if (Thread.currentThread().getContextClassLoader() == null) {
+			logger.warn("Context class loader is null -  " +
+					"What is setting this to null!!!???");
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		}
+		
 		// Test fails sometimes with NPE. Not sure why. 
-		// Something to do with swing.
+		// Something to do with ContextClassLoader being null.
 		DetailController test = new DetailController(
 				detailModel, new DetailView(detailModel));
 		tree.addTreeSelectionListener(test);

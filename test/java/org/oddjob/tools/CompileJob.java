@@ -13,12 +13,21 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import javax.tools.JavaCompiler.CompilationTask;
 
+/**
+ * A utility job that will compile Java code. Currently only for testing.
+ * 
+ * @author rob
+ * 
+ */
 public class CompileJob implements Runnable {
 
+	/** Where to put the class files. */
 	private File dest;
 
+	/** Source files. */
 	private File[] files;
 	
+	/** Result of the compilation. */
 	private int result;
 	
 	@Override
