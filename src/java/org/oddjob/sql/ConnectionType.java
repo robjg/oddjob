@@ -83,7 +83,11 @@ public class ConnectionType implements ValueFactory<Connection>, Serializable {
 		
 		Class<?> driverClass;
 		try {
-			driverClass = Class.forName(driver, true, loader);
+			// Attempting to fix Deadlock issues possibly caused by 
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6354348
+			synchronized (Driver.class) {
+				driverClass = Class.forName(driver, true, loader);
+			}
 		} catch (ClassNotFoundException e) {
 			throw new ArooaConversionException(e);					
 		}
