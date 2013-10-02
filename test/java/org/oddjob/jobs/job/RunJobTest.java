@@ -355,8 +355,8 @@ public class RunJobTest extends TestCase {
 //		explorer.setOddjob(oddjob);
 //		explorer.run();
 		
-		icons.checkWait();
 		
+		icons.checkWait();
 		logger.info("*** Stopping Wait *** ");
 		
 		Stoppable wait = lookup.lookup("w", Stoppable.class);
@@ -364,7 +364,7 @@ public class RunJobTest extends TestCase {
 		
 		t.join(5000);
 		
-		states.checkNow();
+		states.checkWait();
 		
 		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
