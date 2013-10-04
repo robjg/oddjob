@@ -19,6 +19,7 @@ import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Structural;
+import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanRegistry;

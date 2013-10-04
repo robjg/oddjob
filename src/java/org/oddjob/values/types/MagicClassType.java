@@ -10,6 +10,7 @@ import org.oddjob.arooa.beanutils.MagicBeanDescriptorFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.types.ValueFactory;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.beanbus.destinations.BeanCopy;
 
 /**
@@ -99,9 +100,9 @@ public class MagicClassType implements ValueFactory<ArooaClass>{
 			}
 			else {
 				try {
-					cl = Class.forName(className, true, classLoader);
+					cl = ClassUtils.classFor(className, classLoader);
 				} catch (ClassNotFoundException e) {
-					throw new RuntimeException("For MagicBean class " + 
+					throw new ArooaConversionException("For MagicBean class " + 
 							name + ", property " + propertyName, e);
 				}
 			}

@@ -26,6 +26,7 @@ import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
+import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;

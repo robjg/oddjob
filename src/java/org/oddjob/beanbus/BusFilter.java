@@ -8,8 +8,8 @@ import java.util.Collection;
  * 
  * @author rob
  *
- * @param <F>
- * @param <T>
+ * @param <F> The from type.
+ * @param <T> The to type.
  */
 public interface BusFilter<F, T> extends Collection<F>, Outbound<T> {
 	

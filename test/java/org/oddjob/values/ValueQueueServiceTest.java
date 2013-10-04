@@ -6,11 +6,11 @@ import java.util.concurrent.LinkedBlockingQueue;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
@@ -96,8 +96,10 @@ public class ValueQueueServiceTest extends TestCase {
 		client2.destroy();
 		
 		Object foreach = lookup.lookup("foreach");
-		assertEquals(2, Helper.getChildren(foreach).length);
-				
+		
+		WaitForChildren waitForChildren = new WaitForChildren(foreach);
+		waitForChildren.waitFor(2);
+		
 		server.stop();
 		t.join();
 		server.destroy();

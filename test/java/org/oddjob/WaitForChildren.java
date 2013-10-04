@@ -1,7 +1,7 @@
 /*
  * (c) Rob Gordon 2005
  */
-package org.oddjob.jmx;
+package org.oddjob;
 
 import java.util.ArrayList;
 import java.util.Arrays;

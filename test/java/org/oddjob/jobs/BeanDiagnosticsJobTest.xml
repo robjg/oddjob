@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bean class="org.oddjob.jobs.BeanDiagnosticsJob">
+            <bean>
+                <bean/>
+            </bean>
+            <output>
+                <tee>
+                    <outputs>
+                        <stdout/>
+                        <identify id="results-buffer">
+                            <value>
+                                <buffer/>
+                            </value>
+                        </identify>
+                    </outputs>
+                </tee>
+            </output>
+        </bean>
+    </job>
+</oddjob>

@@ -142,7 +142,7 @@ import org.oddjob.state.StateOperator;
  * {@oddjob.xml.resource org/oddjob/jobs/structural/ForEachExecutionWindow.xml}
  * 
  */
-public class ForEachJob extends StructuralJob<Runnable>
+public class ForEachJob extends StructuralJob<Object>
 implements Stoppable, Loadable, ConfigurationOwner {
     private static final long serialVersionUID = 200903212011060700L;
 	
@@ -340,7 +340,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * @param value
 	 * @throws ArooaParseException
 	 */
-	protected Runnable loadConfigFor(Object value) throws ArooaParseException {
+	protected Object loadConfigFor(Object value) throws ArooaParseException {
 		
 		logger().debug("Creating child for [" + value + "]");
 		
@@ -362,7 +362,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		
 		ConfigurationHandle handle = parser.parse(configuration);
 		
-		Runnable root = seed.job;
+		Object root = seed.job;
 
 		if (root == null) {
 			logger().info("No child job created.");
@@ -468,7 +468,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * 
 	 * @throws ArooaParseException
 	 */
-	private Runnable loadNext() throws ArooaParseException {
+	private Object loadNext() throws ArooaParseException {
 		
 		if (iterator.hasNext()) {
 			return loadConfigFor(iterator.next());
@@ -539,11 +539,17 @@ implements Stoppable, Loadable, ConfigurationOwner {
 				}
 		});
 		
-		List<Runnable> readyNow = new ArrayList<Runnable>(ready);
+		List<Object> readyNow = new ArrayList<Object>(ready);
 				
 		for (int i = 0; i < readyNow.size() && !stop; ++i) {
 			
-			Runnable job = readyNow.get(i);
+			Object now = readyNow.get(i);
+			
+			if (! (now instanceof Runnable)) {
+				continue;
+			}
+			
+			Runnable job = (Runnable) now;
 			
 			if (parallel) {
 				
@@ -561,7 +567,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 					break;
 				}
 				
-				Runnable next = purgeAndLoad();
+				Object next = purgeAndLoad();
 				if (next != null) {
 					readyNow.add(next);
 				}
@@ -599,9 +605,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
 				}
 				
 				try {
-					Runnable next = purgeAndLoad();
-					if (next != null) {
-						parallelRun(executionWatcher, next);
+					Object next = purgeAndLoad();
+					
+					if (next != null && next instanceof Runnable) {
+						parallelRun(executionWatcher, (Runnable) next);
 					}
 				} catch (ArooaParseException e) {
 					logger().error(e);
@@ -623,7 +630,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * 
 	 * @throws ArooaParseException
 	 */
-	private synchronized Runnable purgeAndLoad() throws ArooaParseException {
+	private synchronized Object purgeAndLoad() throws ArooaParseException {
 		
 		while (purgeAfter > 0 && complete.size() > purgeAfter) {
 			
@@ -673,7 +680,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	private volatile ArooaSession session;
   
     	/** The root job. Inject by parsing the nested configuration. */
-    	private volatile Runnable job;
+    	private volatile Object job;
     	
     	private volatile int structuralPosition = -1;
     	private volatile ConfigurationHandle handle;
@@ -696,7 +703,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	}
     	
     	@ArooaComponent
-	    public void setJob(final Runnable child) {
+	    public void setJob(final Object child) {
 	    	
     		// Do this locked so editing can't happen when job is being
     		// stopped or reset or suchlike.

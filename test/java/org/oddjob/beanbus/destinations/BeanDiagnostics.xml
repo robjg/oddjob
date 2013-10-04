@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <ourClass>
+                        <magic-class name="OurMagicClass">
+                            <properties>
+                                <value key="vegtable" value="java.lang.String"/>
+                                <value key="price" value="double"/>
+                            </properties>
+                        </magic-class>
+                    </ourClass>
+                </variables>
+                <bean-bus>
+                    <parts>
+                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
+                            <beans>
+                                <list>
+                                    <values>
+                                        <bean class="org.oddjob.values.types.MagicBeanType">
+                                            <magicClass>
+                                                <value value="${vars.ourClass}"/>
+                                            </magicClass>
+                                            <properties>
+                                                <value key="vegtable" value="carrot"/>
+                                                <value key="price" value="19.7"/>
+                                            </properties>
+                                        </bean>
+                                        <bean class="org.oddjob.beanbus.destinations.BeanDiagnosticsTest$Fruit" quantity="2"/>
+                                        <bean class="org.oddjob.values.types.MagicBeanType">
+                                            <magicClass>
+                                                <value value="${vars.ourClass}"/>
+                                            </magicClass>
+                                        </bean>
+                                    </values>
+                                </list>
+                            </beans>
+                        </bus:iterable-driver>
+                        <bean class="org.oddjob.beanbus.destinations.BeanDiagnostics"/>
+                    </parts>
+                </bean-bus>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
