@@ -91,8 +91,13 @@ implements Observer, LogEventProcessor {
 	}
 
 	private void createDefaultFontAttributes() {
-		LogLevel[] prio = new LogLevel[] { LogLevel.FATAL, LogLevel.ERROR,
-				LogLevel.WARN, LogLevel.INFO, LogLevel.DEBUG };
+		LogLevel[] prio = new LogLevel[] { 
+				LogLevel.FATAL, 
+				LogLevel.ERROR,
+				LogLevel.WARN, 
+				LogLevel.INFO, 
+				LogLevel.DEBUG,
+				LogLevel.TRACE };
 
 		fontAttributes = new Hashtable<LogLevel, MutableAttributeSet>();
 		for (int i = 0; i < prio.length; i++) {
@@ -106,6 +111,7 @@ implements Observer, LogEventProcessor {
 		setTextColor(LogLevel.WARN, Color.orange.darker());
 		setTextColor(LogLevel.INFO, Color.blue);
 		setTextColor(LogLevel.DEBUG, Color.black);
+		setTextColor(LogLevel.TRACE, Color.darkGray);
 		
 		setTextFontName("Lucida Console");
 	}

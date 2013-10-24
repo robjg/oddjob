@@ -188,7 +188,7 @@ public class DetailModel implements PropertyChangeNotifier {
 			// add logging pane
 			LogArchiver logArchiver = 
 				(LogArchiver) selectedContext.getValue(LogContextInialiser.LOG_ARCHIVER);
-			logArchiver.addLogListener(logModel, selectedJob, LogLevel.DEBUG, -1, 1000);
+			logArchiver.addLogListener(logModel, selectedJob, LogLevel.TRACE, -1, 1000);
 			break;
 		case PROPERTIES_TAB:
 			break;
