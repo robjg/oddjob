@@ -55,7 +55,7 @@ public class DetailModelTest extends TestCase {
 		public void addLogListener(LogListener l, Object component,
 				LogLevel level, long last, int max) {
 			logger.debug("logListener added " + LogHelper.getLogger(component));
-			assertEquals(LogLevel.DEBUG, level);
+			assertEquals(LogLevel.TRACE, level);
 			assertEquals(-1, last);
 			assertEquals(1000, max);
 		}
