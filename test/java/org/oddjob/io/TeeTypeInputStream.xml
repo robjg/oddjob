@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <copy>
+            <input>
+                <tee>
+                    <input>
+                        <buffer><![CDATA[This will be copied when read.
+]]></buffer>
+                    </input>
+                    <outputs>
+                        <stdout/>
+                    </outputs>
+                </tee>
+            </input>
+            <output>
+                <buffer/>
+            </output>
+        </copy>
+    </job>
+</oddjob>

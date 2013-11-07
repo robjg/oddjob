@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+  <job>
+    <sequential>
+      <jobs>
+        <properties>
+          <values>
+            <value key="work.dir" value="work/io" />
+          </values>
+        </properties>
+        <copy>
+          <input>
+            <buffer><![CDATA[Duplicate This!
+]]></buffer>
+          </input>
+          <output>
+            <tee>
+              <outputs>
+                <stdout />
+                <logout />
+                <file file="${work.dir}/TeeTypeTest.txt" />
+              </outputs>
+            </tee>
+          </output>
+        </copy>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

@@ -3,6 +3,9 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- Tee type can now be used with an input stream to create a wire tap of
+  what is read from the stream.
+- The Log Panel in Explorer will now show TRACE messages.
 - The ScriptJob class loader can now be set.
 - URLClassLoader type now just creates one class loader when it's configured,
   not a new one each time it was resolved.
