@@ -40,6 +40,14 @@ public class SequentialJobTest extends TestCase {
 		}
 	}
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("---------------------------------  " + getName() + 
+				"  ----------------------------------");
+	}
+	
 	
 	// an empty sequence must be ready. This is to agree with oddjob
 	// which must also be ready when reset and empty.

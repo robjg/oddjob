@@ -347,9 +347,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		ArooaSession existingSession = getArooaSession();
 		
 		BeanRegistry psudoRegistry = new LinkedBeanRegistry(
-				existingSession.getBeanRegistry(),
-				existingSession.getTools().getPropertyAccessor(),
-				existingSession.getTools().getArooaConverter());
+				existingSession);
 
 		RegistryOverrideSession session = new RegistryOverrideSession(
 				existingSession, psudoRegistry);
@@ -743,7 +741,14 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	    }
     }
 
-    class RegistryOverrideSession implements ArooaSession {
+    /**
+     * An {@link ArooaSession} that wraps an existing session but provides
+     * an overriding {@link BeanRegistry} and {@link ComponentPool}.
+     * 
+     * @author rob
+     *
+     */
+    static class RegistryOverrideSession implements ArooaSession {
 
     	private final ArooaSession existingSession;
     	
@@ -800,8 +805,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
     	}
     }
     
-    
-    class PseudoComponentPool extends SimpleComponentPool {
+    /**
+     * A {@link ComponentPool} that overrides an existing pool.
+     * 
+     * @author rob
+     *
+     */
+    static class PseudoComponentPool extends SimpleComponentPool {
     	
     	private final ComponentPool existingPool;
     	

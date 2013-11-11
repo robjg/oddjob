@@ -221,8 +221,10 @@ public class StructuralStateHelper implements Stateful {
 			return;
 		}
 
-		logger.info("Changing State Operator from " + this.stateOperator +
-				" to " + stateOperator);
+		if (this.stateOperator != null) {
+			logger.info("Changing State Operator from " + this.stateOperator +
+					" to " + stateOperator);
+		}
 		
 		this.stateOperator = stateOperator;
 		checkStates();
