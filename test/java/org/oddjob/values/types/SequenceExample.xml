@@ -1,0 +1,9 @@
+<oddjob>
+  <job>
+    <variables id="vars">
+      <ourSequence>
+        <sequence from="2" to="8" step="2" />
+      </ourSequence>
+    </variables>
+  </job>
+</oddjob>

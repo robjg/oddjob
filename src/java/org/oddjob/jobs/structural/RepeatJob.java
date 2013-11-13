@@ -3,17 +3,21 @@
  */
 package org.oddjob.jobs.structural;
 
+import java.util.Iterator;
+
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.arooa.deploy.annotations.ArooaElement;
 import org.oddjob.framework.StructuralJob;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.structural.OddjobChildException;
+import org.oddjob.values.types.SequenceIterable;
 
 /**
  * @oddjob.description This job will repeatedly either for a number of 
@@ -56,7 +60,10 @@ implements Stoppable {
 	 */
 	private int times;
     
-    
+	private Iterable<?> values;
+	
+	private Object current;
+	
 	@Override
 	protected StateOperator getInitialStateOp() {
 		return new AnyActiveStateOp();
@@ -93,9 +100,26 @@ implements Stoppable {
 			return;
 		}
 		
-		while (!stop && !until && (times == 0 || count < times)) {
-		    ++count;
-		    
+		Iterator<?> it;
+		if (times > 0) {
+			it = new SequenceIterable(1, times, 1).iterator();
+		}
+		else {
+			if (values == null) {
+				it = null;
+			}
+			else {
+				it = values.iterator();
+			}
+		}
+		
+		while (!stop && !until && (it == null || it.hasNext())) {
+
+			++count;
+		    if (it != null) {
+		    	current = it.next();
+		    }
+			
 			boolean softReset = false;
 			if (job instanceof Stateful && 
 					new IsSoftResetable().test(
@@ -149,10 +173,19 @@ implements Stoppable {
 		until = false;
 	}
 	
+	public void setValues(Iterable<?> values) {
+		this.values = values;
+	}
+	
+	public Iterable<?> getValues() {
+		return values;
+	}
+	
 	public boolean isUntil() {
 		return until;
 	}
 
+	@ArooaElement
 	public void setUntil(boolean until) {
 		this.until = until;
 	}
@@ -169,4 +202,18 @@ implements Stoppable {
 		return count;
 	}
 
+	/**
+	 * @oddjob.property index
+	 * @oddjob.description The same as count. Provided so configurations
+	 * can be swapped between this and {@link ForEachJob} job.
+	 * 
+	 * @return The index.
+	 */
+	public int getIndex() {
+		return count;
+	}
+	
+	public Object getCurrent() {
+		return current;
+	}
 }

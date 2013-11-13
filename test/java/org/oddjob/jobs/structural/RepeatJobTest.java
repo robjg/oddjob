@@ -18,6 +18,7 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.values.types.SequenceIterable;
 
 /**
  *
@@ -47,6 +48,20 @@ public class RepeatJobTest extends TestCase {
 		job.setJob(childJob);
 		
 		job.setTimes(3);
+		
+		job.run();
+		
+		assertEquals("Test job should have run.", 3, childJob.count);
+	}
+	
+    public void testSimpleSequence() {
+		
+    	SequenceIterable seq = new SequenceIterable(1, 3, 1);
+    	
+		Counter childJob = new Counter();
+		job.setJob(childJob);
+		
+		job.setValues(seq);
 		
 		job.run();
 		
@@ -176,6 +191,37 @@ public class RepeatJobTest extends TestCase {
 		
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/jobs/structural/RepeatExample.xml",
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		console.close();
+
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals("Hello 1", lines[0].trim());
+		assertEquals("Hello 2", lines[1].trim());
+		assertEquals("Hello 3", lines[2].trim());
+		
+		assertEquals(3, lines.length);
+		
+		oddjob.destroy();	
+	}
+	
+	public void testRepeatWithSequenceExample() {
+		
+		Oddjob oddjob = new Oddjob();
+		
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/jobs/structural/RepeatWithSequence.xml",
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();

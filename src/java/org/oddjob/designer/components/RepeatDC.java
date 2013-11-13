@@ -28,7 +28,8 @@ public class RepeatDC implements DesignFactory {
 
 class RepeatDesign extends BaseDC {
 		
-	private final SimpleTextAttribute until ;
+	private final SimpleDesignProperty values;
+	private final SimpleDesignProperty until ;
 	private final SimpleTextAttribute times;
 	
 	private final SimpleDesignProperty job;
@@ -37,7 +38,10 @@ class RepeatDesign extends BaseDC {
 	public RepeatDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
-		until = new SimpleTextAttribute("until", this);
+		values = new SimpleDesignProperty(
+				"values", this);
+		
+		until = new SimpleDesignProperty("until", this);
 
 		times = new SimpleTextAttribute("times", this);
 		
@@ -52,6 +56,7 @@ class RepeatDesign extends BaseDC {
 			.addFormItem(
 					new BorderedGroup("Properties")
 					.add(job.view().setTitle("Job"))
+					.add(values.view().setTitle("Values"))
 					.add(until.view().setTitle("Until"))
 					.add(times.view().setTitle("Times"))
 					);
@@ -60,7 +65,7 @@ class RepeatDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, until, times, job };
+				name, values, until, times, job };
 	}
 	
 	

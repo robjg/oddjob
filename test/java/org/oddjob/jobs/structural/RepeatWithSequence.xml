@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <repeat id="each">
+            <values>
+                <sequence from="1" to="3"/>
+            </values>
+            <job>
+                <echo><![CDATA[Hello ${each.current}]]></echo>
+            </job>
+        </repeat>
+    </job>
+</oddjob>

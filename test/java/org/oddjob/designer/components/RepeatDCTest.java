@@ -33,10 +33,16 @@ public class RepeatDCTest extends TestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<repeat name='Test' until='true' times='3'>" +
+				"<repeat name='Test' times='3'>" +
 				" <job>" +
 				"  <echo/>" +
 				" </job>" +
+				" <values>" +
+				"  <sequence from='1' to='3'/>" +
+				" </values>" +
+				" <until>" +
+				"  <value value='true'/>" +
+				" </until>" +
 				"</repeat>";
 	
     	ArooaDescriptor descriptor = 

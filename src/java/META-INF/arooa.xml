@@ -112,7 +112,10 @@
                 <is element='tokenizer'
                     className='org.oddjob.values.types.TokenizerType'
                     designFactory='org.oddjob.values.types.TokenizerTypeDF'/>
-                <is element='url-class-loader' className='org.oddjob.util.URLClassLoaderType'/>
+                <is element='sequence'
+                    className='org.oddjob.values.types.SequenceType'/>
+                <is element='url-class-loader' 
+                    className='org.oddjob.util.URLClassLoaderType'/>
             </values>
         </arooa:descriptor>
         <import resource="org/oddjob/io/arooa.xml"/>
