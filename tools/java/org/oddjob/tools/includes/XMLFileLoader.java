@@ -23,8 +23,6 @@ public class XMLFileLoader implements IncludeLoader, CustomTagNames {
 
 	private static final Logger logger = Logger.getLogger(XMLFileLoader.class);
 	
-	private static final String EOL = System.getProperty("line.separator");
-	
 	private final File base;
 	
 	public XMLFileLoader(File base) {

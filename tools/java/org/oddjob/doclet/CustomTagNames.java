@@ -9,6 +9,8 @@ package org.oddjob.doclet;
  */
 public interface CustomTagNames {
 
+	public static final String EOL = System.getProperty("line.separator");
+	
 	/**
 	 * Provide a description of the job or value.
 	 */
@@ -57,8 +59,26 @@ public interface CustomTagNames {
 	 * Tag for an XML file that is to be loaded into the documentation
 	 * as formatted XML.
 	 */
-	public static final String XML_FILE_TAG_NAME = "@oddjob.xml.file";
+	public static final String XML_FILE_TAG_NAME = "oddjob.xml.file";
 	
-	public static final String XML_FILE_TAG = "@oddjob.xml.file";
+	public static final String XML_FILE_TAG = "@" + XML_FILE_TAG_NAME;
+	
+	
+	/**
+	 * Tag for a text file that is to be loaded into the documentation
+	 * as formatted HTML.
+	 */
+	public static final String TEXT_FILE_TAG_NAME = "oddjob.text.file";
+	
+	public static final String TEXT_FILE_TAG = "@" + TEXT_FILE_TAG_NAME;
+	
+	
+	/**
+	 * Tag for a text resource that is to be loaded into the documentation
+	 * as formatted HTML.
+	 */
+	public static final String TEXT_RESOURCE_TAG_NAME = "oddjob.text.resource";
+	
+	public static final String TEXT_RESOURCE_TAG = "@" + TEXT_RESOURCE_TAG_NAME;
 	
 }

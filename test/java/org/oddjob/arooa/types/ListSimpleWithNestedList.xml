@@ -1,0 +1,31 @@
+<oddjob>
+  <job>
+    <sequential>
+      <jobs>
+        <variables id="vars">
+          <ourList>
+            <list>
+              <values>
+                <value value="Hello World" />
+                <value value="Goodbye World" />
+                <list>
+                  <values>
+                    <value value="I'm in another list" />
+                  </values>
+                </list>
+              </values>
+            </list>
+          </ourList>
+        </variables>
+        <repeat id="each">
+          <values>
+            <value value="${vars.ourList}" />
+          </values>
+          <job>
+            <echo>${each.current}</echo>
+          </job>
+        </repeat>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

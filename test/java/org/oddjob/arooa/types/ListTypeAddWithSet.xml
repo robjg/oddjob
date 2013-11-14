@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aList>
+                        <list/>
+                    </aList>
+                </variables>
+                <set>
+                    <values>
+                        <value key="vars.aList.add" value="apples"/>
+                    </values>
+                </set>
+                <set>
+                    <values>
+                        <value key="vars.aList.add" value="bananas"/>
+                    </values>
+                </set>
+                <repeat id="each">
+                    <values>
+                        <value value="${vars.aList}"/>
+                    </values>
+                    <job>
+                        <echo><![CDATA[${each.current}]]></echo>
+                    </job>
+                </repeat>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

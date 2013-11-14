@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
+import org.oddjob.Helper;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -19,18 +20,21 @@ public class ListTypeExamplesTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
 			ListTypeExamplesTest.class);
 
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("-----------------------------  " + getName() 
+				+ "  --------------------------------");
+	}
 	
-	
-	
-	public void testFruitExample() {
+	public void testSimpleWithNestedListExample() {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/arooa/types/ListTypeMergeExample.xml",
+				"org/oddjob/arooa/types/ListSimpleWithNestedList.xml",
 				getClass().getClassLoader()));
 
-		oddjob.setArgs(new String[] { "kiwis", "mangos" });
-		
 		ConsoleCapture console = new ConsoleCapture();
 		console.capture(Oddjob.CONSOLE);
 				
@@ -44,13 +48,47 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		assertEquals(5, lines.length);
+		String[] expected = Helper.streamToLines(getClass(
+				).getResourceAsStream("ListSimpleWithNestedListOut.txt"));
 		
-		assertEquals("apples", lines[0].trim());
-		assertEquals("oranges", lines[1].trim());
-		assertEquals("bananas", lines[2].trim());
-		assertEquals("kiwis", lines[3].trim());
-		assertEquals("mangos", lines[4].trim());
+		assertEquals(expected[0], lines[0].trim());
+		assertEquals(expected[1], lines[1].trim());
+		assertEquals(expected[2], lines[2].trim());
+		
+		assertEquals(3, lines.length);
+		
+		oddjob.destroy();
+	}
+	
+	
+	public void testMergeFruitExample() {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/arooa/types/ListTypeMergeExample.xml",
+				getClass().getClassLoader()));
+
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		console.close();
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		String[] expected = Helper.streamToLines(getClass(
+				).getResourceAsStream("ListTypeMergeExampleOut.txt"));
+		
+		for (int i = 0; i < expected.length; ++i) {
+			assertEquals(expected[i], lines[i].trim());
+		}
+		
+		assertEquals(5, lines.length);
 		
 		oddjob.destroy();
 	}
@@ -60,7 +98,7 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/arooa/types/ListForConversion.xml",
+				"org/oddjob/arooa/types/ListWithConversion.xml",
 				getClass().getClassLoader()));
 
 		ConsoleCapture console = new ConsoleCapture();
@@ -76,11 +114,46 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		assertEquals("grapes, red", lines[0].trim());
-		assertEquals("grapes, white", lines[1].trim());
-		assertEquals("gratefruit", lines[2].trim());
+		String[] expected = Helper.streamToLines(getClass(
+				).getResourceAsStream("ListWithConversionOut.txt"));
 		
-		assertEquals(3, lines.length);
+		for (int i = 0; i < expected.length; ++i) {
+			assertEquals(expected[i], lines[i].trim());
+		}
+		
+		assertEquals(5, lines.length);
+		
+		oddjob.destroy();
+	}
+	
+	public void testAddingToAListOnTheFly() {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/arooa/types/ListTypeAddWithSet.xml",
+				getClass().getClassLoader()));
+
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		console.close();
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		String[] expected = Helper.streamToLines(getClass(
+				).getResourceAsStream("ListTypeAddWithSetOut.txt"));
+		
+		for (int i = 0; i < expected.length; ++i) {
+			assertEquals(expected[i], lines[i].trim());
+		}
+		
+		assertEquals(2, lines.length);
 		
 		oddjob.destroy();
 	}

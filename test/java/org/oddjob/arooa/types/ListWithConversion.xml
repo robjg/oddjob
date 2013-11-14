@@ -12,6 +12,12 @@
                             <values>
                                 <value
                                     value='"grapes, red", "grapes, white", gratefruit'/>
+                                <list>
+                                  <values>
+                                    <value value="apples"/>
+                                    <value value="pears"/>
+                                  </values>
+                                </list>
                             </values>
                         </list>
                     </aList>

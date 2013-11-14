@@ -14,7 +14,7 @@
                                         <value value="bananas"/>
                                     </values>
                                 </list>
-                                <value value="${this.args}"/>
+                                <tokenizer text="kiwis, mangos"/>
                             </values>
                         </list>
                     </aList>

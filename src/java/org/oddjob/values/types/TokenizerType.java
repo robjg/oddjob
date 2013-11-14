@@ -23,7 +23,7 @@ import org.oddjob.arooa.utils.FlexibleTokenizerFactory;
  *  
  * @oddjob.example Tokenize comma separated values.
  * 
- * {@oddjob.xml.resource org/oddjob/values/types/TokenizeExample.xml}
+ * {@oddjob.xml.resource org/oddjob/values/types/TokenizerExample.xml}
  * 
  * @author rob
  *

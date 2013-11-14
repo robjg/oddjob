@@ -3,6 +3,15 @@ package org.oddjob.tools.includes;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Provide a {@link StreamToText} loader that will filter out 
+ * a snippet from the section of an Input Stream.
+ * <p>
+ * The snippet is identified by appending a # to the resource.
+ * 
+ * @author rob
+ *
+ */
 public class FilterFactory {
 
 	public final static Pattern PATTERN = Pattern.compile("([^#]+)(?:#(.*))?");
@@ -36,6 +45,11 @@ public class FilterFactory {
 		return textLoader;
 	}
 	
+	/**
+	 * The resource part of the path (i.e. before the #).
+	 * 
+	 * @return The path. Never null.
+	 */
 	public String getResourcePath() {
 		return resourcePath;
 	}

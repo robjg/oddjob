@@ -19,8 +19,6 @@ import org.oddjob.jobs.XSLTJob;
  */
 public class XMLResourceLoader implements IncludeLoader, CustomTagNames {
 
-	private static final String EOL = System.getProperty("line.separator");
-	
 	@Override
 	public boolean canLoad(String tag) {
 		return XML_RESOURCE_TAG.equals(tag);

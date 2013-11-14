@@ -11,7 +11,11 @@ import java.io.PrintWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.oddjob.doclet.CustomTagNames;
+import org.oddjob.tools.includes.IncludeLoader;
 import org.oddjob.tools.includes.JavaCodeFileLoader;
+import org.oddjob.tools.includes.PlainTextFileLoader;
+import org.oddjob.tools.includes.PlainTextResourceLoader;
 import org.oddjob.tools.includes.XMLFileLoader;
 import org.oddjob.tools.includes.XMLResourceLoader;
 
@@ -27,9 +31,15 @@ public class DocPostProcessor implements Runnable {
 	@Override
 	public void run() {
 		
-		Injector injector1 = new JavaCodeInjector();
-		Injector injector2 = new XMLResourceInjector();
-		Injector injector3 = new XMLFileInjector();
+		Injector[] injectors = new Injector[] {
+			new JavaCodeInjector(),
+			new XMLResourceInjector(),
+			new XMLFileInjector(),
+			new GenericInjector(CustomTagNames.TEXT_FILE_TAG, 
+					new PlainTextFileLoader(baseDir)),
+			new GenericInjector(CustomTagNames.TEXT_RESOURCE_TAG, 
+							new PlainTextResourceLoader())
+			};
 		
 		try {
 			BufferedReader reader = new BufferedReader(
@@ -44,9 +54,15 @@ public class DocPostProcessor implements Runnable {
 					break;
 				}
 				
-				if (!injector1.parse(line, writer)
-						&& !injector2.parse(line, writer)
-						&& !injector3.parse(line, writer)) {
+				boolean replaced = false;
+				for (Injector injector : injectors) {
+					if (injector.parse(line, writer)) {
+						replaced = true;
+						break;
+					}
+				}
+				
+				if (!replaced) {
 					writer.println(line);
 				}
 			}
@@ -146,5 +162,33 @@ public class DocPostProcessor implements Runnable {
 			
 			return true;
 		}		
+	}
+	
+	static class GenericInjector implements Injector {
+		
+		final Pattern pattern;
+		
+		private final IncludeLoader loader;
+		
+		public GenericInjector(String tag, IncludeLoader loader) {
+			this.pattern = Pattern.compile("\\{\\s*" + 
+					tag + "\\s*(\\S+)\\s*\\}");
+			this.loader = loader;
+		}
+		
+		@Override
+		public boolean parse(String line, PrintWriter out) {
+			
+			Matcher matcher = pattern.matcher(line);
+			
+			if (!matcher.find()) {
+				return false;
+			}
+			
+			out.println(loader.load(matcher.group(1)));
+			
+			return true;
+		}		
+		
 	}
 }

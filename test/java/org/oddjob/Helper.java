@@ -5,6 +5,7 @@ package org.oddjob;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,8 @@ import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
+import org.oddjob.io.BufferType;
+import org.oddjob.io.CopyJob;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -174,5 +177,18 @@ public class Helper {
     	}
     	
     	return file;
+    }
+    
+    public static String[] streamToLines(InputStream inputStream) {
+    	
+		BufferType buffer = new BufferType();
+		buffer.configured();
+		
+		CopyJob copy = new CopyJob();
+		copy.setInput(inputStream);
+		copy.setOutput(buffer.toOutputStream());
+		copy.run();
+		
+		return buffer.getLines();
     }
 }
