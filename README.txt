@@ -3,6 +3,11 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- The List type will now accept elements being added on the fly via a new
+  add property.
+- Repeat Job will now work with any Iterable set of values, i.e. A List.
+- There is a new Sequence Type that creates integer sequences as an iterable.
+  This can be used with Repeat Job and For Each job for instance.
 - Tee type can now be used with an input stream to create a wire tap of
   what is read from the stream.
 - The Log Panel in Explorer will now show TRACE messages.

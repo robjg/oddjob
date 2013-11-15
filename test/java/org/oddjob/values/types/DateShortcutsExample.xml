@@ -1,0 +1,29 @@
+<oddjob>
+  <job>
+    <!-- #sequential { -->
+    <sequential>
+      <jobs>
+        <variables id="vars">
+          <now>
+            <date date="NOW" />
+          </now>
+          <today>
+            <date date="TODAY" />
+          </today>
+          <yesterday>
+            <date date="YESTERDAY" />
+          </yesterday>
+          <tomorrow>
+            <date date="TOMORROW" />
+          </tomorrow>
+        </variables>
+        <echo>Today is ${vars.today}. 
+The date/time now is ${vars.now}.
+Yesterday was ${vars.yesterday}.
+Tomorrow is ${vars.tomorrow}.</echo>
+      </jobs>
+    </sequential>
+    <!-- } #sequential -->
+  </job>
+</oddjob>
+ 

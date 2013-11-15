@@ -3,6 +3,8 @@ package org.oddjob.tools.includes;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.oddjob.doclet.CustomTagNames;
+
 /**
  * As yet unused.
  * 
@@ -18,7 +20,8 @@ public class CompositeLoader implements IncludeLoader {
 	
 	public CompositeLoader() {
 		loaders.put(JavaCodeResourceLoader.TAG, new JavaCodeResourceLoader());
-		loaders.put(XMLResourceLoader.XML_RESOURCE_TAG, new XMLResourceLoader());
+		loaders.put(CustomTagNames.XML_RESOURCE_TAG, new XMLResourceLoader());
+		loaders.put(CustomTagNames.TEXT_RESOURCE_TAG, new PlainTextResourceLoader());
 	}
 		
 	@Override

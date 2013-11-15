@@ -25,6 +25,7 @@ import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.scheduling.ManualClock;
+import org.oddjob.state.ParentState;
 
 /**
  * 
@@ -218,5 +219,26 @@ public class DateTypeTest extends TestCase {
 		
 		assertEquals(DateHelper.parseDateTime("2013-01-15 00:00"), 
 				test.toDate());
+	}
+	
+	public void testDateShortcutsExample() throws ParseException {
+		
+		Oddjob oddjob = new Oddjob(); 
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/values/types/DateShortcutsExample.xml", 
+				getClass().getClassLoader()));
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		console.close();
+		console.dump(logger);
+				
+		oddjob.destroy();
+		
 	}
 }

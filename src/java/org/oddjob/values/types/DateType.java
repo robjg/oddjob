@@ -66,6 +66,10 @@ import org.oddjob.util.DefaultClock;
  *
  * {@oddjob.xml.resource org/oddjob/values/types/DateWithTimeZoneExample.xml#sequential}
  *
+ * @oddjob.example Date shortcuts.
+ *
+ * {@oddjob.xml.resource org/oddjob/values/types/DateShortcutsExample.xml}
+ *
  * @author Rob Gordon.
  */
 public class DateType implements ArooaValue, Serializable {
