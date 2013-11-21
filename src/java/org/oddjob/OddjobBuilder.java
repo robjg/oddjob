@@ -57,8 +57,16 @@ public class OddjobBuilder {
 		String oddjobHome = this.oddjobHome;
 		if (oddjobHome == null) {
 			oddjobHome =  findOddjobHome();
+			if (oddjobHome == null) {
+				logger.info("Oddjob Home is not set and can not be derived.");
+			}
+			else {
+				logger.info("Oddjob Home has been derived and is [" + oddjobHome + "]");
+			}
 		}
-		logger.info("Oddjob Home is [" + oddjobHome + "]");
+		else {
+			logger.info("Oddjob Home has been provided and is [" + oddjobHome + "]");
+		}
 		
 		oddjob.setFile(findFileToUse(oddjobFile, oddjobHome));
 		

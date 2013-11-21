@@ -352,6 +352,8 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob1.setPersister(persister);
 		oddjob1.setExport("clock", new ArooaObject(clock));
 		
+		logger.info("** Starting First Oddjob. **");
+		
 		oddjob1.run();
 
 		assertEquals(ParentState.STARTED, oddjob1.lastStateEvent().getState());
@@ -395,6 +397,8 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		clock.date = DateHelper.parseDateTime("2010-07-15 07:00");
 		
+		logger.info("** Starting second Oddjob. **");
+		
 		oddjob2.run();
 		
 		final OddjobLookup lookup2 = new OddjobLookup(oddjob2);
@@ -425,6 +429,8 @@ public class TimerRetryCombinationTest extends TestCase {
 		ArchiveBrowserJob browser = new ArchiveBrowserJob();
 		browser.setArchiver(persister);
 		browser.setArchiveName("the-archive");
+		
+		logger.info("** Running Archive Browser. **");
 		
 		browser.run();
 		

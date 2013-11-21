@@ -890,6 +890,22 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 
 	/**
+	 * @oddjob.property stop
+	 * @oddjob.description The stop flag. This is an internal read only
+	 * property that is exposed for diagnostic reasons. If a child job
+	 * does not support stopping then the request to stop may time out but
+	 * it is useful to know that the stop flag is still set so this job
+	 * will still stop eventually.
+	 * @oddjob.required Read Only.
+	 * 
+	 * @return The file name.
+	 */
+	@Override
+	public boolean isStop() {
+		return super.isStop();
+	}
+	
+	/**
 	 * @oddjob.property file
 	 * @oddjob.description The name of the configuration file.
 	 * to use for configuration.
