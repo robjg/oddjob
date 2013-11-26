@@ -30,6 +30,7 @@ import org.oddjob.state.ParentStateConverter;
 import org.oddjob.state.ParentStateHandler;
 import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
@@ -160,7 +161,7 @@ implements
 	}
 	
 	/**
-	 * Listen for state state changes. Persist when in finished state. 
+	 * Listen for state changes. Persist when in finished state.
 	 * Reflect state for this job.
 	 */
 	private class PersistingStateListener implements StateListener {
@@ -209,7 +210,7 @@ implements
 		@Override
 		public void jobStateChange(final StateEvent event) {
 
-			ComponentBoundry.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), ArchiveJob.this);
 			try {
 				this.event = event;
 
@@ -233,7 +234,7 @@ implements
 									"] because " + event.getState() + ".");
 
 							try {
-								persist(event.getSource());							
+								persist(event.getSource());
 							}
 							catch (ComponentPersistException e) {
 								logger().error("Failed to persist.", e);
@@ -250,7 +251,7 @@ implements
 		}
 		
 		private void persist(Stateful source) throws ComponentPersistException {
-			ComponentBoundry.push(loggerName(), this);
+			ComponentBoundry.push(loggerName(), ArchiveJob.this);
 			try {
 				Object silhouette = new SilhouetteFactory().create(
 						child, ArchiveJob.this.getArooaSession());
@@ -261,8 +262,7 @@ implements
 			finally {
 				ComponentBoundry.pop();					
 			}
-		}
-		
+		}		
 	}
 	
 	protected void execute() throws Throwable {
@@ -366,46 +366,50 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
-
-					logger().debug("Propergating Soft Reset to children.");			
-
-					stopListening((Stateful) childHelper.getChild());
-					childHelper.softResetChildren();
-					stop = false;
-					getStateChanger().setState(ParentState.READY);
-
-					logger().info("Soft Reset complete.");
-				}
-			});	
-		} finally {
-			ComponentBoundry.pop();
-		}
+		return commonReset(new IsSoftResetable(), "Soft");
 	}
 	
 	/**
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
+		return commonReset(new IsHardResetable(), "Hard");
+	}
+	
+	/**
+	 * Provide common reset functionality. Note that the lock is 
+	 * not held over propagation to children because some deadlock
+	 * problem was occurring.
+	 * 
+	 * @param condition
+	 * @param text
+	 * @return
+	 */
+	private boolean commonReset(StateCondition condition, final String text) {
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			if (!stateHandler.waitToWhen(condition, new Runnable() {
 				public void run() {
-					logger().debug("Propergating Hard Reset to children.");			
-					
+					logger().debug("Propergating " + text + " to children.");
 					stopListening((Stateful) childHelper.getChild());
-					childHelper.hardResetChildren();
+				}
+			})) {
+				return false;
+			}
+			
+			childHelper.hardResetChildren();
+
+			return stateHandler.waitToWhen(condition, new Runnable() {
+				public void run() {
 					stop = false;
 					getStateChanger().setState(ParentState.READY);
 					
-					logger().info("Hard Reset complete.");
+					logger().info(text + " Reset complete.");
 				}
 			});
-		} finally {
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}

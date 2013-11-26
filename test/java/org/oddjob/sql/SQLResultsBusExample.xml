@@ -13,6 +13,8 @@
                     </connection>
                     <input>
                         <buffer><![CDATA[
+drop table FRUIT if exists;
+
 create table FRUIT(
    TYPE varchar(16),
    VARIETY varchar(16),
