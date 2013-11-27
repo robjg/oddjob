@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -60,7 +60,7 @@ public class EchoDCTest extends TestCase {
 		
 		assertEquals(EchoDesign.class, design.getClass());
 		
-		DynaBean test = (DynaBean) Helper.createComponentFromConfiguration(
+		DynaBean test = (DynaBean) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.get("name"));

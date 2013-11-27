@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -167,7 +167,7 @@ public class DeleteJobTest extends TestCase {
 		DeleteJob test = new DeleteJob();
 		test.setFiles(new File[] { dir } );
 
-		Runnable copy = (Runnable) Helper.copy(test);
+		Runnable copy = (Runnable) OddjobTestHelper.copy(test);
 		copy.run();
 		
 		assertFalse(dir.exists());

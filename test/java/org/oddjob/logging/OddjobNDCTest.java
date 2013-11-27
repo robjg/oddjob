@@ -6,7 +6,7 @@ package org.oddjob.logging;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.log4j.Log4jArchiver;
 
@@ -65,7 +65,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		OddjobNDC.push(loggerName(), new Object());
 
 		logger.info("Will be archived!");
-		assertEquals("Will be archived!" + Helper.LS, ll.message);
+		assertEquals("Will be archived!" + OddjobTestHelper.LS, ll.message);
 				
 		OddjobNDC.pop();
 	}
@@ -95,7 +95,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		
 		t.join();
 		
-		assertEquals("[My Important Job] Child Thread Message." + Helper.LS, ll.message);
+		assertEquals("[My Important Job] Child Thread Message." + OddjobTestHelper.LS, ll.message);
 		
 
 	}

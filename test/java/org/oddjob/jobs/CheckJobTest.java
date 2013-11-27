@@ -3,7 +3,7 @@ package org.oddjob.jobs;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
@@ -359,7 +359,7 @@ public class CheckJobTest extends TestCase {
 		Structural structural = new OddjobLookup(oddjob).lookup(
 				"all-checks", Structural.class);
 		
-		Object[] children = Helper.getChildren(structural);
+		Object[] children = OddjobTestHelper.getChildren(structural);
 		
 		for (Object child : children) {
 			assertEquals(JobState.INCOMPLETE, 

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.StateSteps;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.DefaultExecutors;
@@ -160,7 +160,7 @@ public class OrStateTest extends TestCase {
 		
 		services.stop();
 		
-		OrState copy = (OrState) Helper.copy(test);
+		OrState copy = (OrState) OddjobTestHelper.copy(test);
 		
 		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 	}

@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -434,7 +434,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		browser.run();
 		
-		Object[] children = Helper.getChildren(browser);
+		Object[] children = OddjobTestHelper.getChildren(browser);
 		
 		assertEquals(5, children.length);
 		assertEquals("20100711", children[0].toString());

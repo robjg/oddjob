@@ -8,7 +8,7 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -124,7 +124,7 @@ public class CopyJobTest extends TestCase {
 				new File(dirs.base(), "test/io/reference/test1.txt") });
 		test.setTo(new File(dirs.base(), "work/io/copy"));
 
-		Runnable copy = (Runnable) Helper.copy(test);
+		Runnable copy = (Runnable) OddjobTestHelper.copy(test);
 		copy.run();
 		
 		assertTrue(new File(dir, "test1.txt").exists());

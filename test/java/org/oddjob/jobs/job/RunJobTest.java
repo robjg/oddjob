@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
@@ -91,7 +91,7 @@ public class RunJobTest extends TestCase {
 		
 		assertEquals(2, r.ran);
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 		assertEquals(1, children.length);
 		Object proxy = children[0];
 

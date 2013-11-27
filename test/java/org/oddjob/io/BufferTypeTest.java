@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -379,7 +379,7 @@ public class BufferTypeTest extends TestCase {
 		type.setText("Apples");
 		type.configured();
 		
-		BufferType copy = Helper.copy(type);
+		BufferType copy = OddjobTestHelper.copy(type);
 		
 		ArooaConverter converter = new ConverterHelper().getConverter();
 		

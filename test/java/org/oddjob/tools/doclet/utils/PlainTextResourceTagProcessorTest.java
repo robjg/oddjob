@@ -3,7 +3,7 @@ package org.oddjob.tools.doclet.utils;
 import junit.framework.TestCase;
 
 import org.mockito.Mockito;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.doclet.CustomTagNames;
 import org.oddjob.tools.includes.PlainTextResourceLoader;
 
@@ -35,10 +35,10 @@ public class PlainTextResourceTagProcessorTest extends TestCase {
 		String result = test.process(tag);
 
 		String expected = 
-				"<pre>" + Helper.LS +
-				"Remember 2 < 3 & 5 > 4" + Helper.LS +
-				"But This is a new line." + Helper.LS +
-				"</pre>" + Helper.LS;
+				"<pre>" + OddjobTestHelper.LS +
+				"Remember 2 < 3 & 5 > 4" + OddjobTestHelper.LS +
+				"But This is a new line." + OddjobTestHelper.LS +
+				"</pre>" + OddjobTestHelper.LS;
 		
 		assertEquals(expected, result);
 	}

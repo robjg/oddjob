@@ -2,7 +2,7 @@ package org.oddjob.sql;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -16,7 +16,7 @@ public class ConnectionTypeTest extends TestCase {
 		ConnectionType test = new ConnectionType();
 		test.setUrl("x:/y/z");
 		
-		ConnectionType copy = (ConnectionType) Helper.copy(test);
+		ConnectionType copy = (ConnectionType) OddjobTestHelper.copy(test);
 		
 		assertEquals("x:/y/z", copy.getUrl());
 	}

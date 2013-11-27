@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ClassResolver;
@@ -131,7 +131,7 @@ public class TransportableComponentTest extends TestCase {
 		
 		assertNotNull(folderProxy);
 		
-		Object[] children = Helper.getChildren((Structural) folderProxy);
+		Object[] children = OddjobTestHelper.getChildren((Structural) folderProxy);
 		
 		Object c1Proxy = children[0];
 		assertNotNull(c1Proxy);

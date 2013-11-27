@@ -5,7 +5,7 @@ package org.oddjob.scheduling;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -56,12 +56,12 @@ public class RetryDesFaTest extends TestCase {
 		
 		assertEquals(RetryDesign.class, design.getClass());
 		
-		Retry test = (Retry) Helper.createComponentFromConfiguration(
+		Retry test = (Retry) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("America/Chicago", test.getTimeZone());
 		assertNotNull(test.getSchedule());
-		assertEquals(1, Helper.getChildren(test).length);
+		assertEquals(1, OddjobTestHelper.getChildren(test).length);
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

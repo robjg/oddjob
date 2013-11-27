@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaAnnotations;
@@ -113,7 +113,7 @@ public class SetJobTest extends TestCase {
         		oj).lookup("check");
         
         assertNotNull(check);
-        assertEquals("Job state", JobState.COMPLETE, Helper.getJobState(check));
+        assertEquals("Job state", JobState.COMPLETE, OddjobTestHelper.getJobState(check));
     }
     
     public static class MappedPropertyBean {

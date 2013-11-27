@@ -252,7 +252,7 @@ public class OddjobLoadTest extends TestCase {
     	
     	test.load();
     	
-    	assertEquals(ParentState.READY, Helper.getJobState(test));
+    	assertEquals(ParentState.READY, OddjobTestHelper.getJobState(test));
     	
     	assertTrue(file.exists());
     	

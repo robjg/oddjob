@@ -5,7 +5,7 @@ import java.text.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -47,7 +47,7 @@ public class TokenizerTypeDFTest extends TestCase {
 		
 		assertEquals(TokenizerDesign.class, design.getClass());
 		
-		TokenizerType test = (TokenizerType) Helper.createTypeFromConfiguration(
+		TokenizerType test = (TokenizerType) OddjobTestHelper.createValueFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("1|^2|3^|^!^4^", test.getText());

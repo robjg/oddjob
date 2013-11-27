@@ -13,7 +13,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.FragmentHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -258,7 +258,7 @@ public class WaitJobTest extends TestCase {
 		Object sequential = helper.createComponentFromResource(
 				"org/oddjob/jobs/WaitForExample.xml");
 		
-		Object[] children = Helper.getChildren(sequential);
+		Object[] children = OddjobTestHelper.getChildren(sequential);
 		
 		Object wait = children[1];
 		

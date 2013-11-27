@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Loadable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -66,7 +66,7 @@ public class ForEachParallelTest extends TestCase {
     			ParentState.COMPLETE);
     	test.run();
     	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(10, children.length);
     	
@@ -105,7 +105,7 @@ public class ForEachParallelTest extends TestCase {
     	state.startCheck(ParentState.READY, 
     			ParentState.EXECUTING, ParentState.ACTIVE);
     	    	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(10, children.length);
     	
@@ -184,7 +184,7 @@ public class ForEachParallelTest extends TestCase {
     	
     	state.checkNow();
     	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(10, children.length);
     	
@@ -215,11 +215,11 @@ public class ForEachParallelTest extends TestCase {
 		
 		oddjob.load();
 				
-		Object foreach = Helper.getChildren(oddjob)[0];
+		Object foreach = OddjobTestHelper.getChildren(oddjob)[0];
 		
 		((Loadable) foreach).load();
 		
-		Object[] children = Helper.getChildren(foreach);
+		Object[] children = OddjobTestHelper.getChildren(foreach);
 		
 		StateSteps wait1 = new StateSteps((Stateful) children[0]);
 		StateSteps wait2 = new StateSteps((Stateful) children[1]);
@@ -387,7 +387,7 @@ public class ForEachParallelTest extends TestCase {
 		
 		((Loadable) foreach).load();
 		
-		Object[] children = Helper.getChildren(foreach);
+		Object[] children = OddjobTestHelper.getChildren(foreach);
 		
 		assertEquals(2, children.length);
 		assertEquals("Wait 0", children[0].toString());
@@ -409,7 +409,7 @@ public class ForEachParallelTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, 
 				((Stateful) foreach).lastStateEvent().getState());
 		
-		 children = Helper.getChildren(foreach);
+		 children = OddjobTestHelper.getChildren(foreach);
 		
 		assertEquals(2, children.length);
 		assertEquals("Wait 0", children[0].toString());

@@ -3,7 +3,7 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -53,7 +53,7 @@ public class ParallelDCTest extends TestCase {
 		
 		assertEquals(ParallelDesign.class, design.getClass());
 		
-		ParallelJob test = (ParallelJob) Helper.createComponentFromConfiguration(
+		ParallelJob test = (ParallelJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
@@ -61,7 +61,7 @@ public class ParallelDCTest extends TestCase {
 		assertEquals(WorstStateOp.class, test.getStateOperator().getClass());
 		assertEquals(true, test.isTransient());
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 
 		assertEquals(2, children.length);
 	}

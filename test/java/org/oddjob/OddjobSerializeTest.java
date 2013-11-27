@@ -27,7 +27,7 @@ public class OddjobSerializeTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals("Apples", new OddjobLookup(test).lookup("e.text"));
 
-		Oddjob copy = Helper.copy(test);
+		Oddjob copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals(null, new OddjobLookup(copy).lookup("e"));
@@ -40,7 +40,7 @@ public class OddjobSerializeTest extends TestCase {
 		
 		Object echo = copyLookup.lookup("e");
 		
-		assertEquals(JobState.READY, Helper.getJobState(echo));
+		assertEquals(JobState.READY, OddjobTestHelper.getJobState(echo));
 	}
 	
 	public void testSerializeWhenReset() throws IOException, ClassNotFoundException {
@@ -63,7 +63,7 @@ public class OddjobSerializeTest extends TestCase {
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		Oddjob copy = Helper.copy(test);
+		Oddjob copy = OddjobTestHelper.copy(test);
 		copy.setConfiguration(new XMLConfiguration("XML", xml));
 		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 		
@@ -75,7 +75,7 @@ public class OddjobSerializeTest extends TestCase {
 		
 		Object echo = copyLookup.lookup("e");
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(echo));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(echo));
 	}
 	
 	public void testSerializeNoConfig() throws IOException, ClassNotFoundException {
@@ -84,7 +84,7 @@ public class OddjobSerializeTest extends TestCase {
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		Oddjob copy = Helper.copy(test);
+		Oddjob copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 	}

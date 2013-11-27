@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.MockArooaSession;
@@ -44,7 +44,7 @@ public class PersisterBaseTest extends TestCase {
 			this.path = path;
 			this.id = id;
 			try {
-				this.component = Helper.copy(component);
+				this.component = OddjobTestHelper.copy(component);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} catch (ClassNotFoundException e) {

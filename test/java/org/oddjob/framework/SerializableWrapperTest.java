@@ -10,7 +10,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -68,7 +68,7 @@ public class SerializableWrapperTest extends TestCase {
 	
 		proxy.run();
 		
-		DynaBean copy = (DynaBean) Helper.copy(proxy);
+		DynaBean copy = (DynaBean) OddjobTestHelper.copy(proxy);
 		
 		assertTrue(copy instanceof Proxy);
 		
@@ -101,7 +101,7 @@ public class SerializableWrapperTest extends TestCase {
 					assertEquals("test", id);
 
 					try {
-						save = Helper.copy(proxy);
+						save = OddjobTestHelper.copy(proxy);
 					} catch (Exception e) {
 						throw new RuntimeException(e);
 					}
@@ -159,7 +159,7 @@ public class SerializableWrapperTest extends TestCase {
 		Test1 test1 = (Test1) ((WrapperInvocationHandler) Proxy.getInvocationHandler(
 				proxy)).getWrappedComponent();
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));		
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(proxy));		
 		assertEquals("hello", test1.check);
 		
 		oddjob.destroy();

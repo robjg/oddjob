@@ -8,7 +8,7 @@ import java.text.ParseException;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -58,7 +58,7 @@ public class DateDETest extends TestCase {
 		
 		assertEquals(DateDesign.class, design.getClass());
 		
-		DateType test = (DateType) Helper.createTypeFromConfiguration(
+		DateType test = (DateType) OddjobTestHelper.createValueFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("01-mar-2013", test.getDate());

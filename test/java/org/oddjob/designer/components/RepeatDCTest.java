@@ -6,7 +6,7 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -59,14 +59,14 @@ public class RepeatDCTest extends TestCase {
 		
 		assertEquals(RepeatDesign.class, design.getClass());
 		
-		RepeatJob test = (RepeatJob) Helper.createComponentFromConfiguration(
+		RepeatJob test = (RepeatJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
 		assertEquals(true, test.isUntil());
 		assertEquals(3, test.getTimes());
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 
 		assertEquals(1, children.length);
 	}

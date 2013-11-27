@@ -3,7 +3,7 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -60,7 +60,7 @@ public class SQLJobDesFaTest extends TestCase {
 		
 		assertEquals(SqlDesign.class, design.getClass());
 		
-		DynaBean test = (DynaBean) Helper.createComponentFromConfiguration(
+		DynaBean test = (DynaBean) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(true, test.get("callable"));

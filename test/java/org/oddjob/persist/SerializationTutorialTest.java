@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 
 public class SerializationTutorialTest extends TestCase {
 
@@ -26,7 +26,7 @@ public class SerializationTutorialTest extends TestCase {
 		sub.fruit = "apple";
 		sub.colour = "red";
 		
-		SerializableSub copy =  (SerializableSub) Helper.copy(sub);
+		SerializableSub copy =  (SerializableSub) OddjobTestHelper.copy(sub);
 
 		assertNull(copy.fruit);
 		assertEquals("red", copy.colour);
@@ -41,7 +41,7 @@ public class SerializationTutorialTest extends TestCase {
 	public void testNonSerializableMemeber() throws ClassNotFoundException {
 		
 		try {
-			Helper.copy(
+			OddjobTestHelper.copy(
 					new ThinksItsSerializable());
 			fail("Non serializable memeber");
 		} catch (IOException e) {

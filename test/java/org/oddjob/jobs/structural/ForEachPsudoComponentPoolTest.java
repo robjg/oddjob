@@ -5,7 +5,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -74,7 +74,7 @@ public class ForEachPsudoComponentPoolTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 		
 		ContextCatcher job1 = (ContextCatcher) children[0];
 		ContextCatcher job2 = (ContextCatcher) children[1];

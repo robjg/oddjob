@@ -5,7 +5,7 @@ package org.oddjob.scheduling;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -51,14 +51,14 @@ public class TriggerDesFaTest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		Trigger trigger = (Trigger) Helper.createComponentFromConfiguration(
+		Trigger trigger = (Trigger) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(trigger, trigger.getOn());
 		assertEquals(StateConditions.EXCEPTION, trigger.getState());
 		assertEquals(StateConditions.FINISHED, trigger.getCancelWhen());
 		assertEquals(true, trigger.isNewOnly());
-		assertEquals(1, Helper.getChildren(trigger).length);
+		assertEquals(1, OddjobTestHelper.getChildren(trigger).length);
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

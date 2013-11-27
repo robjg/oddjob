@@ -8,7 +8,7 @@ import javax.management.remote.rmi.RMIConnectorServer;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -60,7 +60,7 @@ public class NetworkFailureTest extends TestCase {
 		
 		clientStates.checkNow();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		
@@ -94,13 +94,13 @@ public class NetworkFailureTest extends TestCase {
 		
 		clientStates.checkNow();
 		
-		children = Helper.getChildren(client);
+		children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		
 		child = (Stateful) children[0];
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(child));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(child));
 		assertEquals("Our Job", child.toString()); 
 		
 		client.stop();

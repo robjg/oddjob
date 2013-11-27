@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
@@ -206,7 +206,7 @@ public class StructuralJobTest extends TestCase {
 	
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
-		OurStructural copy = (OurStructural) Helper.copy(test);
+		OurStructural copy = (OurStructural) OddjobTestHelper.copy(test);
 		
 		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 	}
@@ -224,7 +224,7 @@ public class StructuralJobTest extends TestCase {
 				public void save(Object component) {
 					if (component instanceof OurStructural) {
 						try {
-							saved = (OurStructural) Helper.copy(component);
+							saved = (OurStructural) OddjobTestHelper.copy(component);
 						} catch (Exception e) {
 							throw new RuntimeException(e);
 						}

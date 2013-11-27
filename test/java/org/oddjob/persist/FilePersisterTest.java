@@ -11,7 +11,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Loadable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -101,17 +101,17 @@ public class FilePersisterTest extends TestCase {
 		assertEquals("Test", job.name);
 		assertEquals("Hello World", job.text);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(job));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(job));
 
 		// check we can run it again.
 		
 		((Resetable) job).hardReset();
 		
-		assertEquals(JobState.READY, Helper.getJobState(job));
+		assertEquals(JobState.READY, OddjobTestHelper.getJobState(job));
 		
 		job.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(job));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(job));
 	}
 
 	class OurSession extends MockArooaSession {

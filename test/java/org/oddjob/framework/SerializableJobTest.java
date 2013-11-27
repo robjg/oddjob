@@ -5,7 +5,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
@@ -93,7 +93,7 @@ public class SerializableJobTest extends TestCase {
 		
 		test.run();
 
-		OurJob copy = Helper.copy(test);
+		OurJob copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		
@@ -148,7 +148,7 @@ public class SerializableJobTest extends TestCase {
 
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
-		OurStopJob copy = Helper.copy(test);
+		OurStopJob copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		

@@ -9,7 +9,7 @@ import java.text.ParseException;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -96,14 +96,14 @@ public class TimerDesFaTest extends TestCase {
 		
 		assertEquals(TimerDesign.class, design.getClass());
 		
-		Timer timer = (Timer) Helper.createComponentFromConfiguration(
+		Timer timer = (Timer) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("America/Chicago", timer.getTimeZone());
 		assertEquals(7, ((WeeklySchedule) timer.getSchedule()).getFrom().getDayNumber());
 		assertEquals(true, timer.isHaltOnFailure());
 		assertEquals(true, timer.isSkipMissedRuns());
-		assertEquals(1, Helper.getChildren(timer).length);
+		assertEquals(1, OddjobTestHelper.getChildren(timer).length);
 //		assertEquals(DateHelper.parseDateTime("2012-12-27 08:00"), 
 //				timer.getClock().getDate());
 	}

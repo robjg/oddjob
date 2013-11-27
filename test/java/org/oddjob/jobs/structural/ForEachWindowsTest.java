@@ -5,7 +5,7 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaSession;
@@ -43,13 +43,13 @@ public class ForEachWindowsTest extends TestCase {
     	
     	test.load();
     	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(3, children.length);
     	
     	test.run();
     	
-    	children = Helper.getChildren(test);
+    	children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(10, children.length);
     	
@@ -77,13 +77,13 @@ public class ForEachWindowsTest extends TestCase {
     	
     	test.load();
     	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(10	, children.length);
     	
     	test.run();
     	
-    	children = Helper.getChildren(test);
+    	children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(3, children.length);
     	
@@ -112,13 +112,13 @@ public class ForEachWindowsTest extends TestCase {
     	
     	test.load();
     	
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(5, children.length);
     	
     	test.run();
     	
-    	children = Helper.getChildren(test);
+    	children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(3, children.length);
     	
@@ -136,7 +136,7 @@ public class ForEachWindowsTest extends TestCase {
     	
     	assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
     	
-    	Object[] children = Helper.getChildren(Helper.getChildren(oddjob)[0]);
+    	Object[] children = OddjobTestHelper.getChildren(OddjobTestHelper.getChildren(oddjob)[0]);
 
     	assertEquals(3, children.length);
     	    	

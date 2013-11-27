@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -57,7 +57,7 @@ public class CallableWrapperTest extends TestCase {
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
     	Object runnable = lookup.lookup("r");
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(runnable));
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(runnable));
     	
     	Boolean ran = lookup.lookup("r.ran", Boolean.class);
     	
@@ -83,7 +83,7 @@ public class CallableWrapperTest extends TestCase {
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
     	Object runnable = lookup.lookup("r");
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(runnable));
+    	assertEquals(JobState.INCOMPLETE, OddjobTestHelper.getJobState(runnable));
     	
     	Boolean ran = lookup.lookup("r.ran", Boolean.class);
     	
@@ -125,7 +125,7 @@ public class CallableWrapperTest extends TestCase {
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
     	Object runnable = lookup.lookup("r");
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(runnable));
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(runnable));
     	
     	Boolean ran = lookup.lookup("r.ran", Boolean.class);
     	
@@ -161,7 +161,7 @@ public class CallableWrapperTest extends TestCase {
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
     	Object runnable = lookup.lookup("r");
-    	assertEquals(JobState.EXCEPTION, Helper.getJobState(runnable));
+    	assertEquals(JobState.EXCEPTION, OddjobTestHelper.getJobState(runnable));
     	    	
     	oddjob.destroy();
     }

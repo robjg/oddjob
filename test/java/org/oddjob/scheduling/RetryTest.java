@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockOddjobServices;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
@@ -382,7 +382,7 @@ public class RetryTest extends TestCase {
 			}
 		});
 		
-		Retry copy = Helper.copy(test);
+		Retry copy = OddjobTestHelper.copy(test);
 		
 		assertNull(copy.getSchedule());
 	}

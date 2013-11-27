@@ -12,7 +12,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -206,7 +206,7 @@ public class ExistsJobTest extends TestCase {
 		ExistsJob test = new ExistsJob();
 		test.setFile(new File(dirs.base(), "test/io/reference/test1.txt"));
 
-		ExistsJob copy = (ExistsJob) Helper.copy(test);
+		ExistsJob copy = (ExistsJob) OddjobTestHelper.copy(test);
 		copy.run();
 		
 		assertEquals(0, copy.getResult());

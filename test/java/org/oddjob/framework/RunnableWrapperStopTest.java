@@ -5,7 +5,7 @@ import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.state.JobState;
 
 public class RunnableWrapperStopTest extends TestCase {
@@ -51,6 +51,6 @@ public class RunnableWrapperStopTest extends TestCase {
 		
 		t.join();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(proxy));
 	}
 }

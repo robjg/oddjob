@@ -9,7 +9,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
@@ -114,7 +114,7 @@ public class RepeatJobTest extends TestCase {
         
         new StopWait(oj).run();
         
-        assertEquals("OJ complete", ParentState.COMPLETE, Helper.getJobState(oj));
+        assertEquals("OJ complete", ParentState.COMPLETE, OddjobTestHelper.getJobState(oj));
     }
     
 	public static class Counter extends SimpleJob {

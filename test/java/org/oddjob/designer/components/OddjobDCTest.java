@@ -8,7 +8,7 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobInheritance;
@@ -72,7 +72,7 @@ public class OddjobDCTest extends TestCase {
 		
 		assertEquals(OddjobDesign.class, design.getClass());
 		
-		Oddjob test = (Oddjob) Helper.createComponentFromConfiguration(
+		Oddjob test = (Oddjob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());

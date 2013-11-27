@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -35,7 +35,7 @@ public class EchoJobTest extends TestCase {
 		oj.run();
 		
 		Object test = new OddjobLookup(oj).lookup("e");
-		assertEquals(JobState.COMPLETE, Helper.getJobState(test));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(test));
 		assertEquals("Hello", PropertyUtils.getProperty(test, "text"));
 	}
 	
@@ -49,7 +49,7 @@ public class EchoJobTest extends TestCase {
 		oj.run();
 		
 		Object test = new OddjobLookup(oj).lookup("2");
-		assertEquals(JobState.COMPLETE, Helper.getJobState(test));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(test));
 		assertEquals("Hello", PropertyUtils.getProperty(test, "text"));
 	}
 	

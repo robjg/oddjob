@@ -3,7 +3,7 @@ package org.oddjob.designer.elements.schedule;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -49,7 +49,7 @@ public class WeeklyScheduleDETest extends TestCase {
 		
 		assertEquals(DayOfWeekScheduleDesign.class, design.getClass());
 		
-		WeeklySchedule test = (WeeklySchedule) Helper.createTypeFromConfiguration(
+		WeeklySchedule test = (WeeklySchedule) OddjobTestHelper.createValueFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(DayOfWeek.Days.TUESDAY, test.getFrom());

@@ -15,7 +15,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
 import org.oddjob.FragmentHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -99,7 +99,7 @@ public class FilesTypeTest extends TestCase {
     public void testXMLCreate() throws Exception {
     	String xml = "<files files='*.txt'/>";
     	
-    	FilesType ft = (FilesType) Helper.createTypeFromXml(xml);
+    	FilesType ft = (FilesType) OddjobTestHelper.createValueFromXml(xml);
     	
     	assertEquals("*.txt", ft.getFiles());
     }
@@ -115,7 +115,7 @@ public class FilesTypeTest extends TestCase {
     		" </values>" +
     		"</list>";
     	
-    	ListType listType= (ListType) Helper.createTypeFromXml(xml);
+    	ListType listType= (ListType) OddjobTestHelper.createValueFromXml(xml);
     	
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();
@@ -139,7 +139,7 @@ public class FilesTypeTest extends TestCase {
     	String xml = 
     		"<files files='" + dirs.base() + "/test/io/reference/test*.txt'/>";
     	
-    	FilesType ft = (FilesType) Helper.createTypeFromXml(xml);
+    	FilesType ft = (FilesType) OddjobTestHelper.createValueFromXml(xml);
     
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();

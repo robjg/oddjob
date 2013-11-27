@@ -3,7 +3,7 @@ package org.oddjob.sql;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -59,17 +59,17 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 
 		((Runnable) browser1).run();
 		
-		Object[] archives1 = Helper.getChildren(browser1);
+		Object[] archives1 = OddjobTestHelper.getChildren(browser1);
 		
 		assertEquals(5, archives1.length);
 		
 		((Runnable) archives1[4]).run();
 		
-		Object[] silhouettes1 = Helper.getChildren(archives1[4]);
+		Object[] silhouettes1 = OddjobTestHelper.getChildren(archives1[4]);
 		
 		assertEquals(1, silhouettes1.length);
 
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(silhouettes1[0]));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(silhouettes1[0]));
 		
 		/////////
 		
@@ -77,17 +77,17 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 
 		((Runnable) browser2).run();
 		
-		Object[] archives2 = Helper.getChildren(browser2);
+		Object[] archives2 = OddjobTestHelper.getChildren(browser2);
 		
 		assertEquals(5, archives2.length);
 		
 		((Runnable) archives2[4]).run();
 		
-		Object[] silhouettes2 = Helper.getChildren(archives2[4]);
+		Object[] silhouettes2 = OddjobTestHelper.getChildren(archives2[4]);
 		
 		assertEquals(1, silhouettes2.length);
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(silhouettes2[0]));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(silhouettes2[0]));
 		
 		oddjob.destroy();		
 	}

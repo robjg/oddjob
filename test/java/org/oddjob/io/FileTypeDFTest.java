@@ -8,7 +8,7 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -52,7 +52,7 @@ public class FileTypeDFTest extends TestCase {
 		
 		assertEquals(FileTypeDesign.class, design.getClass());
 		
-		FileType test = (FileType) Helper.createTypeFromConfiguration(
+		FileType test = (FileType) OddjobTestHelper.createValueFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals(new File("test/MyFile.txt"), 

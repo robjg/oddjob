@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -111,7 +111,7 @@ public class ForEachDragPointTest extends XMLTestCase {
 		
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 		
 		assertEquals("Echo Apples", children[0].toString());
 		assertEquals("Echo Oranges", children[1].toString());
@@ -140,7 +140,7 @@ public class ForEachDragPointTest extends XMLTestCase {
 		
 		assertTrue(configurationSession.isModified());
 		
-		children = Helper.getChildren(test);
+		children = OddjobTestHelper.getChildren(test);
 		
 		assertEquals("Altered Apples", children[0].toString());
 		assertEquals("Echo Oranges", children[1].toString());

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -35,7 +35,7 @@ public class PlatformMBeanServerTest extends TestCase {
 		client.setArooaSession(new StandardArooaSession());
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		

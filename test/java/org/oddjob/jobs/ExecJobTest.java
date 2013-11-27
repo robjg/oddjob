@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -82,7 +82,7 @@ public class ExecJobTest extends TestCase {
 		
 		Object[] children = ChildHelper.getChildren(oj);
 		assertNotNull("created", children[0]);
-		assertEquals("state", JobState.COMPLETE, Helper.getJobState(
+		assertEquals("state", JobState.COMPLETE, OddjobTestHelper.getJobState(
 				(Stateful) children[0]));
 	}
 	
@@ -358,7 +358,7 @@ public class ExecJobTest extends TestCase {
 		ExecJob test = new ExecJob();
 		test.setCommand("echo hello");
 		
-		ExecJob copy = Helper.copy(test);
+		ExecJob copy = OddjobTestHelper.copy(test);
 		
 		assertNotNull(copy);
 	}

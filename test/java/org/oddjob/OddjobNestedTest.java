@@ -194,7 +194,7 @@ public class OddjobNestedTest extends TestCase {
     	
     	ArooaObject result1 = converter.convert(value1, ArooaObject.class);
     	
-    	assertEquals("TEST", result1.toValue());
+    	assertEquals("TEST", result1.getValue());
     	
     	ValueType value2 = new ValueType();
     	FileType fileType = new FileType();

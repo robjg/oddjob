@@ -24,7 +24,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -375,29 +375,29 @@ public class ForEachJobTest extends TestCase {
 				"  </configuration>" +
     			"</foreach>";
     	
-    	ForEachJob test = (ForEachJob) Helper.createComponentFromXml(xml);
+    	ForEachJob test = (ForEachJob) OddjobTestHelper.createComponentFromXml(xml);
     	test.addStructuralListener(childs);
     	
     	test.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			childs.children.get(0)));
-    	assertEquals(JobState.INCOMPLETE, Helper.getJobState(
+    	assertEquals(JobState.INCOMPLETE, OddjobTestHelper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.READY, Helper.getJobState(
+    	assertEquals(JobState.READY, OddjobTestHelper.getJobState(
     			childs.children.get(2)));
-    	assertEquals(ParentState.INCOMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.INCOMPLETE, OddjobTestHelper.getJobState(
     			test));
     	
     	test.softReset();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			childs.children.get(0)));
-    	assertEquals(JobState.READY, Helper.getJobState(
+    	assertEquals(JobState.READY, OddjobTestHelper.getJobState(
     			childs.children.get(1)));
-    	assertEquals(JobState.READY, Helper.getJobState(
+    	assertEquals(JobState.READY, OddjobTestHelper.getJobState(
     			childs.children.get(2)));
-    	assertEquals(ParentState.READY, Helper.getJobState(
+    	assertEquals(ParentState.READY, OddjobTestHelper.getJobState(
     			test));
     	
     	test.run();
@@ -495,7 +495,7 @@ public class ForEachJobTest extends TestCase {
     	
     	assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
     	
-    	ForEachJob copy = Helper.copy(test);
+    	ForEachJob copy = OddjobTestHelper.copy(test);
     	
     	assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
     	
@@ -508,7 +508,7 @@ public class ForEachJobTest extends TestCase {
 			assertEquals(new Path("foreach-job-test"), path);
 			assertEquals("fe", id);
 			try {
-				Helper.copy(component);
+				OddjobTestHelper.copy(component);
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			} catch (ClassNotFoundException e) {
@@ -757,12 +757,12 @@ public class ForEachJobTest extends TestCase {
     	
     	test.run();
 
-    	Object[] children = Helper.getChildren(test);
+    	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(2, children.length);
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(children[0]));
-    	assertEquals(JobState.READY, Helper.getJobState(children[1]));
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[0]));
+    	assertEquals(JobState.READY, OddjobTestHelper.getJobState(children[1]));
     }
     
     /**

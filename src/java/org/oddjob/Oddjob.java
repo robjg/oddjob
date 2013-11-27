@@ -599,7 +599,7 @@ implements Loadable,
             		}
             		else {
             			newSession.getBeanRegistry().register(
-            					name, object.toValue());
+            					name, object.getValue());
             		}
             	}
             	catch (ArooaConversionException e) {

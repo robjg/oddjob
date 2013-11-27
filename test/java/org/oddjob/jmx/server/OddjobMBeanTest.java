@@ -19,7 +19,7 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockStateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
@@ -317,7 +317,7 @@ class MyNotLis implements NotificationListener {
 			if (! (arg0.getSource() instanceof ObjectName)) {
 				throw new ClassCastException("Doh!");
 			}
-			Notification copy  = Helper.copy(arg0);
+			Notification copy  = OddjobTestHelper.copy(arg0);
 			if (! (copy.getSource() instanceof ObjectName)) {
 				throw new ClassCastException("Doh!");
 			}

@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -48,7 +48,7 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		String[] expected = Helper.streamToLines(getClass(
+		String[] expected = OddjobTestHelper.streamToLines(getClass(
 				).getResourceAsStream("ListSimpleWithNestedListOut.txt"));
 		
 		assertEquals(expected[0], lines[0].trim());
@@ -81,7 +81,7 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		String[] expected = Helper.streamToLines(getClass(
+		String[] expected = OddjobTestHelper.streamToLines(getClass(
 				).getResourceAsStream("ListTypeMergeExampleOut.txt"));
 		
 		for (int i = 0; i < expected.length; ++i) {
@@ -114,7 +114,7 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		String[] expected = Helper.streamToLines(getClass(
+		String[] expected = OddjobTestHelper.streamToLines(getClass(
 				).getResourceAsStream("ListWithConversionOut.txt"));
 		
 		for (int i = 0; i < expected.length; ++i) {
@@ -146,7 +146,7 @@ public class ListTypeExamplesTest extends TestCase {
 		
 		String[] lines = console.getLines();
 		
-		String[] expected = Helper.streamToLines(getClass(
+		String[] expected = OddjobTestHelper.streamToLines(getClass(
 				).getResourceAsStream("ListTypeAddWithSetOut.txt"));
 		
 		for (int i = 0; i < expected.length; ++i) {

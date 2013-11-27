@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -47,9 +47,9 @@ public class SilhouetteFactoryTest extends TestCase {
 		
 		ArooaSession session = new StandardArooaSession();
 		
-		Object silhouetteA = Helper.copy(
+		Object silhouetteA = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(a, session));
-		Object silhouetteB = Helper.copy(
+		Object silhouetteB = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(b, session));
 		
 		assertEquals(silhouetteA, silhouetteA);
@@ -71,7 +71,7 @@ public class SilhouetteFactoryTest extends TestCase {
 		
 		ArooaSession session = new StandardArooaSession();
 		
-		Object silhouette = Helper.copy(
+		Object silhouette = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(echo, session));
 		
 		assertTrue(silhouette instanceof Describeable);
@@ -95,14 +95,14 @@ public class SilhouetteFactoryTest extends TestCase {
 		
 		ArooaSession session = new StandardArooaSession();
 		
-		Object silhouette = Helper.copy(
+		Object silhouette = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(flag, session));
 		
 		assertTrue(silhouette instanceof Stateful);
 		assertTrue(silhouette instanceof Iconic);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(silhouette));
-		assertEquals(IconHelper.COMPLETE, Helper.getIconId(silhouette));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(silhouette));
+		assertEquals(IconHelper.COMPLETE, OddjobTestHelper.getIconId(silhouette));
 	}
 	
 	public void testStructural() throws IOException, ClassNotFoundException {
@@ -127,16 +127,16 @@ public class SilhouetteFactoryTest extends TestCase {
 					}
 				}), null);
 		
-		Object silhouette = Helper.copy(
+		Object silhouette = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(sequential, session));
 		
 		assertTrue(silhouette instanceof Structural);
 		
-		Object[] children = Helper.getChildren((Structural) silhouette);
+		Object[] children = OddjobTestHelper.getChildren((Structural) silhouette);
 		
 		assertEquals(1, children.length);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(children[0]));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[0]));
 	}
 	
 	/**
@@ -158,12 +158,12 @@ public class SilhouetteFactoryTest extends TestCase {
 		
 		final ArooaSession session = new StandardArooaSession();
 		
-		Object silhouette = Helper.copy(
+		Object silhouette = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(sequential, session));
 		
 		assertTrue(silhouette instanceof Structural);
 		
-		Object[] children = Helper.getChildren((Structural) silhouette);
+		Object[] children = OddjobTestHelper.getChildren((Structural) silhouette);
 		
 		assertEquals(0, children.length);		
 	}

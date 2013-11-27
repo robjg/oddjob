@@ -31,16 +31,23 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
 /**
- * Useful utilities for tests.
+ * Useful utility methods and constants for tests.
  * 
  * @author Rob Gordon.
  */
-public class Helper {
+public class OddjobTestHelper {
 
 	public static final long TEST_TIMEOUT = 10000L;
 	
 	public static final String LS = System.getProperty("line.separator");
 	
+	/**
+	 * Get the state of a component. Assumes the component is 
+	 * {@link Stateful} and throw an Exception if it isn't.
+	 * 
+	 * @param o
+	 * @return
+	 */
 	public static State getJobState(Object o) {
 	    class StateCatcher implements StateListener {
 		    State state;
@@ -95,7 +102,7 @@ public class Helper {
 	}
 
 	public static <T> T copy(T object) throws IOException, ClassNotFoundException {
-		return TestHelper.copy(object);
+		return ArooaTestHelper.copy(object);
     }
 
     public static class Surrogate {
@@ -105,25 +112,20 @@ public class Helper {
     	}
     }
     
-    public static Object createTypeFromXml(String xml) 
+    public static Object createValueFromXml(String xml) 
     throws ArooaParseException {
 	    
-    	return createTypeFromConfiguration(new XMLConfiguration("TEST", xml));
+    	return createValueFromConfiguration(new XMLConfiguration("TEST", xml));
     }
 
-    public static Object createTypeFromConfiguration(ArooaConfiguration config) 
+    public static Object createValueFromConfiguration(ArooaConfiguration config) 
     throws ArooaParseException {
 	    
     	ArooaDescriptor descriptor = new OddjobDescriptorFactory(
 			).createDescriptor(null);
     	
-    	StandardFragmentParser parser = new StandardFragmentParser(descriptor);
-    	
-    	parser.setArooaType(ArooaType.VALUE);
-    	
-    	parser.parse(config);
-
-    	return parser.getRoot();        
+    	return ArooaTestHelper.createValueFromConfiguration(
+    			config, descriptor);
     }
     
     public static Object createComponentFromXml(String xml) 

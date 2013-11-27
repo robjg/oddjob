@@ -18,7 +18,7 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -151,11 +151,11 @@ public class JMXClientJobTest extends TestCase {
 		client.setConnection(server.getAddress());
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals("child", "test", children[0].toString());				
 		
-		Object[] children2 = Helper.getChildren((Structural) children[0]);
+		Object[] children2 = OddjobTestHelper.getChildren((Structural) children[0]);
 		
 		assertEquals(3, children2.length);
 		
@@ -197,7 +197,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		client.run();
 
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 
 		assertEquals(1, children.length);
 		assertEquals("X", children[0].toString());
@@ -208,7 +208,7 @@ public class JMXClientJobTest extends TestCase {
 		
 		client.run();
 		
-		children = Helper.getChildren(client);
+		children = OddjobTestHelper.getChildren(client);
 
 		assertEquals(1, children.length);
 		assertEquals("X", children[0].toString());
@@ -263,7 +263,7 @@ public class JMXClientJobTest extends TestCase {
 							} catch (FailedToStopException e) {
 								throw new RuntimeException(e);
 							}
-							if (Helper.getJobState(client) == ServiceState.COMPLETE) {
+							if (OddjobTestHelper.getJobState(client) == ServiceState.COMPLETE) {
 								ok[index] = true;
 							}
 						}
@@ -488,7 +488,7 @@ public class JMXClientJobTest extends TestCase {
 		Resetable nested = (Resetable) new OddjobLookup(client).lookup("oj/oj");
 		assertNotNull(nested);
 
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(nested));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(nested));
 
 		Object echoJob = new OddjobLookup(client).lookup("oj/oj/fruit");
 		assertNotNull(echoJob);
@@ -592,7 +592,7 @@ public class JMXClientJobTest extends TestCase {
 		client.setConnection(server.getAddress());
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		Object proxy = children[0];
 

@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -179,7 +179,7 @@ public class BaseComponentTest extends TestCase {
 
 		Thread.sleep(1L);
 		
-		SerializableComponent copy = Helper.copy(test);
+		SerializableComponent copy = OddjobTestHelper.copy(test);
 		
 		assertNotNull(copy.stateHandler);
 		

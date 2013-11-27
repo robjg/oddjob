@@ -1,0 +1,6 @@
+apple
+class org.oddjob.arooa.types.ValueType
+apple
+class org.oddjob.arooa.types.ArooaObject
+apple
+class java.lang.String

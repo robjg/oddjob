@@ -13,7 +13,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.ConverterHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -261,7 +261,7 @@ public class FileTypeTest extends TestCase {
 		FileType test = new FileType();
 		test.setFile(new File("."));
 		
-		FileType copy = Helper.copy(test);
+		FileType copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(copy.toCanonicalFile(), test.toCanonicalFile());
 	}

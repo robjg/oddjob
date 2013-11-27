@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -64,13 +64,13 @@ public class OddjobPersistTest extends TestCase {
 				
 		oj.run();
 		assertEquals("State should be complete", 
-				ParentState.COMPLETE, Helper.getJobState(oj));
+				ParentState.COMPLETE, OddjobTestHelper.getJobState(oj));
 		
 		Object seqJob = new OddjobLookup(oj).lookup("oj2/sequence");
 		
 		assertTrue(seqJob instanceof Serializable);
 		assertEquals(JobState.COMPLETE, 
-				Helper.getJobState((Stateful) seqJob));
+				OddjobTestHelper.getJobState((Stateful) seqJob));
 						
 		Integer current = new OddjobLookup(oj).lookup(
 				"oj2/sequence.current", Integer.class);
@@ -99,7 +99,7 @@ public class OddjobPersistTest extends TestCase {
 				getClass().getClassLoader(), session);
 		
 		assertEquals("Persisted state should be complete", JobState.COMPLETE, 
-				Helper.getJobState(seqJob));
+				OddjobTestHelper.getJobState(seqJob));
 		
 	}
 	
@@ -123,7 +123,7 @@ public class OddjobPersistTest extends TestCase {
 
 		assertNotNull(seqJob);
 		assertEquals("Persisted state should be complete", JobState.COMPLETE, 
-				Helper.getJobState(seqJob));
+				OddjobTestHelper.getJobState(seqJob));
 		
 		assertEquals("Just loaded sequence wrong.", new Integer(1), 
 				((DynaBean) seqJob).get("current"));
@@ -134,7 +134,7 @@ public class OddjobPersistTest extends TestCase {
 		// otherwise it wouldn't run.
 		((Resetable) seqJob).hardReset();
 		
-		assertEquals(JobState.READY, Helper.getJobState(seqJob));
+		assertEquals(JobState.READY, OddjobTestHelper.getJobState(seqJob));
 		assertEquals(ParentState.READY, oj.lastStateEvent().getState());		
 
 		 ((Runnable) seqJob).run();
@@ -142,6 +142,6 @@ public class OddjobPersistTest extends TestCase {
 		assertEquals("Second execute sequence wrong.", new Integer(2), 
 				PropertyUtils.getProperty(seqJob, "current"));
 		assertEquals("State should be complete", JobState.COMPLETE, 
-				Helper.getJobState(seqJob));
+				OddjobTestHelper.getJobState(seqJob));
 	}	
 }

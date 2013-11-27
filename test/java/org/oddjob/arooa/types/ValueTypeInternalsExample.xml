@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <fruit>
+                        <value value="apple"/>
+                    </fruit>
+                </variables>
+                <echo><![CDATA[${vars.fruit}
+${vars.fruit.class}
+${vars.fruit.value}
+${vars.fruit.value.class}
+${vars.fruit.value.value}
+${vars.fruit.value.value.class}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

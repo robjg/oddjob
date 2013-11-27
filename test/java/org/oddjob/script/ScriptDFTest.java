@@ -6,7 +6,7 @@ package org.oddjob.script;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -60,7 +60,7 @@ public class ScriptDFTest extends TestCase {
 		
 		assertEquals(ScriptDesign.class, design.getClass());
 		
-		ScriptJob test = (ScriptJob) Helper.createComponentFromConfiguration(
+		ScriptJob test = (ScriptJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("JavaScript", test.getLanguage());

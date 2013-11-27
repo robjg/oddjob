@@ -10,7 +10,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.FragmentHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Iconic;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OurDirs;
@@ -93,7 +93,7 @@ public class SimpleSecurityTest extends TestCase {
 		client.setEnvironment(credentials.toValue());		
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		assertEquals("test", children[0].toString()); 
@@ -162,7 +162,7 @@ public class SimpleSecurityTest extends TestCase {
 		client.setEnvironment(credentials.toValue());		
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		

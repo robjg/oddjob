@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.ConverterHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
@@ -183,7 +183,7 @@ public class PropertyTypeTest extends TestCase {
 		PropertyUtils.setProperty(p, "snack.fruit.favourite.1", "apples");
 		PropertyUtils.setProperty(p, "snack.fruit.favourite.2", "oranges");
 		
-		PropertyType copy = Helper.copy(p);
+		PropertyType copy = OddjobTestHelper.copy(p);
 		
 		Properties results = copy.toProperties();
 		

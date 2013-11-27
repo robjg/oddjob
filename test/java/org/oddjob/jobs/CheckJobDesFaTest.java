@@ -3,7 +3,7 @@ package org.oddjob.jobs;
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -49,7 +49,7 @@ public class CheckJobDesFaTest extends TestCase {
 		
 		assertEquals(CheckDesign.class, design.getClass());
 		
-		DynaBean test = (DynaBean) Helper.createComponentFromConfiguration(
+		DynaBean test = (DynaBean) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("A Test", test.get("name"));

@@ -14,7 +14,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -44,7 +44,7 @@ public class SequenceJobTest extends TestCase {
 		
 		assertEquals(new Integer(22), test.getCurrent());
 	
-		SequenceJob copy = (SequenceJob) Helper.copy(test);
+		SequenceJob copy = (SequenceJob) OddjobTestHelper.copy(test);
 		
 		assertEquals(new Integer(22), copy.getCurrent());
 	}
@@ -59,11 +59,11 @@ public class SequenceJobTest extends TestCase {
 		
 		proxy.run();
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(proxy));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(proxy));
 			
-		Object copy = Helper.copy(proxy);
+		Object copy = OddjobTestHelper.copy(proxy);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(copy));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(copy));
 	}
 	
 	public void testDescribe() {

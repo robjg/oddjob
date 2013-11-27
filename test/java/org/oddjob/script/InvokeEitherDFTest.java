@@ -3,7 +3,7 @@ package org.oddjob.script;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -52,7 +52,7 @@ public class InvokeEitherDFTest extends TestCase {
 		
 		assertEquals(InvokeJobDesign.class, design.getClass());
 		
-		InvokeJob test = (InvokeJob) Helper.createComponentFromConfiguration(
+		InvokeJob test = (InvokeJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
@@ -88,7 +88,7 @@ public class InvokeEitherDFTest extends TestCase {
 		
 		assertEquals(InvokeTypeDesign.class, design.getClass());
 		
-		InvokeType test = (InvokeType) Helper.createTypeFromConfiguration(
+		InvokeType test = (InvokeType) OddjobTestHelper.createValueFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		Object result = test.toValue();

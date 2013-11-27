@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
@@ -105,7 +105,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		assertNotNull(stateful);
 		
-		assertEquals(IconHelper.COMPLETE, Helper.getIconId(stateful));
+		assertEquals(IconHelper.COMPLETE, OddjobTestHelper.getIconId(stateful));
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, stateful.lastStateEvent().getState());
 	}
@@ -137,7 +137,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		assertNotNull(stateful);
 		
-		assertEquals(IconHelper.NOT_COMPLETE, Helper.getIconId(stateful));
+		assertEquals(IconHelper.NOT_COMPLETE, OddjobTestHelper.getIconId(stateful));
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 		assertEquals(JobState.INCOMPLETE, stateful.lastStateEvent().getState());
 	}

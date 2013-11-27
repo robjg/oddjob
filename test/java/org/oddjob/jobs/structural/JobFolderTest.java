@@ -3,7 +3,7 @@ package org.oddjob.jobs.structural;
 import junit.framework.TestCase;
 
 import org.oddjob.FragmentHelper;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
@@ -34,7 +34,7 @@ public class JobFolderTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(oddjob));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(oddjob));
 
 		assertNotNull(new OddjobLookup(oddjob).lookup("job1"));
 		assertNotNull(new OddjobLookup(oddjob).lookup("job2"));

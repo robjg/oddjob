@@ -8,7 +8,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -57,7 +57,7 @@ public class JMXServiceDCTest extends TestCase {
 		
 		assertEquals(JMXServiceDesign.class, design.getClass());
 		
-		JMXServiceJob test = (JMXServiceJob) Helper.createComponentFromConfiguration(
+		JMXServiceJob test = (JMXServiceJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());

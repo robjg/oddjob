@@ -138,7 +138,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		
-		Helper.register(oddjob, session, null);
+		OddjobTestHelper.register(oddjob, session, null);
 
 		OddjobSessionFactory sessionFactory = new OddjobSessionFactory();
 		sessionFactory.setInherit(OddjobInheritance.NONE);

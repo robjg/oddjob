@@ -5,7 +5,7 @@ package org.oddjob.jobs.job;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockStateful;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
@@ -38,7 +38,7 @@ public class DependsJobTest extends TestCase {
 		j.run();
 		
 		assertTrue(testJob.ran);
-		assertEquals("Complete", JobState.COMPLETE, Helper.getJobState(j));
+		assertEquals("Complete", JobState.COMPLETE, OddjobTestHelper.getJobState(j));
 	}
 
 	/**
@@ -56,7 +56,7 @@ public class DependsJobTest extends TestCase {
 		j.run();
 		
 		assertFalse(testJob.ran);
-		assertEquals("Complete", JobState.COMPLETE, Helper.getJobState(j));
+		assertEquals("Complete", JobState.COMPLETE, OddjobTestHelper.getJobState(j));
 	}
 
 	private void setState(final JobStateHandler handler, 
@@ -96,13 +96,13 @@ public class DependsJobTest extends TestCase {
 		Thread t = new Thread(j);
 		t.start();
 		
-		while (JobState.EXECUTING != Helper.getJobState(j)) {
+		while (JobState.EXECUTING != OddjobTestHelper.getJobState(j)) {
 			Thread.yield();
 		}
 		
 		setState(testJob.h, JobState.INCOMPLETE);
 		
 		t.join();
-		assertEquals(JobState.INCOMPLETE, Helper.getJobState(j));
+		assertEquals(JobState.INCOMPLETE, OddjobTestHelper.getJobState(j));
 	}
 }

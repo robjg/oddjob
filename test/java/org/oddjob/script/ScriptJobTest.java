@@ -9,7 +9,7 @@ import java.util.Map;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -33,7 +33,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(oj));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(oj));
 	}
 
 	public void testVariableFromAndToJava() throws ArooaPropertyException, ArooaConversionException {
@@ -44,7 +44,7 @@ public class ScriptJobTest extends TestCase {
 				getClass().getClassLoader()));
 		oj.run();
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(oj));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(oj));
 		
 		String snack = new OddjobLookup(oj).lookup("e.text",
 				String.class);

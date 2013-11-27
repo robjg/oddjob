@@ -11,7 +11,7 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
@@ -206,7 +206,7 @@ public class ServerMainBeanTest extends TestCase {
 				model, 
 				beanDir);
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 		
 		assertEquals(1, children.length);
 		assertEquals(root, children[0]);

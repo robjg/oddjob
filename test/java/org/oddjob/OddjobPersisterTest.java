@@ -95,7 +95,7 @@ public class OddjobPersisterTest extends TestCase {
     				return;
     			}
     			try {
-    				store.put(id, Helper.copy(proxy));
+    				store.put(id, OddjobTestHelper.copy(proxy));
     			} catch (Exception e) {
     				throw new RuntimeException(e);
     			}
@@ -153,7 +153,7 @@ public class OddjobPersisterTest extends TestCase {
     	    	
     	test.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("e")));	
     	
     	test.destroy();
@@ -211,7 +211,7 @@ public class OddjobPersisterTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, 
 				test.lastStateEvent().getState());
 		
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("nested/inner/e")));	
 
     	assertEquals(1, outer.store.size());
@@ -241,7 +241,7 @@ public class OddjobPersisterTest extends TestCase {
 //    	explorer.setOddjob(test);
 //    	explorer.run();
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("nested/inner/e")));	
     	
     	assertEquals(ParentState.COMPLETE, 
@@ -287,7 +287,7 @@ public class OddjobPersisterTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, 
 				test.lastStateEvent().getState());
 		
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("nested/inner/e")));	
 
     
@@ -316,7 +316,7 @@ public class OddjobPersisterTest extends TestCase {
     	
     	Object middleOj = copyLookup.lookup("nested");
     	
-    	assertEquals(ParentState.COMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(
     			middleOj));	
     	
     	assertEquals(null, copyLookup.lookup("nested/inner"));	
@@ -327,7 +327,7 @@ public class OddjobPersisterTest extends TestCase {
     	
     	Object innerOj = copyLookup.lookup("nested/inner");
     	
-    	assertEquals(ParentState.COMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(
     			innerOj));	
     	
     	logger.debug("* Loading Inner *");
@@ -336,7 +336,7 @@ public class OddjobPersisterTest extends TestCase {
     	
     	Object echo = copyLookup.lookup("nested/inner/e");
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			echo));	
     	
     	logger.debug("* Destroying *");
@@ -365,7 +365,7 @@ public class OddjobPersisterTest extends TestCase {
 		StateEvent jse1 = test.lastStateEvent();
 		assertEquals(ParentState.COMPLETE, jse1.getState());
 		
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("nested/inner/e")));	
 
     
@@ -400,17 +400,17 @@ public class OddjobPersisterTest extends TestCase {
     	
     	Object middleOj = copyLookup.lookup("nested");
     	
-    	assertEquals(ParentState.COMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(
     			middleOj));	
     	
     	Object innerOj = copyLookup.lookup("nested/inner");
     	
-    	assertEquals(ParentState.COMPLETE, Helper.getJobState(
+    	assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(
     			innerOj));	
     	
     	Object echo = copyLookup.lookup("nested/inner/e");
     	
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			echo));	
     	
     	logger.debug("* Destroying *");
@@ -485,7 +485,7 @@ public class OddjobPersisterTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.lastStateEvent().getState());
 		
-    	assertEquals(JobState.EXCEPTION, Helper.getJobState(
+    	assertEquals(JobState.EXCEPTION, OddjobTestHelper.getJobState(
     			new OddjobLookup(test).lookup("nested/inner/e")));	
 
     
@@ -508,7 +508,7 @@ public class OddjobPersisterTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, 
 				copy.lastStateEvent().getState());
 		
-    	assertEquals(JobState.COMPLETE, Helper.getJobState(
+    	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(
     			new OddjobLookup(copy).lookup("nested/inner/e")));	
 
     
@@ -540,7 +540,7 @@ public class OddjobPersisterTest extends TestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		
-		Helper.register(oddjob, session, "test");
+		OddjobTestHelper.register(oddjob, session, "test");
 		
 		oddjob.setArooaSession(session);
 		

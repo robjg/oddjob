@@ -11,7 +11,7 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
@@ -382,7 +382,7 @@ public class TriggerTest extends TestCase {
 		
 		assertEquals(test, session.saved);
 		
-		Trigger copy = (Trigger) Helper.copy(test);		
+		Trigger copy = (Trigger) OddjobTestHelper.copy(test);		
 		
 		assertEquals(ParentState.COMPLETE, copy.lastStateEvent().getState());
 		

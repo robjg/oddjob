@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Structural;
@@ -118,7 +118,7 @@ public class JMXServerJobTest extends TestCase {
 	
 		client.run();
 		
-		Object[] children = Helper.getChildren(client);
+		Object[] children = OddjobTestHelper.getChildren(client);
 		
 		assertEquals(1, children.length);
 		assertEquals("test", children[0].toString()); 

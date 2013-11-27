@@ -5,7 +5,7 @@ package org.oddjob.values.properties;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -61,7 +61,7 @@ public class PropertiesJobDesFaTest extends TestCase {
 		
 		assertEquals(PropertiesJobDesign.class, design.getClass());
 		
-		PropertiesJob test = (PropertiesJob) Helper.createComponentFromConfiguration(
+		PropertiesJob test = (PropertiesJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("env", test.getEnvironment());

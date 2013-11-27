@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.IconSteps;
 import org.oddjob.MockOddjobExecutors;
 import org.oddjob.MockStateful;
@@ -432,7 +432,7 @@ public class TimerTest extends TestCase {
 		
 		assertEquals(5000, oddjobServices.delay);
 		
-		Timer copy = (Timer) Helper.copy(test);
+		Timer copy = (Timer) OddjobTestHelper.copy(test);
 
 		copy.setClock(clock);
 		copy.setScheduleExecutorService(oddjobServices);
@@ -473,7 +473,7 @@ public class TimerTest extends TestCase {
 		
 		oddjobServices.runnable.run();
 
-		Timer copy = (Timer) Helper.copy(test);
+		Timer copy = (Timer) OddjobTestHelper.copy(test);
 
 		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
 		assertEquals(DateHelper.parseDateTime("2009-02-10 14:30"), 
@@ -652,7 +652,7 @@ public class TimerTest extends TestCase {
 			}
 		});
 		
-		Timer copy = Helper.copy(test);
+		Timer copy = OddjobTestHelper.copy(test);
 		
 		assertNull(copy.getSchedule());
 	}

@@ -5,7 +5,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.jobs.GrabJob.LoosingAction;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
@@ -67,7 +67,7 @@ public class GrabJobTest extends TestCase {
 		assertEquals("me", test.getWinner());
 		assertEquals(true, keeper.complete);
 		
-		GrabJob copy = Helper.copy(test);
+		GrabJob copy = OddjobTestHelper.copy(test);
 		
 		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals("me", copy.getWinner());
@@ -137,7 +137,7 @@ public class GrabJobTest extends TestCase {
 		keeper.listener.jobStateChange(new StateEvent(flag, JobState.COMPLETE));
 		
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
-		assertEquals("complete", Helper.getIconId(test));
+		assertEquals("complete", OddjobTestHelper.getIconId(test));
 		
 		assertEquals("not you", test.getWinner());
 	}
@@ -212,7 +212,7 @@ public class GrabJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, flag.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 		
-		GrabJob copy = Helper.copy(test);
+		GrabJob copy = OddjobTestHelper.copy(test);
 
 		assertEquals(JobState.COMPLETE, copy.lastStateEvent().getState());
 		assertEquals("me", test.getWinner());

@@ -7,7 +7,7 @@ import javax.management.Notification;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.MockClientHandlerResolver;
 
@@ -87,6 +87,6 @@ public class OddjobMBeanToolkitTest extends TestCase {
 		assertEquals(OddjobMBeanFactory.objectName(0), n.getSource());
 		
 		// test serializable.
-		Helper.copy(n);
+		OddjobTestHelper.copy(n);
 	}
 }

@@ -61,7 +61,7 @@ public class OddjobComponentResolverTest extends TestCase {
 		
 		Object proxy = test.resolve(job, new MockArooaSession());
 
-		Object restoredProxy = Helper.copy(proxy);
+		Object restoredProxy = OddjobTestHelper.copy(proxy);
 		
 		Object restoredJob = test.restore(restoredProxy, 
 				new MockArooaSession());

@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -103,14 +103,14 @@ public class FileSilhouettesTest extends TestCase {
 		
 		assertNotNull(restored);
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(restored));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(restored));
 		
-		Object[] children = Helper.getChildren((Structural) restored);
+		Object[] children = OddjobTestHelper.getChildren((Structural) restored);
 		
 		assertEquals(3, children.length);
 		
-		assertEquals(JobState.COMPLETE, Helper.getJobState(children[0]));
-		assertEquals(JobState.COMPLETE, Helper.getJobState(children[1]));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[0]));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[1]));
 	}
 	
 	public void testWithNestedArchives() throws ArooaPropertyException, ArooaConversionException, ComponentPersistException {
@@ -161,17 +161,17 @@ public class FileSilhouettesTest extends TestCase {
 		
 		assertNotNull(restored);
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(restored));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(restored));
 		
-		Object[] children = Helper.getChildren((Structural) restored);
+		Object[] children = OddjobTestHelper.getChildren((Structural) restored);
 		
 		assertEquals(3, children.length);
 		
 		Stateful hello = (Stateful) children[0];
 		Stateful world= (Stateful) children[1];
 		
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(hello));
-		assertEquals(ParentState.COMPLETE, Helper.getJobState(world));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(hello));
+		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(world));
 		
 	}
 }

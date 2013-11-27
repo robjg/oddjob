@@ -10,7 +10,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -130,7 +130,7 @@ public class CountScheduleTest extends TestCase {
 		Interval interval = test.nextDue(context);
 		assertNotNull(interval);
 		
-		Schedule copy = (Schedule) Helper.copy(test);
+		Schedule copy = (Schedule) OddjobTestHelper.copy(test);
 		
 		context = new ScheduleContext(
 				new Date(now.getTime() + 1), null, map);

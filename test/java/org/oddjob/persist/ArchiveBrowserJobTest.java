@@ -2,7 +2,7 @@ package org.oddjob.persist;
 
 import junit.framework.TestCase;
 
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Structural;
@@ -56,9 +56,9 @@ public class ArchiveBrowserJobTest extends TestCase {
 		
 		ArchiveBrowserJob test = (ArchiveBrowserJob) lookup.lookup("browser");
 
-		assertEquals(JobState.COMPLETE, Helper.getJobState(test));
+		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(test));
 		
-		Object[] children = Helper.getChildren(test);
+		Object[] children = OddjobTestHelper.getChildren(test);
 		
 		assertEquals(3, children.length);
 		
@@ -68,13 +68,13 @@ public class ArchiveBrowserJobTest extends TestCase {
 		
 		assertTrue(child1 instanceof Structural);
 		
-		Object[] grandChildren = Helper.getChildren((Structural) child1);
+		Object[] grandChildren = OddjobTestHelper.getChildren((Structural) child1);
 		
 		assertEquals(0, grandChildren.length);
 		
 		child1.run();
 		
-		grandChildren = Helper.getChildren((Structural) child1);
+		grandChildren = OddjobTestHelper.getChildren((Structural) child1);
 		
 		assertEquals(1, grandChildren.length);
 		

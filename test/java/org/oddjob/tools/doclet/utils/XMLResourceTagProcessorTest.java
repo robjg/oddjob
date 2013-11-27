@@ -3,7 +3,7 @@ package org.oddjob.tools.doclet.utils;
 import junit.framework.TestCase;
 
 import org.mockito.Mockito;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
@@ -31,8 +31,8 @@ public class XMLResourceTagProcessorTest extends TestCase {
 		
 		String result = test.process(tag);
 		
-		assertEquals("<pre class=\"xml\">" + Helper.LS +
-				"&lt;hello/&gt;</pre>" + Helper.LS, 
+		assertEquals("<pre class=\"xml\">" + OddjobTestHelper.LS +
+				"&lt;hello/&gt;</pre>" + OddjobTestHelper.LS, 
 				result);
 	}
 }

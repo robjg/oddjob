@@ -1,7 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import org.apache.log4j.Logger;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 
 import junit.framework.TestCase;
 
@@ -18,7 +18,7 @@ public class OddjobTransportableExceptionTest extends TestCase{
 		OddjobTransportableException test = 
 				new OddjobTransportableException(e);
 
-		OddjobTransportableException copy1 = Helper.copy(test);
+		OddjobTransportableException copy1 = OddjobTestHelper.copy(test);
 		
 		logger.info("The exception.", copy1);
 		

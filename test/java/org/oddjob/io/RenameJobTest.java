@@ -9,7 +9,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OurDirs;
@@ -112,7 +112,7 @@ public class RenameJobTest extends TestCase {
 		test.setFrom(a);
 		test.setTo(b);
 		
-		Runnable copy = (Runnable) Helper.copy(test);
+		Runnable copy = (Runnable) OddjobTestHelper.copy(test);
 		copy.run();
 
 		assertTrue(b.exists());

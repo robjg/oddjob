@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.Describeable;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -122,12 +122,12 @@ public class ServiceWrapperTest extends TestCase {
 
 		assertEquals(wrapper, session.configured);
 		
-		assertEquals(ServiceState.STARTED, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "started"));
 		
 		((Stoppable) wrapper).stop();
 
-		assertEquals(ServiceState.COMPLETE, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.COMPLETE, OddjobTestHelper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "stopped"));
 
 		((Resetable) wrapper).hardReset();
@@ -135,7 +135,7 @@ public class ServiceWrapperTest extends TestCase {
 		// Service don't persist.
 		assertNull(session.saved);
 		
-		assertEquals(ServiceState.READY, Helper.getJobState(wrapper));
+		assertEquals(ServiceState.READY, OddjobTestHelper.getJobState(wrapper));
 	}
 
     public void testInOddjob() throws Exception {
@@ -151,13 +151,13 @@ public class ServiceWrapperTest extends TestCase {
     	oj.run();
     	
     	Object test = new OddjobLookup(oj).lookup("s");
-    	assertEquals(ServiceState.STARTED, Helper.getJobState(test));
+    	assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(test));
     	assertEquals(new Boolean(true), 
     			PropertyUtils.getProperty(test, "started"));
     	
     	oj.stop();
     	
-    	assertEquals(ServiceState.COMPLETE, Helper.getJobState(test));
+    	assertEquals(ServiceState.COMPLETE, OddjobTestHelper.getJobState(test));
     	assertEquals(new Boolean(true), 
     			PropertyUtils.getProperty(test, "stopped"));
 

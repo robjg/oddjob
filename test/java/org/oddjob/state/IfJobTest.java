@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Helper;
+import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OurDirs;
 import org.oddjob.StateSteps;
@@ -115,7 +115,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, then.lastStateEvent().getState());
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 		
-		IfJob copy = (IfJob) Helper.copy(test);
+		IfJob copy = (IfJob) OddjobTestHelper.copy(test);
 		copy.setJobs(0, depends);
 		copy.setJobs(1, then);
 		
