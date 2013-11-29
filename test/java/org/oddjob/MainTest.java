@@ -22,10 +22,25 @@ public class MainTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(MainTest.class);
 	
+	String oddjobHome;
+	
 	@Override
 	protected void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 		logger.debug(System.getProperty("ant.file"));
+		
+		oddjobHome = System.getProperty("oddjob.home");
+		System.getProperties().remove("oddjob.home");
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		if (oddjobHome == null) {
+			System.getProperties().remove("oddjob.home");
+		}
+		else {
+			System.setProperty("oddjob.home", oddjobHome);
+		}
 	}
 	
 	// test oddjob args past through
