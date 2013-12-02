@@ -25,7 +25,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * Cut and Paste Tests.
  */
-public class SequentialJobTest2 extends TestCase {
+public class SequentialJobCutPasteTest extends TestCase {
 
 	public static class ResultsJob implements Runnable {
 		

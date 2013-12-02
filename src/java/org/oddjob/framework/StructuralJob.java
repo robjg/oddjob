@@ -197,9 +197,11 @@ implements
 				
 				childHelper.stopChildren();
 				
-			} catch (FailedToStopException e) {
+			} 
+			catch (FailedToStopException e) {
 				failedToStopException = e;
-			} catch (RuntimeException e) {
+			} 
+			catch (RuntimeException e) {
 				failedToStopException =
 					new FailedToStopException(StructuralJob.this, 
 							"Failed to stop child.", e);
@@ -215,7 +217,8 @@ implements
 				else {
 					throw failedToStopException;
 				}
-			}	finally {	
+			}	
+			finally {	
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
 						iconHelper.changeIcon(

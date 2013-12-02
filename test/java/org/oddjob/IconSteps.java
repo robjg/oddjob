@@ -9,7 +9,7 @@ import org.oddjob.images.IconListener;
 public class IconSteps {
 	private static final Logger logger = Logger.getLogger(IconSteps.class);
 	
-	private Iconic iconic;
+	private final Iconic iconic;
 	
 	private Listener listener;
 	
@@ -38,46 +38,45 @@ public class IconSteps {
 		
 		@Override
 		public void iconEvent(IconEvent event) {
-			String position;
-			if (failureException != null) {
-				position = "(failure pending)";
-			}
-			else {
-				position = "for index [" + index + "]";
-			}
-			
-			logger.info("Received Icon Id [" + event.getIconId() + 
-					"] " + position + " from [" + event.getSource() + "]");
-			
-			if (index >= steps.length) {
-				failureException = new IllegalStateException(
-					"More icons than expected: " + event.getIconId() + 
-					" (index " + index + ")");
-			}
-			else {
-				if (event.getIconId() == steps[index]) {
-					if (++index == steps.length) {
-						done = true;
-						synchronized(this) {
-							notifyAll();
-						}
-					}
+			synchronized (IconSteps.this) {
+				String position;
+				if (failureException != null) {
+					position = "(failure pending)";
 				}
 				else {
-					done = true;
+					position = "for index [" + index + "]";
+				}
+				
+				logger.info("Received Icon Id [" + event.getIconId() + 
+						"] " + position + " from [" + event.getSource() + "]");
+				
+				if (index >= steps.length) {
 					failureException = new IllegalStateException(
-							"Expected " + steps[index] + 
-							", was " + event.getIconId() + 
-							" (index " + index + ")");
-					synchronized(this) {
-						notifyAll();
+						"More icons than expected: " + event.getIconId() + 
+						" (index " + index + ")");
+				}
+				else {
+					if (event.getIconId() == steps[index]) {
+						if (++index == steps.length) {
+							done = true;
+							IconSteps.this.notifyAll();
+						}
+					}
+					else {
+						done = true;
+						failureException = new IllegalStateException(
+								"Expected " + steps[index] + 
+								", was " + event.getIconId() + 
+								" (index " + index + ")");
+						
+						IconSteps.this.notifyAll();
 					}
 				}
 			}
 		}
 	};	
 	
-	public void startCheck(String... steps) {
+	public synchronized void startCheck(String... steps) {
 		if (listener != null) {
 			throw new IllegalStateException("Check in progress!");
 		}
@@ -85,12 +84,15 @@ public class IconSteps {
 			throw new IllegalStateException("No steps!");
 		}
 		
+		logger.info("Starting check on [" + iconic + "] to have icons " + 
+				Arrays.toString(steps));
+		
 		this.listener = new Listener(steps);
 		
 		iconic.addIconListener(listener);
 	}
 
-	public void checkNow() {
+	public synchronized void checkNow() {
 		
 		try {
 			if (listener.done) {
@@ -112,7 +114,7 @@ public class IconSteps {
 		}
 	}
 	
-	public void checkWait() throws InterruptedException {
+	public synchronized void checkWait() throws InterruptedException {
 		if (listener == null) {
 			throw new IllegalStateException("No Check In Progress.");
 		}
@@ -122,20 +124,18 @@ public class IconSteps {
 				Arrays.toString(listener.steps));
 		
 		if (!listener.done) {
-			synchronized(listener) {
-				listener.wait(timeout);
-			}
+			wait(timeout);
 		}
 		
 		checkNow();
 		logger.info("Waiting complete");
 	}
 
-	public long getTimeout() {
+	public synchronized long getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(long timeout) {
+	public synchronized void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
 	

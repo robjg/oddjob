@@ -10,7 +10,7 @@ import org.oddjob.state.State;
 public class StateSteps {
 	private static final Logger logger = Logger.getLogger(StateSteps.class);
 	
-	private Stateful stateful;
+	private final Stateful stateful;
 	
 	private Listener listener;
 	
@@ -38,37 +38,39 @@ public class StateSteps {
 		}
 		
 		@Override
-		public synchronized void jobStateChange(StateEvent event) {
-			String position;
-			if (failureMessage != null) {
-				position = "(failure pending)";
-			}
-			else {
-				position = "for index [" + index + "]";
-			}
-			
-			logger.info("Received [" + event.getState() + 
-					"] " + position + " from [" + event.getSource() + "]");
-			
-			if (index >= steps.length) {
-				failureMessage = 
-					"More states than expected: " + event.getState() + 
-					" (index " + index + ")";
-			}
-			else {
-				if (event.getState() == steps[index]) {
-					if (++index == steps.length) {
-						done = true;
-						notifyAll();
-					}
+		public void jobStateChange(StateEvent event) {
+			synchronized (StateSteps.this) {				
+				String position;
+				if (failureMessage != null) {
+					position = "(failure pending)";
 				}
 				else {
-					done = true;
+					position = "for index [" + index + "]";
+				}
+
+				logger.info("Received [" + event.getState() + 
+						"] " + position + " from [" + event.getSource() + "]");
+
+				if (index >= steps.length) {
 					failureMessage = 
-							"Expected " + steps[index] + 
-							", was " + event.getState() + 
+							"More states than expected: " + event.getState() + 
 							" (index " + index + ")";
-					notifyAll();
+				}
+				else {
+					if (event.getState() == steps[index]) {
+						if (++index == steps.length) {
+							done = true;
+							StateSteps.this.notifyAll();
+						}
+					}
+					else {
+						done = true;
+						failureMessage = 
+								"Expected " + steps[index] + 
+								", was " + event.getState() + 
+								" (index " + index + ")";
+						StateSteps.this.notifyAll();
+					}
 				}
 			}
 		}
@@ -78,7 +80,7 @@ public class StateSteps {
 		}
 	};	
 	
-	public void startCheck(final State... steps) {
+	public synchronized void startCheck(final State... steps) {
 		if (listener != null) {
 			throw new IllegalStateException("Check in progress!");
 		}
@@ -86,12 +88,15 @@ public class StateSteps {
 			throw new IllegalStateException("No steps!");
 		}
 		
+		logger.info("Starting check on [" + stateful + "] to have states " + 
+				Arrays.toString(steps));
+		
 		this.listener = new Listener(steps);
 		
 		stateful.addStateListener(listener);
 	}
 
-	public void checkNow() {
+	public synchronized void checkNow() {
 		
 		try {
 			if (listener.isDone()) {
@@ -117,7 +122,7 @@ public class StateSteps {
 		}
 	}
 	
-	public void checkWait() throws InterruptedException {
+	public synchronized void checkWait() throws InterruptedException {
 		if (listener == null) {
 			throw new IllegalStateException("No Check In Progress.");
 		}
@@ -125,29 +130,26 @@ public class StateSteps {
 		logger.info("Waiting" +
 				" on [" + stateful + "] to have states " + 
 				Arrays.toString(listener.steps));
-		
-		synchronized(listener) {
-			
-			if (!listener.isDone()) {
-				
-				listener.wait(timeout);
-				
-				logger.info("Woken or Timedout " +
-						" on [" + stateful + "] to have states " + 
-						Arrays.toString(listener.steps));
-			}
+
+		if (!listener.isDone()) {
+
+			wait(timeout);
+
+			logger.info("Woken or Timedout " +
+					" on [" + stateful + "] to have states " + 
+					Arrays.toString(listener.steps));
 		}
-		
+
 		checkNow();
 		
 		logger.info("Waiting complete on [" + stateful + "]");
 	}
 
-	public long getTimeout() {
+	public synchronized long getTimeout() {
 		return timeout;
 	}
 
-	public void setTimeout(long timeout) {
+	public synchronized void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
 	
