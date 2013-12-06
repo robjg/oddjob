@@ -1,5 +1,8 @@
 package org.oddjob.framework;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -31,6 +34,22 @@ implements Stoppable {
 
 	/** The job threads. */
 	private volatile transient List<Future<?>> futures;
+	
+	private transient volatile ExecutionWatcher executionWatcher;
+	
+	public SimultaneousStructural() {
+		completeConstruction();
+	}
+	
+	private void completeConstruction() {
+		executionWatcher = 
+				new ExecutionWatcher(new Runnable() {
+					public void run() {
+						stop = false;
+						SimultaneousStructural.super.startChildStateReflector();
+					}
+			});		
+	}
 	
 	/**
 	 * Set the {@link ExecutorService}.
@@ -80,14 +99,7 @@ implements Stoppable {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-
-		ExecutionWatcher executionWatcher = 
-			new ExecutionWatcher(new Runnable() {
-				public void run() {
-					stop = false;
-					SimultaneousStructural.super.startChildStateReflector();
-				}
-		});
+		executionWatcher.reset();
 		
 		futures = new ArrayList<Future<?>>();
 		
@@ -144,7 +156,7 @@ implements Stoppable {
 			future.cancel(false);
 		}
 		
-		super.startChildStateReflector();
+		executionWatcher.stop();
 	}
 	
 	@Override
@@ -155,4 +167,22 @@ implements Stoppable {
 	public boolean isJoin() {
 		return false;
 	}
+	
+	/*
+	 * Custom serialization.
+	 */
+	private void writeObject(ObjectOutputStream s) 
+	throws IOException {
+		s.defaultWriteObject();
+	}
+	
+	/*
+	 * Custom serialization.
+	 */
+	private void readObject(ObjectInputStream s) 
+	throws IOException, ClassNotFoundException {
+		s.defaultReadObject();
+		completeConstruction();
+	}
+	
 }

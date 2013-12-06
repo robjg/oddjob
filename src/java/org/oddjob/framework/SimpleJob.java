@@ -35,9 +35,10 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	private final JobStateChanger stateChanger;
 	
 	/**
-	 * This flag is set by the stop method and should
-	 * be examined by any Stoppable sub classes in 
-	 * their processing loop.
+	 * @oddjob.property
+	 * @oddjob.desction This flag is set by the stop method and should
+	 * be examined by any Stoppable jobs in their processing loops.
+	 * @oddjob.required Read Only.
 	 */
 	protected transient volatile boolean stop;
 	
@@ -174,6 +175,8 @@ implements  Runnable, Resetable, Stateful, Forceable {
 		try {
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
+					logger().info("Stopping.");
+					
 					stop = true;
 					stateHandler.wake();
 					iconHelper.changeIcon(IconHelper.STOPPING);
@@ -182,8 +185,8 @@ implements  Runnable, Resetable, Stateful, Forceable {
 				return;
 			}
 			
-			logger().info("Stopping.");
-			
+	    	FailedToStopException failedToStopException = null;
+	    	
 			try {
 				onStop();
 				
@@ -192,14 +195,24 @@ implements  Runnable, Resetable, Stateful, Forceable {
 				logger().info("Stopped.");
 				
 			} catch (RuntimeException e) {
-				iconHelper.changeIcon(IconHelper.EXECUTING);
-				throw e;
+				failedToStopException = new FailedToStopException(this, e);
 			}
 			catch (FailedToStopException e) {
-				iconHelper.changeIcon(IconHelper.EXECUTING);
-				throw e;
+				failedToStopException = e;
 			}
-		} finally {
+			
+			if (failedToStopException != null) {
+				
+				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+					public void run() {    			
+						iconHelper.changeIcon(IconHelper.EXECUTING);
+					}
+				});
+				
+				throw failedToStopException;
+			}
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}
@@ -208,6 +221,15 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	 * Allow sub classes to do something on stop.
 	 */
 	protected void onStop() throws FailedToStopException { }
+	
+	/**
+	 * Getter for stop flag.
+	 * 
+	 * @return
+	 */
+	public boolean isStop() {
+		return stop;
+	}
 	
 	/**
 	 * Perform a soft reset on the job.

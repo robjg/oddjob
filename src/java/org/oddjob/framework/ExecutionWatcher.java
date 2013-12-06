@@ -17,12 +17,15 @@ public class ExecutionWatcher {
 	/** The number to count to. */
 	private final AtomicInteger added = new AtomicInteger(); 
 	
+	/** The number executing. */
+	private final AtomicInteger executing = new AtomicInteger();
+	
 	/** The number executed. */
 	private final AtomicInteger executed = new AtomicInteger();
 	
 	/** Started. */
 	private volatile boolean started;
-	
+		
 	/**
 	 * Constructor.
 	 * 
@@ -46,11 +49,12 @@ public class ExecutionWatcher {
 			
 			@Override
 			public void run() {
+				executing.incrementAndGet();
 				job.run();
-				executed.incrementAndGet();
-
 				boolean perform;
 				synchronized (ExecutionWatcher.this) {
+					executing.decrementAndGet();
+					executed.incrementAndGet();
 					perform = check();
 				}
 				
@@ -76,6 +80,30 @@ public class ExecutionWatcher {
 			action.run();
 		}
 	}
+	
+	/**
+	 * Stops the check.
+	 */
+	public void stop() {
+
+		boolean perform;
+		synchronized (this) {
+			added.set(executing.get() + executed.get()); 
+			perform = check();
+		}
+		
+		if (perform) {
+			action.run();
+		}
+	}
+	
+	public void reset() {
+		synchronized (this) {
+			added.set(0);
+			executing.set(0);
+			executed.set(0);
+		}
+	}	
 	
 	/**
 	 * Checks if all jobs have executed.

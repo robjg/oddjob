@@ -24,6 +24,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
+import org.oddjob.IconSteps;
 import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -49,6 +50,7 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.images.IconHelper;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.EventThreadLaterExecutor;
 import org.oddjob.monitor.model.ExplorerContextFactory;
@@ -709,12 +711,12 @@ public class ForEachJobTest extends TestCase {
     	oddjob.destroy();    	
     }
     
-    public void testStop() {
+    public void testStop() throws InterruptedException {
     	
     	String xml = 
-    		"<foreach>" +
+    		"<foreach id='each'>" +
     		" <job>" +
-    		"  <wait/>" +
+    		"  <wait name='Wait ${each.current}'/>" +
     		" </job>" +
     		"</foreach>";
     	
@@ -755,14 +757,26 @@ public class ForEachJobTest extends TestCase {
 			}
 		});
     	
+    	StateSteps testStates = new StateSteps(test);
+    	testStates.startCheck(ParentState.READY, 
+    			ParentState.EXECUTING, 
+    			ParentState.READY);
+    	IconSteps iconSteps = new IconSteps(test);
+    	iconSteps.startCheck(IconHelper.READY, IconHelper.EXECUTING,
+    			IconHelper.STOPPING, IconHelper.READY);
+    	
     	test.run();
 
+    	testStates.checkNow();
+    	iconSteps.checkNow();
+    	
     	Object[] children = OddjobTestHelper.getChildren(test);
     	
     	assertEquals(2, children.length);
     	
     	assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[0]));
     	assertEquals(JobState.READY, OddjobTestHelper.getJobState(children[1]));
+    	
     }
     
     /**

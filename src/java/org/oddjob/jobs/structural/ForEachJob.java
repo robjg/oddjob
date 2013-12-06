@@ -193,14 +193,14 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	private File file;
 		    
 	/** Support for configuration modification. */
-	private transient ConfigurationOwnerSupport configurationOwnerSupport;
+	private transient volatile ConfigurationOwnerSupport configurationOwnerSupport;
 	
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The current value
 	 * @oddjob.required R/O.
 	 */
-	private transient Object current;
+	private transient volatile Object current;
 
 	/**
 	 * @oddjob.property
@@ -208,7 +208,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * values.
 	 * @oddjob.required R/O.
 	 */
-	private transient int index;
+	private transient volatile int index;
 		
     /** Track configuration so they can be destroyed. */
     private transient Map<Object, ConfigurationHandle> configurationHandles;
@@ -230,6 +230,8 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	/** The executor to use for parallel execution. */
 	private transient ExecutorService executorService;
 
+	private transient volatile ExecutionWatcher executionWatcher;
+	
 	/** The job threads. */
 	private transient Map<Runnable, Future<?>> jobThreads;
 	
@@ -244,6 +246,13 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	private void completeConstruction() {
 		configurationOwnerSupport =
 			new ConfigurationOwnerSupport(this);		
+		executionWatcher = 
+				new ExecutionWatcher(new Runnable() {
+					public void run() {
+						stop = false;
+						ForEachJob.super.startChildStateReflector();
+					}
+			});
 	}
 
 	/**
@@ -529,13 +538,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 
 		preLoad();
 		
-		ExecutionWatcher executionWatcher = 
-			new ExecutionWatcher(new Runnable() {
-				public void run() {
-					stop = false;
-					ForEachJob.super.startChildStateReflector();
-				}
-		});
+		executionWatcher.reset();
 		
 		List<Object> readyNow = new ArrayList<Object>(ready);
 				
@@ -572,20 +575,19 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			}
 		}		
 		
-		if (!stop) {
-			// We need to do this force consistent state transitions. 
-			// This precludes the situation that all child jobs
-			// have completed before the execute method completes
-			// so the active state is missed, or that none have started
-			// so there is a spurious ready state.
-			if (parallel) {
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(ParentState.ACTIVE);
-					}
-				});
-			}
+		// We need to do this force consistent state transitions. 
+		// This precludes the situation that all child jobs
+		// have completed before the execute method completes
+		// so the active state is missed, or that none have started
+		// so there is a spurious ready state.
+		if (parallel && !stop) {
+			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ParentState.ACTIVE);
+				}
+			});
 		}
+		
 		executionWatcher.start();
 	}
 	
@@ -657,7 +659,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 			future.getValue().cancel(false);
 		}
 		
-		super.startChildStateReflector();
+		executionWatcher.stop();
 	}
 	
     /**

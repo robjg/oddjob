@@ -5,16 +5,28 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
 import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
 public class ValueQueueServiceTest extends TestCase {
+	
+	private static final Logger logger = Logger.getLogger(ValueQueueService.class);
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("-------------------------------------------  " + getName() +
+				"  -----------------------------------------");
+	}
 
 	public void testQueueWithTwoConsumers() throws InterruptedException {
 		
@@ -68,6 +80,8 @@ public class ValueQueueServiceTest extends TestCase {
 		StateSteps serverState = new StateSteps((Stateful) jobs);
 		serverState.startCheck(ParentState.READY, ParentState.EXECUTING);
 		
+		logger.info("** Starting Server **");
+		
 		Thread t = new Thread(server);
 		t.start();
 		
@@ -95,13 +109,24 @@ public class ValueQueueServiceTest extends TestCase {
 				client2.lastStateEvent().getState());
 		client2.destroy();
 		
+		logger.info("** Waiting For 2 Children On Server For Each **");
+		
 		Object foreach = lookup.lookup("foreach");
 		
 		WaitForChildren waitForChildren = new WaitForChildren(foreach);
 		waitForChildren.waitFor(2);
 		
+		logger.info("** Stoping Server **");
+		
+		// Stop queue first or ForEach won't stop.
+		Object queue = lookup.lookup("queue");
+		((Stoppable) queue).stop();
+		
 		server.stop();
 		t.join();
+		
+		logger.info("** Destroying Server **");
+		
 		server.destroy();
 	}
 }

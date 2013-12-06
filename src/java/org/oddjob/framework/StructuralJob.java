@@ -20,6 +20,7 @@ import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
+import org.oddjob.state.IsStoppable;
 import org.oddjob.state.OrderedStateChanger;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateChanger;
@@ -156,6 +157,10 @@ implements
 		}
 	}
 	
+	/**
+	 * Start the child state reflector. Sub classes override this if they
+	 * need to start the child state reflector at a different time.
+	 */
 	protected void startChildStateReflector() {
 		childStateReflector.start();
 	}
@@ -173,61 +178,36 @@ implements
 		stateHandler.assertAlive();
 		
 		ComponentBoundry.push(loggerName(), this);
-		try {
-
-			if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+		try {			
+			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
-					stop = true;
-					
 					logger().info("Stopping.");
+					
+					stop = true;
 					
 					stateHandler.wake();
 					
 					iconHelper.changeIcon(IconHelper.STOPPING);
 				}					
 			})) {
-				throw new IllegalStateException();
-			}
-	
-			FailedToStopException failedToStopException = null;
-			try {
 				// Order is here for SimultaneousStructural to cancel jobs first.
 				
 				onStop();
 				
 				childHelper.stopChildren();
 				
-			} 
-			catch (FailedToStopException e) {
-				failedToStopException = e;
-			} 
-			catch (RuntimeException e) {
-				failedToStopException =
-					new FailedToStopException(StructuralJob.this, 
-							"Failed to stop child.", e);
-			}				
-			
-			try {
-				if (failedToStopException == null) {				
-	
-					new StopWait(this).run();
-					
-					logger().info("Stopped.");		
-				}
-				else {
-					throw failedToStopException;
-				}
-			}	
-			finally {	
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						iconHelper.changeIcon(
-								StateIcons.iconFor(stateHandler.getState()));
-						stop = false;
-					}					
-				});
-			}		
-		} finally {
+				new StopWait(this).run();
+				
+				stop = false;
+				
+				logger().info("Stopped.");		
+			}
+			else {
+				
+				childHelper.stopChildren();
+			}
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}
@@ -247,7 +227,7 @@ implements
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 				
-					logger().debug("Propergating Soft Reset to children.");			
+					logger().debug("Propagating Soft Reset to children.");			
 					
 					childStateReflector.stop();
 					childHelper.softResetChildren();
@@ -272,7 +252,7 @@ implements
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
-					logger().debug("Propergating Hard Reset to children.");			
+					logger().debug("Propagating Hard Reset to children.");			
 					
 					childStateReflector.stop();
 					childHelper.hardResetChildren();

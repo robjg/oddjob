@@ -38,6 +38,14 @@ public class ForEachParallelTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
 			ForEachParallelTest.class);
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("----------------------------------  " + getName() +
+				"  ---------------------------------------");
+	}
+	
 	public void testSimpleParallel() throws InterruptedException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();

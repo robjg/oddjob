@@ -10,6 +10,7 @@ import org.oddjob.IconSteps;
 import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
@@ -35,10 +36,10 @@ public class SequentialJobStopTest extends TestCase {
 		test.setJobs(0, job1);
 		
 		IconSteps testIcons = new IconSteps(test);
-		testIcons.startCheck(IconHelper.READY, IconHelper.STOPPING,
-				IconHelper.READY);
+		testIcons.startCheck(IconHelper.READY);
 		
 		test.stop();
+		assertEquals(false, test.isStop());
 		
 		testIcons.checkNow();
 		
@@ -48,10 +49,12 @@ public class SequentialJobStopTest extends TestCase {
 		assertEquals(false, test.isStop());
 	}
 	
-	private static class NoneStoppingJob extends SimpleJob 
+	public static class NoneStoppingJob extends SimpleJob 
 	implements Stoppable {
 
 		CountDownLatch latch = new CountDownLatch(1);
+		
+		private long stopWaitTimeout = 1;
 		
 		@Override
 		protected int execute() throws Throwable {
@@ -60,8 +63,27 @@ public class SequentialJobStopTest extends TestCase {
 		}
 		
 		@Override
+		protected void onReset() {
+			super.onReset();
+			latch = new CountDownLatch(1);
+		}
+		
+		@Override
 		protected void onStop() throws FailedToStopException {
-			throw new FailedToStopException(this);
+			super.onReset();
+			new StopWait(this, stopWaitTimeout).run();
+		}
+		
+		public void setReallyStop(String anything) {
+			latch.countDown();
+		}
+
+		public long getStopWaitTimeout() {
+			return stopWaitTimeout;
+		}
+
+		public void setStopWaitTimeout(long stopWaitTimeout) {
+			this.stopWaitTimeout = stopWaitTimeout;
 		}
 	}
 	
@@ -86,8 +108,7 @@ public class SequentialJobStopTest extends TestCase {
 		unstoppedState.checkWait();
 		
 		IconSteps testIcons = new IconSteps(test);
-		testIcons.startCheck(IconHelper.EXECUTING, IconHelper.STOPPING, 
-				IconHelper.EXECUTING);
+		testIcons.startCheck(IconHelper.EXECUTING, IconHelper.STOPPING);
 		
 		try {
 			test.stop();
@@ -97,15 +118,59 @@ public class SequentialJobStopTest extends TestCase {
 			// expected
 		}
 		
-		testIcons.checkWait();
+		testIcons.checkNow();
 		
-		testIcons.startCheck(
-				IconHelper.EXECUTING, IconHelper.COMPLETE);
+		testIcons.startCheck(IconHelper.STOPPING, 
+				IconHelper.READY);
 		
-		job1.latch.countDown();
+		job1.setReallyStop(null);
 		
 		testIcons.checkWait();
 		
 		assertEquals(false, test.isStop());
+		
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());
+	}
+	
+	public void testStopNonStoppingChildWhenChildStartedDirectly() throws InterruptedException {
+		
+		NoneStoppingJob job1 = new NoneStoppingJob();
+		
+		SequentialJob test = new SequentialJob();
+			
+		test.setJobs(0, job1);
+		
+		StateSteps unstoppedState = new StateSteps(job1);
+		unstoppedState.startCheck(JobState.READY, JobState.EXECUTING);
+		
+		Thread t = new Thread(job1);
+		t.start();
+		
+		unstoppedState.checkWait();
+		
+		IconSteps testIcons = new IconSteps(test);
+		testIcons.startCheck(IconHelper.READY);
+		
+		try {
+			test.stop();
+			fail("Should fail.");
+		}
+		catch (FailedToStopException e) {
+			// expected
+		}
+		assertEquals(false, test.isStop());
+		
+		testIcons.checkNow();
+		
+		testIcons.startCheck(
+				IconHelper.READY);
+		
+		unstoppedState.startCheck(JobState.EXECUTING, JobState.COMPLETE);
+		
+		job1.setReallyStop(null);
+		
+		unstoppedState.checkWait();
+		
+		testIcons.checkWait();		
 	}
 }

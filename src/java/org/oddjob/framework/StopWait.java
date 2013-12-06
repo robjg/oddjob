@@ -92,9 +92,12 @@ public class StopWait {
 
 				State state = handoff.poll(timeout, TimeUnit.MILLISECONDS);
 				if (state == null) {
+					logger.debug("[" + stateful + "]  stop wait timed out. Exception is on it's way...");
 					throw new FailedToStopException(stateful);
 				}
 				if (!state.isStoppable()) {
+					logger.debug("[" + stateful + "] is " + 
+							state + ", waiting to stop is over.");
 					return;
 				}
 				logger.debug("[" + stateful + "] is " + 

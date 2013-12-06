@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -156,33 +157,45 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
+			final AtomicReference<String> icon = new AtomicReference<String>();
+			
 	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 	    		public void run() {    			
+	    			logger().info("Stop requested.");	    			
+	    			icon.set(iconHelper.currentId());
+	    			iconHelper.changeIcon(IconHelper.STOPPING);
 	    		}
 	    	})) {
 	    		return;
 	    	}
 	    	
-			logger().info("Stop requested.");
-			
-			String icon = iconHelper.currentId();
-			iconHelper.changeIcon(IconHelper.STOPPING);
+	    	FailedToStopException failedToStopException = null;
+	    	
 			try {
 				onStop();
 				
 				new StopWait(this).run();
 				
 				logger().info("Stopped.");
-				
-			} catch (RuntimeException e) {
-				iconHelper.changeIcon(icon);
-				throw e;
+			} 
+			catch (RuntimeException e) {
+				failedToStopException = new FailedToStopException(this, e);
 			}
 			catch (FailedToStopException e) {
-				iconHelper.changeIcon(icon);
-				throw e;
+				failedToStopException = e;
 			}
-		} finally {
+			
+			if (failedToStopException != null) {
+				
+				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+					public void run() {    			
+						iconHelper.changeIcon(icon.get());
+					}
+				});
+				throw failedToStopException;
+			}
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}

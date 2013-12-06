@@ -7,6 +7,12 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 
+/**
+ * Test Utility class to track state changes.
+ * 
+ * @author rob
+ *
+ */
 public class StateSteps {
 	private static final Logger logger = Logger.getLogger(StateSteps.class);
 	
@@ -51,6 +57,10 @@ public class StateSteps {
 				logger.info("Received [" + event.getState() + 
 						"] " + position + " from [" + event.getSource() + "]");
 
+				if (failureMessage != null) {
+					return;
+				}
+				
 				if (index >= steps.length) {
 					failureMessage = 
 							"More states than expected: " + event.getState() + 

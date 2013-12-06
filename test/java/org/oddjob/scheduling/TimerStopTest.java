@@ -81,18 +81,18 @@ public class TimerStopTest extends TestCase {
 	private static class RunningJob extends SimpleJob 
 	implements Stoppable {
 		
-		Exchanger<Void> running = new Exchanger<Void>();
+		final Exchanger<Void> running = new Exchanger<Void>();
 		
 		@Override
 		protected int execute() throws Throwable {
 			running.exchange(null);
 			synchronized (this) {
 				try {
-					logger.debug("Running job waiting.");
+					logger.info("Running job waiting.");
 					wait();
 				}
 				catch (InterruptedException e) {
-					logger.debug("Running job interrupted.");
+					logger.info("Running job interrupted.");
 				}
 			};
 			return 0;

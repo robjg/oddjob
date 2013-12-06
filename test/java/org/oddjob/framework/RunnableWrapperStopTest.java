@@ -5,7 +5,12 @@ import java.util.concurrent.CyclicBarrier;
 
 import junit.framework.TestCase;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.IconSteps;
+import org.oddjob.Iconic;
 import org.oddjob.OddjobTestHelper;
+import org.oddjob.Stoppable;
+import org.oddjob.images.IconHelper;
 import org.oddjob.state.JobState;
 
 public class RunnableWrapperStopTest extends TestCase {
@@ -33,23 +38,29 @@ public class RunnableWrapperStopTest extends TestCase {
 		}
 	}
 	
-	public void testStopViaInterrupt() throws InterruptedException, BrokenBarrierException {
+	public void testStopViaInterrupt() throws InterruptedException, BrokenBarrierException, FailedToStopException {
 
 		WaitingJob job = new WaitingJob();
 		
 		Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
-    			(Runnable) job,
+    			job,
     			getClass().getClassLoader());
     	
+		IconSteps icons = new IconSteps((Iconic) proxy);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
+				IconHelper.STOPPING, IconHelper.COMPLETE);
+		
 		Thread t = new Thread(proxy);
 
 		t.start();
 		
 		job.barrier.await();
 		
-		t.interrupt();
+		((Stoppable) proxy).stop();
 		
 		t.join();
+		
+		icons.checkNow();
 		
 		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(proxy));
 	}

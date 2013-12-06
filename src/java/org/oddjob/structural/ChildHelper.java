@@ -189,11 +189,19 @@ implements Structural, Iterable<E>, ChildList<E> {
 			if (child instanceof Stoppable) {
 				try {
 					((Stoppable) child).stop();
-				} catch (FailedToStopException e) {
+				} 
+				catch (FailedToStopException e) {
 					failed = e;
-				} catch (RuntimeException e) {
+					logger.debug("Child job [" + child + 
+							"] has failed to stop." +
+							" Continuing to stop any other children before throwing Exception.");
+				} 
+				catch (RuntimeException e) {
 					failed = new FailedToStopException(child, 
 							"[" + child + "] failed to stop.", e);
+					logger.debug("Child job [" + child + 
+							"] has thrown an Exception " + e.getMessage() + "." +
+							" Continuing to stop any other children before throwing Exception.");
 				}
 			}
 		} 

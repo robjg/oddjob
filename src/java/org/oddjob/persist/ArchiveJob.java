@@ -391,7 +391,7 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(condition, new Runnable() {
 				public void run() {
-					logger().debug("Propergating " + text + " to children.");
+					logger().debug("Propagating " + text + " to children.");
 					stopListening((Stateful) childHelper.getChild());
 				}
 			})) {

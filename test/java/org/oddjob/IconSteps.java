@@ -6,6 +6,12 @@ import org.apache.log4j.Logger;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 
+/**
+ * Test Utility class to track icon changes.
+ * 
+ * @author rob
+ *
+ */
 public class IconSteps {
 	private static final Logger logger = Logger.getLogger(IconSteps.class);
 	
@@ -30,7 +36,7 @@ public class IconSteps {
 		
 		private boolean done;
 		
-		private IllegalStateException failureException;
+		private String failureMessage;
 		
 		public Listener(String[] steps) {
 			this.steps = steps;
@@ -40,7 +46,7 @@ public class IconSteps {
 		public void iconEvent(IconEvent event) {
 			synchronized (IconSteps.this) {
 				String position;
-				if (failureException != null) {
+				if (failureMessage != null) {
 					position = "(failure pending)";
 				}
 				else {
@@ -50,10 +56,14 @@ public class IconSteps {
 				logger.info("Received Icon Id [" + event.getIconId() + 
 						"] " + position + " from [" + event.getSource() + "]");
 				
+				if (failureMessage != null) {
+					return;
+				}
+				
 				if (index >= steps.length) {
-					failureException = new IllegalStateException(
+					failureMessage = 
 						"More icons than expected: " + event.getIconId() + 
-						" (index " + index + ")");
+						" (index " + index + ")";
 				}
 				else {
 					if (event.getIconId() == steps[index]) {
@@ -64,10 +74,10 @@ public class IconSteps {
 					}
 					else {
 						done = true;
-						failureException = new IllegalStateException(
+						failureMessage = 
 								"Expected " + steps[index] + 
 								", was " + event.getIconId() + 
-								" (index " + index + ")");
+								" (index " + index + ")";
 						
 						IconSteps.this.notifyAll();
 					}
@@ -96,13 +106,13 @@ public class IconSteps {
 		
 		try {
 			if (listener.done) {
-				if (listener.failureException != null) {
-					throw listener.failureException;
+				if (listener.failureMessage != null) {
+					throw new IllegalStateException(listener.failureMessage);
 				}
 			}
 			else {
 				throw new IllegalStateException(
-						"Not enough states: expected " + 
+						"Not enough icons: expected " + 
 						listener.steps.length + " " + 
 						Arrays.toString(listener.steps) + 
 						", was only first " + listener.index + ".");

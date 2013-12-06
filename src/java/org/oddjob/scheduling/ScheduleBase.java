@@ -259,7 +259,7 @@ implements
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
-					logger().debug("Propergating Soft Reset to children.");			
+					logger().debug("Propagating Soft Reset to children.");			
 
 					childStateReflector.stop();
 					childHelper.softResetChildren();
@@ -285,7 +285,7 @@ implements
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					
-					logger().debug("Propergating Hard Reset to children.");			
+					logger().debug("Propagating Hard Reset to children.");			
 					
 					childStateReflector.stop();
 					childHelper.hardResetChildren();
