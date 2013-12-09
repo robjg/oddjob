@@ -28,7 +28,6 @@ import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
 import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -40,6 +39,7 @@ import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
@@ -497,7 +497,7 @@ implements Loadable,
 	}
 	
 	@Override
-	public DesignFactory rootDesignFactory() {
+	public SerializableDesignFactory rootDesignFactory() {
 		return new RootDC();
 	}
 	
@@ -1098,7 +1098,7 @@ implements Loadable,
 		}
 
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return Oddjob.this.rootDesignFactory();
 		}
 	

@@ -7,8 +7,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
-import org.oddjob.arooa.design.DesignFactory;
-import org.oddjob.arooa.design.GenericDesignFactory;
+import org.oddjob.arooa.design.SerializableGenericDesignFactory;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
@@ -17,6 +16,7 @@ import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.ContextConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
@@ -127,9 +127,9 @@ implements ConfigurationOwner, BusServiceProvider {
 	}
 	
 	@Override
-	public DesignFactory rootDesignFactory() {
-		return new GenericDesignFactory(new SimpleArooaClass(
-				this.getClass()));
+	public SerializableDesignFactory rootDesignFactory() {
+		return new SerializableGenericDesignFactory(
+				this.getClass());
 	}
 	
 	@Override

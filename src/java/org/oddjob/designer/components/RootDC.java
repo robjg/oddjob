@@ -1,10 +1,7 @@
 package org.oddjob.designer.components;
 
-import java.io.Serializable;
-
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.design.DesignComponentBase;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.SimpleDesignProperty;
@@ -14,9 +11,16 @@ import org.oddjob.arooa.design.screem.StandardForm;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 
-public class RootDC implements DesignFactory, Serializable {
-	private static final long serialVersionUID = 2011090800L;
+/**
+ * Oddjob's {@link DesignFactory}.
+ * 
+ * @author rob
+ *
+ */
+public class RootDC implements SerializableDesignFactory {
+	private static final long serialVersionUID = 201109082013120800L;
 	
 	public DesignInstance createDesign(ArooaElement element,
 			ArooaContext parentContext) {

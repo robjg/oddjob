@@ -8,7 +8,6 @@ import javax.management.NotificationListener;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -24,6 +23,7 @@ import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.parsing.MockConfigurationOwner;
 import org.oddjob.arooa.parsing.MockConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
@@ -117,7 +117,9 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
-	private class OurDesignFactory implements DesignFactory {
+	private class OurDesignFactory implements SerializableDesignFactory {
+		private static final long serialVersionUID = 1L;
+		
 		@Override
 		public DesignInstance createDesign(ArooaElement element,
 				ArooaContext parentContext) throws ArooaPropertyException {
@@ -147,7 +149,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}
@@ -290,7 +292,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}
@@ -376,7 +378,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}
@@ -432,7 +434,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}
@@ -510,7 +512,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}
@@ -656,7 +658,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return new OurDesignFactory();
 		}
 	}

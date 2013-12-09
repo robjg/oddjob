@@ -7,16 +7,17 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.images.IconHelper;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
@@ -26,7 +27,6 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -35,6 +35,7 @@ import org.oddjob.util.OddjobConfigException;
  * <p>
  * This job reflects the state of the job being executed.
  * <p>
+ * TODO: Why does this job implement {@link ConfigurationOwner}????
  * 
  * @oddjob.example
  * 
@@ -327,7 +328,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 		return null;
 	}
 	@Override
-	public DesignFactory rootDesignFactory() {
+	public SerializableDesignFactory rootDesignFactory() {
 		return null;
 	}
 	@Override

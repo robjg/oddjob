@@ -8,9 +8,17 @@ import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
+/**
+ * The anchor bean onto which all server side state is created. 
+ * 
+ * @author rob
+ *
+ */
 public class ServerMainBean 
 implements BeanDirectoryOwner, Structural {
 
+	private final Object root;
+	
 	private final ChildHelper<Object> childHelper = 
 		new ChildHelper<Object>(this);
 	
@@ -18,6 +26,7 @@ implements BeanDirectoryOwner, Structural {
 	
 	public ServerMainBean(Object root, 
 			BeanDirectory beanDirectory) {
+		this.root = root;
 		this.childHelper.insertChild(0, root);
 		this.beanDirectory = beanDirectory;
 	}
@@ -51,5 +60,10 @@ implements BeanDirectoryOwner, Structural {
 	
 	public void removeStructuralListener(StructuralListener listener) {
 		childHelper.removeStructuralListener(listener);
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " for [" + root + "]";
 	}
 }

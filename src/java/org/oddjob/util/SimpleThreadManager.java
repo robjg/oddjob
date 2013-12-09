@@ -108,7 +108,7 @@ public class SimpleThreadManager implements ThreadManager {
 					try {
 						((Stoppable) runnable).stop();
 					} catch (FailedToStopException e) {
-						logger.warn(e);
+						logger.warn("Failed to stop [" + runnable + "]", e);
 					}
 				}
 				else {

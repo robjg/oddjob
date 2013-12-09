@@ -75,7 +75,9 @@ public class ClientSessionImpl implements ClientSession {
 		catch (Exception e) {
 			logger.error("Failed creating client node for [" + objectName + 
 					"].", e);
-			return null;
+			
+			// Must return something.
+			return new NodeCreationFailed(e);
 		}
 		
 		names.put(childProxy, objectName);

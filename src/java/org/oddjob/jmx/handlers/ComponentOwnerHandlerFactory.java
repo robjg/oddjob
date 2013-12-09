@@ -15,7 +15,6 @@ import javax.management.ReflectionException;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigOwnerEvent;
@@ -28,6 +27,7 @@ import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
@@ -190,7 +190,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final ConfigurationOwnerSupport ownerSupport;
 		
-		private final DesignFactory rootDesignFactory;
+		private final SerializableDesignFactory rootDesignFactory;
 		
 		private final ArooaElement rootElement;
 		
@@ -229,6 +229,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			try {
 				ComponentOwnerInfo info = clientToolkit.invoke(
 						INFO);
+								
 				rootDesignFactory = info.rootDesignFactory;
 				rootElement = info.rootElement;
 			} catch (Throwable e) {
@@ -295,7 +296,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		}
 		
 		@Override
-		public DesignFactory rootDesignFactory() {
+		public SerializableDesignFactory rootDesignFactory() {
 			return rootDesignFactory;
 		}
 		
@@ -706,7 +707,7 @@ class DragPointInfo implements Serializable {
 class ComponentOwnerInfo implements Serializable {
 	private static final long serialVersionUID = 2011090800L;
 	
-	final DesignFactory rootDesignFactory;
+	final SerializableDesignFactory rootDesignFactory;
 	
 	final ArooaElement rootElement;
 	

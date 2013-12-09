@@ -30,7 +30,6 @@ import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
@@ -43,6 +42,7 @@ import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
+import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
@@ -334,7 +334,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 	
 	@Override
-	public DesignFactory rootDesignFactory() {
+	public SerializableDesignFactory rootDesignFactory() {
 		return new ForEachRootDC();
 	}
 	
