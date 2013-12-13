@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.convert.ConversionFailedException;
@@ -27,6 +26,7 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.TrackingServices;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
 import org.oddjob.values.VariablesJob;
 
 /**

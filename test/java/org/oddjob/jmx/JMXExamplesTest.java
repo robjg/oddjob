@@ -7,11 +7,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.FragmentHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -19,6 +16,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 public class JMXExamplesTest extends TestCase {
 

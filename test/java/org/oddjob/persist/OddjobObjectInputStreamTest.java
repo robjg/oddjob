@@ -13,9 +13,9 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
 import org.oddjob.io.BufferType;
 import org.oddjob.oddballs.BuildOddballs;
+import org.oddjob.tools.OurDirs;
 
 public class OddjobObjectInputStreamTest extends TestCase {
 

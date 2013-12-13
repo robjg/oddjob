@@ -8,13 +8,13 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.deploy.LinkedDescriptor;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OurDirs;
 
 public class OddballsDescriptorFactoryTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(

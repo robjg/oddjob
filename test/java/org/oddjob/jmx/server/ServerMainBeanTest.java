@@ -11,7 +11,6 @@ import javax.management.ObjectName;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
@@ -23,6 +22,7 @@ import org.oddjob.jmx.MockRemoteOddjobBean;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ServerMainBeanTest extends TestCase {
 

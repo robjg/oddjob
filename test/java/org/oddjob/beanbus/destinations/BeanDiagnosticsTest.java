@@ -7,13 +7,13 @@ import java.io.PrintStream;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class BeanDiagnosticsTest extends TestCase {
 

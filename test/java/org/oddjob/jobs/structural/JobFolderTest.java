@@ -2,8 +2,6 @@ package org.oddjob.jobs.structural;
 
 import junit.framework.TestCase;
 
-import org.oddjob.FragmentHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
@@ -12,6 +10,8 @@ import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class JobFolderTest extends TestCase {
 

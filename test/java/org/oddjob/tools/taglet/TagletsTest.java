@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.OurDirs;
+import org.oddjob.tools.OurDirs;
 
 public class TagletsTest extends TestCase {
 	

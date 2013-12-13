@@ -1,4 +1,4 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import org.oddjob.logging.LogListener;
 
 /**
  * Note that because tests append to the console log to use this class
- * the logging must be configured before this class loads. The is most
+ * the logging must be configured before this class loads. This most
  * easily achieved by including a logger in the test.
  * 
  * @author rob

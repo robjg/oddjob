@@ -7,10 +7,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
+import org.oddjob.tools.OurDirs;
 
 public class ExecJobBatTest extends TestCase {
 

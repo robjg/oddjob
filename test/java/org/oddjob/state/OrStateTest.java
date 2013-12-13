@@ -5,11 +5,11 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.StateSteps;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class OrStateTest extends TestCase {
 

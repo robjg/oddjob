@@ -6,14 +6,14 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.IconSteps;
-import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.StateSteps;
 
 
 public class SequentialJobStopTest extends TestCase {

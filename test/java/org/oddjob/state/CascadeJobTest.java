@@ -9,12 +9,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -24,6 +22,8 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.scheduling.DefaultExecutors;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.StateSteps;
 
 /**
  * 

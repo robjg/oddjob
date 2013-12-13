@@ -3,7 +3,6 @@ package org.oddjob.sql;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -11,6 +10,7 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateConditions;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SQLSilhouettesWithArchiveTest extends TestCase {
 

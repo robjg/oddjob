@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaAnnotations;
@@ -31,6 +30,7 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  *

@@ -4,8 +4,8 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.oddjob.FragmentHelper;
 import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.tools.FragmentHelper;
 
 import junit.framework.TestCase;
 

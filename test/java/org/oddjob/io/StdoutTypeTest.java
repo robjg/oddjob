@@ -7,16 +7,16 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.FragmentHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.LoggingPrintStream;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OurDirs;
 
 public class StdoutTypeTest extends TestCase {
 

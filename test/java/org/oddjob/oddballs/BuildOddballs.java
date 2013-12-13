@@ -3,10 +3,10 @@ package org.oddjob.oddballs;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OurDirs;
 import org.oddjob.io.CopyJob;
 import org.oddjob.io.FilesType;
 import org.oddjob.tools.CompileJob;
+import org.oddjob.tools.OurDirs;
 
 public class BuildOddballs implements Runnable {
 	private static final Logger logger = Logger.getLogger(BuildOddballs.class);

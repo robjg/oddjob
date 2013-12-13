@@ -6,7 +6,6 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -16,6 +15,7 @@ import org.oddjob.beanbus.destinations.BeanSheetTest.Fruit;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 public class SQLResultsSheetTest extends TestCase {
 

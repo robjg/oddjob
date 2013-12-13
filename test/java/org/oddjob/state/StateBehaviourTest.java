@@ -7,7 +7,6 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaParseException;
@@ -15,6 +14,7 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.tools.StateSteps;
 
 public class StateBehaviourTest extends TestCase {
 

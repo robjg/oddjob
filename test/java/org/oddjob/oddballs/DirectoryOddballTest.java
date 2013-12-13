@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.ElementMappings;
@@ -14,6 +13,7 @@ import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.reflect.ArooaClass;
+import org.oddjob.tools.OurDirs;
 
 public class DirectoryOddballTest extends TestCase {
 

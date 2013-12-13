@@ -6,14 +6,14 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.oddjob.FragmentHelper;
-import org.oddjob.OurDirs;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.framework.ServicesJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 public class AndStateTest extends TestCase {
 

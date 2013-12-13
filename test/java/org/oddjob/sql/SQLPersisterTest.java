@@ -14,11 +14,11 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
 
 public class SQLPersisterTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SQLPersisterTest.class);

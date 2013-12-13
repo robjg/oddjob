@@ -19,7 +19,6 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockStateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
@@ -36,6 +35,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.util.MockThreadManager;
 
 /**

@@ -9,7 +9,7 @@ import junit.framework.TestCase;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.DailySchedule;
-import org.oddjob.scheduling.ManualClock;
+import org.oddjob.tools.ManualClock;
 import org.oddjob.util.Clock;
 
 public class ScheduleCalculatorTest2 extends TestCase {

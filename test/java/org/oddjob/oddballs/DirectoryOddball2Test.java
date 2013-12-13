@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.oddjob.OurDirs;
+import org.oddjob.tools.OurDirs;
 
 import junit.framework.TestCase;
 

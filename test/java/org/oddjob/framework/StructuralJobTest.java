@@ -17,8 +17,6 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.ArooaSession;
@@ -36,6 +34,8 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.AnyActiveStateOp;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 /**
  * 

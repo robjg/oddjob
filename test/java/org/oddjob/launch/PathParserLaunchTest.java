@@ -9,13 +9,13 @@ import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
+import org.oddjob.tools.OurDirs;
 
 public class PathParserLaunchTest extends TestCase {
 

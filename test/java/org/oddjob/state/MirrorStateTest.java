@@ -6,7 +6,6 @@ import org.apache.log4j.Logger;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
@@ -17,6 +16,7 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.scheduling.DefaultExecutors;
+import org.oddjob.tools.StateSteps;
 
 public class MirrorStateTest extends TestCase {
 

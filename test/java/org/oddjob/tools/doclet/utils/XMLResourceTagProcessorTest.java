@@ -3,7 +3,7 @@ package org.oddjob.tools.doclet.utils;
 import junit.framework.TestCase;
 
 import org.mockito.Mockito;
-import org.oddjob.OddjobTestHelper;
+import org.oddjob.tools.OddjobTestHelper;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;

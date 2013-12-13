@@ -8,7 +8,6 @@ import java.io.Serializable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.MockArooaSession;
@@ -21,6 +20,7 @@ import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.SerializableJob;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class PersisterBaseTest extends TestCase {
 

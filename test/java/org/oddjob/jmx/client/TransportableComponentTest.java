@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ClassResolver;
@@ -31,6 +30,7 @@ import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
 import org.oddjob.jmx.server.ServerModel;
 import org.oddjob.jmx.server.ServerModelImpl;
 import org.oddjob.jobs.structural.JobFolder;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.util.MockThreadManager;
 
 /**

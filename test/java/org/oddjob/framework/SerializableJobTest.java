@@ -5,7 +5,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
@@ -13,6 +12,7 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SerializableJobTest extends TestCase {
 

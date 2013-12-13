@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -32,6 +31,7 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class BaseComponentTest extends TestCase {
 

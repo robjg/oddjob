@@ -6,7 +6,6 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -18,6 +17,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.state.WorstStateOp;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  *

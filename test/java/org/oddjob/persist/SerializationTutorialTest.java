@@ -6,7 +6,7 @@ import java.io.Serializable;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SerializationTutorialTest extends TestCase {
 

@@ -7,8 +7,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
-import org.oddjob.OurDirs;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OurDirs;
 
 public class AppendTypeTest extends TestCase {
 

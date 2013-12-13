@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
@@ -22,6 +21,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.StateSteps;
 
 public class ExecutorThrottleTypeTest extends TestCase {
 

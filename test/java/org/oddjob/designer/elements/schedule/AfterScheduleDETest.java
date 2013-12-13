@@ -3,7 +3,6 @@ package org.oddjob.designer.elements.schedule;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -16,6 +15,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.schedules.schedules.AfterSchedule;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  *

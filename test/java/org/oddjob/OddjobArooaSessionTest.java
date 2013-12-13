@@ -31,6 +31,7 @@ import org.oddjob.arooa.standard.MockPropertyLookup;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.persist.OddjobPersister;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobArooaSessionTest extends TestCase {
 

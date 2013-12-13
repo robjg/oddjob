@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobSerializeTest extends TestCase {
 	

@@ -7,11 +7,11 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OurDirs;
 import org.oddjob.jobs.ExecJob;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
+import org.oddjob.tools.OurDirs;
 
 public class OddballsLaunchTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(

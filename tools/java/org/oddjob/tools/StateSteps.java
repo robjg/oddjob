@@ -1,8 +1,9 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Stateful;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.State;

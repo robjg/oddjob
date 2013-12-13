@@ -15,10 +15,8 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.utils.ArooaTokenizer;
@@ -32,6 +30,8 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.ChildHelper;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 /**
  * test for exec job.

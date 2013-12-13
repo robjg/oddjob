@@ -2,13 +2,13 @@ package org.oddjob.sql;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.SimpleArooaClass;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ConnectionTypeTest extends TestCase {
 

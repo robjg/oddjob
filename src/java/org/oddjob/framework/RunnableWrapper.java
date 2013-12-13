@@ -216,7 +216,12 @@ implements ComponentWrapper, Serializable, Forceable {
 				public Void call() {
 					Thread t = thread;
 					if (t != null){
+						logger().info("Interrupting Thread [" + t.getName() +
+								"] to attempt to stop job.");
 						t.interrupt();
+					}
+					else {
+						logger().info("No Thread to interrupt. Hopefully Job has just stopped.");
 					}
 					return null;
 				}

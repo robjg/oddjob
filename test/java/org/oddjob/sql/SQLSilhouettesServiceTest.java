@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -23,6 +22,7 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.persist.SilhouetteFactory;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SQLSilhouettesServiceTest extends TestCase {
 

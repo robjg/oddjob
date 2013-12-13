@@ -55,12 +55,14 @@
 		<property name="opt.lib"      value="${opt.dir}/lib"/>
 		<property name="packages"     value="org.oddjob"/>
 		
-		<property name="build.dir"      value="./build"/>
-		<property name="build.src"      value="${build.dir}/src"/>
-		<property name="build.test"      value="${build.dir}/test"/>
-		<property name="build.classes"     value="${build.dir}/classes"/>
-		<property name="build.tools"     value="${build.dir}/tools"/>
-		<property name="build.javadocs" value="${build.dir}/javadocs"/>
+		<property name="build.dir"      		value="./build"/>
+		<property name="build.src"      		value="${build.dir}/src"/>
+		<property name="build.test"      		value="${build.dir}/test"/>
+		<property name="build.classes"     		value="${build.dir}/classes"/>
+		<property name="build.tools"     		value="${build.dir}/tools"/>
+		<property name="build.tools.classes"    value="${build.tools}/classes"/>
+		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
+		<property name="build.tools.javadocs" 	value="${build.tools}/javadocs"/>
 
 		<property name="test.reports" value="${build.test}/reports"/>
 			
@@ -69,6 +71,12 @@
 		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
 		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
 
+		<property name="tools.name"					value="oj-tools"/>
+		<property name="tools.Name"					value="Oddjob Tools"/>
+		<property name="tools.jar.name"     		value="${tools.name}-${build.version}.jar"/>
+		<property name="tools.sources.jar.name"   	value="${tools.name}-${build.version}-sources.jar"/>
+		<property name="tools.javadoc.jar.name"  	value="${tools.name}-${build.version}-javadoc.jar"/>
+		
 		<!-- selector for run-oddjob.jar -->
 		
 		  <selector id="run.oddjob">
@@ -100,10 +108,14 @@
 			</fileset>
 		</path>
 
-		<path id="test-classpath">
+		<path id="tools-classpath">
 			<path refid="classpath"/>
 			<pathelement path="${build.classes}" />
-			<pathelement path="${build.tools}" />
+		</path>
+		
+		<path id="test-classpath">
+			<path refid="tools-classpath"/>
+			<pathelement path="${build.tools.classes}" />
 			<fileset dir="${test.dir}/lib">
 				<include name="*.jar"/>
 			</fileset>
@@ -149,6 +161,10 @@
 	<target name="jar-sources" depends="prepare-src-main">
 	    <jar destfile="${build.dir}/${sources.jar.name}"
 	         basedir="${build.src}">
+	    </jar>
+		
+	    <jar destfile="${build.tools}/${tools.sources.jar.name}"
+	         basedir="${tools.src}">
 	    </jar>
 	</target>
 
@@ -198,6 +214,10 @@
 	      <metainf dir="${build.dir}" includes="LICENSE.txt"/>
 	    </jar>
 		
+	    <jar destfile="${build.tools}/${tools.jar.name}"
+	         basedir="${build.tools.classes}">
+	    </jar>
+		
 	</target>
 
 
@@ -206,9 +226,9 @@
 	<!-- =================================================================== -->
 
 	<target name="compile-tools" depends="compile" description="Compile tools">
-		<mkdir dir="${build.tools}"/>
+		<mkdir dir="${build.tools.classes}"/>
 
-		<copy todir="${build.tools}" filtering="off">
+		<copy todir="${build.tools.classes}" filtering="off">
 			<fileset dir="${tools.src}">
 				<include name="**/*.gif"/>
 				<include name="**/*.properties"/>
@@ -218,7 +238,7 @@
 		</copy>
 		
 		<javac srcdir="${tools.src}"
-		   destdir="${build.tools}"
+		   destdir="${build.tools.classes}"
 		   debug="${debug}"
 		   optimize="${optimize}"
 		   deprecation="${deprecation}"
@@ -226,7 +246,6 @@
 			<classpath>
 				<path refid="classpath"/>
 				<pathelement location="${build.classes}"/>
-				<pathelement location="${build.test}"/>
 			</classpath>
 		</javac>
 	</target>
@@ -236,6 +255,7 @@
 	<!-- =================================================================== -->
 	<target name="javadocs_check">
 		<mkdir dir="${build.javadocs}"/>
+		<mkdir dir="${build.tools.javadocs}"/>
 		<uptodate property="javadocs.notrequired" targetfile="${build.javadocs}/index.html" >
 			<srcfiles dir= "${build.src}" includes="**/*.java,**/package.html"/>
 		</uptodate>
@@ -258,6 +278,7 @@
 	<target name="javadocs" depends="prepare-src-main, javadocs_check, javadocs_done"
          unless="javadocs.notrequired"
          description="Builds the API documentation (javadocs)">
+		
 		<javadoc packagenames="${packages}.*"
              sourcepath="${build.src}"
              destdir="${build.javadocs}"
@@ -281,11 +302,27 @@
 			<tag name="return"/>
 			<tag name="throws"/>
 		</javadoc>
+		
+		<javadoc packagenames="${packages}.*"
+             sourcepath="${tools.src}"
+             destdir="${build.javadocs}"
+             author="true"
+             version="true"
+             use="false"
+             noindex="true"
+             windowtitle="${tools.Name} API"
+             doctitle="${tools.Name}">
+			<classpath refid="tools-classpath"/>
+		</javadoc>
 	</target>
 	
 	<target name="jar-javadoc" depends="javadocs">
 	    <jar destfile="${build.dir}/${javadoc.jar.name}"
 	         basedir="${build.javadocs}">
+	    </jar>
+		
+	    <jar destfile="${build.tools}/${tools.javadoc.jar.name}"
+	         basedir="${build.tools.javadocs}">
 	    </jar>
 	</target>
 
@@ -494,6 +531,11 @@
 		<property name="maven.sources.jar" 	value="${basedir}/build/${sources.jar.name}" />
 		<property name="maven.pom" 			value="${basedir}/build/pom.xml" />
 
+		<property name="maven.tools.jar" 			value="${build.tools}/${tools.jar.name}" />
+		<property name="maven.tools.javadoc.jar" 	value="${build.tools}/${tools.javadoc.jar.name}" />
+		<property name="maven.tools.sources.jar" 	value="${build.tools}/${tools.sources.jar.name}" />
+		<property name="maven.tools.pom" 			value="${build.tools}/pom.xml" />
+		
 	    <!-- defined maven snapshots and staging repository id and url -->
 		<property name="maven.snapshots.repository.id" 	value="sonatype-nexus-snapshots" />
 		<property name="maven.snapshots.repository.url" value="https://oss.sonatype.org/content/repositories/snapshots/" />
@@ -504,6 +546,7 @@
 		<property name="maven.gpg.plugin" 		value="org.apache.maven.plugins:maven-gpg-plugin:1.3" />
 		
 		<copy file="${src.dir}/pom.xml" todir="${build.dir}" filtering="on"/>
+		<copy file="${tools.dir}/pom.xml" todir="${build.tools}" filtering="on"/>
 	</target>
 	
 	<target name="maven-install" depends="maven-init" 
@@ -512,6 +555,12 @@
 	    	<pom file="${maven.pom}"/>
 			<attach file="${maven.sources.jar}" type="jar" classifier="sources"/>
 			<attach file="${maven.javadoc.jar}" type="jar" classifier="javadoc"/>	  
+		</artifact:install>
+		
+		<artifact:install file="${maven.tools.jar}">
+	    	<pom file="${maven.tools.pom}"/>
+			<attach file="${maven.tools.sources.jar}" type="jar" classifier="sources"/>
+			<attach file="${maven.tools.javadoc.jar}" type="jar" classifier="javadoc"/>	  
 		</artifact:install>
 	</target>
 	

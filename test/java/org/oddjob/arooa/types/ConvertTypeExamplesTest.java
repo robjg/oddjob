@@ -3,10 +3,10 @@ package org.oddjob.arooa.types;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 public class ConvertTypeExamplesTest extends TestCase {
 	

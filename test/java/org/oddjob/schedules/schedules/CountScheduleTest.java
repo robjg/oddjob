@@ -10,7 +10,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -25,6 +24,7 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
 import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.SimpleScheduleResult;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  * 

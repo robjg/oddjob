@@ -7,7 +7,7 @@ import java.net.URLClassLoader;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
+import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderTypeTest;
 
 public class ContextClassLoadersTest extends TestCase {

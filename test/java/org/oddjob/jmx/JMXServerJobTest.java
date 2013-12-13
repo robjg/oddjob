@@ -15,11 +15,9 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Structural;
-import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -33,6 +31,8 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.WaitForChildren;
 
 /**
  *

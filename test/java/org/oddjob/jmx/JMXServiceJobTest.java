@@ -17,7 +17,6 @@ import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.registry.BeanDirectory;
@@ -30,6 +29,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.StateSteps;
 
 public class JMXServiceJobTest extends TestCase {
 	

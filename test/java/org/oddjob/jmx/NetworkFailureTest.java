@@ -8,13 +8,13 @@ import javax.management.remote.rmi.RMIConnectorServer;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class NetworkFailureTest extends TestCase {
 

@@ -12,14 +12,10 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
-import org.oddjob.FragmentHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
@@ -45,6 +41,10 @@ import org.oddjob.arooa.types.ListType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 /**
  *

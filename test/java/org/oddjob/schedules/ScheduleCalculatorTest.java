@@ -20,7 +20,7 @@ import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.schedules.schedules.DateSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
-import org.oddjob.scheduling.ManualClock;
+import org.oddjob.tools.ManualClock;
 
 /**
  *

@@ -6,10 +6,10 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
-import org.oddjob.OurDirs;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OurDirs;
 
 public class TeeTypeTest extends TestCase {
 

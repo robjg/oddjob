@@ -5,7 +5,6 @@ package org.oddjob.jobs.job;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockStateful;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
@@ -13,6 +12,7 @@ import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateCondition;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  *

@@ -11,10 +11,8 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersister;
@@ -22,6 +20,8 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.ChildHelper;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 /**
  *

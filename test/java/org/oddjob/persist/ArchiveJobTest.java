@@ -8,12 +8,8 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
-import org.oddjob.OurDirs;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -27,6 +23,10 @@ import org.oddjob.scheduling.Trigger;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 public class ArchiveJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);

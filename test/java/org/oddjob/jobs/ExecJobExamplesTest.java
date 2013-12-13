@@ -12,17 +12,17 @@ import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.log4j.LogoutType;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 public class ExecJobExamplesTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ExecJobExamplesTest.class);

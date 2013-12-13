@@ -12,13 +12,11 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.MockOddjobServices;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -42,6 +40,8 @@ import org.oddjob.state.Resets;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
 
 public class RetryTest extends TestCase {

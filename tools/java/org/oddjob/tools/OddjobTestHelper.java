@@ -1,23 +1,40 @@
 /*
  * Copyright (c) 2005, Rob Gordon.
  */
-package org.oddjob;
+package org.oddjob.tools;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oddjob.Iconic;
+import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OddjobSessionFactory;
+import org.oddjob.Stateful;
+import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaConfiguration;
+import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.parsing.MockArooaContext;
-import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
+import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.parsing.ArooaHandler;
+import org.oddjob.arooa.parsing.PrefixMappings;
+import org.oddjob.arooa.reflect.ArooaClass;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.runtime.ConfigurationNode;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
+import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconEvent;
@@ -101,8 +118,30 @@ public class OddjobTestHelper {
 		return listener.iconId;
 	}
 
+	/**
+	 * Copy and Object using Serialisation.
+	 * 
+	 * @param object The object.
+	 * 
+	 * @return A Copy.
+	 * 
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	@SuppressWarnings("unchecked")
 	public static <T> T copy(T object) throws IOException, ClassNotFoundException {
-		return ArooaTestHelper.copy(object);
+		
+    	ByteArrayOutputStream out = new ByteArrayOutputStream();
+		ObjectOutput oo = new ObjectOutputStream(out);
+		oo.writeObject(object);
+		oo.close();
+			
+		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+		ObjectInput oi = new ObjectInputStream(in);
+		Object o = oi.readObject();
+		oi.close();
+		
+		return (T) o;
     }
 
     public static class Surrogate {
@@ -124,8 +163,21 @@ public class OddjobTestHelper {
     	ArooaDescriptor descriptor = new OddjobDescriptorFactory(
 			).createDescriptor(null);
     	
-    	return ArooaTestHelper.createValueFromConfiguration(
+    	return createValueFromConfiguration(
     			config, descriptor);
+    }
+    
+    public static Object createValueFromConfiguration(ArooaConfiguration config,
+    		ArooaDescriptor descriptor) 
+    throws ArooaParseException {
+	    
+    	StandardFragmentParser parser = new StandardFragmentParser(descriptor);
+    	
+    	parser.setArooaType(ArooaType.VALUE);
+    	
+    	parser.parse(config);
+
+    	return parser.getRoot();        
     }
     
     public static Object createComponentFromXml(String xml) 
@@ -148,20 +200,84 @@ public class OddjobTestHelper {
     	return parser.getRoot();        
     }
     
+    /**
+     * Register a component with a session. Components must be registered
+     * with a context. This method creates a dummy context which does not
+     * support all the functionality of a context.
+     * 
+     * @param component
+     * @param session
+     * @param id
+     */
     public static void register(Object component, final ArooaSession session, String id) {
     	
-		class OurContext extends MockArooaContext {
+		class OurContext implements ArooaContext {
 			@Override
 			public ArooaSession getSession() {
 				return session;
 			}
 			@Override
 			public RuntimeConfiguration getRuntime() {
-				return new MockRuntimeConfiguration() {
+				return new RuntimeConfiguration() {
+					@Override
+					public void init() throws ArooaConfigurationException {
+						throw new UnsupportedOperationException();
+					}
 					@Override
 					public void configure() {
 					}
+					@Override
+					public void destroy() throws ArooaConfigurationException {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public ArooaClass getClassIdentifier() {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void setProperty(String name, Object value)
+							throws ArooaPropertyException {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void setIndexedProperty(String name, int index,
+							Object value) throws ArooaPropertyException {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void setMappedProperty(String name, String key,
+							Object value) throws ArooaPropertyException {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void addRuntimeListener(RuntimeListener listener) {
+						throw new UnsupportedOperationException();
+					}
+					@Override
+					public void removeRuntimeListener(RuntimeListener listener) {
+						throw new UnsupportedOperationException();
+					}
 				};
+			}
+			@Override
+			public ArooaHandler getArooaHandler() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public ArooaType getArooaType() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public ConfigurationNode getConfigurationNode() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public ArooaContext getParent() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public PrefixMappings getPrefixMappings() {
+				throw new UnsupportedOperationException();
 			}
 		}
 
@@ -170,6 +286,11 @@ public class OddjobTestHelper {
 			component, component, new OurContext()), id);
     }
     
+    /**
+     * Get a work directory creating a new one if necessary.
+     * 
+     * @return
+     */
     public static File getWorkDir() {
     	
     	File file = new File("work");

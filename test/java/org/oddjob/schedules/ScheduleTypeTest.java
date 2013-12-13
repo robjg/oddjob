@@ -6,7 +6,6 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -17,6 +16,7 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 public class ScheduleTypeTest extends TestCase {
 

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2004, Rob Gordon.
  */
-package org.oddjob.scheduling;
+package org.oddjob.tools;
 
 import java.text.ParseException;
 import java.util.Date;

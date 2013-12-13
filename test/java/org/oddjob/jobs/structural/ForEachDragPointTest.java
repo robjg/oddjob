@@ -5,7 +5,6 @@ import java.util.Arrays;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -17,6 +16,7 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 import org.xml.sax.SAXException;
 
 public class ForEachDragPointTest extends XMLTestCase {

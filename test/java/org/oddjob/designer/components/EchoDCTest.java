@@ -9,9 +9,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaType;
@@ -20,6 +18,8 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 /**
  *

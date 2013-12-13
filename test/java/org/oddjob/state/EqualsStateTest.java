@@ -9,12 +9,12 @@ import junit.framework.TestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.structural.SequentialJob;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 public class EqualsStateTest extends TestCase {
 

@@ -9,13 +9,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.ConverterHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  * Test PropertyType

@@ -3,11 +3,11 @@ package org.oddjob.io;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.FragmentHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.FragmentHelper;
 
 public class StderrTypeTest extends TestCase {
 

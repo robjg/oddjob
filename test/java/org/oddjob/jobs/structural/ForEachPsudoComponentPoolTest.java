@@ -5,7 +5,6 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -20,6 +19,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ForEachPsudoComponentPoolTest extends TestCase {
 

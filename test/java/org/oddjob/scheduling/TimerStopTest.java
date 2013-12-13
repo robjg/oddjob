@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.CapturingMatcher;
 import org.oddjob.FailedToStopException;
-import org.oddjob.StateSteps;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.SimpleJob;
@@ -30,6 +29,8 @@ import org.oddjob.schedules.schedules.DailySchedule;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ManualClock;
+import org.oddjob.tools.StateSteps;
 
 public class TimerStopTest extends TestCase {
 

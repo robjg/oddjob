@@ -30,6 +30,9 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 /**
  *

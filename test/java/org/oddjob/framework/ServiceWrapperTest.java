@@ -9,7 +9,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.Describeable;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -31,6 +30,7 @@ import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ServiceWrapperTest extends TestCase {
 

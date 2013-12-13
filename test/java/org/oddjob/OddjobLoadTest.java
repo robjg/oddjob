@@ -29,6 +29,8 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderType;
 
 /**

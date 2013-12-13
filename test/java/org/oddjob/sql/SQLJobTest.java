@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -27,6 +26,7 @@ import org.oddjob.io.StdoutType;
 import org.oddjob.jobs.BeanReportJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 public class SQLJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SQLJobTest.class);

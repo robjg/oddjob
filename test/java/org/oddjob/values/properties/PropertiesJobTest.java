@@ -12,7 +12,6 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -21,6 +20,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.OurDirs;
 
 /**
  * Test for PropertiesType.

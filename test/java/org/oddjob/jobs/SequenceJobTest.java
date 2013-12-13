@@ -14,10 +14,8 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -26,6 +24,8 @@ import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.framework.RunnableProxyGenerator;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 public class SequenceJobTest extends TestCase {
 

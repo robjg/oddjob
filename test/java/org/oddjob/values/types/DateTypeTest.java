@@ -12,7 +12,6 @@ import java.util.TimeZone;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
@@ -24,8 +23,9 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.scheduling.ManualClock;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.ManualClock;
 
 /**
  * 

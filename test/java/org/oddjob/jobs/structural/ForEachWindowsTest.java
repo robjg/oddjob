@@ -5,12 +5,12 @@ import java.util.Arrays;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ForEachWindowsTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ForEachWindowsTest.class);

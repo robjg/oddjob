@@ -11,7 +11,6 @@ import junit.framework.TestCase;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -20,6 +19,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
 
 public class TransformerScriptTest extends TestCase {
 

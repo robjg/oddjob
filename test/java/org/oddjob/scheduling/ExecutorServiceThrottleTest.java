@@ -12,13 +12,13 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.StateSteps;
 
 public class ExecutorServiceThrottleTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ExecutorServiceThrottle.class);

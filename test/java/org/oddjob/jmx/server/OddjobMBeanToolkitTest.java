@@ -7,9 +7,9 @@ import javax.management.Notification;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.MockClientHandlerResolver;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobMBeanToolkitTest extends TestCase {
 

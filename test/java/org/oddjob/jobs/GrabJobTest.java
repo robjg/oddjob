@@ -5,7 +5,6 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.jobs.GrabJob.LoosingAction;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
@@ -16,6 +15,7 @@ import org.oddjob.state.IsStoppable;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class GrabJobTest extends TestCase {
 

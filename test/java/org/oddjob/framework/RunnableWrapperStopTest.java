@@ -6,12 +6,12 @@ import java.util.concurrent.CyclicBarrier;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Stoppable;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class RunnableWrapperStopTest extends TestCase {
 

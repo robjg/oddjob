@@ -1,8 +1,9 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 import java.util.Arrays;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 

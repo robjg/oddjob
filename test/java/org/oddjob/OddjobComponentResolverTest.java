@@ -7,6 +7,7 @@ import junit.framework.TestCase;
 
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.framework.Service;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobComponentResolverTest extends TestCase {
 	

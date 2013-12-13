@@ -11,15 +11,15 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
-import org.oddjob.OurDirs;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.WaitJob;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 public class IfJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(IfJobTest.class);

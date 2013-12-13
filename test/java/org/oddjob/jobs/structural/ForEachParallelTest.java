@@ -11,12 +11,10 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Loadable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
@@ -32,6 +30,8 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class ForEachParallelTest extends TestCase {
 

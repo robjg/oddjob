@@ -2,7 +2,6 @@ package org.oddjob.persist;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Structural;
@@ -12,6 +11,7 @@ import org.oddjob.arooa.life.MockComponentPersister;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class ArchiveBrowserJobTest extends TestCase {
 	

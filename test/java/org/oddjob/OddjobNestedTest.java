@@ -22,6 +22,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FileType;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.values.properties.PropertiesJob;
 
 public class OddjobNestedTest extends TestCase {

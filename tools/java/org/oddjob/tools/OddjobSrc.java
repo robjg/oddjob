@@ -1,4 +1,4 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -6,6 +6,12 @@ import java.io.IOException;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Calculate where the Oddjob source code is.
+ * 
+ * @author rob
+ *
+ */
 public class OddjobSrc {
 
 	private static final Logger logger = Logger.getLogger(OddjobSrc.class);

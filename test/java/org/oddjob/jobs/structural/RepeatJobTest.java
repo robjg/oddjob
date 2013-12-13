@@ -7,9 +7,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
@@ -18,6 +16,8 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.values.types.SequenceIterable;
 
 /**

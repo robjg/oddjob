@@ -6,10 +6,10 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.OurDirs;
 import org.oddjob.jobs.ExecJob;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OurDirs;
 
 public class ConsoleInputHandlerTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(

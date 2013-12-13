@@ -10,13 +10,13 @@ import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
 
 public class BeanQueueTest extends TestCase {
 

@@ -12,7 +12,6 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -24,6 +23,7 @@ import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.Timer;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.StateSteps;
 
 /**
  * 

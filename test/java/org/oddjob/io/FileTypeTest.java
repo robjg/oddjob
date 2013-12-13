@@ -13,10 +13,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.ConverterHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.MockArooaBeanDescriptor;
@@ -25,6 +23,8 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 public class FileTypeTest extends TestCase {
 	

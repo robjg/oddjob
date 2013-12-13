@@ -7,7 +7,6 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -22,6 +21,7 @@ import org.oddjob.jobs.EchoJob;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SilhouetteFactoryTest extends TestCase {
 

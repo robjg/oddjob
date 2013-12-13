@@ -9,7 +9,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.custommonkey.xmlunit.XMLTestCase;
-import org.oddjob.OurDirs;
 import org.oddjob.io.BufferType;
 import org.oddjob.util.IO;
 import org.xml.sax.SAXException;

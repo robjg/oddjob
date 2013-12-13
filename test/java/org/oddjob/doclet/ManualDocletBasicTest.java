@@ -6,9 +6,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.oddballs.BuildOddballs;
+import org.oddjob.tools.OurDirs;
 
 public class ManualDocletBasicTest extends TestCase {
 

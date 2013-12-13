@@ -9,12 +9,12 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
-import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
+import org.oddjob.tools.WaitForChildren;
 
 public class ValueQueueServiceTest extends TestCase {
 	

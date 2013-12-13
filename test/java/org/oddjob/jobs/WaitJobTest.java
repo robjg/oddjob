@@ -12,12 +12,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.FragmentHelper;
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -28,6 +24,10 @@ import org.oddjob.state.IsNot;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateConditions;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class WaitJobTest extends TestCase {
 

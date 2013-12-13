@@ -17,11 +17,9 @@ import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -51,6 +49,8 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 /**
  *

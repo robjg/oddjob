@@ -14,6 +14,8 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OurDirs;
 
 public class MainShutdownTest extends TestCase {
 

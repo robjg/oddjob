@@ -7,7 +7,7 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
+import org.oddjob.tools.OurDirs;
 
 public class SnippetFilterTest extends TestCase {
 	

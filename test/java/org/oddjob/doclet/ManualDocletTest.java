@@ -5,10 +5,10 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.doclet.ManualDoclet;
 import org.oddjob.oddballs.BuildOddballs;
+import org.oddjob.tools.OurDirs;
 
 import junit.framework.TestCase;
 

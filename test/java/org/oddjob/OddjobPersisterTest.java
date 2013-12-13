@@ -24,6 +24,7 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobPersisterTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(OddjobPersisterTest.class);

@@ -11,9 +11,9 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.oddjob.OurDirs;
 import org.oddjob.io.WildcardSpec.AboveAndBelow;
 import org.oddjob.io.WildcardSpec.DirectorySplit;
+import org.oddjob.tools.OurDirs;
 
 public class WildcardSpecTest extends TestCase {
 

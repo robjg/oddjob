@@ -7,13 +7,11 @@ import java.util.concurrent.Future;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -30,6 +28,8 @@ import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.StateSteps;
 
 public class ParallelJobTest extends TestCase {
 

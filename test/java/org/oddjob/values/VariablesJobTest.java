@@ -10,8 +10,6 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobLookup;
@@ -41,6 +39,8 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  * Test for Variables Job.

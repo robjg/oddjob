@@ -16,13 +16,13 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FilesType;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.CompileJob;
+import org.oddjob.tools.OurDirs;
 
 public class URLClassLoaderTypeTest extends TestCase {
 

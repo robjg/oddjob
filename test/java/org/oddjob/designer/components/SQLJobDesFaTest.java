@@ -3,7 +3,6 @@ package org.oddjob.designer.components;
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -15,6 +14,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.sql.BasicGenericDialect;
 import org.oddjob.sql.SQLJob;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SQLJobDesFaTest extends TestCase {
 

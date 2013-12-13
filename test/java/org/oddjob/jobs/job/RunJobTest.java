@@ -9,13 +9,10 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
-import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaParseException;
@@ -36,6 +33,9 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 import org.oddjob.state.StateListener;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 import org.oddjob.util.OddjobLockedException;
 
 /**

@@ -8,11 +8,11 @@ import java.io.File;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
-import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 public class MkdirJobTest extends TestCase {
 

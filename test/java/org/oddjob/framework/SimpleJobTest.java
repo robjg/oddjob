@@ -8,15 +8,15 @@ import javax.inject.Inject;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.IconSteps;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconHelper;
 import org.oddjob.state.JobState;
+import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.StateSteps;
 
 public class SimpleJobTest extends TestCase {
 

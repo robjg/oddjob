@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -22,6 +21,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SerializableWrapperTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(SerializableWrapperTest.class);

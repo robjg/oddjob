@@ -6,9 +6,9 @@ package org.oddjob.logging;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.log4j.Log4jArchiver;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobNDCTest extends TestCase implements LogEnabled {
 	

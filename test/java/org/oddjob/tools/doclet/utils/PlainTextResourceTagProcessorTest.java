@@ -3,8 +3,8 @@ package org.oddjob.tools.doclet.utils;
 import junit.framework.TestCase;
 
 import org.mockito.Mockito;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.doclet.CustomTagNames;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.includes.PlainTextResourceLoader;
 
 import com.sun.javadoc.ClassDoc;

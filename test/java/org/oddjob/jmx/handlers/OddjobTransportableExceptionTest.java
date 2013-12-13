@@ -1,7 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import org.apache.log4j.Logger;
-import org.oddjob.OddjobTestHelper;
+import org.oddjob.tools.OddjobTestHelper;
 
 import junit.framework.TestCase;
 

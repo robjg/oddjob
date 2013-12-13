@@ -1,7 +1,8 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 import java.util.Properties;
 
+import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;

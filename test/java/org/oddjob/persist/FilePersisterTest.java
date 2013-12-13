@@ -11,11 +11,9 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Loadable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -29,6 +27,8 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
 
 /**
  *

@@ -9,9 +9,9 @@ import java.net.URL;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.Oddjob;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 /**
  * @author rob

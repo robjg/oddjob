@@ -14,7 +14,6 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.oddjob.IconSteps;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -49,6 +48,7 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.IconSteps;
 
 public class MegaBeanBusTest extends TestCase {
 

@@ -20,6 +20,7 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.OurDirs;
 
 public class OddjobModulesTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(OddjobModulesTest.class);

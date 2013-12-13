@@ -95,7 +95,7 @@ implements Iterable<E>, Stoppable {
 		try {
 			queue.put(STOP);
 		} catch (InterruptedException e) {
-			Thread.interrupted();
+			Thread.currentThread().interrupt();
 		}
 	}
 	
@@ -104,7 +104,8 @@ implements Iterable<E>, Stoppable {
 		try {
 			queue.put(bean);
 		} catch (InterruptedException e) {
-			Thread.interrupted();
+			Thread.currentThread().interrupt();
+			return false;
 		}
 		return true;
 	}
@@ -147,6 +148,7 @@ implements Iterable<E>, Stoppable {
 					first = queue.take();
 				} catch (InterruptedException e) {
 					logger.info("Inturrupted waiting for next value.");
+					Thread.currentThread().interrupt();
 					return false;
 				}				
 				finally {
@@ -158,7 +160,7 @@ implements Iterable<E>, Stoppable {
 				try {
 					queue.put(STOP);
 				} catch (InterruptedException e) {
-					Thread.interrupted();
+					Thread.currentThread().interrupt();
 				}
 				return false;
 			}

@@ -1,4 +1,4 @@
-package org.oddjob;
+package org.oddjob.tools;
 
 /**
  * Helps with waiting for a condition on another thread.

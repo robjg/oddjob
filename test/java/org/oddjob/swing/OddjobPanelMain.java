@@ -1,7 +1,6 @@
 package org.oddjob.swing;
 
 import org.oddjob.Oddjob;
-import org.oddjob.StateSteps;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
@@ -9,6 +8,7 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.StateSteps;
 
 public class OddjobPanelMain {
 

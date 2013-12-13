@@ -18,15 +18,12 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
-import org.oddjob.WaitForChildren;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;
@@ -57,6 +54,9 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
+import org.oddjob.tools.WaitForChildren;
 
 /**
  * Test the JMXClientJob

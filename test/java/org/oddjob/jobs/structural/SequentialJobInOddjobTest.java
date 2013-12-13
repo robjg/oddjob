@@ -3,13 +3,13 @@ package org.oddjob.jobs.structural;
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.OddjobTestHelper;
 
 public class SequentialJobInOddjobTest extends TestCase {
 

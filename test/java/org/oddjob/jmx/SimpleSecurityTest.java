@@ -9,13 +9,9 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
-import org.oddjob.FragmentHelper;
-import org.oddjob.OddjobTestHelper;
 import org.oddjob.Iconic;
 import org.oddjob.OddjobComponentResolver;
-import org.oddjob.OurDirs;
 import org.oddjob.Resetable;
-import org.oddjob.StateSteps;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaParseException;
@@ -25,6 +21,10 @@ import org.oddjob.jmx.server.SimpleServerSecurity;
 import org.oddjob.jobs.EchoJob;
 import org.oddjob.rmi.RMIRegistryJob;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.FragmentHelper;
+import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.OurDirs;
+import org.oddjob.tools.StateSteps;
 
 /**
  * For these tests to work you need to download  

@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
-import org.oddjob.ConsoleCapture;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -18,6 +17,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
 
 public class InvokeJobTest extends TestCase {
 	
