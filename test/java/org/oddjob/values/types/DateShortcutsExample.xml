@@ -1,6 +1,5 @@
 <oddjob>
   <job>
-    <!-- #sequential { -->
     <sequential>
       <jobs>
         <variables id="vars">
@@ -23,7 +22,6 @@ Yesterday was ${vars.yesterday}.
 Tomorrow is ${vars.tomorrow}.</echo>
       </jobs>
     </sequential>
-    <!-- } #sequential -->
   </job>
 </oddjob>
  

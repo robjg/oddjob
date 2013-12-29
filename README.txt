@@ -3,6 +3,8 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- Structural jobs (sequential/parallel) will not time out when stopping. The
+  stop flag will remain true so that the job will eventually stop. 
 - The List type will now accept elements being added on the fly via a new
   add property.
 - Repeat Job will now work with any Iterable set of values, i.e. A List.
