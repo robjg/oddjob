@@ -32,6 +32,17 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
  * 
  * {@oddjob.xml.resource org/oddjob/values/types/FormatTypeExample.xml}
  * 
+ * @oddjob.example Format the current time as a property.
+ * 
+ * {@oddjob.xml.resource org/oddjob/values/types/FormatTimeNow.xml}
+ * 
+ * Note that the <code>our-clock</code> reference is provided for the tests 
+ * but when not provided (if this is run as is) the current time is used.
+ * <p>
+ * An example of the output is:
+ * 
+ * {@oddjob.text.resource org/oddjob/values/types/FormatTimeNow.txt}
+ * 
  * @author Rob Gordon.
  */
 public class FormatType implements ArooaValue, Serializable {

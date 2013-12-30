@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <date date="NOW" key="date-time.now">
+                            <clock>
+                                <value value="${our-clock}"/>
+                            </clock>
+                        </date>
+                        <format date="${date-time.now}" format="h:mm a" key="time.now.formatted"/>
+                    </values>
+                </properties>
+                <echo><![CDATA[The time is ${time.now.formatted}.]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

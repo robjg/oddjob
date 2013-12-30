@@ -3,6 +3,7 @@
  */
 package org.oddjob.values.types;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
@@ -15,8 +16,12 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.ManualClock;
+import org.oddjob.tools.OddjobTestHelper;
 
 /**
  * 
@@ -80,17 +85,58 @@ public class FormatTypeTest extends TestCase {
 	}
 
 	public void testInOddjob() throws ArooaConversionException, ParseException {
+
+		File file = new File(getClass().getResource(
+				"FormatTypeExample.xml").getFile());
 		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration(
-				"org/oddjob/values/types/FormatTypeExample.xml", 
-				getClass().getClassLoader()));
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
 		
-		oj.run();
+		oddjob.run();
 		
-		String result = new OddjobLookup(oj).lookup("file-check.file", 
+		assertEquals(ParentState.INCOMPLETE, 
+				oddjob.lastStateEvent().getState());
+		
+		String result = new OddjobLookup(oddjob).lookup("file-check.file", 
 				String.class);
 		
 		assertEquals("Data-20051225-000123.dat", result);
+		
+		oddjob.destroy();
+	}
+	
+	public void testFormatTimeNowExample() throws ArooaConversionException, ParseException {
+
+		ManualClock ourClock = new ManualClock("2013-01-30 08:17");
+		
+		File file = new File(getClass().getResource(
+				"FormatTimeNow.xml").getFile());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
+		oddjob.setExport("our-clock", new ArooaObject(ourClock));
+		ConsoleCapture console = new ConsoleCapture();
+		console.capture(Oddjob.CONSOLE);
+				
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+
+		console.close();
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		String[] expected = OddjobTestHelper.streamToLines(getClass(
+				).getResourceAsStream("FormatTimeNow.txt"));
+		
+		for (int i = 0; i < expected.length; ++i) {
+			assertEquals(expected[i], lines[i].trim());
+		}
+		
+		assertEquals(1, lines.length);
+		
+		oddjob.destroy();
 	}
 }
