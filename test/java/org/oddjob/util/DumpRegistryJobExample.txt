@@ -11,7 +11,7 @@ Component Pool:
 ===============
 Id         Name[ ]+  Class                                     Identity
 ---------  [-]+  ----------------------------------------  [-]+
-vars       Variables: vars                        org.oddjob.values.VariablesJob            \d+
-           DumpRegistryJob                        org.oddjob.util.DumpRegistryJob           \d+
-some-jobs  SequentialJob                          org.oddjob.jobs.structural.SequentialJob  \d+
+vars       Variables: vars[ ]*  org.oddjob.values.VariablesJob            \d+
+           DumpRegistryJob[ ]*  org.oddjob.util.DumpRegistryJob           \d+
+some-jobs  SequentialJob[ ]*  org.oddjob.jobs.structural.SequentialJob  \d+
            org.oddjob.Oddjob\$OddjobRoot@[0-9a-f]+  org.oddjob.Oddjob\$OddjobRoot              \d+

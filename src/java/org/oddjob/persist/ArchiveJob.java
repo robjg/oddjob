@@ -391,13 +391,14 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(condition, new Runnable() {
 				public void run() {
-					logger().debug("Propagating " + text + " to children.");
-					stopListening((Stateful) childHelper.getChild());
+					logger().debug("Propagating " + text + 
+							" reset to children.");
 				}
 			})) {
 				return false;
 			}
 			
+			stopListening((Stateful) childHelper.getChild());
 			childHelper.hardResetChildren();
 
 			return stateHandler.waitToWhen(condition, new Runnable() {
@@ -414,6 +415,11 @@ implements
 		}
 	}
 
+	/**
+	 * Stop listening to state changes.
+	 *  
+	 * @param to The child.
+	 */
 	private void stopListening(Stateful to) {
 		
 		if (to == null) {

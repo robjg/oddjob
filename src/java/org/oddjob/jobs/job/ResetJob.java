@@ -36,6 +36,10 @@ import org.oddjob.persist.FilePersister;
  */
 public class ResetJob extends SimpleJob {
 
+	public static final String SOFT = "soft";
+	
+	public static final String HARD = "hard";
+	
 	/** 
 	 * @oddjob.property 
 	 * @oddjob.description Job to reset.
@@ -81,17 +85,21 @@ public class ResetJob extends SimpleJob {
 			throw new NullPointerException("No Job");
 		}
 		
-    	String level = this.level.toLowerCase();
+    	String level = this.level;
         if (level == null) {
-            level = "soft";
+            level = SOFT;
         }
-        if (!"hard".equals(level) && !"soft".equals(level)) {
+        else {
+        	level = level.toLowerCase();
+        }
+        
+        if (!HARD.equals(level) && !SOFT.equals(level)) {
             throw new IllegalArgumentException("Level must be hard or soft.");
         }
         
 		logger().info("Sending " + level + " reset to [" + job + "]");
 		
-		if (level.equals("soft")) {
+		if (level.equals(SOFT)) {
 		    ((Resetable)job).softReset();
 		}
 		else {
