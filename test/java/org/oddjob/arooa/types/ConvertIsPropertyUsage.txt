@@ -1,0 +1,6 @@
+42
+class org.oddjob.arooa.types.ConvertType
+42
+class org.oddjob.arooa.types.ValueType
+42
+class java.lang.Integer

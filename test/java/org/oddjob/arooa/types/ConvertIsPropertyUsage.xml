@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aNumber>
+                        <convert>
+                            <to>
+                                <class name="java.lang.Integer"/>
+                            </to>
+                            <value>
+                                <value value="42"/>
+                            </value>
+                        </convert>
+                    </aNumber>
+                </variables>
+                <echo><![CDATA[${vars.aNumber}
+${vars.aNumber.class}
+${vars.aNumber.value}
+${vars.aNumber.value.class}
+${vars.aNumber.is}
+${vars.aNumber.is.class}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
