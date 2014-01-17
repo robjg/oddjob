@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <throttle>
+                        <convert>
+                          <value>
+                            <throttle limit="2"/>
+                          </value>
+                        </convert>
+                    </throttle>
+                </variables>
+                <parallel id="parallel-1">
+                    <executorService>
+                        <value value="${vars.throttle.is}"/>
+                    </executorService>
+                    <jobs>
+                        <wait name="Wait 1"/>
+                        <wait name="Wait 2"/>
+                    </jobs>
+                </parallel>
+                <parallel id="parallel-2">
+                    <executorService>
+                        <value value="${vars.throttle.is}"/>
+                    </executorService>
+                    <jobs>
+                        <wait name="Wait 3"/>
+                        <wait name="Wait 4"/>
+                    </jobs>
+                </parallel>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

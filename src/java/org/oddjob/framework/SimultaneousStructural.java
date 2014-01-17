@@ -35,8 +35,13 @@ implements Stoppable {
 	/** The job threads. */
 	private volatile transient List<Future<?>> futures;
 	
+	/** Watch execution to start the state reflector when all children
+	 * have finished. */
 	private transient volatile ExecutionWatcher executionWatcher;
 	
+	/**
+	 * Create a new instance.
+	 */
 	public SimultaneousStructural() {
 		completeConstruction();
 	}
@@ -64,6 +69,10 @@ implements Stoppable {
 	@Inject
 	public void setExecutorService(ExecutorService executorService) {
 		this.executorService = executorService;
+	}
+	
+	public ExecutorService getExecutorService() {
+		return executorService;
 	}
 	
 	/**
@@ -99,6 +108,10 @@ implements Stoppable {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
+		// it's possible to reset children and then execute again so this
+		// is just in case there was no reset.
+		childStateReflector.stop();
+		
 		executionWatcher.reset();
 		
 		futures = new ArrayList<Future<?>>();
@@ -119,6 +132,8 @@ implements Stoppable {
 			Future<?> future = executorService.submit(
 					executionWatcher.addJob(job));
 			futures.add(future);
+			
+			logger().info("Submitted [" + job + "]");
 		}
 		
 		if (stop) {

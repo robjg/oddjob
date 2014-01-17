@@ -165,7 +165,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
      * @oddjob.description The number of values to pre-load configurations for. 
      * This property can be used with large sets of values to ensure that only a 
      * certain number are pre-loaded before execution starts.
-     * <p>This property won't work correctly when parallel is true.
+     * <p>
+     * Setting this property to 0 means that all configuration will be 
+     * initially loaded.
+     * 
      * @oddjob.required No. Defaults to all configurations being loaded first.
      */
 	private int preLoad;
@@ -175,7 +178,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
      * @oddjob.description The number of completed jobs to keep. Oddjob configurations
      * can be quite memory intensive, mainly due to logging, purging complete jobs
      * will stop too much memory being taken. 
-     * <p>This property won't work correctly when parallel is true.
+     * <p>
+     * Setting this property to 0
+     * means that no complete jobs will be purged.
+     *
  	 *
      * @oddjob.required No. Defaults to no complete jobs being purged.
      */
@@ -270,6 +276,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		this.executorService = executorService;
 	}
 	    
+	public ExecutorService getExecutorService() {
+		return executorService;
+	}
+	
 	/**
 	 * The current value.
 	 * 

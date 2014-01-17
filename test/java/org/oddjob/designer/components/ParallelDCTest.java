@@ -33,6 +33,9 @@ public class ParallelDCTest extends TestCase {
 		String xml =  
 				"<parallel name='Test' join='true'" +
 				"            stateOperator='WORST' transient='true'>" +
+				" <executorService>" +
+				"  <bean class='org.oddjob.scheduling.MockExecutorService'/>" +
+				" </executorService>" +
 				" <jobs>" +
 				"  <echo/>" +
 				"  <echo/>" +

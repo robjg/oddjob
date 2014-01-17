@@ -21,7 +21,6 @@ import org.oddjob.OddjobExecutors;
  */
 public class OddjobTimerService 
 implements OddjobExecutors {
-	private static final long serialVersionUID = 2009010800L;
 	
 	private static final Logger logger = Logger.getLogger(OddjobTimerService.class);
 

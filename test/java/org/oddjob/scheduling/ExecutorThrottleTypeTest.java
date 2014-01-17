@@ -112,6 +112,8 @@ public class ExecutorThrottleTypeTest extends TestCase {
 			}
 		}			
 		
+		assertEquals(2, capture.ready.size());
+		
 		((Stoppable) capture.executing.iterator().next()).stop();
 			
 		synchronized (capture) {
@@ -196,4 +198,86 @@ public class ExecutorThrottleTypeTest extends TestCase {
 			
 		oddjob.destroy();
 	}
+	
+	public void testThrottleShared() throws InterruptedException, ArooaPropertyException, ArooaConversionException, FailedToStopException {
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/scheduling/ExecutorThrottleShared.xml", 
+				getClass().getClassLoader()));
+		
+		StateSteps oddjobState = new StateSteps(oddjob);
+		
+		oddjobState.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		oddjob.run();
+		
+		oddjobState.checkNow();
+		
+		oddjobState.startCheck(ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Structural parallelOne = lookup.lookup("parallel-1", Structural.class);
+		Structural parallelTwo = lookup.lookup("parallel-2", Structural.class);
+				
+		Capture capture = new Capture();
+		
+		parallelOne.addStructuralListener(capture);
+		parallelTwo.addStructuralListener(capture);
+		
+		synchronized (capture) {
+			while (capture.executing.size() < 2) {
+				logger.info("Waiting for 2 EXECUTING.");
+				capture.wait();
+			}
+		}			
+
+		assertEquals(2, capture.ready.size());
+		
+		((Stoppable) capture.executing.iterator().next()).stop();
+			
+		synchronized (capture) {
+			while (capture.complete.size() < 1) {
+				logger.info("Waiting for 1 COMPLETE.");
+				capture.wait();
+			}
+			
+			while (capture.executing.size() < 2) {
+				logger.info("Waiting for 2 EXECUTING.");
+				capture.wait();
+			}
+		}	
+		
+		((Stoppable) capture.executing.iterator().next()).stop();
+			
+		synchronized (capture) {
+			while (capture.complete.size() < 2) {
+				logger.info("Waiting for 2 COMPLETE.");
+				capture.wait();
+			}
+			
+			while (capture.executing.size() < 2) {
+				logger.info("Waiting for 2 EXECUTING.");
+				capture.wait();
+			}
+		}
+		
+		((Stoppable) parallelOne).stop();
+		((Stoppable) parallelTwo).stop();
+			
+		synchronized (capture) {
+			while (capture.complete.size() < 4) {
+				logger.info("Waiting for 4 COMPLETE.");
+				capture.wait();
+			}
+		}
+		
+		oddjobState.checkWait();
+				
+		oddjob.destroy();
+	}
+	
 }

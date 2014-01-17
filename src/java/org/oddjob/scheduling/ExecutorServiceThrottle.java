@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
+
 /**
  * An {@link ExecutorService} that limits the number of {@link Runnable}s 
  * running.
@@ -18,6 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ExecutorServiceThrottle extends AbstractExecutorService {
 
+	private static final Logger logger = Logger.getLogger(
+			ExecutorServiceThrottle.class);
+	
 	/**
 	 * The original {@link ExecutorService} that will actually do the 
 	 * executing.
@@ -74,17 +79,25 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 	@Override
 	public void execute(final Runnable command) {
 		
+		logger.debug("Queueing [" + command + "]");
+		
 		synchronized (work) {
 			work.add(new Runnable() {
 				@Override
 				public void run() {
 					try {
 						command.run();
+						logger.debug("Completed [" + command + "]");
 					}
 					finally {
 						count.decrementAndGet();
 						submit();
 					}
+				}
+				@Override
+				public String toString() {
+					return ExecutorServiceThrottle.class.getSimpleName() + 
+							" wrapper for " + command;
 				}
 			});
 		}
@@ -110,9 +123,15 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 			if (count.get() < threads) {
 				count.incrementAndGet();
 				Runnable command = work.removeFirst();
+				logger.debug("Executing [" + command + "]");
 				executor.execute(command);
 			}
 		}
 	}
 	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ", limit=" + threads + 
+				" executing=" + count;
+	}
 }

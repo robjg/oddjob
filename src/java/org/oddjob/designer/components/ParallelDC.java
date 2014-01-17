@@ -7,6 +7,7 @@ import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.DesignProperty;
 import org.oddjob.arooa.design.IndexedDesignProperty;
+import org.oddjob.arooa.design.SimpleDesignProperty;
 import org.oddjob.arooa.design.SimpleTextAttribute;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
@@ -36,6 +37,8 @@ class ParallelDesign extends BaseDC {
 	
 	private final IndexedDesignProperty jobs;
 	
+	private final SimpleDesignProperty executorService;
+	
 	public ParallelDesign(ArooaElement element, ArooaContext parentContext) {
 		
 		super(element, parentContext);
@@ -47,6 +50,8 @@ class ParallelDesign extends BaseDC {
 		_transient = new SimpleTextAttribute("transient", this);
 		
 		jobs = new IndexedDesignProperty("jobs", this);		
+		
+		executorService = new SimpleDesignProperty("executorService", this);
 	}
 	
 	public Form detail() {
@@ -55,6 +60,7 @@ class ParallelDesign extends BaseDC {
 				.addFormItem(new BorderedGroup("Optional Behaviour")
 					.add(join.view().setTitle("Join"))
 					.add(stateOp.view().setTitle("State Operator"))
+					.add(executorService.view().setTitle("Executor Service"))
 					.add(_transient.view().setTitle("Transient")))
 				.addFormItem(new BorderedGroup("Jobs")
 					.add(jobs.view().setTitle("")));
@@ -63,7 +69,7 @@ class ParallelDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		return new DesignProperty[] { 
-				name, join, _transient, stateOp, jobs };
+				name, join, stateOp, executorService, _transient, jobs };
 	}
 
 }

@@ -5,7 +5,9 @@ import java.util.concurrent.ExecutorService;
 import javax.inject.Inject;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.types.ConvertType;
 import org.oddjob.arooa.types.ValueFactory;
+import org.oddjob.jobs.structural.ParallelJob;
 
 /**
  * @oddjob.description Throttle parallel execution. This will limit the
@@ -16,6 +18,15 @@ import org.oddjob.arooa.types.ValueFactory;
  * 
  * {@oddjob.xml.resource org/oddjob/scheduling/ExecutorThrottleInParallel.xml}
  * 
+ * @oddjob.example Sharing a throttle. The same throttle is shared between
+ * to {@link ParallelJob} jobs. The total number of jobs executing between
+ * both parallels is 2.
+ * 
+ * {@oddjob.xml.resource org/oddjob/scheduling/ExecutorThrottleShared.xml}
+ * 
+ * The throttle type is a factory type and so would provide a new instance
+ * each time it's used. To overcome this the throttle is 
+ * wrapped in a convert {@link ConvertType} that creates a single instance.
  * 
  * @author rob
  *

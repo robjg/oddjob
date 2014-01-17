@@ -5,6 +5,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Watches the execution of jobs and executes an action when all jobs
  * have been executed.
+ * <p>
+ * When this watcher is stopped it will check to see if all jobs had
+ * started executing and if they had it will perform the action. I can't 
+ * remember why this this is required because the action is generally to 
+ * start reflecting child state - and why don't we want to always want to
+ * do that on stop?
  * 
  * @author rob
  *
@@ -39,6 +45,7 @@ public class ExecutionWatcher {
 	 * Add a job.
 	 * 
 	 * @param job
+	 * 
 	 * @return The new job to execute.
 	 */
 	public Runnable addJob(final Runnable job) {
@@ -61,6 +68,12 @@ public class ExecutionWatcher {
 				if (perform) {
 					action.run();
 				}
+			}
+			
+			@Override
+			public String toString() {
+				return ExecutionWatcher.class.getSimpleName() + 
+						" for " + job;
 			}
 		};
 		
