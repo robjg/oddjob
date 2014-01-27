@@ -108,10 +108,6 @@ implements Stoppable {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-		// it's possible to reset children and then execute again so this
-		// is just in case there was no reset.
-		childStateReflector.stop();
-		
 		executionWatcher.reset();
 		
 		futures = new ArrayList<Future<?>>();

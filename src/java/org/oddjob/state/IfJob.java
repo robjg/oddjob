@@ -1,25 +1,39 @@
 package org.oddjob.state;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+
+import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.registry.ServiceFinder;
+import org.oddjob.framework.AsyncExecutionSupport;
 import org.oddjob.framework.StructuralJob;
 
 /**
  * @oddjob.description
  * 
- * This job implements an if/then/else logic. This job can contain
- * any number of child jobs. The first job is taken to be the condition.
- * If the resulting state matches the given state the second job is
- * executed. If it doesn't then the third job is executed, (if it exists).
+ * This job implements an if/then/else logic based on job state. This job can 
+ * contain any number of child jobs. The first provides the state for
+ * the condition.
+ * If this state matches the given state, the second job is
+ * executed. If it doesn't, then the third job is executed, (if it exists).
  * <p>
  * The completion state is that of the then or else job. If either don't 
  * exist then the Job is flagged as complete.
  * <p>
  * If any more than three jobs are provided the extra jobs are ignored.
+ * <p>
+ * If the first job enters an ACTIVE state then condition will not be
+ * evaluated until the first job leaves the ACTIVE state. This job will
+ * not block while this is happening. The thread of execution will pass
+ * to its next sibling and this job will also enter the ACTIVE state.
  * 
  * @oddjob.example
  * 
@@ -34,19 +48,44 @@ import org.oddjob.framework.StructuralJob;
  * 
  * {@oddjob.xml.resource org/oddjob/state/if.xml}
  * 
+ * @oddjob.example
+ * 
+ * Asynchronous evaluation. Only when the first job moves beyond it's ACTIVE
+ * state will the condition be evaluated and the then job (second job) 
+ * be executed. The execution of the second job is also asynchronous.
+ * 
+ * {@oddjob.xml.resource org/oddjob/state/IfJobAsyncThen.xml}
+ * 
  * @author Rob Gordon
  */
-
-
 public class IfJob extends StructuralJob<Object>
 		implements Runnable, Stateful, Resetable, Structural, Stoppable {
+	
     private static final long serialVersionUID = 20050806;
     
     /** The condition state. */
 	private StateCondition state = StateConditions.COMPLETE;
 	
-	/** remember then/else */ 
-	private volatile boolean then;
+	/** @oddjob.property
+	 *  @oddjob.description Used for an asynchronous evaluation of the if. 
+	 *  @oddjob.required No. Will be provided by the framework.
+	 */
+	private volatile transient ExecutorService executorService;
+	
+	/** Used to find Executor Service if none provided. */
+	private volatile transient ServiceFinder serviceFinder;
+	
+	/** Support asynchronous ifs. */
+	private volatile transient AsyncExecutionSupport asyncSupport;	
+
+	@Override
+	@ArooaHidden
+	public void setArooaContext(ArooaContext context) {
+		super.setArooaContext(context);
+		
+		serviceFinder = context.getSession().getTools(
+				).getServiceHelper().serviceFinderFor(context);
+	}
 	
 	/**
 	 * Getter for state.
@@ -92,16 +131,18 @@ public class IfJob extends StructuralJob<Object>
 					return ParentState.READY;
 				}
 				
-				then =  state.test(states[0]);
+				boolean then = state.test(states[0]);
 				
 				if (then) {
 					if (states.length > 1) {
-						return new ParentStateConverter().toStructuralState(states[1]);
+						return new ParentStateConverter().toStructuralState(
+								states[1]);
 					}
 				}
 				else {
 					if (states.length > 2) {
-						return new ParentStateConverter().toStructuralState(states[2]);
+						return new ParentStateConverter().toStructuralState(
+								states[2]);
 					}
 				}
 				
@@ -129,35 +170,200 @@ public class IfJob extends StructuralJob<Object>
 			return;
 		}
 		
-		Stateful depends = (Stateful) child;
+		final Stateful depends = (Stateful) child;
 		
-		((Runnable) depends).run();
+		final class ThenAction implements Runnable {
+			
+			@Override
+			public void run() {
+				if (childHelper.size() < 2) {
+
+					logger().info("No job for then.");
+
+					return;
+				}
+				else {
+					
+					logger().info("Running job for then.");
+					
+					Runnable job = (Runnable) childHelper.getChildAt(1); 
+					
+				    job.run();
+				}
+			}
+		}
+			
+		class ElseAction implements Runnable {
+			@Override
+			public void run() {
+				if (childHelper.size() < 3) {
+
+					logger().info("No job for else.");
+					
+					return;
+				}
+				else {
+					logger().info("Running job for else.");
+	
+					Runnable job = (Runnable) childHelper.getChildAt(2); 
+					
+			    	job.run();		    	
+				}
+			}
+		}
+			
+		class AsyncAction implements Runnable {
+			@Override
+			public void run() {
+				
+				asyncSupport = new AsyncExecutionSupport(new Runnable() {
+					@Override
+					public void run() {
+						stop = false;
+						IfJob.super.startChildStateReflector();
+					}
+				});
+				
+				depends.addStateListener(new StateListener() {
+					
+					@Override
+					public void jobStateChange(StateEvent event) {
+						
+						State dependsState = event.getState();
+						
+						if (StateConditions.ACTIVE.test(dependsState)) {
+							return;
+						}
+						
+						ExecutorService executorService = 
+								ensureExecutorService();
+						
+						if (!stop) {
+							if (IfJob.this.state.test(dependsState)) {
+
+								logger().info("State of [" + dependsState +
+										"], triggering 'then' action.");
+
+								asyncSupport.submitJob(executorService,
+										new ThenAction());
+							}
+							else {
+
+								logger().info("State of [" + dependsState +
+										"], triggering 'else' action.");
+
+								asyncSupport.submitJob(executorService,
+										new ElseAction());
+							}
+						}
+						
+						depends.removeStateListener(this);
+						
+						asyncSupport.startWatchingJobs();
+					}
+				});
+				
+				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						getStateChanger().setState(ParentState.ACTIVE);
+					}
+				});				
+			}
+		}
 		
+		final AtomicReference<Runnable> action = 
+				new AtomicReference<Runnable>(new Runnable() {
+					@Override
+					public void run() {
+						
+						State dependsState = 
+								depends.lastStateEvent().getState();
+						
+						if (state.test(dependsState)) {
+							
+							new ThenAction().run();
+						}
+						else {
+							
+							new ElseAction().run();
+						}
+					}
+				});
+		
+		StateListener listenForActive = new StateListener() {
+
+			@Override
+			public void jobStateChange(StateEvent event) {
+				
+				if (StateConditions.ACTIVE.test(event.getState())) {
+					
+					logger().info("Setting asynchronous mode.");
+					
+					action.set(new AsyncAction());
+				}			
+			}
+		};
+		
+		depends.addStateListener(listenForActive);
+		
+		try {
+			((Runnable) depends).run();
+		}
+		finally {
+			depends.removeStateListener(listenForActive);
+		}
+						
 		if (stop) {
 			stop = false;
 			return;
 		}
+
+		action.get().run();		
+	}
+
+	@Override
+	protected void onStop() throws FailedToStopException {
+		super.onStop();
 		
-		if (then) {
+		if (asyncSupport != null) {
+			asyncSupport.stopAllJobs();
+		}
+	}
+	
+	@Override
+	protected void startChildStateReflector() {
+		// In asynchronous mode the child reflector is only started when all
+		// the jobs complete.
+		if (asyncSupport == null) {
+			super.startChildStateReflector();
+		}
+	}
+	
+	protected ExecutorService ensureExecutorService() {
+		
+		if (executorService == null) {
 			
-			if (childHelper.size() < 2) {
-				return;
+			if (serviceFinder == null) {
+				throw new IllegalStateException(
+						"No Service Finder - Need to set An Arooa Context.");
 			}
 			
-			Runnable job = (Runnable) childHelper.getChildAt(1); 
+			executorService = serviceFinder.find(ExecutorService.class, null);
 			
-	    	job.run();
-		}
-		else {
-			
-			if (childHelper.size() < 3) {
-				return;
+			if (executorService == null) {
+				throw new IllegalStateException("No Executor Service");
 			}
-			
-			Runnable job = (Runnable) childHelper.getChildAt(2); 
-			
-	    	job.run();
 		}
+		
+		return executorService;
+	}
+	
+	public ExecutorService getExecutorService() {
+		return executorService;
+	}
+
+	public void setExecutorService(ExecutorService executorService) {
+		this.executorService = executorService;
 	}
 	
 }

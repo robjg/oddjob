@@ -25,7 +25,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockExecutorService;
-import org.oddjob.scheduling.MockScheduledFuture;
+import org.oddjob.scheduling.MockFuture;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
@@ -152,7 +152,7 @@ public class ForEachParallelTest extends TestCase {
 		@Override
 		public Future<?> submit(Runnable task) {
 			jobs.add(task);
-			return new MockScheduledFuture<Void>() {
+			return new MockFuture<Void>() {
 				@Override
 				public boolean cancel(boolean mayInterruptIfRunning) {
 					++cancels;

@@ -122,6 +122,8 @@ implements
 		try {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
+					// it's possible to reset children and then execute again so this
+					// is just in case there was no reset.
 					childStateReflector.stop();
 					
 					getStateChanger().setState(ParentState.EXECUTING);
@@ -163,6 +165,7 @@ implements
 	 */
 	protected void startChildStateReflector() {
 		childStateReflector.start();
+		logger().debug("Child State Reflector Started.");
 	}
 	
 	/**

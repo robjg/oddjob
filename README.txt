@@ -3,6 +3,7 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- If job will now support an asynchronous child job.
 - Structural jobs (sequential/parallel) will not time out when stopping. The
   stop flag will remain true so that the job will eventually stop. 
 - The List type will now accept elements being added on the fly via a new

@@ -116,9 +116,10 @@ public enum ParentState implements State {
 	},
 	
 	/**
-	 * Indicates that child jobs are active. This will be the case when
-	 * the execution thread has passed on but a child job is 
-	 * still active or executing.
+	 * Indicates that child jobs are stoppable but done. This will be the 
+	 * case for service for {@link ServiceState}s. This state differs from
+	 * {@link #ACTIVE} in that it will cause the next sibling to execute
+	 * in a {@link CascadeJob}.
 	 */	
 	STARTED() {
 		@Override

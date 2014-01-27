@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <state:if id="if-job" xmlns:state="http://rgordon.co.uk/oddjob/state"
+          state="FAILURE">
+            <jobs>
+                <parallel>
+                    <jobs>
+                        <state:flag/>
+                    </jobs>
+                </parallel>
+                <echo id="then-job"><![CDATA[]]>This should never be shown.</echo>
+                <echo id="else-job"><![CDATA[That Worked!]]></echo>
+            </jobs>
+        </state:if>
+    </job>
+</oddjob>

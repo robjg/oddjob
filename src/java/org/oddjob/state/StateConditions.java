@@ -113,6 +113,13 @@ public enum StateConditions implements StateCondition {
 		}
 	},
 	
+	ACTIVE() {
+		@Override
+		public boolean test(State state) {
+			return state == ParentState.ACTIVE;
+		}
+	},
+	
 	/**
 	 * A service has STARTED.
 	 */
