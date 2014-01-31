@@ -14,7 +14,7 @@ public interface ServiceStrategy {
 	 * Attempt to provide an adaptor.
 	 * 
 	 * @param component The component.
-	 * @param sessin A session that might be useful.
+	 * @param session A session that might be useful.
 	 * 
 	 * @return The adaptor or null if this strategy can not provide the
 	 * adaptor.

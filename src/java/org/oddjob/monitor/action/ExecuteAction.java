@@ -6,7 +6,6 @@ import org.oddjob.Stateful;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
-import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.ThreadManager;

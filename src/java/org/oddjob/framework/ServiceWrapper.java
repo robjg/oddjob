@@ -3,7 +3,7 @@
  */
 package org.oddjob.framework;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.beans.ExceptionListener;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
@@ -101,6 +101,13 @@ implements ComponentWrapper {
         					"themselves to guarantee consistent behaviour.");
         		}
         		
+        		service.acceptExceptionListener(new ExceptionListener() {
+					@Override
+					public void exceptionThrown(Exception e) {
+						exceptionFromComponent(e);
+					}
+				});
+				
         		configure();
         		
         		service.start();
@@ -114,7 +121,7 @@ implements ComponentWrapper {
             	});
     	    } 
         	catch (final Throwable t) {
-    	    	logger().error("Exception:", t);
+    	    	logger().error("Exception starting service:", t);
     			
     	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     	    		public void run() {
@@ -127,19 +134,33 @@ implements ComponentWrapper {
         	ComponentBoundry.pop();
         }
     }
+    
+    /**
+     * Used by the exception handler callback.
+     * 
+     * @param e
+     */
+    protected void exceptionFromComponent(final Exception e) {
+    	logger().error("Exception starting service:", e);
+		
+    	if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+    		public void run() {
+				getStateChanger().setStateException(e);
+    		}
+    	})) {
+    		throw new IllegalStateException("Service has not started.");
+    	}
+    }
         
     public void onStop() throws FailedToStopException {
     	stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
     		public void run() {
     		}
     	});
-    	
-		final AtomicInteger result = new AtomicInteger();
-		
+    			
 		ComponentBoundry.push(loggerName(), wrapped);
 		try {
 			service.stop();
-			result.set(getResult(null));
 		} catch (RuntimeException e) {
 			throw e;
 		} catch (Exception e) {

@@ -224,6 +224,12 @@ public class IfJob extends StructuralJob<Object>
 					}
 				});
 				
+				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+					public void run() {
+						getStateChanger().setState(ParentState.ACTIVE);
+					}
+				});				
+				
 				depends.addStateListener(new StateListener() {
 					
 					@Override
@@ -260,12 +266,6 @@ public class IfJob extends StructuralJob<Object>
 						depends.removeStateListener(this);
 						
 						asyncSupport.startWatchingJobs();
-					}
-				});
-				
-				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(ParentState.ACTIVE);
 					}
 				});				
 			}

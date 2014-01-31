@@ -355,9 +355,7 @@ public class ParallelJobTest extends TestCase {
 		
 		test.run();
 		
-		steps.checkWait();		
-		
-		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
+		steps.checkNow();
 		
 		steps.startCheck(
 				ParentState.COMPLETE, ParentState.DESTROYED);

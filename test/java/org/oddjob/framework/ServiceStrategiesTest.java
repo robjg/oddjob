@@ -1,5 +1,7 @@
 package org.oddjob.framework;
 
+import java.beans.ExceptionListener;
+
 import junit.framework.TestCase;
 
 import org.oddjob.FailedToStopException;
@@ -10,8 +12,9 @@ public class ServiceStrategiesTest extends TestCase {
 
 	ArooaSession session = new StandardArooaSession();
 	
-	public static class MyService1 implements Service {
+	public static class MyService1 implements Service, FallibleComponent {
 		boolean started;
+		ExceptionListener el;
 		@Override
 		public void start() throws Exception {
 			started = true;
@@ -20,12 +23,17 @@ public class ServiceStrategiesTest extends TestCase {
 		public void stop() throws FailedToStopException {
 			started = false;
 		}
+		
+		@Override
+		public void acceptExceptionListener(ExceptionListener exceptionListener) {
+			this.el = exceptionListener;
+		}
 	}
 	
 	public void testIsServiceAlreadyStrategy() throws Exception {
 		
 		ServiceStrategy test = 
-				new ServiceStrategies().isServiceAlreadyStrategy();
+				new ServiceStrategies.IsServiceAlreadyStrategy();
 		
 		MyService1 service = new MyService1();
 		
@@ -43,11 +51,21 @@ public class ServiceStrategiesTest extends TestCase {
 		
 		assertEquals(false, service.started);
 		
+		ExceptionListener el = new ExceptionListener() {
+			@Override
+			public void exceptionThrown(Exception e) {
+			}
+		};
+		
+		adaptor.acceptExceptionListener(el);
+				
 		assertNull(test.serviceFor(new Object(), session));
 	}
 	
 	public static class MyService2 {
 		boolean started;
+		ExceptionListener el;
+		
 		@Start
 		public void begin() { 
 			started = true;
@@ -56,12 +74,17 @@ public class ServiceStrategiesTest extends TestCase {
 		public void end() {
 			started = false;
 		}
+		
+		@AcceptExceptionListener
+		public void el(ExceptionListener el) {
+			this.el = el;
+		}
 	}
 	
 	public void testHasServiceAnotationsStrategy() throws Exception {
 		
 		ServiceStrategy test = 
-				new ServiceStrategies().hasServiceAnnotationsStrategy();
+				new ServiceStrategies.HasServiceAnnotationsStrategy();
 		
 		MyService2 service = new MyService2();
 		
@@ -78,6 +101,16 @@ public class ServiceStrategiesTest extends TestCase {
 		adaptor.stop();
 		
 		assertEquals(false, service.started);
+		
+		ExceptionListener el = new ExceptionListener() {
+			@Override
+			public void exceptionThrown(Exception e) {
+			}
+		};
+		
+		adaptor.acceptExceptionListener(el);
+		
+		assertSame(el, service.el);
 		
 		assertNull(test.serviceFor(new Object(), session));
 	}
@@ -97,7 +130,7 @@ public class ServiceStrategiesTest extends TestCase {
 	public void testHasServiceMethodsStrategy() throws Exception {
 		
 		ServiceStrategy test = 
-				new ServiceStrategies().hasServiceMethodsStrategy();
+				new ServiceStrategies.HasServiceMethodsStrategy();
 		
 		MyService3 service = new MyService3();
 		

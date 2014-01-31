@@ -3,15 +3,18 @@
  */
 package org.oddjob.framework;
 
+import java.beans.ExceptionListener;
 import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
@@ -28,12 +31,24 @@ import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class ServiceWrapperTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(ServiceWrapperTest.class);
+	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("-------------------------  " + getName() + 
+				"  ------------------------");
+	}
+	
 	private class OurContext extends MockArooaContext {
 		OurSession session;
 		
@@ -167,61 +182,94 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oj.destroy();
     }
+        
+    public interface FruitService {
+    	String getFruit();
+    }
     
-    public static class Bean {
-    	String greeting;
-    	public void setGreeting(String greeting) {
-    		this.greeting = greeting;
+    public static class FruitJob implements Runnable {
+    	private FruitService fruitService;
+    	
+    	public void setFruitService(FruitService service) {
+    		this.fruitService = service;
     	}
-    	public String getGreeting() {
-    		return greeting;
+    	
+    	@Override
+    	public void run() {
+    		fruitService.getFruit();
     	}
     }
     
-   public static class MyS2 {
-    	public String result;
-    	public void start() {	
+    public static class MyFallibleService implements FruitService {
+
+    	ExceptionListener exceptionListener;
+    	
+    	@Start
+    	public void myStart() {	
+    		
     	}
-    	public void stop() {
+    	
+    	@Stop
+    	public void myStop() {
+    		
     	}
-    	public void setResult(String result) {
-    		this.result = result;
+    	
+    	@AcceptExceptionListener
+    	public void handler(ExceptionListener exceptionListener) {
+    		this.exceptionListener = exceptionListener;
     	}
-    	public String getResult() {
-    		return result;
+    	
+    	@Override
+    	public String getFruit() {
+    		exceptionListener.exceptionThrown(new Exception("No More Fruit!"));
+    		return "Apple";
     	}
     }    
-    
-    public void testInOddjob2() throws Exception {
+
+    public void testExceptionCallbackInOddjob() throws Exception {
+    	
     	String xml = 
     		"<oddjob>" +
     		" <job>" +
     		"  <sequential>" +
     		"   <jobs>" +
-    		"    <variables id='v'>" +
-    		"     <x>" +
-    		"      <value value='0'/>" +
-    		"     </x>" +
-    		"    </variables>" +
-    		"    <bean class='" + MyS2.class.getName() + "' " +
-    		"           id='s' result='${v.x}' />" +
+    		"    <bean id='fruit-service' class='" + MyFallibleService.class.getName() + "'/>" +
+    		"    <bean id='fruit-job' class='" + FruitJob.class.getName() + "'>" +
+    		"     <fruitService>" +
+    		"      <value value='${fruit-service}'/>" +
+    		"     </fruitService>" +
+    		"    </bean>" +
     		"   </jobs>" +
     		"  </sequential>" +
     		" </job>" +
     		"</oddjob>";
+     	
+    	Oddjob oddjob = new Oddjob();
+    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
     	
-    	Oddjob oj = new Oddjob();
-    	oj.setConfiguration(new XMLConfiguration("XML", xml));
+    	oddjob.load();
     	
-    	oj.run();
+    	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
-    	assertEquals(ParentState.STARTED, oj.lastStateEvent().getState());
+    	Stateful service = lookup.lookup("fruit-service", Stateful.class);
+    	    	
+    	StateSteps serviceStates = new StateSteps(service);
     	
-    	Object r = new OddjobLookup(oj).lookup("s");
-    	assertEquals("0", PropertyUtils.getProperty(r, "result"));
+    	serviceStates.startCheck(ServiceState.READY, ServiceState.STARTING, 
+    			ServiceState.STARTED, ServiceState.EXCEPTION);
     	
-    	oj.stop();    	
+    	oddjob.run();
     	
-    	assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+    	serviceStates.checkNow();
+    	
+    	Stateful job = lookup.lookup("fruit-job", Stateful.class);
+    	
+    	assertEquals(JobState.COMPLETE, 
+    			job.lastStateEvent().getState());
+    	
+    	assertEquals(ParentState.EXCEPTION, 
+    			oddjob.lastStateEvent().getState());
+    	
+    	oddjob.destroy();    	
     }
 }

@@ -66,7 +66,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		busPartIconMap.put(ACTIVE, activeIcon);
 	}
 	
-    private Logger theLogger;
+    private volatile Logger theLogger;
     
     private final Collection<E> wrapped;
     
@@ -74,7 +74,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
     
     private final Object proxy;
     
-    private ArooaSession session;
+    private volatile ArooaSession session;
     
     private final IconHelper iconHelper = new IconHelper(
     		this, INACTIVE, busPartIconMap);

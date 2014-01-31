@@ -551,7 +551,8 @@ public class MegaBeanBusTest extends TestCase {
 	}
 	
 	/**
-     * Test logging.
+     * Test logging. Note that this test is fragile with respect to change
+     * in the logging properties.
      * 
      * @throws Exception
      */
