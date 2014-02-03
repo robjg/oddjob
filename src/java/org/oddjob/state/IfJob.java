@@ -237,7 +237,9 @@ public class IfJob extends StructuralJob<Object>
 						
 						State dependsState = event.getState();
 						
-						if (StateConditions.ACTIVE.test(dependsState)) {
+						StateCondition condition = StateConditions.ACTIVE;
+						
+						if (condition.test(dependsState)) {
 							return;
 						}
 						
@@ -295,7 +297,9 @@ public class IfJob extends StructuralJob<Object>
 			@Override
 			public void jobStateChange(StateEvent event) {
 				
-				if (StateConditions.ACTIVE.test(event.getState())) {
+				StateCondition condition = StateConditions.ACTIVE;
+				
+				if (condition.test(event.getState())) {
 					
 					logger().info("Setting asynchronous mode.");
 					
