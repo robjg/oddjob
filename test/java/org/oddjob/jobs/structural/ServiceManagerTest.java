@@ -137,10 +137,10 @@ public class ServiceManagerTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, testState.getState());
 		
 		StateSteps lightsState = new StateSteps((Stateful) lights);
-		lightsState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		lightsState.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		StateSteps machineState = new StateSteps((Stateful) machine);
-		machineState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		machineState.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		oddjob.stop();
 		
@@ -149,15 +149,16 @@ public class ServiceManagerTest extends TestCase {
 		
 		assertEquals(testState, test.lastStateEvent());
 		
-		lightsState.startCheck(ServiceState.COMPLETE, ServiceState.READY);
+		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
+		// Hard Reset a service makes no difference.
 		((Resetable) lights).hardReset();
 
 		lightsState.checkNow();
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		lightsState.startCheck(ServiceState.READY, 
+		lightsState.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		((Runnable) lights).run();
@@ -217,8 +218,10 @@ public class ServiceManagerTest extends TestCase {
 		assertEquals(ServiceState.STARTED, lightsState.getState());
 		
 		StateSteps machineState = new StateSteps((Stateful) machine);
-		machineState.startCheck(ServiceState.EXCEPTION, ServiceState.READY, 
-				ServiceState.STARTING, ServiceState.EXCEPTION);
+		machineState.startCheck(ServiceState.EXCEPTION, 
+				ServiceState.STARTABLE, 
+				ServiceState.STARTING, 
+				ServiceState.EXCEPTION);
 		testState.startCheck(ParentState.EXCEPTION,
 				ParentState.READY, 
 				ParentState.EXECUTING,
@@ -282,12 +285,12 @@ public class ServiceManagerTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ServiceState.COMPLETE, 
+		assertEquals(ServiceState.STOPPED, 
 				((Stateful) lights).lastStateEvent().getState());
 		
 		((Resetable) lights).hardReset();
 		
-		assertEquals(ServiceState.READY, 
+		assertEquals(ServiceState.STARTABLE, 
 				((Stateful) lights).lastStateEvent().getState());
 		
 		testState.checkNow();
@@ -348,10 +351,10 @@ public class ServiceManagerTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, testState.getState());
 		
 		StateSteps lightsState = new StateSteps((Stateful) lights);
-		lightsState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		lightsState.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		StateSteps machineState = new StateSteps((Stateful) machine);
-		machineState.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		machineState.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		oddjob.stop();
 		
@@ -360,7 +363,7 @@ public class ServiceManagerTest extends TestCase {
 		
 		assertEquals(testState, test.lastStateEvent());
 		
-		lightsState.startCheck(ServiceState.COMPLETE, ServiceState.READY);
+		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
 		((Resetable) lights).hardReset();
 
@@ -368,7 +371,7 @@ public class ServiceManagerTest extends TestCase {
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		lightsState.startCheck(ServiceState.READY, 
+		lightsState.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		((Runnable) lights).run();

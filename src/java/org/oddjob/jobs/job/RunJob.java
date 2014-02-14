@@ -31,7 +31,7 @@ import org.oddjob.util.OddjobConfigException;
 
 /**
  * @oddjob.description A job which runs another job. The other job can be
- * local or or on a server.
+ * local or on a server.
  * <p>
  * This job reflects the state of the job being executed.
  * <p>
@@ -95,10 +95,10 @@ implements Structural, Stoppable, ConfigurationOwner {
 							childStateReflector.stop();
 							childHelper.removeAllChildren();
 
-							stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+							stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 								@Override
 								public void run() {
-									if (stateHandler.lastStateEvent().getState().isStoppable()) {
+									if (stateHandler().lastStateEvent().getState().isStoppable()) {
 										logger().info("Job Destroyed while active, setting state to COMPLETE");
 										getStateChanger().setState(ParentState.COMPLETE);
 									}
@@ -191,7 +191,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 						}
 						else {
 							logger().debug("Waiting for job to finish executing");
-							iconHelper.changeIcon(IconHelper.SLEEPING);
+							iconHelper().changeIcon(IconHelper.SLEEPING);
 							try {
 								states.wait(0);
 							} catch (InterruptedException e) {
@@ -200,21 +200,23 @@ implements Structural, Stoppable, ConfigurationOwner {
 							}
 							// Stop should already have set Icon to Stopping.
 							if (!stop) {
-								iconHelper.changeIcon(IconHelper.EXECUTING);
+								iconHelper().changeIcon(IconHelper.EXECUTING);
 							}
 						}
 					}
 					
-					if (now != null) {
+					if (now != null) {						
 						if (now.isDestroyed()) {
 							childHelper.removeAllChildren();
 							throw new IllegalStateException("Job Destroyed.");
 						}
+						
 						if (now.isStoppable()) {
 							executed = true;
 						}
-						// when the thread of control has moved has passed a job.						
-						if (now.isDone() && 
+						
+						// when the thread of control has moved passed a job.						
+						if (now.isComplete() && 
 								(executed || !now.isReady())) {
 							logger().debug("Job has executed. State is " + now);
 							break;
@@ -248,7 +250,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 				logger().debug("Sleeping for " + ( 
 						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
 				
-				iconHelper.changeIcon(IconHelper.SLEEPING);
+				iconHelper().changeIcon(IconHelper.SLEEPING);
 					
 				try {
 					stateHandler().sleep(waitTime);
@@ -259,7 +261,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 				
 				// Stop should already have set Icon to Stopping.
 				if (!stop) {
-					iconHelper.changeIcon(IconHelper.EXECUTING);
+					iconHelper().changeIcon(IconHelper.EXECUTING);
 				}
 			}
 		})) {
@@ -274,7 +276,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 	public boolean softReset() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 				
 					logger().debug("Propagating Soft Reset to children.");			
@@ -299,7 +301,7 @@ implements Structural, Stoppable, ConfigurationOwner {
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			
 					

@@ -12,10 +12,7 @@ public class IsHardResetable implements StateCondition {
 	@Override
 	public boolean test(State state) {
 		
-		return state.isReady() ||
-			state.isComplete() ||
-			state.isIncomplete() ||
-			state.isException();
+		return !state.isStoppable();
 	}
 	
 }

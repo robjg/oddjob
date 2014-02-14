@@ -76,21 +76,4 @@ public class MultiTypeTableDummy implements DummyItemView {
 		
 	}
 	
-	private void create(int index, String name, QTag type) throws ArooaParseException {
-		if (multiTypeTable.isKeyed()) {
-			throw new RuntimeException("Table isn't named! don't supply a name.");
-		}
-		
-		DesignElementProperty designProperty = multiTypeTable.getDesignProperty();
-		
-		InstanceSupport support = new InstanceSupport(
-				designProperty);
-		
-		if (index < instances.size()) {
-			support.removeInstance(instances.get(index));
-		}
-		
-		support.insertTag(index, type);
-		
-	}
 }

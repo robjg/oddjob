@@ -19,11 +19,11 @@ public enum ParentState implements State {
 			return true;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -54,12 +54,12 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return true;
 		}
 		@Override
-		public boolean isDone() {
-			return false;
+		public boolean isStoppable() {
+			return true;
 		}
 		@Override
 		public boolean isComplete() {
@@ -90,12 +90,12 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
-			return true;
+		public boolean isExecuting() {
+			return false;
 		}
 		@Override
-		public boolean isDone() {
-			return false;
+		public boolean isStoppable() {
+			return true;
 		}
 		@Override
 		public boolean isComplete() {
@@ -127,16 +127,16 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
+		public boolean isExecuting() {
+			return false;
+		}
+		@Override
 		public boolean isStoppable() {
 			return true;
 		}
 		@Override
-		public boolean isDone() {
-			return true;
-		}
-		@Override
 		public boolean isComplete() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isIncomplete() {
@@ -164,11 +164,11 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -201,12 +201,12 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
-			return true;
+		public boolean isStoppable() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -239,11 +239,11 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -273,11 +273,11 @@ public enum ParentState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override

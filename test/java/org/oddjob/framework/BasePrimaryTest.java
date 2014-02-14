@@ -7,6 +7,8 @@ import java.util.concurrent.CountDownLatch;
 import junit.framework.TestCase;
 
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
@@ -27,6 +29,9 @@ public class BasePrimaryTest extends TestCase {
 		
 		private final JobStateHandler stateHandler = new JobStateHandler(this);
 		
+		IconHelper iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
+		
 		private final JobStateChanger stateChanger;
 		
 		protected OurComp() {
@@ -42,6 +47,11 @@ public class BasePrimaryTest extends TestCase {
 		@Override
 		protected StateHandler<?> stateHandler() {
 			return stateHandler;
+		}
+		
+		@Override
+		protected IconHelper iconHelper() {
+			return iconHelper;
 		}
 		
 		protected StateChanger<JobState> getStateChanger() {

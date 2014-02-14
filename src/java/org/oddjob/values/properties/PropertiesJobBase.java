@@ -57,7 +57,7 @@ abstract public class PropertiesJobBase extends SerializableJob {
 			public void afterInit(RuntimeEvent event)
 					throws ArooaConfigurationException {
 				// this should only be set after serialization.
-				if (stateHandler.getState() == JobState.COMPLETE) {
+				if (stateHandler().getState() == JobState.COMPLETE) {
 					if (properties == null) {
 						throw new NullPointerException("This should be impossible.");
 					}

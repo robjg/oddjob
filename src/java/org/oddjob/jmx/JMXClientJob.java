@@ -144,7 +144,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	@Override
 	public void addLogListener(LogListener l, Object component, LogLevel level,
 			long last, int history) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		
 		if (logPoller == null) {
 			throw new NullPointerException("logPoller not available");
@@ -174,7 +174,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	@Override
 	public void addConsoleListener(LogListener l, Object component, long last,
 			int max) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		
 		if (logPoller == null) {
 			throw new NullPointerException("logPoller not available");

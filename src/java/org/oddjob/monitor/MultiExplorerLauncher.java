@@ -139,7 +139,7 @@ implements Stoppable  {
 		
 		controller.launchNewExplorer(null);
 		
-		stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+		stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 			public void run() {
 				getStateChanger().setState(ParentState.ACTIVE);
 			}

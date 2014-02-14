@@ -163,7 +163,7 @@ public class JMXClientJobTest extends TestCase {
 		client.stop();				
 		server.stop();
 		
-		assertEquals(ServiceState.COMPLETE, client.lastStateEvent().getState());
+		assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
 	}
 
 	/** 
@@ -263,7 +263,7 @@ public class JMXClientJobTest extends TestCase {
 							} catch (FailedToStopException e) {
 								throw new RuntimeException(e);
 							}
-							if (OddjobTestHelper.getJobState(client) == ServiceState.COMPLETE) {
+							if (OddjobTestHelper.getJobState(client) == ServiceState.STOPPED) {
 								ok[index] = true;
 							}
 						}
@@ -366,7 +366,7 @@ public class JMXClientJobTest extends TestCase {
 		client.stop();
 		server.stop();
 
-		assertEquals(ServiceState.COMPLETE, client.lastStateEvent().getState());
+		assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
 	}
 
 	class Owner extends MockBeanDirectoryOwner implements Structural {

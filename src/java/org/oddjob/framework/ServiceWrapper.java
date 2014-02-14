@@ -8,6 +8,8 @@ import java.beans.ExceptionListener;
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -27,24 +29,38 @@ import org.oddjob.state.ServiceStateHandler;
 public class ServiceWrapper extends BaseWrapper
 implements ComponentWrapper {
 	
+	/** Handle state. */
 	private final ServiceStateHandler stateHandler;
 	
+	/** Used to notify clients of an icon change. */
+	private final IconHelper iconHelper;
+	
+	/** Perform state changes. */
 	private final ServiceStateChanger stateChanger;
 	
     private final ServiceAdaptor service;
     
-    private Object wrapped;
+    private final Object wrapped;
     
-    private transient DynaBean dynaBean;
+    private final DynaBean dynaBean;
     
     private final Object proxy;
     	
+    /**
+     * Create a new instance wrapping a service.
+     * 
+     * @param service
+     * @param proxy
+     */
     public ServiceWrapper(ServiceAdaptor service, Object proxy) {
     	this.service = service;
     	this.proxy = proxy;
         this.wrapped = service.getComponent();
         this.dynaBean = new WrapDynaBean(wrapped);    	
+        
     	stateHandler = new ServiceStateHandler(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
     	stateChanger = new ServiceStateChanger(stateHandler, iconHelper, 
     			new Persistable() {					
     		@Override
@@ -57,6 +73,11 @@ implements ComponentWrapper {
     @Override
     protected ServiceStateHandler stateHandler() {
     	return stateHandler;
+    }
+
+    @Override
+    protected IconHelper iconHelper() {
+    	return iconHelper;
     }
     
 	protected ServiceStateChanger getStateChanger() {
@@ -172,7 +193,7 @@ implements ComponentWrapper {
         
     	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
     		public void run() {
-    			getStateChanger().setState(ServiceState.COMPLETE);
+    			getStateChanger().setState(ServiceState.STOPPED);
     		}
     	});
 
@@ -186,7 +207,7 @@ implements ComponentWrapper {
         try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
-					getStateChanger().setState(ServiceState.READY);
+					getStateChanger().setState(ServiceState.STARTABLE);
 					
 					logger().info("Soft Reset complete.");
 				}
@@ -206,7 +227,7 @@ implements ComponentWrapper {
         try {
         	return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
-					getStateChanger().setState(ServiceState.READY);
+					getStateChanger().setState(ServiceState.STARTABLE);
 	
 					logger().info("Hard Reset complete.");
 				}

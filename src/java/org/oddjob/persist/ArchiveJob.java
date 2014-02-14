@@ -19,18 +19,18 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsDoneOrCrashed;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateChanger;
-import org.oddjob.state.ParentStateConverter;
 import org.oddjob.state.ParentStateHandler;
+import org.oddjob.state.StandardParentStateConverter;
 import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
@@ -53,17 +53,22 @@ import org.oddjob.structural.StructuralListener;
  */
 public class ArchiveJob extends BasePrimary
 implements 
-	Runnable, Serializable, 
-	Stoppable, Resetable, Stateful, Structural {
+		Runnable, Serializable, 
+		Stoppable, Resetable, Stateful, Structural {
 
-	private transient ParentStateHandler stateHandler;
-	
-	private transient ParentStateChanger stateChanger;
-	
 	private static final long serialVersionUID = 2010032500L;
 	
+	/** Handle state. */
+	private transient volatile ParentStateHandler stateHandler;
+	
+	/** Used to notify clients of an icon change. */
+	private transient volatile IconHelper iconHelper;
+	
+	/** Used to change state. */
+	private transient volatile ParentStateChanger stateChanger;
+	
 	/** Track changes to children an notify listeners. */
-	private transient ChildHelper<Runnable> childHelper; 
+	private transient volatile ChildHelper<Runnable> childHelper; 
 			
 	/**
 	 * @oddjob.property 
@@ -71,7 +76,7 @@ implements
 	 * be taken when this job runs.
 	 * @oddjob.required Yes.
 	 */
-	private Object archiveIdentifier;
+	private volatile Object archiveIdentifier;
 	
 	/**
 	 * @oddjob.property 
@@ -79,17 +84,17 @@ implements
 	 * will be stored in.
 	 * @oddjob.required Yes.
 	 */
-	private String archiveName;
+	private volatile String archiveName;
 	
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The persister to use to store archives.
 	 * @oddjob.required Yes, but will fall back on the current Oddjob persister.
 	 */
-	private transient OddjobPersister archiver;
+	private transient volatile OddjobPersister archiver;
 	
 	/** Listener that does the archiving. */
-	private volatile transient PersistingStateListener listener;
+	private transient volatile PersistingStateListener listener;
 
 	/** Stop flag. */
 	protected transient volatile boolean stop;
@@ -104,6 +109,8 @@ implements
 	private void completeConstruction() {
 		stateHandler = new ParentStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -116,6 +123,11 @@ implements
 	@Override
 	protected ParentStateHandler stateHandler() {
 		return stateHandler;
+	}
+
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected StateChanger<ParentState> getStateChanger() {
@@ -198,7 +210,7 @@ implements
 						}
 						else {
 							getStateChanger().setState(
-									new ParentStateConverter(
+									new StandardParentStateConverter(
 											).toStructuralState(
 													event.getState()));
 						}
@@ -225,7 +237,8 @@ implements
 
 				State state = event.getState();
 
-				if (new IsDoneOrCrashed().test(state)) {
+				StateCondition finished = StateConditions.FINISHED;
+				if (finished.test(state)) {
 
 					if (!stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 						public void run() {

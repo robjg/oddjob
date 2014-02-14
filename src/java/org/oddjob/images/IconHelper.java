@@ -22,6 +22,7 @@ public class IconHelper implements Iconic {
     public static final String NULL = "null";
 	public static final String INITIALIZING = "initializing";
 	public static final String READY = "ready";
+	public static final String STARTABLE = "startable";
 	public static final String EXECUTING = "executing";
 	public static final String COMPLETE = "complete";
 	public static final String NOT_COMPLETE = "notcomplete";
@@ -48,6 +49,11 @@ public class IconHelper implements Iconic {
 				IconHelper.class.getResource("right_blue.gif"),
 				"Ready");
 
+	public static final ImageIcon startableIcon
+		= new ImageIconStable(
+				IconHelper.class.getResource("square_blue.gif"),
+				"Startable");
+
 	public static final ImageIcon executingIcon
 		= new ImageIconStable(
 				IconHelper.class.getResource("triangle_green.gif"),
@@ -70,7 +76,7 @@ public class IconHelper implements Iconic {
 
 	public static final ImageIcon stoppedIcon
 		= new ImageIconStable(
-				IconHelper.class.getResource("square_red.gif"),
+				IconHelper.class.getResource("square_green.gif"),
 				"Stopped");
 
 	public static final ImageIcon sleepingIcon
@@ -105,6 +111,7 @@ public class IconHelper implements Iconic {
 		defaultIconMap.put(NULL, nullIcon);
 		defaultIconMap.put(INITIALIZING, initializingIcon);
 		defaultIconMap.put(READY ,readyIcon);
+		defaultIconMap.put(STARTABLE, startableIcon);
 		defaultIconMap.put(EXECUTING, executingIcon);
 		defaultIconMap.put(COMPLETE, completeIcon);
 		defaultIconMap.put(NOT_COMPLETE, notCompleteIcon);

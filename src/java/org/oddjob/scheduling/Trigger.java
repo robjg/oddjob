@@ -250,7 +250,7 @@ public class Trigger extends ScheduleBase {
 				// state listeners have been notified.
 				on.lastStateEvent();
 
-				iconHelper.changeIcon(IconHelper.STARTED);
+				iconHelper().changeIcon(IconHelper.STARTED);
 
 				Runnable job = childHelper.getChild();
 

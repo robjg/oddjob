@@ -17,11 +17,11 @@ public enum JobState implements State {
 			return true;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -51,12 +51,12 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return true;
 		}
 		@Override
-		public boolean isDone() {
-			return false;
+		public boolean isStoppable() {
+			return true;
 		}
 		@Override
 		public boolean isComplete() {
@@ -87,11 +87,11 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -121,12 +121,12 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
-			return true;
+		public boolean isStoppable() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -156,11 +156,11 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -190,11 +190,11 @@ public enum JobState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override

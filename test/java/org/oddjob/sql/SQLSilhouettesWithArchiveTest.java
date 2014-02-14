@@ -5,12 +5,14 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Stateful;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
 import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 
 public class SQLSilhouettesWithArchiveTest extends TestCase {
 
@@ -24,34 +26,36 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		logger.debug("-----------------  " + getName() + "  -----------------");
 	}
 	
-	public void testSimple() {
+	public void testSimple() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/sql/SQLSilhouettesWithArchiveTest.xml",
 				getClass().getClassLoader()));
 		
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Stateful timer1 = lookup.lookup("timer1", Stateful.class);
+		Stateful timer2 = lookup.lookup("timer2", Stateful.class);
+		
+		StateSteps timer1States = new StateSteps(timer1);
+		timer1States.setTimeout(20*1000L);
+		StateSteps timer2States = new StateSteps(timer2);
+		timer2States.setTimeout(20*1000L);
+		
+		timer1States.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED, ParentState.COMPLETE);
+		timer2States.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED, ParentState.COMPLETE);
+		
 		oddjob.run();
 		
 		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
-		
-		Object timer1 = lookup.lookup("timer1");
-		
-		WaitJob wait1 = new WaitJob();
-		wait1.setFor(timer1);
-		wait1.setState(StateConditions.COMPLETE);
-		
-		wait1.run();
-		
-		Object timer2 = lookup.lookup("timer2");
-		
-		WaitJob wait2 = new WaitJob();
-		wait2.setFor(timer2);
-		wait2.setState(StateConditions.COMPLETE);
-		
-		wait2.run();
+		timer1States.checkWait();
+		timer2States.checkWait();
 		
 		/////////
 		

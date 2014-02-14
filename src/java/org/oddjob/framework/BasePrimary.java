@@ -1,6 +1,8 @@
 package org.oddjob.framework;
 
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -16,17 +18,17 @@ public abstract class BasePrimary extends BaseComponent
 implements LogEnabled {
 	
     /** provides a unique logger per component. */
-    private static int instanceCount;
+    private static final AtomicInteger instanceCount = new AtomicInteger();
 
     /** The logger. */
-    private Logger theLogger;
+    private volatile Logger theLogger;
 	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description A name, can be any text.
 	 * @oddjob.required No. 
 	 */
-	private String name;
+	private volatile String name;
 	
 	
 	/**
@@ -36,12 +38,8 @@ implements LogEnabled {
 	 */
 	protected Logger logger() {
 	    if (theLogger == null) {
-	    	int count = 0;
-	    	synchronized (BaseComponent.class) {
-	    		count = instanceCount++;
-	    	}
 	        theLogger = Logger.getLogger(this.getClass().getName() 
-	                + "." + count);
+	                + "." + instanceCount.incrementAndGet());
 	    }
 	    return theLogger;
 	}

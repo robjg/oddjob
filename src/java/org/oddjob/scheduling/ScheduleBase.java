@@ -52,22 +52,25 @@ implements
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Fires state events. */
-	protected transient ParentStateHandler stateHandler;
+	protected transient volatile ParentStateHandler stateHandler;
+	
+	/** Used to notify clients of an icon change. */
+	private transient volatile IconHelper iconHelper;
 	
 	/** Used to state change states and icons. */
-	private transient ParentStateChanger stateChanger;
+	private transient volatile ParentStateChanger stateChanger;
 	
 	/** Track the child. */
-	protected transient ChildHelper<Runnable> childHelper; 
+	protected transient volatile ChildHelper<Runnable> childHelper; 
 			
-	protected transient StructuralStateHelper structuralState;
+	protected transient volatile StructuralStateHelper structuralState;
 			
-	protected transient StateExchange childStateReflector;
+	protected transient volatile StateExchange childStateReflector;
 		
 	/** Stop flag. */
 	protected transient volatile boolean stop;
 	
-	protected transient CountDownLatch begun;
+	protected transient volatile CountDownLatch begun;
 	
 	/**
 	 * Default Constructor.
@@ -84,6 +87,9 @@ implements
 		childHelper = new ChildHelper<Runnable>(this);
 		structuralState = new StructuralStateHelper(childHelper, getStateOp());
 		
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
+		
 		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -99,6 +105,11 @@ implements
 	@Override
 	protected ParentStateHandler stateHandler() {
 		return stateHandler;
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected StateChanger<ParentState> getStateChanger() {
@@ -205,40 +216,44 @@ implements
 		try {
 			final AtomicReference<String> lastIcon = new AtomicReference<String>();
 			
-			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {				
 				@Override
 				public void run() {
+					logger().info("Stopping.");
+					
 					stop = true;
+					
 					stateHandler.wake();
 					
 					lastIcon.set(iconHelper.currentId());
-					iconHelper.changeIcon(IconHelper.STOPPING);
-					
+					iconHelper.changeIcon(IconHelper.STOPPING);					
 				}
 			})) {
-				return;
+				
+				// cancel future executions for timer. remove listener for trigger.
+				onStop();
+				
+				// then stop children
+				try {
+					childHelper.stopChildren();		
+					
+					postStop();
+					
+					new StopWait(this).run();
+				}
+				catch (FailedToStopException e) {
+					iconHelper.changeIcon(lastIcon.get());
+					logger().warn(e);
+				}
+				
+				logger().info("Stopped.");
 			}
-			
-			logger().info("Stopping.");
-			
-			// cancel future executions for timer. remove listener for trigger.
-			onStop();
-			
-			// then stop children
-			try {
+			else {
+				
 				childHelper.stopChildren();		
-				
-				postStop();
-				
-				new StopWait(this).run();
 			}
-			catch (FailedToStopException e) {
-				iconHelper.changeIcon(lastIcon.get());
-				logger().warn(e);
-			}
-			
-			logger().info("Stopped.");
-		} finally {
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}

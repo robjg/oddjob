@@ -33,7 +33,6 @@ import org.oddjob.util.OddjobConfigException;
 
 public class DependsJob extends SimpleJob implements Stoppable,
 		StateListener {
-    private static final long serialVersionUID = 20050806;
 
 	/**
 	 * @oddjob.property

@@ -20,6 +20,7 @@ import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
+import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
@@ -41,6 +42,9 @@ public class BaseComponentTest extends TestCase {
 
 		private final JobStateHandler stateHandler = new JobStateHandler(this);
 		
+		private final IconHelper iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
+		
 		private final JobStateChanger stateChanger;
 		
 		protected OurComponent() {
@@ -56,6 +60,11 @@ public class BaseComponentTest extends TestCase {
 		@Override
 		protected StateHandler<?> stateHandler() {
 			return stateHandler;
+		}
+		
+		@Override
+		protected IconHelper iconHelper() {
+			return iconHelper;
 		}
 		
 		protected StateChanger<JobState> getStateChanger() {
@@ -117,17 +126,27 @@ public class BaseComponentTest extends TestCase {
 
 		transient JobStateHandler stateHandler;
 		
+		transient IconHelper iconHelper;
+		
 		public SerializableComponent() {
 			completeConstruction();
 		}
 
 		private void completeConstruction() {
 			stateHandler = new JobStateHandler(this);
+			iconHelper = new IconHelper(this, 
+					StateIcons.iconFor(stateHandler.getState()));
+			
 		}
 		
 		@Override
 		protected StateHandler<?> stateHandler() {
 			return stateHandler;
+		}
+		
+		@Override
+		protected IconHelper iconHelper() {
+			return iconHelper;
 		}
 		
 		@Override
@@ -154,10 +173,11 @@ public class BaseComponentTest extends TestCase {
 		private void readObject(ObjectInputStream s) 
 		throws IOException, ClassNotFoundException {
 			s.defaultReadObject();
-			assertNotNull(iconHelper);
 			StateEvent savedEvent = (StateEvent) s.readObject();
 			
 			completeConstruction();
+			
+			assertNotNull(iconHelper);
 			
 			stateHandler.restoreLastJobStateEvent(savedEvent);
 			iconHelper.changeIcon(
@@ -226,9 +246,17 @@ public class BaseComponentTest extends TestCase {
 
 			JobStateHandler stateHandler = new JobStateHandler(this);
 			
+			IconHelper iconHelper = new IconHelper(this, 
+					StateIcons.iconFor(stateHandler.getState()));
+			
 			@Override
 			protected StateHandler<?> stateHandler() {
 				return stateHandler;
+			}
+			
+			@Override
+			protected IconHelper iconHelper() {
+				return iconHelper;
 			}
 			
 			@Override

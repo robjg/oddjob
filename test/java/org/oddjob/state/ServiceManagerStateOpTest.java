@@ -29,7 +29,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
 		
 		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.READY));
+				test.evaluate(ServiceState.STARTABLE));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING));
@@ -41,7 +41,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(ServiceState.EXCEPTION));
 				
 		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.COMPLETE));
+				test.evaluate(ServiceState.STOPPED));
 	}
 	
 	public void testAssociative() {
@@ -62,14 +62,14 @@ public class ServiceManagerStateOpTest extends TestCase {
 	}
 
 	
-	public void testEvaluateTwoOps() {
+	public void testEvaluateTwoJobStates() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
 		
 		assertEquals(ParentState.READY, 
 				test.evaluate(JobState.READY, JobState.READY));
 		
-		assertEquals(ParentState.READY, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.READY, JobState.EXECUTING));
 		
 		assertEquals(ParentState.READY, 
@@ -81,7 +81,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(JobState.READY, JobState.EXCEPTION));
 		
-		assertEquals(ParentState.READY, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.EXECUTING, JobState.READY));
 		
 		assertEquals(ParentState.ACTIVE, 
@@ -142,57 +142,160 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
 	}
 	
-	public void testEvaluateTwoOpsService() {
+	public void testEvaluateTwoServiceStates() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
 		
 		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.READY, ServiceState.READY));
+				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTABLE));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTING));
 		
 		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.READY, ServiceState.STARTED));
+				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTED));
 		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.READY, ServiceState.COMPLETE));
-
 		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.READY, ServiceState.EXCEPTION));
+				test.evaluate(ServiceState.STARTABLE, ServiceState.EXCEPTION));
 		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTING, ServiceState.READY));
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTING, ServiceState.STARTABLE));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTING, ServiceState.STARTING));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.STARTED));
 		
 		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, ServiceState.COMPLETE));
+				test.evaluate(ServiceState.STARTING, ServiceState.STOPPED));
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STARTED, ServiceState.STARTABLE));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTED, ServiceState.STARTING));
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(ServiceState.STARTED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STARTED, ServiceState.EXCEPTION));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.COMPLETE, ServiceState.READY));
-		
+				
 		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.COMPLETE, ServiceState.STARTED));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.COMPLETE, ServiceState.COMPLETE));
-
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.COMPLETE, ServiceState.EXCEPTION));
+				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
 		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.READY));
+				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTABLE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTING));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.COMPLETE));
+				test.evaluate(ServiceState.EXCEPTION, ServiceState.EXCEPTION));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, ServiceState.STOPPED));
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STOPPED, ServiceState.STARTABLE));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STOPPED, ServiceState.STARTING));
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(ServiceState.STOPPED, ServiceState.STARTED));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.STOPPED, ServiceState.EXCEPTION));
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(ServiceState.STOPPED, ServiceState.STOPPED));
+		
+	}
+	
+	public void testEvaluateServiceStateAndJobState() {
+		
+		ServiceManagerStateOp test = new ServiceManagerStateOp();
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STARTABLE, JobState.READY));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTABLE, JobState.EXECUTING));
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STARTABLE, JobState.COMPLETE));
+
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(ServiceState.STARTABLE, JobState.INCOMPLETE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.STARTABLE, JobState.EXCEPTION));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTING, JobState.READY));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTING, JobState.EXECUTING));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTING, JobState.COMPLETE));
+
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(ServiceState.STARTING, JobState.INCOMPLETE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.STARTING, JobState.EXCEPTION));
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STARTED, JobState.READY));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STARTED, JobState.EXECUTING));
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(ServiceState.STARTED, JobState.COMPLETE));
+
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(ServiceState.STARTED, JobState.INCOMPLETE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.STARTED, JobState.EXCEPTION));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, JobState.READY));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, JobState.EXECUTING));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, JobState.COMPLETE));
 
 		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.EXCEPTION));
+				test.evaluate(ServiceState.EXCEPTION, JobState.INCOMPLETE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.EXCEPTION, JobState.EXCEPTION));
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(ServiceState.STOPPED, JobState.READY));
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(ServiceState.STOPPED, JobState.EXECUTING));
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(ServiceState.STOPPED, JobState.COMPLETE));
+
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(ServiceState.STOPPED, JobState.INCOMPLETE));
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(ServiceState.STOPPED, JobState.EXCEPTION));
+		
 	}
 	
 	public void testDestroyed() {

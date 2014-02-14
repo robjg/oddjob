@@ -203,7 +203,7 @@ public class SimpleSecurityTest extends TestCase {
 		registry.run();
 		
 		StateSteps serverStates = new StateSteps((Stateful) server);
-		serverStates.startCheck(ServiceState.READY, 
+		serverStates.startCheck(ServiceState.STOPPED, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		((Runnable) server).run();
@@ -211,7 +211,7 @@ public class SimpleSecurityTest extends TestCase {
 		serverStates.checkNow();
 		
 		StateSteps clientStates = new StateSteps(client);
-		clientStates.startCheck(ServiceState.READY, 
+		clientStates.startCheck(ServiceState.STOPPED, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		client.run();

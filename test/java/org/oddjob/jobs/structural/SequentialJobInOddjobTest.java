@@ -29,7 +29,7 @@ public class SequentialJobInOddjobTest extends TestCase {
 		String xml = 
 			"<oddjob xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
 			" <job>" +
-			"  <sequential id='test'>" +
+			"  <sequential id='test' stateOperator='ACTIVE'>" +
 			"   <jobs>" +
 			"    <bean id='1' class='" + OurService.class.getName() + "'/>" +
 			"    <state:flag id='2' state='EXCEPTION'/>" + 

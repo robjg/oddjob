@@ -23,42 +23,42 @@ import org.oddjob.Structural;
  */
 public class ServiceManagerStateOp implements StateOperator {
 	
+	private static class ServiceManagerParentStateConverter 
+	implements ParentStateConverter {
+		
+		@Override
+		public ParentState toStructuralState(State state) {
+			if (state.isDestroyed()) {
+				return ParentState.DESTROYED;
+			}
+			else if (state.isIncomplete()) {
+				return ParentState.INCOMPLETE;
+			}
+			else if (state.isException()) {
+				return ParentState.EXCEPTION;
+			}
+			else if (state.isComplete()) {
+					return ParentState.COMPLETE;
+			}
+			else if (state.isStoppable()) { 
+				return ParentState.ACTIVE;
+			}
+			else if (state.isReady()) {
+				return ParentState.READY;
+			}
+			else {
+				throw new IllegalStateException("Unconvertable state " + 
+						state);
+			}
+		}
+	}
+	
 	@Override
 	public ParentState evaluate(State... states) {
 		
-		new AssertNonDestroyed().evaluate(states);
+		return new WorstStateOp(new ServiceManagerParentStateConverter()
+				).evaluate(states);
 		
-		ParentState state = ParentState.READY;
-		
-		if (states.length > 0) {
-			
-			state = new ParentStateConverter().toStructuralState(states[0]);
-			
-			if (state.isDone()) {
-				state = ParentState.COMPLETE;
-			}
-			
-			for (int i = 1; i < states.length; ++i) {
-				State next = states[i];
-
-				if (state.isException() || next.isException()) {
-					state = ParentState.EXCEPTION;
-				}
-				else if (state.isIncomplete() || next.isIncomplete()){
-					state = ParentState.INCOMPLETE;
-				}
-				else if (state.isReady() || next.isReady()){
-					state = ParentState.READY;
-				}
-				else if (!state.isDone() || !next.isDone()) {
-					state = ParentState.ACTIVE;
-				}
-				else {
-					state = ParentState.COMPLETE;
-				}
-			}
-		}		
-		return state;
 	}
 	
 	public String toString() {

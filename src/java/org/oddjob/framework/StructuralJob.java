@@ -45,18 +45,22 @@ implements
 		Stoppable, Resetable, Stateful, Forceable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
-	protected transient ParentStateHandler stateHandler;
+	/** Handle state. */
+	private transient volatile ParentStateHandler stateHandler;
+	
+	/** Used to notify clients of an icon change. */
+	private transient volatile IconHelper iconHelper;
 	
 	/** Track changes to children an notify listeners. */
-	protected transient ChildHelper<E> childHelper; 
+	protected transient volatile ChildHelper<E> childHelper; 
 			
 	/** Calculate our state based on children. */
-	protected transient StructuralStateHelper structuralState;
+	protected transient volatile StructuralStateHelper structuralState;
 		
 	/** Reflect state of children. */
-	protected transient StateExchange childStateReflector;
+	protected transient volatile StateExchange childStateReflector;
 	
-	private transient ParentStateChanger stateChanger;
+	private transient volatile ParentStateChanger stateChanger;
 	
 	/**
 	 * @oddjob.property
@@ -78,6 +82,8 @@ implements
 		childHelper = new ChildHelper<E>(this);
 		structuralState = new StructuralStateHelper(childHelper, 
 				getInitialStateOp());
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -92,6 +98,11 @@ implements
 	@Override
 	protected ParentStateHandler stateHandler() {
 		return stateHandler;
+	}
+
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected final StateChanger<ParentState> getStateChanger() {

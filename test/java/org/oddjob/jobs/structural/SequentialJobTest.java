@@ -12,6 +12,7 @@ import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -22,6 +23,7 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.MirrorState;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
 
@@ -110,7 +112,7 @@ public class SequentialJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 	}
 	
-	public void testRunnable() {
+	public void testTwoRunnableJobs() {
 		OurJob j1 = new OurJob();
 		
 		OurJob j2 = new OurJob();
@@ -132,7 +134,7 @@ public class SequentialJobTest extends TestCase {
 	/**
 	 * Test a mixture of Objects and jobs.
 	 */
-	public void testMixture() {
+	public void testMixtureOfJobMirrorAndObject() {
 		OurJob j1 = new OurJob();
 		
 		Object j2 = new OurJob();
@@ -159,7 +161,7 @@ public class SequentialJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 	}
 	
-	public void testNotComplete() {
+	public void testOneJobCompleteOneJobNotComplete() {
 		FlagState j1 = new FlagState();
 		j1.setState(JobState.COMPLETE);
 		
@@ -316,7 +318,7 @@ public class SequentialJobTest extends TestCase {
 		public void stop() {}
 	}
 	
-	public void testService() throws FailedToStopException {
+	public void testAServiceAndAJob() throws FailedToStopException {
 		
 		Object service = new OddjobComponentResolver().resolve(
 				new MyService(), new StandardArooaSession());
@@ -342,6 +344,64 @@ public class SequentialJobTest extends TestCase {
 		test.stop();
 		
 		states.checkNow();
+	}
+	
+	public void testTwoServices() throws FailedToStopException {
+		
+		Object service1 = new OddjobComponentResolver().resolve(
+				new MyService(), new StandardArooaSession());
+		
+		Object service2 = new OddjobComponentResolver().resolve(
+				new MyService(), new StandardArooaSession());
+		
+		SequentialJob test = new SequentialJob();
+		test.setJobs(0, service1);
+		test.setJobs(0, service2);
+
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, ParentState.STARTED);
+		
+		test.run();
+		
+		states.checkNow();
+		
+		assertEquals(ServiceState.STARTED, 
+				((Stateful) service1).lastStateEvent().getState());
+		assertEquals(ServiceState.STARTED, 
+				((Stateful) service2).lastStateEvent().getState());
+				
+		// Stop each service. Sequential should go to complete
+		// only when both are stopped.
+		
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+
+		((Stoppable) service1).stop();
+		
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
+		
+		((Stoppable) service2).stop();
+		
+		states.checkNow();
+		
+		// Check that starting a service sequential reflects started.
+		
+		states.startCheck(ParentState.COMPLETE, ParentState.READY,
+				ParentState.ACTIVE, ParentState.STARTED);
+		
+		((Resetable) service1).hardReset();
+		((Runnable) service1).run();
+		
+		states.checkNow();
+		
+		// Check stopping sequential.
+		
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+
+		test.stop();
+		
+		states.checkNow();
+			
 	}
 	
 	public void testNestedSequentials() throws FailedToStopException {

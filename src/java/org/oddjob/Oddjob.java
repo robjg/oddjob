@@ -68,7 +68,6 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.OddjobServicesBean;
 import org.oddjob.sql.SQLPersisterService;
-import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsNot;
 import org.oddjob.state.IsSoftResetable;
@@ -77,6 +76,7 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
+import org.oddjob.state.WorstStateOp;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.values.properties.PropertiesType;
@@ -512,7 +512,7 @@ implements Loadable,
 	 */
 	@Override
 	protected StateOperator getInitialStateOp() {
-		return new AnyActiveStateOp();
+		return new WorstStateOp();
 	}
 
 	/**
@@ -671,7 +671,7 @@ implements Loadable,
 	public void load() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			stateHandler.waitToWhen(new IsNot(StateConditions.RUNNING), 
+			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
 				    try {
@@ -805,7 +805,7 @@ implements Loadable,
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 
 					logger().debug("Soft reset requested.");
@@ -845,7 +845,7 @@ implements Loadable,
 	 * @return True if saved.
 	 */
 	private boolean saveLastReset() {
-		if (stateHandler.getState() != ParentState.READY) {
+		if (stateHandler().getState() != ParentState.READY) {
 			return true;
 		}
 		
@@ -866,7 +866,7 @@ implements Loadable,
 	public boolean hardReset() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 
 					logger().debug("Hard Reset requested.");

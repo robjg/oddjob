@@ -9,6 +9,8 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.BasePrimary;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 
 
@@ -23,16 +25,23 @@ import org.oddjob.persist.Persistable;
 public class MirrorState extends BasePrimary
 implements Runnable, Stoppable, Resetable {
 
+	/** Handle state. */
 	private final JobStateHandler stateHandler;
 	
+	/** Used to notify clients of an icon change. */
+	private final IconHelper iconHelper;
+	
+	/** Used to change state. */
 	private final JobStateChanger stateChanger;
 	
-	private Stateful job;
+	private volatile Stateful job;
 	
-	private StateListener listener;
+	private volatile StateListener listener;
 	
 	public MirrorState() {
 		stateHandler = new JobStateHandler(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -45,6 +54,11 @@ implements Runnable, Stoppable, Resetable {
 	@Override
 	protected JobStateHandler stateHandler() {
 		return stateHandler;
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected StateChanger<JobState> getStateChanger() {

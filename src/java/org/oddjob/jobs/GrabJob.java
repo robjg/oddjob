@@ -25,7 +25,6 @@ import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
 import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsDoneOrCrashed;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
@@ -34,11 +33,13 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateChanger;
 import org.oddjob.state.JobStateConverter;
 import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.OrderedStateChanger;
 import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
+import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -61,10 +62,16 @@ implements
 		Stoppable, Resetable, Stateful, Structural {
 	private static final long serialVersionUID = 2010031800L;
 
-	private transient JobStateHandler stateHandler;
+	/** Handle state. */
+	private transient volatile JobStateHandler stateHandler;
 	
-	private transient JobStateChanger stateChanger;
+	/** Used to notify clients of an icon change. */
+	private transient volatile IconHelper iconHelper;
 	
+	/** Used for state changes. */
+	private transient volatile JobStateChanger stateChanger;
+
+	/** stop flag. */
 	protected transient volatile boolean stop;
 	
 	/**
@@ -140,6 +147,8 @@ implements
 	private void completeConstruction() {
 		stateHandler = new JobStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 			@Override
@@ -152,6 +161,11 @@ implements
 	@Override
 	protected JobStateHandler stateHandler() {
 		return stateHandler;
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected StateChanger<JobState> getStateChanger() {
@@ -271,7 +285,9 @@ implements
 		public void jobStateChange(StateEvent event) {
 			final State state = event.getState();
 
-			if (new IsDoneOrCrashed().test(state)) {
+			// Should we use ENDED?
+			StateCondition finishedCondition = StateConditions.FINISHED;
+			if (finishedCondition.test(state)) {
 				outcome.removeStateListener(this);
 				listener = null;			
 				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {

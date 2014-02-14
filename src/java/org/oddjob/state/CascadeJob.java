@@ -114,7 +114,7 @@ public class CascadeJob extends StructuralJob<Object> {
 		final AtomicBoolean first = new AtomicBoolean(true);
 		
 		// This runnable is run each time the state of the currently
-		// started child isDone.
+		// started child is complete.
 		new Runnable() {
 			@Override
 			public void run() {
@@ -135,25 +135,31 @@ public class CascadeJob extends StructuralJob<Object> {
 				}
 
 				final Runnable _this = this;
+				
 				((Stateful) next).addStateListener(new StateListener() {
 					public void jobStateChange(StateEvent event) {
-						if (!new IsDoneOrCrashed().test(event.getState())) {
+
+						StateCondition finished = StateConditions.FINISHED;
+						if (!finished.test(event.getState())) {
 							return;
 						}
+						
 						event.getSource().removeStateListener(this);
-						if (event.getState().isDone()) {
+						
+						if (event.getState().isComplete()) {
 							_this.run();
-						}
+						}						
 						else {
 							executionWatcher.start();
 						}
 					}
-				});				
+				});
+				
 				Runnable wrapper = executionWatcher.addJob(next);
 				
 				if (first.get()) {
 					first.set(false);
-					stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+					stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 						public void run() {
 							getStateChanger().setState(ParentState.ACTIVE);
 						}

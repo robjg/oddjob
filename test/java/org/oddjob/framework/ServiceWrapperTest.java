@@ -142,7 +142,7 @@ public class ServiceWrapperTest extends TestCase {
 		
 		((Stoppable) wrapper).stop();
 
-		assertEquals(ServiceState.COMPLETE, OddjobTestHelper.getJobState(wrapper));
+		assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "stopped"));
 
 		((Resetable) wrapper).hardReset();
@@ -150,7 +150,7 @@ public class ServiceWrapperTest extends TestCase {
 		// Service don't persist.
 		assertNull(session.saved);
 		
-		assertEquals(ServiceState.READY, OddjobTestHelper.getJobState(wrapper));
+		assertEquals(ServiceState.STARTABLE, OddjobTestHelper.getJobState(wrapper));
 	}
 
     public void testInOddjob() throws Exception {
@@ -172,7 +172,7 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oj.stop();
     	
-    	assertEquals(ServiceState.COMPLETE, OddjobTestHelper.getJobState(test));
+    	assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(test));
     	assertEquals(new Boolean(true), 
     			PropertyUtils.getProperty(test, "stopped"));
 
@@ -255,7 +255,7 @@ public class ServiceWrapperTest extends TestCase {
     	    	
     	StateSteps serviceStates = new StateSteps(service);
     	
-    	serviceStates.startCheck(ServiceState.READY, ServiceState.STARTING, 
+    	serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, 
     			ServiceState.STARTED, ServiceState.EXCEPTION);
     	
     	oddjob.run();

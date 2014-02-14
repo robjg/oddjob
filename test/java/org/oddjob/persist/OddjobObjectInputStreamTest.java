@@ -57,6 +57,8 @@ public class OddjobObjectInputStreamTest extends TestCase {
 		
 		Object copy = oi.readObject();
 		
+		oi.close();
+		
 		assertEquals(appleClass, copy.getClass());
 	}
 
@@ -111,6 +113,8 @@ public class OddjobObjectInputStreamTest extends TestCase {
 				buffer.toInputStream(), test);
 		
 		Object copy = oi.readObject();
+		
+		oi.close();
 		
 		assertTrue(appleClass.isInstance(copy));
 		

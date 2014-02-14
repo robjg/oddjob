@@ -9,11 +9,11 @@ public class ClientDestroyed implements State {
 		return false;
 	}
 	@Override
-	public boolean isStoppable() {
+	public boolean isExecuting() {
 		return false;
 	}
 	@Override
-	public boolean isDone() {
+	public boolean isStoppable() {
 		return false;
 	}
 	@Override

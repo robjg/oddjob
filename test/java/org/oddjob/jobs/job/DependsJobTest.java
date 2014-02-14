@@ -31,6 +31,7 @@ public class DependsJobTest extends TestCase {
 	 * Test that a ready job is run. 
 	 *
 	 */
+	@SuppressWarnings("deprecation")
 	public void testReady() {
 		TestJob testJob = new TestJob();
 		DependsJob j = new DependsJob();
@@ -45,6 +46,7 @@ public class DependsJobTest extends TestCase {
 	 * Test that a complete job isn't run. 
 	 *
 	 */
+	@SuppressWarnings("deprecation")
 	public void testAlreadyComplete() {
 		TestJob testJob = new TestJob();
 		testJob.run();
@@ -78,6 +80,7 @@ public class DependsJobTest extends TestCase {
 	 * Test that an executing job is waited for. 
 	 *
 	 */
+	@SuppressWarnings("deprecation")
 	public void testExecuting() throws InterruptedException {
 		class Executing extends MockStateful {
 			JobStateHandler h = new JobStateHandler(this);

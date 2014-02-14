@@ -53,7 +53,7 @@ public class NetworkFailureTest extends TestCase {
 		client.setHeartbeat(500);
 		
 		StateSteps clientStates = new StateSteps(client);
-		clientStates.startCheck(ServiceState.READY, 
+		clientStates.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		client.run();
@@ -82,7 +82,7 @@ public class NetworkFailureTest extends TestCase {
 		ssf.setFail(false);
 		
 		clientStates.startCheck(ServiceState.EXCEPTION, 
-				ServiceState.READY, 
+				ServiceState.STARTABLE, 
 				ServiceState.STARTING,
 				ServiceState.STARTED);
 		

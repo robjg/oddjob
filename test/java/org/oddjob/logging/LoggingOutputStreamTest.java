@@ -92,6 +92,8 @@ public class LoggingOutputStreamTest extends TestCase {
 		
 		test.add(ba, 0, ba.length);		
 
+		test.close();
+		
 		for (int i = 0; i < la.results.length; ++i) {
 			assertEquals(la.expected[i], la.results[i]);
 		}

@@ -13,6 +13,8 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.describe.UniversalDescriber;
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateHandler;
 
@@ -34,6 +36,9 @@ public class BaseWrapperTest extends TestCase {
 		
 		JobStateHandler stateHandler = new JobStateHandler(this);
 		
+		IconHelper iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
+
 		Object wrapped;
 		MockWrapper(Object wrapped) {
 			this.wrapped = wrapped;
@@ -42,6 +47,11 @@ public class BaseWrapperTest extends TestCase {
 		@Override
 		protected StateHandler<?> stateHandler() {
 			return stateHandler;
+		}
+		
+		@Override
+		protected IconHelper iconHelper() {
+			return iconHelper;
 		}
 		
 		public Object getWrapped() {

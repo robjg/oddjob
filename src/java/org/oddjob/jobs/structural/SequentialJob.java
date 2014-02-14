@@ -5,11 +5,12 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.OptionallyTransient;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
+import org.oddjob.state.WorstStateOp;
 
 /**
  * @oddjob.description Executes it's children in a sequence one after the
@@ -101,7 +102,7 @@ public class SequentialJob extends StructuralJob<Object>
 	private static final long serialVersionUID = 20111017;
 	
 	/** Are children independent? i.e does failure stop the sequence. */
-	private boolean independent;
+	private volatile boolean independent;
 	
 	/**
 	 * @oddjob.property transient
@@ -112,7 +113,7 @@ public class SequentialJob extends StructuralJob<Object>
 	 * @param stateOperator The state operator to be applied to children's
 	 * states to derive our state.
 	 */
-	private boolean _transient;
+	private volatile boolean _transient;
 	
 	/**
 	 * @oddjob.property stateOperator
@@ -126,7 +127,13 @@ public class SequentialJob extends StructuralJob<Object>
 	 */
 	@ArooaAttribute
 	public void setStateOperator(StateOperator stateOperator) {
-		this.structuralState.setStateOperator(stateOperator);
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			this.structuralState.setStateOperator(stateOperator);
+		}
+		finally {
+			ComponentBoundry.pop();
+		}
 	}
 	
 	public StateOperator getStateOperator() {
@@ -139,7 +146,7 @@ public class SequentialJob extends StructuralJob<Object>
 	 */
 	@Override
 	public StateOperator getInitialStateOp() {
-		return new AnyActiveStateOp();
+		return new WorstStateOp();
 	}
 	
 	/**

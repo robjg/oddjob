@@ -22,5 +22,7 @@ public class StdInInputHandlerTest extends TestCase {
 		assertEquals("world", test.readLine());
 		assertEquals("", test.readLine());
 		assertEquals(null, test.readLine());
+		
+		test.close();
 	}
 }

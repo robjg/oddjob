@@ -244,7 +244,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	 * @param listener The listener.
 	 */	
 	public void addStructuralListener(StructuralListener listener) {
-		stateHandler.assertAlive();
+		stateHandler().assertAlive();
 		
 		childHelper.addStructuralListener(listener);
 	}

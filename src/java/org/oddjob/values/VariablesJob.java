@@ -80,6 +80,7 @@ public class VariablesJob extends SimpleJob
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
+	@Override
 	protected int execute() throws Exception {
     	
 		return 0;
@@ -109,6 +110,7 @@ public class VariablesJob extends SimpleJob
      * @exception IllegalArgumentException if there is no property
      *  of the specified name
      */
+	@Override
     public boolean contains(String name, String key) {
     	return dynaBean.contains(name, key);
     }
@@ -121,6 +123,7 @@ public class VariablesJob extends SimpleJob
      * @exception IllegalArgumentException if there is no property
      *  of the specified name
      */
+	@Override
     public Object get(String name) {
         return dynaBean.get(name);
     }
@@ -140,6 +143,7 @@ public class VariablesJob extends SimpleJob
      * @exception NullPointerException if no array or List has been
      *  initialized for this property
      */
+	@Override
     public Object get(String name, int index) {
         return dynaBean.get(name, index);
     }
@@ -157,6 +161,7 @@ public class VariablesJob extends SimpleJob
      * @exception IllegalArgumentException if the specified property
      *  exists, but is not mapped
      */
+	@Override
     public Object get(String name, String key) {
         return dynaBean.get(name, key);
     }
@@ -165,6 +170,7 @@ public class VariablesJob extends SimpleJob
      * Return the <code>DynaClass</code> instance that describes the set of
      * properties available for this DynaBean.
      */
+	@Override
     public DynaClass getDynaClass() {
         return dynaClass;
     }
@@ -181,6 +187,7 @@ public class VariablesJob extends SimpleJob
      * @exception IllegalArgumentException if there is no property
      *  of the specified name
      */
+	@Override
     public void remove(String name, String key) {
     	dynaBean.remove(name, key);
     }
@@ -198,6 +205,7 @@ public class VariablesJob extends SimpleJob
      * @exception NullPointerException if an attempt is made to set a
      *  primitive property to null
      */
+	@Override
     public void set(String name, Object value) {
 		logger().debug("Setting [" + name + "] = [" + value + "]");	
 //		if (! (value instanceof ArooaValue)) {
@@ -227,6 +235,7 @@ public class VariablesJob extends SimpleJob
      * @exception IndexOutOfBoundsException if the specified index
      *  is outside the range of the underlying property
      */
+	@Override
     public void set(String name, int index, Object value) {
 		logger().debug("Setting [" + name + "[" + index + "]] = [" + value + "]");    	
 		dynaBean.set(name, index, value);
@@ -246,6 +255,7 @@ public class VariablesJob extends SimpleJob
      * @exception IllegalArgumentException if the specified property
      *  exists, but is not mapped
      */
+	@Override
     public void set(String name, String key, Object value) {
 		logger().debug("Setting [" + name + "(" + key + ")] = [" + value + "]");
 		
@@ -277,6 +287,7 @@ public class VariablesJob extends SimpleJob
     	 *  (non-Javadoc)
     	 * @see org.apache.commons.beanutils.DynaClass#getDynaProperty(java.lang.String)
     	 */
+    	@Override
         public DynaProperty getDynaProperty(String name) {
             DynaProperty dynaProperty = delegate.getDynaProperty(name);
             if (dynaProperty == null) {
@@ -294,6 +305,7 @@ public class VariablesJob extends SimpleJob
          *  (non-Javadoc)
          * @see org.apache.commons.beanutils.DynaClass#getDynaProperties()
          */
+    	@Override
         public DynaProperty[] getDynaProperties() {
         	return delegate.getDynaProperties();
         }
@@ -302,6 +314,7 @@ public class VariablesJob extends SimpleJob
          *  (non-Javadoc)
          * @see org.apache.commons.beanutils.DynaClass#getName()
          */
+    	@Override
         public String getName() {
         	return delegate.getName();
         }    
@@ -310,35 +323,43 @@ public class VariablesJob extends SimpleJob
          *  (non-Javadoc)
          * @see org.apache.commons.beanutils.DynaClass#newInstance()
          */
+    	@Override
         public DynaBean newInstance() throws IllegalAccessException, InstantiationException {
         	throw new UnsupportedOperationException();
         }    
 
+    	@Override
         public void add(String name) {
         	delegate.add(name);
         }
         
-        public void add(String name, Class type) {
+    	@Override
+        public void add(String name, 
+        		@SuppressWarnings("rawtypes") Class type) {
         	delegate.add(name, type);
         }
         
-        public void add(String name, Class type, boolean readable,
+    	@Override
+        public void add(String name, 
+        		@SuppressWarnings("rawtypes") Class type, boolean readable,
         		boolean writeable) {
         	delegate.add(name, type, readable, writeable);
         }
         
+    	@Override
         public boolean isRestricted() {
         	return delegate.isRestricted();
         }
         
+    	@Override
         public void remove(String name) {
         	delegate.remove(name);
         }
         
+    	@Override
         public void setRestricted(boolean restricted) {
         	delegate.setRestricted(restricted);
         }
     }
-
 }
 

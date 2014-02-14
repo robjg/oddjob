@@ -121,7 +121,7 @@ public class WaitJob extends SimpleJob
 			sleep = DEFAULT_WAIT_SLEEP;
 		}
 		while (!stop) {
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					configure();
 				}
@@ -151,7 +151,7 @@ public class WaitJob extends SimpleJob
 					states.add(event.getState());
 					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 						public void run() {
-							stateHandler.wake();
+							stateHandler().wake();
 						}
 					});
 				}

@@ -37,6 +37,15 @@ public class AnyActiveStateOp implements StateOperator {
 		{ null,       null, null,       null,       null,      null,        null,      	null },
 	};
 	
+	private final ParentStateConverter parentStateConverter;
+	
+	public AnyActiveStateOp() {
+		this(new StandardParentStateConverter());
+	}
+	
+	public AnyActiveStateOp(ParentStateConverter parentStateConverter) {
+		this.parentStateConverter = parentStateConverter;
+	}
 	
 	@Override
 	public ParentState evaluate(State... states) {
@@ -47,10 +56,10 @@ public class AnyActiveStateOp implements StateOperator {
 		
 		if (states.length > 0) {
 			
-			state = new ParentStateConverter().toStructuralState(states[0]);
+			state = parentStateConverter.toStructuralState(states[0]);
 			
 			for (int i = 1; i < states.length; ++i) {
-				ParentState next = new ParentStateConverter().toStructuralState(
+				ParentState next = parentStateConverter.toStructuralState(
 						states[i]);
 
 				state = STATE_MATRIX[state.ordinal()][next.ordinal()];

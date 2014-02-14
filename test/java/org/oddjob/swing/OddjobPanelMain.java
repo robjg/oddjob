@@ -44,8 +44,8 @@ public class OddjobPanelMain {
 		StateSteps states = new StateSteps(test);
 		states.setTimeout(0);
 		
-		states.startCheck(ServiceState.READY, ServiceState.STARTING, 
-				ServiceState.STARTED, ServiceState.COMPLETE);
+		states.startCheck(ServiceState.STOPPED, ServiceState.STARTING, 
+				ServiceState.STARTED, ServiceState.STOPPED);
 		
 		test.run();		
 		

@@ -207,7 +207,7 @@ public class RunJobTest extends TestCase {
 	private class MyStateful implements Stateful, Runnable {
 				
 		StateHandler<ServiceState> states = new StateHandler<ServiceState>(
-				this, ServiceState.READY);
+				this, ServiceState.STARTABLE);
 
 		
 		void fireJobState(final ServiceState state) {
@@ -339,14 +339,17 @@ public class RunJobTest extends TestCase {
 		
 		Iconic test = lookup.lookup("r", Iconic.class);
 		
-		IconSteps icons = new IconSteps(test);
-
-		icons.startCheck("ready", "executing", "sleeping");
+		Stateful wait = lookup.lookup("w", Stateful.class);
 		
-		StateSteps states = new StateSteps(oddjob);
-
-		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
+		IconSteps testIcons = new IconSteps(test);
+		testIcons.startCheck("ready", "executing", "sleeping", "executing", "sleeping");
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
 				ParentState.STARTED);
+		
+		StateSteps waitStates = new StateSteps(wait);
+		waitStates.startCheck(JobState.READY, JobState.EXECUTING);
 		
 		Thread t = new Thread(oddjob);
 		t.start();
@@ -355,24 +358,25 @@ public class RunJobTest extends TestCase {
 //		explorer.setOddjob(oddjob);
 //		explorer.run();
 		
+		waitStates.checkWait();
 		
-		icons.checkWait();
+		testIcons.checkWait();
+		
 		logger.info("*** Stopping Wait *** ");
 		
-		Stoppable wait = lookup.lookup("w", Stoppable.class);
-		wait.stop();
+		((Stoppable) wait).stop();
 		
 		t.join(5000);
 		
-		states.checkWait();
+		oddjobStates.checkWait();
 		
-		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		oddjobStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		logger.info("*** Stopping Oddjob *** ");
 		
 		oddjob.stop();
 				
-		states.checkNow();
+		oddjobStates.checkNow();
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());

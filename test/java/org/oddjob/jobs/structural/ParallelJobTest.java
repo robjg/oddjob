@@ -486,11 +486,11 @@ public class ParallelJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.STARTED);
 		
 		StateSteps service1States = new StateSteps((Stateful) service1);
-		service1States.startCheck(ServiceState.READY, 
+		service1States.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		StateSteps service2States = new StateSteps((Stateful) service2);
-		service2States.startCheck(ServiceState.READY, 
+		service2States.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		test.run();
@@ -501,8 +501,8 @@ public class ParallelJobTest extends TestCase {
 		service2States.checkWait();
 		
 		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
-		service1States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
-		service2States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		service1States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
+		service2States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		test.stop();
 
@@ -536,11 +536,11 @@ public class ParallelJobTest extends TestCase {
 				ParentState.STARTED);
 		
 		StateSteps service1States = new StateSteps((Stateful) service1);
-		service1States.startCheck(ServiceState.READY, 
+		service1States.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		StateSteps service2States = new StateSteps((Stateful) service2);
-		service2States.startCheck(ServiceState.READY, 
+		service2States.startCheck(ServiceState.STARTABLE, 
 				ServiceState.STARTING, ServiceState.STARTED);
 		
 		test.run();
@@ -551,8 +551,8 @@ public class ParallelJobTest extends TestCase {
 		service2States.checkWait();
 		
 		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
-		service1States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
-		service2States.startCheck(ServiceState.STARTED, ServiceState.COMPLETE);
+		service1States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
+		service2States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
 		test.stop();
 

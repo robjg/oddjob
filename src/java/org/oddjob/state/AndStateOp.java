@@ -8,7 +8,18 @@ package org.oddjob.state;
  *
  */
 public class AndStateOp implements StateOperator {
-		 
+	
+	private final ParentStateConverter parentStateConverter;
+	
+	public AndStateOp() {
+		this(new StandardParentStateConverter());
+	}
+	
+	public AndStateOp(ParentStateConverter parentStateConverter) {
+		this.parentStateConverter = parentStateConverter;
+	}
+	
+	@Override
 	public ParentState evaluate(State... states) {
 		
 		new AssertNonDestroyed().evaluate(states);
@@ -17,7 +28,7 @@ public class AndStateOp implements StateOperator {
 		
 		if (states.length > 0) {
 			
-			state = new ParentStateConverter().toStructuralState(states[0]);
+			state = parentStateConverter.toStructuralState(states[0]);
 			
 			for (int i = 1; i < states.length; ++i) {
 				State next = states[i];

@@ -70,14 +70,18 @@ public class JMXExamplesTest extends TestCase {
 				"org/oddjob/jmx/ClientExample.xml");
 
 		StateSteps clientSteps = new StateSteps(client);
-		clientSteps.startCheck(ServiceState.READY, ServiceState.STARTING, 
+		clientSteps.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, 
 				ServiceState.STARTED);
 		
 		client.run();
 		
 		clientSteps.checkNow();
 		
+		clientSteps.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
+		
 		client.stop();
+		
+		clientSteps.checkNow();
 	}
 	
 	public void testClientRunsServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {

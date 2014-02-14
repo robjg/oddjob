@@ -20,30 +20,28 @@ public interface State {
 	public boolean isReady();
 	
 	/**
+	 * Is the job executing. This is normally when the thread of
+	 * execution is still within the job.
+	 * 
+	 * @return true/false.
+	 */
+	public boolean isExecuting();
+	
+	/**
 	 * Can a job be stopped? This is a catch all for jobs
 	 * that are active or executing.
 	 * 
 	 * @return true/false.
 	 */
 	public boolean isStoppable();
-	
-	/**
-	 * Has the work of the job been done? A Job will be 
-	 * {@link JobState#COMPLETE} or a service {@link ServiceState#STARTED}
-	 * Used by {@link CascadeJob} to see if a jobs immediate sibling can
-	 * be executed.
-	 * 
-	 * @return true/false;
-	 */
-	public boolean isDone();
-	
+		
 	/**
 	 * Is a job or service complete?
 	 * 
 	 * @return true/false.
 	 */
 	public boolean isComplete();
-	
+ 	
 	/**
 	 * Is a job or service incomplete. The implication of incomplete is
 	 * that it could be retried to be complete at some future date.

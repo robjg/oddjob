@@ -135,14 +135,14 @@ public class IfJob extends StructuralJob<Object>
 				
 				if (then) {
 					if (states.length > 1) {
-						return new ParentStateConverter().toStructuralState(
-								states[1]);
+						return new StandardParentStateConverter(
+								).toStructuralState(states[1]);
 					}
 				}
 				else {
 					if (states.length > 2) {
-						return new ParentStateConverter().toStructuralState(
-								states[2]);
+						return new StandardParentStateConverter(
+								).toStructuralState(states[2]);
 					}
 				}
 				
@@ -237,7 +237,7 @@ public class IfJob extends StructuralJob<Object>
 						
 						State dependsState = event.getState();
 						
-						StateCondition condition = StateConditions.ACTIVE;
+						StateCondition condition = StateConditions.LIVE;
 						
 						if (condition.test(dependsState)) {
 							return;

@@ -141,7 +141,7 @@ abstract public class ClientBase extends SimpleService {
 		}
 		cntor = null;
 		
-		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+		stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
 				switch (why) {
 				case HEARTBEAT_FAILURE:
@@ -156,7 +156,7 @@ abstract public class ClientBase extends SimpleService {
 					logger().info("Client stopped because server Stopped.");
 					break;
 				default:
-					getStateChanger().setState(ServiceState.COMPLETE);
+					getStateChanger().setState(ServiceState.STOPPED);
 					logger().debug(
 							"Client stopped because stop was requested.");
 				}

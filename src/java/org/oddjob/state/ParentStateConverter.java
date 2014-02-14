@@ -4,39 +4,21 @@ package org.oddjob.state;
  * 
  * Provides a conversion from a {@link State} to an equivalent 
  * {@link ParentState}.
+ * <p>
+ * Note that there is no parent state equivalent for 
+ * {@link State#isExecuting()} because structural jobs should be 
+ * {@link ParentState#ACTIVE} for this condition.
  * 
  * @author rob
  *
  */
-public class ParentStateConverter {
+public interface ParentStateConverter {
 	
-	public ParentState toStructuralState(State state) {
-		
-		if (state.isReady()) {
-			return ParentState.READY;
-		}
-		else if (state.isStoppable()) {
-			if (state.isDone()) {
-				return ParentState.STARTED;
-			}
-			else {
-				return ParentState.ACTIVE;
-			}
-		}
-		else if (state.isIncomplete()) {
-			return ParentState.INCOMPLETE;
-		}
-		else if (state.isComplete()) {
-			return ParentState.COMPLETE;
-		}
-		else if (state.isException()) {
-			return ParentState.EXCEPTION;
-		}
-		else if (state.isDestroyed()) {
-			return ParentState.DESTROYED;
-		}
-		else {
-			throw new IllegalStateException("Unconvertable state " + state);
-		}
-	}
+	/**
+	 * Convert a state to an equivalent parent state.
+	 * 
+	 * @param state Any state.
+	 * @return A Parent State.
+	 */
+	public ParentState toStructuralState(State state);
 }

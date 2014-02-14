@@ -115,6 +115,7 @@ public class ExecutionWatcher {
 			added.set(0);
 			executing.set(0);
 			executed.set(0);
+			started = false;
 		}
 	}	
 	

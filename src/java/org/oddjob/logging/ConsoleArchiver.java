@@ -14,9 +14,9 @@ public interface ConsoleArchiver {
 	 * events. The idea of receiving only missed event is to minimise
 	 * network traffic when used remotely.
 	 * 
-	 * @param l The logListener which will recieve the events.
+	 * @param l The logListener which will receive the events.
 	 * @param component The component whose console to receive events for.
-	 * @param last The last event number recieved. The LogArchive will
+	 * @param last The last event number received. The LogArchive will
 	 * not send messages from before this number.
 	 * @param max The maximum messages to send up to the most recent.
 	 */

@@ -2,43 +2,40 @@ package org.oddjob.state;
 
 import junit.framework.TestCase;
 
-public class IsDoneOrCrashedTest extends TestCase {
+public class IsHardResetableTest extends TestCase {
 
-	public void testAllJobStates() {
+	public void testJobStates() {
 		
-		IsDoneOrCrashed test = new IsDoneOrCrashed();
+		StateCondition test = new IsHardResetable();
 		
-		assertEquals(false, test.test(JobState.READY));
+		assertEquals(true, test.test(JobState.READY));
 		assertEquals(false, test.test(JobState.EXECUTING));
 		assertEquals(true, test.test(JobState.COMPLETE));
 		assertEquals(true, test.test(JobState.INCOMPLETE));
 		assertEquals(true, test.test(JobState.EXCEPTION));
-		
 	}
 	
-	public void testAllServiceStates() {
+	public void testServiceStates() {
 		
-		IsDoneOrCrashed test = new IsDoneOrCrashed();
+		StateCondition test = new IsHardResetable();
 		
-		assertEquals(false, test.test(ServiceState.READY));
+		assertEquals(true, test.test(ServiceState.STARTABLE));
 		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(true, test.test(ServiceState.COMPLETE));
+		assertEquals(false, test.test(ServiceState.STARTED));
 		assertEquals(true, test.test(ServiceState.EXCEPTION));
-		
+		assertEquals(true, test.test(ServiceState.STOPPED));
 	}
 	
-	public void testAllParentStates() {
+	public void testParentStates() {
 		
-		IsDoneOrCrashed test = new IsDoneOrCrashed();
+		StateCondition test = new IsHardResetable();
 		
-		assertEquals(false, test.test(ParentState.READY));
+		assertEquals(true, test.test(ParentState.READY));
 		assertEquals(false, test.test(ParentState.EXECUTING));
+		assertEquals(false, test.test(ParentState.STARTED));
 		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
 		assertEquals(true, test.test(ParentState.COMPLETE));
 		assertEquals(true, test.test(ParentState.INCOMPLETE));
 		assertEquals(true, test.test(ParentState.EXCEPTION));
-		
-	}
+	}	
 }

@@ -352,7 +352,7 @@ abstract public class TimerBase extends ScheduleBase {
 			return;
 		}
 		
-		iconHelper.changeIcon(IconHelper.SLEEPING);
+		iconHelper().changeIcon(IconHelper.SLEEPING);
 		
 		// save the last complete.
 		save();
@@ -444,55 +444,59 @@ abstract public class TimerBase extends ScheduleBase {
 		@Override
 		public void jobStateChange(StateEvent event) {
 			
-			if (stop) {
-			    event.getSource().removeStateListener(this);
-				return;
-			}
-			
-			State state = event.getState();
-			
-			if (state.isReady()) {
-				return;
-			}
-			
-			if (state.isStoppable()) {
-				// I.e. STARTED
-				if (state.isDone()) {
-					
-					logger().debug("Child state is [" + 
-							state + "], changing state to started.");
-					
-					iconHelper.changeIcon(IconHelper.SLEEPING);
-					
-					return;
-				}
-				// I.e EXECUTING and ACTIVE
-				else {
-					
-					logger().debug("Child state is [" + 
-							state + "], changing icon.");
-					
-					iconHelper.changeIcon(IconHelper.STARTED);
-					return;
-				}
-			}
-			
-			// Order is important! Must remove this before scheduling again.
-		    event.getSource().removeStateListener(this);
-		    
-			logger().debug("Rescheduling based on state [" + state + "]");
-			
+			ComponentBoundry.push(loggerName(), TimerBase.this);
 			try {
-				rescheduleOn(state);
-			} catch (final ComponentPersistException e) {
-				stateHandler().waitToWhen(new IsAnyState(), 
-						new Runnable() {
-							@Override
-							public void run() {
-								getStateChanger().setStateException(e);
-							}
-						});
-			}			
+				if (stop) {
+				    event.getSource().removeStateListener(this);
+					return;
+				}
+				
+				State state = event.getState();
+				
+				if (state.isReady()) {
+					return;
+				}
+				
+				if (state.isStoppable()) {
+					
+					String icon;
+					if (state.isComplete()) {
+						// I.e. STARTED
+						icon = IconHelper.SLEEPING;
+					}
+					else {
+						// I.e EXECUTING and ACTIVE
+						icon = IconHelper.STARTED;
+					}
+					
+					logger().debug("Child state is [" + 
+							state + "], changing icon to [" + icon + "]");
+					
+					iconHelper().changeIcon(icon);
+					
+					return;
+				}
+				
+				// Order is important! Must remove this before scheduling again.
+			    event.getSource().removeStateListener(this);
+			    
+				logger().debug("Rescheduling based on state [" + state + "]");
+				
+				try {
+					rescheduleOn(state);
+				} catch (final ComponentPersistException e) {
+					stateHandler().waitToWhen(new IsAnyState(), 
+							new Runnable() {
+								@Override
+								public void run() {
+									getStateChanger().setStateException(e);
+								}
+							});
+				}			
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
 		}
 	}
 	

@@ -3,11 +3,8 @@ package org.oddjob.framework;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 import javax.inject.Inject;
 
@@ -32,12 +29,9 @@ implements Stoppable {
 	/** The executor to use. */
 	private volatile transient ExecutorService executorService;
 
-	/** The job threads. */
-	private volatile transient List<Future<?>> futures;
-	
 	/** Watch execution to start the state reflector when all children
-	 * have finished. */
-	private transient volatile ExecutionWatcher executionWatcher;
+	 * have finished, and track job threads.  */
+	private volatile transient AsyncExecutionSupport asyncSupport;	
 	
 	/**
 	 * Create a new instance.
@@ -47,8 +41,8 @@ implements Stoppable {
 	}
 	
 	private void completeConstruction() {
-		executionWatcher = 
-				new ExecutionWatcher(new Runnable() {
+		asyncSupport = 
+				new AsyncExecutionSupport(new Runnable() {
 					public void run() {
 						stop = false;
 						SimultaneousStructural.super.startChildStateReflector();
@@ -108,9 +102,7 @@ implements Stoppable {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-		executionWatcher.reset();
-		
-		futures = new ArrayList<Future<?>>();
+		asyncSupport.reset();
 		
 		for (Object child : childHelper) {
 			if (stop) {
@@ -125,9 +117,7 @@ implements Stoppable {
 
 			Runnable job = (Runnable) child;
 			
-			Future<?> future = executorService.submit(
-					executionWatcher.addJob(job));
-			futures.add(future);
+			asyncSupport.submitJob(executorService, job);
 			
 			logger().info("Submitted [" + job + "]");
 		}
@@ -138,36 +128,27 @@ implements Stoppable {
 		
 		if (isJoin()) {
 			logger().info("Join property is set, waiting for threads to finish.");
-			for (Future<?> future : futures) {
-				future.get();
-			}
+			asyncSupport.joinOnAllJobs();
 		}		
 		else {
-			if (futures.size() > 0) {
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			if (asyncSupport.size() > 0) {
+				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {
 						getStateChanger().setState(ParentState.ACTIVE);
 					}
 				});
 			}
 		}
-		executionWatcher.start();
+		asyncSupport.startWatchingJobs();
 	}
 
 	@Override
 	protected void onStop() throws FailedToStopException {
 		super.onStop();
 
-		Iterable<Future<?>> jobThreads = this.futures;
-		if (jobThreads == null) {
-			return;
+		if (asyncSupport != null) {
+			asyncSupport.stopAllJobs();
 		}
-
-		for (Future<?> future : jobThreads) {
-			future.cancel(false);
-		}
-		
-		executionWatcher.stop();
 	}
 	
 	@Override

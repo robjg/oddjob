@@ -131,7 +131,7 @@ public class IconSteps {
 		}
 		
 		logger.info("Waiting" +
-				" on [" + iconic + "] to have states " + 
+				" on [" + iconic + "] to have icons " + 
 				Arrays.toString(listener.steps));
 		
 		if (!listener.done) {

@@ -19,12 +19,12 @@ public interface LogArchiver {
 	 * events. The idea of receiving only missed events is to minimise
 	 * network traffic when used remotely.
 	 * <p>
-	 * Event numbers begin at 0. To recieve all events, last must be -1.
+	 * Event numbers begin at 0. To receive all events, last must be -1.
 	 * 
-	 * @param l The logListener which will recieve the events.
+	 * @param l The logListener which will receive the events.
 	 * @param archive The archive to receive events for.
 	 * @param level The level of events required.
-	 * @param last The last event number recieved. The LogArchive will
+	 * @param last The last event number received. The LogArchive will
 	 * not send messages from before this number.
 	 * @param max The maximum messages to send up to the most recent.
 	 */

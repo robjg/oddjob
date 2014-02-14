@@ -8,19 +8,26 @@ package org.oddjob.state;
 public enum ServiceState implements State {
 	
 	/**
-	 * Indicates the service is ready to be started.
+	 * The service can be started. 
+	 * <p>
+	 * Note that this state is needed in addition
+	 * to {@link #STOPPED} to tie in with state transitions of job states.
+	 * Without this state, an {@link #EXCEPTION} state would reset to 
+	 * {@code STOPPED} which could cause a parent sequence to complete
+	 * which would be counter intuitive compared to the behaviour of
+	 * job states. 
 	 */	
-	READY() {
+	STARTABLE() {
 		@Override
 		public boolean isReady() {
 			return true;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -40,7 +47,7 @@ public enum ServiceState implements State {
 			return false;
 		}
 	},
-
+	
 	/**
 	 * Indicates the service is starting. The execution thread is
 	 * still in the start method.
@@ -51,12 +58,12 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return true;
 		}
 		@Override
-		public boolean isDone() {
-			return false;
+		public boolean isStoppable() {
+			return true;
 		}
 		@Override
 		public boolean isComplete() {
@@ -86,16 +93,16 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
+		public boolean isExecuting() {
+			return false;
+		}
+		@Override
 		public boolean isStoppable() {
 			return true;
 		}
 		@Override
-		public boolean isDone() {
-			return true;
-		}
-		@Override
 		public boolean isComplete() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isIncomplete() {
@@ -112,20 +119,20 @@ public enum ServiceState implements State {
 	},
 	
 	/**
-	 * Indicates service has stopped. 
+	 * The service is stopped. 
 	 */	
-	COMPLETE() {
+	STOPPED() {
 		@Override
 		public boolean isReady() {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
-			return true;
+		public boolean isStoppable() {
+			return false;
 		}
 		@Override
 		public boolean isComplete() {
@@ -155,11 +162,11 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override
@@ -189,11 +196,11 @@ public enum ServiceState implements State {
 			return false;
 		}
 		@Override
-		public boolean isStoppable() {
+		public boolean isExecuting() {
 			return false;
 		}
 		@Override
-		public boolean isDone() {
+		public boolean isStoppable() {
 			return false;
 		}
 		@Override

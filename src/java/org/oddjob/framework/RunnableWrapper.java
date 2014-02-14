@@ -18,6 +18,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
@@ -40,20 +41,25 @@ public class RunnableWrapper extends BaseWrapper
 implements ComponentWrapper, Serializable, Forceable {
 	private static final long serialVersionUID = 20012052320051231L;
 
-	private transient JobStateHandler stateHandler;
+	/** Handle state. */
+	private transient volatile JobStateHandler stateHandler;
 	
-	private transient JobStateChanger stateChanger;
+	/** Used to notify clients of an icon change. */
+	private transient volatile IconHelper iconHelper;
+	
+	/** Perform the state change. */
+	private transient volatile JobStateChanger stateChanger;
 	
 	/** The wrapped Runnable. */
-	private Object wrapped;
+	private volatile Object wrapped;
 	
 	/**
 	 * The DynaBean that takes its properties of the wrapped Runnable.
 	 */
-	private transient DynaBean dynaBean;
+	private transient volatile DynaBean dynaBean;
 
 	/** The thread our job is executing on. */
-	private volatile transient Thread thread;
+	private transient volatile Thread thread;
 
 	/**
 	 * The proxy we create that represents our wrapped Runnable within Oddjob.
@@ -61,7 +67,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	private final Object proxy;
 
 	/** Reset with annotations adaptor. */
-	private transient Resetable resetableAdaptor;
+	private transient volatile Resetable resetableAdaptor;
 	
 	/**
 	 * Constructor.
@@ -80,6 +86,8 @@ implements ComponentWrapper, Serializable, Forceable {
 	private void completeConstruction() {
 		this.dynaBean = new WrapDynaBean(wrapped);
 		stateHandler = new JobStateHandler((Stateful) proxy);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -94,6 +102,11 @@ implements ComponentWrapper, Serializable, Forceable {
 		super.setArooaSession(session);
 		resetableAdaptor = new ResetableAdaptorFactory().resetableFor(
 				wrapped, session);
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	@Override

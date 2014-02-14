@@ -16,8 +16,10 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.MockArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
@@ -508,7 +510,7 @@ public class TriggerTest extends TestCase {
 		test.destroy();
 	}
 	
-	public void testInOddjob() throws InterruptedException {
+	public void testInOddjob() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
 			"<oddjob xmlns:si='http://rgordon.co.uk/oddjob/scheduling'" +
@@ -539,17 +541,26 @@ public class TriggerTest extends TestCase {
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		oddjob.setOddjobExecutors(services);
+		
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Runnable runnable = lookup.lookup("thing1", Runnable.class);
+		
+		Stateful trigger = lookup.lookup("trigger", Stateful.class);
+
+		StateSteps triggerStates = new StateSteps(trigger);
+		triggerStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.STARTED, ParentState.COMPLETE);
+		
 		oddjob.run();
 		
 		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 
-		Runnable runnable = (Runnable) new OddjobLookup(oddjob).lookup("thing1");
 		runnable.run();
 		
-		WaitJob wj = new WaitJob();
-		wj.setFor(new OddjobLookup(oddjob).lookup("trigger"));
-		wj.setState(StateConditions.COMPLETE);
-		wj.run();
+		triggerStates.checkWait();
 
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		

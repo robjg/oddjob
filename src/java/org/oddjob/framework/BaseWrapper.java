@@ -162,8 +162,8 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 	    		public void run() {    			
 	    			logger().info("Stop requested.");	    			
-	    			icon.set(iconHelper.currentId());
-	    			iconHelper.changeIcon(IconHelper.STOPPING);
+	    			icon.set(iconHelper().currentId());
+	    			iconHelper().changeIcon(IconHelper.STOPPING);
 	    		}
 	    	})) {
 	    		return;
@@ -189,7 +189,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 				
 				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 					public void run() {    			
-						iconHelper.changeIcon(icon.get());
+						iconHelper().changeIcon(icon.get());
 					}
 				});
 				throw failedToStopException;

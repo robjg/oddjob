@@ -503,7 +503,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	public void load() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			stateHandler.waitToWhen(new IsNot(StateConditions.RUNNING), 
+			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
 				    try {
@@ -591,7 +591,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		// so the active state is missed, or that none have started
 		// so there is a spurious ready state.
 		if (parallel && !stop) {
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+			stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ParentState.ACTIVE);
 				}
@@ -717,7 +717,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	    	
     		// Do this locked so editing can't happen when job is being
     		// stopped or reset or suchlike.
-    		stateHandler.callLocked(new Callable<Void>() {
+    		stateHandler().callLocked(new Callable<Void>() {
     			@Override
     			public Void call() throws Exception {
     		    	if (child == null) {
@@ -886,7 +886,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	public boolean hardReset() {
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
+			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					childStateReflector.stop();
 					

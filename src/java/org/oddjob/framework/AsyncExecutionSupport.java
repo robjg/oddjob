@@ -17,6 +17,11 @@ public class AsyncExecutionSupport {
 	 * have finished. */
 	private final ExecutionWatcher executionWatcher;
 
+	/**
+	 * Create a new instance.
+	 * 
+	 * @param onCompleteAction
+	 */
 	public AsyncExecutionSupport(Runnable onCompleteAction) {
 		executionWatcher = new ExecutionWatcher(onCompleteAction);
 	}
@@ -52,4 +57,7 @@ public class AsyncExecutionSupport {
 		executionWatcher.stop();
 	}
 	
+	public int size() {
+		return futures.size();
+	}
 }

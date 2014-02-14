@@ -474,7 +474,7 @@ public class RetryTest extends TestCase {
 		@Override
 		public boolean softReset() {
 			try {
-				stateHandler.assertLockHeld();
+				stateHandler().assertLockHeld();
 				fail("Shouldn't be locked.");
 			}
 			catch (IllegalStateException e) {
@@ -571,19 +571,19 @@ public class RetryTest extends TestCase {
 	private class LaterJob extends SimpleJob {
 		
 		void start() {
-			stateHandler.waitToWhen(StateConditions.READY, new Runnable() {
+			stateHandler().waitToWhen(StateConditions.READY, new Runnable() {
 				public void run() {
-					stateHandler.setState(JobState.EXECUTING);
-					stateHandler.fireEvent();
+					stateHandler().setState(JobState.EXECUTING);
+					stateHandler().fireEvent();
 				}
 			});
 		}
 		
 		void complete() {
-			stateHandler.waitToWhen(StateConditions.EXECUTING, new Runnable() {
+			stateHandler().waitToWhen(StateConditions.EXECUTING, new Runnable() {
 				public void run() {
-					stateHandler.setState(JobState.COMPLETE);
-					stateHandler.fireEvent();
+					stateHandler().setState(JobState.COMPLETE);
+					stateHandler().fireEvent();
 				}
 			});
 		}

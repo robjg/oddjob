@@ -92,7 +92,7 @@ implements OptionallyTransient {
 	 * @oddjob.required No, default is false.
 	 * 
 	 */
-	private boolean _transient;
+	private volatile boolean _transient;
 	
 	/**
 	 * @oddjob.property stateOperator

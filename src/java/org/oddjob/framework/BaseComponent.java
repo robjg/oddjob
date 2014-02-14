@@ -28,8 +28,8 @@ import org.oddjob.state.StateHandler;
 import org.oddjob.state.StateListener;
 
 /**
- * An abstract implementation of a component which provides common functionality to
- * concrete sub classes.
+ * An abstract implementation of a component which provides common 
+ * functionality to jobs and services.
  * 
  * @author Rob Gordon
  */
@@ -42,19 +42,25 @@ implements Iconic, Stateful,
 	 * Implement property change support which sub classes can take advantage of.
 	 */
 	private final PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
-
-	/**
-	 * Used to notify clients of an icon change.
-	 */
-	protected final IconHelper iconHelper = new IconHelper(
-			this, IconHelper.READY);
 	
 	/** 
 	 * A state handler to delegate state change functionality to. 
 	 * */
-	private ArooaSession session;
+	private volatile ArooaSession session;
 
+	/**
+	 * Subclasses must provide a {@link StateHandler}.
+	 * 
+	 * @return A State Handler. Never null.
+	 */
 	abstract protected StateHandler<?> stateHandler();
+	
+	/**
+	 * Subclasses must provide a {@link IconHelper}.
+	 * 
+	 * @return An Icon Helper. Never null.
+	 */
+	abstract protected IconHelper iconHelper();
 	
 	/**
 	 * Here for the tests...
@@ -67,6 +73,13 @@ implements Iconic, Stateful,
 		this.session = session;
 	}
 		
+	/**
+	 * Allow sub classes access the the session.
+	 * 
+	 * @return A session. Will never be null once a component is initialised
+	 * within Oddjob. May be null if otherwise if the session hasn't been
+	 * set.
+	 */
 	protected ArooaSession getArooaSession() {
 		return this.session;
 	}
@@ -237,7 +250,7 @@ implements Iconic, Stateful,
 	 */
 	@Override
 	public ImageIcon iconForId(String iconId) {
-		return iconHelper.iconForId(iconId);
+		return iconHelper().iconForId(iconId);
 	}
 
 	/**
@@ -249,7 +262,7 @@ implements Iconic, Stateful,
 	@Override
 	public void addIconListener(IconListener listener) {
 		stateHandler().assertAlive();
-		iconHelper.addIconListener(listener);
+		iconHelper().addIconListener(listener);
 	}
 
 	/**
@@ -260,7 +273,7 @@ implements Iconic, Stateful,
 	 */
 	@Override
 	public void removeIconListener(IconListener listener) {
-		iconHelper.removeIconListener(listener);
+		iconHelper().removeIconListener(listener);
 	}
 	
 	/**

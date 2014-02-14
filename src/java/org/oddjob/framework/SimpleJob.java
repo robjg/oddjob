@@ -10,6 +10,7 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
@@ -30,8 +31,13 @@ import org.oddjob.state.StateChanger;
 public abstract class SimpleJob extends BasePrimary
 implements  Runnable, Resetable, Stateful, Forceable {
 
-	protected transient JobStateHandler stateHandler;
+	/** Handle state. */
+	private final JobStateHandler stateHandler;
 	
+	/** Used to notify clients of an icon change. */
+	private final IconHelper iconHelper;
+	
+	/** Perform the state change. */
 	private final JobStateChanger stateChanger;
 	
 	/**
@@ -44,6 +50,8 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	
 	protected SimpleJob() {
 		stateHandler = new JobStateHandler(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
@@ -56,6 +64,11 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	@Override
 	protected JobStateHandler stateHandler() {
 		return stateHandler;
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected StateChanger<JobState> getStateChanger() {

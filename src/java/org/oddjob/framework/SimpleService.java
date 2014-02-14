@@ -9,6 +9,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
@@ -36,11 +37,17 @@ implements Runnable, Stateful, Resetable,
 
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
+	/** Instance of the logger. */
 	private final Logger logger = Logger.getLogger(getClass().getName() + 
 			"." + instanceCount.incrementAndGet());
 	
-	protected final ServiceStateHandler stateHandler; 
+	/** Handle state. */
+	private final ServiceStateHandler stateHandler; 
 	
+	/** Used to notify clients of an icon change. */
+	private final IconHelper iconHelper;
+	
+	/** Used to change state. */
 	private final ServiceStateChanger stateChanger;
 	
 	/** 
@@ -48,7 +55,7 @@ implements Runnable, Stateful, Resetable,
 	 * @oddjob.description A name, can be any text.
 	 * @oddjob.required No. 
 	 */
-	private String name;
+	private volatile String name;
 		
 	/**
 	 * Constructor.
@@ -56,6 +63,8 @@ implements Runnable, Stateful, Resetable,
 	 */
 	public SimpleService() {
 		stateHandler = new ServiceStateHandler(this);
+		iconHelper = new IconHelper(this, 
+				StateIcons.iconFor(stateHandler.getState()));
 		stateChanger = new ServiceStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 			@Override
@@ -78,6 +87,11 @@ implements Runnable, Stateful, Resetable,
 	@Override
 	protected ServiceStateHandler stateHandler() {
 		return stateHandler;
+	}
+	
+	@Override
+	protected IconHelper iconHelper() {
+		return iconHelper;
 	}
 	
 	protected ServiceStateChanger getStateChanger() {
@@ -155,7 +169,7 @@ implements Runnable, Stateful, Resetable,
 				
 	        	stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 	        		public void run() {
-	        			getStateChanger().setState(ServiceState.COMPLETE);
+	        			getStateChanger().setState(ServiceState.STOPPED);
 	        		}   
 	        	});				
 			} catch (final Exception e) {
@@ -187,12 +201,13 @@ implements Runnable, Stateful, Resetable,
 		try {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
-					getStateChanger().setState(ServiceState.READY);
+					getStateChanger().setState(ServiceState.STARTABLE);
 	
 					logger().info("Soft Reset complete." );
 				}
 			});
-		} finally {
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}
@@ -206,12 +221,13 @@ implements Runnable, Stateful, Resetable,
 		try {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
-					getStateChanger().setState(ServiceState.READY);
+					getStateChanger().setState(ServiceState.STARTABLE);
 	
 					logger().info("Hard Reset complete." );
 				}
 			});
-		} finally {
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}

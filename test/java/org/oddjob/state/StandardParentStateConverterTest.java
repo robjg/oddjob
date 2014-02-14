@@ -2,11 +2,11 @@ package org.oddjob.state;
 
 import junit.framework.TestCase;
 
-public class ParentStateConverterTest extends TestCase {
+public class StandardParentStateConverterTest extends TestCase {
 
 	public void testJobStates() {
 		
-		ParentStateConverter test = new ParentStateConverter();
+		ParentStateConverter test = new StandardParentStateConverter();
 		
 		assertEquals(ParentState.READY, 
 				test.toStructuralState(JobState.READY));
@@ -26,31 +26,14 @@ public class ParentStateConverterTest extends TestCase {
 		assertEquals(ParentState.DESTROYED, 
 				test.toStructuralState(JobState.DESTROYED));
 		
-		assertEquals(ParentState.READY, 
-				test.toStructuralState(ServiceState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.toStructuralState(ServiceState.STARTING));
-		
-		assertEquals(ParentState.STARTED, 
-				test.toStructuralState(ServiceState.STARTED));
-
-		assertEquals(ParentState.COMPLETE, 
-				test.toStructuralState(ServiceState.COMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.toStructuralState(ServiceState.EXCEPTION));
-		
-		assertEquals(ParentState.DESTROYED, 
-				test.toStructuralState(ServiceState.DESTROYED));
 	}
 
 	public void testServiceStates() {
 		
-		ParentStateConverter test = new ParentStateConverter();
+		ParentStateConverter test = new StandardParentStateConverter();
 		
 		assertEquals(ParentState.READY, 
-				test.toStructuralState(ServiceState.READY));
+				test.toStructuralState(ServiceState.STARTABLE));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.toStructuralState(ServiceState.STARTING));
@@ -59,7 +42,7 @@ public class ParentStateConverterTest extends TestCase {
 				test.toStructuralState(ServiceState.STARTED));
 
 		assertEquals(ParentState.COMPLETE, 
-				test.toStructuralState(ServiceState.COMPLETE));
+				test.toStructuralState(ServiceState.STOPPED));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.toStructuralState(ServiceState.EXCEPTION));
@@ -70,7 +53,7 @@ public class ParentStateConverterTest extends TestCase {
 	
 	public void testParentStates() {
 		
-		ParentStateConverter test = new ParentStateConverter();
+		ParentStateConverter test = new StandardParentStateConverter();
 		
 		assertEquals(ParentState.READY, 
 				test.toStructuralState(ParentState.READY));

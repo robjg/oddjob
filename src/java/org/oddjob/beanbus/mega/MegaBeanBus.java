@@ -54,17 +54,17 @@ implements ConfigurationOwner, BusServiceProvider {
     private static final long serialVersionUID = 2012021500L;
 	
 	/** Support for configuration modification. */
-	private transient ConfigurationOwnerSupport configurationOwnerSupport;
+	private transient volatile ConfigurationOwnerSupport configurationOwnerSupport;
 	
 	private transient volatile BusConductor busConductor;
 	
-	private boolean noAutoLink;
+	private volatile boolean noAutoLink;
 	
-	private transient ThreadLocal<BusPart> preparing;
+	private transient volatile ThreadLocal<BusPart> preparing;
 	
-	private transient boolean valid;
+	private transient volatile boolean valid;
 	
-	private transient TrackingBusListener trackingBusListener;
+	private transient volatile TrackingBusListener trackingBusListener;
 	
 	/**
 	 * Only constructor.

@@ -35,7 +35,7 @@ implements Serializable {
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastStateEvent());
+		s.writeObject(stateHandler().lastStateEvent());
 	}
 
 	/**
@@ -51,9 +51,9 @@ implements Serializable {
 		completeConstruction();
 		
 		setName(name);
-		stateHandler.restoreLastJobStateEvent(savedEvent);
-		iconHelper.changeIcon(
-				StateIcons.iconFor(stateHandler.getState()));
+		stateHandler().restoreLastJobStateEvent(savedEvent);
+		iconHelper().changeIcon(
+				StateIcons.iconFor(stateHandler().getState()));
 	}
 
 }

@@ -24,15 +24,16 @@ public enum StateConditions implements StateCondition {
 	},
 
 	/**
-	 * Is a job executing or otherwise active?
-	 */	
-	RUNNING() {
+	 * A state is either {@link JobState#EXECUTING} or 
+	 * {@link ParentState#EXECUTING} or {@link ServiceState#STARTING}.
+	 */
+	EXECUTING() {
 		@Override
 		public boolean test(State state) {
-			return state.isStoppable();
+			return state.isExecuting();
 		}
 	},
-
+	
 	/**
 	 * Is a job incomplete?
 	 */
@@ -79,12 +80,33 @@ public enum StateConditions implements StateCondition {
 	// Composite and Special Conditions
 	
 	/**
+	 * Is a job executing or otherwise active?
+	 */	
+	RUNNING() {
+		@Override
+		public boolean test(State state) {
+			return state.isStoppable();
+		}
+	},
+
+	/**
 	 * The state is either INCOMPLETE or EXCEPTION
 	 */
 	FAILURE() {
 		@Override
 		public boolean test(State state) {
 			return state.isIncomplete() || state.isException();
+		}
+	},
+		
+	/**
+	 * Like {@link #COMPLETE} but also stopped. Applicable to services
+	 * which are complete when started.
+	 */
+	DONE() {
+		@Override
+		public boolean test(State state) {
+			return state.isComplete() && !state.isStoppable();
 		}
 	},
 	
@@ -101,33 +123,47 @@ public enum StateConditions implements StateCondition {
 	},
 	
 	/**
-	 * A state is either {@link JobState#EXECUTING} or 
-	 * {@link ParentState#EXECUTING} or {@link ServiceState#STARTING}.
+	 * Like {@link #FINISHED} but also stopped. Applicable to services
+	 * which are complete when started.
 	 */
-	EXECUTING() {
+	ENDED() {
 		@Override
 		public boolean test(State state) {
-			return state == JobState.EXECUTING || 
-					state == ParentState.EXECUTING || 
-					state == ServiceState.STARTING;
-		}
-	},
-	
-	ACTIVE() {
-		@Override
-		public boolean test(State state) {
-			return state == ParentState.ACTIVE;
+			return !RUNNING.test(state) && FINISHED.test(state);
 		}
 	},
 	
 	/**
-	 * A service has STARTED.
+	 * A job that is active. Indicates necessary work is still being done 
+	 * asynchronously, as opposed to {@link STARTED) which indicates 
+	 * necessary work is complete.
+	 */
+	ACTIVE() {
+		@Override
+		public boolean test(State state) {
+			return LIVE.test(state) && !COMPLETE.test(state);
+		}
+	},
+	
+	/**
+	 * A job that is stoppable but not executing. Includes active and
+	 * started jobs.
+	 */
+	LIVE() {
+		@Override
+		public boolean test(State state) {
+			return state.isStoppable() && !state.isExecuting();
+		}
+	},
+	
+	/**
+	 * Something, generally a service, has STARTED when it is both
+	 * complete and stoppable.
 	 */
 	STARTED() {
 		@Override
 		public boolean test(State state) {
-			return state == ServiceState.STARTED 
-				|| state == ParentState.STARTED;
+			return state.isComplete() && state.isStoppable();
 		}
 	},
 

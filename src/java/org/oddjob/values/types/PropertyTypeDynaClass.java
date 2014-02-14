@@ -40,6 +40,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
 	 * 
 	 * @see org.apache.commons.beanutils.MutableDynaClass#isRestricted()
 	 */
+	@Override
     public boolean isRestricted() {
         return false;
     }
@@ -48,6 +49,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *  (non-Javadoc)
      * @see org.apache.commons.beanutils.MutableDynaClass#setRestricted(boolean)
      */
+	@Override
     public void setRestricted(boolean restricted) {
         throw new UnsupportedOperationException("Can not restrict this MutableDynaClass.");
     }
@@ -56,6 +58,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *  (non-Javadoc)
      * @see org.apache.commons.beanutils.MutableDynaClass#add(java.lang.String)
      */
+	@Override
     public void add(String name) {
         add(new DynaProperty(name, String.class));
     }
@@ -72,7 +75,9 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      * @exception IllegalStateException if this DynaClass is currently
      *  restricted, so no new properties can be added
      */
-    public void add(String name, Class type) {
+	@Override
+    public void add(String name, 
+    		@SuppressWarnings("rawtypes") Class type) {
     	if (! (String.class.isAssignableFrom(type))) {
     		throw new IllegalArgumentException("Only PropertyType properties are allowed.");
     	}
@@ -100,8 +105,11 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *
      * @exception UnsupportedOperationException anytime this method is called
      */
-    public void add(String name, Class type, boolean readable, boolean writeable) {
-        throw new java.lang.UnsupportedOperationException("readable/writable properties not supported");
+	@Override
+    public void add(String name, @SuppressWarnings("rawtypes") Class type, 
+    		boolean readable, boolean writeable) {
+        throw new java.lang.UnsupportedOperationException(
+        		"readable/writable properties not supported");
     }
 
     /**
@@ -141,6 +149,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      * @exception IllegalStateException if this DynaClass is currently
      *  restricted, so no properties can be removed
      */
+	@Override
     public void remove(String name) {
 
         if (name == null) {
@@ -179,6 +188,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *
      * @exception IllegalArgumentException if no property name is specified
      */
+	@Override
     public DynaProperty getDynaProperty(String name) {
 
         if (name == null) {
@@ -200,6 +210,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *  (non-Javadoc)
      * @see org.apache.commons.beanutils.DynaClass#getDynaProperties()
      */
+	@Override
     public DynaProperty[] getDynaProperties() {
     	return (DynaProperty[]) propertiesMap.values().toArray(new DynaProperty[0]);
     }
@@ -208,6 +219,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *  (non-Javadoc)
      * @see org.apache.commons.beanutils.DynaClass#getName()
      */
+	@Override
     public String getName() {
     	return name;
     }    
@@ -216,6 +228,7 @@ public class PropertyTypeDynaClass implements MutableDynaClass, Serializable {
      *  (non-Javadoc)
      * @see org.apache.commons.beanutils.DynaClass#newInstance()
      */
+	@Override
     public DynaBean newInstance() throws IllegalAccessException, InstantiationException {
     	throw new UnsupportedOperationException("newInsance() is unsupported!");
     }    

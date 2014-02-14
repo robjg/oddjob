@@ -17,7 +17,7 @@ extends StateHandler<ServiceState> {
 	 * @param source The source for events.
 	 */
 	public ServiceStateHandler(Stateful source) {
-		super(source, ServiceState.READY);
+		super(source, ServiceState.STARTABLE);
 	}	
 	
 }
