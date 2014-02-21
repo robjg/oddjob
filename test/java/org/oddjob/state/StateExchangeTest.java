@@ -45,7 +45,8 @@ public class StateExchangeTest extends TestCase {
 
 		OurChanger changer = new OurChanger();
 		
-		StateExchange test = new StateExchange(stateful, changer);
+		StateExchange<ParentState> test = 
+				new StateExchange<ParentState>(stateful, changer);
 		
 		assertNull(stateful.listener);
 		

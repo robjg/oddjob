@@ -23,6 +23,7 @@ import org.oddjob.framework.SerializableJob;
 import org.oddjob.framework.StopWait;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
+import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
@@ -262,7 +263,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		timer.addStateListener(timerRec);
 				
 		assertEquals(1, timerRec.size());
-		assertEquals(ParentState.READY, timerRec.get(0).getState());
+		assertEquals(TimerState.READY, timerRec.get(0).getState());
 		
 		Retry retry = (Retry) new OddjobLookup(oddjob1).lookup("retry");
 		
@@ -270,7 +271,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		retry.addStateListener(retryRec);
 		
 		assertEquals(1, retryRec.size());
-		assertEquals(ParentState.READY, retryRec.get(0).getState());
+		assertEquals(TimerState.READY, retryRec.get(0).getState());
 		
 		oddjob1.run();
 
@@ -288,33 +289,33 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		logger.info("Timer has stopped. State is: " + timer.lastStateEvent().getState());
 		
-		assertEquals(ParentState.EXECUTING, timerRec.get(1).getState());
-		assertEquals(ParentState.STARTED, timerRec.get(2).getState());
-		assertEquals(ParentState.INCOMPLETE, timerRec.get(3).getState());
+		assertEquals(TimerState.EXECUTING, timerRec.get(1).getState());
+		assertEquals(TimerState.STARTED, timerRec.get(2).getState());
+		assertEquals(TimerState.INCOMPLETE, timerRec.get(3).getState());
 		assertEquals(4, timerRec.size());
 		
-		assertEquals(ParentState.EXECUTING, retryRec.get(1).getState());
-		assertEquals(ParentState.STARTED, retryRec.get(2).getState());
-		assertEquals(ParentState.INCOMPLETE, retryRec.get(3).getState());
-		assertEquals(ParentState.READY, retryRec.get(4).getState());
-		assertEquals(ParentState.EXECUTING, retryRec.get(5).getState());
-		assertEquals(ParentState.STARTED, retryRec.get(6).getState());
-		assertEquals(ParentState.INCOMPLETE, retryRec.get(7).getState());
-		assertEquals(ParentState.READY, retryRec.get(8).getState());
-		assertEquals(ParentState.EXECUTING, retryRec.get(9).getState());
-		assertEquals(ParentState.STARTED, retryRec.get(10).getState());
-		assertEquals(ParentState.INCOMPLETE, retryRec.get(11).getState());
-		assertEquals(ParentState.READY, retryRec.get(12).getState());
-		assertEquals(ParentState.EXECUTING, retryRec.get(13).getState());
-		assertEquals(ParentState.STARTED, retryRec.get(14).getState());
-		assertEquals(ParentState.INCOMPLETE, retryRec.get(15).getState());
+		assertEquals(TimerState.EXECUTING, retryRec.get(1).getState());
+		assertEquals(TimerState.STARTED, retryRec.get(2).getState());
+		assertEquals(TimerState.INCOMPLETE, retryRec.get(3).getState());
+		assertEquals(TimerState.READY, retryRec.get(4).getState());
+		assertEquals(TimerState.EXECUTING, retryRec.get(5).getState());
+		assertEquals(TimerState.STARTED, retryRec.get(6).getState());
+		assertEquals(TimerState.INCOMPLETE, retryRec.get(7).getState());
+		assertEquals(TimerState.READY, retryRec.get(8).getState());
+		assertEquals(TimerState.EXECUTING, retryRec.get(9).getState());
+		assertEquals(TimerState.STARTED, retryRec.get(10).getState());
+		assertEquals(TimerState.INCOMPLETE, retryRec.get(11).getState());
+		assertEquals(TimerState.READY, retryRec.get(12).getState());
+		assertEquals(TimerState.EXECUTING, retryRec.get(13).getState());
+		assertEquals(TimerState.STARTED, retryRec.get(14).getState());
+		assertEquals(TimerState.INCOMPLETE, retryRec.get(15).getState());
 		assertEquals(16, retryRec.size());
 		
 		logger.info("Cleaning Up.");
 		
 		oddjob1.destroy();
 		
-		assertEquals(ParentState.DESTROYED, retryRec.get(16).getState());
+		assertEquals(TimerState.DESTROYED, retryRec.get(16).getState());
 		assertEquals(17, retryRec.size());
 		
 		services.stop();

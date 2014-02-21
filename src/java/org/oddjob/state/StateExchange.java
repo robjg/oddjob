@@ -11,9 +11,9 @@ import org.oddjob.framework.JobDestroyedException;
  * @author rob
  *
  */
-public class StateExchange {
+public class StateExchange<T extends State> {
 
-	private final StateChanger<ParentState> recipient;
+	private final StateChanger<T> recipient;
 	
 	private final Stateful source;
 	
@@ -24,24 +24,25 @@ public class StateExchange {
 		
 		@Override
 		public void jobStateChange(StateEvent event) {
-			ParentState state = (ParentState) event.getState();
+			@SuppressWarnings("unchecked")
+			T state = (T) event.getState();
 			Date time = event.getTime();
 		
-			switch (state) {
-				case DESTROYED:
-					break;
-				case EXCEPTION:
-					Throwable throwable = event.getException();
-					recipient.setStateException(throwable, time);
-					break;
-				default:
-					recipient.setState(state, time);
-					break;
+			if (state.isDestroyed()) {
+				// do nothing.
 			}
+			else if (state.isDestroyed()) {
+				Throwable throwable = event.getException();
+				recipient.setStateException(throwable, time);
+				
+			}
+			else {
+				recipient.setState(state, time);
+			}			
 		}
 	};
 	
-	public StateExchange(Stateful source, StateChanger<ParentState> recipient) {
+	public StateExchange(Stateful source, StateChanger<T> recipient) {
 		this.source = source;
 		this.recipient = recipient;
 	}

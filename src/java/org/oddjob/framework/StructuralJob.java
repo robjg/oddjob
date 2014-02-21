@@ -58,7 +58,8 @@ implements
 	protected transient volatile StructuralStateHelper structuralState;
 		
 	/** Reflect state of children. */
-	protected transient volatile StateExchange childStateReflector;
+	protected transient volatile 
+	StateExchange<ParentState> childStateReflector;
 	
 	private transient volatile ParentStateChanger stateChanger;
 	
@@ -91,7 +92,7 @@ implements
 						save();
 					}
 				});
-		childStateReflector = new StateExchange(structuralState, 
+		childStateReflector = new StateExchange<ParentState>(structuralState, 
 				new OrderedStateChanger<ParentState>(stateChanger, stateHandler));
 	}
 		

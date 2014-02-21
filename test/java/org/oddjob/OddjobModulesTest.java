@@ -86,6 +86,8 @@ public class OddjobModulesTest extends TestCase {
 		assertEquals(1, results.size());
 		assertTrue(results.contains(new File(dirs.base(), 
 				"test/oddballs/apple/classes/META-INF/arooa.xml").getAbsoluteFile().toURI().toURL()));
+		
+		test.close();
 	}
 
 	private <T> Set<T> toSet(Enumeration<T> enumeration) {

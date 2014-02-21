@@ -26,6 +26,7 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.schedules.DailySchedule;
+import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -72,7 +73,7 @@ public class TimerStopTest extends TestCase {
 		assertEquals(JobState.READY, 
 				job.lastStateEvent().getState());
 		
-		assertEquals(ParentState.READY, 
+		assertEquals(TimerState.READY, 
 				test.lastStateEvent().getState());		
 		
 		
@@ -132,7 +133,7 @@ public class TimerStopTest extends TestCase {
 
 		assertFalse(Thread.interrupted());
 		
-		assertEquals(ParentState.READY, 
+		assertEquals(TimerState.READY, 
 				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
@@ -187,28 +188,28 @@ public class TimerStopTest extends TestCase {
 				
 		test.setJob(job);
 	
-		StateSteps state = new StateSteps(test);
+		StateSteps testStates = new StateSteps(test);
 		
-		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED, ParentState.READY);
+		testStates.startCheck(TimerState.READY, 
+				TimerState.EXECUTING, TimerState.STARTED, TimerState.READY);
 		
 		logger.info("** First Run **");
 		
 		test.run();
 		
-		state.checkWait();
+		testStates.checkWait();
 		
 		assertEquals(JobState.COMPLETE, 
 				job.lastStateEvent().getState());
 
-		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED);
+		testStates.startCheck(TimerState.READY, 
+				TimerState.EXECUTING, TimerState.STARTED);
 		
 		logger.info("** Second Run **");
 		
 		test.run();
 		
-		state.checkNow();
+		testStates.checkNow();
 		
 		assertEquals(new IntervalTo(Interval.END_OF_TIME), test.getCurrent());
 		
@@ -250,7 +251,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -272,18 +273,18 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.READY, test.lastStateEvent().getState());
 		
 		test.run();
 		
-		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
 		
 		assertEquals(expectedCurrent2, test.getCurrent());
 		assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
 		
 		test.stop();
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.READY, test.lastStateEvent().getState());
 		
 		test.setJob(null);
 		test.setJob(new RunOnceJob());
@@ -291,7 +292,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent3 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -313,7 +314,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.READY, test.lastStateEvent().getState());
 		
 	}
 	
@@ -358,7 +359,7 @@ public class TimerStopTest extends TestCase {
 				Mockito.longThat(delay), 
 				Mockito.eq(TimeUnit.MILLISECONDS));
 		
-		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -396,6 +397,6 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.READY, test.lastStateEvent().getState());
 	}
 }

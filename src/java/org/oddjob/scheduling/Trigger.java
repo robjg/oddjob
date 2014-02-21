@@ -17,15 +17,15 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
+import org.oddjob.scheduling.state.TimerState;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
 
 /**
  * @oddjob.description A trigger runs it's job when the job being triggered
@@ -330,7 +330,7 @@ public class Trigger extends ScheduleBase {
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setState(ParentState.COMPLETE);
+						getStateChanger().setState(TimerState.COMPLETE);
 					}
 				});
 			}

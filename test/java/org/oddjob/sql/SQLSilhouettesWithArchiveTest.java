@@ -9,6 +9,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
@@ -45,10 +46,10 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		StateSteps timer2States = new StateSteps(timer2);
 		timer2States.setTimeout(20*1000L);
 		
-		timer1States.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.COMPLETE);
-		timer2States.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.COMPLETE);
+		timer1States.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED, TimerState.COMPLETE);
+		timer2States.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED, TimerState.COMPLETE);
 		
 		oddjob.run();
 		

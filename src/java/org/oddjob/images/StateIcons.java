@@ -1,7 +1,7 @@
 package org.oddjob.images;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -17,7 +17,7 @@ import org.oddjob.state.State;
 public class StateIcons {
 
 	private static final Map<State, String> iconIds = 
-		new HashMap<State, String>();
+		new ConcurrentHashMap<State, String>();
 		
 	static {
 
@@ -43,6 +43,15 @@ public class StateIcons {
 		iconIds.put(ServiceState.STOPPED, IconHelper.STOPPED);
 		iconIds.put(ServiceState.EXCEPTION, IconHelper.EXCEPTION);
 		iconIds.put(ServiceState.DESTROYED, IconHelper.INVALID);		
+	}
+	
+	public static void register(State state, String iconId) {
+
+		if (iconId == null) {
+			throw new NullPointerException("No Icon Id.");
+		}
+		
+		iconIds.put(state, iconId);
 	}
 	
 	/**

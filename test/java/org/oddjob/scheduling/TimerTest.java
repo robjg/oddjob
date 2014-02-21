@@ -46,6 +46,7 @@ import org.oddjob.schedules.schedules.DateSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
+import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -139,8 +140,8 @@ public class TimerTest extends TestCase {
 		test.setScheduleExecutorService(oddjobServices);
 
 		StateSteps timerStates = new StateSteps(test);
-		timerStates.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.STARTED);
+		timerStates.startCheck(TimerState.READY, TimerState.EXECUTING,
+				TimerState.STARTED);
 		IconSteps timerIcons = new IconSteps(test);
 		timerIcons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
 				IconHelper.SLEEPING);
@@ -156,8 +157,8 @@ public class TimerTest extends TestCase {
 		assertEquals(expected, test.getCurrent().getFromDate());
 		assertEquals(24 * 60 * 60 * 1000L, oddjobServices.delay);
 
-		timerStates.startCheck(ParentState.STARTED,
-				ParentState.COMPLETE);
+		timerStates.startCheck(TimerState.STARTED,
+				TimerState.COMPLETE);
 		timerIcons.startCheck(IconHelper.SLEEPING, IconHelper.STARTED, 
 				IconHelper.COMPLETE);
 		
@@ -180,7 +181,7 @@ public class TimerTest extends TestCase {
 		
 		clock.setDateText("2020-12-25 00:00:01");
 		
-		timerStates.startCheck(ParentState.COMPLETE, ParentState.READY);
+		timerStates.startCheck(TimerState.COMPLETE, TimerState.READY);
 		timerIcons.startCheck(IconHelper.COMPLETE, IconHelper.READY);
 		
 		test.hardReset();
@@ -188,8 +189,8 @@ public class TimerTest extends TestCase {
 		timerStates.checkNow();
 		timerIcons.checkNow();
 		
-		timerStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED);
+		timerStates.startCheck(TimerState.READY, 
+				TimerState.EXECUTING, TimerState.STARTED);
 		timerIcons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
 				IconHelper.SLEEPING);
 		
@@ -202,8 +203,8 @@ public class TimerTest extends TestCase {
 		assertEquals(expected, test.getCurrent().getFromDate());
 		assertEquals(0L, oddjobServices.delay);
 
-		timerStates.startCheck(ParentState.STARTED, 
-				ParentState.COMPLETE);
+		timerStates.startCheck(TimerState.STARTED, 
+				TimerState.COMPLETE);
 		timerIcons.startCheck(IconHelper.SLEEPING, IconHelper.STARTED, 
 				IconHelper.COMPLETE);
 		
@@ -370,7 +371,7 @@ public class TimerTest extends TestCase {
 		assertEquals(-1, oddjobServices.delay);
 		assertEquals(null, test.getNextDue());
 
-		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());		
+		assertEquals(TimerState.INCOMPLETE, test.lastStateEvent().getState());		
 	}
 	
 	public void testTimeZone() 
@@ -476,7 +477,7 @@ public class TimerTest extends TestCase {
 
 		Timer copy = (Timer) OddjobTestHelper.copy(test);
 
-		assertEquals(ParentState.READY, copy.lastStateEvent().getState());
+		assertEquals(TimerState.READY, copy.lastStateEvent().getState());
 		assertEquals(DateHelper.parseDateTime("2009-02-10 14:30"), 
 				test.getLastDue());
 		assertEquals(new SimpleScheduleResult(
@@ -541,8 +542,8 @@ public class TimerTest extends TestCase {
 		retry.setScheduleExecutorService(services);
 		
 		StateSteps timerStates = new StateSteps(test);
-		timerStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.READY);
+		timerStates.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED, TimerState.READY);
 		IconSteps timerIcons = new IconSteps(test);
 		timerIcons.startCheck(IconHelper.READY, 
 				IconHelper.EXECUTING, IconHelper.SLEEPING, 
@@ -555,7 +556,7 @@ public class TimerTest extends TestCase {
 		test.stop();
 		
 		timerStates.checkWait();
-		timerIcons.checkNow();
+		timerIcons.checkWait();
 		
 		test.setJob(null);
 		retry.destroy();
@@ -599,8 +600,8 @@ public class TimerTest extends TestCase {
 		test.setSchedule(schedule);
 		
 		StateSteps timerStates = new StateSteps(test);
-		timerStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED);
+		timerStates.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED);
 		IconSteps timerIcons = new IconSteps(test);
 		timerIcons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
 				IconHelper.SLEEPING);
@@ -610,7 +611,7 @@ public class TimerTest extends TestCase {
 		timerStates.checkNow();
 		timerIcons.checkNow();
 		
-		timerStates.startCheck(ParentState.STARTED, ParentState.READY);
+		timerStates.startCheck(TimerState.STARTED, TimerState.READY);
 		timerIcons.startCheck(IconHelper.SLEEPING, IconHelper.STOPPING,
 				IconHelper.READY);
 		
@@ -621,14 +622,14 @@ public class TimerTest extends TestCase {
 		
 		assertEquals(true, executor.canceled);
 		
-		timerStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED);
+		timerStates.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED);
 		
 		test.run();
 
 		timerStates.checkNow();
 		
-		timerStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		timerStates.startCheck(TimerState.STARTED, TimerState.COMPLETE);
 		
 		executor.job.run();
 		
@@ -894,10 +895,10 @@ public class TimerTest extends TestCase {
     	StateSteps timerStates = new StateSteps(timer);
     	
     	timerStates.startCheck( 
-    			ParentState.READY, 
-    			ParentState.EXECUTING,
-    			ParentState.STARTED,
-    			ParentState.COMPLETE);
+    			TimerState.READY, 
+    			TimerState.EXECUTING,
+    			TimerState.STARTED,
+    			TimerState.COMPLETE);
     	
     	Thread t = new Thread(oddjob);
     	t.start();
@@ -906,9 +907,9 @@ public class TimerTest extends TestCase {
     	
     	assertTrue(executors.executor.delay > 9000);
     	
-    	StateSteps states = new StateSteps(oddjob);
+    	StateSteps oddjobStates = new StateSteps(oddjob);
     	
-    	states.startCheck( 
+    	oddjobStates.startCheck( 
     			ParentState.EXECUTING, 
     			ParentState.STARTED, 
     			ParentState.COMPLETE);

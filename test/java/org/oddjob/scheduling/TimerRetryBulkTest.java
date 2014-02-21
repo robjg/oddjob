@@ -8,7 +8,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.schedules.schedules.NowSchedule;
-import org.oddjob.state.ParentState;
+import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.StateConditions;
 import org.oddjob.tools.StateSteps;
 
@@ -97,8 +97,8 @@ public class TimerRetryBulkTest extends TestCase {
 		
 		StateSteps testStates = new StateSteps(test);
 		testStates.setTimeout(20 * 1000L);
-		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.COMPLETE);
+		testStates.startCheck(TimerState.READY, TimerState.EXECUTING, 
+				TimerState.STARTED, TimerState.COMPLETE);
 
 		test.run();
 

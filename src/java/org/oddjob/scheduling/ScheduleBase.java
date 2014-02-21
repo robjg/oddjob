@@ -20,6 +20,10 @@ import org.oddjob.framework.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
+import org.oddjob.scheduling.state.TimerState;
+import org.oddjob.scheduling.state.TimerStateAdapter;
+import org.oddjob.scheduling.state.TimerStateChanger;
+import org.oddjob.scheduling.state.TimerStateHandler;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
 import org.oddjob.state.IsHardResetable;
@@ -27,8 +31,6 @@ import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.OrderedStateChanger;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.ParentStateChanger;
-import org.oddjob.state.ParentStateHandler;
 import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateCondition;
@@ -52,20 +54,21 @@ implements
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Fires state events. */
-	protected transient volatile ParentStateHandler stateHandler;
+	protected transient volatile TimerStateHandler stateHandler;
 	
 	/** Used to notify clients of an icon change. */
 	private transient volatile IconHelper iconHelper;
 	
 	/** Used to state change states and icons. */
-	private transient volatile ParentStateChanger stateChanger;
+	private transient volatile TimerStateChanger stateChanger;
 	
 	/** Track the child. */
 	protected transient volatile ChildHelper<Runnable> childHelper; 
 			
-	protected transient volatile StructuralStateHelper structuralState;
+	/** Track structural state changes. */
+	private transient volatile Stateful structuralState;
 			
-	protected transient volatile StateExchange childStateReflector;
+	protected transient volatile StateExchange<TimerState> childStateReflector;
 		
 	/** Stop flag. */
 	protected transient volatile boolean stop;
@@ -83,14 +86,15 @@ implements
 	 * Common construction.
 	 */
 	private void completeConstruction() {
-		stateHandler = new ParentStateHandler(this);
+		stateHandler = new TimerStateHandler(this);
 		childHelper = new ChildHelper<Runnable>(this);
-		structuralState = new StructuralStateHelper(childHelper, getStateOp());
+		structuralState = new TimerStateAdapter(
+				new StructuralStateHelper(childHelper, getStateOp()));
 		
 		iconHelper = new IconHelper(this, 
 				StateIcons.iconFor(stateHandler.getState()));
 		
-		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
+		stateChanger = new TimerStateChanger(stateHandler, iconHelper, 
 				new Persistable() {					
 					@Override
 					public void persist() throws ComponentPersistException {
@@ -98,12 +102,12 @@ implements
 					}
 				});
 		
-		childStateReflector = new StateExchange(structuralState, 
-				new OrderedStateChanger<ParentState>(stateChanger, stateHandler));
+		childStateReflector = new StateExchange<TimerState>(structuralState, 
+				new OrderedStateChanger<TimerState>(stateChanger, stateHandler));
 	}
 
 	@Override
-	protected ParentStateHandler stateHandler() {
+	protected TimerStateHandler stateHandler() {
 		return stateHandler;
 	}
 	
@@ -112,7 +116,7 @@ implements
 		return iconHelper;
 	}
 	
-	protected StateChanger<ParentState> getStateChanger() {
+	protected StateChanger<TimerState> getStateChanger() {
 		return stateChanger;
 	}
 		
@@ -143,7 +147,7 @@ implements
 					stop = false;
 					childStateReflector.stop();
 					
-					getStateChanger().setState(ParentState.EXECUTING);					
+					getStateChanger().setState(TimerState.EXECUTING);					
 				}
 			})) {
 				return;
@@ -192,7 +196,7 @@ implements
 				}, new Runnable() {
 					@Override
 					public void run() {
-						stateHandler.setState(ParentState.STARTED);
+						stateHandler.setState(TimerState.STARTED);
 						stateHandler.fireEvent();
 						iconHelper.changeIcon(IconHelper.SLEEPING);
 						
@@ -281,7 +285,7 @@ implements
 
 					onReset();
 
-					getStateChanger().setState(ParentState.READY);
+					getStateChanger().setState(TimerState.READY);
 
 					logger().info("Soft Reset complete.");			
 				}
@@ -307,7 +311,7 @@ implements
 					
 					onReset();
 					
-					getStateChanger().setState(ParentState.READY);
+					getStateChanger().setState(TimerState.READY);
 		
 					logger().info("Hard Reset complete.");			
 				}
@@ -396,7 +400,7 @@ implements
 		
 		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				stateHandler().setState(ParentState.DESTROYED);
+				stateHandler().setState(TimerState.DESTROYED);
 				stateHandler().fireEvent();
 			}
 		})) {
