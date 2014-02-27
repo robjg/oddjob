@@ -540,52 +540,6 @@ public class OddjobTest extends TestCase {
     	oj.destroy();
     }
     
-    public static class ReluctantToDie extends SimpleJob {
-    	boolean die;
-    	@Override
-    	protected int execute() throws Throwable {
-    		return 0;
-    	}
-    	@Override
-    	public void onDestroy() {
-    		super.onDestroy();
-    		if (!die) {
-    			die = true;
-    			throw new IllegalStateException("I'm not ready to die.");
-    		}
-    	}
-    }
-    
-    public void testFailedDestroy() {
-    	
-    	String xml = 
-    		"<oddjob>" +
-    		" <job>" +
-    		"  <bean class='" + ReluctantToDie.class.getName() + "'/>" +
-    		" </job>" +
-    		"</oddjob>";
-    	
-    	Oddjob test = new Oddjob();
-		test.setConfiguration(new XMLConfiguration("XML", xml));
-    	
-    	test.run();
-    	
-    	try {
-    		test.destroy();
-    		fail("Exception expected.");
-    	} catch (IllegalStateException e) {
-    		// expected.
-    	}
-    	
-    	assertEquals(ParentState.COMPLETE, 
-    			test.lastStateEvent().getState());
-    	
-    	test.destroy();
-    	
-    	assertEquals(ParentState.DESTROYED, 
-    			test.lastStateEvent().getState());
-    }
-    
     public void testCreateFile() throws FileNotFoundException {
     	
     	OurDirs dirs = new OurDirs();

@@ -25,6 +25,7 @@ import org.oddjob.state.OrderedStateChanger;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateChanger;
 import org.oddjob.state.ParentStateHandler;
+import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
@@ -70,6 +71,8 @@ implements
 	 * @oddjob.required Read only.
 	 */
 	protected transient volatile boolean stop;
+		
+	protected transient volatile boolean destroy;
 	
 	/**
 	 * Constructor.
@@ -147,9 +150,13 @@ implements
 			logger().info("Executing.");
 
 			try {
-				configure();
+				if (!stop) {
+					configure();
+				}
 				
-				execute();
+				if (!stop) {
+					execute();
+				}
 				
 				// we ignore state while executing but now we need to update.
 				// dependent on our child states.
@@ -160,7 +167,9 @@ implements
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						getStateChanger().setStateException(e);
+						if (!destroy) {
+							getStateChanger().setStateException(e);
+						}
 					}
 				});
 			}	
@@ -176,8 +185,17 @@ implements
 	 * need to start the child state reflector at a different time.
 	 */
 	protected void startChildStateReflector() {
-		childStateReflector.start();
-		logger().debug("Child State Reflector Started.");
+		if (destroy) {
+			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ParentState.READY);
+				}
+			});
+		}
+		else {
+			childStateReflector.start();
+			logger().debug("Child State Reflector Started.");
+		}
 	}
 	
 	/**
@@ -380,13 +398,34 @@ implements
 	protected void onDestroy() {
 		super.onDestroy();
 		
-		try {
-			stop();
-		} catch (FailedToStopException e) {
-			logger().warn("Failed to stop during destroy.", e);
-		}
+		logger().info("Destroying.");
 		
-		childStateReflector.stop();
+		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+			public void run() {
+				destroy = true;
+				stop = true;
+				
+				childStateReflector.stop();
+
+				stateHandler.wake();
+	
+				State state = stateHandler.getState();
+				if (state.isStoppable()) {
+					try {
+						onStop();
+					} 
+					catch (FailedToStopException e) {
+						logger().warn("Failed to stop during destroy.", e);
+					}
+					// This is messy. If the job is still executing, the
+					// startChildReflector will set the job back to READY
+					// because of the destroy flag.
+					if (!state.isExecuting()) {
+						getStateChanger().setState(ParentState.READY);
+					}
+				}
+			}					
+		});			
 	}
 	
 	/**

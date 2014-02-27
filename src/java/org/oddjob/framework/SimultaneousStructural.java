@@ -122,10 +122,6 @@ implements Stoppable {
 			logger().info("Submitted [" + job + "]");
 		}
 		
-		if (stop) {
-			return;
-		}
-		
 		if (isJoin()) {
 			logger().info("Join property is set, waiting for threads to finish.");
 			asyncSupport.joinOnAllJobs();
@@ -139,7 +135,13 @@ implements Stoppable {
 				});
 			}
 		}
-		asyncSupport.startWatchingJobs();
+
+		// Stop will have called asyncSupport#stopAllJobs which will have
+		// called startChildStateReflector which will reflect state of
+		// stopped jobs.
+		if (!stop) {
+			asyncSupport.startWatchingJobs();
+		}
 	}
 
 	@Override

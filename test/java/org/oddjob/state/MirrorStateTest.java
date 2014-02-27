@@ -336,19 +336,19 @@ public class MirrorStateTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		oddjob.setExport("job", new ArooaObject(running));
 
-		StateSteps steps = new StateSteps(oddjob);
+		StateSteps oddjobStates = new StateSteps(oddjob);
 		
-		steps.startCheck(ParentState.READY, 
+		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE);
 
 		oddjob.run();
 		
-		steps.checkNow();
-		steps.startCheck(ParentState.ACTIVE, ParentState.READY, 
+		oddjobStates.checkNow();
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY, 
 				ParentState.DESTROYED);
 		
 		oddjob.destroy();
 		
-		steps.checkNow();
+		oddjobStates.checkNow();
 	}
 }

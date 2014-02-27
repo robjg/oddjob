@@ -1,9 +1,9 @@
 package org.oddjob.images;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ImageIcon;
 
@@ -105,7 +105,7 @@ public class IconHelper implements Iconic {
 			"Active");
 	
 	private static Map<String, ImageIcon> defaultIconMap = 
-		new HashMap<String, ImageIcon>();
+		new ConcurrentHashMap<String, ImageIcon>();
 
 	static {
 		defaultIconMap.put(NULL, nullIcon);
@@ -126,7 +126,7 @@ public class IconHelper implements Iconic {
 
 	private final Iconic source;
 	private volatile IconEvent lastEvent;
-	private List<IconListener> listeners = new ArrayList<IconListener>();
+	private final List<IconListener> listeners = new ArrayList<IconListener>();
 	private final Map<String, ImageIcon> iconMap;
 	
 	/**
@@ -172,9 +172,6 @@ public class IconHelper implements Iconic {
 	 * @param iconId The icon id.
 	 */
 	public void changeIcon(String iconId) {
-		if (iconId.equals(lastEvent.getIconId())) {
-			return;
-		}
 		
 		// check icon
 		if (!iconMap.containsKey(iconId)) {
@@ -183,16 +180,21 @@ public class IconHelper implements Iconic {
 		
 		// create a local last event so that another thread
 		// doesn't change the event mid notification. Copy the 
-		// list of lisetners so that we don't need to
+		// list of listeners so that we don't need to
 		// hold the monitor lock when we notify them.
 		IconEvent localEvent = new IconEvent(source, iconId);
-		IconListener[] la = null;
+		IconListener[] listenersCopy = null;
+		
 		synchronized (listeners) {
+			if (iconId.equals(lastEvent.getIconId())) {
+				return;
+			}
+			
 			lastEvent = localEvent;
-			la = (IconListener[]) listeners.toArray(new IconListener[0]);
+			listenersCopy = (IconListener[]) listeners.toArray(new IconListener[0]);
 		}
-		for (int i = 0; i < la.length; ++i) {
-			la[i].iconEvent(localEvent);
+		for (int i = 0; i < listenersCopy.length; ++i) {
+			listenersCopy[i].iconEvent(localEvent);
 		}
 	}
 

@@ -46,9 +46,9 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		StateSteps timer2States = new StateSteps(timer2);
 		timer2States.setTimeout(20*1000L);
 		
-		timer1States.startCheck(TimerState.READY, TimerState.EXECUTING, 
+		timer1States.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
 				TimerState.STARTED, TimerState.COMPLETE);
-		timer2States.startCheck(TimerState.READY, TimerState.EXECUTING, 
+		timer2States.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
 				TimerState.STARTED, TimerState.COMPLETE);
 		
 		oddjob.run();

@@ -62,7 +62,7 @@ public class TimerStateAdapter implements Stateful {
 			timerState = TimerState.INCOMPLETE;
 			break;
 		case READY:
-			timerState = TimerState.READY;
+			timerState = TimerState.STARTABLE;
 			break;
 		case STARTED:
 			timerState = TimerState.STARTED;

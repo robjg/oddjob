@@ -727,7 +727,7 @@ implements Loadable,
 		Object child = childHelper.getChild();
 
 		// if there is something to execute, execute it.
-		if (child != null && child instanceof Runnable) {
+		if (child != null && child instanceof Runnable && !stop) {
 			((Runnable) child).run();
 		}
 	}
@@ -753,12 +753,6 @@ implements Loadable,
 		}
 		
 		configurationOwnerSupport.setConfigurationSession(null);
-		
-		try {
-			childHelper.stopChildren();
-		} catch (FailedToStopException e) {
-			logger().warn("Faild to stop child.", e);
-		}
 		
 		ComponentPersister persister = ourSession.getComponentPersister();		
 		if (persister != null) {

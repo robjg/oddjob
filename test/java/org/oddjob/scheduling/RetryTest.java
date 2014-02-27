@@ -397,7 +397,7 @@ public class RetryTest extends TestCase {
 		Retry test = new Retry();
 		
 		StateSteps testStates = new StateSteps(test);
-		testStates.startCheck(TimerState.READY, TimerState.EXECUTING,
+		testStates.startCheck(TimerState.STARTABLE, TimerState.STARTING,
 				TimerState.STARTED, TimerState.INCOMPLETE);
 				
 		CountSchedule count = new CountSchedule();
@@ -428,13 +428,13 @@ public class RetryTest extends TestCase {
 		
 		assertEquals(3, sequence.getCurrent().intValue());
 		
-		testStates.startCheck(TimerState.INCOMPLETE, TimerState.READY);
+		testStates.startCheck(TimerState.INCOMPLETE, TimerState.STARTABLE);
 		
 		test.softReset();
 		
 		testStates.checkNow();
 		
-		testStates.startCheck(TimerState.READY, TimerState.EXECUTING,
+		testStates.startCheck(TimerState.STARTABLE, TimerState.STARTING,
 				TimerState.STARTED, TimerState.INCOMPLETE);
 		
 		test.run();
@@ -634,7 +634,7 @@ public class RetryTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 	}
 	
 	public void testStopLast() throws FailedToStopException {
@@ -657,7 +657,7 @@ public class RetryTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 	}
 	
 	public void testWithLimitsLongOverDue() throws ParseException {

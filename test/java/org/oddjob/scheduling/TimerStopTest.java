@@ -73,7 +73,7 @@ public class TimerStopTest extends TestCase {
 		assertEquals(JobState.READY, 
 				job.lastStateEvent().getState());
 		
-		assertEquals(TimerState.READY, 
+		assertEquals(TimerState.STARTABLE, 
 				test.lastStateEvent().getState());		
 		
 		
@@ -133,7 +133,7 @@ public class TimerStopTest extends TestCase {
 
 		assertFalse(Thread.interrupted());
 		
-		assertEquals(TimerState.READY, 
+		assertEquals(TimerState.STARTABLE, 
 				test.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
@@ -190,8 +190,8 @@ public class TimerStopTest extends TestCase {
 	
 		StateSteps testStates = new StateSteps(test);
 		
-		testStates.startCheck(TimerState.READY, 
-				TimerState.EXECUTING, TimerState.STARTED, TimerState.READY);
+		testStates.startCheck(TimerState.STARTABLE, 
+				TimerState.STARTING, TimerState.STARTED, TimerState.STARTABLE);
 		
 		logger.info("** First Run **");
 		
@@ -202,8 +202,8 @@ public class TimerStopTest extends TestCase {
 		assertEquals(JobState.COMPLETE, 
 				job.lastStateEvent().getState());
 
-		testStates.startCheck(TimerState.READY, 
-				TimerState.EXECUTING, TimerState.STARTED);
+		testStates.startCheck(TimerState.STARTABLE, 
+				TimerState.STARTING, TimerState.STARTED);
 		
 		logger.info("** Second Run **");
 		
@@ -273,7 +273,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 		
 		test.run();
 		
@@ -284,7 +284,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 		
 		test.setJob(null);
 		test.setJob(new RunOnceJob());
@@ -314,7 +314,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 		
 	}
 	
@@ -397,6 +397,6 @@ public class TimerStopTest extends TestCase {
 		
 		test.stop();
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 	}
 }

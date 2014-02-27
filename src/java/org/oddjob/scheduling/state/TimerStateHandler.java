@@ -18,7 +18,7 @@ extends StateHandler<TimerState> {
 	 * @param source The source for events.
 	 */
 	public TimerStateHandler(Stateful source) {
-		super(source, TimerState.READY);
+		super(source, TimerState.STARTABLE);
 	}	
 	
 }

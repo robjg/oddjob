@@ -144,7 +144,7 @@ abstract public class TimerBase extends ScheduleBase {
 		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 			@Override
 			public void run() {
-				getStateChanger().setState(TimerState.READY);
+				getStateChanger().setState(TimerState.STARTABLE);
 			}
 		});
 	}

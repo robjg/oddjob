@@ -106,7 +106,7 @@ public class WaitJobTest extends TestCase {
 		
 		sample.run();
 		
-		// occasionally we get more icons than expected, sleeping index 3
+		// occasionally we get more icons than expected, executing index 3
 		// which should be completely impossible...
 		waitIcons.checkWait();
 		

@@ -49,7 +49,7 @@ public class TimerStateAdapterTest extends TestCase {
 		
 		TimerStateAdapter test = new TimerStateAdapter(parentStateful);		
 		
-		assertEquals(TimerState.READY, test.lastStateEvent().getState());
+		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 		
 		OurListener listener = new OurListener();
 		
@@ -86,7 +86,7 @@ public class TimerStateAdapterTest extends TestCase {
 			}
 		});
 		
-		assertEquals(TimerState.READY, listener.state);
+		assertEquals(TimerState.STARTABLE, listener.state);
 		
 		parentStateful.callLocked(new Callable<Void>() {
 			@Override

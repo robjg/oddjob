@@ -46,7 +46,6 @@ import org.oddjob.structural.StructuralListener;
  * 
  * @author Rob Gordon
  */
-
 public abstract class ScheduleBase extends BasePrimary
 implements 
 		Runnable, Stoppable, Serializable, 
@@ -147,7 +146,7 @@ implements
 					stop = false;
 					childStateReflector.stop();
 					
-					getStateChanger().setState(TimerState.EXECUTING);					
+					getStateChanger().setState(TimerState.STARTING);					
 				}
 			})) {
 				return;
@@ -262,10 +261,16 @@ implements
 		}
 	}
 	
+	/**
+	 * Subclasses can override to perform stopping operations.
+	 */
 	protected void onStop() {
 		
 	}
 	
+	/**
+	 * Subclasses can override to perform actions once children have stopped.
+	 */
 	protected void postStop() {
 		
 	}
@@ -285,7 +290,7 @@ implements
 
 					onReset();
 
-					getStateChanger().setState(TimerState.READY);
+					getStateChanger().setState(TimerState.STARTABLE);
 
 					logger().info("Soft Reset complete.");			
 				}
@@ -311,7 +316,7 @@ implements
 					
 					onReset();
 					
-					getStateChanger().setState(TimerState.READY);
+					getStateChanger().setState(TimerState.STARTABLE);
 		
 					logger().info("Hard Reset complete.");			
 				}
@@ -321,6 +326,9 @@ implements
 		}
 	}
 
+	/**
+	 * Override by subclasses to reset state.
+	 */
 	protected void onReset() {
 		
 	}
@@ -370,6 +378,7 @@ implements
 		s.defaultReadObject();
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
+		
 		StateEvent savedEvent = (StateEvent) s.readObject();
 		
 		completeConstruction();
@@ -382,15 +391,28 @@ implements
 	
 	@Override
 	protected void onDestroy() {
+		stateHandler.assertAlive();
+		
 		super.onDestroy();
 		
+		ComponentBoundry.push(loggerName(), this);
 		try {
-			stop();
-		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().info("Destroying.");
+			
+			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+				public void run() {
+					childStateReflector.stop();
+					stop = true;
+					if (stateHandler.getState().isStoppable()) {
+						onStop();
+						stateChanger.setState(TimerState.STARTABLE);
+					}
+				}					
+			});
+		} 
+		finally {
+			ComponentBoundry.pop();
 		}
-		
-		childStateReflector.stop();
 	}
 	
 	/**

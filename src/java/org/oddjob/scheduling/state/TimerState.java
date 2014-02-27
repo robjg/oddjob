@@ -15,7 +15,7 @@ public enum TimerState implements State {
 	 * The timer can be started. A timer can not be started unless it
 	 * is in this state.
 	 */	
-	READY() {
+	STARTABLE() {
 		@Override
 		public boolean isReady() {
 			return true;
@@ -49,7 +49,7 @@ public enum TimerState implements State {
 	/**
 	 * The timer is starting.
 	 */	
-	EXECUTING() {
+	STARTING() {
 		@Override
 		public boolean isReady() {
 			return false;
@@ -293,8 +293,8 @@ public enum TimerState implements State {
 	 */
 	static {
 		
-		StateIcons.register(TimerState.READY, IconHelper.READY);
-		StateIcons.register(TimerState.EXECUTING, IconHelper.EXECUTING);
+		StateIcons.register(TimerState.STARTABLE, IconHelper.STARTABLE);
+		StateIcons.register(TimerState.STARTING, IconHelper.EXECUTING);
 		StateIcons.register(TimerState.ACTIVE, IconHelper.ACTIVE);
 		StateIcons.register(TimerState.STARTED, IconHelper.STARTED);
 		StateIcons.register(TimerState.INCOMPLETE, IconHelper.NOT_COMPLETE);
