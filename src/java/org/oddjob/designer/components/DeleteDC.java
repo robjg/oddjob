@@ -33,6 +33,10 @@ class DeleteDesign extends BaseDC {
 	
 	private final SimpleTextAttribute force;
 	
+	private final SimpleTextAttribute reallyRoot;
+	
+	private final SimpleTextAttribute logEvery;
+	
 	public DeleteDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
@@ -40,10 +44,14 @@ class DeleteDesign extends BaseDC {
 				"files", this);
 		
 		force = new SimpleTextAttribute("force", this);
+		
+		reallyRoot = new SimpleTextAttribute("reallyRoot", this);
+		
+		logEvery = new SimpleTextAttribute("logEvery", this);
 	}
 
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, files, force };
+		return new DesignProperty[] { name, files, force, reallyRoot, logEvery };
 	}
 	
 	public Form detail() {
@@ -52,7 +60,10 @@ class DeleteDesign extends BaseDC {
 			.addFormItem(
 					new BorderedGroup("File/Directory Details")
 					.add(files.view().setTitle("File(s)/Dir(s)"))
-					.add(force.view().setTitle("Force")));
+					.add(force.view().setTitle("Force"))
+					.add(reallyRoot.view().setTitle("Really Root"))
+					.add(logEvery.view().setTitle("Log Every"))
+				);
 	}
 		
 	

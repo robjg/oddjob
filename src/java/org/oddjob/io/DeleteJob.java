@@ -6,9 +6,12 @@ package org.oddjob.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.framework.HardReset;
+import org.oddjob.framework.SoftReset;
 
 
 /**
@@ -37,7 +40,7 @@ public class DeleteJob implements Runnable, Serializable {
 	 * @oddjob.description A name, can be any text.
 	 * @oddjob.required No. 
 	 */
-	private String name;
+	private volatile String name;
 	
 	/** 
 	 * @oddjob.property
@@ -45,14 +48,138 @@ public class DeleteJob implements Runnable, Serializable {
 	 * to delete.
 	 * @oddjob.required Yes.
 	 */
-	private File[] files;
+	private volatile File[] files;
 	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description Forceably delete non empty directories.
 	 * @oddjob.required No, defaults to false.
 	 */
-	private boolean force;
+	private volatile boolean force;
+
+	/**
+	 * 
+	 */
+	private volatile int logEvery;
+	
+	private volatile boolean reallyRoot;
+	
+	private final AtomicInteger fileCount = new AtomicInteger();
+	
+	private final AtomicInteger dirCount = new AtomicInteger();
+	
+	/*
+	 *  (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run() {		
+		
+		if (files == null) {
+			throw new IllegalStateException("Files must be specified."); 
+		}
+		
+		File[] toDelete = Files.expand(files);
+		Files.verifyWrite(toDelete);
+
+		for (int i = 0; i < toDelete.length; ++i) {
+			
+			if (Thread.interrupted()) {
+				logger.info("Delete interrupted.");
+				break;
+			}
+			
+			File fileToDelete = toDelete[i];
+			
+			if (fileToDelete.getParentFile() == null &&
+					!reallyRoot) {
+				throw new IllegalStateException(
+						"You can not delete root (/*) files " +
+						"without setting the reallyRoot property to true.");
+			}
+			
+			if (fileToDelete.isDirectory()) {
+				dirCount.incrementAndGet();
+			}
+			else {
+				fileCount.incrementAndGet();
+			}
+			
+			if (force) {
+				try {
+					FileUtils.forceDelete(fileToDelete);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			else {
+				if (!fileToDelete.delete()) {
+					throw new RuntimeException("Failed to delete " + fileToDelete);
+				}
+			}
+			
+			if (logEvery == 1) {
+				logger.info("Deleted " + fileToDelete);
+			}
+			else {
+				if (logEvery > 0 && 
+						(dirCount.get() + fileCount.get()) % logEvery == 0) {
+					logCounts();
+				}
+
+				if (logger.isDebugEnabled()) {
+					logger.debug("Deleted " + fileToDelete);
+				}
+			}
+		}
+		
+		logCounts();
+	}
+	
+	
+	/**
+	 * Log counts.
+	 * 
+	 */
+	private void logCounts() {
+		int fileCount = this.fileCount.get();
+		int dirCount = this.dirCount.get();
+		
+		StringBuilder message = new StringBuilder();
+		message.append("Deleted ");
+		if (fileCount > 0) {
+			message.append(fileCount);
+			message.append(" file");
+			if (fileCount > 1) {
+				message.append("s");
+			}
+			if (dirCount > 0) {
+				message.append(" and ");
+			}
+		}
+		if (dirCount > 0) {
+			message.append(dirCount);
+			message.append(" director");
+			if (dirCount == 1) {
+				message.append("y");
+			}
+			else {
+				message.append("ies");
+			}
+		}
+		if (fileCount == 0 && dirCount == 0) {
+			message.append("nothing");
+		}
+		message.append(".");
+		
+		logger.info(message.toString());
+	}
+	
+	@HardReset
+	@SoftReset
+	public void reset() {
+		fileCount.set(0);
+		dirCount.set(0);
+	}
 	
 	/**
 	 * Get the name.
@@ -91,11 +218,11 @@ public class DeleteJob implements Runnable, Serializable {
 	}
 
 	/**
-	 * Geter for force property.
+	 * Getter for force property.
 	 * 
 	 * @return The force property.
 	 */
-	public boolean getForce() {
+	public boolean isForce() {
 		return force;
 	}
 	
@@ -108,42 +235,29 @@ public class DeleteJob implements Runnable, Serializable {
 		this.force = force;
 	}
 	
-	/*
-	 *  (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run() {		
-		if (files == null) {
-			throw new IllegalStateException("Files must be specified."); 
-		}
-		File[] toDelete = Files.expand(files);
-		Files.verifyWrite(toDelete);
-
-		int fileCount = 0;
-		int dirCount = 0;
-		for (int i = 0; i < toDelete.length; ++i) {
-			if (toDelete[i].isDirectory()) {
-				++dirCount;
-			}
-			else {
-				++fileCount;
-			}
-			if (force) {
-				try {
-					FileUtils.forceDelete(toDelete[i]);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
-			else {
-				if (!toDelete[i].delete()) {
-					throw new RuntimeException("Failed to delete " + toDelete[i]);
-				}
-			}
-			logger.debug("Deleted " + toDelete[i]);
-		}
-		logger.info("Deleted " + fileCount + " files, " 
-				+ dirCount + " directories.");
+	public void setLogEvery(int logEvery) {
+		this.logEvery = logEvery;
+	}
+	
+	public int getLogEvery() {
+		return logEvery;
+	}
+	
+	public void setReallyRoot(boolean reallyRoot) {
+		this.reallyRoot = reallyRoot;
+	}
+	
+	public boolean isReallyRoot() {
+		return reallyRoot;
+	}
+	
+	
+	public int getFileCount() {
+		return fileCount.get();
+	}
+	
+	public int getDirCount() {
+		return dirCount.get();
 	}
 	
 	/*
@@ -152,7 +266,7 @@ public class DeleteJob implements Runnable, Serializable {
 	 */
 	public String toString() {
 		if (name == null) {
-			return "Delete Files and Directories";
+			return getClass().getSimpleName();
 		}
 		else {
 			return name;

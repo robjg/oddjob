@@ -3,6 +3,8 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- Added flag to delete job to stop accidently deleting root and added extra 
+  logging. 
 - A Map Type has been added. The keys must be strings but the values can
   be any type.
 - Structural jobs no longer attempt to Stop their children when destroyed. 
