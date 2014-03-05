@@ -3,6 +3,8 @@ Oddjob-1.4.0
 
 Changes in 1.4.0
 ----------------
+- A Map Type has been added. The keys must be strings but the values can
+  be any type.
 - Structural jobs no longer attempt to Stop their children when destroyed. 
   If they are running they return to the ready state. This allows child
   jobs to distinguish between being stopped and destroyed.

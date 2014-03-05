@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="night.type" value="school night"/>
+                    </values>
+                </properties>
+                <variables id="vars">
+                    <beersAllowed>
+                        <map>
+                            <elementType>
+                                <class name="int"/>
+                            </elementType>
+                            <values>
+                                <value key="weekend" value="4"/>
+                                <value key="school night" value="1"/>
+                            </values>
+                        </map>
+                    </beersAllowed>
+                </variables>
+                <echo><![CDATA[On a ${night.type} I am allowed ${vars.beersAllowed.element(${night.type})} beer(s).]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

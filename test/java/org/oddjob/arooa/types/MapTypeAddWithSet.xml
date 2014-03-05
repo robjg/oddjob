@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aMap>
+                        <map/>
+                    </aMap>
+                </variables>
+                <set>
+                    <values>
+                        <value key="vars.aMap.add(morning snack)" value="apples"/>
+                    </values>
+                </set>
+                <set>
+                    <values>
+                        <value key="vars.aMap.add(afternoon snack)" value="bananas"/>
+                    </values>
+                </set>
+                <repeat id="each">
+                    <values>
+                        <value value="${vars.aMap}"/>
+                    </values>
+                    <job>
+                        <echo><![CDATA[${each.current.key} is ${each.current.value}]]></echo>
+                    </job>
+                </repeat>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
