@@ -1,11 +1,13 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
-import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 
 
 /**
@@ -46,14 +48,15 @@ public class ExistsJob implements Runnable, Serializable {
 
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The file, can contain wildcard characters.
+	 * @oddjob.description The file specification. The file specification 
+	 * can contain wild card characters.
 	 * @oddjob.required Yes.
 	 */
-	private File file;
+	private String file;
 
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The files that match the file spec.
+	 * @oddjob.description The files that match the file specification.
 	 * @oddjob.required R/O.
 	 */
 	private File[] exists;
@@ -79,19 +82,18 @@ public class ExistsJob implements Runnable, Serializable {
 	/**
 	 * Get the file.
 	 * 
-	 * @return The file.
+	 * @return The file specification.
 	 */
-	public File getFile() {
+	public String getFile() {
 		return file;
 	}
 	
 	/**
 	 * Set the file.
 	 * 
-	 * @param The file.
+	 * @param The file specification.
 	 */
-	@ArooaAttribute
-	public void setFile(File file) {
+	public void setFile(String file) {
 		this.file = file;
 	}
 
@@ -116,14 +118,27 @@ public class ExistsJob implements Runnable, Serializable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
+		
 		if (file == null) {
 			throw new IllegalStateException("File must be specified."); 
 		}
 
 		logger.info("Finding files matching " + file);
 		
-		WildcardSpec wild = new WildcardSpec(file);
-		exists = wild.findFiles();
+		WildcardSpec wild = new WildcardSpec(file);		
+		
+		try {
+			File[] expansion = wild.findFiles();
+			List<File> results = new ArrayList<File>();
+			for (File check : expansion) {
+				if (check.exists()) {
+					results.add(check);
+				}
+			}
+			exists = results.toArray(new File[results.size()]);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		
 		if (exists.length == 0) {
 			logger.info("No Files found.");

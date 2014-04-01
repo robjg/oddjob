@@ -7,120 +7,225 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.oddjob.io.WildcardSpec.AboveAndBelow;
+import org.apache.log4j.Logger;
 import org.oddjob.io.WildcardSpec.DirectorySplit;
 import org.oddjob.tools.OurDirs;
 
 public class WildcardSpecTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(WildcardSpecTest.class);
 	
-    public void testAboveAndBelow() throws IOException {
-    	File f = new File("a/b/*/c/*");
-    	AboveAndBelow ab1 = new AboveAndBelow(f);
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("---------------------  " + getName() + 
+				"  --------------------------");
+	}
+	
+    public void testDirectorySplitForRootFile() throws IOException {
+    	File root = new File("/a");
     	
-    	assertEquals(new File("a/b/*/c"), ab1.parent);
-    	assertEquals("*", ab1.name);
-    	assertNull(ab1.below);
-    	assertFalse(ab1.top);
-
-    	AboveAndBelow ab2 = new AboveAndBelow(ab1);
-    	assertEquals(new File("a/b/*"), ab2.parent);
-    	assertEquals("c", ab2.name);
-    	assertEquals(new File("*"), ab2.below);
-    	assertFalse(ab2.top);
-
-    	AboveAndBelow ab3 = new AboveAndBelow(ab2);
-    	assertEquals(new File("a/b"), ab3.parent);
-    	assertEquals("*", ab3.name);
-    	assertEquals(new File("c/*"), ab3.below);
-    	assertFalse(ab3.top);
+    	assertEquals(new File("/"), root.getParentFile());
+    	assertEquals("a", root.getName());
     	
-    	AboveAndBelow ab4 = new AboveAndBelow(ab3);
-    	assertEquals(new File("a"), ab4.parent);
-    	assertEquals("b", ab4.name);
-    	assertEquals(new File("*/c/*"), ab4.below);
-    	assertFalse(ab4.top);
-
-    	AboveAndBelow ab5 = new AboveAndBelow(ab4);
-    	assertEquals(new File(".").getAbsoluteFile().getParentFile(), ab5.parent);
-    	assertEquals("a", ab5.name);
-    	assertEquals(new File("b/*/c/*"), ab5.below);
-    	assertTrue(ab5.top);    	
+    	DirectorySplit test = new DirectorySplit(root);
+    	
+    	assertEquals(root, test.currentFile());
+    	assertEquals(new File("/"), test.getParentFile());
+       	assertEquals("a", test.getName());
+    	assertEquals(true, test.isBottom());
     }
     
-    public void testAboveAndBelow2() throws IOException {
-    	File f = new File("/");
-    	AboveAndBelow ab1 = new AboveAndBelow(f);
-    	
-    	assertNull(ab1.parent);
-       	assertEquals("", ab1.name);
-    	assertNull(ab1.below);
-    	assertTrue(ab1.top);
-   }
-    	
-    public void testAboveAndBelow3() throws IOException {
-    	File f = new File("/a/b");
-    	
-    	AboveAndBelow ab1 = new AboveAndBelow(f);
-    	
-    	assertEquals(new File("/a"), ab1.parent);
-       	assertEquals("b", ab1.name);
-    	assertNull(ab1.below);
-    	assertFalse(ab1.top);
-    	
-    	AboveAndBelow ab2 = new AboveAndBelow(ab1);
-    	
-    	assertEquals(new File("/"), ab2.parent);
-       	assertEquals("a", ab2.name);
-    	assertEquals(new File("b"), ab2.below);
-    	assertTrue(ab2.top);
-   }
     
-    public void testSplitRelative() {
-    	DirectorySplit test = new DirectorySplit(new File("a/b/*/c/*"));
-    	assertEquals(3, test.getSize());
-    	    	
-    	assertEquals(new File("a/b"), test.getParentFile());
-    	assertEquals("*", test.getName());
+    public void testDirectorySplitForRootOnly() throws IOException {
     	
-    	test = test.next("x");
+    	File root = new File("/");
     	
-    	assertEquals(new File("a/b/x"), test.getParentFile());
+    	assertEquals(null, root.getParent());
+    	assertEquals("", root.getName());
+    	
+    	DirectorySplit test = new DirectorySplit(root);
+    	
+    	assertEquals(null, test.getParentFile());
+       	assertEquals("", test.getName());
+    	assertEquals(true, test.isBottom());
+   }
+    	
+    public void testDirectorySplitFromRootWithDirectoryWildcard() throws IOException {
+    	File file = new File("/*/a/b");
+    	
+    	DirectorySplit test1 = new DirectorySplit(file);
+    	
+    	assertEquals(new File("/"), test1.getParentFile());
+       	assertEquals("*", test1.getName());
+    	assertEquals(false, test1.isBottom());
+    	
+    	DirectorySplit test2 = test1.next("x");
+    	
+    	assertEquals(new File("/x/a/b"), test2.currentFile());
+       	assertEquals("b", test2.getName());
+    	assertEquals(true, test2.isBottom());
+    }
+
+    public void testDirectorySplitForSingleFile() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File("a"));
+    	
+    	assertEquals(new File("a"), test.currentFile());
+    	assertEquals(null, test.getParentFile());
+       	assertEquals("a", test.getName());
+    	assertEquals(true, test.isBottom());
+    }
+    
+    public void testDirectorySplitDirectoriesNoWildcard() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File("a/b/c"));
+    	
     	assertEquals("c", test.getName());
+    	assertEquals(true, test.isBottom());
+    	assertEquals(new File("a/b"), test.getParentFile());
+    	
+    	assertEquals(null, test.next("c"));
+    }
+    
+    public void testDirctorySplitOneDirectoryAndAWildcard() throws IOException {
+    	File file = new File("a/???.txt");
+    	
+    	DirectorySplit test1 = new DirectorySplit(file);
+    	
+    	assertEquals(new File("a"), test1.getParentFile());
+    	assertEquals("???.txt", test1.getName());
+    	assertEquals(true, test1.isBottom());
+    }
+    
+    public void testDirectorySplitOneWildcardDirectory() throws IOException {
+    	File file = new File("a/??/c");
+    	
+    	DirectorySplit test1 = new DirectorySplit(file);
+    	
+    	assertEquals(new File("a"), test1.getParentFile());
+    	assertEquals("??", test1.getName());
+    	assertEquals(false, test1.isBottom());
+    	
+    	DirectorySplit test2 = test1.next("x");
+    	assertEquals(new File("a/x"), test2.getParentFile());
+    	assertEquals("c", test2.getName());
+    	assertEquals(true, test2.isBottom());
+    }
+    	
+    public void testDirectorySplitOneDirectoryWildcardAndAFinalWildcard() throws IOException {
+    	File file = new File("a/b/*/c/*");
+    	
+    	DirectorySplit test1 = new DirectorySplit(file);
+    	
+    	assertEquals(new File("a/b"), test1.getParentFile());
+    	assertEquals("*", test1.getName());
+    	assertEquals(false, test1.isBottom());
+
+    	DirectorySplit test2 = test1.next("x");
+    	assertEquals(new File("a/b/x/c"), test2.getParentFile());
+    	assertEquals("*", test2.getName());
+    	assertEquals(true, test2.isBottom());
+    }
+    
+    public void testDirectorySplitRelative() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File(".."));
+    	
+    	assertEquals("..", test.getName());
+    	assertEquals(null, test.getParentFile());
+    	assertEquals(true, test.isBottom());
+    }
+    
+    public void testDirectorySplitOneWildcard() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File("a/???/c"));
+    	
+    	assertEquals("???", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(new File("a"), test.getParentFile());
+    	
+    	DirectorySplit test2 = test.next("b");
+    	
+    	assertEquals("c", test2.getName());
+    	assertEquals(true, test2.isBottom());
+    	assertEquals(new File("a/b"), test2.getParentFile());
+    	
+    	assertEquals(null, test2.next("x"));
+    }
+    
+    public void testDirectorySplitOneWildcardAboveTwoDirectories() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File("a/???/c/d"));
+    	
+    	assertEquals("???", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(new File("a"), test.getParentFile());
+    	
+    	DirectorySplit test2 = test.next("b");
+    	
+    	assertEquals("d", test2.getName());
+    	assertEquals(true, test2.isBottom());
+    	assertEquals(new File("a/b/c"), test2.getParentFile());
+    	
+    	assertEquals(null, test2.next("x"));
+    }
+    
+    public void testDirectorySplitManyWildcards() throws IOException {
+    	
+    	DirectorySplit test = new DirectorySplit(new File("?/?/?/?/x"));
+    	
+    	assertEquals("?", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(null, test.getParentFile());
+    	
+    	test = test.next("a");
+
+    	assertEquals("?", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(new File("a"), test.getParentFile());
+    	
+    	test = test.next("b");
+
+    	assertEquals("?", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(new File("a/b"), test.getParentFile());
     	
     	test = test.next("c");
+
+    	assertEquals("?", test.getName());
+    	assertEquals(false, test.isBottom());
+    	assertEquals(new File("a/b/c"), test.getParentFile());
     	
-    	assertEquals(new File("a/b/x/c"), test.getParentFile());
-    	assertEquals("*", test.getName());
-    	
-    	assertNull(test.next("foo"));
+    	test = test.next("d");
+
+    	assertEquals("x", test.getName());
+    	assertEquals(true, test.isBottom());
+    	assertEquals(new File("a/b/c/d"), test.getParentFile());
     }
-    
-    public void testSplitAbsolute() {
+        
+    public void testSplitAbsoluteWildcardDirectoryAndAWildcard() throws IOException {
     	DirectorySplit test = new DirectorySplit(new File("/a/b/*/c/*"));
-    	assertEquals(3, test.getSize());
+    	assertEquals(2, test.getSize());
     	    	
     	assertEquals(new File("/a/b"), test.getParentFile());
     	assertEquals("*", test.getName());
+    	assertEquals(false, test.isBottom());
     	
     	test = test.next("x");
     	
-    	assertEquals(new File("/a/b/x"), test.getParentFile());
-    	assertEquals("c", test.getName());
-    	
-    	test = test.next("c");
-    	
     	assertEquals(new File("/a/b/x/c"), test.getParentFile());
     	assertEquals("*", test.getName());
-    	
-    	assertNull(test.next("foo"));
+    	assertEquals(true, test.isBottom());
     }
     
-    public void testSimple() {
+    public void testSimple() throws IOException {
     	OurDirs dirs = new OurDirs();
     	
     	WildcardSpec test = new WildcardSpec(
@@ -137,7 +242,7 @@ public class WildcardSpecTest extends TestCase {
     			new File(dirs.base() + "/test/io/reference/test2.txt")));
     }
     
-    public void testHarder() {
+    public void testHarder() throws IOException {
     	OurDirs dirs = new OurDirs();
     	
     	WildcardSpec test = new WildcardSpec(
@@ -146,14 +251,13 @@ public class WildcardSpecTest extends TestCase {
     	File[] result = test.findFiles();
     	assertEquals(2, result.length);
     	
-    	Set<File> set = new HashSet<File>(Arrays.asList(result)); 
-    	assertTrue(set.contains(
-    			new File(dirs.base() + "/test/io/reference/a/x/test3.txt")));
-    	assertTrue(set.contains(
-    			new File(dirs.base() + "/test/io/reference/b/x/test4.txt")));
+    	assertEquals(new File(dirs.base() + 
+    			"/test/io/reference/a/x/test3.txt"), result[0]);
+    	assertEquals(new File(dirs.base() + 
+    			"/test/io/reference/b/x/test4.txt"), result[1]);
     }
 
-    public void testHarder2() {
+    public void testHarder2() throws IOException {
     	OurDirs dirs = new OurDirs();
     	
     	WildcardSpec test = new WildcardSpec(
@@ -169,5 +273,75 @@ public class WildcardSpecTest extends TestCase {
     			new File(dirs.base(), "test/io/reference/b/x/test4.txt")));
     	assertTrue(set.contains(
     			new File(dirs.base(), "test/io/reference/a/y/test5.txt")));
+    }
+    
+    public void testFileThatDoesntExist() throws IOException {
+    	
+    	WildcardSpec test = new WildcardSpec(
+    			new File("IdontExist").getPath());
+    	
+    	File[] files = test.findFiles();
+    	
+    	assertEquals(1, files.length);
+    	assertEquals(new File("IdontExist").getCanonicalFile(), files[0]);
+    }
+    
+    public void testRoot() throws IOException {
+    	
+    	WildcardSpec test = new WildcardSpec(new File("/"));
+    	
+    	File[] files = test.findFiles();
+    	
+    	assertEquals(1, files.length);
+    	assertEquals(new File("/").getAbsoluteFile(), files[0]);
+    }
+    
+    public void testRootWithWildcard() throws IOException {
+    	
+    	WildcardSpec test = new WildcardSpec("/*");
+    	
+    	File[] files = test.findFiles();
+    	
+    	assertEquals(true, files.length > 0);
+    	
+    	assertEquals(true, files[0].isAbsolute());
+    	
+    	for (File file : files) {
+        	logger.info(file.getPath());
+    	}
+    }
+    
+    public void testCurrentDir() throws IOException {
+    	
+    	WildcardSpec test = new WildcardSpec(new File("*"));
+    	
+    	File[] files = test.findFiles();
+    	
+    	assertEquals(true, files.length > 0);
+    	
+    	assertEquals(true, files[0].isAbsolute());
+    	
+    	for (File file : files) {
+        	logger.info(file.getPath());
+    	}
+    }
+    
+    public void testRelativePath() throws IOException {
+    	
+    	OurDirs dirs = new OurDirs();
+    	
+    	WildcardSpec test = new WildcardSpec(
+    			new File(dirs.base(), "../*"));
+    	
+    	File[] files = test.findFiles();
+    	
+    	for (File file : files) {
+        	logger.info(file.getPath());
+    	}
+    	
+    	List<File> list = Arrays.asList(files);
+
+    	assertEquals(true, list.contains(
+    			new File(new File(dirs.base(), "..").getCanonicalFile(), "oddjob")));
     }
 }

@@ -4,6 +4,8 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
 
@@ -35,8 +37,9 @@ public class DeleteJobTest extends TestCase {
 	
 	public void testDeleteFile() throws Exception {
 		FileUtils.forceMkdir(dir);
-		
-		FileUtils.touch(new File(dir, "a"));
+	
+		File testFile = new File(dir, "a");
+		FileUtils.touch(testFile);
 		
 		WildcardSpec wild = new WildcardSpec(new File(dir, "a"));
 		File[] found = wild.findFiles(); 
@@ -59,8 +62,7 @@ public class DeleteJobTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
-		found = wild.findFiles();
-		assertEquals(0, found.length);
+		assertEquals(false, found[0].exists());
 	}
 	
 	public void testDeleteFiles() throws Exception {
@@ -167,9 +169,68 @@ public class DeleteJobTest extends TestCase {
 		DeleteJob test = new DeleteJob();
 		test.setFiles(new File[] { dir } );
 
-		Runnable copy = (Runnable) OddjobTestHelper.copy(test);
-		copy.run();
+		Callable<Integer> copy = 
+				(Callable<Integer>) OddjobTestHelper.copy(test);
+		copy.call();
 		
 		assertFalse(dir.exists());
+	}
+	
+	public void testReallyRoot() throws IOException, InterruptedException {
+		
+		File file = new File("/");
+		
+		// This is a really dangerous test so lets make sure wherever it's
+		// being run File behaves as expected.
+		assertEquals(true, file.getCanonicalFile().isAbsolute());
+		assertEquals(null, file.getCanonicalFile().getParentFile());
+		
+		DeleteJob test = new DeleteJob();
+		test.setFiles(new File[] { file });
+		
+		try {
+			test.call();
+			fail("Should fail.");
+		}
+		catch (RuntimeException e) {
+			assertEquals("You can not delete root (/*) files without setting the reallyRoot property to true.",
+					e.getMessage());
+		}
+		
+		assertEquals(1, test.getErrorCount());
+		
+		test.reset();
+		
+		file = new File("/a");
+		test.setFiles(new File[] { file });
+		
+		assertEquals(null, file.getParentFile().getParentFile());
+		
+		try {
+			test.call();
+			fail("Should fail.");
+		}
+		catch (RuntimeException e) {
+			assertEquals("You can not delete root (/*) files without setting the reallyRoot property to true.",
+					e.getMessage());
+		}
+		
+		assertEquals(1, test.getErrorCount());
+		
+		test.reset();
+		
+		file = new File("/a/../b");
+		test.setFiles(new File[] { file });
+		
+		try {
+			test.call();
+			fail("Should fail.");
+		}
+		catch (RuntimeException e) {
+			assertEquals("You can not delete root (/*) files without setting the reallyRoot property to true.",
+					e.getMessage());
+		}
+		
+		assertEquals(1, test.getErrorCount());
 	}
 }

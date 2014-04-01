@@ -1,7 +1,7 @@
 package org.oddjob.framework;
 
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 import junit.framework.TestCase;
@@ -169,8 +169,9 @@ public class CallableWrapperTest extends TestCase {
     /**
      * Not sure why this test is here as it doesn't appear to have anything 
      * to do with Callables.
+     * @throws IOException
      */
-	public void testContextClassLoaderWhenRunningFromOddjob() throws ClassNotFoundException, MalformedURLException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException {
+	public void testContextClassLoaderWhenRunningFromOddjob() throws ClassNotFoundException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();
 		

@@ -158,7 +158,7 @@ public class FilesTypeTest extends TestCase {
     
     public static class MyFiles extends SimpleJob {
         File[] files;
-    	public void setFiles(File[] files) {
+    	public void setFiles(File[] files) throws IOException {
     		if (files == null) {
     			this.files = null;
     		}

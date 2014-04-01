@@ -17,7 +17,6 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.IsNot;
@@ -61,27 +60,31 @@ public class WaitJobTest extends TestCase {
 		oddjob.destroy();
 	}
 
-	public void testStateWait() {
-		FlagState sample = new FlagState();
-		sample.setState(JobState.COMPLETE);
-		
-		WaitJob wait = new WaitJob();
-		wait.setPause(500);
-		
-		SequentialJob sequential = new SequentialJob();
-		sequential.setJobs(0, wait);
-		sequential.setJobs(1, sample);
-		
-		Thread t = new Thread(sequential);
+	public void testStateWait() throws InterruptedException {
+
+		FlagState flag = new FlagState();
+		flag.setState(JobState.COMPLETE);
 		
 		WaitJob test = new WaitJob();
-		test.setFor(sample);
+		test.setFor(flag);
 		test.setState(StateConditions.COMPLETE);
-
-		t.start();
-		test.run();
 		
-		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(JobState.READY, JobState.EXECUTING);
+
+		Thread t = new Thread(test);
+		
+		t.start();
+		
+		testStates.checkWait();
+
+		flag.run();
+		
+		assertEquals(JobState.COMPLETE, flag.lastStateEvent().getState());
+		
+		t.join();
+		
+		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
 	public void testStopStateWait() throws InterruptedException, FailedToStopException {

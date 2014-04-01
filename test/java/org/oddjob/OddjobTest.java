@@ -22,7 +22,6 @@ import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
 import org.oddjob.input.InputHandler;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.EchoJob;

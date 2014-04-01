@@ -5,6 +5,7 @@ package org.oddjob.io;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Set;
@@ -13,152 +14,227 @@ import java.util.TreeSet;
 import org.apache.commons.io.FilenameUtils;
 
 /**
+ * Utility class for wild-card file matching. Note that the File objects
+ * returned are all in the canonical file format.
  */
 public class WildcardSpec {
 
-    private File file;        
+    private final File file;        
     
+    /**
+     * Create a new instance with a String file path.
+     * 
+     * @param spec
+     */
     public WildcardSpec(String spec) {
     	this(new File(spec));
     }
     
+    /**
+     * Create a new instance with a file.
+     * 
+     * @param file
+     */
     public WildcardSpec(File file) {
+    	if (file == null) {
+    		throw new NullPointerException("No file.");
+    	}
     	this.file = file;
     }
     
-    public File[] findFiles() {
+    /**
+     * Is the file specification a wild card specification.
+     * 
+     * @return
+     */
+    public boolean isWildcardSpec() {
+    	return !noWildcard(file.getPath());
+    }
+    
+    
+    /**
+     * Find all files matching the specialisation.
+     * 
+     * @return
+     * @throws IOException 
+     */
+    public File[] findFiles() throws IOException {
     	DirectorySplit split = new DirectorySplit(file);
     	return findFiles(split);
     }
     
-    public File[] findFiles(final DirectorySplit split) {
+    /**
+     * Recursively find file in the path.
+     * 
+     * @param split The path split up into wildcard sections.
+     * 
+     * @return
+     * @throws IOException 
+     */
+    File[] findFiles(DirectorySplit split) throws IOException {
     	Set<File> results = new TreeSet<File>();
-    	if (split.getParentFile() == null) {
-    		// should only happen with the "/" spec.
-    		results.add(new File(split.getName()));
+    	
+    	final File currentFile = split.currentFile();
+    	File currentParent = currentFile.getAbsoluteFile().getParentFile();
+    	
+    	// currentParent will be null when file is "/" although
+    	// noWildCard should catch this too - lets be certain.
+    	if (currentParent == null || noWildcard(currentFile.getName())) {
+        	results.add(currentFile.getCanonicalFile());
     	}
     	else {
-    		File[] matching = split.getParentFile().listFiles(new FileFilter() {
+
+    		// Find all files matching the current paths name. This
+    		// may or may not be a wild card match.
+    		File[] matching = currentParent.listFiles(
+    				new FileFilter() {
     			public boolean accept(File pathname) {
-    				return FilenameUtils.wildcardMatchOnSystem(pathname.getName(), split.getName());
+    				return FilenameUtils.wildcardMatchOnSystem(
+    						pathname.getName(), currentFile.getName());
     			}
     		});
+    		
+    		
+    		// for each match, either move down the tree and continue
+    		// to match or add the result if we are at the bottom of
+    		// the path.
     		for (int i = 0; matching != null && i < matching.length; ++i) {
-    			if (!split.isBottom()) {
-    				if (matching[i].isDirectory()) {
-    					File[] more = findFiles(split.next(matching[i].getName()));
-    					results.addAll(Arrays.asList(more));
-    				}
+    			if (split.isBottom()) {
+    				results.add(matching[i].getCanonicalFile());
     			}
     			else {
-    				results.add(matching[i]);
+    				if (matching[i].isDirectory()) {
+
+    					// recursive call.
+    					File[] more = findFiles(
+    							split.next(matching[i].getName()));
+    					results.addAll(Arrays.asList(more));
+    				}
+    				else {
+    					// Ignore if the match is not a directory.
+    				}
     			}
     		}
     	}
-    	return (File[]) results.toArray(new File[0]);
+    	
+    	return results.toArray(new File[results.size()]);
     }
 
+    /**
+     * Splits a directory into what is above and below the wild cards.
+     * <p>
+     * Given a file such as <code>a/b/???/x/y/???</code> this will create a 
+     * split that is:
+     * <ul>
+     * <li>a/b/???/x/y/???</li>
+     * <li>a/b/???</li>
+     * </ul>
+     * This is stored as
+     * <ul>
+     * <li>x/y/???</li>
+     * <li>a/b/???</li>
+     * </ul>
+     * <p>
+     * 
+     */
     static class DirectorySplit {
-        LinkedList<AboveAndBelow> split = 
-        	new LinkedList<AboveAndBelow>();
+    	
+        final private LinkedList<File> split;
 
-        private DirectorySplit() { }
-        
+        /**
+         * Create a new instance.
+         * 
+         * @param file
+         */
         DirectorySplit(File file) {
-    		for (AboveAndBelow ab = new AboveAndBelow(file); 
-    				true; ab = new AboveAndBelow(ab)) {
-    			split.add(ab);
-    			if (ab.top) {
-    				break;
-    			}
-    			if (ab.parent.getPath().indexOf('*') < 0 &&
-    					ab.parent.getPath().indexOf('?') < 0) {
-    				break;
-    			}
-    		}
+
+        	if (file == null) {
+        		throw new NullPointerException();
+        	}
+        	
+        	split = new LinkedList<File>();
+
+        	File current = file;
+        	
+    		File parent = current.getParentFile();
+    		
+        	while (true) {
+        		
+        		if (parent == null || noWildcard(parent.getPath())) {
+        			
+            		split.add(current);
+            		break;
+        		}
+        		
+        		File below = new File(current.getName());
+
+        		while (true){
+        			current = parent;
+        			parent = current.getParentFile();
+        			
+        			if (parent == null || !noWildcard(current.getName())) {
+        				break;
+        			}
+
+        			below = new File(current.getName(), below.getPath());
+        		}
+        		
+        		split.add(below);
+        	}
         }
-       
-        File getParentFile() {
-        	File parent = ((AboveAndBelow) split.getLast()).parent;
+
+        /**
+         * Create a new instance for {@link #next(String)}.
+         * 
+         * @param previous
+         * @param name
+         * @throws IOException 
+         */
+        private DirectorySplit(DirectorySplit previous, String name) throws IOException { 
+        	split = new LinkedList<File>(previous.split);
+        	File previousParent = split.removeLast().getParentFile(); // remove the last;
+        	String currentName = split.removeLast().getPath(); // replace the current;
+        	File wildcardPathReplaced = 
+        			new File(previousParent, name);
+        	split.add(new File(wildcardPathReplaced, currentName));
+        }
+
+        File getParentFile() throws IOException {
+        	File parent = split.getLast().getParentFile();
         	return parent;
         }
         
+        File currentFile() {
+        	return split.getLast();
+        }
+        
         String getName() {
-        	return ((AboveAndBelow) split.getLast()).name;
+        	return split.getLast().getName();
         }
         
         boolean isBottom() {
-        	return ((AboveAndBelow) split.getLast()).below == null;
+        	return split.size() == 1;
         }
         
         int getSize() {
         	return split.size();
         }
         
-        DirectorySplit next(String name) {
+        DirectorySplit next(String name) throws IOException {
         	if (split.size() == 1) {
         		return null;
         	}
         	
-        	DirectorySplit next = new DirectorySplit();
-        	next.split = new LinkedList<AboveAndBelow>(split);
-        	next.split.removeLast();
-        	((AboveAndBelow) next.split.getLast()).parent = new File(getParentFile(), name);
+        	DirectorySplit next = new DirectorySplit(this, name);
     		return next;
         }
     }
         
-    static class AboveAndBelow {
-    	File parent;
-    	String name;
-    	File below;
-    	boolean top;
-    	
-    	AboveAndBelow(AboveAndBelow previous) {
-    		if (previous.top) {
-    			throw new IllegalStateException("Previous was top.");
-    		}
-    		if (previous.parent == null) {
-    			throw new IllegalStateException("Previous should have been top.");
-    		}
-    		
-    		parent = previous.parent.getParentFile();
-    		if (parent == null) {
-        		if (previous.parent.isAbsolute()) {
-        			throw new IllegalStateException("Previous should have been top.");        			
-        		}
-				parent = previous.parent.getAbsoluteFile().getParentFile();
-				top = true;        		
-    		}
-    		else {
-        		if (parent.getAbsoluteFile().getParentFile() == null) {
-        			// path must be "/"
-    				top = true;
-    			}
-    		}
-    		
-    		name = previous.parent.getName();
-
-    		if (previous.below == null) {
-    			below = new File(previous.name);
-    		}
-    		else {
-    			below = new File(previous.name, previous.below.getPath());    			
-    		}
-    	}
-    	
-    	AboveAndBelow(File first) {
-    		parent = first.getParentFile();
-    		if (parent == null) {
-    			// parent will be null for "/" situation.
-    			parent = first.getAbsoluteFile().getParentFile();
-    			top = true;
-    		}
-    		name = first.getName();
-    		below = null;
-    	}
-    }
-    
+    static boolean noWildcard(String text) {
+		return text.indexOf('*') < 0 &&
+				text.indexOf('?') < 0;
+	}
+	
     // taken as is from ant...
     
     /**

@@ -100,7 +100,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 				Thread.currentThread().getContextClassLoader());
 	}
 	
-	static public void compileSample(final OurDirs dirs) {
+	static public void compileSample(final OurDirs dirs) throws IOException {
 
 		File dir = dirs.relative("test/classloader");
 		if (new File(dir, "AJob.class").exists()) {
@@ -123,7 +123,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		}
 	}
 
-	public void testInOddjob() throws URISyntaxException {
+	public void testInOddjob() throws URISyntaxException, IOException {
 	
 		OurDirs dirs = new OurDirs();
 		

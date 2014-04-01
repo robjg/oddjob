@@ -4,6 +4,7 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -21,8 +22,9 @@ public class Files {
 	 * @param file The file.
 	 * 
 	 * @return An array of files. Never null.
+	 * @throws IOException 
 	 */
-	public static File[] expand(File file) {
+	public static File[] expand(File file) throws IOException {
 		return new WildcardSpec(file).findFiles();
 	}
 	
@@ -32,8 +34,9 @@ public class Files {
 	 * 
 	 * @param files The in files.
 	 * @return The expanded files
+	 * @throws IOException 
 	 */
-	public static File[] expand(File[] files) {
+	public static File[] expand(File[] files) throws IOException {
 		SortedSet<File> results = new TreeSet<File>();
 		for (int i = 0; i < files.length; ++i) {
 			results.addAll(Arrays.asList(expand(files[i])));
@@ -59,6 +62,23 @@ public class Files {
 		}		
 	}
 
+	
+	/**
+	 * Verify that a file is writeable.
+	 * 
+	 * @param file A file.
+	 * @throw RuntimeException if one of the files isn't writeable.
+	 */
+	public static void verifyWrite(File file) 
+	throws RuntimeException {
+		if (!file.exists()) {
+			throw new RuntimeException("File " + file + " does not exist.");
+		}
+		if (!file.canWrite()) {
+			throw new RuntimeException("File " + file + " can not be changed.");
+		}
+	}
+		
 	/**
 	 * Verify that files are writeable.
 	 * 
@@ -68,12 +88,7 @@ public class Files {
 	public static void verifyWrite(File[] files) 
 	throws RuntimeException {
 		for (int i = 0; i < files.length; ++i) {
-			if (!files[i].exists()) {
-				throw new RuntimeException("File " + files[i] + " does not exist.");
-			}
-			if (!files[i].canWrite()) {
-				throw new RuntimeException("File " + files[i] + " can not be changed.");
-			}
+			verifyWrite(files[i]);
 		}		
 	}
 }

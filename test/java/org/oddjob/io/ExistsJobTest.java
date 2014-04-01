@@ -37,7 +37,8 @@ public class ExistsJobTest extends TestCase {
 		OurDirs dirs = new OurDirs();
 		
 		ExistsJob test = new ExistsJob();
-		test.setFile(new File(dirs.base(), "test/io/reference/test1.txt"));
+		test.setFile(new File(dirs.base(), 
+				"test/io/reference/test1.txt").getPath());
 		
 		assertEquals(-1L, test.getSize());
 		assertNull(test.getLastModified());
@@ -54,7 +55,8 @@ public class ExistsJobTest extends TestCase {
 		OurDirs dirs = new OurDirs();
 		
 		ExistsJob test = new ExistsJob();
-		test.setFile(new File(dirs.base(), "test/io/reference/*.txt"));
+		test.setFile(new File(dirs.base(), 
+				"test/io/reference/*.txt").getPath());
 		test.run();
 		assertEquals(0, test.getResult());
 		
@@ -197,14 +199,14 @@ public class ExistsJobTest extends TestCase {
 		assertEquals(1, console.getLines().length);
 
 		oddjob.destroy();
-	}
-	
+	}	
 	
 	public void testSerialize() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		ExistsJob test = new ExistsJob();
-		test.setFile(new File(dirs.base(), "test/io/reference/test1.txt"));
+		test.setFile(new File(dirs.base(), 
+				"test/io/reference/test1.txt").getPath());
 
 		ExistsJob copy = (ExistsJob) OddjobTestHelper.copy(test);
 		copy.run();

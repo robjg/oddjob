@@ -1,6 +1,7 @@
 package org.oddjob.oddballs;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.oddjob.io.CopyJob;
@@ -12,12 +13,16 @@ public class BuildOddballs implements Runnable {
 	private static final Logger logger = Logger.getLogger(BuildOddballs.class);
 
 	public void run() {
-		build("apple");
-		build("orange");
+		try {
+			build("apple");
+			build("orange");
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	
-	public void build(String oddball) {
+	public void build(String oddball) throws IOException {
 		
 		final OurDirs dirs = new OurDirs();
 

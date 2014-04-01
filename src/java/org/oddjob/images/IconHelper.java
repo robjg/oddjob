@@ -191,7 +191,8 @@ public class IconHelper implements Iconic {
 			}
 			
 			lastEvent = localEvent;
-			listenersCopy = (IconListener[]) listeners.toArray(new IconListener[0]);
+			listenersCopy = listeners.toArray(
+					new IconListener[listeners.size()]);
 		}
 		for (int i = 0; i < listenersCopy.length; ++i) {
 			listenersCopy[i].iconEvent(localEvent);

@@ -4,6 +4,7 @@
 package org.oddjob.io;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +16,11 @@ import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 
 /**
- * @oddjob.description Specify files using a wildcard pattern. Also support
- * building complicated collections of files using the list property.
+ * @oddjob.description Specify files using a wild card pattern, or a
+ * a list. The list can contain {@link FileType} or other types that 
+ * can be converted into a java File object or array including this type. 
+ * In this way this type can be used to build complicated collections of 
+ * files.
  * 
  * @oddjob.example
  * 
@@ -56,7 +60,11 @@ public class FilesType implements ArooaValue, Serializable {
 	    	registry.register(FilesType.class, File[].class, 
 	    			new Convertlet<FilesType, File[]>() {
 	    		public File[] convert(FilesType from) throws ConvertletException {
-	    			return from.toFiles();
+	    			try {
+						return from.toFiles();
+					} catch (IOException e) {
+						throw new ConvertletException(e);
+					}
 	    		}
 	    	});
 		}
@@ -98,7 +106,7 @@ public class FilesType implements ArooaValue, Serializable {
     	}
     }
     
-    public File[] toFiles() {
+    public File[] toFiles() throws IOException {
     	
     	List<File> all = new ArrayList<File>();
     	
