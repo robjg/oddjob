@@ -1,6 +1,6 @@
 <oddjob id="this">
     <job>
-        <delete>
+        <delete id="delete">
             <files>
                 <files files="${this.args[0]}/*"/>
             </files>

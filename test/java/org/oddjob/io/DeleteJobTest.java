@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
@@ -77,18 +78,26 @@ public class DeleteJobTest extends TestCase {
 		assertEquals(3, found.length);
 
 
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration(
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/io/DeleteFilesExample.xml",
 				getClass().getClassLoader()));
 		
-		oj.setArgs(new String[] { dir.getPath().toString() });
-		oj.run();
+		oddjob.setArgs(new String[] { dir.getPath().toString() });
+		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 
 		found = wild.findFiles();
 		assertEquals(0, found.length);
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		assertEquals(3, (int) lookup.lookup("delete.fileCount", int.class));
+		assertEquals(0, (int) lookup.lookup("delete.dirCount", int.class));
+		assertEquals(0, (int) lookup.lookup("delete.errorCount", int.class));
+		
+		oddjob.destroy();
 	}
 	
 	public void testDeleteDir() throws Exception {
@@ -97,7 +106,7 @@ public class DeleteJobTest extends TestCase {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +
-			"  <delete>" +
+			"  <delete id='delete'>" +
 			"   <files>" +
 			"    <file file='" + dir.getPath() + "'/>" +
 			"   </files>" +
@@ -105,13 +114,22 @@ public class DeleteJobTest extends TestCase {
 			" </job>" +
 			"</oddjob>";
 
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
 		
-		oj.run();
+		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
 		assertFalse(dir.exists());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		assertEquals(0, (int) lookup.lookup("delete.fileCount", int.class));
+		assertEquals(1, (int) lookup.lookup("delete.dirCount", int.class));
+		assertEquals(0, (int) lookup.lookup("delete.errorCount", int.class));
+		
+		oddjob.destroy();
 	}
 	
 	public void testDeleteFullDir() throws Exception {
@@ -162,6 +180,19 @@ public class DeleteJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+	public void testDeleteFileThatDoesntExist() throws IOException, InterruptedException {
+		
+		DeleteJob test = new DeleteJob();
+		test.setFiles(new File[] { 
+				new File("doesntexist/reallydoesntexist") });
+		
+		test.call();
+		
+		assertEquals(0, test.getFileCount());
+		assertEquals(0, test.getDirCount());
+		assertEquals(0, test.getErrorCount());
+	}
+	
 	public void testSerialize() throws Exception {
 		FileUtils.forceMkdir(dir);
 
@@ -201,7 +232,9 @@ public class DeleteJobTest extends TestCase {
 		
 		test.reset();
 		
-		file = new File("/a");
+		File[] rootFiles = Files.expand(new File("/*"));
+		
+		file = rootFiles[0];
 		test.setFiles(new File[] { file });
 		
 		assertEquals(null, file.getParentFile().getParentFile());
@@ -219,7 +252,7 @@ public class DeleteJobTest extends TestCase {
 		
 		test.reset();
 		
-		file = new File("/a/../b");
+		file = new File("/a/../" + file.getName());
 		test.setFiles(new File[] { file });
 		
 		try {

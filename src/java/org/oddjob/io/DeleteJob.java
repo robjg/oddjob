@@ -132,6 +132,13 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 				
 				File fileToDelete = toDelete[i];
 				
+				if (!fileToDelete.exists()) {
+					
+					logger.debug("Ignoring " + fileToDelete + 
+							", it does not exist.");
+					continue;
+				}
+				
 				deleteFile(fileToDelete);
 			}
 		}
@@ -152,22 +159,18 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 						"without setting the reallyRoot property to true.");
 			}
 			
-			Files.verifyWrite(fileToDelete);
+			boolean isDirectory = fileToDelete.isDirectory();
 			
 			if (force) {
-				try {
-					FileUtils.forceDelete(fileToDelete);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
+				FileUtils.forceDelete(fileToDelete);
 			}
 			else {
 				if (!fileToDelete.delete()) {
-					throw new RuntimeException("Failed to delete " + fileToDelete);
+					throw new IOException("Failed to delete " + fileToDelete);
 				}
 			}
 			
-			if (fileToDelete.isDirectory()) {
+			if (isDirectory) {
 				dirCount.incrementAndGet();
 			}
 			else {
