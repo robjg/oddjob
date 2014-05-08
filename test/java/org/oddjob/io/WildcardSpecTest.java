@@ -66,7 +66,7 @@ public class WildcardSpecTest extends TestCase {
        	assertEquals("*", test1.getName());
     	assertEquals(false, test1.isBottom());
     	
-    	DirectorySplit test2 = test1.next("x");
+    	DirectorySplit test2 = test1.next(new File("/x"));
     	
     	assertEquals(new File("/x/a/b"), test2.currentFile());
        	assertEquals("b", test2.getName());
@@ -91,7 +91,7 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals(true, test.isBottom());
     	assertEquals(new File("a/b"), test.getParentFile());
     	
-    	assertEquals(null, test.next("c"));
+    	assertEquals(null, test.next(new File("a/b/c")));
     }
     
     public void testDirctorySplitOneDirectoryAndAWildcard() throws IOException {
@@ -113,7 +113,7 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals("??", test1.getName());
     	assertEquals(false, test1.isBottom());
     	
-    	DirectorySplit test2 = test1.next("x");
+    	DirectorySplit test2 = test1.next(new File("a/x"));
     	assertEquals(new File("a/x"), test2.getParentFile());
     	assertEquals("c", test2.getName());
     	assertEquals(true, test2.isBottom());
@@ -128,7 +128,7 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals("*", test1.getName());
     	assertEquals(false, test1.isBottom());
 
-    	DirectorySplit test2 = test1.next("x");
+    	DirectorySplit test2 = test1.next(new File("a/b/x"));
     	assertEquals(new File("a/b/x/c"), test2.getParentFile());
     	assertEquals("*", test2.getName());
     	assertEquals(true, test2.isBottom());
@@ -151,13 +151,13 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals(false, test.isBottom());
     	assertEquals(new File("a"), test.getParentFile());
     	
-    	DirectorySplit test2 = test.next("b");
+    	DirectorySplit test2 = test.next(new File("a/b"));
     	
     	assertEquals("c", test2.getName());
     	assertEquals(true, test2.isBottom());
     	assertEquals(new File("a/b"), test2.getParentFile());
     	
-    	assertEquals(null, test2.next("x"));
+    	assertEquals(null, test2.next(new File("a/b/x")));
     }
     
     public void testDirectorySplitOneWildcardAboveTwoDirectories() throws IOException {
@@ -168,13 +168,13 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals(false, test.isBottom());
     	assertEquals(new File("a"), test.getParentFile());
     	
-    	DirectorySplit test2 = test.next("b");
+    	DirectorySplit test2 = test.next(new File("a/b"));
     	
     	assertEquals("d", test2.getName());
     	assertEquals(true, test2.isBottom());
     	assertEquals(new File("a/b/c"), test2.getParentFile());
     	
-    	assertEquals(null, test2.next("x"));
+    	assertEquals(null, test2.next(new File("a/b/c/d/x")));
     }
     
     public void testDirectorySplitManyWildcards() throws IOException {
@@ -185,25 +185,25 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals(false, test.isBottom());
     	assertEquals(null, test.getParentFile());
     	
-    	test = test.next("a");
+    	test = test.next(new File("a"));
 
     	assertEquals("?", test.getName());
     	assertEquals(false, test.isBottom());
     	assertEquals(new File("a"), test.getParentFile());
     	
-    	test = test.next("b");
+    	test = test.next(new File("a/b"));
 
     	assertEquals("?", test.getName());
     	assertEquals(false, test.isBottom());
     	assertEquals(new File("a/b"), test.getParentFile());
     	
-    	test = test.next("c");
+    	test = test.next(new File("a/b/c"));
 
     	assertEquals("?", test.getName());
     	assertEquals(false, test.isBottom());
     	assertEquals(new File("a/b/c"), test.getParentFile());
     	
-    	test = test.next("d");
+    	test = test.next(new File("a/b/c/d"));
 
     	assertEquals("x", test.getName());
     	assertEquals(true, test.isBottom());
@@ -218,7 +218,7 @@ public class WildcardSpecTest extends TestCase {
     	assertEquals("*", test.getName());
     	assertEquals(false, test.isBottom());
     	
-    	test = test.next("x");
+    	test = test.next(new File("/a/b/x"));
     	
     	assertEquals(new File("/a/b/x/c"), test.getParentFile());
     	assertEquals("*", test.getName());
@@ -282,8 +282,7 @@ public class WildcardSpecTest extends TestCase {
     	
     	File[] files = test.findFiles();
     	
-    	assertEquals(1, files.length);
-    	assertEquals(new File("IdontExist").getCanonicalFile(), files[0]);
+    	assertEquals(0, files.length);
     }
     
     public void testRoot() throws IOException {
@@ -326,6 +325,41 @@ public class WildcardSpecTest extends TestCase {
     	}
     }
     
+    public void testDoubleWildcard() throws IOException {
+    	
+    	File testDir = new OurDirs().relative("test/io");
+    	
+    	WildcardSpec test = new WildcardSpec(new File(testDir, "**"));
+    	
+    	File[] files = test.findFiles();
+    	
+    	assertEquals(true, files.length > 5);
+    	
+    	assertEquals(true, files[0].isAbsolute());
+    	
+    	for (File file : files) {
+        	logger.info(file.getPath());
+    	}
+    }
+    
+    public void testDoubleWildcardWithFileName() throws IOException {
+    	
+    	File testDir = new OurDirs().relative("test/io");
+    	
+    	WildcardSpec test = new WildcardSpec(new File(testDir, "**/*.txt"));
+    	
+    	File[] files = test.findFiles();
+    	
+    	for (File file : files) {
+        	logger.info(file.getPath());
+    	}
+    	
+    	assertEquals(9, files.length);
+    	
+    	assertEquals(true, files[0].isAbsolute());    	
+    }
+    
+
     public void testRelativePath() throws IOException {
     	
     	OurDirs dirs = new OurDirs();
