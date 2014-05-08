@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties substitute="true">
+                    <values>
+                        <value key="fruit.favourite" value="apple"/>
+                        <value key="snack.favourite" value="$${fruit.favourite}"/>
+                    </values>
+                </properties>
+                <echo id="echo"><![CDATA[$${snack.favourite} is ${snack.favourite}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

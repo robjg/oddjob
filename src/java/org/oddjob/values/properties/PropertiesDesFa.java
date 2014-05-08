@@ -149,13 +149,13 @@ class PropertiesDesign {
 				.add(sets.view().setTitle("Sets")
 					)
 				.add(new FieldGroup("Input")
-					.add(substitute.view().setTitle("Substitute"))
 					.add(input.view().setTitle("Input"))
 					.add(fromXML.view().setTitle("From XML"))
 				)
-				.add(new FieldGroup("Prefixes")
-				.add(extract.view().setTitle("Extract Prefix"))
-				.add(prefix.view().setTitle("Prepend Prefix"))
+				.add(new FieldGroup("Advanced")
+					.add(substitute.view().setTitle("Substitute"))
+					.add(extract.view().setTitle("Extract Prefix"))
+					.add(prefix.view().setTitle("Prepend Prefix"))
 				);
 	}
 

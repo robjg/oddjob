@@ -20,6 +20,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
+import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
 /**
@@ -87,6 +88,28 @@ public class PropertiesJobTest extends TestCase {
 		
 		oddjob.run();
 		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		assertEquals("${snack.favourite} is apple", lookup.lookup("echo.text", String.class));
+		
+		oddjob.destroy();
+	}
+	
+	/**
+	 */
+	public void testPropertiesWithSubstitution() throws Exception {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/values/properties/PropertiesJobWithSubstitution.xml",
+				getClass().getClassLoader()));
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		assertEquals("${snack.favourite} is apple", lookup.lookup("echo.text", String.class));
@@ -108,7 +131,7 @@ public class PropertiesJobTest extends TestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals("john",
+		assertEquals("John Smith",
 				lookup.lookup("echo.text", String.class));
 		
 		oddjob.destroy();

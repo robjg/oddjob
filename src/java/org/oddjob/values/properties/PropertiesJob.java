@@ -35,8 +35,8 @@ import org.oddjob.arooa.runtime.PropertySource;
  * as above. Oddjob will do it's usual property substitution using previously
  * defined property values if required. 
  * <p>
- * If the substitute property is defined, property values within the input
- * file will be evaluated for substitution.
+ * If the substitute property is true, property values will be evaluated 
+ * for substitution.
  * <p>
  * The Properties job and {@link PropertiesType} type are very similar, the difference
  * between them is that the job defines properties for Oddjob and the type provides 
@@ -53,9 +53,28 @@ import org.oddjob.arooa.runtime.PropertySource;
  * 
  * @oddjob.example
  * 
+ * Defining a property using substitution. This is the same example as 
+ * previously but it is the properties job doing the substitution not
+ * the Oddjob framework. The value of snack.favourite is escaped because we
+ * want ${fruit.favourite} passed into the properties job. If the property
+ * was defined in a file it would not need to be escaped like this.
+ * 
+ * {@oddjob.xml.resource org/oddjob/values/properties/PropertiesJobWithSubstitution.xml}
+ * 
+ * @oddjob.example
+ * 
  * Loading properties from a class path resource.
  * 
  * {@oddjob.xml.resource org/oddjob/values/properties/PropertiesJobFromInput.xml}
+ * 
+ * The properties file contains:
+ * 
+ * {@oddjob.text.resource org/oddjob/values/properties/PropertiesJobTest1.properties}
+ * 
+ * This will display
+ * <pre>
+ * John Smith
+ * </pre>
  * 
  * @oddjob.example
  * 
