@@ -1,5 +1,7 @@
 package org.oddjob.state;
 
+import java.io.Serializable;
+
 import org.oddjob.Stateful;
 
 /**
@@ -10,7 +12,7 @@ import org.oddjob.Stateful;
  * @author rob
  *
  */
-public interface State {
+public interface State extends Serializable {
 
 	/**
 	 * Is a job ready to be executed.

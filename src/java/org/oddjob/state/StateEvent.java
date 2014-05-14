@@ -1,11 +1,7 @@
 package org.oddjob.state;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.EventObject;
 
 import org.oddjob.Stateful;
 import org.oddjob.util.IO;
@@ -13,47 +9,42 @@ import org.oddjob.util.IO;
 /**
  * An instance of this class is produced when a job state changes. It is
  * passed to all JobStateListeners.
+ * <p>
  * 
  * @author Rob Gordon
  */
+public class StateEvent {
 
-public class StateEvent extends EventObject 
-implements Serializable {
-
-    private static final long serialVersionUID = 20051026;
-
-	static final String REPLACEMENT_EXCEPTION_TEXT = "Exception is not serializable, message is: ";
+	public static final String REPLACEMENT_EXCEPTION_TEXT = "Exception is not serializable, message is: ";
 	
-    private State state;
-	private Date time;
-	private Throwable exception;
+	/** The source. Note that the source in {@link java.util.EventObject} is
+	 * not final and so safe publication to other threads is not
+	 * guaranteed. */
+	private final Stateful source;
 	
-	/**
-	 * Used to replace a non serializable exception.
-	 *
-	 */
-	class ExceptionReplacement extends Exception {
-		private static final long serialVersionUID = 20051217;
-		public ExceptionReplacement(Throwable replacing) {
-			super(REPLACEMENT_EXCEPTION_TEXT + replacing.getMessage());
-			super.setStackTrace(exception.getStackTrace());
-		}
-	}
+	/** The state */
+    private final State state;
+    
+    /** The time the state changed. */
+	private final Date time;
+	
+	/** Any exception that caused an exception state. */
+	private final Throwable exception;
 	
 	/**
 	 * Constructor.
 	 * 
-	 * @param job The source of the event.
-	 * @param jobState The state.
+	 * @param source The source of the event.
+	 * @param state The state.
 	 * @param time the Time of the event.
 	 * @param exception The exception if applicable, or null otherwise.
 	 */	
-	public StateEvent(Stateful job, State jobState, Date time, Throwable exception) {
-	    super(job);
-	    if (jobState == null) {
+	public StateEvent(Stateful source, State state, Date time, Throwable exception) {
+	    if (state == null) {
 	    	throw new NullPointerException("JobState can not be null!");
 	    }
-		this.state = jobState;
+	    this.source = source;
+		this.state = state;
 		this.time = time;
 		this.exception = exception;
 	}
@@ -79,9 +70,8 @@ implements Serializable {
 		this(job, jobState, null);
 	}
 
-	@Override
 	public Stateful getSource() {
-		return (Stateful) super.getSource();
+		return source;
 	}
 	
 	/**
@@ -110,7 +100,19 @@ implements Serializable {
 	public Date getTime() {
 		return time;
 	}
-
+	
+	/**
+	 * Provide something that can be serialised. Note the we do not use
+	 * {@code writeReplace} because there the corresponding 
+	 * {@code readResolve}
+	 * 
+	 * @return
+	 */
+	public SerializableNoSource serializable() {
+		return new SerializableNoSource(getState(), 
+				getTime(), getException());
+	}
+	
 	/**
 	 * Override toString.
 	 */
@@ -118,29 +120,54 @@ implements Serializable {
 		return "JobStateEvent, source=" + getSource() + ", " + state;
 	}
 	
-	/*
-	 * Custom serialization.
+	/**
+	 * Used to replace a non serializable exception.
+	 *
 	 */
-	private void writeObject(ObjectOutputStream s) 
-	throws IOException {
-		s.writeObject(state);
-		s.writeObject(time);
-		if (IO.canSerialize(exception)) {
-			s.writeObject(exception);
-		}
-		else {
-			s.writeObject(new ExceptionReplacement(exception));
+	static class ExceptionReplacement extends Exception {
+		private static final long serialVersionUID = 20051217;
+		
+		public ExceptionReplacement(Throwable replacing) {
+			super(REPLACEMENT_EXCEPTION_TEXT + replacing.getMessage());
+			super.setStackTrace(replacing.getStackTrace());
 		}
 	}
 	
-	/*
-	 * Custom serialization.
+	/**
+	 * Used to persist the event. There is no {@code ReadResolve} method
+	 * because it is not possible to resolve without the Stateful source.
+	 * <p>
+	 * 
 	 */
-	private void readObject(ObjectInputStream s) 
-	throws IOException, ClassNotFoundException {
-		state = (State) s.readObject();
-		time = (Date) s.readObject();
-		exception = (Throwable) s.readObject();
+	public static class SerializableNoSource implements Serializable {
+		private static final long serialVersionUID = 2014050700L;
+		
+		private final State state;
+		private final Date time;
+		private final Throwable exception;
+		
+		public SerializableNoSource(State state, Date date, 
+				Throwable exception) {
+			this.state = state;
+			this.time = date;
+			if (IO.canSerialize(exception)) {
+				this.exception = exception;
+			}
+			else {
+				this.exception = new ExceptionReplacement(exception);
+			}
+		}
+		
+		public State getState() {
+			return state;
+		}
+		
+		public Date getTime() {
+			return time;
+		}
+		
+		public Throwable getException() {
+			return exception;
+		}
 	}
-	
 }

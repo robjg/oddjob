@@ -1,8 +1,12 @@
 Oddjob-1.4.0
 ============
 
+* Please Note: This is release is not serialisation compatible with 
+Oddjob 1.3. All persisted job state will need to be deleted before upgrading.
+
 Changes in 1.4.0
 ----------------
+- Support recursive directory wild card matching in Files Type with **.
 - Added flag to delete job to stop accidently deleting root and added extra 
   logging. 
 - A Map Type has been added. The keys must be strings but the values can

@@ -40,7 +40,7 @@ implements Stateful, StateLock {
 	private final Stateful source;
 	
 	/** State listeners */
-	private transient ArrayList<StateListener> listeners = 
+	private transient volatile ArrayList<StateListener> listeners = 
 		new ArrayList<StateListener>();
 
 	/** The last event */
@@ -96,7 +96,7 @@ implements Stateful, StateLock {
 	 * 
 	 * @param source
 	 */
-	public void restoreLastJobStateEvent(StateEvent savedEvent) {
+	public void restoreLastJobStateEvent(StateEvent.SerializableNoSource savedEvent) {
 		
 	    // If state was saved when executing it now has to
 	    // be ready, because oddjob must have crashed last time.

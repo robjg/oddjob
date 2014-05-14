@@ -50,7 +50,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * times.
 	 * @oddjob.required Yes.
 	 */
-	private transient Schedule schedule;
+	private transient volatile Schedule schedule;
 		
 	/** 
 	 * @oddjob.property
@@ -61,20 +61,20 @@ abstract public class TimerBase extends ScheduleBase {
      * TimeZone</a>.
 	 * @oddjob.required Set automatically.  
 	 */
-	private transient TimeZone timeZone;
+	private transient volatile TimeZone timeZone;
 
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The clock to use. Tells the current time.
 	 * @oddjob.required Set automatically.
 	 */ 
-	private transient Clock clock;
+	private transient volatile Clock clock;
 	
 	/** The currently scheduled job future. */
 	private transient volatile Future<?> future;
 	
 	/** The scheduler to schedule on. */
-	private transient ScheduledExecutorService scheduler;
+	private transient volatile ScheduledExecutorService scheduler;
 
 	/** Provided to the schedule. */
 	protected final Map<Object, Object> contextData = 
@@ -86,7 +86,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * is updated when the timer starts or after each execution.
 	 * @oddjob.required Read Only.
 	 */
-	private volatile transient Date nextDue;
+	private transient volatile Date nextDue;
 	
 	/**
 	 * @oddjob.property 
@@ -106,7 +106,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * from the nextDue property when the job begins to execute.
 	 * @oddjob.required Read only.
 	 */ 
-	private Date lastDue;
+	private volatile Date lastDue;
 
 	@ArooaHidden
 	@Inject

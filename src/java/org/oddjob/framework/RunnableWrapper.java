@@ -318,7 +318,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	private void writeObject(ObjectOutputStream s) throws IOException {
 		s.defaultWriteObject();
-		s.writeObject(stateHandler.lastStateEvent());
+		s.writeObject(stateHandler.lastStateEvent().serializable());
 	}
 
 	/**
@@ -327,7 +327,8 @@ implements ComponentWrapper, Serializable, Forceable {
 	private void readObject(ObjectInputStream s) throws IOException,
 			ClassNotFoundException {
 		s.defaultReadObject();
-		StateEvent savedEvent = (StateEvent) s.readObject();
+		StateEvent.SerializableNoSource savedEvent = 
+				(StateEvent.SerializableNoSource) s.readObject();
 		completeConstruction();
 		stateHandler.restoreLastJobStateEvent(savedEvent);
 		iconHelper.changeIcon(StateIcons.iconFor(stateHandler.getState()));

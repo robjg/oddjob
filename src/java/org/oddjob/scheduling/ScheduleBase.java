@@ -367,7 +367,7 @@ implements
 		else {
 			s.writeObject(loggerName());
 		}
-		s.writeObject(stateHandler.lastStateEvent());
+		s.writeObject(stateHandler.lastStateEvent().serializable());
 	}
 
 	/**
@@ -379,7 +379,8 @@ implements
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
 		
-		StateEvent savedEvent = (StateEvent) s.readObject();
+		StateEvent.SerializableNoSource savedEvent =
+				(StateEvent.SerializableNoSource) s.readObject();
 		
 		completeConstruction();
 		

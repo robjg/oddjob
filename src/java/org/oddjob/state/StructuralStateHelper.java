@@ -42,7 +42,7 @@ public class StructuralStateHelper implements Stateful {
 		new ArrayList<StateListener>();
 
 	/** The {@link StateOperator}. */
-	private StateOperator stateOperator;
+	private volatile StateOperator stateOperator;
 
 	/**
 	 * Listens to a single child's state.
@@ -56,15 +56,23 @@ public class StructuralStateHelper implements Stateful {
 		}
 		
 		@Override
-		public synchronized void jobStateChange(StateEvent event) {
+		public void jobStateChange(final StateEvent event) {
 			
-			State previous = holder.getAndSet(event.getState());
+			stateHandler.callLocked(new Callable<Void>() {
+				@Override
+				public Void call() throws Exception {
+					State previous = holder.getAndSet(event.getState());
+					
+					// Don't check when listener initially added as this happens
+					// in when child added.
+					if (previous != null) {
+						checkStates();
+					}
+					
+					return null;
+				}
+			});
 			
-			// Don't check when listener initially added as this happens
-			// in when child added.
-			if (previous != null) {
-				checkStates();
-			}
 		};
 		
 		@Override

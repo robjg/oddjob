@@ -164,7 +164,7 @@ public class BaseComponentTest extends TestCase {
 		private void writeObject(ObjectOutputStream s) 
 		throws IOException {
 			s.defaultWriteObject();
-			s.writeObject(stateHandler.lastStateEvent());
+			s.writeObject(stateHandler.lastStateEvent().serializable());
 		}
 
 		/**
@@ -173,7 +173,8 @@ public class BaseComponentTest extends TestCase {
 		private void readObject(ObjectInputStream s) 
 		throws IOException, ClassNotFoundException {
 			s.defaultReadObject();
-			StateEvent savedEvent = (StateEvent) s.readObject();
+			StateEvent.SerializableNoSource savedEvent = 
+					(StateEvent.SerializableNoSource) s.readObject();
 			
 			completeConstruction();
 			

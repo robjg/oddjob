@@ -1,5 +1,8 @@
 package org.oddjob.persist;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -90,7 +93,7 @@ public class SilhouetteFactory {
 				silhouette);
 		
 		if (lastJobStateEvent != null) {
-			silhouette.setLastJobStateEvent(new StateEvent(
+			silhouette.setLastStateEvent(new StateEvent(
 					(Stateful) proxy, 
 					lastJobStateEvent.getState(),
 					lastJobStateEvent.getTime(),
@@ -124,19 +127,19 @@ public class SilhouetteFactory {
  */
 class Silhouette implements InvocationHandler, Serializable,
 		Describeable, Structural, Stateful, Iconic {
-	private static final long serialVersionUID = 2010040900L;
+	private static final long serialVersionUID = 201004092014050800L;
 	
 	private final Map<String, String> description;
 
 	private final String name;
 	
-	private StructuralEvent[] structuralEvents;
+	private volatile StructuralEvent[] structuralEvents;
 	
-	private StateEvent lastJobStateEvent;
+	private volatile transient StateEvent lastStateEvent;
 	
-	private IconEvent iconEvent;
+	private volatile IconEvent iconEvent;
 	
-	private ImageIcon iconTip;
+	private volatile ImageIcon iconTip;
 	
 	Silhouette(String name, Map<String, String> description) {
 		this.name = name;
@@ -147,8 +150,8 @@ class Silhouette implements InvocationHandler, Serializable,
 		this.structuralEvents = children;
 	}
 	
-	void setLastJobStateEvent(StateEvent lastJobStateEvent) {
-		this.lastJobStateEvent = lastJobStateEvent;
+	void setLastStateEvent(StateEvent lastJobStateEvent) {
+		this.lastStateEvent = lastJobStateEvent;
 	}
 	
 	void setIconInfo(IconEvent iconEvent, ImageIcon iconTip) {
@@ -172,7 +175,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	
 	@Override
 	public void addStateListener(StateListener listener) {
-		listener.jobStateChange(lastJobStateEvent);
+		listener.jobStateChange(lastStateEvent);
 	}
 	
 	@Override
@@ -181,7 +184,7 @@ class Silhouette implements InvocationHandler, Serializable,
 
 	@Override
 	public StateEvent lastStateEvent() {
-		return lastJobStateEvent;
+		return lastStateEvent;
 	}
 	
 	@Override
@@ -220,6 +223,33 @@ class Silhouette implements InvocationHandler, Serializable,
 		}
 		
 		return this == Proxy.getInvocationHandler(other);
+	}
+
+	/**
+	 * Custom serialisation.
+	 */
+	private void writeObject(ObjectOutputStream s) 
+	throws IOException {
+		s.defaultWriteObject();
+		s.writeObject(lastStateEvent == null ? 
+				null : lastStateEvent.serializable());
+	}
+
+	/**
+	 * Custom serialisation.
+	 */
+	private void readObject(ObjectInputStream s) 
+	throws IOException, ClassNotFoundException {
+		s.defaultReadObject();
+		StateEvent.SerializableNoSource savedEvent = 
+				(StateEvent.SerializableNoSource) s.readObject();
+		if (savedEvent == null) {
+			this.lastStateEvent = null;
+		}
+		else {
+			this.lastStateEvent = new StateEvent(this, savedEvent.getState(), 
+					savedEvent.getTime(), savedEvent.getException());
+		}
 	}
 
 }

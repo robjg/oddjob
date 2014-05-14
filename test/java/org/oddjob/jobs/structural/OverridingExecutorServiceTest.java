@@ -71,7 +71,8 @@ public class OverridingExecutorServiceTest extends TestCase {
 		oddjob.load();
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
-		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING);
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -95,7 +96,7 @@ public class OverridingExecutorServiceTest extends TestCase {
 
 		oddjobStates.checkWait();
 				
-		oddjobStates.startCheck(ParentState.EXECUTING, 
+		oddjobStates.startCheck(
 				ParentState.ACTIVE, ParentState.STARTED, 
 				ParentState.COMPLETE);
 		
