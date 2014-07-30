@@ -1,7 +1,7 @@
 <oddjob id="oddjob">
     <job>
         <sequential id="root"
-                    name="main">
+                    name="main" stateOperator="ACTIVE">
             <jobs>
                 <rmireg id="rmireg"
                         name="RMI Registry"/>

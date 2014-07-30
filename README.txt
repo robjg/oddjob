@@ -6,6 +6,8 @@ Oddjob 1.3. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.4.0
 ----------------
+- StructuralJob's default state operator has been changed back to WORST from
+  ACTIVE. It is felt this is more intuitive in most cases.
 - Support recursive directory wild card matching in Files Type with **.
 - Added flag to delete job to stop accidently deleting root and added extra 
   logging. 

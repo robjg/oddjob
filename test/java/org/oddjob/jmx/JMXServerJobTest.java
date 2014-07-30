@@ -3,6 +3,7 @@
  */
 package org.oddjob.jmx;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
@@ -27,11 +29,13 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.state.IsNot;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.tools.StateSteps;
 import org.oddjob.tools.WaitForChildren;
 
 /**
@@ -444,6 +448,38 @@ public class JMXServerJobTest extends TestCase {
 		oj.stop();
 		
 		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+	}
+	
+	/**
+	 * Tracking down a problem where the server doesn't stop when oddjob
+	 * is destroyed.
+	 */
+	public void testServerCopesWhenItsOddjobIsDestroyed() throws Exception {
+		
+		File file = new File(getClass().getResource(
+				"JMXServerJobDestroyTest.xml").getFile());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
+		
+		oddjob.run();
+		
+		assertEquals(ParentState.STARTED, 
+				oddjob.lastStateEvent().getState());
+		
+		Stateful server = new OddjobLookup(oddjob).lookup("server", 
+				Stateful.class);
+		
+		StateSteps serverStates = new StateSteps(server);
+		serverStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED,
+				ServiceState.DESTROYED);
+		
+		oddjob.destroy();
+		
+		assertEquals(ParentState.DESTROYED, 
+				oddjob.lastStateEvent().getState());
+		
+		serverStates.checkNow();
 	}
 	
 }

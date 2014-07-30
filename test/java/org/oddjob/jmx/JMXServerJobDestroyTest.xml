@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential stateOperator="ACTIVE">
+            <jobs>
+                <jmx:server id="server" root="${flag}" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <state:flag id="flag" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

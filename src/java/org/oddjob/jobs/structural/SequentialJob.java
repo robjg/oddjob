@@ -120,7 +120,7 @@ public class SequentialJob extends StructuralJob<Object>
 	 * @oddjob.description Set the way the children's state is 
 	 * evaluated and reflected by the parent. Values can be WORST, 
 	 * ACTIVE, or SERVICES.
-	 * @oddjob.required No, default is ACTIVE.
+	 * @oddjob.required No, default is WORST.
 	 * 
 	 * @param stateOperator The state operator to be applied to children's
 	 * states to derive our state.

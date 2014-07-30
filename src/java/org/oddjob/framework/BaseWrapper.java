@@ -263,7 +263,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 		try {
 			stop();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Failed to stop during destroy.", e);
 		}
 	}
 	
