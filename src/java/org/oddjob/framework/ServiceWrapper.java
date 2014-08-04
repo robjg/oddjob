@@ -173,30 +173,24 @@ implements ComponentWrapper {
     	}
     }
         
-    public void onStop() throws FailedToStopException {
-    	stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-    		public void run() {
-    		}
-    	});
+    protected void onStop() throws FailedToStopException {
     			
 		ComponentBoundry.push(loggerName(), wrapped);
 		try {
 			service.stop();
-		} catch (RuntimeException e) {
-			throw e;
-		} catch (Exception e) {
+			
+	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+	    		public void run() {
+	    			getStateChanger().setState(ServiceState.STOPPED);
+	    		}
+	    	});
+		} 
+		catch (Exception e) {
 			throw new FailedToStopException(service, e);
 		}
         finally {
         	ComponentBoundry.pop();
         }
-        
-    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-    		public void run() {
-    			getStateChanger().setState(ServiceState.STOPPED);
-    		}
-    	});
-
     }
     
 	/**

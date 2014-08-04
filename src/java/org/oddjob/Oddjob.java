@@ -250,12 +250,12 @@ implements Loadable,
     	new ArooaElement("oddjob");
     
 	/** The configuration file. */
-	private File file;
+	private volatile File file;
 		
 	/** This will be true when there is a restored configuration.
 	 * Setting a new configuration will be ignored while this flag
 	 * is true. A reset operation will clear this flag. */
-	private transient boolean restored;
+	private transient volatile boolean restored;
 	
 	/** 
 	 * @oddjob.property
@@ -267,10 +267,10 @@ implements Loadable,
 	 * 
 	 * @oddjb.required Either this or file is required.
 	 */
-	private transient ArooaConfiguration configuration;
+	private transient volatile ArooaConfiguration configuration;
 	
 	/** Support for configuration modification. */
-	private transient ConfigurationOwnerSupport configurationOwnerSupport;
+	private transient volatile ConfigurationOwnerSupport configurationOwnerSupport;
 	
 	/** 
 	 * @oddjob.property 
@@ -281,17 +281,17 @@ implements Loadable,
 	 * 
 	 * @oddjob.required No.
 	 */
-	private transient OddjobPersister persister;
+	private transient volatile OddjobPersister persister;
 		
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description An array of arguments the Oddjob configuration can use.
 	 * @oddjob.required No.
 	 */
-	private String[] args;
+	private volatile String[] args;
 	
 	/** Class loader */
-	private transient ClassLoader classLoader;
+	private transient volatile ClassLoader classLoader;
 	
 	/** 
 	 * @oddjob.property
@@ -305,7 +305,7 @@ implements Loadable,
 	 * 
 	 * @oddjob.required No.
 	 */
-	private transient ArooaDescriptorFactory descriptorFactory;
+	private transient volatile ArooaDescriptorFactory descriptorFactory;
 	
 	/** The session that is created on loading. */
 	private transient ArooaSession ourSession;
@@ -314,7 +314,7 @@ implements Loadable,
 	private transient Object oddjobRoot;
 	
 	/** Executors used if none are provided. */
-	private transient DefaultExecutors internalExecutors;
+	private transient volatile DefaultExecutors internalExecutors;
 	
 	/** 
 	 * @oddjob.property 
@@ -323,7 +323,7 @@ implements Loadable,
 	 * supplied {@link OddjobExecutors} may be provided.
 	 * @oddjob.required No.
 	 */
-	private transient OddjobExecutors oddjobExecutors;
+	private transient volatile OddjobExecutors oddjobExecutors;
 	
 	/** 
 	 * @oddjob.property
@@ -331,7 +331,7 @@ implements Loadable,
 	 * set automatically in Oddjob. Unlikely to be required.
 	 * @oddjob.required No.
 	 */
-	private transient OddjobServices oddjobServices;
+	private transient volatile OddjobServices oddjobServices;
 	
 	/**
 	 * @oddjob.property
@@ -340,7 +340,7 @@ implements Loadable,
 	 * oddjob using the key of this mapped property.
 	 * @oddjob.required No
 	 */
-	private transient Map<String, ArooaValue> export;
+	private transient volatile Map<String, ArooaValue> export;
 
 	/**
 	 * @oddjob.property
@@ -348,7 +348,7 @@ implements Loadable,
 	 * configuration. Can be set using a {@link PropertiesType}.
 	 * @oddjob.required No
 	 */
-	private Properties properties;
+	private volatile Properties properties;
 	
 	/**
 	 * @oddjob.property
@@ -367,7 +367,7 @@ implements Loadable,
 	 * configuration.</dd>
 	 * @oddjob.required No. Defaults to PROPERTIES.
 	 */
-	private OddjobInheritance inheritance;
+	private volatile OddjobInheritance inheritance;
 	
 	/**
 	 * Values for resets.

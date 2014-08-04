@@ -51,7 +51,7 @@ public class MainTest extends TestCase {
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
-				"-f", dirs.base() + "/oddjob.xml",  "x" } ).getOddjob();
+				"-f", dirs.base() + "/oddjob.xml",  "x" } );
 		
 		assertEquals(1, oj.getArgs().length);
 		assertEquals("x", oj.getArgs()[0]);
@@ -62,7 +62,7 @@ public class MainTest extends TestCase {
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { "-f", dirs.base() + "/oddjob.xml", 
-				"x", "-f", "something-else.xml" }).getOddjob();
+				"x", "-f", "something-else.xml" });
 		
 		assertEquals(3, oj.getArgs().length);
 		assertEquals("x", oj.getArgs()[0]);
@@ -76,7 +76,7 @@ public class MainTest extends TestCase {
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
 				"-f", dirs.base() + "/oddjob.xml", "--", 
-				"-f", "something-else.xml" } ).getOddjob();
+				"-f", "something-else.xml" } );
 		
 		assertEquals(2, oj.getArgs().length);
 		assertEquals("-f", oj.getArgs()[0]);
@@ -89,7 +89,7 @@ public class MainTest extends TestCase {
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
 				"-n", "Test Jobs", "-f", dirs.base() + 
-				"/oddjob.xml"} ).getOddjob();
+				"/oddjob.xml"} );
 		
 		assertEquals("Test Jobs", oj.toString());
 	}
@@ -112,7 +112,7 @@ public class MainTest extends TestCase {
 
 		Oddjob oddjob = test.init(new String[] { 
 			"-nb", 
-			"-f", dirs.base() + "/oddjob.xml" }).getOddjob();
+			"-f", dirs.base() + "/oddjob.xml" });
 		
 		assertNull(oddjob.getDescriptorFactory());
 	}
@@ -126,7 +126,7 @@ public class MainTest extends TestCase {
 		System.setProperty("oddjob.home", 
 				dirs.base().getCanonicalPath());
 		
-		Oddjob oddjob = test.init(new String[] { }).getOddjob();
+		Oddjob oddjob = test.init(new String[] { });
 		
 		OddballsDirDescriptorFactory result = (OddballsDirDescriptorFactory)
 			oddjob.getDescriptorFactory();
@@ -142,7 +142,7 @@ public class MainTest extends TestCase {
 
 		Oddjob oddjob = test.init(new String[] { 
 			"-nb", "-oddballs", "someballs", 
-			"-f", dirs.base() + "/oddjob.xml"}).getOddjob();
+			"-f", dirs.base() + "/oddjob.xml"});
 		
 		OddballsDirDescriptorFactory result = (OddballsDirDescriptorFactory)
 			oddjob.getDescriptorFactory();
@@ -159,7 +159,7 @@ public class MainTest extends TestCase {
 				"-file", "iDontExist.xml" });
 			fail("Should fail.");
 		} catch (IOException e) {
-			// expected
+			assertTrue("File name in message", e.getMessage().contains("iDontExist.xml"));
 		}
 		
 	}
@@ -208,7 +208,7 @@ public class MainTest extends TestCase {
 		Main test = new Main();
 		
 		Oddjob oddjob = test.init(new String[] { 
-				"-f", f.toString() }).getOddjob();
+				"-f", f.toString() });
 	
 		oddjob.run();
 
@@ -223,7 +223,7 @@ public class MainTest extends TestCase {
 		Main test = new Main();
 		
 		Oddjob oddjob = test.init(new String[] { 
-				"-f", f.toString() }).getOddjob();
+				"-f", f.toString() });
 	
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 

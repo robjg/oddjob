@@ -27,6 +27,7 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
+import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.standard.StandardTools;
@@ -52,6 +53,8 @@ public class ServiceWrapperTest extends TestCase {
 	private class OurContext extends MockArooaContext {
 		OurSession session;
 		
+		RuntimeListener listener;
+		
 		@Override
 		public ArooaSession getSession() {
 			return session;
@@ -62,6 +65,11 @@ public class ServiceWrapperTest extends TestCase {
 			return new MockRuntimeConfiguration() {
 				@Override
 				public void addRuntimeListener(RuntimeListener listener) {
+					if (OurContext.this.listener != null) {
+						throw new IllegalStateException();
+					}
+					
+					OurContext.this.listener = listener;
 				}
 			};
 		}
@@ -272,4 +280,41 @@ public class ServiceWrapperTest extends TestCase {
     	
     	oddjob.destroy();    	
     }
+    
+	public void testServiceDestroyedWhileRunningStates() throws Exception {
+		
+		MyService myService = new MyService();
+		
+		OurSession session = new OurSession();
+		
+		ServiceAdaptor service = new ServiceStrategies().serviceFor(
+				myService, session);
+		
+		OurContext context = new OurContext();
+		context.session = session;
+		
+		Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
+				service, getClass().getClassLoader());
+
+		((ArooaSessionAware) wrapper).setArooaSession(session);
+		((ArooaContextAware) wrapper).setArooaContext(context);
+		
+		wrapper.run();
+
+		assertEquals(wrapper, session.configured);
+		
+		assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
+		
+		StateSteps serviceStates = new StateSteps((Stateful) wrapper);
+		serviceStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED, 
+				ServiceState.DESTROYED);
+		
+		RuntimeEvent event = new RuntimeEvent(new MockRuntimeConfiguration());
+		
+		context.listener.beforeDestroy(event);
+		context.listener.afterDestroy(event);
+
+		serviceStates.checkNow();
+	}
+    
 }

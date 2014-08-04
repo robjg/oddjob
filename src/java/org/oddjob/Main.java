@@ -40,7 +40,7 @@ public class Main {
 	 * @return A configured and ready to run Oddjob.
 	 * @throws FileNotFoundException 
 	 */
-    public OddjobRunner init(String args[]) throws IOException {
+    public Oddjob init(String args[]) throws IOException {
 	    
     	OddjobBuilder oddjobBuilder = new OddjobBuilder();
     	
@@ -113,7 +113,7 @@ public class Main {
 	    System.arraycopy(args, startArg, newArray, 0, args.length - startArg);
 	    oddjob.setArgs((String[]) newArray);
 	    	    
-		return new OddjobRunner(oddjob);
+		return oddjob;
 	}
 
     /**
@@ -195,10 +195,16 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 
 		Main ojm = new Main();
-		OddjobRunner runner = ojm.init(args);
-		if (runner == null) {
+		
+		Oddjob oddjob = ojm.init(args);
+		
+		if (oddjob == null) {
 		    return;
 		}
+		
+		OddjobRunner runner = new OddjobRunner(oddjob);
+		runner.initShutdownHook();
+		
 		runner.run();
 	}
 }
