@@ -20,6 +20,8 @@ import org.oddjob.arooa.beandocs.PropertyDoc;
  */
 public class ManualWriter {
 	
+	public static final String COPYWRITE = "(c) Rob Gordon 2005 - 2014";
+	
     private final File directory;
    
     private final String title;
@@ -150,7 +152,7 @@ public class ManualWriter {
         	}
         }
         out.println("    <hr/>");
-        out.println("    <font size='-1' align='center'>(c) Rob Gordon 2005 - 2013</font>");
+        out.println("    <font size='-1' align='center'>" + COPYWRITE + "</font>");
         out.println("	 </body>");
         out.println("  </html>");
 
