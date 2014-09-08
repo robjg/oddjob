@@ -10,6 +10,7 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.Describeable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -556,5 +557,35 @@ public class PropertiesJobTest extends TestCase {
 				description2.get("props.job.test.only"));
 		
 		oddjob.destroy();
+	}
+	
+	public void testSettingSystemProperties() throws Exception {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/values/properties/PropertiesSystem.xml",
+				getClass().getClassLoader()));
+		
+		oddjob.run();
+
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Describeable test= lookup.lookup("set-system-properties", Describeable.class);
+		Map<String, String> testDescription = test.describe();
+		
+		assertEquals("apple", testDescription.get("oddjob.test.favourite.snack"));
+		
+		Describeable allProps = lookup.lookup("all-properties", Describeable.class);
+		Map<String, String> description = allProps.describe();
+		
+		assertEquals("apple [SYSTEM]", description.get("oddjob.test.favourite.snack"));
+		
+		assertEquals("apple", System.getProperty("oddjob.test.favourite.snack"));
+		
+		oddjob.destroy();
+		
+		assertEquals(null, System.getProperty("oddjob.test.favourite.snack"));
 	}
 }

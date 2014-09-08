@@ -47,12 +47,16 @@ class PropertiesJobDesign extends BaseDC {
 	
 	private final SimpleTextAttribute environment;
 	
+	private final SimpleTextAttribute system;
+	
 	public PropertiesJobDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
 		override = new SimpleTextAttribute("override", this);
 						
 		environment = new SimpleTextAttribute("environment", this);
+		
+		system = new SimpleTextAttribute("system", this);
 		
 		this.delegate = new PropertiesDesign(element, parentContext, this);	
 	}
@@ -66,6 +70,7 @@ class PropertiesJobDesign extends BaseDC {
 		.addFormItem(new FieldGroup()
 				.add(override.view().setTitle("Override"))
 				.add(environment.view().setTitle("Environment"))
+				.add(system.view().setTitle("System"))
 				)
 		.addFormItem(detail);
 	}
@@ -73,11 +78,12 @@ class PropertiesJobDesign extends BaseDC {
 	@Override
 	public DesignProperty[] children() {
 		DesignProperty[] delegates = delegate.children();
-		DesignProperty[] all = new DesignProperty[delegates.length + 3];
+		DesignProperty[] all = new DesignProperty[delegates.length + 4];
 		all[0] = name;
 		all[1] = override;
 		all[2] = environment;
-		System.arraycopy(delegates, 0, all, 3, delegates.length);
+		all[3] = system;
+		System.arraycopy(delegates, 0, all, 4, delegates.length);
 		return all;
 	}
 }

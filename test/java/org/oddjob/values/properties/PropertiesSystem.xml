@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties id="set-system-properties" name="Set System Properties" system="true">
+                    <values>
+                        <value key="oddjob.test.favourite.fruit" value="apple"/>
+                        <value key="oddjob.test.favourite.snack" value="${oddjob.test.favourite.fruit}"/>
+                    </values>
+                </properties>
+                <properties id="all-properties" name="All Properties"/>
+                <echo><![CDATA[My favourite snack is ${oddjob.test.favourite.snack}
+]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

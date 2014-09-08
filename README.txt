@@ -6,6 +6,8 @@ Oddjob 1.3. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.4.0
 ----------------
+- Added the ability to set System properties via the system flag on the 
+  Properties Job.
 - StructuralJob's default state operator has been changed back to WORST from
   ACTIVE. It is felt this is more intuitive in most cases.
 - Support recursive directory wild card matching in Files Type with **.

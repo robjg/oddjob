@@ -35,6 +35,7 @@ public class PropertiesJobDesFaTest extends TestCase {
 			"            override='true'" +
 			"            substitute='true'" +
 			"            fromXML='false'" +
+			"            system='false'" +
 			"                  >" +
 			"   <sets>" +
 			"    <properties>" +
@@ -69,6 +70,7 @@ public class PropertiesJobDesFaTest extends TestCase {
 		assertEquals("foo", test.getPrefix());
 		assertEquals(true, test.isOverride());
 		assertEquals(true, test.isSubstitute());
+		assertEquals(false, test.isSystem());
 				
 		test.run();
 		

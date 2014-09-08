@@ -78,6 +78,9 @@ abstract public class PropertiesJobBase extends SerializableJob {
 		
 	}
 
+	/**
+	 * Allow sub classes to join in the lookup creating life cycle.
+	 */
 	protected void createPropertyLookup() {
 		
 		lookup = new StandardPropertyLookup(properties, this.toString());

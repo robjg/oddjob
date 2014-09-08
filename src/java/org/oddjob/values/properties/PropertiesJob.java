@@ -110,12 +110,17 @@ implements Describeable {
 
 	private transient ArooaSession session;
 	
-	private transient PropertyLookup lookup;
+	private volatile transient PropertyLookup lookup;
 	
 	/** Prefix environment variables. */
-	private String environment;
+	private volatile String environment;
 	
-	private boolean override;
+	/** Flag to indicate setting of system variables. */
+	private volatile boolean system;
+	
+	private volatile boolean override;
+	
+	private transient volatile Strategy strategy;
 	
 	/**
 	 * Default Constructor.
@@ -174,9 +179,14 @@ implements Describeable {
 
 		setProperties(delegate.toProperties());
 
-		// All the work's been done during configuration. This is all
-		// we have left to do.		
-		addPropertyLookup();
+		if (system) {
+			strategy = new SystemStrategy();
+		}
+		else {
+			strategy = new OddjobStrategy();
+		}
+		
+		strategy.set();
 		
 		return 0;
 	}
@@ -184,16 +194,17 @@ implements Describeable {
 	
 	@Override
 	public Map<String, String> describe() {
-		PropertyLookup lookup = getLookup();
+		Properties properties = getProperties();
+		
 		Map<String, String> description = new TreeMap<String, String>();
 		
-		if (lookup == null) {
+		if (properties == null) {
 			return description;
 		}
 		
 		PropertyLookup managers = session.getPropertyManager();
 		
-		Set<String> names = lookup.propertyNames();
+		Set<String> names = properties.stringPropertyNames();
 		if (names.isEmpty()) {
 			for (String name : managers.propertyNames()) {
 				String value = managers.lookup(name);
@@ -203,15 +214,9 @@ implements Describeable {
 			}
 		}
 		else {
-			for (String name : names) {
-				String value = lookup.lookup(name);
-				PropertySource local = lookup.sourceFor(name);
-				PropertySource actual = managers.sourceFor(name);
-				if (!local.equals(actual)) {
-					value += " *(" + managers.lookup(name) +
-							") [" + actual + "]";
-				}
-				description.put(name, value);
+			Strategy strategy = this.strategy;
+			if (strategy != null) {
+				strategy.describe(names, description);
 			}
 		}
 		
@@ -220,8 +225,97 @@ implements Describeable {
 	
 	@Override
 	protected void onReset() {
-		super.onReset();
-		lookup = null;
+		if (strategy != null) {
+			strategy.unset();
+			strategy = null;
+		}
+	}
+	
+	interface Strategy {
+		
+		void set();
+		
+		void unset();
+		
+		void describe(Set<String> names, Map<String, String> description);
+	}
+	
+	class OddjobStrategy implements Strategy {
+		
+		@Override
+		public void set() {
+			// All the work's been done during configuration. This is all
+			// we have left to do.		
+			addPropertyLookup();
+		}
+		
+		@Override
+		public void unset() {
+			PropertiesJob.super.onReset();
+			lookup = null;
+		}
+		
+		@Override
+		public void describe(Set<String> names, Map<String, String> description) {
+			
+			PropertyLookup lookup = getLookup();
+			if (lookup == null) {
+				return;
+			}
+			
+			PropertyLookup managers = session.getPropertyManager();
+			
+			for (String name : names) {
+				String value = lookup.lookup(name);
+				PropertySource local = lookup.sourceFor(name);
+				
+				PropertySource actual = managers.sourceFor(name);
+				if (local != null && !local.equals(actual)) {
+					value += " *(" + managers.lookup(name) +
+							") [" + actual + "]";
+				}
+				description.put(name, value);
+			}
+		}
+	}
+	
+	class SystemStrategy implements Strategy {
+		
+		private volatile SystemPropertyStack.Token token;
+		
+		@Override
+		public void set() {
+			if (token != null) {
+				throw new IllegalStateException();
+			}
+			token = SystemPropertyStack.addProperties(getProperties());
+		}
+		
+		@Override
+		public void unset() {
+			if (token == null) {
+				throw new IllegalStateException();
+			}
+			SystemPropertyStack.removeProperties(token);
+		}
+		
+		@Override
+		public void describe(Set<String> names, Map<String, String> description) {
+			
+			PropertyLookup managers = session.getPropertyManager();
+			
+			for (String name : names) {
+				String value = System.getProperty(name);
+				PropertySource local = PropertyLookup.SYSTEM_PROPERTY_SOURCE;
+				
+				PropertySource actual = managers.sourceFor(name);
+				if (local != null && !local.equals(actual)) {
+					value += " *(" + managers.lookup(name) +
+							") [" + actual + "]";
+				}
+				description.put(name, value);
+			}
+		}
 	}
 	
 	/**
@@ -240,6 +334,25 @@ implements Describeable {
      */
 	public void setEnvironment(String environment) {
 		this.environment = environment;
+	}
+
+	/**
+	 * Getter for system flag.
+	 * 
+	 * @return The system flag.
+	 */
+	public boolean isSystem() {
+		return system;
+	}
+
+    /**
+     * @oddjob.property system
+     * @oddjob.description Set to true to set System properties rather than
+     * Oddjob properties.
+     * @oddjob.required No. Defaults to false
+     */
+	public void setSystem(boolean system) {
+		this.system = system;
 	}
 
     /**
