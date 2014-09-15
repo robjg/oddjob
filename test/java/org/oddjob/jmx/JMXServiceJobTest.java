@@ -43,6 +43,13 @@ public class JMXServiceJobTest extends TestCase {
 	
 	Vendor simple = new Vendor("Hay Medows");
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+
+		logger.info("-----------------  " + getName() + "  ----------------");
+	}
+	
 	protected void createServer(Map<String, ?> environment) 
 	throws Exception {
 		

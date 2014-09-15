@@ -20,9 +20,20 @@ public class FilesTest extends TestCase {
 				"  --------------------------");
 	}
 	
-	public void testRootFiles() throws IOException {
+	public void testExpandRootDirectory() throws IOException {
 		
-		File file = new File("/Users");
+		// Found a root directory
+		File roots[] = Files.expand(new File("/*"));
+		File file = null;
+		for (File possible : roots) {
+			if (possible.isDirectory()) {
+				file = possible;
+			}
+		}
+		
+		if (file == null) {
+			throw new RuntimeException("No root directories - how can that be?");
+		}
 		
 		File files[] = Files.expand(file);
 		
