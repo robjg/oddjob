@@ -3,7 +3,8 @@ package org.oddjob.jmx.client;
 import org.oddjob.state.State;
 
 public class ClientDestroyed implements State {
-
+	private static final long serialVersionUID = 2014093000L;
+			
 	@Override
 	public boolean isReady() {
 		return false;

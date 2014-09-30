@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -236,6 +237,13 @@ implements Loadable,
     /** The archiver to which all console output will be captured. */
     public static final LogArchive CONSOLE = new LogArchiveImpl(
     		"CONSOLE_MAIN", LogArchiver.MAX_HISTORY);
+    
+    /** Remember stdout before it was set. This allows (mainly test) calling
+     * code to replace it */
+    public static final PrintStream ORIGINAL_STDOUT = System.out;
+    		
+    /** And stderr... */
+    public static final PrintStream ORIGINAL_STDERR = System.err;
     
     /** Setup console capture. */
     static {

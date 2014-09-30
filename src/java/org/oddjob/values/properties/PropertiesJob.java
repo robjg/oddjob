@@ -102,7 +102,7 @@ import org.oddjob.arooa.runtime.PropertySource;
  */
 public class PropertiesJob extends PropertiesJobBase
 implements Describeable {
-	private static final long serialVersionUID = 2011033000L;
+	private static final long serialVersionUID = 2014092400L;
 		
 	/** Delegate to properties base for implementation. (Because we
 	 * can't inherit from it as we do with PropertiesType). */

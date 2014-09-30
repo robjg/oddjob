@@ -10,9 +10,14 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**
- * Note that because tests append to the console log to use this class
- * the logging must be configured before this class loads. This most
- * easily achieved by including a logger in the test.
+ * Capturing Oddjob.CONSOLE: Because tests append to the console log to 
+ * avoid capturing test logging then the Logger class must be Loaded before 
+ * the Oddjob class is loaded. This is because Oddjob's static initialiser
+ * replaces the default stdout with it's own console capture. If the Logger
+ * class loads first it will be appending to original stdout, not the
+ * new stdout.
+ * <p>
+ * This is most easily achieved by including a logger in the test.
  * 
  * @author rob
  *
