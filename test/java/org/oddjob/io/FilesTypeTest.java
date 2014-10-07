@@ -186,16 +186,17 @@ public class FilesTypeTest extends TestCase {
 			" </job>" +
     		"</oddjob>";
 				
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		oj.run();
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		MyFiles mine = (MyFiles) new OddjobLookup(oj).lookup("mine");
+		MyFiles mine = (MyFiles) new OddjobLookup(oddjob).lookup("mine");
+		
 		assertTrue(mine.files.length > 1);
 		
-		oj.destroy();
+		oddjob.destroy();
     }
     
     public void testInOddjob2() throws Exception {
@@ -217,19 +218,19 @@ public class FilesTypeTest extends TestCase {
     		" </job>" +
     		"</oddjob>";
 				
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		oj.run();
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
+		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		OddjobLookup lookup = new OddjobLookup(oj);
+		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
 		File[] files = lookup.lookup("v.myfiles", File[].class);
 		
 		assertEquals(3, files.length);
 		
-		oj.destroy();
+		oddjob.destroy();
     }
 
     public void testSupports() throws ArooaParseException {
@@ -383,10 +384,19 @@ public class FilesTypeTest extends TestCase {
     	
     	FragmentHelper helper = new FragmentHelper();
     	
-    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple1.xml");
+    	FilesType test = (FilesType) helper.createValueFromResource(
+    			"org/oddjob/io/FilesTypeSimple1.xml");
 
-    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple2.xml");
+    	assertEquals("Files, onefile.txt", test.toString());
+    	
+    	test = (FilesType) helper.createValueFromResource(
+    			"org/oddjob/io/FilesTypeSimple2.xml");
 
-    	helper.createValueFromResource("org/oddjob/io/FilesTypeSimple3.xml");
+    	assertEquals("Files, reports/*.txt", test.toString());
+    	
+    	test = (FilesType) helper.createValueFromResource(
+    			"org/oddjob/io/FilesTypeSimple3.xml");
+    	
+    	assertEquals("Files, list of size 2", test.toString());
     }
 }

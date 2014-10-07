@@ -108,7 +108,7 @@ public class OddjobRunnerTest extends TestCase {
 					oddjobStates.checkWait();
 					
 					oddjobStates.startCheck(ParentState.STARTED,
-							ParentState.READY, ParentState.DESTROYED);
+							ParentState.DESTROYED);
 					
 					serviceStates.startCheck(ServiceState.STARTED, 
 							ServiceState.STOPPED, ServiceState.DESTROYED);

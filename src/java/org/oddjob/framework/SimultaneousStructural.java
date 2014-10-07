@@ -40,6 +40,9 @@ implements Stoppable {
 		completeConstruction();
 	}
 	
+	/**
+	 * Called once following construction or deserialisation.
+	 */
 	private void completeConstruction() {
 		asyncSupport = 
 				new AsyncExecutionSupport(new Runnable() {
@@ -65,6 +68,11 @@ implements Stoppable {
 		this.executorService = executorService;
 	}
 	
+	/**
+	 * Getter for executor service.
+	 * 
+	 * @return The executor service or null if not set.
+	 */
 	public ExecutorService getExecutorService() {
 		return executorService;
 	}
@@ -148,9 +156,7 @@ implements Stoppable {
 	protected void onStop() throws FailedToStopException {
 		super.onStop();
 
-		if (asyncSupport != null) {
-			asyncSupport.stopAllJobs();
-		}
+		asyncSupport.cancelAllPendingJobs();
 	}
 	
 	@Override
@@ -158,6 +164,16 @@ implements Stoppable {
 		// This is started by us so override and do nothing.
 	}
 	
+	/**
+	 * Should execution wait for all jobs to be executed before returning
+	 * to calling code.
+	 * <p>
+	 * This property is intended to be overridden by sub classes that
+	 * wish to give that choice to users.
+	 * 
+	 * @return true for execution to wait for children. False for completion
+	 * to be asynchronous.
+	 */
 	public boolean isJoin() {
 		return false;
 	}

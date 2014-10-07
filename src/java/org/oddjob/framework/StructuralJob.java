@@ -167,9 +167,7 @@ implements
 				
 				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 					public void run() {
-						if (!destroy) {
-							getStateChanger().setStateException(e);
-						}
+						getStateChanger().setStateException(e);
 					}
 				});
 			}	
@@ -185,14 +183,7 @@ implements
 	 * need to start the child state reflector at a different time.
 	 */
 	protected void startChildStateReflector() {
-		if (destroy) {
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ParentState.READY);
-				}
-			});
-		}
-		else {
+		if (!destroy) {
 			childStateReflector.start();
 			logger().debug("Child State Reflector Started.");
 		}
@@ -411,18 +402,15 @@ implements
 				stateHandler.wake();
 	
 				State state = stateHandler.getState();
+				
+				// This is here to allow Asynchronous jobs to cancel
+				// pending tasks.
 				if (state.isStoppable()) {
 					try {
 						onStop();
 					} 
 					catch (FailedToStopException e) {
 						logger().warn("Failed to stop during destroy.", e);
-					}
-					// This is messy. If the job is still executing, the
-					// startChildReflector will set the job back to READY
-					// because of the destroy flag.
-					if (!state.isExecuting()) {
-						getStateChanger().setState(ParentState.READY);
 					}
 				}
 			}					

@@ -7,6 +7,8 @@ package org.oddjob.state;
  * Should this throw an IllegalStateException if
  * the condition is DESTROYED?
  * 
+ * @see BaseStateChanger
+ * 
  * @author rob
  *
  */

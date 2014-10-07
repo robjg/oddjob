@@ -18,16 +18,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ExecutionWatcher {
 
 	/** The action to run. */
-	private final Runnable action;
+	private final Runnable allJobsExecutedAction;
 
 	/** The number to count to. */
-	private final AtomicInteger added = new AtomicInteger(); 
+	private final AtomicInteger jobsWatchingCount = new AtomicInteger(); 
 	
 	/** The number executing. */
-	private final AtomicInteger executing = new AtomicInteger();
+	private final AtomicInteger jobsExecutingCount = new AtomicInteger();
 	
 	/** The number executed. */
-	private final AtomicInteger executed = new AtomicInteger();
+	private final AtomicInteger jobsExecutedCount = new AtomicInteger();
 	
 	/** Started. */
 	private volatile boolean started;
@@ -38,7 +38,7 @@ public class ExecutionWatcher {
 	 * @param action The action to run.
 	 */
 	public ExecutionWatcher(Runnable action) {
-		this.action = action;
+		this.allJobsExecutedAction = action;
 	}
 
 	/**
@@ -50,23 +50,23 @@ public class ExecutionWatcher {
 	 */
 	public Runnable addJob(final Runnable job) {
 		
-		added.incrementAndGet();
+		jobsWatchingCount.incrementAndGet();
 		
 		return new Runnable() {
 			
 			@Override
 			public void run() {
-				executing.incrementAndGet();
+				jobsExecutingCount.incrementAndGet();
 				job.run();
 				boolean perform;
 				synchronized (ExecutionWatcher.this) {
-					executing.decrementAndGet();
-					executed.incrementAndGet();
-					perform = check();
+					jobsExecutingCount.decrementAndGet();
+					jobsExecutedCount.incrementAndGet();
+					perform = checkIfAllJobsExecuted();
 				}
 				
 				if (perform) {
-					action.run();
+					allJobsExecutedAction.run();
 				}
 			}
 			
@@ -87,10 +87,10 @@ public class ExecutionWatcher {
 		boolean perform;
 		synchronized (this) {
 			started = true;
-			perform = check();
+			perform = checkIfAllJobsExecuted();
 		}
 		if (perform) {
-			action.run();
+			allJobsExecutedAction.run();
 		}
 	}
 	
@@ -99,22 +99,22 @@ public class ExecutionWatcher {
 	 */
 	public void stop() {
 
-		boolean perform;
+		boolean performAllJobsExecutedAction;
 		synchronized (this) {
-			added.set(executing.get() + executed.get()); 
-			perform = check();
+			jobsWatchingCount.set(jobsExecutingCount.get() + jobsExecutedCount.get()); 
+			performAllJobsExecutedAction = checkIfAllJobsExecuted();
 		}
 		
-		if (perform) {
-			action.run();
+		if (performAllJobsExecutedAction) {
+			allJobsExecutedAction.run();
 		}
 	}
 	
 	public void reset() {
 		synchronized (this) {
-			added.set(0);
-			executing.set(0);
-			executed.set(0);
+			jobsWatchingCount.set(0);
+			jobsExecutingCount.set(0);
+			jobsExecutedCount.set(0);
 			started = false;
 		}
 	}	
@@ -124,8 +124,8 @@ public class ExecutionWatcher {
 	 * 
 	 * @return
 	 */
-	private boolean check() {
-		if (started && added.get() == executed.get()) {
+	private boolean checkIfAllJobsExecuted() {
+		if (started && jobsWatchingCount.get() == jobsExecutedCount.get()) {
 			return true;
 		}
 		else {

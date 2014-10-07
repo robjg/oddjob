@@ -3,6 +3,7 @@ package org.oddjob.state;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -320,7 +321,7 @@ public class MirrorStateTest extends TestCase {
 
 	}
 	
-	public void testStopWhenRunningInOddjob() {
+	public void testStopWhenRunningInOddjob() throws FailedToStopException {
 
 		OurStateful running = new OurStateful();
 		running.startRunning();
@@ -344,7 +345,13 @@ public class MirrorStateTest extends TestCase {
 		oddjob.run();
 		
 		oddjobStates.checkNow();
-		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY, 
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY);
+		
+		oddjob.stop();
+		
+		oddjobStates.checkNow();
+		
+		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.DESTROYED);
 		
 		oddjob.destroy();

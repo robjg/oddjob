@@ -49,7 +49,7 @@ public class OddjobDestroyTest extends TestCase {
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.READY, ParentState.DESTROYED);
+				ParentState.DESTROYED);
 		
 		oddjob.load();
 		
@@ -196,7 +196,7 @@ public class OddjobDestroyTest extends TestCase {
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.READY, ParentState.DESTROYED);
+				ParentState.ACTIVE, ParentState.DESTROYED);
 		
 		oddjob.load();
 		

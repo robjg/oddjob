@@ -330,7 +330,7 @@ public class IfJob extends StructuralJob<Object>
 		super.onStop();
 		
 		if (asyncSupport != null) {
-			asyncSupport.stopAllJobs();
+			asyncSupport.cancelAllPendingJobs();
 		}
 	}
 	

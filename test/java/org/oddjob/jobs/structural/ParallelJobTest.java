@@ -42,47 +42,7 @@ public class ParallelJobTest extends TestCase {
 		logger.info("--------------------  " + getName()  + "  ----------------");
 	}
 	
-	private class LaterExecutor extends MockScheduledExecutorService {
-
-		private Runnable runnable;
-		
-		public Future<?> submit(Runnable runnable) {
-			this.runnable = runnable;
-			return new MockScheduledFuture<Void>();
-		}
-	}
-	
-	public void testStepByStepOneJob() {
-		
-		FlagState job1 = new FlagState(JobState.COMPLETE);
-
-		LaterExecutor executor = new LaterExecutor();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
-
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		steps.checkNow();
-		
-		assertNotNull(executor.runnable);
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.COMPLETE);
-		
-		executor.runnable.run();
-		
-		steps.checkNow();
-	}
-	
-	public void testThreeJobs() throws InterruptedException {
+	public void testThreeJobsWithDefaultExecutors() throws InterruptedException {
 	
 		FlagState job1 = new FlagState(JobState.COMPLETE);
 		FlagState job2 = new FlagState(JobState.COMPLETE);
@@ -136,7 +96,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
-	public void testOneObject() throws InterruptedException {
+	public void testOneObjectSetsStateComplete() throws InterruptedException {
 		
 		Object job1 = new Object();
 
@@ -175,7 +135,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
-	public void testTwoJobsAndAnObject() throws InterruptedException {
+	public void testTwoJobsAndAnObjectSetsStateComplete() throws InterruptedException {
 		
 		Object job1 = new Object();
 		FlagState job2 = new FlagState(JobState.COMPLETE);
@@ -258,7 +218,7 @@ public class ParallelJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 	}
 	
-	public void testStop() throws InterruptedException, FailedToStopException {
+	public void testStopWithDefaultExecutorsAndOneJob() throws InterruptedException, FailedToStopException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
 		

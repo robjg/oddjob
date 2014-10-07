@@ -132,7 +132,19 @@ public class FilesType implements ArooaValue, Serializable {
     }
     
     public String toString() {
-    	return "Files";
+    	StringBuilder text = new StringBuilder();
+    	if (files != null) {
+    		text.append(", ");
+    		text.append(files);
+    	}
+    	if (list.size() > 0) {
+    		text.append(", list of size ");
+    		text.append(list.size());
+    	}
+    	if (text.length() == 0) {
+    		text.append(", none yet specified");
+    	}
+    	return "Files" + text.toString();
     }
     
 }

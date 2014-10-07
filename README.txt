@@ -4,6 +4,8 @@ Oddjob-1.4.0
 * Please Note: This is release is not serialisation compatible with 
 Oddjob 1.3. All persisted job state will need to be deleted before upgrading.
 
+* Oddjob 1.4 only supports Java 1.7 and above.
+
 Changes in 1.4.0
 ----------------
 - Added a classPath property to AntJob.
@@ -46,10 +48,8 @@ Changes in 1.4.0
   that can be used with tokenizer to be more convenient for simple args.
 - Foreach now COMPLETEs when it has no values.
 
-Still To Do for 1.4.0
----------------------
-- Improve Oddjob Ant Task.
-- Improve Oddjob Ant Job as class loading is still problematic.
+Deferred to A Later Version
+---------------------------
 - Add Parent Started State to User Guide. Document thread, and services.
 - Introduce a witheach job that behaves like foreach except that values
   are 'pushed' into it.
@@ -65,7 +65,6 @@ Still To Do for 1.4.0
 - Look at what happens when there are exceptions in a timer. Should there be
   a haltOnException flag. Should an Exception in a timer be indicated as
   an exception state not an incomplete state?
-- Should If job work on asynchronous completion of a job?
 - Add Security to the WebApp (with a Read Only role).  
 - Include a Jetty Oddball to allow connecting to an Oddjob server from a 
   browser without the need for a separate Servlet Container.
@@ -80,9 +79,6 @@ Still To Do for 1.4.0
   preservelastmodified. Add the ability to back up the moved files like Linux does.
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
-
-Deferred to A Later Version
----------------------------
 
 Changes in 1.3.0
 ----------------
