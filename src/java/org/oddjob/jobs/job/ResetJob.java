@@ -1,5 +1,9 @@
 package org.oddjob.jobs.job;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.oddjob.Forceable;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
@@ -13,6 +17,9 @@ import org.oddjob.persist.FilePersister;
  * <p>
  * A reset might also be needed before running a job elsewhere
  * such as on a remote server.
+ * <p>
+ * As of version 1.4 of Oddjob, this job can now also be used to force
+ * jobs that are {@link Forceable} by specify 'force' as level.
  * <p>
  * This job is not Serializable and so won't be persisted
  * itself.
@@ -32,6 +39,12 @@ import org.oddjob.persist.FilePersister;
  * loaded with it's previous COMPLETE state and so won't run. The reset
  * is necessary to set it back to READY. 
  *
+ * @oddjob.example
+ *
+ * Force a job to complete.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/job/ResetForceExample.xml}
+ * 
  * @author Rob Gordon
  */
 public class ResetJob extends SimpleJob {
@@ -40,12 +53,23 @@ public class ResetJob extends SimpleJob {
 	
 	public static final String HARD = "hard";
 	
+	public static final String FORCE = "force";
+	
+	private static final Map<String, ResetAction> actions =
+			new HashMap<>();
+
+	static {
+		actions.put(SOFT, new SoftReset());
+		actions.put(HARD, new HardReset());
+		actions.put(FORCE, new Force());
+	}
+	
 	/** 
 	 * @oddjob.property 
 	 * @oddjob.description Job to reset.
 	 * @oddjob.required Yes.
 	 */
-	private transient Resetable job;
+	private transient Object job;
 
 	/** 
 	 * @oddjob.property
@@ -60,10 +84,7 @@ public class ResetJob extends SimpleJob {
 	 * @param node The node to stop.
 	 */
 	@ArooaAttribute
-	synchronized public void setJob(Resetable node) {
-		if (node == null ) {
-			throw new NullPointerException("Job to Reset must not be null.");
-		}
+	synchronized public void setJob(Object node) {
 		this.job = node;
 	}
 
@@ -72,7 +93,7 @@ public class ResetJob extends SimpleJob {
 	 * 
 	 * @return The node.
 	 */
-	synchronized public Resetable getJob() {
+	synchronized public Object getJob() {
 		return this.job;
 	}
 
@@ -93,19 +114,53 @@ public class ResetJob extends SimpleJob {
         	level = level.toLowerCase();
         }
         
-        if (!HARD.equals(level) && !SOFT.equals(level)) {
-            throw new IllegalArgumentException("Level must be hard or soft.");
+        ResetAction action = actions.get(level);
+        
+        if (action == null) {
+            throw new IllegalArgumentException("Level must be one of." +
+            		actions.keySet());
         }
         
-		logger().info("Sending " + level + " reset to [" + job + "]");
+		logger().info("Performing " + action.getClass().getSimpleName() + 
+				" on [" + job + "]");
 		
-		if (level.equals(SOFT)) {
-		    ((Resetable)job).softReset();
-		}
-		else {
-		    ((Resetable)job).hardReset();
-		}
+		action.doWith(job);
+		
 		return 0;	
+	}
+	
+	interface ResetAction {
+		public void doWith(Object job);
+	}
+	
+	static class HardReset implements ResetAction {
+		@Override
+		public void doWith(Object job) {
+			if (! (job instanceof Resetable)) {
+				throw new IllegalStateException("Job is not Resetable.");
+			}
+		    ((Resetable) job).hardReset();
+		}
+	}
+	
+	static class SoftReset implements ResetAction {
+		@Override
+		public void doWith(Object job) {
+			if (! (job instanceof Resetable)) {
+				throw new IllegalStateException("Job is not Resetable.");
+			}
+		    ((Resetable) job).softReset();
+		}
+	}
+	
+	static class Force implements ResetAction {
+		@Override
+		public void doWith(Object job) {
+			if (! (job instanceof Forceable)) {
+				throw new IllegalStateException("Job is not Resetable.");
+			}
+		    ((Forceable) job).force();
+		}
 	}
 	
     /**

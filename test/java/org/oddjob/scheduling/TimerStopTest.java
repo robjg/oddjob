@@ -76,8 +76,14 @@ public class TimerStopTest extends TestCase {
 		assertEquals(TimerState.STARTABLE, 
 				test.lastStateEvent().getState());		
 		
+		test.force();
+		
+		assertEquals(TimerState.COMPLETE, 
+				test.lastStateEvent().getState());		
 		
 		services.stop();
+		
+		
 	}
 	
 	private static class RunningJob extends SimpleJob 

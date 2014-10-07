@@ -9,6 +9,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.Forceable;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -26,6 +27,7 @@ import org.oddjob.scheduling.state.TimerStateChanger;
 import org.oddjob.scheduling.state.TimerStateHandler;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
+import org.oddjob.state.IsForceable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
@@ -49,7 +51,7 @@ import org.oddjob.structural.StructuralListener;
 public abstract class ScheduleBase extends BasePrimary
 implements 
 		Runnable, Stoppable, Serializable, 
-		Resetable, Stateful, Structural {
+		Resetable, Stateful, Structural, Forceable {
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Fires state events. */
@@ -333,6 +335,27 @@ implements
 		
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.oddjob.Forceable#force()
+	 */
+	@Override
+	public void force() {
+		
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
+				public void run() {
+					logger().info("Forcing complete.");			
+					
+					getStateChanger().setState(TimerState.COMPLETE);
+				}
+			});
+		} 
+		finally {
+			ComponentBoundry.pop();
+		}
+	}
 	
 	/**
 	 * Add a listener. The listener will immediately recieve add

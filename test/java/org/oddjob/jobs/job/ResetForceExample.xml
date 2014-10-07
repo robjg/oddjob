@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <reset job="${echo}" level="force"/>
+                <echo id="echo"><![CDATA[You will never see this!]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

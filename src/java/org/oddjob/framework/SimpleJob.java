@@ -14,6 +14,7 @@ import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsExecutable;
+import org.oddjob.state.IsForceable;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
@@ -305,14 +306,15 @@ implements  Runnable, Resetable, Stateful, Forceable {
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
+			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			
 					
 					getStateChanger().setState(JobState.COMPLETE);
 				}
 			});
-		} finally {
+		} 
+		finally {
 			ComponentBoundry.pop();
 		}
 	}
