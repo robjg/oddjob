@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <myOut>
+                        <tee>
+                          <outputs>
+                             <stdout/>
+                             <append file="${this.args[0]}/messages.txt"/>
+                          </outputs>
+                        </tee>
+                    </myOut>
+                </variables>
+                <echo>
+                    <output>
+                        <value value="${vars.myOut}"/>
+                    </output><![CDATA[Hello World]]></echo>
+                <echo>
+                    <output>
+                        <value value="${vars.myOut}"/>
+                    </output><![CDATA[Goodbye World]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -31,12 +31,12 @@ public class AppendTypeTest extends TestCase {
 		File file = new File(getClass().getResource(
 				"AppendExample.xml").getFile());
 		
-		Oddjob oj = new Oddjob();
-		oj.setArgs(new String[] { outputDir.toString() });
-		oj.setFile(file);
-		oj.run();
+		Oddjob oddjob = new Oddjob();
+		oddjob.setArgs(new String[] { outputDir.toString() });
+		oddjob.setFile(file);
+		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 
 		File resultFile = new File(outputDir, "messages.txt");
 		
@@ -59,4 +59,40 @@ public class AppendTypeTest extends TestCase {
 		assertEquals("Goodbye World", lines[1]);
 	}
 
+	public void testAppendWithTeeType() throws Exception {
+		
+		FileUtils.forceMkdir(outputDir);
+		
+		File file = new File(getClass().getResource(
+				"AppendWithTeeType.xml").getFile());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setArgs(new String[] { outputDir.toString() });
+		oddjob.setFile(file);
+		oddjob.run();
+		
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+
+		File resultFile = new File(outputDir, "messages.txt");
+		
+		assertTrue(resultFile.exists());
+				
+		BufferType buffer = new BufferType();
+		buffer.configured();
+		
+		CopyJob copy = new CopyJob();
+		copy.setInput(new FileInputStream(resultFile));
+		copy.setOutput(buffer.toOutputStream());
+		
+		copy.run();
+		
+		String[] lines = buffer.getLines();
+		
+		assertEquals("Hello World", lines[0]);
+		assertEquals("Goodbye World", lines[1]);
+		
+		assertEquals(2, lines.length);
+		
+		oddjob.destroy();
+	}
 }

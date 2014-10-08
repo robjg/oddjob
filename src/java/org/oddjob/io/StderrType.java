@@ -19,6 +19,8 @@ import org.oddjob.arooa.types.ValueFactory;
  */
 public class StderrType implements ValueFactory<OutputStream> {
 
+	public static final String NAME = "stderr";
+	
 	@Override
 	public OutputStream toValue() throws ArooaConversionException {
 		return new FilterOutputStream(System.err) {
@@ -27,5 +29,10 @@ public class StderrType implements ValueFactory<OutputStream> {
 				super.flush();
 			}
 		};
+	}
+	
+	@Override
+	public String toString() {
+		return NAME;
 	}
 }

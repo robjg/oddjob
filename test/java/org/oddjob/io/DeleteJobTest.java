@@ -186,7 +186,9 @@ public class DeleteJobTest extends TestCase {
 		test.setFiles(new File[] { 
 				new File("doesntexist/reallydoesntexist") });
 		
-		test.call();
+		Integer result = test.call();
+
+		assertEquals(new Integer(0), result);
 		
 		assertEquals(0, test.getFileCount());
 		assertEquals(0, test.getDirCount());

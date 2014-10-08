@@ -19,6 +19,8 @@ import org.oddjob.arooa.types.ValueFactory;
  */
 public class StdinType implements ValueFactory<InputStream> {
 
+	public static final String NAME = "stdin";
+	
 	@Override
 	public InputStream toValue() throws ArooaConversionException {
 		return new FilterInputStream(System.in) {
@@ -26,5 +28,10 @@ public class StdinType implements ValueFactory<InputStream> {
 			public void close() throws IOException {
 			}
 		};
+	}
+	
+	@Override
+	public String toString() {
+		return NAME;
 	}
 }

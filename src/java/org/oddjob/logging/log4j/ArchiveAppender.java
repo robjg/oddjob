@@ -32,10 +32,10 @@ implements LoggingConstants {
 		String archive = event.getLoggerName();
 		if (!logArchiver.hasArchive(archive)) {
 			archive = (String) event.getMDC(MDC_LOGGER);
+			if (!logArchiver.hasArchive(archive)) {
+				return;
+			}
 		}		
-		if (!logArchiver.hasArchive(archive)) {
-			return;
-		}
 		StringBuffer text = new StringBuffer();
 		text.append(this.layout.format(event));
 

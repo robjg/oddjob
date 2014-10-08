@@ -8,7 +8,6 @@ import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.arooa.convert.Convertlet;
-import org.oddjob.arooa.convert.ConvertletException;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.utils.DateHelper;
 
@@ -66,12 +65,12 @@ public class ScheduleType implements ArooaValue, ArooaLifeAware {
 	public static class Conversions implements ConversionProvider {
 		public void registerWith(ConversionRegistry registry) {
 			registry.register(ScheduleType.class, Interval.class, new Convertlet<ScheduleType, Interval>() {
-				public Interval convert(ScheduleType from) throws ConvertletException {
+				public Interval convert(ScheduleType from) {
 					return from.result;
 				}
 			});
 			registry.register(ScheduleType.class, Date.class, new Convertlet<ScheduleType, Date>() {
-				public Date convert(ScheduleType from) throws ConvertletException {
+				public Date convert(ScheduleType from) {
 					Interval interval = from.result;
 					if (interval == null) {
 						return null;

@@ -6,11 +6,17 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.arooa.convert.Convertlet;
-import org.oddjob.arooa.convert.ConvertletException;
+import org.oddjob.arooa.convert.NoConversionAvailableException;
+import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.arooa.utils.ListSetterHelper;
 
 /**
  * @oddjob.description Split output to multiple other outputs.
@@ -30,12 +36,14 @@ import org.oddjob.arooa.convert.ConvertletException;
  * 
  * 
  */
-public class TeeType implements ArooaValue {
+public class TeeType implements ArooaValue, ArooaSessionAware {
 
-	private InputStream input;
+	private volatile ArooaConverter converter;
 	
-	private final List<OutputStream> outputs =
-		new ArrayList<OutputStream>();
+	private volatile ArooaValue input;
+	
+	private final List<ArooaValue> outputs =
+		new ArrayList<ArooaValue>();
 		
 	public static class Conversions implements ConversionProvider {
 		
@@ -45,7 +53,7 @@ public class TeeType implements ArooaValue {
 					new Convertlet<TeeType, InputStream>() {
 				@Override
 				public InputStream convert(TeeType from)
-						throws ConvertletException {
+				throws ArooaConversionException {
 					return from.toInputStream();
 				}
 			});
@@ -54,11 +62,16 @@ public class TeeType implements ArooaValue {
 					new Convertlet<TeeType, OutputStream>() {
 				@Override
 				public OutputStream convert(TeeType from)
-						throws ConvertletException {
+				throws ArooaConversionException {
 					return from.toOutputStream();
 				}
 			});
 		}
+	}
+	
+	@Override
+	public void setArooaSession(ArooaSession session) {
+		this.converter = session.getTools().getArooaConverter();
 	}
 	
     /**
@@ -66,7 +79,7 @@ public class TeeType implements ArooaValue {
      * @oddjob.description An input stream that will be copied to the outputs.
      * @oddjob.required Only if this type is required to be an input stream.
      */
-	public void setInput(InputStream input) {
+	public void setInput(ArooaValue input) {
 		this.input = input;
 	}
 	
@@ -75,27 +88,31 @@ public class TeeType implements ArooaValue {
      * @oddjob.description List of outputs to split to.
      * @oddjob.required No, output will be thrown away if missing.
      */
-	public void setOutputs(int index, OutputStream output) {
+	public void setOutputs(int index, ArooaValue output) {
 		
-		if (output == null) {
-			outputs.remove(index);
-		}
-		else {
-			outputs.add(index, output);
-		}
+		new ListSetterHelper<ArooaValue>(outputs).set(index, output);
 	}
 	
-	public InputStream toInputStream() {
+	public InputStream toInputStream() throws NoConversionAvailableException, ConversionFailedException {
 		
 		if (input == null) {
 			return null;
 		}
 		
+		InputStream input = converter.convert(this.input, InputStream.class);
+		
 		return new WireTapInputStream(input, toOutputStream());
 	}
 	
-	public OutputStream toOutputStream() {
+	public OutputStream toOutputStream() throws NoConversionAvailableException, ConversionFailedException {
 
+		final List<OutputStream> outputs =
+				new ArrayList<>();
+		
+		for (ArooaValue value : this.outputs) {
+			outputs.add(converter.convert(value, OutputStream.class));
+		}
+		
 		return new OutputStream() {
 			
 			@Override
@@ -133,7 +150,13 @@ public class TeeType implements ArooaValue {
 				}
 			}
 
+			@Override
+			public String toString() {
+				return "TeeOutputStream to " + outputs.size() + 
+						" OutputStreams";
+			}
 		};
 	}
+	
 	
 }

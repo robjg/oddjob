@@ -20,6 +20,8 @@ import org.oddjob.arooa.types.ValueFactory;
  */
 public class StdoutType implements ValueFactory<OutputStream> {
 
+	public static final String NAME = "stdout";
+	
 	@Override
 	public OutputStream toValue() throws ArooaConversionException {
 		return new FilterOutputStream(System.out) {
@@ -28,5 +30,10 @@ public class StdoutType implements ValueFactory<OutputStream> {
 				super.flush();
 			}
 		};
+	}
+	
+	@Override
+	public String toString() {
+		return NAME;
 	}
 }

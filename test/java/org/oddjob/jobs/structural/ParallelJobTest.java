@@ -17,6 +17,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
+import org.oddjob.framework.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
@@ -330,7 +331,7 @@ public class ParallelJobTest extends TestCase {
 		
 	}
 		
-	public void testInOddjob() throws InterruptedException {
+	public void testInOddjob() throws InterruptedException, FailedToStopException {
 				
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -340,14 +341,12 @@ public class ParallelJobTest extends TestCase {
 		ConsoleCapture console = new ConsoleCapture();
 		console.capture(Oddjob.CONSOLE);
 		
-		StateSteps steps = new StateSteps(oddjob);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
-				ParentState.COMPLETE);		
-		
 		oddjob.run();		
 		
-		steps.checkWait();
+		new StopWait(oddjob).run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 		console.close();
 		
