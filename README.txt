@@ -20,14 +20,13 @@ Changes in 1.4.0
 - A Map Type has been added. The keys must be strings but the values can
   be any type.
 - Structural jobs no longer attempt to Stop their children when destroyed. 
-  If they are running they return to the ready state. This allows child
-  jobs to distinguish between being stopped and destroyed.
+  This allows child jobs to distinguish between being stopped and destroyed.
 - Timers now use a separate TimerState not a ParentState. This allows them
   to be STARTABLE like services.
 - Service states have been renamed from READY to STARTABLE and COMPLETE to
   STOPPED. These states have different icons which makes it easier to see
   the overview of a job sequence from Oddjob Explorer.
-- If job will now support an asynchronous child job.
+- If job will now supports an asynchronous child job.
 - Added a new Service Finder to the Arooa Tools so that components can find
   services themselves.
 - Structural jobs (sequential/parallel) will not time out when stopping. The
