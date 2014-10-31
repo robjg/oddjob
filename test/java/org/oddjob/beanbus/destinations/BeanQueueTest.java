@@ -252,12 +252,12 @@ public class BeanQueueTest extends TestCase {
 		
 		StateSteps states = new StateSteps(oddjob);
 		states.startCheck(ParentState.READY,
-				ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.EXECUTING,
 				ParentState.COMPLETE);
 		
 		oddjob.run();
 		
-		states.checkWait();
+		states.checkNow();
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -274,7 +274,14 @@ public class BeanQueueTest extends TestCase {
 		Object parallel = lookup.lookup("parallel");
 		
 		((Resetable) parallel).hardReset();
+		
+		states.startCheck(ParentState.READY,
+				ParentState.ACTIVE,
+				ParentState.COMPLETE);
+		
 		((Runnable) parallel).run();
+		
+		states.checkNow();
 		
 		results = lookup.lookup(
 				"results.beans", List.class);

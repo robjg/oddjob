@@ -87,7 +87,9 @@ public class StateSteps {
 		}
 		
 		public synchronized boolean isDone() {
-			return done;
+			synchronized (StateSteps.this) {				
+				return done;
+			}
 		}
 	};	
 	

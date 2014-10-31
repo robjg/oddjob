@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <parallel id="parallel">
+        <parallel id="parallel" join="true">
             <jobs>
                 <bean-bus>
                     <parts>
