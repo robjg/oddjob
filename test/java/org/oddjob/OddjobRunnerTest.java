@@ -11,6 +11,7 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
 public class OddjobRunnerTest extends TestCase {
@@ -124,7 +125,7 @@ public class OddjobRunnerTest extends TestCase {
 		
 		test.run();
 		
-		t.join();
+		t.join(OddjobTestHelper.TEST_TIMEOUT);
 		
 		serviceStates.checkNow();
 		
@@ -213,7 +214,7 @@ public class OddjobRunnerTest extends TestCase {
 		
 		test.run();
 		
-		t.join();
+		t.join(OddjobTestHelper.TEST_TIMEOUT);
 		
 		if (ex.get() != null) {
 			throw ex.get();
