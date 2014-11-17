@@ -531,10 +531,10 @@
 		<property name="maven.sources.jar" 	value="${basedir}/build/${sources.jar.name}" />
 		<property name="maven.pom" 			value="${basedir}/build/pom.xml" />
 
-		<property name="maven.tools.jar" 			value="${build.tools}/${tools.jar.name}" />
-		<property name="maven.tools.javadoc.jar" 	value="${build.tools}/${tools.javadoc.jar.name}" />
-		<property name="maven.tools.sources.jar" 	value="${build.tools}/${tools.sources.jar.name}" />
-		<property name="maven.tools.pom" 			value="${build.tools}/pom.xml" />
+		<property name="maven.tools.jar" 			value="${basedir}/build/tools/${tools.jar.name}" />
+		<property name="maven.tools.javadoc.jar" 	value="${basedir}/build/tools/${tools.javadoc.jar.name}" />
+		<property name="maven.tools.sources.jar" 	value="${basedir}/build/tools/${tools.sources.jar.name}" />
+		<property name="maven.tools.pom" 			value="${basedir}/build/tools/pom.xml" />
 		
 	    <!-- defined maven snapshots and staging repository id and url -->
 		<property name="maven.snapshots.repository.id" 	value="sonatype-nexus-snapshots" />
@@ -575,6 +575,15 @@
 			<arg value="-Dsources=${maven.sources.jar}" />
 			<arg value="-Djavadoc=${maven.javadoc.jar}" />
 		</artifact:mvn>    	
+		<artifact:mvn>
+			<arg value="${maven.deploy.plugin}:deploy-file" />
+			<arg value="-Durl=${maven.snapshots.repository.url}" />
+			<arg value="-DrepositoryId=${maven.snapshots.repository.id}" />
+			<arg value="-DpomFile=${maven.tools.pom}" />
+			<arg value="-Dfile=${maven.tools.jar}" />
+			<arg value="-Dsources=${maven.tools.sources.jar}" />
+			<arg value="-Djavadoc=${maven.tools.javadoc.jar}" />
+		</artifact:mvn>    	
     </target>
 	
 	<target name="maven-stage" depends="maven-init" 
@@ -607,6 +616,38 @@
 			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
 			<arg value="-DpomFile=${maven.pom}" />
 			<arg value="-Dfile=${maven.javadoc.jar}" />
+			<arg value="-Dclassifier=javadoc" />
+	        <arg value="-Pgpg" />
+		</artifact:mvn>
+		
+		<!-- sign and deploy the tools main artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.tools.pom}" />
+			<arg value="-Dfile=${maven.tools.jar}" />
+	        <arg value="-Pgpg" />
+		</artifact:mvn>
+
+		<!-- sign and deploy the tools sources artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.tools.pom}" />
+			<arg value="-Dfile=${maven.tools.sources.jar}" />
+			<arg value="-Dclassifier=sources" />
+			<arg value="-Pgpg" />
+		</artifact:mvn>
+	
+		<!-- sign and deploy the tools javadoc artifact -->
+		<artifact:mvn>
+			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
+			<arg value="-Durl=${maven.staging.repository.url}" />
+			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
+			<arg value="-DpomFile=${maven.tools.pom}" />
+			<arg value="-Dfile=${maven.tools.javadoc.jar}" />
 			<arg value="-Dclassifier=javadoc" />
 	        <arg value="-Pgpg" />
 		</artifact:mvn>
