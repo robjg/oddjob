@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <parallel>
+            <jobs>
+                <oddjob name="ExecutorThrottleInParallel" file="${this.dir}/ExecutorThrottleInParallel.xml"/>
+                <oddjob name="ExecutorThrottleShared" file="${this.dir}/ExecutorThrottleShared.xml"/>
+                <oddjob name="MoreWorkThanThreads" file="${this.dir}/MoreWorkThanThreads.xml"/>
+                <oddjob name="RetryExample" file="${this.dir}/RetryExample.xml"/>
+                <oddjob name="SimpleTimerWithRetry" file="${this.dir}/SimpleTimerWithRetry.xml"/>
+                <oddjob name="TimerExample" file="${this.dir}/TimerExample.xml"/>
+                <oddjob name="TimerOnceExample" file="${this.dir}/TimerOnceExample.xml"/>
+                <oddjob name="TimerRescheduleExample" file="${this.dir}/TimerRescheduleExample.xml"/>
+                <oddjob name="TimerRetryCombinationTest1" file="${this.dir}/TimerRetryCombinationTest1.xml"/>
+                <oddjob name="TimerRetryCombinationTest2" file="${this.dir}/TimerRetryCombinationTest2.xml"/>
+                <oddjob name="TimerSetNextDueExample" file="${this.dir}/TimerSetNextDueExample.xml"/>
+                <oddjob name="TimerSetRescheduleExample" file="${this.dir}/TimerSetRescheduleExample.xml"/>
+                <oddjob name="TimerStopJobExample" file="${this.dir}/TimerStopJobExample.xml"/>
+                <oddjob name="SequentialAndCascadeTest" file="${this.dir}/SequentialAndCascadeTest.xml"/>
+            </jobs>
+        </parallel>
+    </job>
+</oddjob>

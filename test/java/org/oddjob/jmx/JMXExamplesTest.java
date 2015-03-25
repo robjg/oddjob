@@ -157,7 +157,7 @@ public class JMXExamplesTest extends TestCase {
 		Stateful localJob = clientLookup.lookup("local-job", 
 				Stateful.class);
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				clientOddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.READY, 
@@ -165,7 +165,7 @@ public class JMXExamplesTest extends TestCase {
 		
 		StateSteps state = new StateSteps(clientOddjob);
 		
-		state.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		serverJob.run();
 		

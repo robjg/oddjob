@@ -742,7 +742,7 @@ public class RetryTest extends TestCase {
 	    	StateSteps oddjobStates = new StateSteps(oddjob);
 	    	oddjobStates.startCheck(ParentState.READY, 
 	    			ParentState.EXECUTING, 
-	    			ParentState.STARTED);
+	    			ParentState.ACTIVE);
 	    	
 	    	StateSteps existsStates = new StateSteps(exists);
 	    	existsStates.startCheck(JobState.READY, 
@@ -754,7 +754,7 @@ public class RetryTest extends TestCase {
 	    	oddjobStates.checkNow();
 	    	existsStates.checkWait();
 	    	
-	    	oddjobStates.startCheck(ParentState.STARTED, ParentState.READY);
+	    	oddjobStates.startCheck(ParentState.ACTIVE, ParentState.READY);
 	    	
 	    	oddjob.stop();
 	    	

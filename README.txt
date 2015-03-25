@@ -1,13 +1,49 @@
-Oddjob-1.4.0
+Oddjob-1.5.0
 ============
 
 * Please Note: This is release is not serialisation compatible with 
-Oddjob 1.3. All persisted job state will need to be deleted before upgrading.
-
-* Oddjob 1.4 only supports Java 1.7 and above.
+Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.4.0
 ----------------
+- Timer STARTED state is not complete so a Cascade will wait for timers
+  to complete.
+
+Deferred to A Later Version
+---------------------------
+- Add Parent Started State to User Guide. Document thread, and services.
+- Introduce a witheach job that behaves like foreach except that values
+  are 'pushed' into it.
+- Document synthetic annotations in the Developer Guide.
+- Document conversions. Possibly include conversions in the Reference.
+- Add the ability to change the log level from the UI. Add LogLevel TRACE and
+  NONE to match Log4j.
+- Add serialisation of services.
+- Use a server side file system for choosing files on server component 
+  designer forms.
+- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
+  Explorer.
+- Look at what happens when there are exceptions in a timer. Should there be
+  a haltOnException flag. Should an Exception in a timer be indicated as
+  an exception state not an incomplete state?
+- Add Security to the WebApp (with a Read Only role).  
+- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
+  browser without the need for a separate Servlet Container.
+- Improve the AJAX JSF front end to be more AJAXy.
+- Introduce the idea of Read only configuration that can't be modified if
+  it's been loaded from a non modifiable resource, i.e. from the class path.
+- Check a configuration hasn't been modified by someone else before a 
+  modification is saved back from designer.
+- Add Undo functionality to Oddjob configuration.
+- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
+  copy some of it's feature including; overwrite, force, failonerror, verbose,
+  preservelastmodified. Add the ability to back up the moved files like Linux does.
+- Introduce a FilterType that can filter files by modified date, created date,
+  or match against a regular expression.
+
+Changes in 1.4.0
+----------------
+- Oddjob 1.4 only supports Java 1.7 and above.
 - Timers can now be forced to complete.
 - Added a classPath property to AntJob.
 - Added the ability to set System properties via the system flag on the 
@@ -47,38 +83,6 @@ Changes in 1.4.0
 - Invoke job has an addition Object[] configuration option for arguments 
   that can be used with tokenizer to be more convenient for simple args.
 - Foreach now COMPLETEs when it has no values.
-
-Deferred to A Later Version
----------------------------
-- Add Parent Started State to User Guide. Document thread, and services.
-- Introduce a witheach job that behaves like foreach except that values
-  are 'pushed' into it.
-- Document synthetic annotations in the Developer Guide.
-- Document conversions. Possibly include conversions in the Reference.
-- Add the ability to change the log level from the UI. Add LogLevel TRACE and
-  NONE to match Log4j.
-- Add serialisation of services.
-- Use a server side file system for choosing files on server component 
-  designer forms.
-- Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
-  Explorer.
-- Look at what happens when there are exceptions in a timer. Should there be
-  a haltOnException flag. Should an Exception in a timer be indicated as
-  an exception state not an incomplete state?
-- Add Security to the WebApp (with a Read Only role).  
-- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
-  browser without the need for a separate Servlet Container.
-- Improve the AJAX JSF front end to be more AJAXy.
-- Introduce the idea of Read only configuration that can't be modified if
-  it's been loaded from a non modifiable resource, i.e. from the class path.
-- Check a configuration hasn't been modified by someone else before a 
-  modification is saved back from designer.
-- Add Undo functionality to Oddjob configuration.
-- Improve the <rename> job. Follow Ant's lead of changing to a <move> job and
-  copy some of it's feature including; overwrite, force, failonerror, verbose,
-  preservelastmodified. Add the ability to back up the moved files like Linux does.
-- Introduce a FilterType that can filter files by modified date, created date,
-  or match against a regular expression.
 
 Changes in 1.3.0
 ----------------

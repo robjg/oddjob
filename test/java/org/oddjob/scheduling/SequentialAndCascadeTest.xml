@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <jobs>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:after>
+                                            <schedule>
+                                                <schedules:interval interval="00:00:05"/>
+                                            </schedule>
+                                        </schedules:after>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <echo/>
+                            </job>
+                        </scheduling:timer>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:after>
+                                            <schedule>
+                                                <schedules:interval interval="00:00:05"/>
+                                            </schedule>
+                                        </schedules:after>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <echo/>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </state:cascade>
+                <sequential stateOperator="SERVICES">
+                    <jobs>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:after>
+                                            <schedule>
+                                                <schedules:interval interval="00:00:05"/>
+                                            </schedule>
+                                        </schedules:after>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <echo/>
+                            </job>
+                        </scheduling:timer>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:after>
+                                            <schedule>
+                                                <schedules:interval interval="00:00:05"/>
+                                            </schedule>
+                                        </schedules:after>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <echo/>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </sequential>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

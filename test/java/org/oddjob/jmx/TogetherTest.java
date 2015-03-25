@@ -175,7 +175,7 @@ public class TogetherTest extends TestCase {
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE,
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.COMPLETE);
 		
 		oddjob.run();
 

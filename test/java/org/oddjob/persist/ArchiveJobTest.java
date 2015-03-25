@@ -165,13 +165,13 @@ public class ArchiveJobTest extends TestCase {
 
 		StateSteps testStates = new StateSteps(test);
 		testStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
 		test.run();
 
 		testStates.checkWait();
 
-		testStates.startCheck(ParentState.STARTED, 
+		testStates.startCheck(ParentState.ACTIVE, 
 				ParentState.READY);
 		
 		test.stop();		
@@ -199,7 +199,7 @@ public class ArchiveJobTest extends TestCase {
 		
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		oddjob.run();
 		
@@ -241,16 +241,16 @@ public class ArchiveJobTest extends TestCase {
 		test.setArchiveIdentifier("Client_Report");
 		
 		StateSteps states = new StateSteps(test);
-		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.STARTED);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 		IconSteps icons = new IconSteps(test);
-		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.STARTED);
+		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.ACTIVE);
 		test.run();
 		
 		states.checkNow();
 		icons.checkNow();
 		
-		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
-		icons.startCheck(IconHelper.STARTED, IconHelper.COMPLETE);
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		icons.startCheck(IconHelper.ACTIVE, IconHelper.COMPLETE);
 		
 		depends.run();
 		

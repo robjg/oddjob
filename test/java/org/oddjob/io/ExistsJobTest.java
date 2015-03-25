@@ -184,7 +184,7 @@ public class ExistsJobTest extends TestCase {
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		FileUtils.touch(flagFile);
 		

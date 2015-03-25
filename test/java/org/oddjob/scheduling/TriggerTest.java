@@ -557,7 +557,7 @@ public class TriggerTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		runnable.run();
 		
@@ -600,7 +600,7 @@ public class TriggerTest extends TestCase {
 		oddjob.setOddjobExecutors(services);
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		Object on = new OddjobLookup(oddjob).lookup("thing1");
 		
@@ -629,10 +629,10 @@ public class TriggerTest extends TestCase {
 				getClass().getClassLoader()));
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		StateSteps states = new StateSteps(oddjob);
-		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -667,7 +667,7 @@ public class TriggerTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		testStates.checkNow();
 		testStates.startCheck(TimerState.STARTED, TimerState.COMPLETE);
@@ -708,7 +708,7 @@ public class TriggerTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 
 		testStates.checkNow();
 		testStates.startCheck(TimerState.STARTED, TimerState.COMPLETE);

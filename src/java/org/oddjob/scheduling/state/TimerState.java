@@ -133,7 +133,7 @@ public enum TimerState implements State {
 		}
 		@Override
 		public boolean isComplete() {
-			return true;
+			return false;
 		}
 		@Override
 		public boolean isIncomplete() {

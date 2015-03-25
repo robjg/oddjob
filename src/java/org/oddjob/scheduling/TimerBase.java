@@ -27,9 +27,9 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.State;
-import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.oddjob.state.StateMatch;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
 import org.oddjob.util.OddjobLockedException;
@@ -208,7 +208,7 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		ComponentBoundry.push(loggerName(), this);
 		try {
-			if (!stateHandler().tryToWhen(StateConditions.STARTED, 
+			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED), 
 				new Runnable() {
 					@Override
 					public void run() {
@@ -303,7 +303,7 @@ abstract public class TimerBase extends ScheduleBase {
 	public void setNextDue(final Date nextDue) throws OddjobLockedException {
 		ComponentBoundry.push(loggerName(), this);
 		try {			
-			if (!stateHandler().tryToWhen(StateConditions.STARTED,
+			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED),
 				new Runnable() {
 					@Override
 					public void run() {

@@ -46,16 +46,16 @@ public class WaitJob extends SimpleJob
 	 * @oddjob.description The wait delay in milliseconds. 
 	 * @oddjob.required No if for property is set, otherwise yes.
 	 */
-	private long pause;
+	private volatile long pause;
 
 	/** 
 	 * @oddjob.property for
 	 * @oddjob.description The property to wait for. 
 	 * @oddjob.required No.
 	 */
-	private Object forProperty;
+	private volatile Object forProperty;
 	
-	private boolean forSet;
+	private volatile boolean forSet;
 	
 	/** 
 	 * @oddjob.property state
@@ -65,7 +65,7 @@ public class WaitJob extends SimpleJob
 	 * See the Oddjob User guide for a full list of state conditions.
 	 * @oddjob.required No.
 	 */
-	private StateCondition state;
+	private volatile StateCondition state;
 	
 	/**
 	 * Set the delay time in milli seconds.
@@ -146,7 +146,7 @@ public class WaitJob extends SimpleJob
 		final LinkedList<State> states = new LinkedList<State>();
 		
 		StateListener listener = new StateListener() {
-			synchronized public void jobStateChange(StateEvent event) {
+			public void jobStateChange(StateEvent event) {
 				synchronized (states) {
 					states.add(event.getState());
 					stateHandler().waitToWhen(new IsAnyState(), new Runnable() {

@@ -90,7 +90,8 @@ public class WaitJobTest extends TestCase {
 	public void testStopStateWait() throws InterruptedException, FailedToStopException {
 		FlagState sample = new FlagState();
 		sample.setState(JobState.COMPLETE);
-				
+		sample.run();
+		
 		WaitJob test = new WaitJob();
 		test.setFor(sample);
 		test.setState(StateConditions.INCOMPLETE);
@@ -107,10 +108,10 @@ public class WaitJobTest extends TestCase {
 		
 		waitIcons.startCheck("sleeping", "executing", "sleeping");
 		
-		sample.run();
+		// Note we don't use run because that sends EXECUTING and COMPLETE
+		// states. Just want to cause 1 state to check icon.
+		sample.hardReset();
 		
-		// occasionally we get more icons than expected, executing index 3
-		// which should be completely impossible...
 		waitIcons.checkWait();
 		
 		test.stop();
@@ -202,7 +203,7 @@ public class WaitJobTest extends TestCase {
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE, 
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.COMPLETE);
 				
 		oddjob.run();
 		

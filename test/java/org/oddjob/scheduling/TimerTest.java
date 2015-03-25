@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.TestCase;
 
@@ -487,13 +488,20 @@ public class TimerTest extends TestCase {
 		
 	}
 	
+	// Stub services for Stop test.
 	private class OurStopServices extends MockScheduledExecutorService {
 		
 		public ScheduledFuture<?> schedule(Runnable runnable, long delay,
 				TimeUnit unit) {
 
 			if (delay < 1) {
+				logger.info("** Service Executing [" + runnable + "] ("  + 
+						runnable.getClass().getName() + ")");
 				new Thread(runnable).start();
+			}
+			else {
+				logger.info("** Delay is [" + delay + 
+						"], will never execute [" + runnable + "]");
 			}
 
 			return new MockScheduledFuture<Void>() {
@@ -521,13 +529,14 @@ public class TimerTest extends TestCase {
 		retry.setSchedule(interval);
 		
 		SimpleJob child = new SimpleJob() {
-			int i;
+			AtomicInteger i = new AtomicInteger();
 			Runnable[] jobs = {
 				new FlagState(), new WaitJob()	
 			};
 			@Override
 			protected int execute() throws Throwable {
-				jobs[i++].run();
+				logger.info("Running job [" + i.get() + "]");
+				jobs[i.getAndIncrement()].run();
 				return 0;
 			}
 		};
@@ -550,9 +559,12 @@ public class TimerTest extends TestCase {
 				IconHelper.STARTED, IconHelper.SLEEPING, 
 				IconHelper.STOPPING, IconHelper.STARTABLE);
 		
+		logger.info("** Starting timer.");
 		test.run();
 		
 		checkFirstThreadFinished.checkWait();
+		
+		logger.info("** Stopping timer.");
 		test.stop();
 		
 		timerStates.checkWait();
@@ -678,7 +690,7 @@ public class TimerTest extends TestCase {
 				
 		oddjob1.run();
 				
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				oddjob1.lastStateEvent().getState());
 				
 		assertEquals(new SimpleInterval(
@@ -814,7 +826,7 @@ public class TimerTest extends TestCase {
     	
     	oddjob.run();
     	
-    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
     	assertEquals(JobState.COMPLETE, work.lastStateEvent().getState());
     	
     	assertEquals(DateHelper.parseDateTime("2011-04-11 10:00"), 
@@ -841,7 +853,7 @@ public class TimerTest extends TestCase {
     	StateSteps states = new StateSteps(oddjob);
     	states.startCheck(ParentState.READY, 
     			ParentState.EXECUTING, 
-    			ParentState.STARTED, 
+    			ParentState.ACTIVE, 
     			ParentState.COMPLETE);
     	
     	oddjob.run();
@@ -961,7 +973,7 @@ public class TimerTest extends TestCase {
 		oddjob1.setPersister(persister);
 		oddjob1.run();
 		
-		assertEquals(ParentState.STARTED, oddjob1.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob1.lastStateEvent().getState());
 		
 		assertEquals(0, executors1.executor.delay);
 		
@@ -1009,7 +1021,7 @@ public class TimerTest extends TestCase {
 
     	oddjob.run();
     	
-    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
     	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
@@ -1061,7 +1073,7 @@ public class TimerTest extends TestCase {
 
     	oddjob.run();
     	
-    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
     	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
