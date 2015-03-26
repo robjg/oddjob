@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="lights.startup.time1" value="5000"/>
+                        <value key="machine.startup.time1" value="8000"/>
+                        <value key="lights.startup.time2" value="2000"/>
+                        <value key="machine.startup.time2" value="4000"/>
+                    </values>
+                </properties>
+                <parallel stateOperator="SERVICES" id="service-manager">
+                    <jobs>
+                        <sequential>
+                            <jobs>
+                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights1" startupTime="${lights.startup.time1}"/>
+                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine1" startupTime="${machine.startup.time1}"/>
+                            </jobs>
+                        </sequential>
+                        <sequential>
+                            <jobs>
+                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights2" startupTime="${lights.startup.time2}"/>
+                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine2" startupTime="${machine.startup.time2}"/>
+                            </jobs>
+                        </sequential>
+                    </jobs>
+                </parallel>
+                <echo><![CDATA[The lights are ${lights1.are} and ${lights2.are}, and the machines go ${machine1.goes} and ${machine2.goes}.]]></echo>
+            </jobs>
+        </state:cascade>
+    </job>
+</oddjob>

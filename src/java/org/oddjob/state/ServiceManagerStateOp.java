@@ -40,8 +40,11 @@ public class ServiceManagerStateOp implements StateOperator {
 			else if (state.isComplete()) {
 					return ParentState.COMPLETE;
 			}
-			else if (state.isStoppable()) { 
+			else if (state.isExecuting()) {
 				return ParentState.ACTIVE;
+			}
+			else if (state.isStoppable()) { 
+				return ParentState.COMPLETE;
 			}
 			else if (state.isReady()) {
 				return ParentState.READY;

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+            <jobs>
+                <parallel id="parallel" stateOperator="SERVICES">
+                    <jobs>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                            </schedule>
+                            <job>
+                                <echo><![CDATA[Job 1 Complete]]></echo>
+                            </job>
+                        </scheduling:timer>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                            </schedule>
+                            <job>
+                                <echo><![CDATA[Job 2 Complete]]></echo>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </parallel>
+                <sequential id="sequential" stateOperator="SERVICES">
+                    <jobs>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                            </schedule>
+                            <job>
+                                <echo><![CDATA[Job 3 Complete]]></echo>
+                            </job>
+                        </scheduling:timer>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                            </schedule>
+                            <job>
+                                <echo><![CDATA[Job 4 Complete]]></echo>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </sequential>
+                <echo id="echo"><![CDATA[Timers Started]]></echo>
+            </jobs>
+        </state:cascade>
+    </job>
+</oddjob>

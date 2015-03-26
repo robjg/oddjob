@@ -3,16 +3,18 @@
     <job>
         <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
             <jobs>
-                <sequential id="service-manager" stateOperator="SERVICES">
+                <properties>
+                    <values>
+                        <value key="lights.startup.time" value="5000"/>
+                        <value key="machine.startup.time" value="8000"/>
+                    </values>
+                </properties>
+                <parallel stateOperator="SERVICES" id="service-manager">
                     <jobs>
-                        <parallel>
-                            <jobs>
-                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights"/>
-                                <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine"/>
-                            </jobs>
-                        </parallel>
+                        <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights" startupTime="${lights.startup.time}"/>
+                        <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine" startupTime="${machine.startup.time}"/>
                     </jobs>
-                </sequential>
+                </parallel>
                 <echo><![CDATA[The lights are ${lights.are} and the machine goes ${machine.goes}.]]></echo>
             </jobs>
         </state:cascade>

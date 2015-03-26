@@ -1,0 +1,10 @@
+<oddjob>
+<job>
+<sequential id='service-manager' stateOperator='SERVICES'>
+<jobs>
+<bean id='lights'
+class='org.oddjob.jobs.structural.ServiceManagerTest$Lights'/>
+</jobs>
+</sequential>
+</job>
+</oddjob>

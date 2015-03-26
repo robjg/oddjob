@@ -568,6 +568,7 @@ public class TimerTest extends TestCase {
 		test.stop();
 		
 		timerStates.checkWait();
+		// Sometimes get: Expected stopping, was started...
 		timerIcons.checkWait();
 		
 		test.setJob(null);
