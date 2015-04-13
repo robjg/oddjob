@@ -386,7 +386,7 @@ public class RunJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
-	public void testStopAndReset() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+	public void testStopStopsRunningJobAndResetDoesnt() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		String xml = 
 				"<oddjob>" +
@@ -480,6 +480,71 @@ public class RunJobTest extends TestCase {
 		
 		logger.info("Destroying Oddjob.");
 		
+		oddjob.destroy();
+	}
+	
+	public void testResetPropertyResetsTargetJob() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+		
+		String xml = 
+				"<oddjob>" +
+				" <job>" +
+				"  <sequential>" +
+				"   <jobs>" +
+				"    <folder>" +
+				"     <jobs>" +
+				"	   <echo id='e'>I've been run</echo>" +
+				"     </jobs>" +
+				"    </folder>" +
+				"    <run id='r' job='${e}' reset='HARD'/>" +
+				"   </jobs>" +
+				"  </sequential>" +
+				" </job>" +
+				"</oddjob>";
+			
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Stateful echo = lookup.lookup("e", Stateful.class);
+		
+		StateSteps echoStates = new StateSteps(echo);
+		echoStates.startCheck(JobState.READY, JobState.EXECUTING, 
+				JobState.COMPLETE);
+		
+		Thread t = new Thread(oddjob);
+		t.start();
+		
+		t.join(5000);
+		
+		echoStates.checkNow();
+				
+		RunJob test = lookup.lookup("r", RunJob.class);
+		
+		assertEquals(ParentState.COMPLETE, 
+				((Stateful) test).lastStateEvent().getState());
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
+				
+		// run again.
+		
+		((Resetable) test).hardReset();
+		
+		echoStates.startCheck(JobState.COMPLETE, JobState.READY, JobState.EXECUTING, 
+				JobState.COMPLETE);
+				
+		t = new Thread(test);
+		t.start();
+		
+		t.join(5000);
+		
+		echoStates.checkNow();
+			
+		assertEquals(ParentState.COMPLETE, 
+				test.lastStateEvent().getState());
+				
 		oddjob.destroy();
 	}
 }

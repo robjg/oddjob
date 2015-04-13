@@ -59,7 +59,14 @@ implements Structural, Stoppable, ConfigurationOwner {
 	 * @oddjob.description Job to run
 	 * @oddjob.required Yes.
 	 */
-	private transient Object job;
+	private volatile transient Object job;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description The reset level. See {@link ResetActions}. 
+	 * @oddjob.required No, defaults to NONE.
+	 */
+	private volatile transient ResetAction reset;
 	
 	/**
 	 * Set the stop node directly.
@@ -154,6 +161,12 @@ implements Structural, Stoppable, ConfigurationOwner {
 		else {
 			proxy = childHelper.getChild();
 		}
+		
+		ResetAction reset = this.reset;
+		if (reset == null) {
+			reset = ResetActions.NONE;
+		}
+		reset.doWith(job);		
 			
 		final LinkedList<State> states = new LinkedList<State>();
 		StateListener listener = null;
@@ -336,5 +349,14 @@ implements Structural, Stoppable, ConfigurationOwner {
 	@Override
 	public ArooaElement rootElement() {
 		return null;
+	}
+
+	public ResetAction getReset() {
+		return reset;
+	}
+
+	@ArooaAttribute
+	public void setReset(ResetAction reset) {
+		this.reset = reset;
 	}
 }
