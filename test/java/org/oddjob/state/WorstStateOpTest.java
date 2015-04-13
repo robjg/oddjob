@@ -1,5 +1,7 @@
 package org.oddjob.state;
 
+import org.oddjob.scheduling.state.TimerState;
+
 import junit.framework.TestCase;
 
 public class WorstStateOpTest extends TestCase {
@@ -299,6 +301,110 @@ public class WorstStateOpTest extends TestCase {
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STOPPED, JobState.EXCEPTION));		
+	}
+	
+	public void testEvaluateJobStateAndTimerState() {
+		
+		WorstStateOp test = new WorstStateOp();
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(JobState.READY, TimerState.STARTABLE));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.READY, TimerState.STARTING));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.READY, TimerState.STARTED));		
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(JobState.READY, TimerState.COMPLETE));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.READY, TimerState.INCOMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.READY, TimerState.EXCEPTION));		
+
+		//
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.EXECUTING, TimerState.STARTABLE));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.EXECUTING, TimerState.STARTING));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.EXECUTING, TimerState.STARTED));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.EXECUTING, TimerState.COMPLETE));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.EXECUTING, TimerState.INCOMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXECUTING, TimerState.EXCEPTION));
+		
+		//
+		
+		assertEquals(ParentState.READY, 
+				test.evaluate(JobState.COMPLETE, TimerState.STARTABLE));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.COMPLETE, TimerState.STARTING));		
+		
+		assertEquals(ParentState.ACTIVE, 
+				test.evaluate(JobState.COMPLETE, TimerState.STARTED));		
+		
+		assertEquals(ParentState.COMPLETE, 
+				test.evaluate(JobState.COMPLETE, TimerState.COMPLETE));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.COMPLETE, TimerState.INCOMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.COMPLETE, TimerState.EXCEPTION));
+		
+		//
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.STARTABLE));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.STARTING));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.STARTED));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.COMPLETE));		
+		
+		assertEquals(ParentState.INCOMPLETE, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.INCOMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.INCOMPLETE, TimerState.EXCEPTION));
+		
+		//
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.STARTABLE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.STARTING));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.STARTED));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.COMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.INCOMPLETE));		
+		
+		assertEquals(ParentState.EXCEPTION, 
+				test.evaluate(JobState.EXCEPTION, TimerState.EXCEPTION));
+		
 	}
 	
 	public void testDestroyed() {

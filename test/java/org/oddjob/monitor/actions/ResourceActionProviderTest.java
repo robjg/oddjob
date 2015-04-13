@@ -11,6 +11,7 @@ import org.oddjob.monitor.action.ExecuteAction;
 import org.oddjob.monitor.action.ForceAction;
 import org.oddjob.monitor.action.HardResetAction;
 import org.oddjob.monitor.action.LoadAction;
+import org.oddjob.monitor.action.ParameterisedAction;
 import org.oddjob.monitor.action.SetPropertyAction;
 import org.oddjob.monitor.action.SoftResetAction;
 import org.oddjob.monitor.action.StopAction;
@@ -24,7 +25,7 @@ public class ResourceActionProviderTest extends TestCase {
 				new OddjobSessionFactory(
 						).createSession()).getExplorerActions();
 
-		assertEquals(11, results.length);
+		assertEquals(12, results.length);
 		
 		assertEquals(LoadAction.class, results[0].getClass());
 		assertEquals(UnloadAction.class, results[1].getClass());
@@ -33,10 +34,11 @@ public class ResourceActionProviderTest extends TestCase {
 		assertEquals(HardResetAction.class, results[4].getClass());
 		assertEquals(StopAction.class, results[5].getClass());
 		assertEquals(ForceAction.class, results[6].getClass());
-		assertEquals(SetPropertyAction.class, results[7].getClass());
-		assertEquals(DesignerAction.class, results[8].getClass());
-		assertEquals(DesignInsideAction.class, results[9].getClass());
-		assertEquals(AddJobAction.class, results[10].getClass());
+		assertEquals(ParameterisedAction.class, results[7].getClass());
+		assertEquals(SetPropertyAction.class, results[8].getClass());
+		assertEquals(DesignerAction.class, results[9].getClass());
+		assertEquals(DesignInsideAction.class, results[10].getClass());
+		assertEquals(AddJobAction.class, results[11].getClass());
 	}
 	
 }

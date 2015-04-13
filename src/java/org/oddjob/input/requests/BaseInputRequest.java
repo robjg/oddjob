@@ -1,5 +1,7 @@
 package org.oddjob.input.requests;
 
+import java.io.Serializable;
+
 import org.oddjob.input.InputRequest;
 
 /**
@@ -8,7 +10,9 @@ import org.oddjob.input.InputRequest;
  * @author rob
  *
  */
-abstract public class BaseInputRequest implements InputRequest {
+abstract public class BaseInputRequest 
+implements InputRequest, Serializable {
+	private static final long serialVersionUID = 2015041000L;
 
 	/**
 	 * @oddjob.property

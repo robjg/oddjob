@@ -3,6 +3,7 @@
         <bean class="org.oddjob.arooa.deploy.ArooaDescriptorDescriptorFactory"/>
         <arooa:descriptor>
             <conversions>
+                <value value='org.oddjob.jobs.job.ResetActions$Conversions'/>
                 <value value='org.oddjob.state.StateConditions$Conversions'/>
                 <value value='org.oddjob.state.StateOperators$Conversions'/>
                 <value value='org.oddjob.values.types.DateType$Conversions'/>
@@ -48,6 +49,9 @@
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
                 <is element='parallel' className='org.oddjob.jobs.structural.ParallelJob'
                     designFactory='org.oddjob.designer.components.ParallelDC'/>
+                <is element='parameterised'
+                    className='org.oddjob.jobs.structural.ParameterisedExecutionService'
+                    />
                 <is element='properties'
                     className='org.oddjob.values.properties.PropertiesJob'
                     designFactory='org.oddjob.values.properties.PropertiesDesFa'/>

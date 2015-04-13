@@ -4,14 +4,22 @@ Oddjob-1.5.0
 * Please Note: This is release is not serialisation compatible with 
 Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
-Changes in 1.4.0
+Changes in 1.5.0
 ----------------
+- Added an ParameterisedExecutable concept to allow jobs to be run with
+  parameters.
 - Timer STARTED state is not complete so a Cascade will wait for timers
   to complete.
+  
+Still Todo
+----------
+- Remove Parent STARTED state, it is unnecessary and confusing.
+- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
+  browser without the need for a separate Servlet Container.
+- Improve the AJAX JSF front end to be more AJAXy.
 
 Deferred to A Later Version
 ---------------------------
-- Add Parent Started State to User Guide. Document thread, and services.
 - Introduce a witheach job that behaves like foreach except that values
   are 'pushed' into it.
 - Document synthetic annotations in the Developer Guide.
@@ -27,9 +35,6 @@ Deferred to A Later Version
   a haltOnException flag. Should an Exception in a timer be indicated as
   an exception state not an incomplete state?
 - Add Security to the WebApp (with a Read Only role).  
-- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
-  browser without the need for a separate Servlet Container.
-- Improve the AJAX JSF front end to be more AJAXy.
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. from the class path.
 - Check a configuration hasn't been modified by someone else before a 

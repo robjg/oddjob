@@ -13,7 +13,6 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.ExpressionParser;
@@ -25,7 +24,6 @@ import org.oddjob.arooa.utils.ListSetterHelper;
 /**
  * Base class for things that load Properties.
  */
-@ArooaInterceptor("org.oddjob.values.PropertiesInterceptor")
 public class PropertiesBase implements ArooaContextAware {
 
 	private static final Logger logger = Logger.getLogger(PropertiesBase.class);

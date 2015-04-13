@@ -1,5 +1,7 @@
 package org.oddjob.input.requests;
 
+import java.io.Serializable;
+
 import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.input.InputMedium;
 import org.oddjob.input.InputRequest;
@@ -14,7 +16,9 @@ import org.oddjob.input.InputRequest;
  * @author rob
  *
  */
-public class InputMessage implements InputRequest {
+public class InputMessage 
+implements InputRequest, Serializable {
+	private static final long serialVersionUID = 2015041000L;
 
 	/**
 	 * @oddjob.property

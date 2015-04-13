@@ -13,6 +13,7 @@ import org.oddjob.input.InputMedium;
  *
  */
 public class InputText extends BaseInputRequest {
+	private static final long serialVersionUID = 2015041000L;
 
 	/**
 	 * @oddjob.property

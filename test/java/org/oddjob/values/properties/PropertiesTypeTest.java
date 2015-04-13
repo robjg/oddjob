@@ -130,7 +130,7 @@ public class PropertiesTypeTest extends TestCase {
 	}
 	
 	
-	public void testMerge() {
+	public void testMergeTwoPropertySetsWhereSecondReferencesFirst() {
 		String xml = 
 			"<oddjob>" +
 			" <job>" +

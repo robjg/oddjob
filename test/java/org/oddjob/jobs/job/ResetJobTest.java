@@ -46,7 +46,7 @@ public class ResetJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
 		
 		test.hardReset();
-		test.setLevel("HARD");
+		test.setLevel(ResetActions.HARD);
 		
 		test.run();
 		

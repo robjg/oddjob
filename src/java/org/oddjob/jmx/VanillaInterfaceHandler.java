@@ -1,6 +1,7 @@
 package org.oddjob.jmx;
 
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.ValueFactory;
 import org.oddjob.jmx.handlers.VanillaServerHandlerFactory;
@@ -27,8 +28,14 @@ implements ValueFactory<ServerInterfaceHandlerFactory<T, T>>, ArooaSessionAware 
 	}
 
 	@SuppressWarnings("unchecked")
-	public ServerInterfaceHandlerFactory<T, T> toValue() {
+	public ServerInterfaceHandlerFactory<T, T> toValue() throws ArooaConversionException {
+		if (className == null) {
+			throw new ArooaConversionException("No class name." );
+		}
 		Class<T> cl = (Class<T>) session.getArooaDescriptor().getClassResolver().findClass(className);
+		if (cl == null) {
+			throw new ArooaConversionException("Failed to find class " + className);
+		}
 		return new VanillaServerHandlerFactory<T>(cl);
 	}
 }

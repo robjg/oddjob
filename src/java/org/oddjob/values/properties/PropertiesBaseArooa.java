@@ -2,12 +2,10 @@ package org.oddjob.values.properties;
 
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaConfigurationException;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.deploy.NoAnnotations;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.SessionOverrideContext;
 
 /**
  * Base class for the Arooa descriptor classes for {@link PropertiesJob}
@@ -25,16 +23,7 @@ public class PropertiesBaseArooa implements ArooaBeanDescriptor {
 
 	@Override
 	public ParsingInterceptor getParsingInterceptor() {
-		return new ParsingInterceptor() {
-			
-			@Override
-			public ArooaContext intercept(ArooaContext suggestedContext)
-					throws ArooaConfigurationException {
-				return new SessionOverrideContext(suggestedContext, 
-						new PropertiesConfigurationSession(
-								suggestedContext.getSession()));
-			}
-		};
+		return new PropertiesInterceptor();
 	}
 	
 	@Override

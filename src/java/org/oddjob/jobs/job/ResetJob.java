@@ -1,10 +1,6 @@
 package org.oddjob.jobs.job;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.oddjob.Forceable;
-import org.oddjob.Resetable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.persist.FilePersister;
@@ -48,35 +44,20 @@ import org.oddjob.persist.FilePersister;
  * @author Rob Gordon
  */
 public class ResetJob extends SimpleJob {
-
-	public static final String SOFT = "soft";
-	
-	public static final String HARD = "hard";
-	
-	public static final String FORCE = "force";
-	
-	private static final Map<String, ResetAction> actions =
-			new HashMap<>();
-
-	static {
-		actions.put(SOFT, new SoftReset());
-		actions.put(HARD, new HardReset());
-		actions.put(FORCE, new Force());
-	}
 	
 	/** 
 	 * @oddjob.property 
 	 * @oddjob.description Job to reset.
 	 * @oddjob.required Yes.
 	 */
-	private transient Object job;
+	private volatile transient Object job;
 
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The reset level, hard or soft 
 	 * @oddjob.required No, defaults to soft.
 	 */
-	private transient String level;
+	private volatile transient ResetAction level;
 	
 	/**
 	 * Set the stop node directly.
@@ -106,74 +87,35 @@ public class ResetJob extends SimpleJob {
 			throw new NullPointerException("No Job");
 		}
 		
-    	String level = this.level;
+		if (! (job instanceof Forceable)) {
+			throw new IllegalStateException("Job is not Resetable.");
+		}
+		
+    	ResetAction level = this.level;
         if (level == null) {
-            level = SOFT;
+            level = ResetActions.AUTO;
         }
-        else {
-        	level = level.toLowerCase();
-        }
-        
-        ResetAction action = actions.get(level);
-        
-        if (action == null) {
-            throw new IllegalArgumentException("Level must be one of." +
-            		actions.keySet());
-        }
-        
-		logger().info("Performing " + action.getClass().getSimpleName() + 
+                
+		logger().info("Performing " + level + 
 				" on [" + job + "]");
 		
-		action.doWith(job);
+		level.doWith(job);
 		
 		return 0;	
-	}
-	
-	interface ResetAction {
-		public void doWith(Object job);
-	}
-	
-	static class HardReset implements ResetAction {
-		@Override
-		public void doWith(Object job) {
-			if (! (job instanceof Resetable)) {
-				throw new IllegalStateException("Job is not Resetable.");
-			}
-		    ((Resetable) job).hardReset();
-		}
-	}
-	
-	static class SoftReset implements ResetAction {
-		@Override
-		public void doWith(Object job) {
-			if (! (job instanceof Resetable)) {
-				throw new IllegalStateException("Job is not Resetable.");
-			}
-		    ((Resetable) job).softReset();
-		}
-	}
-	
-	static class Force implements ResetAction {
-		@Override
-		public void doWith(Object job) {
-			if (! (job instanceof Forceable)) {
-				throw new IllegalStateException("Job is not Resetable.");
-			}
-		    ((Forceable) job).force();
-		}
 	}
 	
     /**
      * @return Returns the level.
      */
-    public String getLevel() {
+    public ResetAction getLevel() {
         return level;
     }
     
     /**
      * @param level The level to set.
      */
-    public void setLevel(String level) {
+    @ArooaAttribute
+    public void setLevel(ResetAction level) {
         this.level = level;
     }
 }

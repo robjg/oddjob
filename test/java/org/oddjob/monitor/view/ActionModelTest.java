@@ -171,6 +171,10 @@ public class ActionModelTest extends TestCase {
 		assertEquals("Force", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
 
+		assertEquals("Parameterised", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
+		
 		assertEquals("Set Property", menuItems.get(++i).getText());
 		assertTrue(menuItems.get(i).isEnabled());
 
@@ -290,6 +294,10 @@ public class ActionModelTest extends TestCase {
 		assertEquals("Force", menuItems.get(++i).getText());
 		assertTrue(menuItems.get(i).isEnabled());
 		assertTrue(menuItems.get(i).isVisible());
+		
+		assertEquals("Parameterised", menuItems.get(++i).getText());
+		assertFalse(menuItems.get(i).isEnabled());
+		assertFalse(menuItems.get(i).isVisible());
 		
 		assertEquals("Set Property", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
