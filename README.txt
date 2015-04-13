@@ -6,10 +6,15 @@ Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.5.0
 ----------------
+- Created Reset Actions including an AUTO reset action that will look
+  at the state before issuing either a hard or soft reset. Changed Reset Job 
+  to use the new actions.
+- Added an optional Reset Action to Run Job.
 - Added an ParameterisedExecutable concept to allow jobs to be run with
   parameters.
 - Timer STARTED state is not complete so a Cascade will wait for timers
   to complete.
+- Fixed bug where lastStateEvent was not reflected in a JMX client.
   
 Still Todo
 ----------

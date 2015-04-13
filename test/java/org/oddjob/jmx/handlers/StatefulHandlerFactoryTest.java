@@ -20,7 +20,7 @@ import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactoryTest extends TestCase {
 
-	class OurStateful extends MockStateful {
+	private class OurStateful extends MockStateful {
 		StateListener l;
 		public void addStateListener(StateListener listener) {
 			assertNull(l);
@@ -33,7 +33,7 @@ public class StatefulHandlerFactoryTest extends TestCase {
 		}		
 	}
 	
-	class OurClientToolkit extends MockClientSideToolkit {
+	private class OurClientToolkit extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 
 		NotificationListener listener;
@@ -68,7 +68,7 @@ public class StatefulHandlerFactoryTest extends TestCase {
 		}
 	}
 
-	class OurServerSideToolkit extends MockServerSideToolkit {
+	private class OurServerSideToolkit extends MockServerSideToolkit {
 
 		long seq = 0;
 		
@@ -91,7 +91,7 @@ public class StatefulHandlerFactoryTest extends TestCase {
 				
 	}
 	
-	class Result implements StateListener {
+	private class Result implements StateListener {
 		StateEvent event;
 		
 		public void jobStateChange(StateEvent event) {
@@ -153,6 +153,46 @@ public class StatefulHandlerFactoryTest extends TestCase {
 		local.removeStateListener(result2);
 		
 		assertNull(clientToolkit.listener);
+		
+	}
+		
+	private class OurClientToolkit2 extends MockClientSideToolkit {
+		ServerInterfaceHandler server;
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
+				throws Throwable {
+			return (T) server.invoke(remoteOperation, args);
+		}
+	}
+	
+	public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() throws Exception {
+		
+		StatefulHandlerFactory test = new StatefulHandlerFactory();
+		
+//		assertEquals(1, test.getMBeanOperationInfo().length);
+		
+		OurStateful stateful = new OurStateful(); 
+		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
+
+		// create the handler
+		ServerInterfaceHandler serverHandler = test.createServerHandler(
+				stateful, serverToolkit);
+
+		OurClientToolkit2 clientToolkit = new OurClientToolkit2();
+
+		Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
+				).createClientHandler(new MockStateful(), clientToolkit);
+		
+		clientToolkit.server = serverHandler;
+		
+		stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+		
+		StateEvent lastStateEvent = local.lastStateEvent();
+		
+		assertEquals(JobState.COMPLETE, 
+				lastStateEvent.getState());
 		
 	}
 	

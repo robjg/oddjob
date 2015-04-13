@@ -41,7 +41,7 @@ import org.oddjob.state.StateListener;
 public class StatefulHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 	
 	public static final String STATE_CHANGE_NOTIF_TYPE = "org.oddjob.statechange";
 
@@ -51,6 +51,13 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 				"Sychronize Notifications.", 
 				Notification[].class, 
 				MBeanOperationInfo.INFO);
+		
+		private static final JMXOperationPlus<StateData> LAST_STATE_EVENT = 
+				new JMXOperationPlus<StateData>(
+						"lastStateEvent", 
+						"Get Last State Event.",
+						StateData.class,
+						MBeanOperationInfo.INFO);
 		
 	public Class<Stateful> interfaceClass() {
 		return Stateful.class;
@@ -63,6 +70,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				SYNCHRONIZE.getOpInfo(),
+				LAST_STATE_EVENT.getOpInfo(),
 			};
 	}
 	
@@ -143,10 +151,14 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			lastEvent = new StateEvent(this.owner, JobState.READY, null);	
 		}
 
+		StateEvent dataToEvent(StateData data) {
+			return new StateEvent(owner, data.getJobState(),
+					data.getDate(), data.getThrowable());
+		}
+		
 		void jobStateChange(StateData data) {
 			
-			StateEvent newEvent = new StateEvent(owner, data.getJobState(),
-					data.getDate(), data.getThrowable());
+			StateEvent newEvent = dataToEvent(data);
 
 			lastEvent = newEvent;
 			List<StateListener> copy = null;
@@ -219,7 +231,17 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		
 		@Override
 		public StateEvent lastStateEvent() {
-			return lastEvent;
+			synchronized (this) {
+				if (!listeners.isEmpty()) {
+					return lastEvent;
+				}
+			}
+			try {
+				return dataToEvent(toolkit.invoke(LAST_STATE_EVENT));
+			}
+			catch (Throwable e) {
+				throw new UndeclaredThrowableException(e);
+			}
 		}
 		
 		@Override
@@ -272,6 +294,9 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 				return new Notification[] { lastNotification };
 			}
 
+			if (LAST_STATE_EVENT.equals(operation)) {
+				return lastNotification.getUserData();
+			}
 			throw new ReflectionException(
 					new IllegalStateException("invoked for an unknown method."), 
 							operation.toString());
