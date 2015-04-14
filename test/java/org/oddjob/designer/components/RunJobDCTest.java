@@ -15,16 +15,15 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.job.DependsJob;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.jobs.job.RunJob;
-import org.oddjob.jobs.job.StopJob;
 import org.oddjob.tools.OddjobTestHelper;
 
 /**
  *
  */
-public class JustJobDCTest extends TestCase {
-	private static final Logger logger = Logger.getLogger(JustJobDCTest.class);
+public class RunJobDCTest extends TestCase {
+	private static final Logger logger = Logger.getLogger(RunJobDCTest.class);
 	
 	public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
@@ -32,10 +31,10 @@ public class JustJobDCTest extends TestCase {
 
 	DesignInstance design;
 	
-	public void testStop() throws ArooaParseException {
+	public void testRun() throws ArooaParseException {
 		
 		String xml =  
-				"<stop id='test' name='Test' job='${test}'/>";
+				"<run id='test' name='Test' job='${test}' reset='HARD'/>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -49,20 +48,21 @@ public class JustJobDCTest extends TestCase {
 		
 		design = parser.getDesign();
 		
-		assertEquals(JustJobDesign.class, design.getClass());
+		assertEquals(RunJobDesign.class, design.getClass());
 		
-		StopJob test = (StopJob) OddjobTestHelper.createComponentFromConfiguration(
+		RunJob test = (RunJob) OddjobTestHelper.createComponentFromConfiguration(
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("Test", test.getName());
 		assertEquals(test, test.getJob());
+		assertEquals(ResetActions.HARD, test.getReset());
 
 	}
-	
+
 	public static void main(String args[]) throws ArooaParseException {
 
-		JustJobDCTest test = new JustJobDCTest();
-		test.testStop();
+		RunJobDCTest test = new RunJobDCTest();
+		test.testRun();
 		
 		ViewMainHelper view = new ViewMainHelper(test.design);
 		view.run();

@@ -5,14 +5,13 @@ package org.oddjob.jobs.structural;
 
 import java.util.Iterator;
 
-import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaElement;
 import org.oddjob.framework.StructuralJob;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.state.AnyActiveStateOp;
-import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.State;
 import org.oddjob.state.StateOperator;
@@ -20,10 +19,14 @@ import org.oddjob.structural.OddjobChildException;
 import org.oddjob.values.types.SequenceIterable;
 
 /**
- * @oddjob.description This job will repeatedly either for a number of 
- * times or until the until property is true; 
+ * @oddjob.description This job will repeatedly run its child job either for:
+ * <ul>
+ * 	<li>Each value of a collection.</li>
+ *  <li>Or a given number times.</li>
+ *  <li>Or until the until property is true.</li>
+ * </ul> 
  * <p>
- * Without either a until or a times the job will loop indefinitely.
+ * Without either a until or a times or values the job will loop indefinitely.
  * 
  * @oddjob.example
  * 
@@ -44,25 +47,27 @@ implements Stoppable {
      * this property is true.
      * @oddjob.required No.
      */
-    private boolean until;
+    private volatile boolean until;
     
     /**
      * @oddjob.property 
      * @oddjob.description The count of repeats.
      * @oddjob.required Read Only.
      */
-	private int count;
+	private volatile int count;
 	
 	/**
      * @oddjob.property 
      * @oddjob.description The number of times to repeat.
      * @oddjob.required No.
 	 */
-	private int times;
+	private volatile int times;
     
-	private Iterable<?> values;
+	private transient volatile Iterable<?> values;
 	
-	private Object current;
+	private transient volatile Iterator<?> iterator;
+	
+	private transient volatile Object current;
 	
 	@Override
 	protected StateOperator getInitialStateOp() {
@@ -100,41 +105,29 @@ implements Stoppable {
 			return;
 		}
 		
-		Iterator<?> it;
-		if (times > 0) {
-			it = new SequenceIterable(1, times, 1).iterator();
-		}
-		else {
-			if (values == null) {
-				it = null;
+		
+		if (iterator == null) {
+			if (times > 0) {
+				iterator = new SequenceIterable(1, times, 1).iterator();
 			}
 			else {
-				it = values.iterator();
+				if (values == null) {
+					iterator = null;
+				}
+				else {
+					iterator = values.iterator();
+				}
 			}
 		}
 		
-		while (!stop && !until && (it == null || it.hasNext())) {
+		while (!stop && !until && (iterator == null || iterator.hasNext())) {
 
 			++count;
-		    if (it != null) {
-		    	current = it.next();
+		    if (iterator != null) {
+		    	current = iterator.next();
 		    }
 			
-			boolean softReset = false;
-			if (job instanceof Stateful && 
-					new IsSoftResetable().test(
-							((Stateful) job).lastStateEvent().getState())) {
-				softReset = true;
-			}
-			
-			if (job instanceof Resetable) {
-			    if (softReset) {
-					((Resetable) job).softReset();
-				}
-				else {
-					((Resetable) job).hardReset();
-				}
-	        }
+		    ResetActions.AUTO.doWith(job);
 	        
 			try {
 				job.run();
@@ -168,7 +161,8 @@ implements Stoppable {
 	}
 
 	@Override
-	protected void onReset() {
+	protected void onHardReset() {
+		iterator = null;
 		count = 0;
 		until = false;
 	}

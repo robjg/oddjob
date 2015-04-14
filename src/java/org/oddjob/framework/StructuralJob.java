@@ -256,7 +256,7 @@ implements
 					childStateReflector.stop();
 					childHelper.softResetChildren();
 					stop = false;
-					onReset();
+					onSoftReset();
 					getStateChanger().setState(ParentState.READY);
 					
 					logger().info("Soft Reset complete.");
@@ -281,7 +281,7 @@ implements
 					childStateReflector.stop();
 					childHelper.hardResetChildren();
 					stop = false;
-					onReset();
+					onHardReset();
 					getStateChanger().setState(ParentState.READY);
 					
 					logger().info("Hard Reset complete.");
@@ -292,6 +292,21 @@ implements
 		}
 	}
 
+	/**
+	 * Allow sub classes to do something on HARD reset.
+	 */
+	protected void onHardReset() {
+		onReset();
+	}
+	
+	/**
+	 * Allow sub classes to do something on SOFT reset.
+	 */
+	protected void onSoftReset() {
+		onReset();
+	}
+	
+	
 	/**
 	 * Allow sub classes to do something on reset.
 	 */

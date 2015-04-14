@@ -15,6 +15,7 @@ import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.utils.ListSetterHelper;
 
@@ -69,6 +70,7 @@ public class TeeType implements ArooaValue, ArooaSessionAware {
 		}
 	}
 	
+	@ArooaHidden
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		this.converter = session.getTools().getArooaConverter();

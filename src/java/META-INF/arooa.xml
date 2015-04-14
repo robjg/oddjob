@@ -61,7 +61,7 @@
                     designFactory='org.oddjob.designer.components.RepeatDC'/>
                 <is element='rmireg' className='org.oddjob.rmi.RMIRegistryJob'/>
                 <is element='run' className='org.oddjob.jobs.job.RunJob'
-                    designFactory='org.oddjob.designer.components.JustJobDC'/>
+                    designFactory='org.oddjob.designer.components.RunJobDC'/>
                 <arooa:bean-def element='script'
                     className='org.oddjob.script.ScriptJob'
                     designFactory='org.oddjob.script.ScriptJobDF'/>

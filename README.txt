@@ -19,9 +19,15 @@ Changes in 1.5.0
 Still Todo
 ----------
 - Remove Parent STARTED state, it is unnecessary and confusing.
+- PropertiesJob after deserialisation is wrong. The properties recovered
+  from the stream are override properties and aren't removed on reset. Also
+  describeable doesn't work.
+- RepeatJob needs more tests and examples. Especially around soft resets.
 - Include a Jetty Oddball to allow connecting to an Oddjob server from a 
   browser without the need for a separate Servlet Container.
 - Improve the AJAX JSF front end to be more AJAXy.
+- Move Timer and State Jobs out of namespaces because things like cascade 
+  and timer really core. Create dummy super classes from depricated namespace jobs.
 
 Deferred to A Later Version
 ---------------------------

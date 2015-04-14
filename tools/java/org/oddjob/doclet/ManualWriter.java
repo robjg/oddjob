@@ -20,7 +20,7 @@ import org.oddjob.arooa.beandocs.PropertyDoc;
  */
 public class ManualWriter {
 	
-	public static final String COPYWRITE = "(c) Rob Gordon 2005 - 2014";
+	public static final String COPYWRITE = "(c) Rob Gordon 2005 - 2015";
 	
     private final File directory;
    
