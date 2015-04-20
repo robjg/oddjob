@@ -14,7 +14,7 @@ public class StateMatchTest extends TestCase {
 		assertEquals(true, new StateMatch(
 				ParentState.COMPLETE).test(JobState.COMPLETE));
 		
-		assertEquals(false, new StateMatch(
+		assertEquals(true, new StateMatch(
 				ServiceState.STARTED).test(TimerState.STARTED));
 		
 		assertEquals(true, new StateMatch(

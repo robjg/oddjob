@@ -1,32 +1,24 @@
 package org.oddjob.jobs.job;
 
-import java.util.LinkedList;
-
-import org.oddjob.OddjobComponentResolver;
+import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
+import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.ComponentBoundry;
-import org.oddjob.framework.SimpleJob;
 import org.oddjob.framework.StructuralJob;
-import org.oddjob.images.IconHelper;
 import org.oddjob.state.AnyActiveStateOp;
+import org.oddjob.state.AsynchJobWait;
+import org.oddjob.state.DestroyHandlingStateOp;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
+import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -35,8 +27,6 @@ import org.oddjob.util.OddjobConfigException;
  * <p>
  * This job reflects the state of the job being executed.
  * <p>
- * TODO: Why does this job implement {@link ConfigurationOwner}????
- * 
  * @oddjob.example
  * 
  * Examples elsewhere.
@@ -49,9 +39,8 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * @author Rob Gordon
  */
-
 public class RunJob extends StructuralJob<Object>
-implements Structural, Stoppable, ConfigurationOwner {
+implements Structural, Stoppable {
     private static final long serialVersionUID = 20050806201204300L;
 
 	/** 
@@ -67,6 +56,69 @@ implements Structural, Stoppable, ConfigurationOwner {
 	 * @oddjob.required No, defaults to NONE.
 	 */
 	private volatile transient ResetAction reset;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description Wait for the target job to finish executing. 
+	 * @oddjob.required No, defaults to false.
+	 */
+	private volatile boolean join;
+	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description Add the target job as a child of this job. Allows
+	 * the target job to be easily monitored from a UI.
+	 * @oddjob.required No, defaults to false.
+	 */
+	private volatile boolean showJob;
+	
+	/** Helper to ensure consistent states. */
+	private volatile AsynchJobWait jobWait = new AsynchJobWait() {
+		private static final long serialVersionUID = 2015041600L;
+		protected void childDestroyed() {
+			childHelper.removeAllChildren();
+			super.childDestroyed();
+		}
+	};
+	
+	/**
+	 *  Our state operator must cope with a client node
+	 * that has been destroyed because the client has
+	 * been stopped.
+	 */
+	class BespokeStateOperator extends DestroyHandlingStateOp {
+		
+		public BespokeStateOperator(StateOperator delegate) {
+			super(delegate);
+		}
+		
+		@Override
+		protected ParentState onDestroyed(int index) {
+			ComponentBoundry.push(loggerName(), RunJob.this);
+			try {
+				childStateReflector.stop();
+				childHelper.removeAllChildren();
+				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
+					@Override
+					public void run() {
+						if (stateHandler().lastStateEvent().getState().isStoppable()) {
+							logger().info("Job Destroyed while active, setting state to COMPLETE");
+							getStateChanger().setStateException(
+									new RuntimeException("Child Job has been destroyed."));
+						}
+						else {
+							logger().info("Job Destroyed, leaving job in previous state.");
+						}
+					}
+				});
+			}
+			finally {
+				ComponentBoundry.pop();
+			}
+			// This will be unsed as we've stopped the child state reflector.
+			return ParentState.EXCEPTION;
+		}
+	};
 	
 	/**
 	 * Set the stop node directly.
@@ -87,48 +139,36 @@ implements Structural, Stoppable, ConfigurationOwner {
 		return this.job;
 	}	
 	
+	/**
+	 * @oddjob.property stateOperator
+	 * @oddjob.description Set the way the children's state is 
+	 * evaluated and reflected by the parent. Values can be WORST, 
+	 * ACTIVE, or SERVICES.
+	 * @oddjob.required No, default is ACTIVE.
+	 * 
+	 * @param stateOperator The state operator to be applied to children's
+	 * states to derive our state.
+	 */
+	@ArooaAttribute
+	public void setStateOperator(StateOperator stateOperator) {
+		this.structuralState.setStateOperator(
+				new BespokeStateOperator(stateOperator));
+	}
+	
+	/**
+	 * Getter for State Operator.
+	 * 
+	 * @return
+	 */
+	public StateOperator getStateOperator() {
+		return this.structuralState.getStateOperator();
+	}
+	
 	@Override
 	protected StateOperator getInitialStateOp() {
-		return new StateOperator() {
-			@Override
-			public ParentState evaluate(State... states) {
-				// Our state operator must cope with a client node
-				// that has been destroyed because the client has
-				// been stopped.
-				if (states.length > 0 && states[0].isDestroyed()) {
-					if (childStateReflector.isRunning()) { 
-						ComponentBoundry.push(loggerName(), RunJob.this);
-						try {
-							childStateReflector.stop();
-							childHelper.removeAllChildren();
-
-							stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-								@Override
-								public void run() {
-									if (stateHandler().lastStateEvent().getState().isStoppable()) {
-										logger().info("Job Destroyed while active, setting state to COMPLETE");
-										getStateChanger().setState(ParentState.COMPLETE);
-									}
-									else {
-										logger().info("Job Destroyed, leaving job in previous state.");
-									}
-								}
-							});
-						}
-						finally {
-							ComponentBoundry.pop();
-						}
-					}
-					// this will not be used.
-					return ParentState.READY;
-				}
-				else {
-					return new AnyActiveStateOp().evaluate(states);
-				}
-			}
-		};
+		
+		return new BespokeStateOperator(new AnyActiveStateOp());
 	}
-
 	
 	/*
 	 *  (non-Javadoc)
@@ -142,7 +182,12 @@ implements Structural, Stoppable, ConfigurationOwner {
 		
 		Object proxy;
 		if (childHelper.size() == 0) {
-			OddjobComponentResolver resolver = new OddjobComponentResolver();
+			ComponentProxyResolver resolver = 
+					getArooaSession().getComponentProxyResolver();
+			
+			if (resolver == null) {
+				throw new NullPointerException("No Component Proxy Resolver in Session.");
+			}
 			
 			proxy = resolver.resolve(job, getArooaSession());
 			
@@ -156,6 +201,15 @@ implements Structural, Stoppable, ConfigurationOwner {
 						getArooaSession());
 			}
 			
+			// OddjobComponentResolver should ensure this, so this is 
+			// just a sanity check.
+			if (!(proxy instanceof Stateful)) {
+				throw new IllegalStateException("Resolved Proxy is not Stateful.");
+			}
+			if (!(proxy instanceof Runnable)) {
+				throw new IllegalStateException("Resolved Proxy is not Runnable.");
+			}
+			
 			childHelper.addChild(proxy);
 		}
 		else {
@@ -166,122 +220,21 @@ implements Structural, Stoppable, ConfigurationOwner {
 		if (reset == null) {
 			reset = ResetActions.NONE;
 		}
-		reset.doWith(job);		
+		reset.doWith(proxy);		
 			
-		final LinkedList<State> states = new LinkedList<State>();
-		StateListener listener = null;
+		jobWait.setJoin(isJoin());
+		boolean asynchronous = jobWait.runAndWaitWith((Runnable) proxy);
 		
-		if (job instanceof Stateful) {
-			listener = new StateListener() {
-				public void jobStateChange(StateEvent event) {
-					synchronized (states) {
-						states.add(event.getState());
-						states.notifyAll();
-					}
+		// Ensure an asynchronous job always goes to active for the benefit
+		// of consistent state transitions even if it is already complete.
+		if (asynchronous) {
+				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
+				public void run() {
+					getStateChanger().setState(ParentState.ACTIVE);
 				}
-			};
-			
-			((Stateful) job).addStateListener(listener);
-		}
-		
-		if (proxy instanceof Runnable) {
-			Runnable runnable = (Runnable) proxy;
-			runnable.run();
-		}
-		
-		if (job instanceof Stateful) {
-			
-			boolean executed = false;
-			try {
-				while (!stop) {
-	
-					State now = null;
-					
-					synchronized (states) {
-						if (!states.isEmpty()) {
-							now = states.removeFirst();
-							logger().debug("State received "+ now);
-						}
-						else {
-							logger().debug("Waiting for job to finish executing");
-							iconHelper().changeIcon(IconHelper.SLEEPING);
-							try {
-								states.wait(0);
-							} catch (InterruptedException e) {
-								logger().debug("Sleep interupted.");
-								Thread.currentThread().interrupt();
-							}
-							// Stop should already have set Icon to Stopping.
-							if (!stop) {
-								iconHelper().changeIcon(IconHelper.EXECUTING);
-							}
-						}
-					}
-					
-					if (now != null) {						
-						if (now.isDestroyed()) {
-							childHelper.removeAllChildren();
-							throw new IllegalStateException("Job Destroyed.");
-						}
-						
-						if (now.isStoppable()) {
-							executed = true;
-						}
-						
-						// when the thread of control has moved passed a job.						
-						if (now.isComplete() && 
-								(executed || !now.isReady())) {
-							logger().debug("Job has executed. State is " + now);
-							break;
-						}
-						continue;
-					}
-				}
-			}
-			finally {
-				((Stateful) job).removeStateListener(listener);		
-			}
+			});
 		}
 	}
-
-	/**
-	 * Sleep. This is a copy of {@link SimpleJob#sleep}.
-	 * 
-	 * @param waitTime Time in milliseconds to sleep for.
-	 */
-	protected void sleep(final long waitTime) {
-		stateHandler().assertAlive();
-		
-		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				if (stop) {
-					logger().debug("Stop request detected. Not sleeping.");
-					
-					return;
-				}
-				
-				logger().debug("Sleeping for " + ( 
-						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
-				
-				iconHelper().changeIcon(IconHelper.SLEEPING);
-					
-				try {
-					stateHandler().sleep(waitTime);
-				} catch (InterruptedException e) {
-					logger().debug("Sleep interupted.");
-					Thread.currentThread().interrupt();
-				}
-				
-				// Stop should already have set Icon to Stopping.
-				if (!stop) {
-					iconHelper().changeIcon(IconHelper.EXECUTING);
-				}
-			}
-		})) {
-			throw new IllegalStateException("Can't sleep unless EXECUTING.");
-		}
-	}
-	
 
 	/**
 	 * Perform a soft reset on the job.
@@ -331,26 +284,18 @@ implements Structural, Stoppable, ConfigurationOwner {
 		}
 	}
 	
+	@Override
+	protected void onStop() throws FailedToStopException {
+		jobWait.stopWait();
+	}
 	
 	@Override
-	public void addOwnerStateListener(OwnerStateListener listener) {
+	public void addStructuralListener(StructuralListener listener) {
+		if (isShowJob()) {
+			super.addStructuralListener(listener);
+		}
 	}
-	@Override
-	public void removeOwnerStateListener(OwnerStateListener listener) {
-	}
-	@Override
-	public ConfigurationSession provideConfigurationSession() {
-		return null;
-	}
-	@Override
-	public SerializableDesignFactory rootDesignFactory() {
-		return null;
-	}
-	@Override
-	public ArooaElement rootElement() {
-		return null;
-	}
-
+	
 	public ResetAction getReset() {
 		return reset;
 	}
@@ -358,5 +303,21 @@ implements Structural, Stoppable, ConfigurationOwner {
 	@ArooaAttribute
 	public void setReset(ResetAction reset) {
 		this.reset = reset;
+	}
+	
+	public void setJoin(boolean join) {
+		this.join = join;
+	}
+	
+	public boolean isJoin() {
+		return join;
+	}
+	
+	public void setShowJob(boolean showJob) {
+		this.showJob = showJob;
+	}
+	
+	public boolean isShowJob() {
+		return showJob;
 	}
 }

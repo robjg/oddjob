@@ -59,8 +59,13 @@ public class StateExchangeTest extends TestCase {
 		
 		assertEquals(ParentState.COMPLETE, changer.state);
 		
-		stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.DESTROYED));
-		
+		try {
+			stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.DESTROYED));
+			fail("Should throw an Exception.");
+		}
+		catch (IllegalStateException e) {
+			// expected.
+		}
 		assertEquals(ParentState.COMPLETE, changer.state);
 		
 		test.stop();

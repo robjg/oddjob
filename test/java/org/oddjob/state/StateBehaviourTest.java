@@ -151,7 +151,7 @@ public class StateBehaviourTest extends TestCase {
 		
 		StateSteps sequentialStates = new StateSteps((Stateful) sequential);
 		sequentialStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
 		((Runnable) sequential).run();
 		
@@ -164,7 +164,7 @@ public class StateBehaviourTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
 				((Stateful) echo).lastStateEvent().getState());
@@ -201,7 +201,7 @@ public class StateBehaviourTest extends TestCase {
 		
 		StateSteps checker = new StateSteps((Stateful) sequential);
 		checker.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.STARTED);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 		
 		((Runnable) sequential).run();
 		
@@ -211,7 +211,7 @@ public class StateBehaviourTest extends TestCase {
 		
 		checker.checkNow();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
 				((Stateful) echo).lastStateEvent().getState());

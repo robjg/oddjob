@@ -442,7 +442,7 @@ public class ParallelJobTest extends TestCase {
 		StateSteps parallelStates = new StateSteps(test);
 		
 		parallelStates.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.ACTIVE, ParentState.STARTED);
+				ParentState.ACTIVE);
 		
 		StateSteps service1States = new StateSteps((Stateful) service1);
 		service1States.startCheck(ServiceState.STARTABLE, 
@@ -459,7 +459,7 @@ public class ParallelJobTest extends TestCase {
 		service1States.checkWait();
 		service2States.checkWait();
 		
-		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		parallelStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		service1States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		service2States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
@@ -492,7 +492,7 @@ public class ParallelJobTest extends TestCase {
 		StateSteps parallelStates = new StateSteps(test);
 		
 		parallelStates.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.STARTED);
+				ParentState.ACTIVE);
 		
 		StateSteps service1States = new StateSteps((Stateful) service1);
 		service1States.startCheck(ServiceState.STARTABLE, 
@@ -509,7 +509,7 @@ public class ParallelJobTest extends TestCase {
 		service1States.checkWait();
 		service2States.checkWait();
 		
-		parallelStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		parallelStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		service1States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		service2States.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
 		
@@ -563,8 +563,7 @@ public class ParallelJobTest extends TestCase {
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
-				ParentState.STARTED);		
+				ParentState.EXECUTING, ParentState.ACTIVE);		
 		
 		oddjob.run();		
 		
@@ -581,7 +580,7 @@ public class ParallelJobTest extends TestCase {
 		assertEquals("The lights are on and the machine goes ping.", 
 				lines[0].trim());
 				
-		oddjobStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		oddjob.stop();
 		

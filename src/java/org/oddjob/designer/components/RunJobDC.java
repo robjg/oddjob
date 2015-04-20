@@ -33,15 +33,21 @@ class RunJobDesign extends BaseDC {
 	
 	private final SimpleTextAttribute reset;
 	
+	private final SimpleTextAttribute showJob;
+	
+	private final SimpleTextAttribute join;
+	
 	public RunJobDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
 		
 		job = new SimpleTextAttribute("job", this);
 		reset = new SimpleTextAttribute("reset", this);
+		showJob = new SimpleTextAttribute("showJob", this);
+		join = new SimpleTextAttribute("join", this);
 	}
 
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, job, reset };
+		return new DesignProperty[] { name, job, reset, showJob, join};
 	}
 	
 	public Form detail() {
@@ -51,6 +57,8 @@ class RunJobDesign extends BaseDC {
 					new BorderedGroup("Job Details")
 					.add(new TextField("Job", job))
 					.add(new TextField("Reset", reset))
+					.add(new TextField("Show Job", showJob))
+					.add(new TextField("Join", join))
 					);
 	}
 		

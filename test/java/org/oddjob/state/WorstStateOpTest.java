@@ -1,8 +1,8 @@
 package org.oddjob.state;
 
-import org.oddjob.scheduling.state.TimerState;
-
 import junit.framework.TestCase;
+
+import org.oddjob.scheduling.state.TimerState;
 
 public class WorstStateOpTest extends TestCase {
 
@@ -57,7 +57,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.EXCEPTION));
 				
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED));
 				
 		assertEquals(ParentState.COMPLETE, 
@@ -155,7 +155,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTING));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -179,16 +179,16 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.STARTABLE));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STARTED, ServiceState.EXCEPTION));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -212,15 +212,14 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTING));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.EXCEPTION));
 		
 		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.STOPPED));
-		
+				test.evaluate(ServiceState.STOPPED, ServiceState.STOPPED));		
 	}
 	
 	public void testEvaluateServiceStateAndJobState() {
@@ -257,13 +256,13 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STARTING, JobState.EXCEPTION));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, JobState.READY));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, JobState.EXECUTING));
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, JobState.COMPLETE));
 
 		assertEquals(ParentState.INCOMPLETE, 
@@ -413,8 +412,7 @@ public class WorstStateOpTest extends TestCase {
 		WorstStateOp test = new WorstStateOp();
 		
 		try {
-			assertEquals(JobState.DESTROYED, 
-					test.evaluate(JobState.DESTROYED, JobState.DESTROYED));
+				test.evaluate(JobState.EXECUTING, JobState.DESTROYED);
 			fail("Should fail");
 		} catch (IllegalStateException e) {
 			// expected.

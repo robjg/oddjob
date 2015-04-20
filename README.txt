@@ -18,6 +18,8 @@ Changes in 1.5.0
   
 Still Todo
 ----------
+- Find cut and paste bug where the old version of a job with an id is left 
+  in the ComponentPool.
 - Remove Parent STARTED state, it is unnecessary and confusing.
 - PropertiesJob after deserialisation is wrong. The properties recovered
   from the stream are override properties and aren't removed on reset. Also

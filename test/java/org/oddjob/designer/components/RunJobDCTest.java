@@ -34,7 +34,8 @@ public class RunJobDCTest extends TestCase {
 	public void testRun() throws ArooaParseException {
 		
 		String xml =  
-				"<run id='test' name='Test' job='${test}' reset='HARD'/>";
+				"<run id='test' name='Test' job='${test}' reset='HARD' "
+				+ "join='true' showJob='true'/>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(
@@ -56,7 +57,8 @@ public class RunJobDCTest extends TestCase {
 		assertEquals("Test", test.getName());
 		assertEquals(test, test.getJob());
 		assertEquals(ResetActions.HARD, test.getReset());
-
+		assertEquals(true, test.isShowJob());
+		assertEquals(true, test.isJoin());
 	}
 
 	public static void main(String args[]) throws ArooaParseException {

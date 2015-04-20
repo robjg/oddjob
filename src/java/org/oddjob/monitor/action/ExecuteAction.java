@@ -3,6 +3,7 @@ package org.oddjob.monitor.action;
 import javax.swing.KeyStroke;
 
 import org.oddjob.Stateful;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
@@ -82,7 +83,15 @@ implements StateListener {
 
 	@Override
 	protected void doAction() throws Exception {
-		threadManager.run(((Runnable) job), "Executing " + job);
+		
+		threadManager.run(new Runnable() {
+			
+			@Override
+			public void run() {
+				ResetActions.AUTO.doWith(job);
+				((Runnable) job).run();;
+			}
+		}, "Executing " + job);
 	}
 	
 	/*

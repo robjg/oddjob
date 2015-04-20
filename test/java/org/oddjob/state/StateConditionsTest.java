@@ -17,7 +17,7 @@ public class StateConditionsTest extends TestCase {
 		
 		assertEquals(false, test.test(ServiceState.STARTABLE));
 		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
+		assertEquals(false, test.test(ServiceState.STARTED));
 		assertEquals(false, test.test(ServiceState.EXCEPTION));
 		assertEquals(true, test.test(ServiceState.STOPPED));
 		
@@ -68,7 +68,7 @@ public class StateConditionsTest extends TestCase {
 		
 		assertEquals(false, test.test(ServiceState.STARTABLE));
 		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
+		assertEquals(false, test.test(ServiceState.STARTED));
 		assertEquals(true, test.test(ServiceState.EXCEPTION));
 		assertEquals(true, test.test(ServiceState.STOPPED));
 		
@@ -179,7 +179,6 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.READY));
 		assertEquals(false, test.test(ParentState.EXECUTING));
 		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
 		assertEquals(false, test.test(ParentState.COMPLETE));
 		assertEquals(false, test.test(ParentState.INCOMPLETE));
 		assertEquals(false, test.test(ParentState.EXCEPTION));		
@@ -197,7 +196,7 @@ public class StateConditionsTest extends TestCase {
 		
 		assertEquals(false, test.test(ServiceState.STARTABLE));
 		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(false, test.test(ServiceState.STARTED));
+		assertEquals(true, test.test(ServiceState.STARTED));
 		assertEquals(false, test.test(ServiceState.EXCEPTION));
 		assertEquals(false, test.test(ServiceState.STOPPED));
 		

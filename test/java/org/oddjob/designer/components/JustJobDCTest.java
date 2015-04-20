@@ -15,8 +15,6 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.job.DependsJob;
-import org.oddjob.jobs.job.RunJob;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.tools.OddjobTestHelper;
 

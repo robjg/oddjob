@@ -20,7 +20,7 @@
 		<is element='resets' 
 			className='org.oddjob.state.Resets'/>
 		<is element='cascade' 
-			className='org.oddjob.state.CascadeJob'/>
+			className='org.oddjob.state.CascadeJobDepricated'/>
 		<is element='join' 
 			className='org.oddjob.state.JoinJob'/>
 	</components>

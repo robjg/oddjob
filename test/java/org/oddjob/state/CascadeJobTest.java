@@ -14,6 +14,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
@@ -239,7 +240,7 @@ public class CascadeJobTest extends TestCase {
 	public void testServiceAndException() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
-		Stateful job1 = (Stateful) new OddjobComponentResolver().resolve(
+		Stateful service1 = (Stateful) new OddjobComponentResolver().resolve(
 				new OurService(), new StandardArooaSession());
 		
 		FlagState job2 = new FlagState();
@@ -248,36 +249,45 @@ public class CascadeJobTest extends TestCase {
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
 		
-		test.setJobs(0, job1);
+		test.setJobs(0, service1);
 		test.setJobs(1, job2);
 
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
-		StateSteps job2Check = new StateSteps(job2);
+		StateSteps service1States = new StateSteps(service1);
+		service1States.startCheck(ServiceState.STARTABLE, 
+				ServiceState.STARTING, ServiceState.STARTED);
 		
-		job2Check.startCheck(JobState.READY, 
+		StateSteps job2States = new StateSteps(job2);
+		job2States.startCheck(JobState.READY, 
 				JobState.EXECUTING, JobState.EXCEPTION);
 		
 		test.run();
 
-		job2Check.checkWait();
+		service1States.checkWait();
+		
+		assertEquals(JobState.READY, job2.lastStateEvent().getState());
+		
+		((Stoppable) service1).stop();
+		
+		job2States.checkWait();
 
 		new StopWait(test).run();
 		
-		assertEquals(ServiceState.STARTED, job1.lastStateEvent().getState());	
+		assertEquals(ServiceState.STOPPED, service1.lastStateEvent().getState());	
 		assertEquals(JobState.EXCEPTION, job2.lastStateEvent().getState());	
 		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());	
 		
-		job2Check.startCheck(JobState.EXCEPTION, JobState.READY, 
+		job2States.startCheck(JobState.EXCEPTION, JobState.READY, 
 				JobState.EXECUTING, JobState.COMPLETE);
 
 		job2.setState(JobState.COMPLETE);
 		job2.softReset();
 		job2.run();
 		
-		job2Check.checkWait();
+		job2States.checkWait();
 		
-		assertEquals(ServiceState.STARTED, job1.lastStateEvent().getState());
+		assertEquals(ServiceState.STOPPED, service1.lastStateEvent().getState());
 		assertEquals(JobState.COMPLETE, job2.lastStateEvent().getState());
 		
 		executors.stop();

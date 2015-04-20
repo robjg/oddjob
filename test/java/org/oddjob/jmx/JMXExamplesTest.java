@@ -60,7 +60,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				serverOddjob.lastStateEvent().getState());
 		
 		FragmentHelper helper = new FragmentHelper();
@@ -99,7 +99,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);
@@ -111,16 +111,20 @@ public class JMXExamplesTest extends TestCase {
 		clientOddjob.setProperties(props);
 		clientOddjob.setFile(new File(testDir, "ClientRunsServerJob.xml"));
 
-		StateSteps steps = new StateSteps(serverJob);
-		steps.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		StateSteps serverJobStates = new StateSteps(serverJob);
+		serverJobStates.startCheck(JobState.READY, JobState.EXECUTING, 
+				JobState.COMPLETE);
 		
+		StateSteps clientOddjobStates = new StateSteps(clientOddjob);
+		clientOddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.COMPLETE);
+
+		logger.info("** running Oddjob Client **");
 		clientOddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, 
-				clientOddjob.lastStateEvent().getState());
+		clientOddjobStates.checkWait();
 		
-		steps.checkWait();
-		
+		serverJobStates.checkNow();
 	}
 	
 	public void testClientTriggersOnServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
@@ -138,7 +142,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.STARTED, 
+		assertEquals(ParentState.ACTIVE, 
 				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);

@@ -29,9 +29,10 @@ public class StateExchange<T extends State> {
 			Date time = event.getTime();
 		
 			if (state.isDestroyed()) {
-				// do nothing.
+				throw new IllegalStateException(
+						"A StateOperator should never return a DESTROYED state.");
 			}
-			else if (state.isDestroyed()) {
+			else if (state.isException()) {
 				Throwable throwable = event.getException();
 				recipient.setStateException(throwable, time);
 				

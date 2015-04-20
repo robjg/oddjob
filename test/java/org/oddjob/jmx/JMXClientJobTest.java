@@ -722,7 +722,7 @@ public class JMXClientJobTest extends TestCase {
     	clientOddjob.setExport("server-address", new ArooaObject(server.getAddress()));
 
 		clientOddjob.run();
-		assertEquals(ParentState.STARTED, clientOddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, clientOddjob.lastStateEvent().getState());
 				    	    	
 		JobTreeModel model = new JobTreeModel();
 

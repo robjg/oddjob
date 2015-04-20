@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -117,20 +119,23 @@ public class TogetherTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
-	public void test2() throws Exception {
-		Oddjob oj = new Oddjob(); 
-		oj.setConfiguration(new XMLConfiguration("Resource",
-				this.getClass().getResourceAsStream("together2.xml")));
-		oj.run();
+	public void testValueCanBeRetrievedAccrossMultipleServers() throws Exception {
 		
-		VariablesJob result = (VariablesJob) new OddjobLookup(
-				oj).lookup("result");
-		assertNotNull(result);
+		File file = new File(getClass().getResource("together2.xml").getFile());
+
+		Oddjob oddjob = new Oddjob(); 
+		oddjob.setFile(file);
 		
-		Object o = new DefaultConverter().convert(
-				result.get("echo"), Object.class);
+		oddjob.run();
 		
-		assertEquals("apples", o);
+		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		
+		OddjobLookup lookup = new OddjobLookup(
+				oddjob);
+
+		assertEquals("apples", lookup.lookup("result.echo", String.class));
+		
+		oddjob.destroy();
 	}
 
 	/**
@@ -242,7 +247,7 @@ public class TogetherTest extends TestCase {
 		
 		serverOddjob.run();
 	
-		assertEquals(ParentState.STARTED, serverOddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, serverOddjob.lastStateEvent().getState());
 		
 		String serverAddress = (String) new OddjobLookup(
 				serverOddjob).lookup("server.address");
@@ -282,7 +287,7 @@ public class TogetherTest extends TestCase {
 
 		oddjob.run();
 		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
 		
 		Object client = new OddjobLookup(oddjob).lookup("client");
 		

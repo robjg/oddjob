@@ -1,12 +1,9 @@
 package org.oddjob.state;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,14 +37,14 @@ implements Stateful, StateLock {
 	private final Stateful source;
 	
 	/** State listeners */
-	private transient volatile ArrayList<StateListener> listeners = 
-		new ArrayList<StateListener>();
+	private final List<StateListener> listeners = 
+		new CopyOnWriteArrayList<>();
 
 	/** The last event */
 	private volatile StateEvent lastEvent;
 
 	/** Used to stop listeners changing state. */
-	private transient boolean fireing; 
+	private boolean fireing; 
 	
 	/** Used for the state lock. */
 	private final ReentrantLock lock = new ReentrantLock(true) {
@@ -378,9 +375,7 @@ implements Stateful, StateLock {
 			throw new NullPointerException("No JobStateEvent.");
 		}
 		
-		List<StateListener> copy = new ArrayList<StateListener>(listeners);
-		
-		for (StateListener listener : copy) {
+		for (StateListener listener : listeners) {
 			try {
 				listener.jobStateChange(event);
 			}
@@ -390,30 +385,6 @@ implements Stateful, StateLock {
 			}
 		}
 	}		
-	
-	/**
-	 * Implement custom serialization.
-	 * 
-	 * @param s The stream.
-	 * @throws IOException If serialisation fails.
-	 */
-	private void writeObject(ObjectOutputStream s)
-	throws IOException {
-		s.defaultWriteObject();
-	}
-	
-	/**
-	 * Implement custom serialization.
-	 * 
-	 * @param s The stream
-	 * @throws IOException If serialisation fails.
-	 * @throws ClassNotFoundException If class can't be found.
-	 */
-	private void readObject(ObjectInputStream s) 
-	throws IOException, ClassNotFoundException {
-		s.defaultReadObject();
-		listeners = new ArrayList<StateListener>();
-	}
 	
 }
 

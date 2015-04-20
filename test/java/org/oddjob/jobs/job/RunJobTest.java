@@ -11,12 +11,14 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -64,13 +66,19 @@ public class RunJobTest extends TestCase {
 		}
 	}
 	
-	public void testCode() {
+	public void testCanRunAnyGivenRunnable() {
 		
-		StandardArooaSession session = new StandardArooaSession();
+		StandardArooaSession session = new StandardArooaSession() {
+			@Override
+			public ComponentProxyResolver getComponentProxyResolver() {
+				return new OddjobComponentResolver();
+			}
+		};
 		
 		OurRunnable r = new OurRunnable();
 		
 		RunJob test = new RunJob();
+		test.setShowJob(true);
 		test.setArooaSession(session);
 		test.setJob(r);
 		test.run();
@@ -248,36 +256,34 @@ public class RunJobTest extends TestCase {
 	
 	public void testDestroyedWhileActive() throws InterruptedException {
 
+		StandardArooaSession session = new StandardArooaSession() {
+			@Override
+			public ComponentProxyResolver getComponentProxyResolver() {
+				return new OddjobComponentResolver();
+			}
+		};
+		
 		MyStateful job = new MyStateful();
 		
 		RunJob test = new RunJob();
+		test.setArooaSession(session);
 		test.setJob(job);
 		
 		IconSteps icons = new IconSteps(test);
 		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, 
-				IconHelper.SLEEPING);
+				IconHelper.ACTIVE);
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED);
+				ParentState.ACTIVE);
 
-		Thread t = new Thread(test);
-		t.start();
+		test.run();
 		
-		icons.checkWait();
-		icons.startCheck(IconHelper.SLEEPING, IconHelper.EXECUTING, 
-				IconHelper.STARTED);
-		
-		job.fireJobState(ServiceState.STARTED);
-
-		icons.checkWait();
-		
-		t.join();
-		
+		icons.checkNow();
 		states.checkNow();
-		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		
+		states.startCheck(ParentState.ACTIVE, ParentState.EXCEPTION);
 		
 		job.fireJobState(ServiceState.DESTROYED);
-		
 		
 		states.checkNow();
 	}
@@ -342,11 +348,11 @@ public class RunJobTest extends TestCase {
 		Stateful wait = lookup.lookup("w", Stateful.class);
 		
 		IconSteps testIcons = new IconSteps(test);
-		testIcons.startCheck("ready", "executing", "sleeping", "executing", "sleeping");
+		testIcons.startCheck("ready", "executing", "active");
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED);
+				ParentState.ACTIVE);
 		
 		StateSteps waitStates = new StateSteps(wait);
 		waitStates.startCheck(JobState.READY, JobState.EXECUTING);
@@ -370,7 +376,7 @@ public class RunJobTest extends TestCase {
 		
 		oddjobStates.checkWait();
 		
-		oddjobStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		logger.info("*** Stopping Oddjob *** ");
 		

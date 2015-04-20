@@ -162,7 +162,7 @@ public enum StateConditions implements StateCondition {
 	STARTED() {
 		@Override
 		public boolean test(State state) {
-			return state.isComplete() && state.isStoppable();
+			return state == ServiceState.STARTED;
 		}
 	},
 
