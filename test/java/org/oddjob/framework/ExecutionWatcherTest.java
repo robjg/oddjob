@@ -1,6 +1,7 @@
 package org.oddjob.framework;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
@@ -108,6 +109,44 @@ public class ExecutionWatcherTest extends TestCase {
 		assertEquals(false, done.get());
 		
 		test.start();
+		
+		assertEquals(true, done.get());
+	}
+	
+	// How Cascade would like to use it.
+	public void testAddJobAfterStart() {
+		
+		final AtomicBoolean done = new AtomicBoolean();
+		
+		final ExecutionWatcher test = new ExecutionWatcher(new Runnable() {
+			
+			@Override
+			public void run() {
+				done.set(true);
+			}
+		});
+
+		final AtomicReference<Runnable> job2 = 
+				new AtomicReference<Runnable>();
+		
+		Runnable job1 = test.addJob(new Runnable() {
+			@Override
+			public void run() {
+				job2.set(test.addJob(new Runnable() {
+					@Override
+					public void run() {
+					}
+				}));
+			}
+		});
+		
+		test.start();
+		
+		job1.run();
+		
+		assertEquals(false, done.get());
+		
+		job2.get().run();
 		
 		assertEquals(true, done.get());
 	}

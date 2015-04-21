@@ -3,6 +3,7 @@
  */
 package org.oddjob.state;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import org.oddjob.jobs.WaitJob;
 import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
 /**
@@ -633,6 +635,38 @@ public class CascadeJobTest extends TestCase {
 		
 		assertEquals(3, lines.length);
 		assertEquals("Apples are guaranteed to be third.", lines[2].trim());
+		
+		oddjob.destroy();
+	}
+	
+	public void testCascadeOnHaltOnExample() throws InterruptedException {
+	
+		File file = new File(getClass().getResource(
+				"CascadeOnHaltOnExample.xml").getFile());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
+		
+		StateSteps oddjobStates = new StateSteps(oddjob);		
+		
+		oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.EXCEPTION);
+		
+		oddjob.run();
+		
+		oddjobStates.checkWait();
+		
+		Object[] jobs = OddjobTestHelper.getChildren(
+				OddjobTestHelper.getChildren(oddjob)[0]);
+		
+		assertEquals(JobState.INCOMPLETE, ((Stateful) 
+				jobs[0]).lastStateEvent().getState());
+		assertEquals(JobState.COMPLETE, ((Stateful) 
+				jobs[1]).lastStateEvent().getState());
+		assertEquals(JobState.EXCEPTION, ((Stateful) 
+				jobs[2]).lastStateEvent().getState());
+		assertEquals(JobState.READY, ((Stateful) 
+				jobs[3]).lastStateEvent().getState());
 		
 		oddjob.destroy();
 	}

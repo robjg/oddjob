@@ -24,7 +24,8 @@
                     designFactory='org.oddjob.arooa.design.etc.UnknownComponentDF'/>
                 <is element='bean-report' className='org.oddjob.jobs.BeanReportJob'/>
                 <is element='cascade' 
-                  className='org.oddjob.state.CascadeJob'/>
+                  className='org.oddjob.state.CascadeJob'
+                  designFactory='org.oddjob.state.CascadeJobDF'/>
                 <is element='check' className='org.oddjob.jobs.CheckJob'
                     designFactory='org.oddjob.jobs.CheckJobDesFa'/>
                 <is element='depends' className='org.oddjob.jobs.job.DependsJob'

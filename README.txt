@@ -10,10 +10,12 @@ Changes in 1.5.0
   at the state before issuing either a hard or soft reset. Changed Reset Job 
   to use the new actions.
 - Added an optional Reset Action to Run Job.
+- Oddjob Explorer Run Action now Auto resets the job it's running.
 - Added an ParameterisedExecutable concept to allow jobs to be run with
   parameters.
 - Timer STARTED state is not complete so a Cascade will wait for timers
   to complete.
+- Service STARTED state changed to match Timer STARTED state.
 - Fixed bug where lastStateEvent was not reflected in a JMX client.
   
 Still Todo

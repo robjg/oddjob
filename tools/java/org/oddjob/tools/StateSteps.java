@@ -19,9 +19,9 @@ public class StateSteps {
 	
 	private final Stateful stateful;
 	
-	private Listener listener;
+	private volatile Listener listener;
 	
-	private long timeout = 5000L;
+	private volatile long timeout = 5000L;
 	
 	public StateSteps(Stateful stateful) {
 		if (stateful == null) {
@@ -34,11 +34,11 @@ public class StateSteps {
 		
 		private final State[] steps;
 		
-		private int index;
+		private volatile int index;
 		
-		private boolean done;
+		private volatile boolean done;
 		
-		private String failureMessage;
+		private volatile String failureMessage;
 		
 		public Listener(State[] steps) {
 			this.steps = steps;
@@ -46,28 +46,28 @@ public class StateSteps {
 		
 		@Override
 		public void jobStateChange(StateEvent event) {
-			synchronized (StateSteps.this) {				
-				String position;
-				if (failureMessage != null) {
-					position = "(failure pending)";
-				}
-				else {
-					position = "for index [" + index + "]";
-				}
+			String position;
+			if (failureMessage != null) {
+				position = "(failure pending)";
+			}
+			else {
+				position = "for index [" + index + "]";
+			}
 
-				logger.info("Received [" + event.getState() + 
-						"] " + position + " from [" + event.getSource() + "]");
+			logger.info("Received [" + event.getState() + 
+					"] " + position + " from [" + event.getSource() + "]");
 
-				if (failureMessage != null) {
-					return;
-				}
-				
-				if (index >= steps.length) {
-					failureMessage = 
-							"More states than expected: " + event.getState() + 
-							" (index " + index + ")";
-				}
-				else {
+			if (failureMessage != null) {
+				return;
+			}
+			
+			if (index >= steps.length) {
+				failureMessage = 
+						"More states than expected: " + event.getState() + 
+						" (index " + index + ")";
+			}
+			else {
+				synchronized (StateSteps.this) {				
 					if (event.getState() == steps[index]) {
 						if (++index == steps.length) {
 							done = true;
@@ -87,9 +87,7 @@ public class StateSteps {
 		}
 		
 		public synchronized boolean isDone() {
-			synchronized (StateSteps.this) {				
-				return done;
-			}
+			return done;
 		}
 	};	
 	
@@ -109,7 +107,7 @@ public class StateSteps {
 		stateful.addStateListener(listener);
 	}
 
-	public synchronized void checkNow() {
+	public void checkNow() {
 		
 		try {
 			if (listener.isDone()) {
@@ -135,7 +133,7 @@ public class StateSteps {
 		}
 	}
 	
-	public synchronized void checkWait() throws InterruptedException {
+	public void checkWait() throws InterruptedException {
 		if (listener == null) {
 			throw new IllegalStateException("No Check In Progress.");
 		}
@@ -146,8 +144,10 @@ public class StateSteps {
 
 		if (!listener.isDone()) {
 
-			wait(timeout);
-
+			synchronized (this) {
+				wait(timeout);
+			}
+			
 			logger.info("Woken or Timedout " +
 					" on [" + stateful + "] to have states " + 
 					Arrays.toString(listener.steps));
@@ -158,11 +158,11 @@ public class StateSteps {
 		logger.info("Waiting complete on [" + stateful + "]");
 	}
 
-	public synchronized long getTimeout() {
+	public long getTimeout() {
 		return timeout;
 	}
 
-	public synchronized void setTimeout(long timeout) {
+	public void setTimeout(long timeout) {
 		this.timeout = timeout;
 	}
 	

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import org.oddjob.Stateful;
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ExecutionWatcher;
@@ -54,8 +55,13 @@ public class CascadeJob extends StructuralJob<Object> {
 	/** The executor to use. */
 	private volatile transient ExecutorService executors;
 
-	/** The first job. */
-	private transient Future<?> future;
+	/** The Future for the currently executing job so that it can be 
+	 * cancelled on stop. */
+	private transient volatile Future<?> future;
+	
+	private volatile StateCondition cascadeOn;
+	
+	private volatile StateCondition haltOn;
 	
 	/*
 	 * (non-Javadoc)
@@ -99,6 +105,22 @@ public class CascadeJob extends StructuralJob<Object> {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
+		final StateCondition cascadeOn;
+		if (this.cascadeOn == null) {
+			cascadeOn = StateConditions.DONE;
+		}
+		else {
+			cascadeOn = this.cascadeOn;
+		}
+		
+		final StateCondition haltOn;
+		if (this.haltOn == null) {
+			haltOn = StateConditions.FAILURE;
+		}
+		else {
+			haltOn = this.haltOn;
+		}
+		
 		final Iterator<Object> children = childHelper.iterator();
 				
 		final ExecutionWatcher executionWatcher = 
@@ -139,18 +161,15 @@ public class CascadeJob extends StructuralJob<Object> {
 				((Stateful) next).addStateListener(new StateListener() {
 					public void jobStateChange(StateEvent event) {
 
-						StateCondition finished = StateConditions.FINISHED;
-						if (!finished.test(event.getState())) {
-							return;
-						}
+						State state = event.getState();
 						
-						event.getSource().removeStateListener(this);
-						
-						if (event.getState().isComplete()) {
-							_this.run();
-						}						
-						else {
+						if (haltOn.test(state)) {
+							event.getSource().removeStateListener(this);
 							executionWatcher.start();
+						}
+						else if (cascadeOn.test(state)) {
+							event.getSource().removeStateListener(this);
+							_this.run();
 						}
 					}
 				});
@@ -195,6 +214,24 @@ public class CascadeJob extends StructuralJob<Object> {
 	@Override
 	protected void startChildStateReflector() {
 		// This is started by us so override and do nothing.
+	}
+
+	public StateCondition getCascadeOn() {
+		return cascadeOn;
+	}
+
+	@ArooaAttribute
+	public void setCascadeOn(StateCondition cascadeOn) {
+		this.cascadeOn = cascadeOn;
+	}
+
+	public StateCondition getHaltOn() {
+		return haltOn;
+	}
+
+	@ArooaAttribute
+	public void setHaltOn(StateCondition haltOn) {
+		this.haltOn = haltOn;
 	}
 
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <cascade cascadeOn="FINISHED" haltOn="EXCEPTION">
+            <jobs>
+                <state:flag state="INCOMPLETE" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                <state:flag state="COMPLETE" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                <state:flag state="EXCEPTION" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                <echo><![CDATA[This will never be run.]]></echo>
+            </jobs>
+        </cascade>
+    </job>
+</oddjob>

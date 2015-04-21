@@ -99,10 +99,10 @@ implements StateListener {
 	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 	 */	
 	public void jobStateChange(StateEvent event) {
-		if (event.getState().isReady()) {
-			setEnabled(true);
-		} else {
+		if (event.getState().isStoppable()) {
 			setEnabled(false);
+		} else {
+			setEnabled(true);
 		}
 	}
 }

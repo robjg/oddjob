@@ -122,7 +122,7 @@ public class ExecuteActionTest extends TestCase {
 		test.setSelectedContext(ec);
 		test.prepare();
 		
-		assertFalse(test.isEnabled());
+		assertTrue(test.isEnabled());
 		
 		test.setSelectedContext(null);
 		assertTrue(sample.removed);

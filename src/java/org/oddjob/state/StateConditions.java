@@ -165,7 +165,20 @@ public enum StateConditions implements StateCondition {
 			return state == ServiceState.STARTED;
 		}
 	},
-
+	
+	ANY() {
+		@Override
+		public boolean test(State state) {
+			return true;
+		}
+	},
+	
+	NONE() {
+		@Override
+		public boolean test(State state) {
+			return false;
+		}
+	}
 	;
 	
 	
