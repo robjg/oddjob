@@ -60,7 +60,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				serverOddjob.lastStateEvent().getState());
 		
 		FragmentHelper helper = new FragmentHelper();
@@ -99,7 +99,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);
@@ -142,7 +142,7 @@ public class JMXExamplesTest extends TestCase {
 
 		serverOddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				serverOddjob.lastStateEvent().getState());
 		
 		OddjobLookup serverLookup = new OddjobLookup(serverOddjob);
@@ -161,7 +161,7 @@ public class JMXExamplesTest extends TestCase {
 		Stateful localJob = clientLookup.lookup("local-job", 
 				Stateful.class);
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				clientOddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.READY, 
@@ -169,7 +169,7 @@ public class JMXExamplesTest extends TestCase {
 		
 		StateSteps state = new StateSteps(clientOddjob);
 		
-		state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		state.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		serverJob.run();
 		

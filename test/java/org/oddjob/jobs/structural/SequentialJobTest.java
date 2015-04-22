@@ -331,7 +331,7 @@ public class SequentialJobTest extends TestCase {
 
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
@@ -339,7 +339,7 @@ public class SequentialJobTest extends TestCase {
 		
 		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		
@@ -360,7 +360,7 @@ public class SequentialJobTest extends TestCase {
 
 		StateSteps states = new StateSteps(test);
 		states.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
@@ -374,11 +374,11 @@ public class SequentialJobTest extends TestCase {
 		// Stop each service. Sequential should go to complete
 		// only when both are stopped.
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		((Stoppable) service1).stop();
 		
-		assertEquals(ParentState.ACTIVE, test.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, test.lastStateEvent().getState());
 		
 		((Stoppable) service2).stop();
 		
@@ -387,7 +387,7 @@ public class SequentialJobTest extends TestCase {
 		// Check that starting a service sequential reflects started.
 		
 		states.startCheck(ParentState.COMPLETE, ParentState.READY,
-				ParentState.ACTIVE);
+				ParentState.ACTIVE, ParentState.STARTED);
 		
 		((Resetable) service1).hardReset();
 		((Runnable) service1).run();
@@ -396,7 +396,7 @@ public class SequentialJobTest extends TestCase {
 		
 		// Check stopping sequential.
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		
@@ -425,7 +425,7 @@ public class SequentialJobTest extends TestCase {
 		
 		StateSteps states = new StateSteps(sequential1);
 		states.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		test.run();
 		
@@ -433,7 +433,7 @@ public class SequentialJobTest extends TestCase {
 		
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 		
-		states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 
 		test.stop();
 		

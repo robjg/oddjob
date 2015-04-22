@@ -57,7 +57,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.EXCEPTION));
 				
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED));
 				
 		assertEquals(ParentState.COMPLETE, 
@@ -155,7 +155,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -179,16 +179,16 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.STARTABLE));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STARTED, ServiceState.EXCEPTION));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -212,7 +212,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -256,13 +256,13 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, 
 				test.evaluate(ServiceState.STARTING, JobState.EXCEPTION));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.READY));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, JobState.EXECUTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.COMPLETE));
 
 		assertEquals(ParentState.INCOMPLETE, 
@@ -312,7 +312,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.READY, TimerState.STARTING));		
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(JobState.READY, TimerState.STARTED));		
 		
 		assertEquals(ParentState.READY, 
@@ -352,7 +352,7 @@ public class WorstStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(JobState.COMPLETE, TimerState.STARTING));		
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(JobState.COMPLETE, TimerState.STARTED));		
 		
 		assertEquals(ParentState.COMPLETE, 

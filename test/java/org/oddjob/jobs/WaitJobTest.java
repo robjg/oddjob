@@ -203,7 +203,7 @@ public class WaitJobTest extends TestCase {
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE, 
-				ParentState.COMPLETE);
+				ParentState.STARTED, ParentState.COMPLETE);
 				
 		oddjob.run();
 		

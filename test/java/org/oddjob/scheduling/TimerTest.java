@@ -691,7 +691,7 @@ public class TimerTest extends TestCase {
 				
 		oddjob1.run();
 				
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				oddjob1.lastStateEvent().getState());
 				
 		assertEquals(new SimpleInterval(
@@ -827,7 +827,7 @@ public class TimerTest extends TestCase {
     	
     	oddjob.run();
     	
-    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
     	assertEquals(JobState.COMPLETE, work.lastStateEvent().getState());
     	
     	assertEquals(DateHelper.parseDateTime("2011-04-11 10:00"), 
@@ -854,7 +854,7 @@ public class TimerTest extends TestCase {
     	StateSteps states = new StateSteps(oddjob);
     	states.startCheck(ParentState.READY, 
     			ParentState.EXECUTING, 
-    			ParentState.ACTIVE, 
+    			ParentState.STARTED, 
     			ParentState.COMPLETE);
     	
     	oddjob.run();
@@ -974,7 +974,7 @@ public class TimerTest extends TestCase {
 		oddjob1.setPersister(persister);
 		oddjob1.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob1.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob1.lastStateEvent().getState());
 		
 		assertEquals(0, executors1.executor.delay);
 		
@@ -1022,7 +1022,7 @@ public class TimerTest extends TestCase {
 
     	oddjob.run();
     	
-    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
     	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	
@@ -1074,7 +1074,7 @@ public class TimerTest extends TestCase {
 
     	oddjob.run();
     	
-    	assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+    	assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
     	
     	OddjobLookup lookup = new OddjobLookup(oddjob);
     	

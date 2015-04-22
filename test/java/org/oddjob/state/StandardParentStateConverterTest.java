@@ -38,7 +38,7 @@ public class StandardParentStateConverterTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.toStructuralState(ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.toStructuralState(ServiceState.STARTED));
 
 		assertEquals(ParentState.COMPLETE, 

@@ -52,7 +52,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED));
 				
 		assertEquals(ParentState.EXCEPTION, 
@@ -153,7 +153,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -174,16 +174,16 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, ServiceState.STOPPED));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STARTABLE));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STARTED));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.EXCEPTION));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
 		
 		assertEquals(ParentState.READY, 
@@ -192,7 +192,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STOPPED, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -207,7 +207,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTED));
 		
 		assertEquals(ParentState.EXCEPTION, 
@@ -252,19 +252,19 @@ public class AnyActiveStateOpTest extends TestCase {
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTING, JobState.EXCEPTION));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.READY));
 		
 		assertEquals(ParentState.ACTIVE, 
 				test.evaluate(ServiceState.STARTED, JobState.EXECUTING));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.COMPLETE));
 
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.INCOMPLETE));
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				test.evaluate(ServiceState.STARTED, JobState.EXCEPTION));
 		
 		assertEquals(ParentState.EXCEPTION, 

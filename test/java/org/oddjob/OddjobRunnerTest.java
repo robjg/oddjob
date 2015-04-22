@@ -95,7 +95,7 @@ public class OddjobRunnerTest extends TestCase {
 		
 		final StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
+				ParentState.EXECUTING, ParentState.STARTED);
 		
 		final Runnable shutdownHook = test.new ShutdownHook();
 		
@@ -108,7 +108,7 @@ public class OddjobRunnerTest extends TestCase {
 				try {
 					oddjobStates.checkWait();
 					
-					oddjobStates.startCheck(ParentState.ACTIVE,
+					oddjobStates.startCheck(ParentState.STARTED,
 							ParentState.DESTROYED);
 					
 					serviceStates.startCheck(ServiceState.STARTED, 

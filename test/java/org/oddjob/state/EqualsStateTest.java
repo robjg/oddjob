@@ -138,7 +138,7 @@ public class EqualsStateTest extends TestCase {
     	
     	StateSteps oddjobStates = new StateSteps(oddjob);
     	oddjobStates.startCheck( 
-    			ParentState.ACTIVE, ParentState.COMPLETE);
+    			ParentState.STARTED, ParentState.COMPLETE);
     	
     	pretendLockFile.delete();
     	

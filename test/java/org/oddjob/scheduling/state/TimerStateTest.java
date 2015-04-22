@@ -17,7 +17,7 @@ public class TimerStateTest extends TestCase{
 				converter.toStructuralState(TimerState.STARTABLE));
 		assertEquals(ParentState.ACTIVE, 
 				converter.toStructuralState(TimerState.STARTING));
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				converter.toStructuralState(TimerState.STARTED));
 		assertEquals(ParentState.ACTIVE, 
 				converter.toStructuralState(TimerState.ACTIVE));

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <sequential>
+        <cascade cascadeOn="COMPLETE">
             <jobs>
-                <parallel join="true">
+                <parallel>
                     <jobs>
                         <bean class="org.oddjob.jobs.structural.ServiceManagerTest$Lights" id="lights"/>
                         <bean class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatGoes" goes="ping" id="machine"/>
@@ -11,6 +11,6 @@
                 </parallel>
                 <echo><![CDATA[The lights are ${lights.are} and the machine goes ${machine.goes}.]]></echo>
             </jobs>
-        </sequential>
+        </cascade>
     </job>
 </oddjob>

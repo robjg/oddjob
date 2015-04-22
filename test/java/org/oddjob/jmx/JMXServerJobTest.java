@@ -464,7 +464,7 @@ public class JMXServerJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				oddjob.lastStateEvent().getState());
 		
 		Stateful server = new OddjobLookup(oddjob).lookup("server", 

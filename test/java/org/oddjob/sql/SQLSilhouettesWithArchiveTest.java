@@ -53,7 +53,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		timer1States.checkWait();
 		timer2States.checkWait();

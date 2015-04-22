@@ -4,6 +4,7 @@
 package org.oddjob.jobs.job;
 
 import java.beans.PropertyVetoException;
+import java.io.File;
 
 import junit.framework.TestCase;
 
@@ -319,26 +320,11 @@ public class RunJobTest extends TestCase {
 	throws ArooaPropertyException, ArooaConversionException, 
 			InterruptedException, FailedToStopException, PropertyVetoException {
 		
-		String xml =
-				"<oddjob id='this' xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" +
-				" <job>" +
-				"  <sequential>" +
-				"   <jobs>" +
-				"    <folder>" +
-				"     <jobs>" +
-				"      <wait id='w'/>" +
-				"     </jobs>" +
-				"    </folder>" +
-				"    <jmx:server id='server' root='${w}'/>" +
-				"    <jmx:client id='client'/>" +
-				"    <run id='r' job='${client/w}'/>" +
-				"   </jobs>" +
-				"  </sequential>" +
-				" </job>" +
-				"</oddjob>";
+		File file = new File(getClass().getResource(
+				"RunRemoteJob.xml").getFile());
 		
 		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+		oddjob.setFile(file);
 		oddjob.load();
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
@@ -368,6 +354,10 @@ public class RunJobTest extends TestCase {
 		
 		testIcons.checkWait();
 		
+		oddjobStates.checkWait();
+		
+		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.STARTED);
+		
 		logger.info("*** Stopping Wait *** ");
 		
 		((Stoppable) wait).stop();
@@ -376,7 +366,7 @@ public class RunJobTest extends TestCase {
 		
 		oddjobStates.checkWait();
 		
-		oddjobStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		oddjobStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
 		
 		logger.info("*** Stopping Oddjob *** ");
 		

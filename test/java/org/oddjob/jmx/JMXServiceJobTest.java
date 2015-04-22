@@ -136,7 +136,7 @@ public class JMXServiceJobTest extends TestCase {
 		
 		oddjob.run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				oddjob.lastStateEvent().getState());
 		
 		// Test Bean Directory
@@ -185,7 +185,7 @@ public class JMXServiceJobTest extends TestCase {
 		
 		((Runnable) sequential).run();
 		
-		assertEquals(ParentState.ACTIVE, 
+		assertEquals(ParentState.STARTED, 
 				oddjob.lastStateEvent().getState());
 		
 		// Check invoked
