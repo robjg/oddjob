@@ -25,7 +25,9 @@ import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.schedules.schedules.WeeklySchedule;
+import org.oddjob.state.StateConditions;
 import org.oddjob.tools.OddjobTestHelper;
 
 /**
@@ -42,6 +44,8 @@ public class TimerDesFaTest extends TestCase {
 			"                  xmlns:s='http://rgordon.co.uk/oddjob/schedules'" + 
 			"                  name='A Schedule'" +
 			"                  timeZone='America/Chicago'" +
+			"                  haltOn='FAILURE'" +
+			"                  reset='SOFT'" +
 			"                  haltOnFailure='true'" +
 			"                  skipMissedRuns='true'>" +
 			"   <schedule>" +
@@ -101,6 +105,8 @@ public class TimerDesFaTest extends TestCase {
 		
 		assertEquals("America/Chicago", timer.getTimeZone());
 		assertEquals(7, ((WeeklySchedule) timer.getSchedule()).getFrom().getDayNumber());
+		assertEquals(StateConditions.FAILURE, timer.getHaltOn());
+		assertEquals(ResetActions.SOFT, timer.getReset());
 		assertEquals(true, timer.isHaltOnFailure());
 		assertEquals(true, timer.isSkipMissedRuns());
 		assertEquals(1, OddjobTestHelper.getChildren(timer).length);

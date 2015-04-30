@@ -34,6 +34,10 @@ class RetryDesign extends BaseDC {
 
 	private final SimpleTextAttribute timeZone;
 	
+	private final SimpleTextAttribute haltOn;
+
+	private final SimpleTextAttribute reset;
+	
 	private final SimpleTextAttribute limits;
 	
 	private final SimpleTextAttribute clock;
@@ -48,6 +52,10 @@ class RetryDesign extends BaseDC {
 
 		timeZone = new SimpleTextAttribute("timeZone", this);
 		
+		haltOn = new SimpleTextAttribute("haltOn", this);
+		
+		reset = new SimpleTextAttribute("reset", this);
+		
 		limits = new SimpleTextAttribute("limits", this);
 		
 		clock = new SimpleTextAttribute("clock", this);
@@ -58,7 +66,8 @@ class RetryDesign extends BaseDC {
 	
 	public DesignProperty[] children() {
 		return new DesignProperty[] { name, 
-				schedule, timeZone, limits, 
+				schedule, timeZone, 
+				haltOn, reset, limits, 
 				clock, job };
 	}
 	
@@ -69,6 +78,8 @@ class RetryDesign extends BaseDC {
 					new BorderedGroup("Retry Details")
 					.add(schedule.view().setTitle("Schedule"))
 					.add(timeZone.view().setTitle("Time Zone"))
+					.add(haltOn.view().setTitle("Halt On"))
+					.add(reset.view().setTitle("Reset"))
 					.add(limits.view().setTitle("Limits"))
 					.add(clock.view().setTitle("Clock"))
 					.add(job.view().setTitle("Job"))

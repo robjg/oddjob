@@ -16,7 +16,6 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.SimpleJob;
-import org.oddjob.jobs.job.StopJob;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
@@ -181,28 +180,25 @@ public class TimerStopTest extends TestCase {
 		});
 		
 		RunOnceJob job = new RunOnceJob();
-		
-		StopJob stop = new StopJob();
-		stop.setJob(test);
-		
-		Trigger trigger = new Trigger();
-		trigger.setExecutorService(services.getPoolExecutor());
-		trigger.setJob(stop);
-		trigger.setOn(job);
-
-		trigger.run();
-				
 		test.setJob(job);
-	
+		
 		StateSteps testStates = new StateSteps(test);
 		
 		testStates.startCheck(TimerState.STARTABLE, 
-				TimerState.STARTING, TimerState.STARTED, TimerState.STARTABLE);
+				TimerState.STARTING, TimerState.ACTIVE, 
+				TimerState.STARTED);
 		
 		logger.info("** First Run **");
 		
 		test.run();
 		
+		testStates.checkWait();
+		
+		testStates.startCheck(TimerState.STARTED, 
+				TimerState.STARTABLE);
+		
+		test.stop();
+
 		testStates.checkWait();
 		
 		assertEquals(JobState.COMPLETE, 
@@ -257,7 +253,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 
-		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.ACTIVE, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -298,7 +294,7 @@ public class TimerStopTest extends TestCase {
 		
 		test.run();
 		
-		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.ACTIVE, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent3 = new SimpleScheduleResult(
 				new SimpleInterval(
@@ -365,7 +361,7 @@ public class TimerStopTest extends TestCase {
 				Mockito.longThat(delay), 
 				Mockito.eq(TimeUnit.MILLISECONDS));
 		
-		assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
+		assertEquals(TimerState.ACTIVE, test.lastStateEvent().getState());
 		
 		ScheduleResult expectedCurrent1 = new SimpleScheduleResult(
 				new SimpleInterval(

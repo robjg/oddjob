@@ -32,10 +32,8 @@ import org.oddjob.state.IsHardResetable;
 import org.oddjob.state.IsSoftResetable;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.OrderedStateChanger;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
-import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateExchange;
 import org.oddjob.state.StateOperator;
@@ -164,9 +162,17 @@ implements
 				
 				begin();
 				
-				setStateStartingAndIconSleeping();
+				// rescheduling could already have set the state so only
+				// change it if we are still executing.
+				stateHandler.waitToWhen(StateConditions.EXECUTING, 
+						new Runnable() {
+					@Override
+					public void run() {
+						getStateChanger().setState(TimerState.STARTED);
+					}
+				});
 				
-				begun.countDown();
+			begun.countDown();
 			}
 			catch (final Throwable e) {
 				logger().warn("Job Exception:", e);
@@ -183,28 +189,6 @@ implements
 		}
 	}
 	
-	/**
-	 * Utility method to set the state to STARTED but the icon to SLEEPING.
-	 */
-	protected final void setStateStartingAndIconSleeping() {
-		
-		stateHandler.waitToWhen(
-				new StateCondition() {
-					@Override
-					public boolean test(State state) {
-						return state.isStoppable() && state != ParentState.STARTED;
-					}
-				}, new Runnable() {
-					@Override
-					public void run() {
-						stateHandler.setState(TimerState.STARTED);
-						stateHandler.fireEvent();
-						iconHelper.changeIcon(IconHelper.SLEEPING);
-						
-					}
-				});
-	}
-		
 	/**
 	 * Implementation for a typical stop. Subclasses must implement 
 	 * Stoppable to take advantage of it.

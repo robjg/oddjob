@@ -5,9 +5,10 @@ package org.oddjob.scheduling;
 
 import java.util.Date;
 
-import org.oddjob.Resetable;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.jobs.GrabJob;
+import org.oddjob.jobs.job.ResetAction;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.persist.ArchiveJob;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
@@ -23,7 +24,8 @@ import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.schedules.schedules.WeeklySchedule;
 import org.oddjob.schedules.schedules.YearlySchedule;
 import org.oddjob.state.CompleteOrNotOp;
-import org.oddjob.state.State;
+import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateOperator;
 import org.oddjob.values.SetJob;
 
@@ -181,6 +183,7 @@ public class Timer extends TimerBase {
 		Date currentTime = getClock().getDate(); 		
 		Interval currentInterval = getCurrent(); 
 		
+		boolean skipMissedRuns = isSkipMissedRuns();
 		if (currentInterval != null && 
 				(!skipMissedRuns || skipMissedRuns && currentTime.before(
 						currentInterval.getToDate()))) {
@@ -217,25 +220,17 @@ public class Timer extends TimerBase {
 	}
 	
 	@Override
-	protected void rescheduleOn(State state) throws ComponentPersistException {
-	    State completeOrNot = new CompleteOrNotOp().evaluate(state);
-	    if (!(completeOrNot.isComplete()) && haltOnFailure) {
-	    	internalSetNextDue(null);
-	    }
-	    else {
-	    	Date use = getCurrent().getUseNext();
-	    	Date now = getClock().getDate();
-	    	if (use != null &&  skipMissedRuns && use.before(now)) {
-	    		use = now;
-	    	}
-	    	
-	    	scheduleFrom(use);
-	    }
+	protected StateCondition getDefaultHaltOn() {
+		if (haltOnFailure) {
+			return StateConditions.FAILURE;
+		}
+		else {
+			return StateConditions.NONE;
+		}
 	}
 	
-	protected void reset(Resetable job) {
-	    logger().debug("Sending Hard Reset to [" + job + "]");
-	    
-    	job.hardReset();
+	@Override
+	protected ResetAction getDefaultReset() {
+		return ResetActions.HARD;
 	}
 }

@@ -6,6 +6,9 @@ Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.5.0
 ----------------
+- Timer and Retry have two new properties: Reset allows the reset level that
+  is applied before running a job to be changed. HaltOn allows the state
+  to be changed that will cause the Timer or Retry to complete.
 - Created Reset Actions including an AUTO reset action that will look
   at the state before issuing either a hard or soft reset. Changed Reset Job 
   to use the new actions.
@@ -13,16 +16,15 @@ Changes in 1.5.0
 - Oddjob Explorer Run Action now Auto resets the job it's running.
 - Added an ParameterisedExecutable concept to allow jobs to be run with
   parameters.
-- Timer STARTED state is not complete so a Cascade will wait for timers
-  to complete.
-- Service STARTED state changed to match Timer STARTED state.
+- Cascade now has cascadeOn and haltOn properties, this allows a cascade 
+  to cascade either when a Timer is STARTED or COMPLEETE
 - Fixed bug where lastStateEvent was not reflected in a JMX client.
   
 Still Todo
 ----------
+- Add Parent Started State to User Guide. Document thread, and services.
 - Find cut and paste bug where the old version of a job with an id is left 
   in the ComponentPool.
-- Remove Parent STARTED state, it is unnecessary and confusing.
 - PropertiesJob after deserialisation is wrong. The properties recovered
   from the stream are override properties and aren't removed on reset. Also
   describeable doesn't work.
@@ -46,9 +48,6 @@ Deferred to A Later Version
   designer forms.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
-- Look at what happens when there are exceptions in a timer. Should there be
-  a haltOnException flag. Should an Exception in a timer be indicated as
-  an exception state not an incomplete state?
 - Add Security to the WebApp (with a Read Only role).  
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. from the class path.

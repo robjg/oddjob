@@ -33,9 +33,13 @@ class TimerDesign extends BaseDC {
 
 	private final SimpleTextAttribute timeZone;
 	
-	private final SimpleTextAttribute haltOnFailure;
-	
 	private final SimpleTextAttribute skipMissedRuns;
+	
+	private final SimpleTextAttribute haltOn;
+
+	private final SimpleTextAttribute reset;
+	
+	private final SimpleTextAttribute haltOnFailure;
 	
 	private final SimpleDesignProperty clock;
 	
@@ -49,9 +53,13 @@ class TimerDesign extends BaseDC {
 
 		timeZone = new SimpleTextAttribute("timeZone", this);
 		
-		haltOnFailure = new SimpleTextAttribute("haltOnFailure", this);
-		
 		skipMissedRuns = new SimpleTextAttribute("skipMissedRuns", this);
+		
+		haltOn = new SimpleTextAttribute("haltOn", this);
+		
+		reset = new SimpleTextAttribute("reset", this);
+		
+		haltOnFailure = new SimpleTextAttribute("haltOnFailure", this);
 		
 		clock = new SimpleDesignProperty("clock", this);
 		
@@ -61,8 +69,9 @@ class TimerDesign extends BaseDC {
 	
 	public DesignProperty[] children() {
 		return new DesignProperty[] { name, 
-				schedule, timeZone, haltOnFailure, 
-				skipMissedRuns, clock, job };
+				schedule, timeZone, skipMissedRuns, 
+				haltOn, reset, haltOnFailure, 
+				clock, job };
 	}
 	
 	public Form detail() {
@@ -72,10 +81,12 @@ class TimerDesign extends BaseDC {
 					new BorderedGroup("Timer Details")
 					.add(schedule.view().setTitle("Schedule"))
 					.add(timeZone.view().setTitle("Time Zone"))
-					.add(haltOnFailure.view().setTitle("Halt On Failure"))
 					.add(skipMissedRuns.view().setTitle("Skip Missed Runs"))
+					.add(haltOn.view().setTitle("Halt On"))
+					.add(reset.view().setTitle("Reset"))
 					.add(clock.view().setTitle("Clock"))
 					.add(job.view().setTitle("Job"))
+					.add(haltOnFailure.view().setTitle("Depricated H.O.F."))
 			);
 	}
 	

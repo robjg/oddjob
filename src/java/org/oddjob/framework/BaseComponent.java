@@ -329,13 +329,16 @@ implements Iconic, Stateful,
 	}
 	
 	/**
-	 * Subclasses override this method to clear up resources.
+	 * Subclasses override this method to clear up resources. This is
+	 * called by the framework before child elements have been destroyed.
 	 *
 	 */
 	protected void onDestroy() { }
 	
 	/**
 	 * Subclasses must override this to fire the destroyed state.
+	 * This is called by the framework after all child elements
+	 * have been destroyed.
 	 */
 	abstract protected void fireDestroyedState();
 	

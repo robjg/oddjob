@@ -28,7 +28,7 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.TrackingServices;
 import org.oddjob.state.ParentState;
-import org.oddjob.tools.StateSteps;
+import org.oddjob.tools.WaitHelper;
 import org.oddjob.values.VariablesJob;
 
 /**
@@ -167,7 +167,7 @@ public class TogetherTest extends TestCase {
 		
 		TrackingServices services = new TrackingServices(3);
 	
-		Oddjob oddjob = new Oddjob();
+		final Oddjob oddjob = new Oddjob();
 		oddjob.setOddjobExecutors(services);
 		oddjob.setConfiguration(new XMLConfiguration("Resource",
 				this.getClass().getResourceAsStream("together4.xml")));
@@ -176,15 +176,21 @@ public class TogetherTest extends TestCase {
 //		e.setOddjob(oddjob);
 //		Thread t = new Thread(e);
 //		t.start();
-		
-		StateSteps state = new StateSteps(oddjob);
-		state.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE,
-				ParentState.STARTED, ParentState.COMPLETE);
-		
+				
 		oddjob.run();
 
-		state.checkWait();
+		WaitHelper waitHelper = new WaitHelper() {
+			
+			@Override
+			public boolean condition() throws Exception {
+				return !oddjob.lastStateEvent().getState().isStoppable();
+			}
+		};
+		
+		waitHelper.run();
+		
+		assertEquals(ParentState.COMPLETE, 
+				oddjob.lastStateEvent().getState());
 		
 //		t.join();
 		

@@ -171,6 +171,11 @@ public class ExistsJobTest extends TestCase {
 				
 		oddjob.load();
 		
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(
+				ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.STARTED);
+		
 		SequentialJob sequential = new OddjobLookup(oddjob).lookup(
 				"echo-when-file", SequentialJob.class);
 		
@@ -180,11 +185,12 @@ public class ExistsJobTest extends TestCase {
 		
 		oddjob.run();
 	
-		sequentialStates.checkWait();
+		oddjobStates.checkWait();
+		sequentialStates.checkNow();
 		
-		StateSteps oddjobStates = new StateSteps(oddjob);
+		// 2 seconds for this to work!
 		oddjobStates.startCheck(
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.STARTED, ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		FileUtils.touch(flagFile);
 		
@@ -192,9 +198,6 @@ public class ExistsJobTest extends TestCase {
 		
 		console.close();
 		console.dump(logger);
-		
-		assertEquals(ParentState.COMPLETE,
-				oddjob.lastStateEvent().getState());
 		
 		assertEquals(1, console.getLines().length);
 

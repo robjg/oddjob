@@ -98,7 +98,7 @@ public class TimerRetryBulkTest extends TestCase {
 		StateSteps testStates = new StateSteps(test);
 		testStates.setTimeout(20 * 1000L);
 		testStates.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
-				TimerState.STARTED, TimerState.COMPLETE);
+				TimerState.ACTIVE, TimerState.COMPLETE);
 
 		test.run();
 

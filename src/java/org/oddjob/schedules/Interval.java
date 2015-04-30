@@ -23,14 +23,16 @@ public interface Interval {
     /**
      * The date the interval is from which includes this date.
      * 
-     * @return Never null and alway less than the to date.
+     * @return A date. Never null and always less than or equal to the 
+     * to date.
      */
 	public Date getFromDate();
 	
 	/**
 	 * The date the interval is up to but excluding.
 	 * 
-	 * @return A date. Never and always greater than the from date.
+	 * @return A date. Never null and always greater than or equal to the 
+	 * from date.
 	 */
 	public Date getToDate();
 }

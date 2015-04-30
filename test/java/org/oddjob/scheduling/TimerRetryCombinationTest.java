@@ -2,9 +2,7 @@ package org.oddjob.scheduling;
 
 import java.beans.PropertyVetoException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -20,18 +18,14 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SerializableJob;
-import org.oddjob.framework.StopWait;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.tools.ManualClock;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
-import org.oddjob.tools.WaitHelper;
 import org.oddjob.util.Clock;
 
 
@@ -54,13 +48,13 @@ public class TimerRetryCombinationTest extends TestCase {
 	public static class Results extends SerializableJob {
 		private static final long serialVersionUID = 2009081400L;
 		
-		private int soft;
+		private volatile int soft;
 		
-		private int hard;
+		private volatile int hard;
 		
-		private int executions;
+		private volatile int executions;
 		
-		private int result;
+		private volatile int result;
 		
 		@Override
 		protected int execute() throws Throwable {
@@ -139,7 +133,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		StateSteps oddjob1State = new StateSteps(oddjob1);
 		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.INCOMPLETE);
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		oddjob1.run();
 
 		oddjob1State.checkWait();
@@ -167,7 +161,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		logger.info("First Oddjob, starting second run.");
 		
 		oddjob1State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.INCOMPLETE);
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		
 		oddjob1.run();
 		
@@ -195,7 +189,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		StateSteps oddjob2State = new StateSteps(oddjob2);
 		oddjob2State.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.INCOMPLETE);
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		
 		oddjob2.run();
 		
@@ -216,26 +210,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		services.stop();
 	}
 	
-	private class RecordingStateListener implements StateListener {
-				
-		final List<StateEvent> eventList = new ArrayList<StateEvent>();
-		
-		public synchronized void jobStateChange(StateEvent event) {
-			logger.info("Recording Event [" + event.getState() + "] for [" + 
-					event.getSource() + "] index [" + eventList.size() + "]");
-			eventList.add(event);
-		}
-		
-		public synchronized StateEvent get(int index) {
-			return eventList.get(index);
-		}
-		
-		public synchronized int size() {
-			return eventList.size();
-		}
-	}
-	
-	public void testStateNotifications() throws FailedToStopException {
+	public void testStateNotifications() throws FailedToStopException, InterruptedException {
 		
 		XMLConfiguration config = new XMLConfiguration(
 				"org/oddjob/scheduling/TimerRetryCombinationTest1.xml",
@@ -247,76 +222,45 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob1.setOddjobExecutors(services);
 		oddjob1.setConfiguration(config);
 
-		RecordingStateListener ojRec = new RecordingStateListener();
-		oddjob1.addStateListener(ojRec);
-		
-		assertEquals(1, ojRec.size());
-		assertEquals(ParentState.READY, ojRec.get(0).getState());
+		StateSteps ojStates = new StateSteps(oddjob1);
 		
 		oddjob1.load();
 		
-		assertEquals(1, ojRec.size());
-		
 		Timer timer = (Timer) new OddjobLookup(oddjob1).lookup("timer");
 		
-		RecordingStateListener timerRec = new RecordingStateListener();
-		timer.addStateListener(timerRec);
-				
-		assertEquals(1, timerRec.size());
-		assertEquals(TimerState.STARTABLE, timerRec.get(0).getState());
+		StateSteps timerStates = new StateSteps(timer);
 		
 		Retry retry = (Retry) new OddjobLookup(oddjob1).lookup("retry");
 		
-		RecordingStateListener retryRec = new RecordingStateListener();
-		retry.addStateListener(retryRec);
+		StateSteps retryStates = new StateSteps(retry);
 		
-		assertEquals(1, retryRec.size());
-		assertEquals(TimerState.STARTABLE, retryRec.get(0).getState());
+		ojStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.INCOMPLETE);
 		
+		timerStates.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
+				TimerState.ACTIVE, TimerState.INCOMPLETE);
+		
+		retryStates.startCheck(TimerState.STARTABLE, TimerState.STARTING,
+				TimerState.ACTIVE, TimerState.INCOMPLETE, 
+				TimerState.STARTABLE, TimerState.STARTING, 
+				TimerState.ACTIVE, TimerState.INCOMPLETE, 
+				TimerState.STARTABLE, TimerState.STARTING, 
+				TimerState.ACTIVE, TimerState.INCOMPLETE, 
+				TimerState.STARTABLE, TimerState.STARTING, 
+				TimerState.ACTIVE, TimerState.INCOMPLETE);
+				
 		oddjob1.run();
 
-		new StopWait(oddjob1).run();
-		logger.info("Oddjob1 has stopped. State is: " + oddjob1.lastStateEvent().getState());
+		ojStates.checkWait();
 		
-		assertEquals(ParentState.EXECUTING, ojRec.get(1).getState());
-		assertEquals(ParentState.STARTED, ojRec.get(2).getState());
-		assertEquals(ParentState.INCOMPLETE, ojRec.get(3).getState());
-		assertEquals(4, ojRec.size());
-		
-		// Not our recording listener is added after Oddjob's, so it's possible
-		// that we haven't have all events yet. This wait ensures we have.
-		new StopWait(timer).run();
-		
-		logger.info("Timer has stopped. State is: " + timer.lastStateEvent().getState());
-		
-		assertEquals(TimerState.STARTING, timerRec.get(1).getState());
-		assertEquals(TimerState.STARTED, timerRec.get(2).getState());
-		assertEquals(TimerState.INCOMPLETE, timerRec.get(3).getState());
-		assertEquals(4, timerRec.size());
-		
-		assertEquals(TimerState.STARTING, retryRec.get(1).getState());
-		assertEquals(TimerState.STARTED, retryRec.get(2).getState());
-		assertEquals(TimerState.INCOMPLETE, retryRec.get(3).getState());
-		assertEquals(TimerState.STARTABLE, retryRec.get(4).getState());
-		assertEquals(TimerState.STARTING, retryRec.get(5).getState());
-		assertEquals(TimerState.STARTED, retryRec.get(6).getState());
-		assertEquals(TimerState.INCOMPLETE, retryRec.get(7).getState());
-		assertEquals(TimerState.STARTABLE, retryRec.get(8).getState());
-		assertEquals(TimerState.STARTING, retryRec.get(9).getState());
-		assertEquals(TimerState.STARTED, retryRec.get(10).getState());
-		assertEquals(TimerState.INCOMPLETE, retryRec.get(11).getState());
-		assertEquals(TimerState.STARTABLE, retryRec.get(12).getState());
-		assertEquals(TimerState.STARTING, retryRec.get(13).getState());
-		assertEquals(TimerState.STARTED, retryRec.get(14).getState());
-		assertEquals(TimerState.INCOMPLETE, retryRec.get(15).getState());
-		assertEquals(16, retryRec.size());
+		// Note we still need to wait because these state listeners maybe
+		// notified after Oddjob has received the incomplete state.
+		timerStates.checkWait();
+		retryStates.checkWait();
 		
 		logger.info("Cleaning Up.");
 		
 		oddjob1.destroy();
-		
-		assertEquals(TimerState.DESTROYED, retryRec.get(16).getState());
-		assertEquals(17, retryRec.size());
 		
 		services.stop();
 	}
@@ -354,11 +298,15 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob1.setPersister(persister);
 		oddjob1.setExport("clock", new ArooaObject(clock));
 		
+		StateSteps oddjob1States = new StateSteps(oddjob1);
+		oddjob1States.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.STARTED);
+		
 		logger.info("** Starting First Oddjob. **");
 		
 		oddjob1.run();
 
-		assertEquals(ParentState.STARTED, oddjob1.lastStateEvent().getState());
+		oddjob1States.checkWait();
 		
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oddjob1);
@@ -367,21 +315,9 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		final OddjobLookup lookup1 = new OddjobLookup(oddjob1);
 		
-		final Date waitForDate1 = DateHelper.parseDateTime("2010-07-12 07:00"); 
-		new WaitHelper() {
-			Date isNow;
-			@Override
-			public boolean condition() throws ArooaPropertyException, ArooaConversionException {
-				isNow = lookup1.lookup("timer.nextDue", Date.class); 
-				return waitForDate1.equals(isNow);
-			}
-			@Override
-			public void onRetry() {
-				logger.info("Waiting for next due to be " + waitForDate1 + 
-						" is now " + isNow);
-			}
-		}.run();
-		
+		assertEquals(DateHelper.parseDateTime("2010-07-12 07:00"), 
+				lookup1.lookup("timer.nextDue", Date.class)); 
+				
 		int hards1 = lookup1.lookup("results.hard", Integer.TYPE);
 		int softs1 = lookup1.lookup("results.soft", Integer.TYPE);
 		int executions1 = lookup1.lookup("results.executions", Integer.TYPE);
@@ -389,6 +325,13 @@ public class TimerRetryCombinationTest extends TestCase {
 		assertEquals(1, hards1);
 		assertEquals(1, softs1);
 		assertEquals(1, executions1);
+		
+		// The archive state listener is added after oddjob child state
+		// reflector so the archiver could still be archiving at this
+		// point. This will ensure all listeners have fired before we
+		// destroy.
+		assertEquals(TimerState.COMPLETE, lookup1.lookup("retry", 
+				Stateful.class).lastStateEvent().getState());
 		
 		oddjob1.destroy();
 		
@@ -399,27 +342,21 @@ public class TimerRetryCombinationTest extends TestCase {
 		
 		clock.date = DateHelper.parseDateTime("2010-07-15 07:00");
 		
+		StateSteps oddjob2States = new StateSteps(oddjob2);
+		oddjob2States.startCheck(ParentState.READY, ParentState.EXECUTING,
+				ParentState.ACTIVE, ParentState.STARTED);
+		
 		logger.info("** Starting second Oddjob. **");
 		
 		oddjob2.run();
 		
+		oddjob2States.checkWait();
+		
 		final OddjobLookup lookup2 = new OddjobLookup(oddjob2);
 		
-		final Date waitForDate2 = DateHelper.parseDateTime("2010-07-16 07:00"); 
-		new WaitHelper() {
-			Date isNow;
-			@Override
-			public boolean condition() throws ArooaPropertyException, ArooaConversionException {
-				isNow = lookup2.lookup("timer.nextDue", Date.class); 
-				return waitForDate2.equals(isNow);
-			}
-			@Override
-			public void onRetry() {
-				logger.info("Waiting for next due to be " + waitForDate2 + 
-						" is now " + isNow);
-			}
-		}.run();
-		
+		assertEquals(DateHelper.parseDateTime("2010-07-16 07:00"), 
+				lookup2.lookup("timer.nextDue", Date.class)); 
+				
 		int hards2 = lookup2.lookup("results.hard", Integer.TYPE);
 		int softs2 = lookup2.lookup("results.soft", Integer.TYPE);
 		int executions2 = lookup2.lookup("results.executions", Integer.TYPE);
@@ -427,6 +364,10 @@ public class TimerRetryCombinationTest extends TestCase {
 		assertEquals(5, hards2);
 		assertEquals(5, softs2);
 		assertEquals(5, executions2);
+		
+		// Ensure archiver finished persisting.
+		assertEquals(TimerState.COMPLETE, lookup2.lookup("retry", 
+				Stateful.class).lastStateEvent().getState());
 		
 		ArchiveBrowserJob browser = new ArchiveBrowserJob();
 		browser.setArchiver(persister);

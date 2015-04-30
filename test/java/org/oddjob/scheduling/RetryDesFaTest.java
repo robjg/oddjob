@@ -15,6 +15,8 @@ import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.jobs.job.ResetActions;
+import org.oddjob.state.StateConditions;
 import org.oddjob.tools.OddjobTestHelper;
 
 /**
@@ -31,6 +33,8 @@ public class RetryDesFaTest extends TestCase {
 			"                  xmlns:schedules='http://rgordon.co.uk/oddjob/schedules'" + 
 			"                  name='A Test'" +
 			"                  timeZone='America/Chicago'" +
+			"                  haltOn='FAILURE'" +
+			"                  reset='SOFT'" +
 			"                  limits='${limits}'" +
 			"                  >" +
 			"   <schedule>" +
@@ -60,6 +64,8 @@ public class RetryDesFaTest extends TestCase {
 				design.getArooaContext().getConfigurationNode());
 		
 		assertEquals("America/Chicago", test.getTimeZone());
+		assertEquals(StateConditions.FAILURE, test.getHaltOn());
+		assertEquals(ResetActions.SOFT, test.getReset());
 		assertNotNull(test.getSchedule());
 		assertEquals(1, OddjobTestHelper.getChildren(test).length);
 	}

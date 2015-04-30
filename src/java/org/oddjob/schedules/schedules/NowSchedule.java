@@ -5,11 +5,11 @@ package org.oddjob.schedules.schedules;
 
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalHelper;
-import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleType;
+import org.oddjob.schedules.SimpleInterval;
 import org.oddjob.schedules.SimpleScheduleResult;
 
 /**
@@ -28,10 +28,17 @@ public class NowSchedule implements Schedule {
      * Due immediately.
      */
     public ScheduleResult nextDue(ScheduleContext context) {
-		IntervalTo now = new IntervalTo(context.getDate());
+    	
+    	// Create an result with the use next 1 millisecond behind the given 
+    	// date. This is because a timer keeps using a millisecond after from the
+    	// previous schedule, and so we can get to a situation where now
+    	// is 1 millisecond away.
+    	
+		Interval now = new SimpleInterval(context.getDate());
+		
 		Interval parentInterval = context.getParentInterval();
 		if (parentInterval == null) {
-			return now;
+			return new SimpleScheduleResult(now, now.getFromDate());
 		}
 
 		Interval limited = new IntervalHelper(parentInterval).limit(now);
@@ -39,7 +46,7 @@ public class NowSchedule implements Schedule {
 			return null;
 		}
 		else {
-			return new SimpleScheduleResult(limited);
+			return new SimpleScheduleResult(limited, now.getFromDate());
 		}
     }
     

@@ -169,12 +169,16 @@ public class JMXExamplesTest extends TestCase {
 		
 		StateSteps state = new StateSteps(clientOddjob);
 		
-		state.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+		state.startCheck(ParentState.STARTED, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
 		
 		serverJob.run();
 		
 		state.checkWait();
-		
+
+		// Todo Fix this
+//		clientOddjob.destroy();
+//		serverOddjob.destroy();
 	}
 
 }

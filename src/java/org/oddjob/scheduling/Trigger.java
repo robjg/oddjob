@@ -16,7 +16,6 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.images.IconHelper;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsAnyState;
@@ -250,8 +249,13 @@ public class Trigger extends ScheduleBase {
 				// state listeners have been notified.
 				on.lastStateEvent();
 
-				iconHelper().changeIcon(IconHelper.STARTED);
-
+				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+					@Override
+					public void run() {
+						getStateChanger().setState(TimerState.ACTIVE);
+					}
+				});
+				
 				Runnable job = childHelper.getChild();
 
 				if (job == null) {

@@ -30,6 +30,9 @@
                 <parallel join="true">
                     <jobs>
                         <scheduling:timer id="timer1" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <clock>
+                              <value value="${clock}"/>
+                            </clock>
                             <schedule>
                                 <schedules:count count="5" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
                                     <refinement>
@@ -58,6 +61,9 @@
                             </job>
                         </scheduling:timer>
                         <scheduling:timer id="timer2" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <clock>
+                              <value value="${clock}"/>
+                            </clock>
                             <schedule>
                                 <schedules:count count="5" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
                                     <refinement>

@@ -2,6 +2,8 @@ package org.oddjob.persist;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -15,6 +17,8 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.arooa.types.ArooaObject;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconHelper;
 import org.oddjob.jobs.WaitJob;
@@ -27,6 +31,7 @@ import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.oddjob.util.Clock;
 
 public class ArchiveJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);
@@ -179,8 +184,23 @@ public class ArchiveJobTest extends TestCase {
 		testStates.checkNow();
 	}
 	
+	private static class Always101MillisecondsLater implements Clock {
+		
+		volatile long millis;
+		
+		public Always101MillisecondsLater() throws ParseException {
+			millis = DateHelper.parseDateTime("2015-04-30 07:45").getTime();
+		}
+		
+		@Override
+		public Date getDate() {
+			millis = millis + 101;
+			return new Date(millis);
+		}
+	}
+	
 	public void testInOddjob() 
-	throws ComponentPersistException, IOException, InterruptedException {
+	throws ComponentPersistException, IOException, InterruptedException, ParseException {
 		
 		OurDirs dirs = new OurDirs();
 		
@@ -195,11 +215,15 @@ public class ArchiveJobTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/persist/ArchiveJobTest.xml",
 				getClass().getClassLoader()));
+		oddjob.setExport("clock", new ArooaObject(
+				new Always101MillisecondsLater()));
+		
 		oddjob.setArgs(new String[] { baseDir.getPath() });
 		
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 
-				ParentState.STARTED, ParentState.COMPLETE);
+				ParentState.ACTIVE, 
+				ParentState.COMPLETE);
 		
 		oddjob.run();
 		
@@ -244,13 +268,16 @@ public class ArchiveJobTest extends TestCase {
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.STARTED);
 		IconSteps icons = new IconSteps(test);
 		icons.startCheck(IconHelper.READY, IconHelper.EXECUTING, IconHelper.STARTED);
+		
 		test.run();
 		
 		states.checkNow();
 		icons.checkNow();
 		
-		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
-		icons.startCheck(IconHelper.STARTED, IconHelper.COMPLETE);
+		states.startCheck(ParentState.STARTED, ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		icons.startCheck(IconHelper.STARTED, IconHelper.ACTIVE,
+				IconHelper.COMPLETE);
 		
 		depends.run();
 		

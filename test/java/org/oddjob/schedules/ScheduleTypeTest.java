@@ -51,9 +51,7 @@ public class ScheduleTypeTest extends TestCase {
         // check as object
         Object now = lookup.lookup("time.now", Object.class);
         
-        assertEquals(IntervalTo.class, now.getClass());
-
-        assertEquals(new IntervalTo(
+        assertEquals(new SimpleInterval(
         		DateHelper.parseDateTime("2009-07-25 12:15")), now);
         
         // Text

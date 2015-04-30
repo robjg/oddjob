@@ -545,6 +545,26 @@ implements
 				StateIcons.iconFor(stateHandler.getState()));
 	}
 	
+	@Override
+	protected void onDestroy() {
+		stateHandler.assertAlive();
+		
+		super.onDestroy();
+		
+		ComponentBoundry.push(loggerName(), this);
+		try {
+			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
+				public void run() {
+					stop = true;
+					stopListening((Stateful) childHelper.getChild());
+				}					
+			});
+		} 
+		finally {
+			ComponentBoundry.pop();
+		}
+	}
+	
 	/**
 	 * Internal method to fire state.
 	 */

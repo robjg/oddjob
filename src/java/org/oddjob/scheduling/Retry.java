@@ -5,12 +5,14 @@ package org.oddjob.scheduling;
 
 import java.util.Date;
 
-import org.oddjob.Resetable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.jobs.job.ResetAction;
+import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.schedules.Interval;
 import org.oddjob.state.CompleteOrNotOp;
-import org.oddjob.state.State;
+import org.oddjob.state.StateCondition;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateOperator;
 
 /**
@@ -80,30 +82,19 @@ public class Retry extends TimerBase {
 	public Interval getLimits() {
 		return limits;
 	}
-		
+	
 	@Override
-	protected void rescheduleOn(State state) throws ComponentPersistException {
-	    State completeOrNot = new CompleteOrNotOp().evaluate(state);
-	    if (completeOrNot.isComplete()) {
-	    	internalSetNextDue(null);
-	    }
-	    else {
-
-	    	Date use = getCurrent().getUseNext();
-	    	Date now = getClock().getDate();
-	    	if (use != null && use.before(now)) {
-	    		use = now;
-	    	}
-	    	
-	    	scheduleFrom(use);
-	    }
+	protected boolean isSkipMissedRuns() {
+		return true;
 	}
 	
 	@Override
-	protected void reset(Resetable job) {
-	    logger().debug("Sending Soft Reset to [" + job + "]");
-	    
-    	job.softReset();
+	protected StateCondition getDefaultHaltOn() {
+		return StateConditions.COMPLETE;
 	}
 	
+	@Override
+	protected ResetAction getDefaultReset() {
+		return ResetActions.SOFT;
+	}
 }

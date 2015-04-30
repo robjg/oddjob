@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <schedule>
+                        <schedules:daily xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                    </schedule>
+                    <job>
+                        <wait/>
+                    </job>
+                </scheduling:timer>
+                <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <schedule>
+                        <schedules:daily xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                    </schedule>
+                    <job>
+                        <scheduling:retry>
+                            <schedule>
+                                <schedules:interval interval="0:15:00" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                            </schedule>
+                            <job>
+                                <wait/>
+                            </job>
+                        </scheduling:retry>
+                    </job>
+                </scheduling:timer>
+                <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                    <schedule>
+                        <schedules:daily xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"/>
+                    </schedule>
+                    <job>
+                        <parallel>
+                            <jobs>
+                                <wait/>
+                            </jobs>
+                        </parallel>
+                    </job>
+                </scheduling:timer>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

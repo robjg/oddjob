@@ -128,17 +128,21 @@ public class EqualsStateTest extends TestCase {
     	SequentialJob sequential = new OddjobLookup(oddjob).lookup(
     			"db-backup", SequentialJob.class);
     	
+    	StateSteps oddjobStates = new StateSteps(oddjob);
+    	oddjobStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
+    			ParentState.ACTIVE, ParentState.STARTED);
+    	
     	StateSteps sequentialStates = new StateSteps(sequential);
     	sequentialStates.startCheck(ParentState.READY, ParentState.EXECUTING, 
     			ParentState.INCOMPLETE);
     	
     	oddjob.run();
 
-    	sequentialStates.checkWait();
+    	oddjobStates.checkWait();
+    	sequentialStates.checkNow();
     	
-    	StateSteps oddjobStates = new StateSteps(oddjob);
     	oddjobStates.startCheck( 
-    			ParentState.STARTED, ParentState.COMPLETE);
+    			ParentState.STARTED, ParentState.ACTIVE, ParentState.COMPLETE);
     	
     	pretendLockFile.delete();
     	

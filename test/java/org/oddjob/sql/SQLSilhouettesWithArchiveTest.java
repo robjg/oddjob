@@ -1,5 +1,8 @@
 package org.oddjob.sql;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
@@ -8,12 +11,15 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.types.ArooaObject;
+import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.oddjob.util.Clock;
 
 public class SQLSilhouettesWithArchiveTest extends TestCase {
 
@@ -27,12 +33,29 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		logger.debug("-----------------  " + getName() + "  -----------------");
 	}
 	
-	public void testSimple() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+	private static class Always2SecondsLater implements Clock {
+		
+		volatile long millis;
+		
+		public Always2SecondsLater() throws ParseException {
+			millis = DateHelper.parseDateTime("2015-04-30 07:45").getTime();
+		}
+		
+		@Override
+		public Date getDate() {
+			millis = millis + 2001;
+			return new Date(millis);
+		}
+	}
+	
+	public void testSimple() throws ArooaPropertyException, ArooaConversionException, InterruptedException, ParseException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/sql/SQLSilhouettesWithArchiveTest.xml",
 				getClass().getClassLoader()));
+		oddjob.setExport("clock", new ArooaObject(
+				new Always2SecondsLater()));
 		
 		oddjob.load();
 		
@@ -47,13 +70,11 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		timer2States.setTimeout(20*1000L);
 		
 		timer1States.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
-				TimerState.STARTED, TimerState.COMPLETE);
+				TimerState.ACTIVE, TimerState.COMPLETE);
 		timer2States.startCheck(TimerState.STARTABLE, TimerState.STARTING, 
-				TimerState.STARTED, TimerState.COMPLETE);
+				TimerState.ACTIVE, TimerState.COMPLETE);
 		
 		oddjob.run();
-		
-		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
 		
 		timer1States.checkWait();
 		timer2States.checkWait();

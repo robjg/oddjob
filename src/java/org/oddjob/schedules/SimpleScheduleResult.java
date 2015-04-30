@@ -28,7 +28,7 @@ public class SimpleScheduleResult implements ScheduleResult, Serializable {
 			throw new NullPointerException("No Interval.");
 		}
 		
-		this.interval = new SimpleInterval(interval);
+		this.interval = interval;
 		this.useNext = useNext;
 	}
 	
