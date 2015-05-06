@@ -15,7 +15,7 @@
                 <bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
                     className="org.oddjob.Forceable"/>
                 <bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
-                    className="org.oddjob.jobs.ParameterisedExecution"/>
+                    className="org.oddjob.jobs.tasks.TaskExecutor"/>
 			</values>
 		</list>
 	</handlerFactories>

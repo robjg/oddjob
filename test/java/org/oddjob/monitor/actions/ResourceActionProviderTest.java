@@ -11,7 +11,7 @@ import org.oddjob.monitor.action.ExecuteAction;
 import org.oddjob.monitor.action.ForceAction;
 import org.oddjob.monitor.action.HardResetAction;
 import org.oddjob.monitor.action.LoadAction;
-import org.oddjob.monitor.action.ParameterisedAction;
+import org.oddjob.monitor.action.TaskAction;
 import org.oddjob.monitor.action.SetPropertyAction;
 import org.oddjob.monitor.action.SoftResetAction;
 import org.oddjob.monitor.action.StopAction;
@@ -34,7 +34,7 @@ public class ResourceActionProviderTest extends TestCase {
 		assertEquals(HardResetAction.class, results[4].getClass());
 		assertEquals(StopAction.class, results[5].getClass());
 		assertEquals(ForceAction.class, results[6].getClass());
-		assertEquals(ParameterisedAction.class, results[7].getClass());
+		assertEquals(TaskAction.class, results[7].getClass());
 		assertEquals(SetPropertyAction.class, results[8].getClass());
 		assertEquals(DesignerAction.class, results[9].getClass());
 		assertEquals(DesignInsideAction.class, results[10].getClass());

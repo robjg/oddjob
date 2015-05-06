@@ -52,8 +52,11 @@
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
                 <is element='parallel' className='org.oddjob.jobs.structural.ParallelJob'
                     designFactory='org.oddjob.designer.components.ParallelDC'/>
-                <is element='parameterised'
-                    className='org.oddjob.jobs.structural.ParameterisedExecutionService'
+                <is element='task-request'
+                    className='org.oddjob.jobs.tasks.TaskRequest'
+                    />
+                <is element='task-service'
+                    className='org.oddjob.jobs.tasks.TaskExecutionService'
                     />
                 <is element='properties'
                     className='org.oddjob.values.properties.PropertiesJob'
