@@ -7,8 +7,10 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
 import org.oddjob.input.InputRequest;
+import org.oddjob.jobs.tasks.BasicTask;
 import org.oddjob.jobs.tasks.TaskException;
 import org.oddjob.jobs.tasks.TaskExecutor;
+import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.state.StateConditions;
@@ -38,7 +40,7 @@ implements StateListener {
 	 * @see org.oddjob.monitor.model.JobOption#getName()
 	 */
 	public String getName() {
-		return "Parameterised";
+		return "Execute";
 	}
 
 	public String getGroup() {
@@ -46,11 +48,11 @@ implements StateListener {
 	}
 	
 	public Integer getMnemonicKey() {
-		return null;
+		return Standards.EXECUTE_MNEMONIC_KEY;
 	}
 	
 	public KeyStroke getAcceleratorKey() {
-		return null;
+		return Standards.EXECUTE_ACCELERATOR_KEY;
 	}
 	
 	
@@ -104,7 +106,7 @@ implements StateListener {
 			threadManager.run(new Runnable() {
 				public void run() {
 					try {
-						execution.execute(props);
+						execution.execute(new BasicTask(props));
 					} catch (TaskException e) {
 						logger.warn(e);
 					}

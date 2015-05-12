@@ -87,6 +87,16 @@ public enum StateConditions implements StateCondition {
 			return state.isStoppable();
 		}
 	},
+	
+	/**
+	 * A synonym for COMPLETE.
+	 */
+	SUCCESS() {
+		@Override
+		public boolean test(State state) {
+			return state.isComplete();
+		}
+	},
 
 	/**
 	 * The state is either INCOMPLETE or EXCEPTION

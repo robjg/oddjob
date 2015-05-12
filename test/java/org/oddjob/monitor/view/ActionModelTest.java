@@ -156,7 +156,7 @@ public class ActionModelTest extends TestCase {
 		assertFalse(menuItems.get(i).isEnabled());
 		assertFalse(menuItems.get(i).isVisible());
 		
-		assertEquals("Run", menuItems.get(++i).getText());
+		assertEquals("Start", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
 		
 		assertEquals("Soft Reset", menuItems.get(++i).getText());
@@ -171,7 +171,7 @@ public class ActionModelTest extends TestCase {
 		assertEquals("Force", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
 
-		assertEquals("Parameterised", menuItems.get(++i).getText());
+		assertEquals("Execute", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
 		assertFalse(menuItems.get(i).isVisible());
 		
@@ -275,7 +275,7 @@ public class ActionModelTest extends TestCase {
 		assertFalse(menuItems.get(i).isEnabled());
 		assertTrue(menuItems.get(i).isVisible());
 		
-		assertEquals("Run", menuItems.get(++i).getText());
+		assertEquals("Start", menuItems.get(++i).getText());
 		assertTrue(menuItems.get(i).isEnabled());
 		assertTrue(menuItems.get(i).isVisible());
 		
@@ -295,7 +295,7 @@ public class ActionModelTest extends TestCase {
 		assertTrue(menuItems.get(i).isEnabled());
 		assertTrue(menuItems.get(i).isVisible());
 		
-		assertEquals("Parameterised", menuItems.get(++i).getText());
+		assertEquals("Execute", menuItems.get(++i).getText());
 		assertFalse(menuItems.get(i).isEnabled());
 		assertFalse(menuItems.get(i).isVisible());
 		

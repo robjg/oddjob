@@ -45,7 +45,9 @@ public class BeanCapture<T> extends AbstractFilter<T, T> {
 	
 	@Override
 	protected T filter(T from) {
-		beans.add(from);
+		synchronized(beans) {
+			beans.add(from);
+		}
 		return from;
 	}
 	
@@ -56,20 +58,28 @@ public class BeanCapture<T> extends AbstractFilter<T, T> {
 	}
 
 	public List<T> getBeans() {
-		return beans;
+		synchronized (beans) {
+			return beans;
+		}
 	}
 	
 	@Override
 	public boolean isEmpty() {
-		return beans.size() == 0;
+		synchronized (beans) {
+			return beans.size() == 0;
+		}
 	}
 	
 	public int getCount() {
-		return beans.size();
+		synchronized (beans) {
+			return beans.size();
+		}
 	}
 	
 	@Override
 	public Iterator<T> iterator() {
-		return beans.iterator();
+		synchronized (beans) {
+			return beans.iterator();
+		}
 	}
 }

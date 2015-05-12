@@ -139,7 +139,7 @@ public class TriggerTest extends TestCase {
 		}
 	}
 	
-	public void testSimpleTrigger() throws Exception {
+	public void testTriggerFiresButThenNotAgainOnSameState() throws Exception {
 		
 		DefaultExecutors services = new DefaultExecutors();
 		

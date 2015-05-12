@@ -26,7 +26,7 @@ public class TaskRequest extends SerializableJob {
 	 * @oddjob.description The job to start
 	 * @oddjob.required Yes.
 	 */
-	private transient TaskExecutor task;
+	private transient TaskExecutor taskExecutor;
 	
 	private Properties properties;
 	
@@ -36,8 +36,8 @@ public class TaskRequest extends SerializableJob {
 	 * @param node The job.
 	 */
 	@ArooaAttribute
-	synchronized public void setTask(TaskExecutor node) {
-		this.task = node;
+	synchronized public void setTaskExecutor(TaskExecutor node) {
+		this.taskExecutor = node;
 	}
 	
 	/**
@@ -45,8 +45,8 @@ public class TaskRequest extends SerializableJob {
 	 * 
 	 * @return The node.
 	 */
-	synchronized public TaskExecutor getTask() {
-		return this.task;
+	synchronized public TaskExecutor getTaskExecutor() {
+		return this.taskExecutor;
 	}
 
 	/*
@@ -54,11 +54,11 @@ public class TaskRequest extends SerializableJob {
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
 	protected int execute() throws Exception {
-		if (task == null) {
+		if (taskExecutor == null) {
 			throw new OddjobConfigException("A job to start must be provided.");
 		}		
 		
-		task.execute(properties);
+		taskExecutor.execute(new BasicTask(properties));
 		
 		return 0;	
 	}

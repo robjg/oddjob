@@ -30,7 +30,7 @@ implements StateListener {
 	 * @see org.oddjob.monitor.model.JobOption#getName()
 	 */
 	public String getName() {
-		return "Run";
+		return "Start";
 	}
 
 	public String getGroup() {
@@ -38,11 +38,11 @@ implements StateListener {
 	}
 	
 	public Integer getMnemonicKey() {
-		return Standards.RUN_MNEMONIC_KEY;
+		return Standards.START_MNEMONIC_KEY;
 	}
 	
 	public KeyStroke getAcceleratorKey() {
-		return Standards.RUN_ACCELERATOR_KEY;
+		return Standards.START_ACCELERATOR_KEY;
 	}
 	
 	

@@ -4,31 +4,35 @@ package org.oddjob.jobs.tasks;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
+import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
+import org.oddjob.arooa.runtime.Evaluator;
 import org.oddjob.arooa.runtime.PropertyLookup;
-import org.oddjob.arooa.standard.StandardPropertyLookup;
+import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.ListSetterHelper;
 import org.oddjob.framework.SimpleService;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.jobs.job.ResetActions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.values.properties.PropertiesConfigurationSession;
 
 /**
  * A job that can be parameterised.
  * 
  * @author Rob Gordon
  */
+@ArooaInterceptor("org.oddjob.values.properties.PropertiesInterceptor")
 public class TaskExecutionService extends SimpleService
 implements TaskExecutor, Structural {
 	
@@ -36,14 +40,28 @@ implements TaskExecutor, Structural {
 	protected final ChildHelper<Object> childHelper =
 			new ChildHelper<Object>(this);
 	
+	private final Properties properties = new Properties();
+
 	private final List<InputRequest> requests =
 		new ArrayList<InputRequest>();
 		
 	private volatile InputRequest[] requestArray;
 	
-	private volatile Properties properties;
+	private volatile TaskView taskView;
 	
 	private volatile ResetAction reset;
+	
+	private volatile String responseExpression;
+	
+	@Override
+	public void setArooaSession(ArooaSession session) {
+		super.setArooaSession(session);
+		if (! (session instanceof PropertiesConfigurationSession)) {
+			throw new IllegalStateException();
+		}
+		((PropertiesConfigurationSession) session).getPropertyManager(
+				).addPropertyOverride(new TaskPropertyLookup());
+	}
 	
 	public InputRequest getRequests(int index) {
 		return requests.get(index);
@@ -59,17 +77,13 @@ implements TaskExecutor, Structural {
 	}
 	
 	@Override
-	public long execute(Properties properties) 
+	public TaskView execute(Task task) 
 	throws TaskException {
 		
 		if (requestArray == null) {
 			throw new TaskException("Task Execution Service not Started.");
 		}
 
-		if (properties == null) {
-			properties = new Properties();
-		}
-		
 		final ArooaSession session = getArooaSession();
 		if (session == null) {
 			throw new NullPointerException("No session.");
@@ -80,51 +94,48 @@ implements TaskExecutor, Structural {
 			throw new TaskException("No Job to Execute the Task.");
 		}
 		
-		if (this.properties != null) {
+		if (taskView != null && 
+				taskView.lastStateEvent().getState().isStoppable()) {
 			throw new TaskException("Task Execution in progress.");
 		}
 		
-		this.properties = properties;
-		final PropertyLookup propertyLookup = 
-				new StandardPropertyLookup(properties, this.toString());
-		session.getPropertyManager().addPropertyOverride(
-				propertyLookup);
-			
+		Properties properties = task.getProperties();
+		if (properties != null) {
+			this.properties.clear();
+			this.properties.putAll(properties);
+		}
+		
 		ResetAction reset = this.reset;
 		if (reset == null) {
 			reset = ResetActions.AUTO;
 		}
 		
 		reset.doWith(job);
+		
 		((Runnable) job).run();
 					
-		if (job instanceof Stateful) {
+		taskView = new JobTaskView((Stateful) job) {
 			
-			((Stateful) job).addStateListener(new StateListener() {
-				@Override
-				public void jobStateChange(StateEvent event) {
-					if (!event.getState().isStoppable()) {
-						TaskExecutionService.this.properties = null;
-						session.getPropertyManager().removePropertyLookup
-							(propertyLookup);
-						((Stateful) job).removeStateListener(this);
+			@Override
+			protected Object onDone() {
+				
+				if (responseExpression != null) {
+					Evaluator evaluator = session.getTools().getEvaluator();
+
+					try {
+						return evaluator.evaluate(
+								responseExpression, session, Object.class);
 					}
+					catch (ArooaConversionException e) {
+						return "Failed to evaluate response" + e.toString();
+					}			
+					
 				}
-			});
-		}
-		else {
-			this.properties = null;
-			session.getPropertyManager().removePropertyLookup
-				(propertyLookup);
-		}
+				return "OK";
+			}	
+		};
 		
-		return 1L;
-	}
-	
-	@Override
-	public Stateful getTaskExecution(long executionId) {
-		// TODO Auto-generated method stub
-		return null;
+		return taskView;
 	}
 	
 	@Override
@@ -190,8 +201,38 @@ implements TaskExecutor, Structural {
 	public void setReset(ResetAction resetAction) {
 		this.reset = resetAction;
 	}
-	
+
 	public Properties getProperties() {
 		return properties;
+	}
+	
+	class TaskPropertyLookup implements PropertyLookup {
+
+		private final PropertySource source =  new PropertySource() {
+				@Override
+				public String toString() {
+					return TaskExecutionService.this.toString();
+				}
+			};
+	
+		@Override
+		public String lookup(String propertyName) {
+			return properties.getProperty(propertyName);
+		}
+
+		@Override
+		public PropertySource sourceFor(String propertyName) {
+			if (properties.containsKey(propertyName)) {
+				return source;
+			}
+			else {
+				return null;
+			}
+		}
+		
+		@Override
+		public Set<String> propertyNames() {
+			return properties.stringPropertyNames();
+		}
 	}
 }

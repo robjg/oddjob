@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <task-service id="hello-service">
+                    <job>
+                        <echo><![CDATA[Hello ${some.name}.]]></echo>
+                    </job>
+                </task-service>
+                <task-request taskExecutor="${hello-service}">
+                    <properties>
+                        <properties>
+                            <values>
+                                <value key="some.name" value="Rod"/>
+                            </values>
+                        </properties>
+                    </properties>
+                </task-request>
+                <task-request taskExecutor="${hello-service}">
+                    <properties>
+                        <properties>
+                            <values>
+                                <value key="some.name" value="Jane"/>
+                            </values>
+                        </properties>
+                    </properties>
+                </task-request>
+                <task-request taskExecutor="${hello-service}">
+                    <properties>
+                        <properties>
+                            <values>
+                                <value key="some.name" value="Freddy"/>
+                            </values>
+                        </properties>
+                    </properties>
+                </task-request>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

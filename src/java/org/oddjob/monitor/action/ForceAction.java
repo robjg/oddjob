@@ -38,7 +38,7 @@ public class ForceAction extends JobAction {
 	}
 	
 	public KeyStroke getAcceleratorKey() {
-		return null;
+		return Standards.FORCE_ACCELERATOR_KEY;
 	}
 
 	@Override

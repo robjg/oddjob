@@ -54,7 +54,7 @@ public class ExplorerJobActionsTest extends TestCase {
 	
 		assertEquals("Job", actionRegistry.mainMenu.getId());
 		
-		assertEquals("Run", actionRegistry.names.get(0));
+		assertEquals("Start", actionRegistry.names.get(0));
 		assertEquals("Stop", actionRegistry.names.get(1));
 	}
 	
