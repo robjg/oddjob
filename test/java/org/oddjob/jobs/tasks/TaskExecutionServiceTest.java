@@ -27,7 +27,33 @@ public class TaskExecutionServiceTest extends TestCase {
 		logger.info("--------------------  " + getName() + "  ------------------");
 	}
 	
-	public void testExample() throws ArooaPropertyException, ArooaConversionException, TaskException {
+	public void testTaskResponseIsSetCorrectly() throws ArooaPropertyException, ArooaConversionException, TaskException {
+		
+		File file = new File(getClass().getResource(
+				"TaskExecutorServiceResponse.xml").getFile());
+		
+		Oddjob oddjob = new Oddjob();
+		oddjob.setFile(file);
+		
+		oddjob.run();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		TaskExecutionService test = lookup.lookup("hello-service", 
+				TaskExecutionService.class);
+		
+		Properties properties = new Properties();
+		
+		properties.setProperty("some.name", "Jane");
+		
+		TaskView taskView = test.execute(new BasicTask(properties));
+		
+		assertEquals(TaskState.COMPLETE, taskView.lastStateEvent().getState());
+		
+		assertEquals("Hello Jane.", taskView.getTaskResponse());
+	}
+	
+	public void testSimpleRequestAndExecuteExample() throws ArooaPropertyException, ArooaConversionException, TaskException {
 		
 		File file = new File(getClass().getResource(
 				"ParameterisedExample.xml").getFile());
@@ -51,7 +77,11 @@ public class TaskExecutionServiceTest extends TestCase {
 		properties.setProperty("favourite.fruit", "banana");
 		properties.setProperty("favourite.colour", "blue");
 		
-		test.execute(new BasicTask(properties));
+		TaskView taskView = test.execute(new BasicTask(properties));
+		
+		assertEquals(TaskState.COMPLETE, 
+				taskView.lastStateEvent().getState());
+		assertEquals("OK", taskView.getTaskResponse());
 		
 		String text = lookup.lookup("echo.text", String.class);
 		
@@ -61,7 +91,11 @@ public class TaskExecutionServiceTest extends TestCase {
 		properties.setProperty("favourite.fruit", "kiwi");
 		properties.setProperty("favourite.colour", "pink");
 		
-		test.execute(new BasicTask(properties));
+		taskView = test.execute(new BasicTask(properties));
+		
+		assertEquals(TaskState.COMPLETE, 
+				taskView.lastStateEvent().getState());
+		assertEquals("OK", taskView.getTaskResponse());
 		
 		text = lookup.lookup("echo.text", String.class);
 		

@@ -85,10 +85,17 @@ public class OddjobMBeanFactory implements ServerSession {
 	 */
 	public void destroy(ObjectName objName) throws JMException {
 
+		if (objName == null) {
+			throw new NullPointerException("No Object Name.");
+		}
+		
 		OddjobMBean ojmb = null;
 		
 		synchronized (this) {
 			ojmb = mBeans.remove(objName);
+			if (ojmb == null) {
+				throw new IllegalStateException("No MBean named " + objName);
+			}
 			names.remove(ojmb.getNode());
 		}
 		
@@ -96,7 +103,7 @@ public class OddjobMBeanFactory implements ServerSession {
 		
 		server.unregisterMBean(objName);
 		
-		logger.debug("Unregistered and destroyed OddjobMBean [" + objName.toString() + "]");
+		logger.debug("Unregistered and destroyed [" + ojmb + "]");
 	}
 	
 	/**

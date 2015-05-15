@@ -37,7 +37,6 @@ public interface ServerInterfaceHandler {
 	 * 
 	 * @param actionName The action (method) name.
 	 * @param params The parameter object array.
-	 * @param signature The parameter types as class names.
 	 * 
 	 * @return The result if any.
 	 * 

@@ -14,8 +14,7 @@
 					className="org.oddjob.Loadable"/>
                 <bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
                     className="org.oddjob.Forceable"/>
-                <bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
-                    className="org.oddjob.jobs.tasks.TaskExecutor"/>
+                <bean class="org.oddjob.jmx.handlers.TaskExecutorHandlerFactory"/>
 			</values>
 		</list>
 	</handlerFactories>

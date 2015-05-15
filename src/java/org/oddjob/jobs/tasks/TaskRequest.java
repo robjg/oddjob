@@ -30,6 +30,8 @@ public class TaskRequest extends SerializableJob {
 	
 	private Properties properties;
 	
+	private TaskView taskView;
+	
 	/**
 	 * Set the stop node directly.
 	 * 
@@ -58,7 +60,7 @@ public class TaskRequest extends SerializableJob {
 			throw new OddjobConfigException("A job to start must be provided.");
 		}		
 		
-		taskExecutor.execute(new BasicTask(properties));
+		taskView = taskExecutor.execute(new BasicTask(properties));
 		
 		return 0;	
 	}
@@ -69,5 +71,9 @@ public class TaskRequest extends SerializableJob {
 
 	public void setProperties(Properties properties) {
 		this.properties = properties;
-	}	
+	}
+	
+	public Object getResponse() {
+		return taskView.getTaskResponse();
+	}
 }

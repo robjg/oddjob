@@ -22,7 +22,7 @@ import org.oddjob.jmx.Utils;
  * A MBean which wraps an object providing an Oddjob management interface to the
  * object.
  * <p>
- * Once the bean is created it will sit and wait for clients to interrigate it. When
+ * Once the bean is created it will sit and wait for clients to interrogate it. When
  * a client accesses the bean it should call the resync method which will cause the
  * bean to resend the notifications necessary to recreate in the client, the state 
  * of the bean. During the resync the InterfaceHandlers should block any any more
@@ -223,7 +223,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 * Destroy this node. Notify all remote listeners their peer is dead.
 	 */
 	public void destroy() {
-		logger.debug("Destroying OddjobMBean for [" + node + "]");
+		logger.debug("Destroying [" + this + "]");
 		serverInterfaceManager.destroy();
 	}
 
@@ -243,8 +243,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		public void noop() {
 		}
 	}
-	
-	
+		
 	class Toolkit implements ServerSideToolkit {
 	
 		
@@ -286,5 +285,11 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		public ServerSession getServerSession() {
 			return factory;
 		}
-	}	
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " for [" + node + 
+				"], name " + objectName;
+	}
 }

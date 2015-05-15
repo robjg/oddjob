@@ -15,7 +15,8 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
-import org.oddjob.arooa.runtime.Evaluator;
+import org.oddjob.arooa.runtime.ExpressionParser;
+import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.ListSetterHelper;
@@ -51,7 +52,7 @@ implements TaskExecutor, Structural {
 	
 	private volatile ResetAction reset;
 	
-	private volatile String responseExpression;
+	private volatile String response;
 	
 	@Override
 	public void setArooaSession(ArooaSession session) {
@@ -119,12 +120,13 @@ implements TaskExecutor, Structural {
 			@Override
 			protected Object onDone() {
 				
+				String responseExpression = response;
 				if (responseExpression != null) {
-					Evaluator evaluator = session.getTools().getEvaluator();
+					ExpressionParser parser = session.getTools().getExpressionParser();
 
 					try {
-						return evaluator.evaluate(
-								responseExpression, session, Object.class);
+						ParsedExpression expression = parser.parse(responseExpression);
+						return expression.evaluate(session, String.class);
 					}
 					catch (ArooaConversionException e) {
 						return "Failed to evaluate response" + e.toString();
@@ -132,7 +134,12 @@ implements TaskExecutor, Structural {
 					
 				}
 				return "OK";
-			}	
+			}
+			
+			@Override
+			public String toString() {
+				return "TaskView for " + TaskExecutionService.this.toString();
+			}
 		};
 		
 		return taskView;
@@ -234,5 +241,13 @@ implements TaskExecutor, Structural {
 		public Set<String> propertyNames() {
 			return properties.stringPropertyNames();
 		}
+	}
+
+	public String getResponse() {
+		return response;
+	}
+
+	public void setResponse(String responseExpression) {
+		this.response = responseExpression;
 	}
 }

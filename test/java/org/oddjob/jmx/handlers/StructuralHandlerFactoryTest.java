@@ -18,7 +18,6 @@ import javax.management.ReflectionException;
 import junit.framework.TestCase;
 
 import org.oddjob.Structural;
-import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSession;
@@ -39,16 +38,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 
 	int unique;
 	
-	class OurHierarchicalRegistry extends MockBeanRegistry {
-		
-		@Override
-		public String getIdFor(Object component) {
-			assertNotNull(component);
-			return "x" + unique++;
-		}
-	}
-
-	class OurServerSideToolkit extends MockServerSideToolkit {
+	private class OurServerSideToolkit extends MockServerSideToolkit {
 		List<Notification> notifications = new ArrayList<Notification>();
 
 		Map<ObjectName, Object> children = new HashMap<ObjectName, Object>(); 
@@ -106,7 +96,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		}
 	}
 	
-	class MyStructural implements Structural {
+	private class MyStructural implements Structural {
 		ChildHelper<Object> helper = new ChildHelper<Object>(this);
 		public void addStructuralListener(StructuralListener listener) {
 			helper.addStructuralListener(listener);
@@ -194,9 +184,8 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		assertTrue(structural.helper.isNoListeners());
 	}
 	
-	class OurClientToolkit extends MockClientSideToolkit {
+	private class OurClientToolkit extends MockClientSideToolkit {
 		
-		boolean subscribed;
 		NotificationListener handler;
 		
 		Map<ObjectName, Object> created = 
@@ -209,7 +198,6 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
 				throws Throwable {
 			if (StructuralHandlerFactory.SYNCHRONIZE.equals(remoteOperation)) {
-				subscribed = true;
 				return (T) new Notification[0];
 			}
 			return null;
@@ -248,7 +236,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		}
 	}
 	
-	class ResultListener implements StructuralListener {
+	private class ResultListener implements StructuralListener {
 		
 		List<Object> children = new ArrayList<Object>();
 		
@@ -261,7 +249,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		}
 	}
 	
-	class OurStructural implements Structural {
+	private class OurStructural implements Structural {
 		public void addStructuralListener(StructuralListener listener) {
 		}
 		public void removeStructuralListener(StructuralListener listener) {
