@@ -1,9 +1,16 @@
 package org.oddjob.jobs.tasks;
 
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.OddjobException;
+import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SerializableJob;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -15,10 +22,11 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestExample.xml} 
  * 
- * @author Rob
+ * @author Rob              
  */
 
-public class TaskRequest extends SerializableJob {
+public class TaskRequest extends SerializableJob 
+implements Stoppable {
     private static final long serialVersionUID = 2015050500L;
 
 	/** 
@@ -28,9 +36,23 @@ public class TaskRequest extends SerializableJob {
 	 */
 	private transient TaskExecutor taskExecutor;
 	
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description Properties to execute the task with.
+	 * @oddjob.required No.
+	 */
 	private Properties properties;
 	
-	private TaskView taskView;
+	/** 
+	 * @oddjob.property
+	 * @oddjob.description Wait for the target job to finish executing. 
+	 * @oddjob.required No, defaults to false.
+	 */
+	private volatile boolean join = true;
+		
+	private volatile Object response;
+	
+	private volatile transient Thread thread;
 	
 	/**
 	 * Set the stop node directly.
@@ -60,11 +82,50 @@ public class TaskRequest extends SerializableJob {
 			throw new OddjobConfigException("A job to start must be provided.");
 		}		
 		
-		taskView = taskExecutor.execute(new BasicTask(properties));
+		TaskView taskView = taskExecutor.execute(new BasicTask(properties));
 		
-		return 0;	
+		if (join) {
+			final CountDownLatch countDown = new CountDownLatch(1);
+			
+			taskView.addStateListener(new StateListener() {
+				
+				@Override
+				public void jobStateChange(StateEvent event) {
+					if (!event.getState().isStoppable()) {
+						countDown.countDown();
+					}
+				}
+			});
+			
+			thread = Thread.currentThread();
+			countDown.await();
+			thread = null;
+		}
+		
+		response = taskView.getTaskResponse();
+		
+		State state = taskView.lastStateEvent().getState();
+		
+		if (state.isException()) {
+			throw new OddjobException("Exception in Task.", 
+					taskView.lastStateEvent().getException());
+		}
+		if (state.isIncomplete()) {
+			return 1;
+		}
+		return 0;
 	}
 
+	@Override
+	protected void onStop() throws FailedToStopException {
+		super.onStop();
+		
+		Thread thread = this.thread;
+		if (thread != null) {
+			thread.interrupt();
+		}
+	}
+	
 	public Properties getProperties() {
 		return properties;
 	}
@@ -74,6 +135,6 @@ public class TaskRequest extends SerializableJob {
 	}
 	
 	public Object getResponse() {
-		return taskView.getTaskResponse();
+		return response;
 	}
 }
