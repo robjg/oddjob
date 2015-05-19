@@ -31,39 +31,58 @@ abstract public class JobTaskView implements TaskView {
 			final State state = event.getState();
 			final Date time = event.getTime();
 			
+			// Called before the event is fired so the response will
+			// be known by clients waiting for the complete event.
 			if (StateConditions.DONE.test(state)) {
 				response = onDone();
+			}
+			
+			if (StateConditions.FINISHED.test(state)) {
+				event.getSource().removeStateListener(this);
 			}
 			
 			stateHandler.callLocked(new Callable<Void>() {
 				@Override
 				public Void call() throws Exception {
 					
+					TaskState newState;
+					Throwable exception = null;
+					
 					if (state.isDestroyed()) {
-						stateHandler.setStateException(
-								TaskState.EXCEPTION,
-								new TaskException("Job Executing Task has been destroyed."),
-								time);
+						newState = TaskState.EXCEPTION;
+						exception = new TaskException("Job Executing Task has been destroyed.");
 					}
 					else if (state.isStoppable()) {
-						stateHandler.setState(TaskState.INPROGRESS,time);
+						newState = TaskState.INPROGRESS;
 					}
 					else if (state.isIncomplete()) {
-						stateHandler.setState(TaskState.INCOMPLETE, time);
+						newState = TaskState.INCOMPLETE;
 					}
 					else if (state.isComplete()) {
-						stateHandler.setState(TaskState.COMPLETE, time);
+						newState = TaskState.COMPLETE;
 					}
 					else if (state.isException()) {
-						stateHandler.setStateException(
-								TaskState.EXCEPTION,
-								event.getException(), time);
+						newState = TaskState.EXCEPTION;
+						exception = event.getException();
 					}
 					else if (state.isReady()) {
-						stateHandler.setState(TaskState.PENDING, time);
+						newState = TaskState.PENDING;
 					}
 					else {
 						throw new IllegalStateException("Unconvertable state " + state);
+					}
+					
+					if (newState == stateHandler.lastStateEvent().getState()) {
+						return null;
+					}
+					
+					if (newState == TaskState.EXCEPTION) {
+						stateHandler.setStateException(
+								TaskState.EXCEPTION,
+								exception, time);
+					}
+					else {
+						stateHandler.setState(newState, time);
 					}
 					
 					stateHandler.fireEvent();

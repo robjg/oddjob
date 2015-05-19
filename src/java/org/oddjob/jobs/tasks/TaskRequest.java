@@ -9,6 +9,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.state.State;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.OddjobConfigException;
@@ -91,7 +92,10 @@ implements Stoppable {
 				
 				@Override
 				public void jobStateChange(StateEvent event) {
-					if (!event.getState().isStoppable()) {
+					logger().debug("Received State [" + event.getState() + 
+							"]");
+					
+					if (StateConditions.FINISHED.test(event.getState())) {
 						countDown.countDown();
 					}
 				}
@@ -103,6 +107,8 @@ implements Stoppable {
 		}
 		
 		response = taskView.getTaskResponse();
+		
+		logger().debug("Set resonse to [" + response + "]");
 		
 		State state = taskView.lastStateEvent().getState();
 		
