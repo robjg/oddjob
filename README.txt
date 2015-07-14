@@ -13,8 +13,10 @@ Changes in 1.5.0
   at the state before issuing either a hard or soft reset. Changed Reset Job 
   to use the new actions.
 - Added an optional Reset Action to Run Job.
-- Oddjob Explorer Run Action now Auto resets the job it's running.
-- Added an TaskExecutable concept to allow jobs to be run with
+- Changed the Explorer Run action to be Start. This reflects that it is used
+  to start timers and services as well as starting the running of jobs.
+- Oddjob Explorer Start Action (was Run) now Auto resets the job it's running.
+- Added an TaskExecutor concept to allow jobs to be run with
   parameters.
 - Cascade now has cascadeOn and haltOn properties, this allows a cascade 
   to cascade either when a Timer is STARTED or COMPLEETE

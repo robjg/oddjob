@@ -109,6 +109,16 @@ public enum StateConditions implements StateCondition {
 	},
 		
 	/**
+	 * The state is either COMPLETE or EXCEPTION.
+	 */
+	NOT_INCOMPLETE() {
+		@Override
+		public boolean test(State state) {
+			return state.isComplete() || state.isException();
+		}
+	},
+	
+	/**
 	 * Like {@link #COMPLETE} but also stopped. Applicable to services
 	 * which are complete when started.
 	 */
@@ -176,6 +186,9 @@ public enum StateConditions implements StateCondition {
 		}
 	},
 	
+	/**
+	 * Always true.
+	 */
 	ANY() {
 		@Override
 		public boolean test(State state) {
@@ -183,6 +196,9 @@ public enum StateConditions implements StateCondition {
 		}
 	},
 	
+	/**
+	 * Always false.
+	 */
 	NONE() {
 		@Override
 		public boolean test(State state) {
