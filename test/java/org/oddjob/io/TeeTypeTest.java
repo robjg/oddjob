@@ -49,7 +49,7 @@ public class TeeTypeTest extends TestCase {
 		oddjob.setProperties(properties);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		
@@ -74,7 +74,7 @@ public class TeeTypeTest extends TestCase {
 		oddjob.setFile(config);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		

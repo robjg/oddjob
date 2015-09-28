@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.oddjob.OddjobConsole;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
@@ -40,20 +41,41 @@ public class ConsoleCapture {
 	
 	private LogArchive archive;
 	
-	public void capture(LogArchive archive) {
+	public Close captureConsole() {
+		final OddjobConsole.Close oddjobConsoleClose = OddjobConsole.initialise();
+		
+		final Close consoleArchiveClose = capture(OddjobConsole.console());
+		
+		return new Close() {
+			@Override
+			public void close() {
+				consoleArchiveClose.close();
+				oddjobConsoleClose.close();
+			}
+		};
+	}
+	
+	public Close capture(LogArchive archive) {
 		if (this.archive != null) {
 			throw new IllegalStateException("Already listening to " + archive);
 		}
 
 		this.archive = archive;
 		archive.addListener(console, LogLevel.INFO, -1, 0);
+		
+		return new Close() {
+			@Override
+			public void close() {
+				ConsoleCapture.this.close();
+			}
+		};
 	}
 
 	public void close() {
 		if (archive != null) {
 			archive.removeListener(console);
+			archive = null;
 		}
-		archive = null;
 	}
 	
 	public String[] getLines() {
@@ -86,5 +108,10 @@ public class ConsoleCapture {
 			logger.info(console.lines.get(logged).replaceFirst("\r?\n?$", ""));
 		}
 		logger.info("******************");
+	}
+
+	public static interface Close extends AutoCloseable {
+		
+		public void close();
 	}
 }

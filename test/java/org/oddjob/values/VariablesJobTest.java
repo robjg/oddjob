@@ -308,7 +308,7 @@ public class VariablesJobTest extends TestCase {
     			"org/oddjob/values/VariablesExample.xml",
     			getClass().getClassLoader()));
     	ConsoleCapture console = new ConsoleCapture();
-    	console.capture(Oddjob.CONSOLE);
+    	console.captureConsole();
     	
     	oddjob.run();
     	

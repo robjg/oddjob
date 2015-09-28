@@ -15,6 +15,13 @@ public class ConsoleInputHandlerTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(
 			ConsoleInputHandlerTest.class);
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("--------------------------  " + getName() + "  -------------------------");
+	}
+	
 	public void testMultiplePrompts() {
 		
 		OurDirs dirs = new OurDirs();

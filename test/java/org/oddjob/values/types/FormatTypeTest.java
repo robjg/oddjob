@@ -116,7 +116,7 @@ public class FormatTypeTest extends TestCase {
 		oddjob.setFile(file);
 		oddjob.setExport("our-clock", new ArooaObject(ourClock));
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		

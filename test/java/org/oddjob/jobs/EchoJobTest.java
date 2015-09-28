@@ -19,6 +19,13 @@ import org.oddjob.tools.OurDirs;
 public class EchoJobTest extends TestCase {
 
 	private static final Logger logger = Logger.getLogger(EchoJobTest.class);
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("------------------  " + getName() + "  -----------------------");
+	}
 	
 	public void testInOddjob1() throws Exception {
 		
@@ -65,7 +72,7 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		
@@ -91,7 +98,7 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		
@@ -120,7 +127,7 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		

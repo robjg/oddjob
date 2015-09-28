@@ -5,10 +5,10 @@
 				<rmireg />
 				<variables id='result' />
 				<jmx:server id='server1'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1' root='${fruit}' />
+					url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherTest_together1_server1' root='${fruit}' />
 				<jmx:client id='client1' connection='${server1.address}' />
 				<jmx:server id='server2'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server2' root='${client1}' />
+					url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherTest_together1_server2' root='${client1}' />
 				<jmx:client id='client2' connection='${server2.address}' />
 				<echo id='fruit'>apples</echo>
 				<wait for='${client2/client1/fruit}' />

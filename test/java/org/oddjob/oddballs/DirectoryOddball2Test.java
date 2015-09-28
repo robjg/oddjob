@@ -26,6 +26,6 @@ public class DirectoryOddball2Test extends TestCase {
 		
 		assertTrue(set.contains(
 				new File(dirs.base(), 
-						"lib/commons-logging.jar").getCanonicalFile().toURI().toURL()));
+						"lib/commons-logging-1.1.1.jar").getCanonicalFile().toURI().toURL()));
 	}
 }

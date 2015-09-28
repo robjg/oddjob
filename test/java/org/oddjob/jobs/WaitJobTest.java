@@ -279,7 +279,7 @@ public class WaitJobTest extends TestCase {
 		echoStates.startCheck(JobState.READY, JobState.EXECUTING,
 				JobState.COMPLETE);
 
-		BeanUtils.setProperty(children[0], "text", "Hello");
+		PropertyUtils.setProperty(children[0], "text", "Hello");
 
 		echoStates.setTimeout(20000);
 		echoStates.checkWait();

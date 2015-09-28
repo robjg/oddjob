@@ -1,6 +1,7 @@
 package org.oddjob.jobs.job;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -55,7 +56,7 @@ public class ResetJobTest extends TestCase {
 		
 	}
 	
-	public void testResetForceExample() {
+	public void testResetForceExample() throws IOException {
 		
 		File file = new File(getClass().getResource(
 				"ResetForceExample.xml").getFile());
@@ -64,17 +65,17 @@ public class ResetJobTest extends TestCase {
 		oddjob.setFile(file);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
 		
-		oddjob.run();
+		try (ConsoleCapture.Close closeable = console.captureConsole()) {
 		
-		console.close();
+			oddjob.run();		
+		}
 		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
-		assertEquals(0, console.getLines().length);
-		
+        assertEquals(ParentState.COMPLETE, 
+                oddjob.lastStateEvent().getState());
+        
+        assertEquals(0, console.getLines().length);
+        
 		oddjob.destroy();
 	}
 }

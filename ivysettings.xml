@@ -1,0 +1,5 @@
+<ivysettings>
+  <properties file="${ivy.default.ivy.user.dir}/ivy.properties"/>
+  <property name="ivy.global.settings.dir" value="${ivy.default.settings.dir}" override="false"/>
+  <include url="${ivy.global.settings.dir}/ivysettings.xml"/>
+</ivysettings>

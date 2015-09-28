@@ -355,7 +355,7 @@ public class FilesTypeTest extends TestCase {
 		oddjob.setArgs(new String[] { "d.jar", "e.jar" });
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		

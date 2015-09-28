@@ -14,6 +14,7 @@ import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
 
 public class TogetherLookupTest extends TestCase {
 	
@@ -26,7 +27,7 @@ public class TogetherLookupTest extends TestCase {
 			"   <jobs>" +
 			"    <rmireg />" +
 			"    <jmx:server id='server1'" +
-			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
+			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherLookupTest_testSameRegistry'" +
 			"            root='${fruit}' />" +
 			" 	 <echo id='fruit'>apples</echo>" +
 			"   </jobs>" +
@@ -39,6 +40,8 @@ public class TogetherLookupTest extends TestCase {
 
 		oddjob.run();
 		
+		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
+		
 		String address = new OddjobLookup(
 				oddjob).lookup("server1.address", String.class);
 		
@@ -50,7 +53,7 @@ public class TogetherLookupTest extends TestCase {
 		
 		RemoteDirectory remote = client.provideBeanDirectory();
 		
-		assertEquals("/jndi/rmi://localhost/server1",
+		assertEquals("/jndi/rmi://localhost/TogetherLookupTest_testSameRegistry",
 				remote.getServerId().toString());
 
 		Object fruit = remote.lookup("fruit");
@@ -75,7 +78,7 @@ public class TogetherLookupTest extends TestCase {
 			"   <jobs>" +
 			"    <rmireg />" +
 			"    <jmx:server id='server1'" +
-			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
+			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherLookupTest_testDifferentRegistrySameServer'" +
 			"            root='${fruit}' />" +
 			"    <oddjob id='fruit'>" +
 			"     <configuration>" +
@@ -131,7 +134,7 @@ public class TogetherLookupTest extends TestCase {
 			"   <jobs>" +
 			"    <rmireg />" +
 			"    <jmx:server id='server2'" +
-			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server2'" +
+			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherLookupTest_testDifferentServer2'" +
 			"            root='${apples}' />" +
 			" 	 <echo id='apples'>apples</echo>" +
 			"   </jobs>" +
@@ -151,7 +154,7 @@ public class TogetherLookupTest extends TestCase {
 			"   <jobs>" +
 			"    <rmireg />" +
 			"    <jmx:server id='server1'" +
-			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
+			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherLookupTest_testDifferentServer1'" +
 			"            root='${fruit}' />" +
 			"    <jmx:client id='fruit' connection='${this.args[0]}' />" +
 			"   </jobs>" +

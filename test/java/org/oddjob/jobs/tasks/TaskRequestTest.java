@@ -33,7 +33,7 @@ public class TaskRequestTest extends TestCase {
 		oddjob.setFile(file);
 		
 		ConsoleCapture capture = new ConsoleCapture();
-		capture.capture(Oddjob.CONSOLE);
+		capture.captureConsole();
 		
 		oddjob.run();
 		

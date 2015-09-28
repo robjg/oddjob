@@ -44,7 +44,7 @@ public class OddjobNestedTest extends TestCase {
 		oj.setFile(file);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 						
         oj.run();
 

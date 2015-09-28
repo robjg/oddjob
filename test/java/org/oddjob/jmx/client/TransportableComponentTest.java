@@ -12,6 +12,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
+import org.oddjob.OddjobConsole;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ClassResolver;
@@ -88,61 +89,64 @@ public class TransportableComponentTest extends TestCase {
 	 */
 	public void testRoundTrip() throws Exception {
 		
-		// simulate a server side with two components in a
-		// folder.
-		
-		MyComponent c1 = new MyComponent();
-		MyComponent c2 = new MyComponent();
-		
-		JobFolder folder = new JobFolder();
-		folder.setJobs(0, c1);
-		folder.setJobs(0, c2);
-
-		ServerInterfaceManagerFactoryImpl imf = 
-			new ServerInterfaceManagerFactoryImpl();
-		
-		imf.addServerHandlerFactories(
-				new ServerInterfaceHandlerFactory<?, ?>[] {
-					new StructuralHandlerFactory()	
-				});
-		
-		ServerModel sm = new ServerModelImpl(
-				new ServerId("//whatever"), 
-				new MockThreadManager(), 
-				imf);
-		
-		ServerContext serverContext = new ServerContextImpl(
-				folder, sm, new SimpleBeanRegistry());
-		
-		MBeanServer mbs = MBeanServerFactory.createMBeanServer();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
 			
-		OddjobMBeanFactory factory = new OddjobMBeanFactory(mbs, 
-				new StandardArooaSession());
-		ObjectName on = factory.createMBeanFor(folder, serverContext); 
-		
-		// client side.
-		ClientSession clientSession = new ClientSessionImpl(				
-				mbs, 
-				new DummyNotificationProcessor(),
-				new OurArooaSession(),
-				logger);
-		
-		Object folderProxy = clientSession.create(on);
-		
-		assertNotNull(folderProxy);
-		
-		Object[] children = OddjobTestHelper.getChildren((Structural) folderProxy);
-		
-		Object c1Proxy = children[0];
-		assertNotNull(c1Proxy);
-		Object c2Proxy = children[1];
-		assertNotNull(c2Proxy);
-		
-		PropertyUtils.setProperty(c1Proxy, "another", c2Proxy);
-		
-		Object result = PropertyUtils.getProperty(c1Proxy, "anotherReally");
-		
-		assertEquals(c2Proxy, result);
+			// simulate a server side with two components in a
+			// folder.
+			
+			MyComponent c1 = new MyComponent();
+			MyComponent c2 = new MyComponent();
+			
+			JobFolder folder = new JobFolder();
+			folder.setJobs(0, c1);
+			folder.setJobs(0, c2);
+	
+			ServerInterfaceManagerFactoryImpl imf = 
+				new ServerInterfaceManagerFactoryImpl();
+			
+			imf.addServerHandlerFactories(
+					new ServerInterfaceHandlerFactory<?, ?>[] {
+						new StructuralHandlerFactory()	
+					});
+			
+			ServerModel sm = new ServerModelImpl(
+					new ServerId("//whatever"), 
+					new MockThreadManager(), 
+					imf);
+			
+			ServerContext serverContext = new ServerContextImpl(
+					folder, sm, new SimpleBeanRegistry());
+			
+			MBeanServer mbs = MBeanServerFactory.createMBeanServer();
+				
+			OddjobMBeanFactory factory = new OddjobMBeanFactory(mbs, 
+					new StandardArooaSession());
+			ObjectName on = factory.createMBeanFor(folder, serverContext); 
+			
+			// client side.
+			ClientSession clientSession = new ClientSessionImpl(				
+					mbs, 
+					new DummyNotificationProcessor(),
+					new OurArooaSession(),
+					logger);
+			
+			Object folderProxy = clientSession.create(on);
+			
+			assertNotNull(folderProxy);
+			
+			Object[] children = OddjobTestHelper.getChildren((Structural) folderProxy);
+			
+			Object c1Proxy = children[0];
+			assertNotNull(c1Proxy);
+			Object c2Proxy = children[1];
+			assertNotNull(c2Proxy);
+			
+			PropertyUtils.setProperty(c1Proxy, "another", c2Proxy);
+			
+			Object result = PropertyUtils.getProperty(c1Proxy, "anotherReally");
+			
+			assertEquals(c2Proxy, result);
+		}
 	}
 	
 }

@@ -2,6 +2,7 @@ package org.oddjob.beanbus.destinations;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -123,7 +124,9 @@ implements ArooaSessionAware {
 		out.println("Type: " + type);
 		out.println(" Properties:");
 		BeanOverview overview = type.getBeanOverview(accessor);
-		for (String property : overview.getProperties()) {
+		String[] properties = overview.getProperties();
+		Arrays.sort(properties);
+		for (String property : properties) {
 			out.println("  " + property + ": " + 
 					overview.getPropertyType(property).getName() +
 					(overview.isIndexed(property) ? ", indexed" : "") +

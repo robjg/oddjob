@@ -24,7 +24,7 @@ public class ConvertTypeExamplesTest extends TestCase {
 				getClass().getClassLoader()));
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		
@@ -57,7 +57,7 @@ public class ConvertTypeExamplesTest extends TestCase {
 		oddjob.setFile(file);
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		

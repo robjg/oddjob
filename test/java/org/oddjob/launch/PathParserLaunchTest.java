@@ -51,7 +51,7 @@ public class PathParserLaunchTest extends TestCase {
 
 		OurDirs dirs = new OurDirs();
 		
-		File buildTest = new File(dirs.base(), "build/test");
+		File buildTest = new File(dirs.base(), "build/test/classes");
 		assertTrue("Tests must have been built with ant.", buildTest.exists());
 		
 		String xml = 
@@ -59,7 +59,7 @@ public class PathParserLaunchTest extends TestCase {
 			" <job>" +
 			"  <exec id='exec'>" +
 			" java -jar \"" + new File(dirs.base(), RUN_JAR).getPath() + "\"" +
-			" -cp \"${this.args[0]}/build/test\"" +
+			" -cp \"${this.args[0]}/build/test/classes\"" +
 			" -l \"${this.args[0]}/test/launch/log4j.properties\"" +
 			" -f \"${this.args[0]}/test/launch/classpath-test1.xml\"" +
 			"  </exec>" +

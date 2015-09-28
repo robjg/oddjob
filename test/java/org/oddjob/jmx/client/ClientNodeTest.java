@@ -34,6 +34,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.log4j.Logger;
+import org.oddjob.OddjobConsole;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ClassResolver;
@@ -447,42 +448,46 @@ public class ClientNodeTest extends TestCase {
 	
 	// and this test uses an OddjobMBean get. 
 	public void testBean() throws Exception {
-		Object o = new Bean();
-		ServerModel sm = new ServerModelImpl(
-				new ServerId("//whatever"), 
-				new MockThreadManager(), 
-				new ServerInterfaceManagerFactoryImpl()
-			);
 		
-		ServerContext srvcon = new ServerContextImpl(o, sm, 
-				new OurHierarchicalRegistry());
-
-		Object mb = new OddjobMBean(o, OddjobMBeanFactory.objectName(0),
-				new OurServerSession(), srvcon);
-		
-		MBeanServer mbs = MBeanServerFactory.createMBeanServer();
-		ObjectName on = new ObjectName("oddjob:name=whatever");
-		mbs.registerMBean(mb, on);
-
-		ClientSessionImpl clientSession = new ClientSessionImpl(
-				mbs, 
-				new DummyNotificationProcessor(), 
-				new OurArooaSession(),
-				logger);
-		
-		Object proxy = clientSession.create(on);
-		
-		assertNotNull(proxy);
-		
-		ArooaSession session = new StandardArooaSession(); 
-		Map<String, String> map = new UniversalDescriber(
-				session).describe(proxy);
-		assertNotNull(map);
-		
-		BeanUtilsPropertyAccessor bubh = new BeanUtilsPropertyAccessor();
-		
-		Object gotten = bubh.getProperty(proxy, "fred.fruit");
-		assertEquals("apples", gotten);
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			
+			Object o = new Bean();
+			ServerModel sm = new ServerModelImpl(
+					new ServerId("//whatever"), 
+					new MockThreadManager(), 
+					new ServerInterfaceManagerFactoryImpl()
+				);
+			
+			ServerContext srvcon = new ServerContextImpl(o, sm, 
+					new OurHierarchicalRegistry());
+	
+			Object mb = new OddjobMBean(o, OddjobMBeanFactory.objectName(0),
+					new OurServerSession(), srvcon);
+			
+			MBeanServer mbs = MBeanServerFactory.createMBeanServer();
+			ObjectName on = new ObjectName("oddjob:name=whatever");
+			mbs.registerMBean(mb, on);
+	
+			ClientSessionImpl clientSession = new ClientSessionImpl(
+					mbs, 
+					new DummyNotificationProcessor(), 
+					new OurArooaSession(),
+					logger);
+			
+			Object proxy = clientSession.create(on);
+			
+			assertNotNull(proxy);
+			
+			ArooaSession session = new StandardArooaSession(); 
+			Map<String, String> map = new UniversalDescriber(
+					session).describe(proxy);
+			assertNotNull(map);
+			
+			BeanUtilsPropertyAccessor bubh = new BeanUtilsPropertyAccessor();
+			
+			Object gotten = bubh.getProperty(proxy, "fred.fruit");
+			assertEquals("apples", gotten);
+		}
 	}
 	
 	////// Logging Test

@@ -110,7 +110,7 @@ public class InvokeJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture capture = new ConsoleCapture();
-		capture.capture(Oddjob.CONSOLE);
+		capture.captureConsole();
 		
 		oddjob.run();
 		

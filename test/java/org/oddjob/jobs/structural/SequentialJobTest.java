@@ -448,7 +448,7 @@ public class SequentialJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		StateSteps steps = new StateSteps(oddjob);
 		steps.startCheck(ParentState.READY, 

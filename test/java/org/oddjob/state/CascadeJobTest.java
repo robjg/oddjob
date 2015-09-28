@@ -591,7 +591,7 @@ public class CascadeJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		
@@ -622,7 +622,7 @@ public class CascadeJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		

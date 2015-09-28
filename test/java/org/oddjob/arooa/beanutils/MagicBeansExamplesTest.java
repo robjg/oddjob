@@ -31,7 +31,7 @@ public class MagicBeansExamplesTest extends TestCase {
 
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		

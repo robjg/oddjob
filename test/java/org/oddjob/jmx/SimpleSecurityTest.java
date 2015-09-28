@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
 import org.oddjob.OddjobComponentResolver;
+import org.oddjob.OddjobConsole;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -126,59 +127,62 @@ public class SimpleSecurityTest extends TestCase {
 	}
 	
 	public void testReadonlyAccess() throws Exception {
-		
-		OurDirs dirs = new OurDirs();
 
-		File config = dirs.relative("test/jmx");
-		
-		assertTrue(config.exists());
-		
-		EchoJob echo = new EchoJob();
-		echo.setText("Hello World");
-		
-		Object root = new OddjobComponentResolver(
-				).resolve(echo, null);
-		
-		SimpleServerSecurity security = new SimpleServerSecurity();
-		security.setPasswordFile(new File(config, "password.properties"));
-		security.setAccessFile(new File(config, "access.properties"));
-		security.setUseSSL(useSSL);
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(root);
-		server.setArooaSession(new StandardArooaSession());
-		server.setUrl("service:jmx:rmi://");
-		server.setEnvironment(security.toValue());
-		
-		server.start();
-		
-		UsernamePassword credentials = new UsernamePassword();
-		credentials.setUsername("rod");
-		credentials.setPassword("rainbow1");
-		
-		JMXClientJob client = new JMXClientJob();
-		client.setConnection(server.getAddress());
-		client.setArooaSession(new StandardArooaSession());
-		client.setEnvironment(credentials.toValue());		
-		client.run();
-		
-		Object[] children = OddjobTestHelper.getChildren(client);
-		
-		assertEquals(1, children.length);
-		
-		Object child = children[0];
-		
-		assertEquals("Echo", child.toString()); 
-		
-		assertEquals(false, child instanceof Runnable);
-		assertEquals(true, child instanceof Stateful);
-		assertEquals(true, child instanceof Iconic);
-		assertEquals(false, child instanceof Resetable);
-		assertEquals(false, child instanceof DynaBean);
-		assertEquals(true, child instanceof RemoteOddjobBean);
-				
-		client.stop();
-		server.stop();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			
+			OurDirs dirs = new OurDirs();
+	
+			File config = dirs.relative("test/jmx");
+			
+			assertTrue(config.exists());
+			
+			EchoJob echo = new EchoJob();
+			echo.setText("Hello World");
+			
+			Object root = new OddjobComponentResolver(
+					).resolve(echo, null);
+			
+			SimpleServerSecurity security = new SimpleServerSecurity();
+			security.setPasswordFile(new File(config, "password.properties"));
+			security.setAccessFile(new File(config, "access.properties"));
+			security.setUseSSL(useSSL);
+			
+			JMXServerJob server = new JMXServerJob();
+			server.setRoot(root);
+			server.setArooaSession(new StandardArooaSession());
+			server.setUrl("service:jmx:rmi://");
+			server.setEnvironment(security.toValue());
+			
+			server.start();
+			
+			UsernamePassword credentials = new UsernamePassword();
+			credentials.setUsername("rod");
+			credentials.setPassword("rainbow1");
+			
+			JMXClientJob client = new JMXClientJob();
+			client.setConnection(server.getAddress());
+			client.setArooaSession(new StandardArooaSession());
+			client.setEnvironment(credentials.toValue());		
+			client.run();
+			
+			Object[] children = OddjobTestHelper.getChildren(client);
+			
+			assertEquals(1, children.length);
+			
+			Object child = children[0];
+			
+			assertEquals("Echo", child.toString()); 
+			
+			assertEquals(false, child instanceof Runnable);
+			assertEquals(true, child instanceof Stateful);
+			assertEquals(true, child instanceof Iconic);
+			assertEquals(false, child instanceof Resetable);
+			assertEquals(false, child instanceof DynaBean);
+			assertEquals(true, child instanceof RemoteOddjobBean);
+					
+			client.stop();
+			server.stop();
+		}
 	}
 	
 	public void testClientAndServerExamples() throws ArooaParseException, DestroyFailedException, FailedToStopException {

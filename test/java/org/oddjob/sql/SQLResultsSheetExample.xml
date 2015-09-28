@@ -2,7 +2,7 @@
   <job>
     <sql>
       <connection>
-        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test"
+        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:SQLResultsSheet_Example"
           username="sa" password="" />
       </connection>
       <input>

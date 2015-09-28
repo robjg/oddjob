@@ -1,0 +1,28 @@
+<ivy-module version="2.0">
+  <info organisation="uk.co.rgordon" module="oddjob" status="integration"/>
+
+	<configurations>
+        <conf name="default" visibility="public"></conf>
+        <conf name="launch" visibility="public"></conf>
+        <conf name="test" visibility="public"></conf>
+        <conf name="tools" visibility="public"></conf>
+	</configurations>  
+        
+	<publications>
+		<artifact name="oddjob" conf="default"/>
+		<artifact name="run-oddjob" conf="launch"/>
+		<artifact name="oj-tools" conf="tools"/>
+	</publications>  
+
+	<dependencies>
+	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
+	    	conf="default->default" />
+		<dependency org="commons-io" name="commons-io" rev="2.4"
+			conf="default->default" />
+	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
+	    	conf="test->test" />
+		<dependency org="org.hsqldb" name="hsqldb" rev="2.3.3"
+			conf="test->default" />
+	</dependencies>
+  
+</ivy-module>

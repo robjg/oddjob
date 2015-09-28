@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobConsole;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -44,13 +45,22 @@ import org.oddjob.tools.WaitForChildren;
 public class JMXServerJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(JMXServerJobTest.class);
 	
-	protected void setUp() {
-		logger.debug("================= " + getName() + " ==================");
-	}
-	
 	int unique;
 	
+	OddjobConsole.Close close;
+	
 	Map<Object, String> ids = new HashMap<Object, String>();
+	
+	protected void setUp() {
+		logger.debug("================= " + getName() + " ==================");
+		close = OddjobConsole.initialise();
+	}
+	
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		close.close();
+	}
 	
 	private class OurEmptyRegistrySession extends StandardArooaSession {
 
@@ -188,7 +198,7 @@ public class JMXServerJobTest extends TestCase {
 		
 		client.stop();
 		server1.stop();
-		server2.stop();		
+		server2.stop();
 	}
 	
 	/** Test a nested oddjob. 

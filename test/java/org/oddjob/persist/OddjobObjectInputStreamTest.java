@@ -39,7 +39,8 @@ public class OddjobObjectInputStreamTest extends TestCase {
 		
 		URL[] urls = { file.toURI().toURL() };
 		
-		URLClassLoader test = new URLClassLoader(urls);
+		URLClassLoader test = new URLClassLoader(urls,
+				getClass().getClassLoader());
 						
 		Class<?> appleClass = Class.forName("fruit.Apple", true, test);
 		
@@ -94,7 +95,8 @@ public class OddjobObjectInputStreamTest extends TestCase {
 		
 		URL[] urls = { file.toURI().toURL() };
 		
-		URLClassLoader test = new URLClassLoader(urls);
+		URLClassLoader test = new URLClassLoader(urls, 
+				this.getClass().getClassLoader());
 						
 		Class<?> appleClass = Class.forName("fruit.Fruit", true, test);		
 		

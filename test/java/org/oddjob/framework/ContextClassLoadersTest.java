@@ -24,7 +24,8 @@ public class ContextClassLoadersTest extends TestCase {
 		}
 		
 		URLClassLoader classLoader = new URLClassLoader(new URL[] {
-				dirs.relative("test/classloader").toURI().toURL() });
+				dirs.relative("test/classloader").toURI().toURL() }, 
+				this.getClass().getClassLoader());
 		
 		Object comp = Class.forName("AJob", true, classLoader).newInstance();
 		

@@ -389,7 +389,7 @@ public class OddjobTest extends TestCase {
     	oddjob.setInputHandler(new OurInputHandler());
     	
     	ConsoleCapture console = new ConsoleCapture();
-    	console.capture(Oddjob.CONSOLE);
+    	console.captureConsole();
     	
     	oddjob.run();
 

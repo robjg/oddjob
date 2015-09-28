@@ -5,6 +5,7 @@ package org.oddjob.logging.console;
 
 import junit.framework.TestCase;
 
+import org.oddjob.OddjobConsole;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
@@ -38,37 +39,40 @@ public class LocalConsoleArchiverTest extends TestCase {
 	 */
 	public void testArchiveAndRetrieve() {
 
-		// Console archiver will by default be be using Oddjob.CONSOLE
-		LocalConsoleArchiver test = new LocalConsoleArchiver();
-		
-		System.out.println("Some noise");
-		
-		MyLL ll = new MyLL();
-		
-		test.addConsoleListener(ll, new Object(), -1, 1000);
-
-		synchronized (ll) {
-		
-			System.out.println("Hello");
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			
+			// Console archiver will by default be be using Oddjob.CONSOLE
+			LocalConsoleArchiver test = new LocalConsoleArchiver();
+			
+			System.out.println("Some noise");
+			
+			MyLL ll = new MyLL();
+			
+			test.addConsoleListener(ll, new Object(), -1, 1000);
+	
+			synchronized (ll) {
+			
+				System.out.println("Hello");
+					
+				long before = ll.num;
+			
+				assertEquals("Hello" + LS, ll.text);
 				
-			long before = ll.num;
-		
-			assertEquals("Hello" + LS, ll.text);
-			
-			System.out.println("World");
-			
-			assertEquals(before + 1, ll.num);
-			
-			assertEquals("World" + LS, ll.text);
-			
-			test.removeConsoleListener(ll, new Object());
-			
-			System.out.println("Won't be listened to");
-			
-			// should assert as before.
-			assertEquals(before + 1, ll.num);
-			assertEquals("World" + System.getProperty("line.separator"), ll.text);
-		}	
+				System.out.println("World");
+				
+				assertEquals(before + 1, ll.num);
+				
+				assertEquals("World" + LS, ll.text);
+				
+				test.removeConsoleListener(ll, new Object());
+				
+				System.out.println("Won't be listened to");
+				
+				// should assert as before.
+				assertEquals(before + 1, ll.num);
+				assertEquals("World" + System.getProperty("line.separator"), ll.text);
+			}	
+		}
 	}
 
 	

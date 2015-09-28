@@ -11,6 +11,7 @@ import junit.framework.TestCase;
 import org.apache.log4j.Logger;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobConsole;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogHelper;
@@ -106,48 +107,53 @@ public class DetailModelTest extends TestCase {
 	 *
 	 */
 	public void testSelect() {
-		MyLA la = new MyLA();
 		
-		MyJob myJob = new MyJob();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
 		
-		DetailModel detailModel = new DetailModel();
-		
-		OurExplorerContext context = new OurExplorerContext();
-		context.component = myJob;
-		context.logArchiver = la;
-		context.consoleArchiver = new LocalConsoleArchiver();
-		
-		// console
-		Oddjob.class.getName();
-		System.out.println("Hello");
-		detailModel.setTabSelected(DetailModel.CONSOLE_TAB);
-		logger.debug("Console selected");
-		
-		Observable consoleModel = detailModel.getConsoleModel();
-		consoleModel.addObserver(new MyO());
-		detailModel.setSelectedContext(context);
-		
-		// Why does this fail!!!
-//		assertNotNull(observable);
-		
-		// log
-		detailModel.setTabSelected(DetailModel.LOG_TAB);
-		logger.debug("Log selected");
-		logger.debug("Log de-selected");
-		detailModel.setSelectedContext(null);		
-		assertTrue(la.removed);
-		la.removed = false;
-		
-		detailModel.setTabSelected(DetailModel.STATE_TAB);
-
-		logger.debug("Tab 0 selected");
-		detailModel.setSelectedContext(context);
-		assertTrue(myJob.added);
-
-		logger.debug("Tab 0 de-selected");
-		detailModel.setSelectedContext(null);
-		assertTrue(myJob.removed);
-
+			
+			MyLA la = new MyLA();
+			
+			MyJob myJob = new MyJob();
+			
+			DetailModel detailModel = new DetailModel();
+			
+			OurExplorerContext context = new OurExplorerContext();
+			context.component = myJob;
+			context.logArchiver = la;
+			context.consoleArchiver = new LocalConsoleArchiver();
+			
+			// console
+			Oddjob.class.getName();
+			System.out.println("Hello");
+			detailModel.setTabSelected(DetailModel.CONSOLE_TAB);
+			logger.debug("Console selected");
+			
+			Observable consoleModel = detailModel.getConsoleModel();
+			consoleModel.addObserver(new MyO());
+			detailModel.setSelectedContext(context);
+			
+			// Why does this fail!!!
+	//		assertNotNull(observable);
+			
+			// log
+			detailModel.setTabSelected(DetailModel.LOG_TAB);
+			logger.debug("Log selected");
+			logger.debug("Log de-selected");
+			detailModel.setSelectedContext(null);		
+			assertTrue(la.removed);
+			la.removed = false;
+			
+			detailModel.setTabSelected(DetailModel.STATE_TAB);
+	
+			logger.debug("Tab 0 selected");
+			detailModel.setSelectedContext(context);
+			assertTrue(myJob.added);
+	
+			logger.debug("Tab 0 de-selected");
+			detailModel.setSelectedContext(null);
+			assertTrue(myJob.removed);
+		}
 	}
 	
 }
+	

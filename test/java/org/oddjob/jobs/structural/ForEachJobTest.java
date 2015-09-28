@@ -611,7 +611,7 @@ public class ForEachJobTest extends TestCase {
     			getClass().getClassLoader()));
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
     	oddjob.run();
     	
@@ -691,7 +691,7 @@ public class ForEachJobTest extends TestCase {
     	oddjob.setExport("config", configType);
     	
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
     	oddjob.run();
     	
@@ -828,7 +828,7 @@ public class ForEachJobTest extends TestCase {
     	oddjob.setConfiguration(new XMLConfiguration("XML" , ojConfig));
 
     	ConsoleCapture console = new ConsoleCapture();
-    	console.capture(Oddjob.CONSOLE);
+    	console.captureConsole();
     	
     	oddjob.run();
 
@@ -1066,7 +1066,7 @@ public class ForEachJobTest extends TestCase {
     	test.addStructuralListener(childs);
   
     	ConsoleCapture console = new ConsoleCapture();
-    	console.capture(Oddjob.CONSOLE);
+    	console.captureConsole();
     	
     	test.run();
     	

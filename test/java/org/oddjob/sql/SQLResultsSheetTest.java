@@ -5,13 +5,15 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
+import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
+import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.destinations.BeanSheetTest.Fruit;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
@@ -50,10 +52,10 @@ public class SQLResultsSheetTest extends TestCase {
 		test.writeBeans(Arrays.asList(values));
 		
 		bus.stopBus();
-		
+
 		String expected = 
-			"Red and Green  7.6    Apple   Cox" + EOL +
-			"Orange         9.245  Orange  Jaffa" + EOL;
+			"Apple   Cox      Red and Green  7.6" + EOL +
+			"Orange  Jaffa    Orange         9.245" + EOL;
 		
 		assertEquals(expected, out.toString());
 		
@@ -73,17 +75,25 @@ public class SQLResultsSheetTest extends TestCase {
 	
 	private Object[] createFruit() {
 		
-		Fruit fruit1 = new Fruit();
-		fruit1.setType("Apple");
-		fruit1.setVariety("Cox");
-		fruit1.setColour("Red and Green");
-		fruit1.setSize(7.6);
+		MagicBeanClassCreator creator = new MagicBeanClassCreator("Fruit");
+		creator.addProperty("type", String.class);
+		creator.addProperty("variety", String.class);
+		creator.addProperty("colour", String.class);
+		creator.addProperty("size", double.class);
 		
-		Fruit fruit2 = new Fruit();
-		fruit2.setType("Orange");
-		fruit2.setVariety("Jaffa");
-		fruit2.setColour("Orange");
-		fruit2.setSize(9.245);
+		ArooaClass arooaClass = creator.create();
+
+		DynaBean fruit1 = (DynaBean) arooaClass.newInstance();
+		fruit1.set("type", "Apple");
+		fruit1.set("variety", "Cox");
+		fruit1.set("colour", "Red and Green");
+		fruit1.set("size", 7.6);
+		
+		DynaBean fruit2 = (DynaBean) arooaClass.newInstance();
+		fruit2.set("type", "Orange");
+		fruit2.set("variety", "Jaffa");
+		fruit2.set("colour", "Orange");
+		fruit2.set("size", 9.245);
 
 		return new Object[] { fruit1, fruit2 };
 	}
@@ -96,11 +106,12 @@ public class SQLResultsSheetTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		
-		assertEquals(ParentState.COMPLETE, 
+		assertEquals("Failed, Exception: " + oddjob.lastStateEvent().getException(),
+				ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
 		console.close();

@@ -8,6 +8,7 @@ import javax.management.remote.rmi.RMIConnectorServer;
 import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
+import org.oddjob.OddjobConsole;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.FlagState;
@@ -23,89 +24,92 @@ public class NetworkFailureTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		logger.debug("------------------- " + getName() + " --------------");
+		logger.info("------------------- " + getName() + " --------------");
 	}
 	
 	public void testSimpleExample() throws Exception {
 	
-		FlagState root = new FlagState();
-		root.setName("Our Job");
-		
-		Map<String, Object> env = new HashMap<String, Object>();
-
-		FailableSocketFactory ssf =  
-			new FailableSocketFactory(); 
-		
-		env.put(RMIConnectorServer. 
-				RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,ssf); 
-
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(root);
-		server.setArooaSession(new StandardArooaSession());
-		server.setUrl("service:jmx:rmi://");
-		server.setEnvironment(env);
-		
-		server.start();
-		
-		JMXClientJob client = new JMXClientJob();
-		client.setConnection(server.getAddress());
-		client.setArooaSession(new StandardArooaSession());
-		client.setHeartbeat(500);
-		
-		StateSteps clientStates = new StateSteps(client);
-		clientStates.startCheck(ServiceState.STARTABLE, 
-				ServiceState.STARTING, ServiceState.STARTED);
-		
-		client.run();
-		
-		clientStates.checkNow();
-		
-		Object[] children = OddjobTestHelper.getChildren(client);
-		
-		assertEquals(1, children.length);
-		
-		Stateful child = (Stateful) children[0];
-		
-		assertEquals("Our Job", child.toString()); 
-		
-		clientStates.startCheck(ServiceState.STARTED, 
-				ServiceState.EXCEPTION);
-		
-		ssf.setFail(true);
-		
-		logger.debug("Server Job Running.");
-		
-		root.run();
-		
-		clientStates.checkWait();
-				
-		ssf.setFail(false);
-		
-		clientStates.startCheck(ServiceState.EXCEPTION, 
-				ServiceState.STARTABLE, 
-				ServiceState.STARTING,
-				ServiceState.STARTED);
-		
-		logger.debug("Client Running Again.");
-		
-		client.hardReset();
-		
-		client.run();
-		
-		clientStates.checkNow();
-		
-		children = OddjobTestHelper.getChildren(client);
-		
-		assertEquals(1, children.length);
-		
-		child = (Stateful) children[0];
-		
-		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(child));
-		assertEquals("Our Job", child.toString()); 
-		
-		client.stop();
-		
-		server.stop();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			
+			FlagState root = new FlagState();
+			root.setName("Our Job");
+			
+			Map<String, Object> env = new HashMap<String, Object>();
+	
+			FailableSocketFactory ssf =  
+				new FailableSocketFactory(); 
+			
+			env.put(RMIConnectorServer. 
+					RMI_SERVER_SOCKET_FACTORY_ATTRIBUTE,ssf); 
+	
+			JMXServerJob server = new JMXServerJob();
+			server.setRoot(root);
+			server.setArooaSession(new StandardArooaSession());
+			server.setUrl("service:jmx:rmi://");
+			server.setEnvironment(env);
+			
+			server.start();
+			
+			JMXClientJob client = new JMXClientJob();
+			client.setConnection(server.getAddress());
+			client.setArooaSession(new StandardArooaSession());
+			client.setHeartbeat(500);
+			
+			StateSteps clientStates = new StateSteps(client);
+			clientStates.startCheck(ServiceState.STARTABLE, 
+					ServiceState.STARTING, ServiceState.STARTED);
+			
+			client.run();
+			
+			clientStates.checkNow();
+			
+			Object[] children = OddjobTestHelper.getChildren(client);
+			
+			assertEquals(1, children.length);
+			
+			Stateful child = (Stateful) children[0];
+			
+			assertEquals("Our Job", child.toString()); 
+			
+			clientStates.startCheck(ServiceState.STARTED, 
+					ServiceState.EXCEPTION);
+			
+			ssf.setFail(true);
+			
+			logger.debug("Server Job Running.");
+			
+			root.run();
+			
+			clientStates.checkWait();
+					
+			ssf.setFail(false);
+			
+			clientStates.startCheck(ServiceState.EXCEPTION, 
+					ServiceState.STARTABLE, 
+					ServiceState.STARTING,
+					ServiceState.STARTED);
+			
+			logger.debug("Client Running Again.");
+			
+			client.hardReset();
+			
+			client.run();
+			
+			clientStates.checkNow();
+			
+			children = OddjobTestHelper.getChildren(client);
+			
+			assertEquals(1, children.length);
+			
+			child = (Stateful) children[0];
+			
+			assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(child));
+			assertEquals("Our Job", child.toString()); 
+			
+			client.stop();
+			
+			server.stop();
+		}
 	}
 	
 	

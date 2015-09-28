@@ -856,7 +856,9 @@ public class TimerTest extends TestCase {
     			oddjob.lastStateEvent().getState());
     	
     	Timer timer = (Timer) new OddjobLookup(oddjob).lookup("timer");
-    	timer.setClock(new ManualClock("2011-09-28 09:59:59.999"));
+    	
+    	// on slow systems might go straight to ACTIVE.
+    	timer.setClock(new ManualClock("2011-09-28 09:59:59.900"));
     	
     	StateSteps states = new StateSteps(oddjob);
     	states.startCheck(ParentState.READY, 

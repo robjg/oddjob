@@ -28,9 +28,6 @@ public class LaunchJobTest extends TestCase {
     	
 			OurDirs dirs = new OurDirs();
 			
-			ConsoleCapture console = new ConsoleCapture();
-			console.capture(Oddjob.CONSOLE);
-			
 			Oddjob oddjob = new Oddjob();
 			oddjob.setConfiguration(new XMLConfiguration(
 					"org/oddjob/jobs/LaunchExample.xml",
@@ -39,6 +36,9 @@ public class LaunchJobTest extends TestCase {
 					dirs.base().toString(),
 					Launcher.ODDJOB_MAIN_CLASS } );
 					
+			ConsoleCapture console = new ConsoleCapture();
+			console.captureConsole();
+			
 			oddjob.run();
 			
 			assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());

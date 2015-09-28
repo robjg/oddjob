@@ -62,8 +62,7 @@ public class BeanDiagnosticsTest extends TestCase {
 		
 		PropertyAccessor accessor = session.getTools().getPropertyAccessor();
 				
-		test.printTypeInfo(accessor.getClassName(new Fruit()), 
-				new PrintStream(buffer));
+		test.printTypeInfo(accessor.getClassName(new Fruit()), out);
 		
 		out.close();
 		
@@ -71,10 +70,10 @@ public class BeanDiagnosticsTest extends TestCase {
 				"Type: SimpleArooaClass: class org.oddjob.beanbus.destinations.BeanDiagnosticsTest$Fruit" + LS +
 				" Properties:" + LS +
 				"  class: java.lang.Class (Read Only)" + LS +
+				"  param: java.lang.String, mapped (Read Only)" + LS +
 				"  quantity: int" + LS +
 				"  thing: java.lang.Double, indexed (Write Only)" + LS +
-				"  type: java.lang.String (Read Only)" + LS +
-				"  param: java.lang.String, mapped (Read Only)" + LS;
+				"  type: java.lang.String (Read Only)" + LS;
 		
 		assertEquals(expected, new String(buffer.toByteArray()));
 	}
@@ -88,7 +87,7 @@ public class BeanDiagnosticsTest extends TestCase {
 		oddjob.setFile(config);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();
 		
@@ -106,9 +105,9 @@ public class BeanDiagnosticsTest extends TestCase {
 				lines[1].trim());
 		assertEquals("Properties:",
 				lines[2].trim());
-		assertEquals("vegtable: java.lang.String",
-				lines[3].trim());
 		assertEquals("price: java.lang.Double",
+				lines[3].trim());
+		assertEquals("vegtable: java.lang.String",
 				lines[4].trim());
 		assertEquals("Type: SimpleArooaClass: class org.oddjob.beanbus.destinations.BeanDiagnosticsTest$Fruit",
 				lines[5].trim());
@@ -116,13 +115,13 @@ public class BeanDiagnosticsTest extends TestCase {
 				lines[6].trim());
 		assertEquals("class: java.lang.Class (Read Only)",
 				lines[7].trim());
-		assertEquals("quantity: int",
-				lines[8].trim());
-		assertEquals("thing: java.lang.Double, indexed (Write Only)",
-				lines[9].trim());
-		assertEquals("type: java.lang.String (Read Only)",
-				lines[10].trim());
 		assertEquals("param: java.lang.String, mapped (Read Only)",
+				lines[8].trim());
+		assertEquals("quantity: int",
+				lines[9].trim());
+		assertEquals("thing: java.lang.Double, indexed (Write Only)",
+				lines[10].trim());
+		assertEquals("type: java.lang.String (Read Only)",
 				lines[11].trim());
 
 	}

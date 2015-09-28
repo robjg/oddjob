@@ -36,7 +36,7 @@ public class StatefulTest extends TestCase {
 			"   <jobs>" +
 			"    <rmireg />" +
 			"    <jmx:server id='server1'" +
-			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1'" +
+			"            url='service:jmx:rmi://ignored/jndi/rmi://localhost/StatefulTest_testState'" +
 			"            root='${fruit}' />" +
 			" 	 <echo id='fruit'>apples</echo>" +
 			"   </jobs>" +

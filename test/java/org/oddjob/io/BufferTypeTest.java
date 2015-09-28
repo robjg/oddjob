@@ -115,7 +115,8 @@ public class BufferTypeTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		
+		console.captureConsole();
 				
 		oddjob.run();
 		
@@ -167,12 +168,12 @@ public class BufferTypeTest extends TestCase {
 				"org/oddjob/io/BufferFileCaptureExample.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
-				
-		oddjob2.run();
+		ConsoleCapture console = new ConsoleCapture();		
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob2.run();
+		}
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -283,7 +284,7 @@ public class BufferTypeTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oj.run();
 		

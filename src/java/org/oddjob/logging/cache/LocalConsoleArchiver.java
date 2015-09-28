@@ -3,9 +3,9 @@
  */
 package org.oddjob.logging.cache;
 
-import org.oddjob.Oddjob;
-import org.oddjob.logging.ConsoleOwner;
+import org.oddjob.OddjobConsole;
 import org.oddjob.logging.ConsoleArchiver;
+import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
@@ -50,7 +50,7 @@ public class LocalConsoleArchiver implements ConsoleArchiver {
 			return ((ConsoleOwner) component).consoleLog();
 		}
 		else {
-			return Oddjob.CONSOLE;
+			return OddjobConsole.console();
 		}		
 	}
 	

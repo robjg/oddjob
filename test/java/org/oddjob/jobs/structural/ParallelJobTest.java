@@ -339,7 +339,7 @@ public class ParallelJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		oddjob.run();		
 		
@@ -559,7 +559,7 @@ public class ParallelJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
@@ -599,7 +599,7 @@ public class ParallelJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 

@@ -53,7 +53,7 @@ public class StderrTypeTest extends TestCase {
 		
 		ConsoleCapture results = new ConsoleCapture();
 		
-		results.capture(Oddjob.CONSOLE);
+		results.captureConsole();
 		
 		oddjob.run();
 		
@@ -78,7 +78,7 @@ public class StderrTypeTest extends TestCase {
 		
 		ConsoleCapture results = new ConsoleCapture();
 		
-		results.capture(Oddjob.CONSOLE);
+		results.captureConsole();
 		
 		copy.run();
 		

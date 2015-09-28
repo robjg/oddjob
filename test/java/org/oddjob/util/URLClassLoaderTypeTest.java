@@ -15,9 +15,11 @@ import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobConsole;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FilesType;
+import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
@@ -197,12 +199,17 @@ public class URLClassLoaderTypeTest extends TestCase {
 		String[] args = new String[] { "-f", oddjobFile.getCanonicalPath() };
 				
 		LogCatcher log = new LogCatcher();
+
+		OddjobConsole.Close oddjobConsoleClose = OddjobConsole.initialise();
 		
-		Oddjob.CONSOLE.addListener(log, LogLevel.INFO, -1, 0);
+		LogArchive console = OddjobConsole.console();
+		console.addListener(log, LogLevel.INFO, -1, 0);
 		
 		m.invoke(null, (Object) args);
 		
-		Oddjob.CONSOLE.removeListener(log);		
+		console.removeListener(log);		
+		
+		oddjobConsoleClose.close();
 		
 		System.out.println("*****************************");
 		for (String line: log.lines) {
@@ -212,6 +219,5 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
 		assertEquals("Worked." + EOL, log.lines.get(1));
 		
-	}
-	
+	}	
 }

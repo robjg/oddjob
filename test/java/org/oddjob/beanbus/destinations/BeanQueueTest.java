@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -193,16 +194,20 @@ public class BeanQueueTest extends TestCase {
 				"org/oddjob/beanbus/destinations/BeanQueueExample.xml", getClass()
 						.getClassLoader()));
 		
-		StateSteps states = new StateSteps(oddjob);
-		states.startCheck(ParentState.READY,
+		oddjob.load();
+		
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+		
+		Stateful parallel = lookup.lookup("parallel", Stateful.class);
+		
+		StateSteps parallelStates = new StateSteps(parallel);
+		parallelStates.startCheck(ParentState.READY,
 				ParentState.EXECUTING, ParentState.ACTIVE,
 				ParentState.COMPLETE);
 		
 		oddjob.run();
 		
-		states.checkWait();
-		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
+		parallelStates.checkWait();
 		
 		List<?> results = lookup.lookup(
 				"consumer.to", List.class);

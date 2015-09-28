@@ -128,7 +128,7 @@ public class ExistsJobTest extends TestCase {
 		oddjob.setArgs(new String[] { dirs.base().toString() } );
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.run();
 		
@@ -167,7 +167,7 @@ public class ExistsJobTest extends TestCase {
 		oddjob.setProperties(properties);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(Oddjob.CONSOLE);
+		console.captureConsole();
 				
 		oddjob.load();
 		

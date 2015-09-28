@@ -33,7 +33,7 @@ public class StdoutTypeTest extends TestCase {
 	public void testSimple() throws ArooaConversionException, IOException {
 		
 		ConsoleCapture results = new ConsoleCapture();
-		results.capture(Oddjob.CONSOLE);
+		results.captureConsole();
 		
 		OutputStream output = System.out;
 		
@@ -92,7 +92,7 @@ public class StdoutTypeTest extends TestCase {
 		
 		ConsoleCapture results = new ConsoleCapture();
 		
-		results.capture(Oddjob.CONSOLE);
+		results.captureConsole();
 		
 		oddjob.run();
 		
@@ -127,7 +127,7 @@ public class StdoutTypeTest extends TestCase {
 		
 		ConsoleCapture results = new ConsoleCapture();
 		
-		results.capture(Oddjob.CONSOLE);
+		results.captureConsole();
 		
 		copy.run();
 		

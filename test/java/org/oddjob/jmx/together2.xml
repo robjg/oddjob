@@ -6,10 +6,10 @@
 		
 		<!-- Server 2 serves Client 1 which is attached to stuff. -->
 				<jmx:server id='server1'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server1' root='${stuff}' />
+					url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherTest_together2_server1' root='${stuff}' />
 				<jmx:client id='client1' connection='${server1.address}' />
 				<jmx:server id='server2'
-					url='service:jmx:rmi://ignored/jndi/rmi://localhost/server2' root='${client1}' />
+					url='service:jmx:rmi://ignored/jndi/rmi://localhost/TogetherTest_together2_server2' root='${client1}' />
 				<jmx:client id='client2' connection='${server2.address}' />
 
 		<!-- The root of server 1 -->

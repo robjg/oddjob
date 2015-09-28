@@ -4,6 +4,9 @@ package org.oddjob.util;
  * A utility class that finds the highest (in the ClassLoader hierarchy) 
  * ClassLoader for the given classes.
  * <p>
+ * This is required to create a dynamic proxy when the interfaces it 
+ * implements are not in the same class loader.
+ * <p>
  * TODO: The current implementation assumes that all classes are in the
  * same ClassLoader hierarchy but doesn't validate this. It should.
  * 

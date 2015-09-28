@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -57,12 +56,6 @@ import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.framework.StructuralJob;
 import org.oddjob.input.InputHandler;
 import org.oddjob.jobs.EchoJob;
-import org.oddjob.logging.LogArchive;
-import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogEventSink;
-import org.oddjob.logging.LogLevel;
-import org.oddjob.logging.LoggingPrintStream;
-import org.oddjob.logging.cache.LogArchiveImpl;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
 import org.oddjob.persist.FilePersister;
 import org.oddjob.persist.OddjobPersister;
@@ -234,28 +227,12 @@ implements Loadable,
 	
     private static final long serialVersionUID = 2010051200L;
 	
-    /** The archiver to which all console output will be captured. */
-    public static final LogArchive CONSOLE = new LogArchiveImpl(
-    		"CONSOLE_MAIN", LogArchiver.MAX_HISTORY);
-    
-    /** Remember stdout before it was set. This allows (mainly test) calling
-     * code to replace it */
-    public static final PrintStream ORIGINAL_STDOUT = System.out;
-    		
-    /** And stderr... */
-    public static final PrintStream ORIGINAL_STDERR = System.err;
-    
-    /** Setup console capture. */
-    static {
-    	System.setOut(new LoggingPrintStream(System.out, LogLevel.INFO, 
-    			(LogEventSink) CONSOLE));
-    	System.setErr(new LoggingPrintStream(System.err, LogLevel.ERROR, 
-    			(LogEventSink) CONSOLE));
-    }
-     
     /** The document root for an Oddjob configuration file. */
     public static final ArooaElement ODDJOB_ELEMENT = 
     	new ArooaElement("oddjob");
+    
+    /** For console capture. */
+    private volatile transient OddjobConsole.Close console;
     
 	/** The configuration file. */
 	private volatile File file;
@@ -409,6 +386,7 @@ implements Loadable,
 	}
 	
 	private void completeConstruction() {
+		console = OddjobConsole.initialise();
 		configurationOwnerSupport =
 			new ConfigurationOwnerSupport(this);		
 	}
@@ -799,6 +777,7 @@ implements Loadable,
 		reset();
 		
 		stopExecutors();
+		console.close();
 	}
 	
 

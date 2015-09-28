@@ -19,6 +19,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
+import org.oddjob.OddjobConsole;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
@@ -142,28 +143,30 @@ public class JMXClientJobTest extends TestCase {
 	 * @throws Exception
 	 */
 	public void testRun() throws Exception {
-		
-		JMXServerJob server = createServer();
-		server.start();
-		
-		JMXClientJob client = new JMXClientJob();
-		client.setArooaSession(new StandardArooaSession());
-		client.setConnection(server.getAddress());
-		client.run();
-		
-		Object[] children = OddjobTestHelper.getChildren(client);
-		
-		assertEquals("child", "test", children[0].toString());				
-		
-		Object[] children2 = OddjobTestHelper.getChildren((Structural) children[0]);
-		
-		assertEquals(3, children2.length);
-		
-		// got this far - must have worked.
-		client.stop();				
-		server.stop();
-		
-		assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
+	
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			JMXServerJob server = createServer();
+			server.start();
+			
+			JMXClientJob client = new JMXClientJob();
+			client.setArooaSession(new StandardArooaSession());
+			client.setConnection(server.getAddress());
+			client.run();
+			
+			Object[] children = OddjobTestHelper.getChildren(client);
+			
+			assertEquals("child", "test", children[0].toString());				
+			
+			Object[] children2 = OddjobTestHelper.getChildren((Structural) children[0]);
+			
+			assertEquals(3, children2.length);
+			
+			// got this far - must have worked.
+			client.stop();				
+			server.stop();
+			
+			assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
+		}
 	}
 
 	/** 
@@ -332,41 +335,44 @@ public class JMXClientJobTest extends TestCase {
 	}
 
 	public void testHostRelative() throws Exception {
-		OurSession serverSession = new OurSession();
-
-		Echo e = new Echo();
 		
-		serverSession.registry.register("echo", e);		
-		
-		final JMXServerJob server = new JMXServerJob();
-		server.setRoot(e);
-		server.setArooaSession(serverSession);
-				
-		server.setUrl("service:jmx:rmi://");
-
-		OurSession clientSession = new OurSession();
-		
-		JMXClientJob client = new JMXClientJob(); 
-		clientSession.registry.register("client", client);
-		client.setArooaSession(clientSession);
-
-		server.start();
-		
-		client.setConnection(server.getAddress());
-		client.run();
-		
-		DynaBean bean = (DynaBean) clientSession.registry.lookup("client/echo");
-		assertNotNull(bean);
-				
-		bean.set("echo", bean);
-				
-		Object echo = bean.get("echoWrapped");
-		assertEquals(bean, echo);
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			OurSession serverSession = new OurSession();
 	
-		client.stop();
-		server.stop();
-
-		assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
+			Echo e = new Echo();
+			
+			serverSession.registry.register("echo", e);		
+			
+			final JMXServerJob server = new JMXServerJob();
+			server.setRoot(e);
+			server.setArooaSession(serverSession);
+					
+			server.setUrl("service:jmx:rmi://");
+	
+			OurSession clientSession = new OurSession();
+			
+			JMXClientJob client = new JMXClientJob(); 
+			clientSession.registry.register("client", client);
+			client.setArooaSession(clientSession);
+	
+			server.start();
+			
+			client.setConnection(server.getAddress());
+			client.run();
+			
+			DynaBean bean = (DynaBean) clientSession.registry.lookup("client/echo");
+			assertNotNull(bean);
+					
+			bean.set("echo", bean);
+					
+			Object echo = bean.get("echoWrapped");
+			assertEquals(bean, echo);
+		
+			client.stop();
+			server.stop();
+	
+			assertEquals(ServiceState.STOPPED, client.lastStateEvent().getState());
+		}
 	}
 
 	class Owner extends MockBeanDirectoryOwner implements Structural {
@@ -571,49 +577,51 @@ public class JMXClientJobTest extends TestCase {
 	 *
 	 */
 	public void testLogArchiver() throws Exception {
-		OurSession session = new OurSession();
-		
-		ThingWithLogger serverNode = new ThingWithLogger();
-		session.registry.register("thing", serverNode);
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setArooaSession(session);
-		server.setRoot(serverNode);
-		server.setLogFormat("%m");		
-		server.setUrl("service:jmx:rmi://");
-		server.start();
-		
-		Logger ourLogger = Logger.getLogger(serverNode.loggerName());
-		ourLogger.setLevel(Level.DEBUG);
-		ourLogger.info("Test");
-		
-		JMXClientJob client = new JMXClientJob();
-		client.setArooaSession(new StandardArooaSession());
-		client.setConnection(server.getAddress());
-		client.run();
-		
-		Object[] children = OddjobTestHelper.getChildren(client);
-		
-		Object proxy = children[0];
-
-		assertEquals("logger name", "org.oddjob.TestLogger", 
-				LogHelper.getLogger(proxy));
-		
-		MockLogListener ll = new MockLogListener();
-		
-		client.addLogListener(ll, proxy, LogLevel.DEBUG, -1, 10);
-		
-		// log poller runs on separate thread, so need to wait for event
-		while (ll.e == null) {
-			synchronized (ll) {
-				ll.wait();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			OurSession session = new OurSession();
+			
+			ThingWithLogger serverNode = new ThingWithLogger();
+			session.registry.register("thing", serverNode);
+			
+			JMXServerJob server = new JMXServerJob();
+			server.setArooaSession(session);
+			server.setRoot(serverNode);
+			server.setLogFormat("%m");		
+			server.setUrl("service:jmx:rmi://");
+			server.start();
+			
+			Logger ourLogger = Logger.getLogger(serverNode.loggerName());
+			ourLogger.setLevel(Level.DEBUG);
+			ourLogger.info("Test");
+			
+			JMXClientJob client = new JMXClientJob();
+			client.setArooaSession(new StandardArooaSession());
+			client.setConnection(server.getAddress());
+			client.run();
+			
+			Object[] children = OddjobTestHelper.getChildren(client);
+			
+			Object proxy = children[0];
+	
+			assertEquals("logger name", "org.oddjob.TestLogger", 
+					LogHelper.getLogger(proxy));
+			
+			MockLogListener ll = new MockLogListener();
+			
+			client.addLogListener(ll, proxy, LogLevel.DEBUG, -1, 10);
+			
+			// log poller runs on separate thread, so need to wait for event
+			while (ll.e == null) {
+				synchronized (ll) {
+					ll.wait();
+				}
 			}
+			assertNotNull("event", ll.e);
+			assertEquals("message", "Test", ll.e.getMessage());
+			
+			client.stop();
+			server.stop();
 		}
-		assertNotNull("event", ll.e);
-		assertEquals("message", "Test", ll.e.getMessage());
-		
-		client.stop();
-		server.stop();
 	}	
     
     // Make sure the bug fix doesn't leave Old Jobs lying around
