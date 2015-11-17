@@ -55,6 +55,14 @@ public class ResourceType implements ArooaValue, ArooaSessionAware {
 	    			}
 	    		}
 	    	});
+	    	
+	    	registry.register(ResourceType.class, URL.class, 
+	    			new Convertlet<ResourceType, URL>() {
+	    		public URL convert(ResourceType from) throws ConvertletException {
+		    		return from.toURL();
+	    		}
+	    	});
+	    	
 	    	registry.register(ResourceType.class, String.class, 
 	    			new Convertlet<ResourceType, String>() {
 	    		public String convert(ResourceType from) throws ConvertletException {
@@ -86,7 +94,7 @@ public class ResourceType implements ArooaValue, ArooaSessionAware {
     	this.session = session;
     }
     
-    public InputStream toInputStream() throws IOException {
+    public URL toURL() {
 		URL url = null;
 		if (session == null) {
 			url = getClass().getClassLoader().getResource(
@@ -98,7 +106,13 @@ public class ResourceType implements ArooaValue, ArooaSessionAware {
 					).getClassResolver();
 			url = resolver.getResource(resource);
 		}
+		return url;
+    }
+    
+    public InputStream toInputStream() throws IOException {
 		
+    	URL url = toURL();
+    	
 		if (url == null) {
 			throw new IOException("No Resource found: " + resource);
 		}
