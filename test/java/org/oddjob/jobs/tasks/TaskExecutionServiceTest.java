@@ -115,27 +115,27 @@ public class TaskExecutionServiceTest extends TestCase {
 		oddjob.setFile(file);
 		
 		ConsoleCapture capture = new ConsoleCapture();
-		capture.captureConsole();
+		try (ConsoleCapture.Close close = capture.captureConsole()) {
 		
-		oddjob.run();
-		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
-		
-		Runnable echo1 = lookup.lookup("echo1", Runnable.class);
-		Runnable echo2 = lookup.lookup("echo2", Runnable.class);
-		Runnable echo3 = lookup.lookup("echo3", Runnable.class);
-		
-		ResetActions.HARD.doWith(echo1);
-		ResetActions.HARD.doWith(echo2);
-		ResetActions.HARD.doWith(echo3);
-		
-		echo1.run();
-		echo2.run();
-		echo3.run();
+			oddjob.run();
+			
+			OddjobLookup lookup = new OddjobLookup(oddjob);
+			
+			Runnable echo1 = lookup.lookup("echo1", Runnable.class);
+			Runnable echo2 = lookup.lookup("echo2", Runnable.class);
+			Runnable echo3 = lookup.lookup("echo3", Runnable.class);
+			
+			ResetActions.HARD.doWith(echo1);
+			ResetActions.HARD.doWith(echo2);
+			ResetActions.HARD.doWith(echo3);
+			
+			echo1.run();
+			echo2.run();
+			echo3.run();
+			
+		}		
 		
 		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
-		
-		capture.close();
 		
 		String[] lines = capture.getLines();
 		

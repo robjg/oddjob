@@ -20,7 +20,9 @@ public class LaunchJobTest extends TestCase {
     	
     	ClassLoader existingContext = Thread.currentThread(
     			).getContextClassLoader();
-    	assertNotNull(existingContext);
+    	if (existingContext == null) {
+    		logger.warn("ContextClassLoader is null");
+    	}
     	
     	try {
     		// Why do I set this to null?
@@ -37,13 +39,13 @@ public class LaunchJobTest extends TestCase {
 					Launcher.ODDJOB_MAIN_CLASS } );
 					
 			ConsoleCapture console = new ConsoleCapture();
-			console.captureConsole();
+			try (ConsoleCapture.Close close = console.captureConsole()) {
 			
-			oddjob.run();
+				oddjob.run();
+			}
 			
 			assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 			
-			console.close();
 			console.dump(logger);
 			
 			String[] lines = console.getLines();

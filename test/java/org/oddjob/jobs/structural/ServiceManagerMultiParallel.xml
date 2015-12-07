@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+        <cascade>
             <jobs>
                 <properties>
                     <values>
@@ -29,6 +29,6 @@
                 </parallel>
                 <echo><![CDATA[The lights are ${lights1.are} and ${lights2.are}, and the machines go ${machine1.goes} and ${machine2.goes}.]]></echo>
             </jobs>
-        </state:cascade>
+        </cascade>
     </job>
 </oddjob>

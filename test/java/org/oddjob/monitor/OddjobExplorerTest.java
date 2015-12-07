@@ -44,19 +44,22 @@ public class OddjobExplorerTest extends XMLTestCase {
 		super.setUp();
 		
 		logger.info("----------------  " + getName() + "  --------------");
+		
+		if (Thread.currentThread().getContextClassLoader() == null) {
+			
+			// https://github.com/VRL-Studio/VRL-Studio/issues/11
+			// When running from ant in single JVM mode.
+			// - although this has just happened in Fork Mode too!!!
+			logger.warn("What is setting Context Class Loader to Null?");			
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader()); 
+		}
+
 	}
 	
 	public void testSave() throws SAXException, IOException, PropertyVetoException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			return;
-		}
-		
-		if (Thread.currentThread().getContextClassLoader() == null) {
-			logger.warn("Context class loader is null -  " +
-					"What is setting this to null, " +
-					"and why doesn't it happen for other tests in this class????");
-			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		}
 		
 		XMLUnit.setIgnoreWhitespace(true);
@@ -151,117 +154,99 @@ public class OddjobExplorerTest extends XMLTestCase {
 		if (GraphicsEnvironment.isHeadless()) {
 			return;
 		}
-		
-		ClassLoader currentContextClassLoader = 
-				Thread.currentThread().getContextClassLoader();
-		
-		logger.info("Replacing Context Class Loader " + 
-				currentContextClassLoader + " with " + getClass().getClassLoader());
-		
-		// https://github.com/VRL-Studio/VRL-Studio/issues/11
-		// When running from ant in single JVM mode.
-		Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-		
-		try {
-			XMLUnit.setIgnoreWhitespace(true);
+
+		XMLUnit.setIgnoreWhitespace(true);
 			
-			String xml = 
+		String xml = 
 				"<oddjob>" +
-				" <job>" +
-				"  <bean id='x' class='" + OurConfigOwner.class.getName() + "'/>" +
-				" </job>" +
-				"</oddjob>";
-			
-			XMLConfiguration config = new XMLConfiguration(
-					"TEST", xml);
-			
-			Oddjob oddjob = new Oddjob();
-			oddjob.setName("apples");
-			oddjob.setConfiguration(config);
-			oddjob.load();
-			
-			OddjobExplorer test = new OddjobExplorer();
-			test.setArooaSession(new StandardArooaSession());
-			test.createView();
-			
-			test.addPropertyChangeListener(test.new ChangeFocus());
-			test.addPropertyChangeListener(test.new ChangeView());
-			
-			assertEquals("Oddjob Explorer", test.getTitle());
-			
-			test.setOddjob(oddjob);
-			
-			ExplorerComponent component = test.getExplorerComponent();
-			
-			assertEquals("Oddjob Explorer - apples", test.getTitle());
-					
-			final JTree tree = component.getTree();
-	
-			assertEquals(false, tree.isExpanded(0));
-			
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					tree.expandRow(0);
-					tree.setSelectionRow(1);		
-				}
-			});
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					// Wait for event queue to drain.
-				}
-			});
-	
-			assertEquals(false, tree.isSelectionEmpty());
-			
-			assertEquals("Oddjob Explorer - oranges", test.getTitle());
-			
-			OurConfigOwner owner = (OurConfigOwner) new OddjobLookup(
-					oddjob).lookup("x");
-			
-			owner.listener.sessionModifed(
-					new ConfigSessionEvent(
-							new MockConfigurationSession()));
-			
-			assertEquals("Oddjob Explorer - oranges *", test.getTitle());
-			
-			final DragPoint dragPoint = oddjob.provideConfigurationSession().dragPointFor(
-					owner);
-			
-			final AtomicReference<Exception> er = new AtomicReference<Exception>();
-			
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-					dragPoint.cut();
-					try {
-						trn.commit();
-					} catch (ArooaParseException e) {
-						trn.rollback();
-						er.set(e);
-					}
-				}
-			});
-	
-			SwingUtilities.invokeAndWait(new Runnable() {
-				@Override
-				public void run() {
-					// Wait for event queue to drain.
-				}
-			});
-			
-			if (er.get() != null) {
-				throw er.get();
+						" <job>" +
+						"  <bean id='x' class='" + OurConfigOwner.class.getName() + "'/>" +
+						" </job>" +
+						"</oddjob>";
+
+		XMLConfiguration config = new XMLConfiguration(
+				"TEST", xml);
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setName("apples");
+		oddjob.setConfiguration(config);
+		oddjob.load();
+
+		OddjobExplorer test = new OddjobExplorer();
+		test.setArooaSession(new StandardArooaSession());
+		test.createView();
+
+		test.addPropertyChangeListener(test.new ChangeFocus());
+		test.addPropertyChangeListener(test.new ChangeView());
+
+		assertEquals("Oddjob Explorer", test.getTitle());
+
+		test.setOddjob(oddjob);
+
+		ExplorerComponent component = test.getExplorerComponent();
+
+		assertEquals("Oddjob Explorer - apples", test.getTitle());
+
+		final JTree tree = component.getTree();
+
+		assertEquals(false, tree.isExpanded(0));
+
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				tree.expandRow(0);
+				tree.setSelectionRow(1);		
 			}
-			
-			assertEquals("Oddjob Explorer - apples *", test.getTitle());
+		});
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Wait for event queue to drain.
+			}
+		});
+
+		assertEquals(false, tree.isSelectionEmpty());
+
+		assertEquals("Oddjob Explorer - oranges", test.getTitle());
+
+		OurConfigOwner owner = (OurConfigOwner) new OddjobLookup(
+				oddjob).lookup("x");
+
+		owner.listener.sessionModifed(
+				new ConfigSessionEvent(
+						new MockConfigurationSession()));
+
+		assertEquals("Oddjob Explorer - oranges *", test.getTitle());
+
+		final DragPoint dragPoint = oddjob.provideConfigurationSession().dragPointFor(
+				owner);
+
+		final AtomicReference<Exception> er = new AtomicReference<Exception>();
+
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
+				dragPoint.cut();
+				try {
+					trn.commit();
+				} catch (ArooaParseException e) {
+					trn.rollback();
+					er.set(e);
+				}
+			}
+		});
+
+		SwingUtilities.invokeAndWait(new Runnable() {
+			@Override
+			public void run() {
+				// Wait for event queue to drain.
+			}
+		});
+
+		if (er.get() != null) {
+			throw er.get();
 		}
-		finally {
-			Thread.currentThread().setContextClassLoader(
-					currentContextClassLoader);
-			logger.info("Restored context class loader: " + 
-					currentContextClassLoader);
-		}
+
+		assertEquals("Oddjob Explorer - apples *", test.getTitle());
 	}
 	
 	public void testNewOddjob() throws SAXException, IOException, PropertyVetoException, ArooaParseException, InterruptedException, InvocationTargetException {

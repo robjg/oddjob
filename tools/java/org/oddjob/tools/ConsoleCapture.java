@@ -29,6 +29,10 @@ public class ConsoleCapture {
 	
 	private int logged;
 	
+	private Log4jConsoleThresholdChanger thresholdChanger;
+	
+	private boolean leaveLogging;
+	
 	class Console implements LogListener  {
 		List<String> lines = new ArrayList<String>();
 		
@@ -42,6 +46,10 @@ public class ConsoleCapture {
 	private LogArchive archive;
 	
 	public Close captureConsole() {
+		if (!leaveLogging) {
+			thresholdChanger = new Log4jConsoleThresholdChanger();
+		}
+
 		final OddjobConsole.Close oddjobConsoleClose = OddjobConsole.initialise();
 		
 		final Close consoleArchiveClose = capture(OddjobConsole.console());
@@ -51,6 +59,11 @@ public class ConsoleCapture {
 			public void close() {
 				consoleArchiveClose.close();
 				oddjobConsoleClose.close();
+				
+				if (thresholdChanger != null) {
+					thresholdChanger.close();
+					thresholdChanger = null;
+				}
 			}
 		};
 	}
@@ -71,7 +84,7 @@ public class ConsoleCapture {
 		};
 	}
 
-	public void close() {
+	private void close() {
 		if (archive != null) {
 			archive.removeListener(console);
 			archive = null;
@@ -92,6 +105,14 @@ public class ConsoleCapture {
 	
 	public int size() {
 		return console.lines.size();
+	}
+	
+	public boolean isLeaveLogging() {
+		return leaveLogging;
+	}
+	
+	public void setLeaveLogging(boolean leaveLogging) {
+		this.leaveLogging = leaveLogging;
 	}
 	
 	public void dump() {

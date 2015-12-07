@@ -115,8 +115,6 @@ public class MainShutdownTest extends TestCase {
 			fail ("No test classes!");
 		}
 		
-		ConsoleCapture console = new ConsoleCapture();
-		
 		ExecJob exec = new ExecJob();
 		
 		exec.setArgs(new String[] {
@@ -131,41 +129,41 @@ public class MainShutdownTest extends TestCase {
 						"test/conf/test-killer.xml").getPath()
 		});
 		
-		console.capture(exec.consoleLog());
-		
-		new Thread(exec).start();
-		
-		console.dump(logger);
-		
-		WaitJob wait = new WaitJob();
-		wait.setFor(exec);
-		wait.setState(StateConditions.EXECUTING);
-		
-		wait.run();
-		
-		while (true) {
-			Thread.sleep(500);
-			
-			BufferType buffer = new BufferType();
-			buffer.setLines(console.getLines());
-			buffer.configured();
-			
-			State jobState = exec.lastStateEvent().getState();
-			if (buffer.getText().contains("Naughty Thread Started.")) {
-				break;
-			}
-			else {
-				if (JobState.EXECUTING != jobState) {
-					console.dump(logger);
-					fail("Something wrong.");
-				}
-			}
-			
-			logger.info("Waiting for console.");
-		}
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
 
-		exec.stop();
-				
+			new Thread(exec).start();
+
+			WaitJob wait = new WaitJob();
+			wait.setFor(exec);
+			wait.setState(StateConditions.EXECUTING);
+
+			wait.run();
+
+			while (true) {
+				Thread.sleep(500);
+
+				BufferType buffer = new BufferType();
+				buffer.setLines(console.getLines());
+				buffer.configured();
+
+				State jobState = exec.lastStateEvent().getState();
+				if (buffer.getText().contains("Naughty Thread Started.")) {
+					break;
+				}
+				else {
+					if (JobState.EXECUTING != jobState) {
+						console.dump(logger);
+						fail("Something wrong.");
+					}
+				}
+
+				logger.info("Waiting for console.");
+			}
+
+			exec.stop();
+		}
+		
 		console.dump(logger);
 		
 		assertEquals(1, exec.getExitValue());
@@ -173,7 +171,6 @@ public class MainShutdownTest extends TestCase {
 		assertEquals(JobState.INCOMPLETE, 
 				exec.lastStateEvent().getState());
 		
-		console.close();
 	}
 	
 }

@@ -44,10 +44,11 @@ public class OddjobNestedTest extends TestCase {
 		oj.setFile(file);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+	        oj.run();
+		}
 						
-        oj.run();
-
         assertEquals(ParentState.COMPLETE, 
         		oj.lastStateEvent().getState());
         
@@ -57,7 +58,6 @@ public class OddjobNestedTest extends TestCase {
         assertEquals(ParentState.COMPLETE, 
         		test.lastStateEvent().getState());
         
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

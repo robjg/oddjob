@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
@@ -31,6 +29,8 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
+
+import junit.framework.TestCase;
 
 public class ParallelJobTest extends TestCase {
 
@@ -339,16 +339,15 @@ public class ParallelJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();		
-		
-		new StopWait(oddjob).run();
-		
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+
+			oddjob.run();		
+
+			new StopWait(oddjob).run();
+		}
+
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
-		
-		console.close();
 		
 		console.dump(logger);
 		
@@ -558,19 +557,19 @@ public class ParallelJobTest extends TestCase {
 				"org/oddjob/jobs/structural/ParallelServicesExample.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps oddjobStates = new StateSteps(oddjob);
+		
 		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE,
 				ParentState.STARTED);		
-		
-		oddjob.run();		
-		
-		oddjobStates.checkWait();
-		
-		console.close();
+
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+
+			oddjob.run();		
+
+			oddjobStates.checkWait();
+		}
 		
 		console.dump(logger);
 		
@@ -598,19 +597,19 @@ public class ParallelJobTest extends TestCase {
 				"org/oddjob/jobs/structural/ParallelServicesExample2.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps oddjobStates = new StateSteps(oddjob);
+		
 		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING, ParentState.ACTIVE,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
-		
-		oddjobStates.checkWait();
-		
-		console.close();
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();		
+			
+			oddjobStates.checkWait();
+		}
 		
 		console.dump(logger);
 		

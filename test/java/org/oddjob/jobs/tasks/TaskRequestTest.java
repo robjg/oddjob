@@ -33,13 +33,12 @@ public class TaskRequestTest extends TestCase {
 		oddjob.setFile(file);
 		
 		ConsoleCapture capture = new ConsoleCapture();
-		capture.captureConsole();
-		
-		oddjob.run();
+		try (ConsoleCapture.Close close = capture.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.STARTED, oddjob.lastStateEvent().getState());
-		
-		capture.close();
 		
 		String[] lines = capture.getLines();
 		

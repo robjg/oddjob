@@ -3,8 +3,6 @@
  */
 package org.oddjob.jobs;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -15,6 +13,8 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
+
+import junit.framework.TestCase;
 
 public class EchoJobTest extends TestCase {
 
@@ -72,15 +72,14 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
-
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -98,15 +97,14 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
-
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -127,15 +125,14 @@ public class EchoJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
-
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

@@ -389,17 +389,16 @@ public class OddjobTest extends TestCase {
     	oddjob.setInputHandler(new OurInputHandler());
     	
     	ConsoleCapture console = new ConsoleCapture();
-    	console.captureConsole();
-    	
-    	oddjob.run();
+    	try (ConsoleCapture.Close close = console.captureConsole()) {
 
-    	oddjob.hardReset();
-    	oddjob.setArgs(new String[] { "Pizzas.txt" } );
-    	
-    	oddjob.run();
-    	
-    	console.close();
-    	
+    		oddjob.run();
+
+    		oddjob.hardReset();
+    		oddjob.setArgs(new String[] { "Pizzas.txt" } );
+
+    		oddjob.run();
+    	}
+
     	console.dump(logger);
     	
     	String[] lines = console.getLines();

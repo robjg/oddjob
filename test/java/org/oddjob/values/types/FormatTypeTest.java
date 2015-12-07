@@ -116,14 +116,14 @@ public class FormatTypeTest extends TestCase {
 		oddjob.setFile(file);
 		oddjob.setExport("our-clock", new ArooaObject(ourClock));
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

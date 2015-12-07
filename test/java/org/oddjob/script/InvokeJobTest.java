@@ -110,14 +110,13 @@ public class InvokeJobTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture capture = new ConsoleCapture();
-		capture.captureConsole();
-		
-		oddjob.run();
+		try (ConsoleCapture.Close close = capture.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
-		
-		capture.close();
 		
 		assertEquals("Calculating price for Red Apples", 
 				capture.getLines()[0].trim());

@@ -52,12 +52,10 @@ public class StderrTypeTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
 		ConsoleCapture results = new ConsoleCapture();
-		
-		results.captureConsole();
-		
-		oddjob.run();
-		
-		results.close();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		oddjob.destroy();
 		
@@ -77,12 +75,10 @@ public class StderrTypeTest extends TestCase {
 				"org/oddjob/io/StderrTypeExample.xml");
 		
 		ConsoleCapture results = new ConsoleCapture();
-		
-		results.captureConsole();
-		
-		copy.run();
-		
-		results.close();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+			
+			copy.run();
+		}
 		
 		String[] lines = results.getLines();
 		

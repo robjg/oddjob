@@ -33,22 +33,22 @@ public class StdoutTypeTest extends TestCase {
 	public void testSimple() throws ArooaConversionException, IOException {
 		
 		ConsoleCapture results = new ConsoleCapture();
-		results.captureConsole();
-		
-		OutputStream output = System.out;
-		
-		// Note that depending on order of test different class loader
-		// could be capturing console.
-		assertEquals(LoggingPrintStream.class.getName(),
-				output.getClass().getName());
-		
-		OutputStream test = new StdoutType().toValue();
-		
-		test.write(("Hello World." + EOL).getBytes());
-		
-		test.close();
-	
-		results.close();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+
+			OutputStream output = System.out;
+
+			// Note that depending on order of test different class loader
+			// could be capturing console.
+			assertEquals(LoggingPrintStream.class.getName(),
+					output.getClass().getName());
+
+			OutputStream test = new StdoutType().toValue();
+
+			test.write(("Hello World." + EOL).getBytes());
+
+			test.close();
+
+		}
 		
 		results.dump(logger);
 		
@@ -91,12 +91,10 @@ public class StdoutTypeTest extends TestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
 		ConsoleCapture results = new ConsoleCapture();
-		
-		results.captureConsole();
-		
-		oddjob.run();
-		
-		results.close();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		String sanityCheck = new OddjobLookup(oddjob).lookup("hello", String.class);
 		assertEquals("Hello", sanityCheck.trim());
@@ -126,12 +124,10 @@ public class StdoutTypeTest extends TestCase {
 				"org/oddjob/io/StdoutTypeExample.xml");
 		
 		ConsoleCapture results = new ConsoleCapture();
-		
-		results.captureConsole();
-		
-		copy.run();
-		
-		results.close();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+			
+			copy.run();
+		}
 		
 		String[] lines = results.getLines();
 		

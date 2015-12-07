@@ -106,15 +106,15 @@ public class SQLResultsSheetTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals("Failed, Exception: " + oddjob.lastStateEvent().getException(),
 				ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
 		BufferType buffer = new BufferType();

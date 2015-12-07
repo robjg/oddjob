@@ -591,13 +591,14 @@ public class CascadeJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
-		
-		oddjobStates.checkWait();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
 
-		console.close();
+			oddjobStates.checkWait();
+
+		}
+		
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -622,13 +623,13 @@ public class CascadeJobTest extends TestCase {
 				ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
-		
-		oddjobStates.checkWait();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
 
-		console.close();
+			oddjobStates.checkWait();
+		}
+		
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

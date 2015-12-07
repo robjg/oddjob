@@ -67,14 +67,14 @@ public class ExecJobExamplesTest extends TestCase {
 		ExecJob exec = new OddjobLookup(oddjob).lookup("exec", ExecJob.class);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(exec.consoleLog());
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -109,14 +109,14 @@ public class ExecJobExamplesTest extends TestCase {
 		ExecJob exec = new OddjobLookup(oddjob).lookup("exec", ExecJob.class);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(exec.consoleLog());
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

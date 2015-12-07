@@ -355,14 +355,14 @@ public class FilesTypeTest extends TestCase {
 		oddjob.setArgs(new String[] { "d.jar", "e.jar" });
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 				
-		oddjob.run();
-		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

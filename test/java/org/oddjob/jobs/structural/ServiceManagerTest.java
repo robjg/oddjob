@@ -17,6 +17,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.state.State;
@@ -113,6 +114,13 @@ public class ServiceManagerTest extends TestCase {
 		}
 	}
 	
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		
+		logger.info("-------------------  " + getName() + "  -------------------");
+	}
+	
 	public void testExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -120,19 +128,18 @@ public class ServiceManagerTest extends TestCase {
 				"org/oddjob/jobs/structural/ServiceManagerExample.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps steps = new StateSteps(oddjob);
 		steps.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();		
+		}
 		
 		steps.checkNow();
-		
-		console.close();
 		
 		console.dump(logger);
 		
@@ -194,11 +201,8 @@ public class ServiceManagerTest extends TestCase {
 				"org/oddjob/jobs/structural/ServiceManagerBroken.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		StateSteps steps = new StateSteps(oddjob);
-		steps.startCheck(ParentState.READY, 
+		StateSteps oddjobStates = new StateSteps(oddjob);
+		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.EXCEPTION);		
 		
@@ -209,37 +213,33 @@ public class ServiceManagerTest extends TestCase {
 		SequentialJob test = lookup.lookup("service-manager", 
 				SequentialJob.class);
 		
-		StateSteps testState = new StateSteps(test);
-		testState.startCheck(ParentState.READY, 
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.EXCEPTION);
 		
+		Stateful echo = lookup.lookup("echo", Stateful.class);
+		
+		StateSteps echoStates = new StateSteps(echo);
+		echoStates.startCheck(JobState.READY);
+		
 		oddjob.run();		
 		
-		steps.checkNow();
+		oddjobStates.checkNow();
+		testStates.checkNow();
 		
-		console.close();
-		
-		console.dump(logger);
-		
-		String[] lines = console.getLines();
-		
-		assertEquals(0, lines.length);
-								
 		Object lights = lookup.lookup("lights");
 		Object machine = lookup.lookup("machine");
-		
-		testState.checkNow();
 
 		StateEvent lightsState = ((Stateful) lights).lastStateEvent();
 		assertEquals(ServiceState.STARTED, lightsState.getState());
 		
-		StateSteps machineState = new StateSteps((Stateful) machine);
-		machineState.startCheck(ServiceState.EXCEPTION, 
+		StateSteps machineStates = new StateSteps((Stateful) machine);
+		machineStates.startCheck(ServiceState.EXCEPTION, 
 				ServiceState.STARTABLE, 
 				ServiceState.STARTING, 
 				ServiceState.EXCEPTION);
-		testState.startCheck(ParentState.EXCEPTION,
+		testStates.startCheck(ParentState.EXCEPTION,
 				ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.EXCEPTION);
@@ -247,8 +247,9 @@ public class ServiceManagerTest extends TestCase {
 		((Resetable) machine).softReset();
 		test.run();
 		
-		machineState.checkNow();
-		testState.checkNow();
+		machineStates.checkNow();
+		testStates.checkNow();
+		echoStates.checkNow();
 		
 		oddjob.destroy();	
 	}
@@ -330,20 +331,21 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.setFile(file);
 		oddjob.setProperties(props);
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.ACTIVE,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
-		
-		oddjobStates.checkWait();
-		
-		console.close();
+		logger.info("* Starting console capture");
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();		
+			
+			oddjobStates.checkWait();
+		}
+		logger.info("* Finished console capture");
 		
 		console.dump(logger);
 		
@@ -412,20 +414,19 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.setFile(file);
 		oddjob.setProperties(props);
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.ACTIVE,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
-		
-		oddjobStates.checkWait();
-		
-		console.close();
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();		
+			
+			oddjobStates.checkWait();
+		}
 		
 		console.dump(logger);
 		
@@ -494,20 +495,19 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.setFile(file);
 		oddjob.setProperties(props);
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps oddjobStates = new StateSteps(oddjob);
 		oddjobStates.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.ACTIVE,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
 		
-		oddjobStates.checkWait();
-		
-		console.close();
+			oddjob.run();		
+			
+			oddjobStates.checkWait();
+		}	
 		
 		console.dump(logger);
 		

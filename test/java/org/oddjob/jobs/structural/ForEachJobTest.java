@@ -611,14 +611,14 @@ public class ForEachJobTest extends TestCase {
     			getClass().getClassLoader()));
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-    	oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+	    	oddjob.run();
+		}
     	
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
     	OddjobLookup lookup = new OddjobLookup(oddjob);
@@ -691,14 +691,14 @@ public class ForEachJobTest extends TestCase {
     	oddjob.setExport("config", configType);
     	
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-    	oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+	    	oddjob.run();
+		}
     	
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -828,9 +828,10 @@ public class ForEachJobTest extends TestCase {
     	oddjob.setConfiguration(new XMLConfiguration("XML" , ojConfig));
 
     	ConsoleCapture console = new ConsoleCapture();
-    	console.captureConsole();
-    	
-    	oddjob.run();
+    	try (ConsoleCapture.Close close = console.captureConsole()) {
+        	
+        	oddjob.run();
+    	}
 
     	String[] lines = console.getLines();
     	assertEquals(2, lines.length);
@@ -1066,68 +1067,69 @@ public class ForEachJobTest extends TestCase {
     	test.addStructuralListener(childs);
   
     	ConsoleCapture console = new ConsoleCapture();
-    	console.captureConsole();
+    	try (ConsoleCapture.Close close = console.captureConsole()) {
+
+    		test.run();
+
+    		Stateful child1 = (Stateful) childs.children.get(0); 
+    		Stateful child2 = (Stateful) childs.children.get(1); 
+    		Stateful child3 = (Stateful) childs.children.get(2); 
+
+    		assertEquals(JobState.INCOMPLETE, 
+    				child1.lastStateEvent().getState());
+    		assertEquals(JobState.READY,  
+    				child2.lastStateEvent().getState());
+    		assertEquals(JobState.READY,  
+    				child3.lastStateEvent().getState());
+    		assertEquals(ParentState.INCOMPLETE,  
+    				test.lastStateEvent().getState());
+
+    		test.softReset();
+
+    		assertEquals(JobState.READY, 
+    				child1.lastStateEvent().getState());
+    		assertEquals(JobState.READY,  
+    				child2.lastStateEvent().getState());
+    		assertEquals(JobState.READY,  
+    				child3.lastStateEvent().getState());
+    		assertEquals(ParentState.READY,  
+    				test.lastStateEvent().getState());
+
+    		test.run();
+
+    		assertEquals(JobState.COMPLETE, 
+    				child1.lastStateEvent().getState());
+    		assertEquals(JobState.COMPLETE,  
+    				child2.lastStateEvent().getState());
+    		assertEquals(JobState.INCOMPLETE,  
+    				child3.lastStateEvent().getState());
+    		assertEquals(ParentState.INCOMPLETE,  
+    				test.lastStateEvent().getState());
+
+    		test.softReset();
+
+    		assertEquals(JobState.COMPLETE, 
+    				child1.lastStateEvent().getState());
+    		assertEquals(JobState.COMPLETE,  
+    				child2.lastStateEvent().getState());
+    		assertEquals(JobState.READY,  
+    				child3.lastStateEvent().getState());
+    		assertEquals(ParentState.READY,  
+    				test.lastStateEvent().getState());
+
+    		test.run();
+
+    		assertEquals(JobState.COMPLETE, 
+    				child1.lastStateEvent().getState());
+    		assertEquals(JobState.COMPLETE,  
+    				child2.lastStateEvent().getState());
+    		assertEquals(JobState.COMPLETE,  
+    				child3.lastStateEvent().getState());
+    		assertEquals(ParentState.COMPLETE,  
+    				test.lastStateEvent().getState());
+
+    	}
     	
-    	test.run();
-    	
-    	Stateful child1 = (Stateful) childs.children.get(0); 
-    	Stateful child2 = (Stateful) childs.children.get(1); 
-    	Stateful child3 = (Stateful) childs.children.get(2); 
-    	
-    	assertEquals(JobState.INCOMPLETE, 
-    			child1.lastStateEvent().getState());
-    	assertEquals(JobState.READY,  
-    			child2.lastStateEvent().getState());
-    	assertEquals(JobState.READY,  
-    			child3.lastStateEvent().getState());
-    	assertEquals(ParentState.INCOMPLETE,  
-    			test.lastStateEvent().getState());
-    	
-    	test.softReset();
-    	
-    	assertEquals(JobState.READY, 
-    			child1.lastStateEvent().getState());
-    	assertEquals(JobState.READY,  
-    			child2.lastStateEvent().getState());
-    	assertEquals(JobState.READY,  
-    			child3.lastStateEvent().getState());
-    	assertEquals(ParentState.READY,  
-    			test.lastStateEvent().getState());
-        	
-    	test.run();
-    	
-    	assertEquals(JobState.COMPLETE, 
-    			child1.lastStateEvent().getState());
-    	assertEquals(JobState.COMPLETE,  
-    			child2.lastStateEvent().getState());
-    	assertEquals(JobState.INCOMPLETE,  
-    			child3.lastStateEvent().getState());
-    	assertEquals(ParentState.INCOMPLETE,  
-    			test.lastStateEvent().getState());
-    	
-    	test.softReset();
-    	
-    	assertEquals(JobState.COMPLETE, 
-    			child1.lastStateEvent().getState());
-    	assertEquals(JobState.COMPLETE,  
-    			child2.lastStateEvent().getState());
-    	assertEquals(JobState.READY,  
-    			child3.lastStateEvent().getState());
-    	assertEquals(ParentState.READY,  
-    			test.lastStateEvent().getState());
-    	
-    	test.run();
-    	
-    	assertEquals(JobState.COMPLETE, 
-    			child1.lastStateEvent().getState());
-    	assertEquals(JobState.COMPLETE,  
-    			child2.lastStateEvent().getState());
-    	assertEquals(JobState.COMPLETE,  
-    			child3.lastStateEvent().getState());
-    	assertEquals(ParentState.COMPLETE,  
-    			test.lastStateEvent().getState());
-    	
-    	console.close();
     	console.dump(logger);
     	
     	String[] lines = console.getLines();

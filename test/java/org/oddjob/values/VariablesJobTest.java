@@ -307,12 +307,12 @@ public class VariablesJobTest extends TestCase {
     	oddjob.setConfiguration(new XMLConfiguration(
     			"org/oddjob/values/VariablesExample.xml",
     			getClass().getClassLoader()));
+    	
     	ConsoleCapture console = new ConsoleCapture();
-    	console.captureConsole();
-    	
-    	oddjob.run();
-    	
-    	console.close();
+    	try (ConsoleCapture.Close close = console.captureConsole()) {
+        	
+        	oddjob.run();
+    	}
     	
     	console.dump(logger);
     	

@@ -10,7 +10,7 @@
             class="org.oddjob.jobs.structural.ServiceManagerTest$MachineThatBreaks"/>
         </jobs>
       </sequential>
-      <echo>This will never run.</echo>
+      <echo id="echo">This will never run.</echo>
       </jobs>
     </sequential>
   </job>

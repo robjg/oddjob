@@ -1,10 +1,10 @@
 <oddjob>
     <job>
-        <state:cascade xmlns:state="http://rgordon.co.uk/oddjob/state">
+        <cascade>
             <jobs>
                 <echo>This runs first.</echo>
                 <echo>Then this.</echo>
             </jobs>
-        </state:cascade>
+        </cascade>
     </job>
 </oddjob>

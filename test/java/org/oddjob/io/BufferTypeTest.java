@@ -116,19 +116,19 @@ public class BufferTypeTest extends TestCase {
 		
 		ConsoleCapture console = new ConsoleCapture();
 		
-		console.captureConsole();
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+			
+			assertEquals(ParentState.COMPLETE, 
+					oddjob.lastStateEvent().getState());
+			
+			Object jobs = new OddjobLookup(oddjob).lookup("jobs");
+			
+			((Resetable) jobs).hardReset();
+			((Runnable) jobs).run();		
+		}
 		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
-		Object jobs = new OddjobLookup(oddjob).lookup("jobs");
-		
-		((Resetable) jobs).hardReset();
-		((Runnable) jobs).run();
-		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -284,11 +284,11 @@ public class BufferTypeTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oj.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oj.run();
+		}
 		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

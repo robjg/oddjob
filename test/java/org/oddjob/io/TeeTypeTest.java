@@ -49,11 +49,10 @@ public class TeeTypeTest extends TestCase {
 		oddjob.setProperties(properties);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
-		
-		console.close();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
@@ -74,11 +73,10 @@ public class TeeTypeTest extends TestCase {
 		oddjob.setFile(config);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		oddjob.run();
-		
-		console.close();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());

@@ -128,11 +128,11 @@ public class ExistsJobTest extends TestCase {
 		oddjob.setArgs(new String[] { dirs.base().toString() } );
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+		}
 		
-		console.close();
 		console.dump(logger);
 		
 		assertEquals(ParentState.COMPLETE,
@@ -167,36 +167,37 @@ public class ExistsJobTest extends TestCase {
 		oddjob.setProperties(properties);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oddjob.load();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.load();
+			
+			StateSteps oddjobStates = new StateSteps(oddjob);
+			oddjobStates.startCheck(
+					ParentState.READY, ParentState.EXECUTING, 
+					ParentState.ACTIVE, ParentState.STARTED);
+			
+			SequentialJob sequential = new OddjobLookup(oddjob).lookup(
+					"echo-when-file", SequentialJob.class);
+			
+			StateSteps sequentialStates = new StateSteps(sequential);
+			sequentialStates.startCheck(ParentState.READY, ParentState.EXECUTING,
+					ParentState.INCOMPLETE);
+			
+			oddjob.run();
 		
-		StateSteps oddjobStates = new StateSteps(oddjob);
-		oddjobStates.startCheck(
-				ParentState.READY, ParentState.EXECUTING, 
-				ParentState.ACTIVE, ParentState.STARTED);
+			oddjobStates.checkWait();
+			sequentialStates.checkNow();
+			
+			// 2 seconds for this to work!
+			oddjobStates.startCheck(
+					ParentState.STARTED, ParentState.ACTIVE, ParentState.COMPLETE);
+			
+			FileUtils.touch(flagFile);
+			
+			oddjobStates.checkWait();
+			
+		}
 		
-		SequentialJob sequential = new OddjobLookup(oddjob).lookup(
-				"echo-when-file", SequentialJob.class);
-		
-		StateSteps sequentialStates = new StateSteps(sequential);
-		sequentialStates.startCheck(ParentState.READY, ParentState.EXECUTING,
-				ParentState.INCOMPLETE);
-		
-		oddjob.run();
-	
-		oddjobStates.checkWait();
-		sequentialStates.checkNow();
-		
-		// 2 seconds for this to work!
-		oddjobStates.startCheck(
-				ParentState.STARTED, ParentState.ACTIVE, ParentState.COMPLETE);
-		
-		FileUtils.touch(flagFile);
-		
-		oddjobStates.checkWait();
-		
-		console.close();
 		console.dump(logger);
 		
 		assertEquals(1, console.getLines().length);

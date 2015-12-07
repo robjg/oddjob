@@ -24,14 +24,15 @@ public class ConvertTypeExamplesTest extends TestCase {
 				getClass().getClassLoader()));
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+			
+			assertEquals(ParentState.COMPLETE, 
+					oddjob.lastStateEvent().getState());
+			
+		}
 				
-		oddjob.run();
-		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
@@ -57,14 +58,14 @@ public class ConvertTypeExamplesTest extends TestCase {
 		oddjob.setFile(file);
 
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-				
-		oddjob.run();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+
+			oddjob.run();
+
+			assertEquals(ParentState.COMPLETE, 
+					oddjob.lastStateEvent().getState());
+		}
 		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();

@@ -43,11 +43,11 @@ public class ConsoleInputHandlerTest extends TestCase {
 		exec.setStdin(new ByteArrayInputStream(input.getBytes()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.capture(exec.consoleLog());
-				
-		exec.run();
+		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
+			
+			exec.run();
+		}
 		
-		console.close();
 		console.dump(logger);
 		
 		assertEquals(JobState.COMPLETE, 

@@ -447,19 +447,18 @@ public class SequentialJobTest extends TestCase {
 				"org/oddjob/jobs/structural/SimpleSequentialExample.xml", 
 				getClass().getClassLoader()));
 		
-		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
 		StateSteps steps = new StateSteps(oddjob);
 		steps.startCheck(ParentState.READY, 
 				ParentState.EXECUTING,
 				ParentState.COMPLETE);		
 		
-		oddjob.run();		
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();		
+		}
 		
 		steps.checkNow();
-		
-		console.close();
 		
 		console.dump(logger);
 		

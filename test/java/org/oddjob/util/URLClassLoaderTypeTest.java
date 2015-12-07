@@ -7,24 +7,18 @@ import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
-import org.oddjob.OddjobConsole;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FilesType;
-import org.oddjob.logging.LogArchive;
-import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
-import org.oddjob.logging.LogListener;
 import org.oddjob.tools.CompileJob;
+import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
+
+import junit.framework.TestCase;
 
 public class URLClassLoaderTypeTest extends TestCase {
 
@@ -161,17 +155,6 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
 	}
 	
-	class LogCatcher implements LogListener {
-		
-		List<String> lines = new ArrayList<String>();
-		
-		public void logEvent(LogEvent logEvent) {
-			lines.add(logEvent.getMessage());
-		}
-	}
-	
-	static String EOL = System.getProperty("line.separator");
-	
 	public void testFromLaunchJar() throws SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, IOException {
 		
 		OurDirs dirs = new OurDirs();
@@ -198,26 +181,17 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
 		String[] args = new String[] { "-f", oddjobFile.getCanonicalPath() };
 				
-		LogCatcher log = new LogCatcher();
-
-		OddjobConsole.Close oddjobConsoleClose = OddjobConsole.initialise();
-		
-		LogArchive console = OddjobConsole.console();
-		console.addListener(log, LogLevel.INFO, -1, 0);
-		
-		m.invoke(null, (Object) args);
-		
-		console.removeListener(log);		
-		
-		oddjobConsoleClose.close();
-		
-		System.out.println("*****************************");
-		for (String line: log.lines) {
-			System.out.print(line);
+		ConsoleCapture console = new ConsoleCapture();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			m.invoke(null, (Object) args);
 		}
-		System.out.println("*****************************");
 		
-		assertEquals("Worked." + EOL, log.lines.get(1));
+		console.dump(logger);
+		
+		String[] lines = console.getLines();
+		
+		assertEquals("Worked.", lines[1].trim());
 		
 	}	
 }

@@ -86,11 +86,10 @@ public class TaskExecutorTest extends TestCase {
 				getClass().getClassLoader()));
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
-		
-		client.run();
-		
-		console.close();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			client.run();
+		}
 		
 		assertEquals(ParentState.COMPLETE, 
 				client.lastStateEvent().getState());

@@ -87,14 +87,14 @@ public class BeanDiagnosticsTest extends TestCase {
 		oddjob.setFile(config);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		console.captureConsole();
+		try (ConsoleCapture.Close close = console.captureConsole()) {
+			
+			oddjob.run();
+			
+			assertEquals(ParentState.COMPLETE, 
+					oddjob.lastStateEvent().getState());
+		}
 		
-		oddjob.run();
-		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-		
-		console.close();
 		console.dump(logger);
 		
 		String[] lines = console.getLines();
