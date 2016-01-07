@@ -125,14 +125,16 @@
 			</fileset>
 		</path>
 
+		<ivy:cachepath pathid="tools-cachepath" conf="tools" />
+		
 		<path id="tools-classpath">
-			<path refid="classpath"/>
+			<path refid="tools-cachepath"/>
 			<pathelement path="${build.classes}" />
 		</path>
 		
 		<path id="test-classpath">
-			<path refid="tools-classpath"/>
 			<path refid="test-cachepath"/>
+			<pathelement path="${build.classes}" />
 			<pathelement path="${build.tools.classes}" />
 		</path>
 		
@@ -206,7 +208,7 @@
 	<!-- Creates the jar file                                                -->
 	<!-- =================================================================== -->
 
-	<target name="jar" depends="compile-tests" description="Generates the jar packages">
+	<target name="jar" depends="compile, compile-tools" description="Generates the jar packages">
 
 	    <jar destfile="${launch.jar.name}"
 	         basedir="${build.classes}"
@@ -474,7 +476,7 @@
 	<!-- Test targets                                                       -->
 	<!-- =================================================================== -->
 	
-	<target name="compile-tests" depends="compile-tools" description="Compile jUnit tests">
+	<target name="compile-tests" depends="compile, compile-tools" description="Compile jUnit tests">
 		<mkdir dir="${build.test}"/>
 
 		<copy todir="${build.test.classes}" filtering="off">
@@ -500,6 +502,7 @@
 
 	</target>
 
+	<!-- Note that 'jar' target is required because some tests exec oddjob. -->
 	<target name="all-tests" depends="compile-tests, jar" description="Perform jUnit tests">
 		<delete dir="${work.dir}"/>
 		<mkdir dir="${work.dir}"/>
