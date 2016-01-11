@@ -29,6 +29,8 @@ public class JoinJob extends StructuralJob<Runnable> {
 	private static final long serialVersionUID = 2010081600L;
 	
 	
+	private volatile long timeout;
+	
 	/**
 	 * Set the child job.
 	 * 
@@ -74,22 +76,29 @@ public class JoinJob extends StructuralJob<Runnable> {
 			@Override
 			public void jobStateChange(StateEvent event) {
 				state.set(event.getState());
-				synchronized (JoinJob.this) {
-					JoinJob.this.notifyAll();
+				if (!event.getState().isStoppable()) {
+					synchronized (JoinJob.this) {
+						JoinJob.this.notifyAll();
+					}
 				}
 			}
 		};
 		((Stateful) child).addStateListener(listener);
 		
 		try {
-			while (!stop && state.get().isStoppable()) {			
+			if (!stop && state.get().isStoppable()) {			
 				synchronized(this) {
-					wait();
+					wait(timeout);
 				}
 			}
-		} finally {
+			if (!stop && state.get().isStoppable()) {			
+				throw new IllegalStateException("Join failed within timeout of " + timeout);
+			}
+		} 
+		finally {
 			removeStateListener(listener);
 		}
+		
 		stop = false;
 	}		
 	
@@ -98,4 +107,11 @@ public class JoinJob extends StructuralJob<Runnable> {
 		return new AnyActiveStateOp();
 	}
 	
+	public long getTimeout() {
+		return timeout;
+	}
+	
+	public void setTimeout(long timeout) {
+		this.timeout = timeout;
+	}
 }

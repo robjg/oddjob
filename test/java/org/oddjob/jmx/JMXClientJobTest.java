@@ -423,32 +423,35 @@ public class JMXClientJobTest extends TestCase {
 		server.setArooaSession(serverSession);
 				
 		server.setUrl("service:jmx:rmi://");
-		server.start();
-
-		OurSession localSession = new OurSession();
-		JMXClientJob client = new JMXClientJob(); 
-		client.setArooaSession(localSession);
 		
-		client.setConnection(server.getAddress());
-		client.run();
-		
-		// test we can look up a component in a nested registry.
-		BeanDirectory mirrorCR1 = client.provideBeanDirectory();
-		
-		RemoteDirectoryOwner comp1Proxy = (RemoteDirectoryOwner) mirrorCR1.lookup("comp1");
-		assertNotNull(comp1Proxy);
-		assertEquals("comp1", comp1Proxy.toString());
-		
-		Object comp2Proxy = mirrorCR1.lookup("comp1/comp2");
-		assertNotNull(comp2Proxy);
-		assertEquals("comp2", comp2Proxy.toString());
-				
-		RemoteDirectory mirrorCR2 = comp1Proxy.provideBeanDirectory();
-		assertNotNull(mirrorCR2);
-		assertEquals(comp2Proxy, mirrorCR2.lookup("comp2"));
-
-		client.stop();
-		server.stop();
+		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+			server.start();
+	
+			OurSession localSession = new OurSession();
+			JMXClientJob client = new JMXClientJob(); 
+			client.setArooaSession(localSession);
+			
+			client.setConnection(server.getAddress());
+			client.run();
+			
+			// test we can look up a component in a nested registry.
+			BeanDirectory mirrorCR1 = client.provideBeanDirectory();
+			
+			RemoteDirectoryOwner comp1Proxy = (RemoteDirectoryOwner) mirrorCR1.lookup("comp1");
+			assertNotNull(comp1Proxy);
+			assertEquals("comp1", comp1Proxy.toString());
+			
+			Object comp2Proxy = mirrorCR1.lookup("comp1/comp2");
+			assertNotNull(comp2Proxy);
+			assertEquals("comp2", comp2Proxy.toString());
+					
+			RemoteDirectory mirrorCR2 = comp1Proxy.provideBeanDirectory();
+			assertNotNull(mirrorCR2);
+			assertEquals(comp2Proxy, mirrorCR2.lookup("comp2"));
+	
+			client.stop();
+			server.stop();
+		}
 	}
 
 	class ResultHolder {

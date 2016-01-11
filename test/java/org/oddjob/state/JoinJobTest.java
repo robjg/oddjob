@@ -31,6 +31,8 @@ import org.oddjob.tools.StateSteps;
 public class JoinJobTest extends TestCase {
 	private static final Logger logger = Logger.getLogger(JoinJobTest.class);
 	
+	static final long TIMEOUT = 15_000L;
+	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -57,6 +59,7 @@ public class JoinJobTest extends TestCase {
 	public void testEmpty() {
 
 		JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		
@@ -71,6 +74,7 @@ public class JoinJobTest extends TestCase {
 		OurJob job1 = new OurJob();
 		
 		JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		
 		test.setJob(job1);
 		
@@ -112,6 +116,7 @@ public class JoinJobTest extends TestCase {
 		
 		
 		JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		
 		test.setJob(job1);
 
@@ -145,6 +150,7 @@ public class JoinJobTest extends TestCase {
 		timer.setScheduleExecutorService(executors.getScheduledExecutor());
 		
 		JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		
 		test.setJob(timer);
 
@@ -179,6 +185,7 @@ public class JoinJobTest extends TestCase {
 		timer.setScheduleExecutorService(executors.getScheduledExecutor());
 		
 		final JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		test.setJob(timer);
 		
 		StateSteps testStates = new StateSteps(test);
@@ -214,6 +221,7 @@ public class JoinJobTest extends TestCase {
 		job1.setState(JobState.COMPLETE);
 		
 		JoinJob test = new JoinJob();
+		test.setTimeout(TIMEOUT);
 		
 		test.setJob(job1);
 
@@ -272,7 +280,7 @@ public class JoinJobTest extends TestCase {
 		((Runnable) applesFlag).run();
 		((Runnable) orangesFlag).run();
 		
-		t.join();
+		t.join(TIMEOUT);
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
@@ -300,7 +308,7 @@ public class JoinJobTest extends TestCase {
 		((Runnable) applesFlag).run();
 		((Runnable) orangesFlag).run();
 		
-		t2.join();
+		t2.join(TIMEOUT);
 		
 		assertEquals(JobState.COMPLETE, 
 				lastJob.lastStateEvent().getState());
