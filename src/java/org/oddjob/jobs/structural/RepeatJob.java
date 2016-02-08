@@ -19,7 +19,8 @@ import org.oddjob.structural.OddjobChildException;
 import org.oddjob.values.types.SequenceIterable;
 
 /**
- * @oddjob.description This job will repeatedly run its child job either for:
+ * @oddjob.description This job will repeatedly run its child job. The repeat
+ * can be either for:
  * <ul>
  * 	<li>Each value of a collection.</li>
  *  <li>Or a given number times.</li>
