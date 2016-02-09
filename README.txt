@@ -6,6 +6,9 @@ Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.5.0
 ----------------
+- Included a oj-web Oddball to replace the JSF web app. The new Oddball includes a 
+  Jetty Server that exposes Oddjob as a RESTful Web Service and a new UI written in
+  Javascript using JQuery.
 - Timer and Retry have two new properties: Reset allows the reset level that
   is applied before running a job to be changed. HaltOn allows the state
   to be changed that will cause the Timer or Retry to complete.
@@ -31,9 +34,6 @@ Still Todo
   from the stream are override properties and aren't removed on reset. Also
   describeable doesn't work.
 - RepeatJob needs more tests and examples. Especially around soft resets.
-- Include a Jetty Oddball to allow connecting to an Oddjob server from a 
-  browser without the need for a separate Servlet Container.
-- Improve the AJAX JSF front end to be more AJAXy.
 - Move Timer and State Jobs out of namespaces because things like cascade 
   and timer really core. Create dummy super classes from depricated namespace jobs.
 
