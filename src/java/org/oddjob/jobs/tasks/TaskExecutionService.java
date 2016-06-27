@@ -29,7 +29,19 @@ import org.oddjob.structural.StructuralListener;
 import org.oddjob.values.properties.PropertiesConfigurationSession;
 
 /**
- * A job that can be parameterised.
+ * @oddjob.description Provide a very simple task execution service.
+ * <p>
+ * The task to be executed is defined by the nested jobs which may use the properties.
+ * which will be defined when executing the tasks.
+ * <p>
+ * This implementation only supports the single execution of a task at one time. If 
+ * the task is running additional requests to execute the task will be ignored.
+ * <p>
+ * Future version will support multiple parallel executions of tasks.
+ * 
+ * @oddjob.example
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestSimple.xml} 
  * 
  * @author Rob Gordon
  */

@@ -4,6 +4,9 @@
         <sequential>
             <jobs>
                 <task-service id="hello-service">
+                    <requests>
+                        <input-text prompt="Name" property="some.name"/>
+                    </requests>
                     <job>
                         <echo><![CDATA[Hello ${some.name}.]]></echo>
                     </job>

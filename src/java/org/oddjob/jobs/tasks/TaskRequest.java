@@ -21,7 +21,7 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * @oddjob.example
  * 
- * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestExample.xml} 
+ * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestSimple.xml} 
  * 
  * @author Rob              
  */
