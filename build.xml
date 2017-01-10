@@ -67,7 +67,6 @@
 		<property name="build.test"      		value="${build.dir}/test"/>
 		<property name="build.test.classes"     value="${build.test}/classes"/>
 		<property name="build.tools"     		value="${build.dir}/tools"/>
-		<property name="build.tools.lib"     	value="${build.tools}/lib"/>
 		<property name="build.tools.classes"    value="${build.tools}/classes"/>
 		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
 		<property name="build.tools.javadocs" 	value="${build.tools}/javadocs"/>
@@ -224,7 +223,7 @@
 	      <metainf dir="${build.dir}" includes="LICENSE.txt"/>
 	    </jar>
 		
-	    <jar destfile="${build.tools.lib}/${tools.jar.name}"
+	    <jar destfile="${build.tools}/${tools.jar.name}"
 	         basedir="${build.tools.classes}">
 	    </jar>
 		
@@ -361,7 +360,7 @@
 		
 		<ivy:publish resolver="local" conf="tools" publishivy="false"
 			pubrevision="${build.version}" overwrite="true">
-		   <artifacts pattern="${build.tools.lib}/[artifact]-[revision].[ext]" />
+		   <artifacts pattern="${build.tools}/[artifact]-[revision].[ext]" />
 		</ivy:publish>
 		
 	</target>
