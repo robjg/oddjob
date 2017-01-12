@@ -63,7 +63,7 @@ public class JoinJob extends StructuralJob<Runnable> {
 	 */
 	protected void execute() throws InterruptedException {
 		
-		Runnable child = childHelper.getChild();
+		final Runnable child = childHelper.getChild();
 		
 		if (child == null) {
 			return;
@@ -75,11 +75,13 @@ public class JoinJob extends StructuralJob<Runnable> {
 		StateListener listener = new StateListener() {
 			@Override
 			public void jobStateChange(StateEvent event) {
-				state.set(event.getState());
-				if (!event.getState().isStoppable()) {
+				State nowState = event.getState();
+				state.set(nowState);
+				if (!nowState.isStoppable()) {
 					synchronized (JoinJob.this) {
 						JoinJob.this.notifyAll();
 					}
+					((Stateful) child).removeStateListener(this);
 				}
 			}
 		};

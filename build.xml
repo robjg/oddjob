@@ -384,6 +384,12 @@
 			<fileset dir="${bin.dir}"/>
 		</copy>
 			
+        <copy todir="${dist.bin.dir}/lib">
+            <fileset dir="${lib.dir}">
+                <exclude name="*.jar" />
+            </fileset>
+        </copy>
+		
 		<copy todir="${to.dir}/test">
 			<fileset dir="${test.dir}">
 				<exclude name="persist/**"/>
@@ -541,13 +547,16 @@
 		<fail if="junit.failure" message="Unit test(s) failed. See reports in ${test.reports}."/>	
 	</target>
 
-	<target name="single-test" depends="jar" description="Single JUnit test">
+	<target name="single-test" depends="compile-tests, jar" description="Single JUnit test">
 		<mkdir dir="${work.dir}"/>
 			
 		<junit printsummary="yes" haltonfailure="yes" fork="yes">
 			<classpath>
 				<pathelement location="${build.test.classes}" />
 			</classpath>
+            <classpath>
+                <pathelement location="${java.home}/../lib/tools.jar"/>
+            </classpath>
 			<classpath refid="test-classpath"/>
 			<formatter type="plain" usefile="no" />
 			<test name="${junit.test}"/>

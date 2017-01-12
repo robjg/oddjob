@@ -259,9 +259,11 @@ public class JoinJobTest extends TestCase {
 		StateSteps state = new StateSteps(test);
 		
 		Thread t = new Thread(oddjob);
-		
+
 		state.startCheck(ParentState.READY, ParentState.EXECUTING);
 
+		logger.info("** starting first run");
+		
 		t.start();
 		
 		state.checkWait();
@@ -282,11 +284,15 @@ public class JoinJobTest extends TestCase {
 		
 		t.join(TIMEOUT);
 		
+		logger.info("** first run done.");
+		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 		
 		assertEquals(JobState.COMPLETE, 
 				lastJob.lastStateEvent().getState());
+		
+		logger.info("** resetting");
 		
 		((Resetable) test).hardReset();
 		((Resetable) lastJob).hardReset();
@@ -295,6 +301,8 @@ public class JoinJobTest extends TestCase {
 		
 		state.startCheck(ParentState.READY, ParentState.EXECUTING);
 
+		logger.info("** starting second run");
+		
 		t2.start();
 		
 		state.checkWait();
@@ -309,6 +317,8 @@ public class JoinJobTest extends TestCase {
 		((Runnable) orangesFlag).run();
 		
 		t2.join(TIMEOUT);
+		
+		logger.info("** second run done.");
 		
 		assertEquals(JobState.COMPLETE, 
 				lastJob.lastStateEvent().getState());
