@@ -21,7 +21,10 @@ import org.oddjob.util.OddjobConfigException;
  * 
  * @oddjob.example
  * 
- * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestSimple.xml} 
+ * Greeting people by name. Three Task Requests call the 
+ * {@link TaskService} with different names.
+ *
+ * {@oddjob.xml.resource org/oddjob/jobs/tasks/TaskRequestSimple.xml} 
  * 
  * @author Rob              
  */

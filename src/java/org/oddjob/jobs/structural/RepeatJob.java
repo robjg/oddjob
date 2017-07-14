@@ -35,6 +35,12 @@ import org.oddjob.values.types.SequenceIterable;
  * 
  * {@oddjob.xml.resource org/oddjob/jobs/structural/RepeatExample.xml}
  * 
+ * @oddjob.example
+ * 
+ * Repeat a job 3 times with a sequence.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/structural/RepeatWithSequence.xml}
+ * 
  * @author Rob Gordon.
  * 
  */
@@ -64,10 +70,21 @@ implements Stoppable {
 	 */
 	private volatile int times;
     
+	/**
+     * @oddjob.property 
+     * @oddjob.description Values to repeat over.
+     * @oddjob.required No.
+	 */
 	private transient volatile Iterable<?> values;
 	
+	/** Current iterator. */
 	private transient volatile Iterator<?> iterator;
 	
+	/**
+     * @oddjob.property 
+     * @oddjob.description The current value of the repeat.
+     * @oddjob.required Read Only.
+	 */
 	private transient volatile Object current;
 	
 	@Override

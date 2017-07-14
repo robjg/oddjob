@@ -384,7 +384,7 @@
 			<fileset dir="${bin.dir}"/>
 		</copy>
 			
-        <copy todir="${dist.bin.dir}/lib">
+        <copy todir="${to.dir}/lib">
             <fileset dir="${lib.dir}">
                 <exclude name="*.jar" />
             </fileset>
@@ -411,10 +411,12 @@
 			<fileset dir=".">
 				<include name="oddjob.xml"/>
 				<include name="explorer.xml"/>
-				<include name="build.xml"/>
-				<include name="server.xml"/>
+			    <include name="server.xml"/>
 				<include name="server-jobs.xml"/>
 				<include name="client.xml"/>
+                <include name="build.xml"/>
+                <include name="ivy.xml"/>
+                <include name="ivysettings.xml"/>
 				<include name="LICENSE.txt"/>
 				<include name="README.txt"/>
 			</fileset>
@@ -432,24 +434,23 @@
 	<target name="dist-bin" depends="jar"
 			if="dist.bin.dir">
 
-		<mkdir dir="${dist.bin.dir}"/>
-		<mkdir dir="${dist.bin.dir}/bin"/>
-		<mkdir dir="${dist.bin.dir}/docs"/>
-		<mkdir dir="${dist.bin.dir}/docs/api"/>
-		<mkdir dir="${dist.bin.dir}/oddballs"/>
+        <property name="to.dir" value="${dist.bin.dir}"/>
+		
+		<mkdir dir="${to.dir}"/>
+		<mkdir dir="${to.dir}/bin"/>
+		<mkdir dir="${to.dir}/docs"/>
+		<mkdir dir="${to.dir}/docs/api"/>
+		<mkdir dir="${to.dir}/oddballs"/>
 
-		<copy todir="${dist.bin.dir}/bin">
+		<copy todir="${to.dir}/bin">
 			<fileset dir="${bin.dir}"/>
 		</copy>			
 
-		<copy todir="${dist.bin.dir}/lib">
-			<fileset dir="${lib.dir}">
-				<include name="*.license" />
-				<include name="*.jar"/>
-			</fileset>
+		<copy todir="${to.dir}/lib">
+			<fileset dir="${lib.dir}"/>
 		</copy>
 
-		<copy todir="${dist.bin.dir}/opt/lib">
+		<copy todir="${to.dir}/opt/lib">
 			<fileset dir="${opt.lib}">
 				<include name="*.license" />
 				<include name="*.jar"/>
@@ -457,15 +458,14 @@
 		</copy>
 		
 		<copy file="${opt.dir}/classes/log4j.properties" 
-	    	toDir="${dist.bin.dir}/opt/classes"/>
+	    	toDir="${to.dir}/opt/classes"/>
 
 		<copy file="${launch.jar.name}"
-	    	tofile="${dist.bin.dir}/${launch.jar.name}"/>
+	    	tofile="${to.dir}/${launch.jar.name}"/>
 		
-		<copy todir="${dist.bin.dir}">
+		<copy todir="${to.dir}">
 			<fileset dir=".">
 				<include name="oddjob.xml"/>
-				<include name="designer.xml"/>
 				<include name="explorer.xml"/>
 				<include name="server.xml"/>
 				<include name="server-jobs.xml"/>

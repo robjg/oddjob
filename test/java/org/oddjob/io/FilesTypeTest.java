@@ -337,12 +337,15 @@ public class FilesTypeTest extends TestCase {
     	
     	String result = converter.convert(list, String.class);
     	
-    	assertEquals(new File(dirs.base(), "test/io/reference/test2.txt").getPath() + 
+    	String expected = new File(dirs.base(), "test/io/reference/test2.txt").getPath() + 
     			File.pathSeparator +
     			new File(dirs.base(), "test/io/reference/test1.txt").getPath() +
     			File.pathSeparator +
-    			new File(dirs.base(), "test/io/reference/test3.txt").getPath(),
-    			result);
+    			new File(dirs.base(), "test/io/reference/test3.txt").getPath();
+    	
+    	assertEquals(expected, result);
+    	
+    	assertEquals(expected, result);
     }
     
     public void testMixedTypesExample() throws IOException {
@@ -387,16 +390,39 @@ public class FilesTypeTest extends TestCase {
     	FilesType test = (FilesType) helper.createValueFromResource(
     			"org/oddjob/io/FilesTypeSimple1.xml");
 
-    	assertEquals("Files, onefile.txt", test.toString());
+    	assertEquals("Files: onefile.txt", test.toString());
     	
     	test = (FilesType) helper.createValueFromResource(
     			"org/oddjob/io/FilesTypeSimple2.xml");
 
-    	assertEquals("Files, reports/*.txt", test.toString());
+    	assertEquals("Files: reports/*.txt", test.toString());
     	
     	test = (FilesType) helper.createValueFromResource(
     			"org/oddjob/io/FilesTypeSimple3.xml");
     	
-    	assertEquals("Files, list of size 2", test.toString());
+    	assertEquals("Files: list of size 2", test.toString());
+    }
+    
+    public void testLotsOfFilesToString() throws IOException {
+
+    	
+    	File[] files = new File[FilesType.A_FEW * 2];
+    	
+    	for (int i = 0; i < files.length; ++i) {
+    		files[i] = new File("some" + (i + 1) + ".txt");
+    	}
+    	
+    	FilesType test = new FilesType();
+    	test.setList(0, files);
+    	
+    	File[] out = test.toFiles();
+    	
+    	assertEquals(FilesType.A_FEW * 2, out.length);
+    	
+    	String result = test.toString();
+    	
+    	logger.info(result);
+    	
+    	assertTrue(result, result.endsWith("and 5 more"));
     }
 }

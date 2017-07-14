@@ -4,6 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.oddjob.OddjobRunner.ExitHandler;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
@@ -16,11 +17,15 @@ import org.oddjob.tools.StateSteps;
 
 public class OddjobRunnerTest extends TestCase {
 
+	private static final Logger logger = Logger.getLogger(OddjobRunnerTest.class);
+	
 	String timeoutProperty;
 	
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
+		
+		logger.info("-----------------  " + getName() + "  ---------------------");
 		
 		timeoutProperty = System.getProperty(
 				OddjobRunner.KILLER_TIMEOUT_PROPERTY);
@@ -109,7 +114,7 @@ public class OddjobRunnerTest extends TestCase {
 					oddjobStates.checkWait();
 					
 					oddjobStates.startCheck(ParentState.STARTED,
-							ParentState.DESTROYED);
+							ParentState.COMPLETE, ParentState.DESTROYED);
 					
 					serviceStates.startCheck(ServiceState.STARTED, 
 							ServiceState.STOPPED, ServiceState.DESTROYED);
@@ -117,6 +122,7 @@ public class OddjobRunnerTest extends TestCase {
 					shutdownHook.run();
 					
 				} catch (Exception e) {
+					logger.error("Shutdown hook threw unexpected exception.", e);
 					ex.set(e);
 				}
 			}
@@ -131,9 +137,7 @@ public class OddjobRunnerTest extends TestCase {
 		
 		oddjobStates.checkNow();
 		
-		if (ex.get() != null) {
-			throw ex.get();
-		}
+		assertNull("Not expected Shutdown Hook exception", ex.get());
 	}
 	
 	public static class FailsToDestroy  extends SimpleJob {
@@ -174,14 +178,14 @@ public class OddjobRunnerTest extends TestCase {
 		
 		Object slowToDestroy = new OddjobLookup(oddjob).lookup("slow");
 		
-		final AtomicReference<Thread> shutdownThread = 
-				new AtomicReference<>();;
+		final Thread mainThread = Thread.currentThread();
 		
 		OddjobRunner test = new OddjobRunner(oddjob, new ExitHandler() {
 			@Override
 			public void exit(int exitStatus) {
 				assertEquals(-1, exitStatus);
-				shutdownThread.get().interrupt();
+				mainThread.interrupt();
+				logger.info("Killer thread complete");
 			}
 		});
 		
@@ -200,9 +204,9 @@ public class OddjobRunnerTest extends TestCase {
 				try {
 					slowStates.checkWait();
 										
-					shutdownThread.set(Thread.currentThread());
-					
 					shutdownHook.run();
+					
+					logger.info("Shutdown hook complete");
 					
 				} catch (InterruptedException e) {
 					ex.set(e);

@@ -3,8 +3,6 @@
  */
 package org.oddjob.jobs.structural;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -19,6 +17,8 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.values.types.SequenceIterable;
+
+import junit.framework.TestCase;
 
 /**
  *
@@ -164,7 +164,7 @@ public class RepeatJobTest extends TestCase {
 	public void testSimpleFailOJ() throws Exception {
 		
 		String xml = 
-			"<oddjob xmlns:s='http://rgordon.co.uk/oddjob/schedules'>" +
+			"<oddjob>" +
 			" <job>" +
 			"    <repeat id='repeat'>" +
 			"     <job>" +
@@ -185,6 +185,20 @@ public class RepeatJobTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 	}
 
+	public void testRepeatOnReady() {
+		
+		RepeatJob test = new RepeatJob();
+		test.setTimes(3);
+		
+		test.setJob(new SequentialJob());
+		
+		test.run();
+		
+		assertEquals(3, test.getCount());
+		
+		assertEquals(ParentState.READY, test.lastStateEvent().getState());
+	}
+	
 	public void testRepeatExample() {
 		
 		Oddjob oddjob = new Oddjob();

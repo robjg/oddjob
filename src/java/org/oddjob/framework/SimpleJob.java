@@ -43,7 +43,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	
 	/**
 	 * @oddjob.property
-	 * @oddjob.desction This flag is set by the stop method and should
+	 * @oddjob.description This flag is set by the stop method and should
 	 * be examined by any Stoppable jobs in their processing loops.
 	 * @oddjob.required Read Only.
 	 */

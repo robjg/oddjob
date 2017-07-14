@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.arooa.convert.ConvertletException;
+import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 
@@ -53,6 +55,8 @@ import org.oddjob.arooa.convert.ConversionRegistry;
  */
 public class FilesType implements ArooaValue, Serializable {
 	private static final long serialVersionUID = 2009072300L;
+
+	public static int A_FEW = 5;
 	
 	public static class Conversions implements ConversionProvider {
 		
@@ -61,7 +65,7 @@ public class FilesType implements ArooaValue, Serializable {
 	    			new Convertlet<FilesType, File[]>() {
 	    		public File[] convert(FilesType from) throws ConvertletException {
 	    			try {
-						return from.toFiles();
+	    				return from.toFiles();
 					} catch (IOException e) {
 						throw new ConvertletException(e);
 					}
@@ -75,14 +79,17 @@ public class FilesType implements ArooaValue, Serializable {
      * @oddjob.description The files
      * @oddjob.required No
      */
-    private String files;
+    private volatile String files;
     
     /**
      * @oddjob.property 
      * @oddjob.description More files
      * @oddjob.required No
      */
-    private final List<File[]> list = new ArrayList<File[]>();
+    private final List<File[]> list = new CopyOnWriteArrayList<>();
+
+    /** Remember last conversion for to string. */
+    private volatile File[] lastConversion; 
     
     /**
      * Set the directory for a scan.
@@ -118,7 +125,9 @@ public class FilesType implements ArooaValue, Serializable {
     		addFileArray(all, files);
     	}
     	
-    	return all.toArray(new File[all.size()]);
+    	this.lastConversion = all.toArray(new File[all.size()]);
+    	
+    	return this.lastConversion;
     }
     
     private void addFileArray(List<File> list, File[] array) {
@@ -132,19 +141,48 @@ public class FilesType implements ArooaValue, Serializable {
     }
     
     public String toString() {
+    	
     	StringBuilder text = new StringBuilder();
-    	if (files != null) {
-    		text.append(", ");
-    		text.append(files);
+    	text.append("Files: ");
+
+    	File[] last = this.lastConversion;
+    	if (last == null) {
+    		String files = this.files;
+        	if (files != null) {
+        		text.append(files);
+        	}
+        	int size = list.size();
+        	if (size > 0) {
+        		if (files != null) {
+        			text.append(" and a ");
+        		}
+        		text.append("list of size ");
+        		text.append(size);
+        	}
+        	if (files == null && size == 0) {
+        		text.append(", none yet specified");
+        	}
     	}
-    	if (list.size() > 0) {
-    		text.append(", list of size ");
-    		text.append(list.size());
+    	else {
+    		File[] aFew;
+    		if (last.length > A_FEW) {
+    			aFew = new File[A_FEW];
+    			System.arraycopy(last, 0, aFew, 0, A_FEW);
+    		}
+    		else {
+    			aFew = last;
+    		}
+
+			text.append(new FileConvertlets().filesToPath(aFew));
+			
+    		if (aFew != last) {
+    			text.append(" and ");
+    			text.append(last.length - A_FEW);
+    			text.append(" more");    			
+    		}
     	}
-    	if (text.length() == 0) {
-    		text.append(", none yet specified");
-    	}
-    	return "Files" + text.toString();
+    	
+    	return text.toString();
     }
     
 }

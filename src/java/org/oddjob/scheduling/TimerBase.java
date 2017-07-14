@@ -111,6 +111,12 @@ abstract public class TimerBase extends ScheduleBase {
 	 */ 
 	private volatile Date lastDue;
 
+	/**
+	 * @oddjob.property 
+	 * @oddjob.description The state of the Child Job
+	 * from the nextDue property when the job begins to execute.
+	 * @oddjob.required Read only.
+	 */ 
 	private transient volatile StateCondition haltOn;
 	
 	private transient volatile ResetAction reset;

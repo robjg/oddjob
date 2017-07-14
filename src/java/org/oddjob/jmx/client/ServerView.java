@@ -1,5 +1,7 @@
 package org.oddjob.jmx.client;
 
+import java.util.Objects;
+
 import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.jmx.RemoteDirectoryOwner;
@@ -22,6 +24,8 @@ RemoteDirectoryOwner, RemoteOddjobBean {
 	private final RemoteOddjobBean remoteBean;
 
 	public ServerView(Object serverMainProxy) {
+		Objects.requireNonNull(serverMainProxy, "No Server Main Proxy");
+		
 		this.remoteDirectoryOwner = (RemoteDirectoryOwner) serverMainProxy;
 		this.remoteBean = (RemoteOddjobBean) serverMainProxy;
 		

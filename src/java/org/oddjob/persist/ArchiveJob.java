@@ -280,8 +280,11 @@ implements
 	
 	protected void execute() throws Throwable {
 		
-		OddjobPersister archiver = this.archiver;
-	
+		if (archiveIdentifier == null) {
+			throw new NullPointerException("No ArchiveIdentifier.");
+		}
+		
+		
 		if (archiver == null) {
 			ComponentPersister persister = 
 				getArooaSession().getComponentPersister();
@@ -293,11 +296,8 @@ implements
 		}
 
 		if (archiver == null) {
-			throw new NullPointerException("No Archiver.");
-		}
-		
-		if (archiveIdentifier == null) {
-			throw new NullPointerException("No ArchiveIdentifier.");
+			logger().info("No archiver, using in memory one.");
+			archiver = new MapPersister();
 		}
 		
 		final ComponentPersister componentPersister = 

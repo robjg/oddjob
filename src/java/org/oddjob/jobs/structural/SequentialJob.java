@@ -145,7 +145,7 @@ public class SequentialJob extends StructuralJob<Object>
 	 * @see org.oddjob.framework.StructuralJob#getStateOp()
 	 */
 	@Override
-	public StateOperator getInitialStateOp() {
+	protected StateOperator getInitialStateOp() {
 		return new WorstStateOp();
 	}
 	

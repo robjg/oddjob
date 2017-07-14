@@ -1,6 +1,9 @@
 Oddjob-1.5.0
 ============
 
+* This will be the last Oddjob release to support Java 7. Oddjob 1.6 will
+require Java 8.
+
 * Please Note: This is release is not serialisation compatible with 
 Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
 
@@ -8,7 +11,7 @@ Changes in 1.5.0
 ----------------
 - Included a oj-web Oddball to replace the JSF web app. The new Oddball includes a 
   Jetty Server that exposes Oddjob as a RESTful Web Service and a new UI written in
-  Javascript using JQuery.
+  Typescript using JQuery.
 - Timer and Retry have two new properties: Reset allows the reset level that
   is applied before running a job to be changed. HaltOn allows the state
   to be changed that will cause the Timer or Retry to complete.
@@ -27,6 +30,9 @@ Changes in 1.5.0
   
 Still Todo
 ----------
+
+Deferred to A Later Version
+---------------------------
 - Add Parent Started State to User Guide. Document thread, and services.
 - Find cut and paste bug where the old version of a job with an id is left 
   in the ComponentPool.
@@ -34,11 +40,8 @@ Still Todo
   from the stream are override properties and aren't removed on reset. Also
   describeable doesn't work.
 - RepeatJob needs more tests and examples. Especially around soft resets.
-- Move Timer and State Jobs out of namespaces because things like cascade 
-  and timer really core. Create dummy super classes from depricated namespace jobs.
-
-Deferred to A Later Version
----------------------------
+- Move Timer and State Jobs out of namespaces because things like 
+  timer and if are really core. Create dummy super classes from depricated namespace jobs.
 - Introduce a witheach job that behaves like foreach except that values
   are 'pushed' into it.
 - Document synthetic annotations in the Developer Guide.

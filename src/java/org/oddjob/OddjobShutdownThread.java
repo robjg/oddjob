@@ -12,6 +12,6 @@ package org.oddjob;
 public abstract class OddjobShutdownThread extends Thread {
 
 	public OddjobShutdownThread() {
-		super(OddjobShutdownThread.class.getName());
+		super(OddjobShutdownThread.class.getSimpleName());
 	}
 }

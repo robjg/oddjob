@@ -41,7 +41,10 @@ import org.oddjob.values.properties.PropertiesConfigurationSession;
  * 
  * @oddjob.example
  * 
- * {@oddjob.xml.resource org/oddjob/jobs/job/TaskRequestSimple.xml} 
+ * A Task Service that greets people by name. Three {@link TaskRequest}s call the 
+ * service with different names.
+ * 
+ * {@oddjob.xml.resource org/oddjob/jobs/tasks/TaskRequestSimple.xml} 
  * 
  * @author Rob Gordon
  */
