@@ -1,35 +1,18 @@
-Oddjob-1.5.0
+Oddjob-1.6.0
 ============
 
-* This will be the last Oddjob release to support Java 7. Oddjob 1.6 will
-require Java 8.
+* Oddjob 1.6 requires Java 8, maybe Java 9 by the time it's released..
 
 * Please Note: This is release is not serialisation compatible with 
-Oddjob 1.4. All persisted job state will need to be deleted before upgrading.
+Oddjob 1.5. All persisted job state will need to be deleted before upgrading.
 
-Changes in 1.5.0
+Changes in 1.6.0
 ----------------
-- Included a oj-web Oddball to replace the JSF web app. The new Oddball includes a 
-  Jetty Server that exposes Oddjob as a RESTful Web Service and a new UI written in
-  Typescript using JQuery.
-- Timer and Retry have two new properties: Reset allows the reset level that
-  is applied before running a job to be changed. HaltOn allows the state
-  to be changed that will cause the Timer or Retry to complete.
-- Created Reset Actions including an AUTO reset action that will look
-  at the state before issuing either a hard or soft reset. Changed Reset Job 
-  to use the new actions.
-- Added an optional Reset Action to Run Job.
-- Changed the Explorer Run action to be Start. This reflects that it is used
-  to start timers and services as well as starting the running of jobs.
-- Oddjob Explorer Start Action (was Run) now Auto resets the job it's running.
-- Added an TaskExecutor concept to allow jobs to be run with
-  parameters.
-- Cascade now has cascadeOn and haltOn properties, this allows a cascade 
-  to cascade either when a Timer is STARTED or COMPLEETE
-- Fixed bug where lastStateEvent was not reflected in a JMX client.
-  
+
 Still Todo
 ----------
+- Move Tests to Junit 4.
+- Add Security to the WebApp (with a Read Only role).  
 
 Deferred to A Later Version
 ---------------------------
@@ -53,7 +36,6 @@ Deferred to A Later Version
   designer forms.
 - Allow pasting and dragging Oddjobs onto the startup panel of Oddjob 
   Explorer.
-- Add Security to the WebApp (with a Read Only role).  
 - Introduce the idea of Read only configuration that can't be modified if
   it's been loaded from a non modifiable resource, i.e. from the class path.
 - Check a configuration hasn't been modified by someone else before a 
@@ -65,6 +47,28 @@ Deferred to A Later Version
 - Introduce a FilterType that can filter files by modified date, created date,
   or match against a regular expression.
 
+
+Changes in 1.5.0
+----------------
+- Included a oj-web Oddball to replace the JSF web app. The new Oddball includes a 
+  Jetty Server that exposes Oddjob as a RESTful Web Service and a new UI written in
+  Typescript using JQuery.
+- Timer and Retry have two new properties: Reset allows the reset level that
+  is applied before running a job to be changed. HaltOn allows the state
+  to be changed that will cause the Timer or Retry to complete.
+- Created Reset Actions including an AUTO reset action that will look
+  at the state before issuing either a hard or soft reset. Changed Reset Job 
+  to use the new actions.
+- Added an optional Reset Action to Run Job.
+- Changed the Explorer Run action to be Start. This reflects that it is used
+  to start timers and services as well as starting the running of jobs.
+- Oddjob Explorer Start Action (was Run) now Auto resets the job it's running.
+- Added an TaskExecutor concept to allow jobs to be run with
+  parameters.
+- Cascade now has cascadeOn and haltOn properties, this allows a cascade 
+  to cascade either when a Timer is STARTED or COMPLEETE
+- Fixed bug where lastStateEvent was not reflected in a JMX client.
+  
 Changes in 1.4.0
 ----------------
 - Oddjob 1.4 only supports Java 1.7 and above.
