@@ -1,8 +1,10 @@
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -11,8 +13,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class ScriptExamplesTest extends TestCase {
+public class ScriptExamplesTest extends OjTestCase {
 
+   @Test
 	public void testInvokeScriptFunction() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

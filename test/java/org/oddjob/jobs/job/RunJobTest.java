@@ -2,11 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs.job;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.beans.PropertyVetoException;
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -44,13 +47,13 @@ import org.oddjob.util.OddjobLockedException;
 /**
  * 
  */
-public class RunJobTest extends TestCase {
+public class RunJobTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(RunJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("------------------------  " + getName() + 
 				"  ---------------------------");
@@ -67,6 +70,7 @@ public class RunJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCanRunAnyGivenRunnable() {
 		
 		StandardArooaSession session = new StandardArooaSession() {
@@ -120,6 +124,7 @@ public class RunJobTest extends TestCase {
 		assertEquals(3, r.ran);
 	}
 	
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		String xml = 
@@ -153,6 +158,7 @@ public class RunJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDestroyAfterRunning() throws InterruptedException, ArooaPropertyException, ArooaConversionException, ArooaParseException, FailedToStopException {
 		
 		String xml = 
@@ -255,6 +261,7 @@ public class RunJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDestroyedWhileActive() throws InterruptedException {
 
 		StandardArooaSession session = new StandardArooaSession() {
@@ -298,6 +305,7 @@ public class RunJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDestroyedWhileExecuting() throws InterruptedException {
 
 		MyStateful2 job = new MyStateful2();
@@ -316,6 +324,7 @@ public class RunJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testRunRemoteJob() 
 	throws ArooaPropertyException, ArooaConversionException, 
 			InterruptedException, FailedToStopException, PropertyVetoException {
@@ -382,6 +391,7 @@ public class RunJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStopStopsRunningJobAndResetDoesnt() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		String xml = 
@@ -479,6 +489,7 @@ public class RunJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testResetPropertyResetsTargetJob() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		String xml = 

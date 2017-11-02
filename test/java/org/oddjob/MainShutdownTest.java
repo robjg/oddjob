@@ -1,9 +1,12 @@
 package org.oddjob;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.concurrent.Exchanger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -17,12 +20,12 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-public class MainShutdownTest extends TestCase {
+public class MainShutdownTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(MainTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 	}
 	
@@ -52,6 +55,7 @@ public class MainShutdownTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testShutdownHook() throws Exception {
 		
 		String xml = "<oddjob>" +
@@ -75,7 +79,7 @@ public class MainShutdownTest extends TestCase {
 		logger.info("Waiting for OurSimpleJob to be stoppable.");
 		r.exchanger.exchange(null);
 		
-		OddjobRunner.ShutdownHook hook = new OddjobRunner(oddjob). new ShutdownHook();
+		OddjobRunner.ShutdownHook hook = new OddjobRunner(oddjob, i -> {}). new ShutdownHook();
 		hook.run();
 		
 		assertTrue(r.stopped);
@@ -103,6 +107,7 @@ public class MainShutdownTest extends TestCase {
 	 * @throws FailedToStopException
 	 * @throws InterruptedException
 	 */
+   @Test
 	public void testKillerThread() throws FailedToStopException, InterruptedException {
 		
 		OurDirs dirs = new OurDirs();

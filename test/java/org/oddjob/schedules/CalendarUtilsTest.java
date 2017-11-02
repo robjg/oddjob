@@ -3,20 +3,23 @@
  */
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.units.DayOfMonth;
 import org.oddjob.schedules.units.DayOfWeek;
 import org.oddjob.schedules.units.WeekOfMonth;
 
-public class CalendarUtilsTest extends TestCase {
+public class CalendarUtilsTest extends OjTestCase {
 
+   @Test
 	public void testAddYearAssumption() throws ParseException {
 		
 		Calendar test = Calendar.getInstance();
@@ -46,6 +49,7 @@ public class CalendarUtilsTest extends TestCase {
 		assertEquals(DateHelper.parseDate("2005-02-28"), test.getTime());
 	}
 	
+   @Test
 	public void testSetEndOfDay() throws ParseException {
 		Calendar test = Calendar.getInstance();
 		test.setTime(DateHelper.parseDateTime("2003-07-15 12:27"));
@@ -55,6 +59,7 @@ public class CalendarUtilsTest extends TestCase {
 				test.getTime());
 	}
 	
+   @Test
 	public void testSetEndOfMonth() throws ParseException {
 		Calendar test = Calendar.getInstance();
 		test.setTime(DateHelper.parseDateTime("2003-07-15 12:27"));
@@ -67,6 +72,7 @@ public class CalendarUtilsTest extends TestCase {
 	/*
 	 * Test for Date startOfMonth(Date)
 	 */
+   @Test
 	public void testStartOfMonthDate() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(
@@ -81,6 +87,7 @@ public class CalendarUtilsTest extends TestCase {
 	/*
 	 * Test for Date endOfMonth(Date)
 	 */
+   @Test
 	public void testEndOfMonthDate() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(
@@ -94,6 +101,7 @@ public class CalendarUtilsTest extends TestCase {
 	/*
 	 * Test for Date endOfMonth(Date)
 	 */
+   @Test
 	public void testDayOfMonth() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(
@@ -107,6 +115,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());
 	}
 	
+   @Test
 	public void testStartOfWeekDate() throws ParseException {
 
 		Calendar result = CalendarUtils.startOfWeek(
@@ -135,6 +144,7 @@ public class CalendarUtilsTest extends TestCase {
 	}
 
 
+   @Test
 	public void testEndOfWeekDate() throws ParseException {
 		
 		Calendar result = CalendarUtils.endOfWeek(
@@ -156,6 +166,7 @@ public class CalendarUtilsTest extends TestCase {
 		assertEquals(expected, result.getTime());
 	}
 	
+   @Test
 	public void testDayOfWeek() throws ParseException {
 
 		CalendarUtils test = new CalendarUtils(
@@ -176,6 +187,7 @@ public class CalendarUtilsTest extends TestCase {
 		expected = DateHelper.parseDateTime("2006-03-11");
 	}
 	
+   @Test
 	public void testStartOfYearDate() throws ParseException {
 		assertEquals(DateHelper.parseDate("2003-01-01"),
 				CalendarUtils.startOfYear(
@@ -184,6 +196,7 @@ public class CalendarUtilsTest extends TestCase {
 	}
 
 
+   @Test
 	public void testEndOfYearDate() throws ParseException {
 		assertEquals(DateHelper.parseDateTime("2004-01-01 00:00"),
 				CalendarUtils.endOfYear(
@@ -191,6 +204,7 @@ public class CalendarUtilsTest extends TestCase {
 						TimeZone.getDefault()).getTime());
 	}
 
+   @Test
 	public void testDayOfYear() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(
@@ -204,6 +218,7 @@ public class CalendarUtilsTest extends TestCase {
 		assertEquals(expected, result.getTime());
 	}
 	
+   @Test
 	public void testMonthOfYear() throws ParseException {
 		
 		assertEquals(DateHelper.parseDateTime("2006-03-01"), 
@@ -212,6 +227,7 @@ public class CalendarUtilsTest extends TestCase {
 						TimeZone.getDefault()).getTime());
 	}
 	
+   @Test
 	public void testStartOfWeekOfMonth() throws ParseException{
 		
 		CalendarUtils test = new CalendarUtils(
@@ -247,6 +263,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());
 	}
 	
+   @Test
 	public void testEndOfWeekOfMonth() throws ParseException{
 		
 		CalendarUtils test = new CalendarUtils(
@@ -282,6 +299,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());
 	}
 	
+   @Test
 	public void testStartOfDayOfWeekOfMonth() throws ParseException{
 		
 		CalendarUtils test = new CalendarUtils(
@@ -331,6 +349,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());		
 	}
 	
+   @Test
 	public void testStartOfDay() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(
@@ -343,6 +362,7 @@ public class CalendarUtilsTest extends TestCase {
 				result.getTime());
 	}
 		
+   @Test
 	public void testEndOfDay() throws ParseException {
 		
 		CalendarUtils test = new CalendarUtils(

@@ -1,6 +1,8 @@
 package org.oddjob.sql;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -9,8 +11,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class MySQLTest extends TestCase {
+public class MySQLTest extends OjTestCase {
 
+   @Test
 	public void testCallable() throws ArooaPropertyException, ArooaConversionException {
 		
 		if (System.getProperty("mysql.home") == null) {

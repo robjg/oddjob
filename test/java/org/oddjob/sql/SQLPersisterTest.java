@@ -3,12 +3,14 @@
  */
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.Serializable;
 import java.net.URL;
 import java.sql.Connection;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -20,7 +22,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
-public class SQLPersisterTest extends TestCase {
+public class SQLPersisterTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(SQLPersisterTest.class);
 	
 	public static class Sample implements Serializable {
@@ -28,6 +30,7 @@ public class SQLPersisterTest extends TestCase {
 		String value;
 	}
 	
+   @Test
 	public void testSql() throws Exception {
 
 		Oddjob setUp = new Oddjob();
@@ -72,6 +75,7 @@ public class SQLPersisterTest extends TestCase {
 		c.close();
 	}
 		
+   @Test
 	public void testInOddjob() throws Exception {		
 		
 		Oddjob setUp = new Oddjob();

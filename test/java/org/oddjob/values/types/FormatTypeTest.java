@@ -2,13 +2,16 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.values.types;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
@@ -26,15 +29,16 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  * 
  */
-public class FormatTypeTest extends TestCase {
+public class FormatTypeTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(FormatTypeTest.class);
 	
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testLocalDate() throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -52,6 +56,7 @@ public class FormatTypeTest extends TestCase {
 		assertEquals("20051101", result);
 	}
 	
+   @Test
 	public void testTimeZoneDate() throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -70,6 +75,7 @@ public class FormatTypeTest extends TestCase {
 		assertEquals("20051101", result);
 	}
 	
+   @Test
 	public void testNumberFormat() throws Exception {
 		
 		FormatType ft = new FormatType();
@@ -84,6 +90,7 @@ public class FormatTypeTest extends TestCase {
 		assertEquals("22.00", result);
 	}
 
+   @Test
 	public void testInOddjob() throws ArooaConversionException, ParseException {
 
 		File file = new File(getClass().getResource(
@@ -105,6 +112,7 @@ public class FormatTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testFormatTimeNowExample() throws ArooaConversionException, ParseException {
 
 		ManualClock ourClock = new ManualClock("2013-01-30 08:17");

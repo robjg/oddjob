@@ -1,16 +1,19 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.framework.Service;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobComponentResolverTest extends TestCase {
+public class OddjobComponentResolverTest extends OjTestCase {
 	
+   @Test
 	public void testRunnable() {
 		
 		OddjobComponentResolver test = 
@@ -33,6 +36,7 @@ public class OddjobComponentResolverTest extends TestCase {
 		public void stop() {}
 	}
 	
+   @Test
 	public void testService() {
 		
 		OddjobComponentResolver test = 
@@ -53,6 +57,7 @@ public class OddjobComponentResolverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRestore() throws IOException, ClassNotFoundException {
 		
 		OddjobComponentResolver test = 

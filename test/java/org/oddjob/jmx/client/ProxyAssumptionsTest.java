@@ -1,19 +1,22 @@
 package org.oddjob.jmx.client;
 
+import org.junit.Test;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 import javax.security.auth.Destroyable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ProxyAssumptionsTest extends TestCase {
+public class ProxyAssumptionsTest extends OjTestCase {
 
 	/**
 	 * How can we deal with toString()?
 	 * - To string is passed through to the invocation handler.
 	 */
+   @Test
 	public void testToString() {
 		class H implements InvocationHandler {
 			public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -36,6 +39,7 @@ public class ProxyAssumptionsTest extends TestCase {
 	 * Only methods on the interface or Objec or passed through...
 	 *
 	 */
+   @Test
 	public void testAnyMethod() throws Exception {
 		class H implements InvocationHandler {
 			

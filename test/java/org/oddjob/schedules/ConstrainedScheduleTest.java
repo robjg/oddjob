@@ -1,15 +1,18 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.schedules.WeeklySchedule;
 import org.oddjob.schedules.units.DayOfWeek;
 
-public class ConstrainedScheduleTest extends TestCase {
+public class ConstrainedScheduleTest extends OjTestCase {
 
+   @Test
 	public void testLastDayOfWeek() throws ParseException {
 		
 		WeeklySchedule test = new WeeklySchedule();
@@ -43,6 +46,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testLastDayOfWeekOverllaping() throws ParseException {
 		
 		WeeklySchedule test = new WeeklySchedule();
@@ -76,6 +80,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testNextDayOfWeek() throws ParseException {
 		
 		WeeklySchedule test = new WeeklySchedule();
@@ -109,6 +114,7 @@ public class ConstrainedScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testNextDayOfWeekOverllaping() throws ParseException {
 		
 		WeeklySchedule test = new WeeklySchedule();

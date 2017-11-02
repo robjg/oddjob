@@ -1,10 +1,14 @@
 package org.oddjob.values.properties;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class SystemPropertyStackTest extends TestCase {
+public class SystemPropertyStackTest extends OjTestCase {
 
 	public static final String PROP0 = "oddjob.syspropstack.test.prop0";
 	
@@ -20,9 +24,9 @@ public class SystemPropertyStackTest extends TestCase {
 	
 	Properties props2 = new Properties();
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		System.setProperty(PROP0, "SetBySystem");
 		System.setProperty(PROP1, "SetBySystem");
@@ -36,13 +40,14 @@ public class SystemPropertyStackTest extends TestCase {
 		props2.setProperty(PROP3, "SetByProps2");
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+    @After
+    public void tearDown() throws Exception {
+
 		
 		System.getProperties().remove(PROP1);
 	}
 	
+   @Test
 	public void testSetThenUnsetLeavesPropertiesAsOriginals() {
 		
 		assertEquals("SetBySystem", System.getProperty(PROP0));
@@ -69,6 +74,7 @@ public class SystemPropertyStackTest extends TestCase {
 		assertEquals(null, System.getProperty(PROP4));
 	}		
 	
+   @Test
 	public void testSetTwiceThenUnsetInReverseOrder() {
 		
 		assertEquals("SetBySystem", System.getProperty(PROP0));
@@ -112,6 +118,7 @@ public class SystemPropertyStackTest extends TestCase {
 		assertEquals(null, System.getProperty(PROP4));
 	}
 	
+   @Test
 	public void testSetTwiceThenUnsetInSameOrder() {
 		
 		assertEquals("SetBySystem", System.getProperty(PROP0));

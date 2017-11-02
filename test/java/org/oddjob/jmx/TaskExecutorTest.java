@@ -1,8 +1,11 @@
 package org.oddjob.jmx;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -20,18 +23,19 @@ import org.oddjob.jobs.tasks.TaskView;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class TaskExecutorTest extends TestCase {
+public class TaskExecutorTest extends OjTestCase {
 
 	private static final Logger logger = 
 			Logger.getLogger(TaskExecutorTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("-------------------   " + getName() + "  ------------------------");
 	}
 	
+   @Test
 	public void testTaskViewProxyPropergateStateAndTaskResonse() throws ArooaPropertyException, ArooaConversionException, TaskException, FailedToStopException {
 		
 		Oddjob server = new Oddjob();
@@ -68,6 +72,7 @@ public class TaskExecutorTest extends TestCase {
 	}		
 
 	
+   @Test
 	public void testClientExecutesTaskThatCompletesOK() {
 		
 		Oddjob server = new Oddjob();

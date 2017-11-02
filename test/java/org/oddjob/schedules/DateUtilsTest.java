@@ -1,21 +1,24 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * 
  */
-public class DateUtilsTest extends TestCase {
+public class DateUtilsTest extends OjTestCase {
 
 	/*
 	 * Test for Date startOfDay(Date)
 	 */
+   @Test
 	public void testStartOfDayDate() throws ParseException {
 		assertEquals(
 				DateHelper.parseDate("2003-07-11"),
@@ -26,6 +29,7 @@ public class DateUtilsTest extends TestCase {
 	/*
 	 * Test for Date endOfDay(Date)
 	 */
+   @Test
 	public void testEndOfDayDate() throws ParseException {
 		assertEquals(
 				DateHelper.parseDate("2003-07-12"),
@@ -36,6 +40,7 @@ public class DateUtilsTest extends TestCase {
 	/*
 	 * Test for int dayOfWeek(Date)
 	 */
+   @Test
 	public void testDayOfWeekDate() throws ParseException {
 
 		assertEquals(6, DateUtils.dayOfWeek(
@@ -46,6 +51,7 @@ public class DateUtilsTest extends TestCase {
 	/*
 	 * Test for int dayOfMonth(Date)
 	 */
+   @Test
 	public void testDayOfMonthDate() throws ParseException {
 
 		assertEquals(11, DateUtils.dayOfMonth(
@@ -54,6 +60,7 @@ public class DateUtilsTest extends TestCase {
 	}
 
 
+   @Test
 	public void testCompareCalendars() throws ParseException {
 		
 		Calendar c1 = Calendar.getInstance();

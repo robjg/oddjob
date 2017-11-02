@@ -1,5 +1,7 @@
 package org.oddjob.monitor.model;
 
+import org.junit.Test;
+
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -7,10 +9,11 @@ import javax.swing.KeyStroke;
 
 import org.oddjob.monitor.context.ExplorerContext;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JobActionTest extends TestCase {
+public class JobActionTest extends OjTestCase {
 
+   @Test
 	public void testEnabledPropertyNotification() {
 		
 		class MyAction extends JobAction {

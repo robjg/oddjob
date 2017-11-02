@@ -1,10 +1,12 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 
 import java.io.File;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -15,7 +17,7 @@ import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 
-public class AndStateTest extends TestCase {
+public class AndStateTest extends OjTestCase {
 
 	private class Result implements StateListener {
 		State result;
@@ -31,6 +33,7 @@ public class AndStateTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testComplete() {
 		
 		AndState test = new AndState();
@@ -72,6 +75,7 @@ public class AndStateTest extends TestCase {
 		assertEquals(ParentState.READY, listener.result);
 	}
 	
+   @Test
 	public void testException() {
 		
 		AndState test = new AndState();
@@ -112,6 +116,7 @@ public class AndStateTest extends TestCase {
 		assertEquals(ParentState.READY, listener.result);
 	}
 	
+   @Test
 	public void testManyComplete() {
 		
 		AndState test = new AndState();
@@ -141,6 +146,7 @@ public class AndStateTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, listener.result);
 	}
 		
+   @Test
 	public void testExample() throws ArooaParseException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();

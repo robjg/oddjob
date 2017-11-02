@@ -1,8 +1,10 @@
 package org.oddjob.values.types;
 
+import org.junit.Test;
+
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -11,8 +13,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class SequenceTypeTest extends TestCase {
+public class SequenceTypeTest extends OjTestCase {
 
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

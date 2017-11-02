@@ -3,12 +3,14 @@
  */
 package org.oddjob.values.properties;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -23,13 +25,14 @@ import org.oddjob.framework.SimpleJob;
  * @author rob
  *
  */
-public class PropertiesTypeTest extends TestCase {
+public class PropertiesTypeTest extends OjTestCase {
 
 	/**
 	 * Test a simple get and a set.
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSimpleSetGet() throws Exception {
 		
 		PropertiesType test = new PropertiesType();
@@ -59,6 +62,7 @@ public class PropertiesTypeTest extends TestCase {
 	/**
 	 * Test that properties can be set from each other.
 	 */
+   @Test
 	public void testSetInOddjob() {
 		String xml = 
 			"<oddjob>" +
@@ -95,6 +99,7 @@ public class PropertiesTypeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testNonStringValue() throws IOException, ArooaConversionException {
 		
 		String xml = 
@@ -130,6 +135,7 @@ public class PropertiesTypeTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testMergeTwoPropertySetsWhereSecondReferencesFirst() {
 		String xml = 
 			"<oddjob>" +
@@ -168,6 +174,7 @@ public class PropertiesTypeTest extends TestCase {
 		assertEquals("apples", myComp.props.get("fruit.favourite"));
 	}
 	
+   @Test
 	public void testMergeFiles() {
 		String xml = 
 			"<oddjob>" +
@@ -206,6 +213,7 @@ public class PropertiesTypeTest extends TestCase {
 		assertEquals("apples", myComp.props.get("snack.favourite"));
 	}
 	
+   @Test
 	public void testExtractAndPrefix() throws IOException, ArooaConversionException {
 		
 		Properties props = new Properties();
@@ -229,6 +237,7 @@ public class PropertiesTypeTest extends TestCase {
 	/**
 	 * Test null values are empty properties.
 	 */
+   @Test
 	public void testNullValue() throws IOException, ArooaConversionException {
 		
 		PropertiesType test = new PropertiesType();
@@ -247,6 +256,7 @@ public class PropertiesTypeTest extends TestCase {
 	 * @throws ArooaConversionException 
 	 * @throws ArooaPropertyException 
 	 */
+   @Test
 	public void testPropertiesInVaraiblesFromBuffer() throws ArooaPropertyException, ArooaConversionException {
 		
 		URL url = getClass().getResource("PropertiesInVariables.xml");

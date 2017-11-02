@@ -1,11 +1,13 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaParseException;
@@ -25,7 +27,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.values.properties.PropertiesJob;
 
-public class OddjobNestedTest extends TestCase {
+public class OddjobNestedTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(OddjobNestedTest.class);
 	
     /**
@@ -34,6 +36,7 @@ public class OddjobNestedTest extends TestCase {
      * @throws URISyntaxException 
      *
      */
+   @Test
     public void testNestedOddjob() throws ArooaParseException, URISyntaxException {
     	
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjob.xml");
@@ -80,6 +83,7 @@ public class OddjobNestedTest extends TestCase {
         oj.destroy();
     }
 
+   @Test
     public void testSetNestedWithArg() throws URISyntaxException {
 
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjobWithArg.xml");
@@ -97,6 +101,7 @@ public class OddjobNestedTest extends TestCase {
         oj.destroy();
     }
 
+   @Test
     public void testNestedPassingProperties() throws Exception {
     	    	    	
     	URL url = getClass().getClassLoader().getResource("org/oddjob/NestedOddjobWithProperty.xml");
@@ -112,6 +117,7 @@ public class OddjobNestedTest extends TestCase {
         oj.destroy();
     }    
     
+   @Test
     public void testExportJob() throws ArooaPropertyException, ArooaConversionException {
 
     	Oddjob oddjob = new Oddjob();
@@ -138,6 +144,7 @@ public class OddjobNestedTest extends TestCase {
     	oddjob.destroy();
     }
     
+   @Test
     public void testExportInOddjob() throws Exception {
     	
     	String config = 
@@ -181,6 +188,7 @@ public class OddjobNestedTest extends TestCase {
         oj.destroy();
     }    
     
+   @Test
     public void testArooaValueConversionAssumptionTest() throws NoConversionAvailableException, ConversionFailedException {
     	
     	ArooaConverter converter = new DefaultConverter();
@@ -218,6 +226,7 @@ public class OddjobNestedTest extends TestCase {
 		assertNull(result);
     }
     
+   @Test
     public void testExportBean() throws ArooaPropertyException, ArooaConversionException {
 
     	Oddjob oddjob = new Oddjob();
@@ -257,6 +266,7 @@ public class OddjobNestedTest extends TestCase {
     	oddjob.destroy();
     }
     
+   @Test
     public void testSharedInheritance() throws ArooaPropertyException, ArooaConversionException {
     	
         Oddjob oj = new Oddjob();
@@ -304,6 +314,7 @@ public class OddjobNestedTest extends TestCase {
         
     }
     
+   @Test
     public void testExportedProperty() 
     throws ArooaPropertyException, ArooaConversionException {
     	

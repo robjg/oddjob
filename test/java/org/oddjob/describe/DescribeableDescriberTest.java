@@ -1,13 +1,15 @@
 package org.oddjob.describe;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Describeable;
 
-public class DescribeableDescriberTest extends TestCase
+public class DescribeableDescriberTest extends OjTestCase
 implements Describeable {
 
 	public Map<String, String> describe() {
@@ -16,6 +18,7 @@ implements Describeable {
 		return description;
 	}
 
+   @Test
 	public void testDescribeableDescriberMethod() {
 				
 		Describer test = new DescribeableDescriber();

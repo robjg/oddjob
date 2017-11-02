@@ -1,12 +1,14 @@
 package org.oddjob.beanbus;
 
+import org.junit.Test;
+
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.beanbus.destinations.BeanCapture;
 
-public class BasicBeanBusTest extends TestCase {
+public class BasicBeanBusTest extends OjTestCase {
 
 	private class OurListener implements BusListener {
 
@@ -55,6 +57,7 @@ public class BasicBeanBusTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testStandardLifecycle() throws BusException {
 		
 		BeanCapture<String> trap = new BeanCapture<String>();
@@ -94,6 +97,7 @@ public class BasicBeanBusTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCrashOnPutLifecycle() throws BusException {
 		
 		OurListener listener = new OurListener();
@@ -133,6 +137,7 @@ public class BasicBeanBusTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testCleaningLifecycle() throws BusException {
 		
 		BeanCapture<String> trap = new BeanCapture<String>();
@@ -201,6 +206,7 @@ public class BasicBeanBusTest extends TestCase {
 		assertEquals(3, listener.terminated);
 	}
 	
+   @Test
 	public void testBusState() throws BusException {
 		
 		BeanCapture<String> trap = new BeanCapture<String>();
@@ -258,6 +264,7 @@ public class BasicBeanBusTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCrashedByListenerWhenStarting() throws BusCrashException {
 		
 		CrashingOnStartListener listener = new CrashingOnStartListener();
@@ -309,6 +316,7 @@ public class BasicBeanBusTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testCrashedByListenerWhenCleaning() throws BusCrashException {
 		
 		CrashingOnCleanListener listener = new CrashingOnCleanListener();

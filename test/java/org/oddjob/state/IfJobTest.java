@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -21,16 +24,17 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 
-public class IfJobTest extends TestCase {
+public class IfJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(IfJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------  " + getName() + "  ----------------");
 	}
 	
+   @Test
 	public void testIfOnlyJobComplete() {
 		FlagState child = new FlagState();
 		child.setState(JobState.COMPLETE);
@@ -46,6 +50,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testIfOnlyJobNotComplete() {
 		FlagState child = new FlagState();
 		child.setState(JobState.INCOMPLETE);
@@ -62,6 +67,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testIfOnlyJobException() {
 		FlagState child = new FlagState();
 		child.setState(JobState.EXCEPTION);
@@ -98,6 +104,7 @@ public class IfJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testThen1() throws IOException, ClassNotFoundException {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -134,6 +141,7 @@ public class IfJobTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testThen2() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -151,6 +159,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testThen3() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -182,6 +191,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testNotThen() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -202,6 +212,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testNotThen2() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -222,6 +233,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testElse1() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -259,6 +271,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(JobState.READY, elze.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testElse2() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -280,6 +293,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testElse3() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.EXCEPTION);
@@ -303,6 +317,7 @@ public class IfJobTest extends TestCase {
 	}
 	
 	// only an else job but the child completes.
+   @Test
 	public void testNoElse() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -321,6 +336,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testException1() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.EXCEPTION);
@@ -346,6 +362,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(2, then.count);
 	}
 	
+   @Test
 	public void testException2() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.EXCEPTION);
@@ -365,6 +382,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testException3() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.EXCEPTION);
@@ -383,6 +401,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testNotException() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -401,6 +420,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testNotExceptionWithElse() {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -425,6 +445,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -439,6 +460,7 @@ public class IfJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testNotComplete() throws IOException, ClassNotFoundException {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -456,6 +478,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 
+   @Test
 	public void testNotNotComplete() throws IOException, ClassNotFoundException {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.COMPLETE);
@@ -482,6 +505,7 @@ public class IfJobTest extends TestCase {
 		testState.checkNow();
 	}
 	
+   @Test
 	public void testNotInComplete() throws IOException, ClassNotFoundException {
 		FlagState depends = new FlagState();
 		depends.setState(JobState.INCOMPLETE);
@@ -500,6 +524,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testReset() {
 
 		FlagState depends = new FlagState();
@@ -519,6 +544,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testStop() throws IOException, ClassNotFoundException, FailedToStopException, InterruptedException {
 		WaitJob depends = new WaitJob();
 		
@@ -545,6 +571,7 @@ public class IfJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testIfFileExists() throws IOException {
 	
 		OurDirs dirs = new OurDirs();

@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.logging;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -10,7 +13,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.util.IO;
@@ -18,7 +21,7 @@ import org.oddjob.util.IO;
 /**
  * 
  */
-public class LoggingOutputStreamTest extends TestCase {
+public class LoggingOutputStreamTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(LoggingOutputStreamTest.class);
 	
@@ -35,7 +38,8 @@ public class LoggingOutputStreamTest extends TestCase {
 		}
 	}
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		
 		logger.debug("--------------- " + getName() + " -----------------" );
 		
@@ -47,6 +51,7 @@ public class LoggingOutputStreamTest extends TestCase {
 		level = null;		
 	}
 		
+   @Test
 	public void testByteArray() throws IOException {
 		test.write("Hello\nWorld".getBytes());
 		
@@ -59,6 +64,7 @@ public class LoggingOutputStreamTest extends TestCase {
 		assertEquals("World", text.get(1));
 	}
 
+   @Test
 	public void testByteArray2() throws IOException {
 		test.write("01234Something\nDifferent".getBytes(), 5, 14);
 		
@@ -71,6 +77,7 @@ public class LoggingOutputStreamTest extends TestCase {
 		assertEquals("Diff", text.get(1));
 	}
 	
+   @Test
 	public void testAdd() throws IOException {
 		class LA implements LogEventSink {
 			String[] expected = { "\n", "x\n"};
@@ -99,6 +106,7 @@ public class LoggingOutputStreamTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testWindowsBytes() throws IOException {
 		
 		byte[] bytes = { 

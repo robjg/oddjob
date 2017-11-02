@@ -2,13 +2,16 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Loadable;
@@ -34,12 +37,12 @@ import org.oddjob.tools.OurDirs;
  *
  * @author Rob Gordon.
  */
-public class FilePersisterTest extends TestCase {
+public class FilePersisterTest extends OjTestCase {
 
 	File DIR;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		OurDirs ourDirs = new OurDirs();
 	
 		DIR = ourDirs.relative("work/persist");
@@ -77,6 +80,7 @@ public class FilePersisterTest extends TestCase {
 	 * @throws ComponentPersistException 
 	 *
 	 */
+   @Test
 	public void testPersistAndLoad() throws ComponentPersistException {
 		OurJob job = new OurJob();
 		job.setName("Test");
@@ -124,6 +128,7 @@ public class FilePersisterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFailsOnNoDirectory() {
 		
 		FilePersister test = new FilePersister();
@@ -139,6 +144,7 @@ public class FilePersisterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCreatesFullPath() throws ComponentPersistException {
 		
 		FilePersister test = new FilePersister();
@@ -152,6 +158,7 @@ public class FilePersisterTest extends TestCase {
 		assertTrue(check.exists());
 	}
 	
+   @Test
 	public void testNullDirectory() throws ComponentPersistException {
 		FilePersister persister = new FilePersister();
 		
@@ -164,6 +171,7 @@ public class FilePersisterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testPersistExample() throws ArooaPropertyException, ArooaConversionException, URISyntaxException {
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/persist/FilePersisterExample.xml");

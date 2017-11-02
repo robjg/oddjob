@@ -1,13 +1,15 @@
 package org.oddjob.beanbus.drivers;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class IterableBusDriverTest extends TestCase {
+public class IterableBusDriverTest extends OjTestCase {
 
 	private interface Food {
 		
@@ -21,6 +23,7 @@ public class IterableBusDriverTest extends TestCase {
 		
 	}
 		
+   @Test
 	public void testSimpleRun() {
 		
 		List<Apple> fruit = new ArrayList<Apple>();
@@ -77,6 +80,7 @@ public class IterableBusDriverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testBlockedIterator() throws InterruptedException {
 		
 		BlockingIterable beans = new BlockingIterable();

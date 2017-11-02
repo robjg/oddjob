@@ -1,4 +1,8 @@
 package org.oddjob.sql;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -6,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -22,12 +26,12 @@ import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 
-public class SQLKeeperTest extends TestCase {
+public class SQLKeeperTest extends OjTestCase {
 	
 	ConnectionType ct;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -52,8 +56,8 @@ public class SQLKeeperTest extends TestCase {
 		sql.run();
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		
 		BufferType buffer = new BufferType();
 		buffer.setText("shutdown");
@@ -100,6 +104,7 @@ public class SQLKeeperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFreshRun() throws SQLException, ArooaConversionException {
 		
 		OurExcecutor executor = new OurExcecutor();
@@ -140,6 +145,7 @@ public class SQLKeeperTest extends TestCase {
 		test.stop();
 	}
 	
+   @Test
 	public void testFreshStop() throws SQLException, ArooaConversionException {
 		
 		OurExcecutor executor = new OurExcecutor();
@@ -177,6 +183,7 @@ public class SQLKeeperTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testTimeout() throws SQLException, ArooaConversionException {
 		
 		OurExcecutor executor = new OurExcecutor();

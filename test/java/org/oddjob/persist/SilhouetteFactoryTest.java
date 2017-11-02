@@ -1,9 +1,12 @@
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
@@ -23,11 +26,13 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SilhouetteFactoryTest extends TestCase {
+public class SilhouetteFactoryTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SilhouetteFactoryTest.class);
-	@Override
-	protected void setUp() throws Exception {
+
+	
+    @Before
+    public void setUp() throws Exception {
 		if (Thread.interrupted()) {
 			logger.warn("Clearing interrupted flag left by some other test because it messes with image loading.");
 		}
@@ -38,6 +43,7 @@ public class SilhouetteFactoryTest extends TestCase {
 	 * @throws ClassNotFoundException 
 	 * @throws IOException 
 	 */
+   @Test
 	public void testEqualsAndHashCode() throws IOException, ClassNotFoundException {
 		
 		String a = new String("A");
@@ -61,6 +67,7 @@ public class SilhouetteFactoryTest extends TestCase {
 		assertFalse(silhouetteA.hashCode() == silhouetteB.hashCode());
 	}
 	
+   @Test
 	public void testSimple() throws IOException, ClassNotFoundException {
 		
 		EchoJob echo = new EchoJob();
@@ -87,6 +94,7 @@ public class SilhouetteFactoryTest extends TestCase {
 		assertEquals("Greeting", silhouette.toString());		
 	}
 	
+   @Test
 	public void testStateful() throws IOException, ClassNotFoundException {
 		
 		FlagState flag = new FlagState();
@@ -105,6 +113,7 @@ public class SilhouetteFactoryTest extends TestCase {
 		assertEquals(IconHelper.COMPLETE, OddjobTestHelper.getIconId(silhouette));
 	}
 	
+   @Test
 	public void testStructural() throws IOException, ClassNotFoundException {
 		
 		SequentialJob sequential = new SequentialJob();
@@ -146,6 +155,7 @@ public class SilhouetteFactoryTest extends TestCase {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
+   @Test
 	public void testNotOurChildren() throws IOException, ClassNotFoundException {
 		
 		SequentialJob sequential = new SequentialJob();

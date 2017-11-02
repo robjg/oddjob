@@ -1,4 +1,7 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Date;
@@ -7,7 +10,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.mockito.Mockito;
@@ -32,12 +35,12 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ManualClock;
 import org.oddjob.tools.StateSteps;
 
-public class TimerStopTest extends TestCase {
+public class TimerStopTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(TimerStopTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("----------------  " + getName() + "  ---------------");
 	}
 	
@@ -48,6 +51,7 @@ public class TimerStopTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopBeforeRunning() throws InterruptedException, FailedToStopException {
 		DefaultExecutors services = new DefaultExecutors();
 		
@@ -113,6 +117,7 @@ public class TimerStopTest extends TestCase {
 		}
 	}	
 	
+   @Test
 	public void testStopWhenRunning() throws InterruptedException, FailedToStopException {
 		DefaultExecutors services = new DefaultExecutors();
 		
@@ -159,6 +164,7 @@ public class TimerStopTest extends TestCase {
 		}
 	}	
 	
+   @Test
 	public void testStopBetweenSchedules() throws InterruptedException, Throwable {
 		DefaultExecutors services = new DefaultExecutors();
 		services.setPoolSize(5);
@@ -226,6 +232,7 @@ public class TimerStopTest extends TestCase {
 	 * @throws FailedToStopException 
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
+   @Test
 	public void testStopBetweenScheduleWithSkippedRuns() throws ParseException, FailedToStopException {
 		
 		final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
@@ -328,6 +335,7 @@ public class TimerStopTest extends TestCase {
 	 * @throws InterruptedException 
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+   @Test
 	public void testWhenScheduledChildGoesToReady() throws ParseException, FailedToStopException, InterruptedException {
 		
 		final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);

@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ServiceManagerStateOpTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class ServiceManagerStateOpTest extends OjTestCase {
+
+   @Test
 	public void testEvaluateSingleJobOp() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -24,6 +27,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(JobState.COMPLETE));
 	}
 	
+   @Test
 	public void testEvaluateSingleServiceOp() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -44,6 +48,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(ServiceState.STOPPED));
 	}
 	
+   @Test
 	public void testAssociative() {
 
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -62,6 +67,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testEvaluateTwoJobStates() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -142,6 +148,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
 	}
 	
+   @Test
 	public void testEvaluateTwoServiceStates() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -217,6 +224,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEvaluateServiceStateAndJobState() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();
@@ -298,6 +306,7 @@ public class ServiceManagerStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDestroyed() {
 		
 		ServiceManagerStateOp test = new ServiceManagerStateOp();

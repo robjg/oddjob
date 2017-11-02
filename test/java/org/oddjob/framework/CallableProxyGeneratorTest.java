@@ -1,10 +1,12 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.concurrent.Callable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class CallableProxyGeneratorTest extends TestCase {
+public class CallableProxyGeneratorTest extends OjTestCase {
 
 	public interface MyInterface {
 		
@@ -17,6 +19,7 @@ public class CallableProxyGeneratorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAProxyImplementsAllInterfaces() {
 		
 		MyJob callable = new MyJob();

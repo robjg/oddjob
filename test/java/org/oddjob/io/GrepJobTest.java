@@ -1,11 +1,14 @@
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -14,17 +17,19 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-public class GrepJobTest extends TestCase {
+public class GrepJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(GrepJobTest.class);
 	
 	File dir;
 
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		OurDirs dirs = new OurDirs();
 		dir = new File(dirs.base(), "test/io");
 	}
 		
+   @Test
 	public void testFromInput() throws IOException {
 		
 		BufferType buffer = new BufferType();
@@ -73,6 +78,7 @@ public class GrepJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testGrepSimpleTextFile() throws IOException {
 		
 		BufferType results = new BufferType();
@@ -117,6 +123,7 @@ public class GrepJobTest extends TestCase {
 				resultLines[0]);
 	}
 	
+   @Test
 	public void testGrepRegexp() throws IOException {
 		
 		BufferType results = new BufferType();
@@ -150,6 +157,7 @@ public class GrepJobTest extends TestCase {
 		assertEquals("\"pears are green\"", resultBean.getMatch());
 	}
 	
+   @Test
 	public void testMultipleFiles() throws IOException {
 				
 		BufferType results = new BufferType();
@@ -223,6 +231,7 @@ public class GrepJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testInvertAndCase() throws IOException {
 		
 		BufferType results = new BufferType();
@@ -286,6 +295,7 @@ public class GrepJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testGrepJobExample() {
 		
 		Oddjob oddjob = new Oddjob();

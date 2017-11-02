@@ -1,11 +1,14 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.scheduling.state.TimerState;
 
-public class WorstStateOpTest extends TestCase {
+public class WorstStateOpTest extends OjTestCase {
 
+   @Test
 	public void testEvaluateSingleJobOp() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -27,6 +30,7 @@ public class WorstStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testAssociative() {
 
 		WorstStateOp test = new WorstStateOp();
@@ -44,6 +48,7 @@ public class WorstStateOpTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testEvaluateSingleServiceOp() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -65,6 +70,7 @@ public class WorstStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEvaluateTwoJobOps() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -145,6 +151,7 @@ public class WorstStateOpTest extends TestCase {
 				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
 	}
 	
+   @Test
 	public void testEvaluateTwoServiceOps() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -222,6 +229,7 @@ public class WorstStateOpTest extends TestCase {
 				test.evaluate(ServiceState.STOPPED, ServiceState.STOPPED));		
 	}
 	
+   @Test
 	public void testEvaluateServiceStateAndJobState() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -302,6 +310,7 @@ public class WorstStateOpTest extends TestCase {
 				test.evaluate(ServiceState.STOPPED, JobState.EXCEPTION));		
 	}
 	
+   @Test
 	public void testEvaluateJobStateAndTimerState() {
 		
 		WorstStateOp test = new WorstStateOp();
@@ -406,6 +415,7 @@ public class WorstStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDestroyed() {
 
 		

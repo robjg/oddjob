@@ -1,14 +1,16 @@
 package org.oddjob.describe;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 
-public class AnnotationDescriberTest extends TestCase {
+public class AnnotationDescriberTest extends OjTestCase {
 
 	@DescribeWith
 	public Map<String, String> myDescription() {
@@ -18,6 +20,7 @@ public class AnnotationDescriberTest extends TestCase {
 	}
 	
 
+   @Test
 	public void testAnnotedDescriberMethod() {
 		
 		ArooaSession session = new StandardArooaSession();

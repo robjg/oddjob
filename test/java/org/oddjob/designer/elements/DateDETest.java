@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.elements;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -24,15 +27,17 @@ import org.oddjob.values.types.DateType;
 /**
  *
  */
-public class DateDETest extends TestCase {
+public class DateDETest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(DateDETest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException, ParseException {
 		
 		String xml =  

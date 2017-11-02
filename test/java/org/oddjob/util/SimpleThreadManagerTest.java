@@ -1,13 +1,15 @@
 package org.oddjob.util;
 
+import org.junit.Test;
+
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 
-public class SimpleThreadManagerTest extends TestCase {
+public class SimpleThreadManagerTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			SimpleThreadManagerTest.class);
 	
@@ -34,6 +36,7 @@ public class SimpleThreadManagerTest extends TestCase {
 		}	
 	}
 	
+   @Test
 	public void testSimpleRun() throws InterruptedException {
 		
 		SimpleThreadManager test = new SimpleThreadManager();
@@ -62,6 +65,7 @@ public class SimpleThreadManagerTest extends TestCase {
 		assertFalse(thing.interrupted);
 	}
 	
+   @Test
 	public void testStopAll() throws InterruptedException {
 		
 		SimpleThreadManager test = new SimpleThreadManager();
@@ -88,6 +92,7 @@ public class SimpleThreadManagerTest extends TestCase {
 		assertTrue(thing.interrupted);
 	}
 	
+   @Test
 	public void testLotsOfThings() throws InterruptedException {
 		
 		final SimpleThreadManager test = new SimpleThreadManager();

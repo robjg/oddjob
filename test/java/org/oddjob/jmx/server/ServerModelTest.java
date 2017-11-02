@@ -3,7 +3,9 @@
  */
 package org.oddjob.jmx.server;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -15,7 +17,7 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
 
-public class ServerModelTest extends TestCase {
+public class ServerModelTest extends OjTestCase {
 
 	class LL implements LogListener {
 		LogEvent e;
@@ -41,6 +43,7 @@ public class ServerModelTest extends TestCase {
 	 * Test retrieving log events
 	 *
 	 */
+   @Test
 	public void testLogArchiver() throws Exception {
 		LoggingBean bean = new LoggingBean();
 		

@@ -1,13 +1,16 @@
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.io.StringReader;
 
 import javax.script.ScriptException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ScriptRunnerTest extends TestCase {
+public class ScriptRunnerTest extends OjTestCase {
 
+   @Test
 	public void testSimpleEval() throws ScriptException, NoSuchMethodException {
 
 		ScriptCompiler compiler = new ScriptCompiler(null, null);

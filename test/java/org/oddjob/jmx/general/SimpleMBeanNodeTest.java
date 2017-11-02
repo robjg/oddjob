@@ -1,11 +1,15 @@
 package org.oddjob.jmx.general;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.convert.DefaultConverter;
@@ -19,7 +23,7 @@ import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.script.ConvertableArguments;
 import org.oddjob.script.InvokerArguments;
 
-public class SimpleMBeanNodeTest extends TestCase {
+public class SimpleMBeanNodeTest extends OjTestCase {
 
 	ObjectName objectName;
 	
@@ -27,18 +31,20 @@ public class SimpleMBeanNodeTest extends TestCase {
 
 	Vendor simple = new Vendor("Hay Medows");
 	
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		objectName = new ObjectName("fruit:type=vendor,name=Pickles");
 		
 		mBeanServer = ManagementFactory.getPlatformMBeanServer();
 		mBeanServer.registerMBean(simple, objectName);		
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
 		mBeanServer.unregisterMBean(objectName);
 	}
 	
+   @Test
 	public void testInvoking() throws Exception {
 		
 		SimpleMBeanNode test = new SimpleMBeanNode(
@@ -58,6 +64,7 @@ public class SimpleMBeanNodeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testGetProperty() throws Exception {
 		
 		SimpleMBeanNode test = new SimpleMBeanNode(
@@ -75,6 +82,7 @@ public class SimpleMBeanNodeTest extends TestCase {
 		assertEquals(4.2, simple.rating, 0.01);
 	}
 	
+   @Test
 	public void testLogEnabled() throws Exception {
 		
 		final StringBuilder builder = new StringBuilder();
@@ -103,6 +111,7 @@ public class SimpleMBeanNodeTest extends TestCase {
 		assertTrue(builder.length() > 0);
 	}
 	
+   @Test
 	public void testGetMemory() throws Exception {
 		
 		SimpleMBeanNode test = new SimpleMBeanNode(

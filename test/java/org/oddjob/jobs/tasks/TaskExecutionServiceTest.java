@@ -1,9 +1,12 @@
 package org.oddjob.jobs.tasks;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -16,17 +19,18 @@ import org.oddjob.jobs.tasks.TaskExecutionService;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class TaskExecutionServiceTest extends TestCase {
+public class TaskExecutionServiceTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(TaskExecutionServiceTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName() + "  ------------------");
 	}
 	
+   @Test
 	public void testTaskResponseIsSetCorrectly() throws ArooaPropertyException, ArooaConversionException, TaskException {
 		
 		File file = new File(getClass().getResource(
@@ -53,6 +57,7 @@ public class TaskExecutionServiceTest extends TestCase {
 		assertEquals("Hello Jane.", taskView.getTaskResponse());
 	}
 	
+   @Test
 	public void testSimpleRequestAndExecuteExample() throws ArooaPropertyException, ArooaConversionException, TaskException {
 		
 		File file = new File(getClass().getResource(
@@ -106,6 +111,7 @@ public class TaskExecutionServiceTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testPropertiesAreSegreatedBetweenServices() throws ArooaPropertyException, ArooaConversionException {
 		
 		File file = new File(getClass().getResource("TaskExecutorServiceProperties.xml"

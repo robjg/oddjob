@@ -1,6 +1,8 @@
 package org.oddjob.values.types;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -8,8 +10,9 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class MagicBeanTypeTest extends TestCase {
+public class MagicBeanTypeTest extends OjTestCase {
 
+   @Test
 	public void testMagicBeanExample() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();

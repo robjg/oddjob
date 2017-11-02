@@ -1,10 +1,13 @@
 package org.oddjob.jmx;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
 import javax.security.auth.DestroyFailedException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -36,20 +39,21 @@ import org.oddjob.tools.StateSteps;
  * @author rob
  *
  */
-public class SimpleSecurityTest extends TestCase {
+public class SimpleSecurityTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SimpleSecurityTest.class);
 	
 	static final String SECURITY_CONFIG_PARAM = "oddjob.jmx.test.security.config";
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		logger.debug("------------------- " + getName() + " --------------");
 	}
 	
 	boolean useSSL;
 	
+   @Test
 	public void testSimpleOKExample() throws Exception {
 	
 		String param = System.getProperty(SECURITY_CONFIG_PARAM);
@@ -104,6 +108,7 @@ public class SimpleSecurityTest extends TestCase {
 		server.stop();
 	}
 	
+   @Test
 	public void testSslOKExample() throws Exception {
 		
 		String param = System.getProperty("oddjob.jmx.test.security.config");
@@ -126,6 +131,7 @@ public class SimpleSecurityTest extends TestCase {
 		testSimpleOKExample();
 	}
 	
+   @Test
 	public void testReadonlyAccess() throws Exception {
 
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
@@ -185,6 +191,7 @@ public class SimpleSecurityTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testClientAndServerExamples() throws ArooaParseException, DestroyFailedException, FailedToStopException {
 		
 		FragmentHelper helper = new FragmentHelper();

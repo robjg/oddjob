@@ -1,9 +1,12 @@
 package org.oddjob.values;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -16,18 +19,19 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.tools.WaitForChildren;
 
-public class ValueQueueServiceTest extends TestCase {
+public class ValueQueueServiceTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(ValueQueueService.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-------------------------------------------  " + getName() +
 				"  -----------------------------------------");
 	}
 
+   @Test
 	public void testQueueWithTwoConsumers() throws InterruptedException {
 		
 		final BlockingQueue<Object> results = new LinkedBlockingQueue<Object>();
@@ -65,6 +69,7 @@ public class ValueQueueServiceTest extends TestCase {
 		t2.join();
 	}
 	
+   @Test
 	public void testInOddjobWithFor() throws FailedToStopException, InterruptedException {
 		
 		Oddjob server = new Oddjob();

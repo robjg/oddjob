@@ -1,10 +1,12 @@
 package org.oddjob.monitor.action;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.beanutils.PropertyUtils;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -15,7 +17,7 @@ import org.oddjob.monitor.model.ExplorerContextImpl;
 import org.oddjob.monitor.model.ExplorerModelImpl;
 import org.oddjob.util.SimpleThreadManager;
 
-public class ExecuteActionTest2 extends TestCase {
+public class ExecuteActionTest2 {
 
 	class MyClassLoader extends ClassLoader {
 		
@@ -46,6 +48,7 @@ public class ExecuteActionTest2 extends TestCase {
 
 	}
 	
+	@Test
 	public void testClassLoader() throws Exception {
 
 		ClassLoader startLoader = Thread.currentThread().getContextClassLoader();

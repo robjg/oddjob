@@ -1,8 +1,10 @@
 package org.oddjob.monitor.action;
 
+import org.junit.Test;
+
 import java.util.concurrent.Callable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -16,7 +18,7 @@ import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 
-public class AddJobActionTest extends TestCase {
+public class AddJobActionTest extends OjTestCase {
 	
 	ConfigurationOwner configOwner;
 	
@@ -57,6 +59,7 @@ public class AddJobActionTest extends TestCase {
 	
 	SwingFormView view;
 	
+   @Test
 	public void testAll() {
 		
 		String xml = 

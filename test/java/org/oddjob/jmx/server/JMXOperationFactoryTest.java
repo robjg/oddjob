@@ -1,14 +1,17 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.MBeanOperationInfo;
 
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.logging.LogEnabled;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JMXOperationFactoryTest extends TestCase {
+public class JMXOperationFactoryTest extends OjTestCase {
 
+   @Test
 	public void testNoArgsOpInfo() throws SecurityException, NoSuchMethodException {
 		
 		JMXOperationFactory test = new JMXOperationFactory(LogEnabled.class);

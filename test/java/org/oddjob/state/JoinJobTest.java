@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -28,14 +31,14 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class JoinJobTest extends TestCase {
+public class JoinJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(JoinJobTest.class);
 	
 	static final long TIMEOUT = 15_000L;
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("----------------  " + getName() + "  -----------------");
 	}
@@ -56,6 +59,7 @@ public class JoinJobTest extends TestCase {
 	// which must also be ready when reset and empty.
 	// this is really a bug in StatefulChildHelper. An empty sequence should
 	// be ready until run and then be complete. I think.
+   @Test
 	public void testEmpty() {
 
 		JoinJob test = new JoinJob();
@@ -69,6 +73,7 @@ public class JoinJobTest extends TestCase {
 		
 	}
 		
+   @Test
 	public void testSimpleRunnable() throws FailedToStopException, InterruptedException {
 
 		OurJob job1 = new OurJob();
@@ -109,6 +114,7 @@ public class JoinJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testNotComplete() throws FailedToStopException {
 		
 		FlagState job1 = new FlagState();
@@ -134,6 +140,7 @@ public class JoinJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());			
 	}
 	
+   @Test
 	public void testAsynchronous() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -169,6 +176,7 @@ public class JoinJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testAsynchronousStop() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -215,6 +223,7 @@ public class JoinJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testDestroyed() throws FailedToStopException {
 		
 		FlagState job1 = new FlagState();
@@ -241,6 +250,7 @@ public class JoinJobTest extends TestCase {
 		testStates.checkNow();
 	}
 	
+   @Test
 	public void testInOddjob() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 				
 		Oddjob oddjob = new Oddjob();

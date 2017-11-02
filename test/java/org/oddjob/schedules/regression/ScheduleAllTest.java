@@ -1,19 +1,23 @@
 package org.oddjob.schedules.regression;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 /**
  * 
  */
-public class ScheduleAllTest extends TestCase {
+public class ScheduleAllTest extends OjTestCase {
 
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDaily() throws Exception {
 	
 		new ScheduleTester("daily_schedule_test.xml").run();
@@ -27,6 +31,7 @@ public class ScheduleAllTest extends TestCase {
 		new ScheduleTester("daily_schedule_test.xml", tz).run();
 	}
 	
+   @Test
 	public void testMonthly() throws Exception {
 		
 		new ScheduleTester("monthly_schedule_test.xml").run();
@@ -40,6 +45,7 @@ public class ScheduleAllTest extends TestCase {
 		new ScheduleTester("monthly_schedule_test.xml", tz).run();
 	}
 	
+   @Test
 	public void testBroken() throws Exception {
 
 		new ScheduleTester("broken_schedule_test.xml").run();
@@ -54,6 +60,7 @@ public class ScheduleAllTest extends TestCase {
 	}
 	
 
+   @Test
 	public void testWeekly() throws Exception {
 		
 		new ScheduleTester("weekly_schedule_test.xml").run();
@@ -67,6 +74,7 @@ public class ScheduleAllTest extends TestCase {
 		new ScheduleTester("weekly_schedule_test.xml", tz).run();
 	}
 	
+   @Test
 	public void testYearly() throws Exception {
 		
 		new ScheduleTester("yearly_schedule_test.xml").run();

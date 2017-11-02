@@ -1,5 +1,7 @@
 package org.oddjob.monitor.action;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.WindowAdapter;
@@ -10,7 +12,7 @@ import java.beans.PropertyChangeListener;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -24,7 +26,7 @@ import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.state.ParentState;
 
-public class DesignerActionTest extends TestCase {
+public class DesignerActionTest extends OjTestCase {
 
 	private class RootContext extends MockExplorerContext {
 
@@ -34,6 +36,7 @@ public class DesignerActionTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRoot() {
 		
 		DesignerAction test = new DesignerAction();
@@ -85,6 +88,7 @@ public class DesignerActionTest extends TestCase {
 	DesignerAction test = new DesignerAction();
 	
 	
+   @Test
 	public void testGoodConfig() {
 		
 		String xml = 

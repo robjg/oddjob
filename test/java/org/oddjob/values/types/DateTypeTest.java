@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.values.types;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -9,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
@@ -30,17 +33,18 @@ import org.oddjob.tools.ManualClock;
 /**
  * 
  */
-public class DateTypeTest extends TestCase {
+public class DateTypeTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(DateTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("----------------  " + getName() + "  -------------");
 	}
 	
 	// check we get date and string
+   @Test
 	public void testConversions() throws Exception {
 		DateType dt = new DateType();
 
@@ -63,6 +67,7 @@ public class DateTypeTest extends TestCase {
 				DateHelper.parseDate("2005-12-25")), string);		
 	}
 	
+   @Test
 	public void testTimeZone() throws Exception {
 		DateType dt = new DateType();
 
@@ -80,6 +85,7 @@ public class DateTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testInOddjob() throws ArooaConversionException, ParseException {
 		
 		String xml = 
@@ -110,6 +116,7 @@ public class DateTypeTest extends TestCase {
 						TimeZone.getTimeZone("US/Hawaii")), result2);
 	}
 	
+   @Test
 	public void testInvalidTimeZone() throws ParseException {
 		
 		DateType test = new DateType();
@@ -122,6 +129,7 @@ public class DateTypeTest extends TestCase {
 		assertEquals(DateHelper.parseDate("2009-01-01", "GMT"), result);		
 	}
 	
+   @Test
 	public void testSimpleDateExample() throws ArooaParseException, ParseException {
 		
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -143,6 +151,7 @@ public class DateTypeTest extends TestCase {
     	assertEquals(expected, date.toDate());
 	}
 	
+   @Test
 	public void testFormatExample() throws ArooaParseException, ParseException {
 		
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -164,6 +173,7 @@ public class DateTypeTest extends TestCase {
     	assertEquals(expected, date.toDate());
 	}
 	
+   @Test
 	public void testDateTimezoneExample() throws ParseException {
 				
 		logger.debug(TimeZone.getDefault());
@@ -195,6 +205,7 @@ public class DateTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDateShortcuts() throws ParseException {
 
 		DateType test = new DateType();
@@ -221,6 +232,7 @@ public class DateTypeTest extends TestCase {
 				test.toDate());
 	}
 	
+   @Test
 	public void testDateShortcutsExample() throws ParseException {
 		
 		Oddjob oddjob = new Oddjob(); 

@@ -1,10 +1,13 @@
 package org.oddjob.oddballs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaType;
@@ -15,14 +18,15 @@ import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.tools.OurDirs;
 
-public class DirectoryOddballTest extends TestCase {
+public class DirectoryOddballTest extends OjTestCase {
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		
 		new BuildOddballs().run();
 	}
 
+   @Test
 	public void testCreate() throws URISyntaxException, ClassNotFoundException {
 		
 		DirectoryOddball test = new DirectoryOddball();

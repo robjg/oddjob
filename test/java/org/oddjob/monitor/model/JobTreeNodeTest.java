@@ -1,8 +1,10 @@
 package org.oddjob.monitor.model;
 
+import org.junit.Test;
+
 import java.util.concurrent.Executor;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -11,7 +13,7 @@ import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
-public class JobTreeNodeTest extends TestCase {
+public class JobTreeNodeTest extends OjTestCase {
 
 	class OurModel extends MockExplorerModel {
 		
@@ -53,6 +55,7 @@ public class JobTreeNodeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testChildren() {
 		
 		String xml = 

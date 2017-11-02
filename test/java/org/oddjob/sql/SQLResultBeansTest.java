@@ -1,15 +1,18 @@
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
 
-public class SQLResultBeansTest extends TestCase {
+public class SQLResultBeansTest extends OjTestCase {
 
+   @Test
 	public void testRows() {
 		
 		List<String> list = new ArrayList<String>();
@@ -26,6 +29,7 @@ public class SQLResultBeansTest extends TestCase {
 		assertEquals("orange", row[1]);
 	}
 	
+   @Test
 	public void testEmptyRows() {
 		
 		List<String> list = new ArrayList<String>();
@@ -39,6 +43,7 @@ public class SQLResultBeansTest extends TestCase {
 		assertEquals(0, row.length);
 	}
 	
+   @Test
 	public void testFullLifeCycle() throws BusCrashException {
 		
 		SQLResultsBean test = new SQLResultsBean();
@@ -88,6 +93,7 @@ public class SQLResultBeansTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSetBeanBusTwice() throws BusCrashException {
 		
 		SQLResultsBean test = new SQLResultsBean();

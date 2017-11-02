@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.values.properties;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
@@ -17,10 +20,11 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 /**
  * Tests for EnvrionmentType. 
  */
-public class PropertiesEnvironmentTest extends TestCase {
+public class PropertiesEnvironmentTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(PropertiesEnvironmentTest.class);
 
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== " + getName() + " ===================");
 				
 	}
@@ -29,6 +33,7 @@ public class PropertiesEnvironmentTest extends TestCase {
 	 * Test that a property gets set from the environment..
 	 *
 	 */
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();

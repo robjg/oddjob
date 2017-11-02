@@ -1,10 +1,13 @@
 package org.oddjob.jobs.structural;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Test;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -18,16 +21,13 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
-public class ForEachDragPointTest extends XMLTestCase {
+public class ForEachDragPointTest {
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		
-		XMLUnit.setIgnoreWhitespace(true);
-	}
 	
+    @Test
 	public void testRootDragPoint() throws SAXException, IOException, ArooaParseException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -73,7 +73,10 @@ public class ForEachDragPointTest extends XMLTestCase {
 		// Note that copying the drag point still has the old version.
 		String copy = dragPoint.copy();
 		
-		assertXMLEqual("<foreach/>", copy);
+		Diff diff = DiffBuilder.compare("<foreach/>")
+				.withTest(copy).ignoreWhitespace().build();
+		
+		assertFalse(diff.toString(), diff.hasDifferences());
 		
 		// Get drag point again.
 		dragPoint = configurationSession.dragPointFor(test);
@@ -86,11 +89,15 @@ public class ForEachDragPointTest extends XMLTestCase {
 				" </job>" +
 				"</foreach>";
 		
-		assertXMLEqual(expected, copy);
+		diff = DiffBuilder.compare(expected)
+				.withTest(copy).ignoreWhitespace().build();
+
+		assertFalse(diff.toString(), diff.hasDifferences());
 		
 		test.destroy();
 	}
 	
+   @Test
 	public void testChildDragPoint() throws ArooaParseException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();

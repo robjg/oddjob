@@ -1,5 +1,7 @@
 package org.oddjob.monitor.control;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
@@ -12,7 +14,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.tree.TreePath;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -31,7 +33,7 @@ import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.state.ParentState;
 import org.oddjob.util.ThreadManager;
 
-public class NodeControlTest extends TestCase {
+public class NodeControlTest extends OjTestCase {
 
 	Component comp;
 	
@@ -83,6 +85,7 @@ public class NodeControlTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIconsOKonOddjobStart() throws InterruptedException, InvocationTargetException {
 		
 		OurExplorerModel explorerModel = new OurExplorerModel();
@@ -134,6 +137,7 @@ public class NodeControlTest extends TestCase {
 		this.comp = tree;
 	}
 	
+   @Test
 	public void testIconListenerRemovedFromCutNode() throws Exception {
 		
 		OurExplorerModel explorerModel = new OurExplorerModel();
@@ -220,6 +224,7 @@ public class NodeControlTest extends TestCase {
 		this.comp = tree;
 	}
 	
+   @Test
 	public void testPasteIntoAnAlreadyExpandedNode() throws InterruptedException, InvocationTargetException {
 		
 		OurExplorerModel explorerModel = new OurExplorerModel();

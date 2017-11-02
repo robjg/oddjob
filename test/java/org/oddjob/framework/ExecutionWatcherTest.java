@@ -1,12 +1,15 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ExecutionWatcherTest extends TestCase {
+public class ExecutionWatcherTest extends OjTestCase {
 
+   @Test
 	public void testAddTwoJobs() {
 	
 		final AtomicBoolean done = new AtomicBoolean();
@@ -44,6 +47,7 @@ public class ExecutionWatcherTest extends TestCase {
 		assertEquals(true, done.get());
 	}
 	
+   @Test
 	public void testStopBeforeJobRan() {
 		
 		final AtomicBoolean done = new AtomicBoolean();
@@ -79,6 +83,7 @@ public class ExecutionWatcherTest extends TestCase {
 		assertEquals(true, done.get());
 	}
 	
+   @Test
 	public void testStopBeforeStart() {
 		
 		final AtomicBoolean done = new AtomicBoolean();
@@ -114,6 +119,7 @@ public class ExecutionWatcherTest extends TestCase {
 	}
 	
 	// How Cascade would like to use it.
+   @Test
 	public void testAddJobAfterStart() {
 		
 		final AtomicBoolean done = new AtomicBoolean();

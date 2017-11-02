@@ -1,12 +1,14 @@
 package org.oddjob.framework;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 
-public class ServiceProxyGeneratorTest extends TestCase {
+public class ServiceProxyGeneratorTest extends OjTestCase {
 
 	public interface MyInterface {
 		
@@ -23,6 +25,7 @@ public class ServiceProxyGeneratorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAProxyImplementsAllInterfaces() {
 		
 		ArooaSession session = new StandardArooaSession();

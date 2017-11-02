@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.sql;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -28,16 +31,16 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class SQLJobTest extends TestCase {
+public class SQLJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(SQLJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
 		
 		logger.info("---------------  " + getName() + "  ----------------");
 	}
 	
+   @Test
 	public void testSql() throws Exception {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -104,9 +107,10 @@ public class SQLJobTest extends TestCase {
 		test.setInput(buffer.toInputStream());
 		test.run();
 		
-		assertEquals(null, beans.getRows());
+		assertArrayEquals(null, beans.getRows());
 	}
 		
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -137,6 +141,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testFirstExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -191,6 +196,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testInOddjobEmptyResultSet() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -218,6 +224,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testMultipleStatements() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -247,6 +254,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testContinueOnFailure() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -282,6 +290,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStopOnFailure() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -315,6 +324,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testAbortOnFailure() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -345,6 +355,7 @@ public class SQLJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testAbortOnFailureWithAutocommit() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();

@@ -1,8 +1,10 @@
 package org.oddjob.describe;
 
+import org.junit.Test;
+
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.LazyDynaMap;
@@ -13,7 +15,7 @@ import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.WrapDynaBean;
 
-public class AccessorDescriberTest extends TestCase {
+public class AccessorDescriberTest extends OjTestCase {
 	
 	public static class SimpleBean {
 		public String getFruit() {
@@ -26,6 +28,7 @@ public class AccessorDescriberTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimpleBean() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -43,6 +46,7 @@ public class AccessorDescriberTest extends TestCase {
 		}
 	}	
 	
+   @Test
 	public void testDynaBean() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -62,6 +66,7 @@ public class AccessorDescriberTest extends TestCase {
 	 * Test with capital letter property. 
 	 *
 	 */
+   @Test
 	public void testCapitalPropertiesDynaBean() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -83,6 +88,7 @@ public class AccessorDescriberTest extends TestCase {
 	 * Test magic bean - tracking down a bug in JMXAttributes. 
 	 *
 	 */
+   @Test
 	public void testMagicDynaBean() {
 		
 		ArooaSession session = new StandardArooaSession();

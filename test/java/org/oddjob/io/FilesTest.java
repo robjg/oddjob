@@ -1,25 +1,29 @@
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 
-public class FilesTest extends TestCase {
+public class FilesTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(FilesTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("-------------------------  " + getName() + 
 				"  --------------------------");
 	}
 	
+   @Test
 	public void testExpandRootDirectory() throws IOException {
 		
 		// Found a root directory

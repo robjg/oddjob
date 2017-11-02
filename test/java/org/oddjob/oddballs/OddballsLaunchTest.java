@@ -1,10 +1,13 @@
 package org.oddjob.oddballs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.jobs.ExecJob;
@@ -13,7 +16,7 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
 
-public class OddballsLaunchTest extends TestCase {
+public class OddballsLaunchTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			OddballsLaunchTest.class);
 	
@@ -21,8 +24,8 @@ public class OddballsLaunchTest extends TestCase {
 	
 	final static String EOL = System.getProperty("line.separator");
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("---------------- " + getName() + " -----------------");
 		
 		File built = new File(new OurDirs().base(), RUN_JAR);
@@ -39,6 +42,7 @@ public class OddballsLaunchTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testOddjobFailsNoFile() throws InterruptedException {
 		
 		Console console = new Console();

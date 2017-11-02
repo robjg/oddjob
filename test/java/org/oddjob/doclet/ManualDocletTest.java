@@ -1,4 +1,7 @@
 package org.oddjob.doclet;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,9 +13,9 @@ import org.oddjob.doclet.ManualDoclet;
 import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.tools.OurDirs;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ManualDocletTest extends TestCase {
+public class ManualDocletTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(ManualDocletTest.class);
 	
@@ -20,8 +23,8 @@ public class ManualDocletTest extends TestCase {
 	
 	File dest = new File(dirs.base(), "work/reference");
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("-------------------  " + getName() + "  -------------------");
 		
 		// try 3 times - why does this fail?
@@ -51,6 +54,7 @@ public class ManualDocletTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testStart() {
 
 		File index = new File(dest, "index.html");
@@ -70,6 +74,7 @@ public class ManualDocletTest extends TestCase {
 		assertTrue(oddjob.exists());
 	}
 	
+   @Test
 	public void testIstType() {
 
 		File src = new File(dirs.base(), "build/src");
@@ -94,6 +99,7 @@ public class ManualDocletTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testDescriptorPath() {
 
 		OurDirs dirs = new OurDirs();

@@ -1,13 +1,15 @@
 package org.oddjob.monitor.action;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Loadable;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
-public class UnloadActionTest extends TestCase {
+public class UnloadActionTest extends OjTestCase {
 
 	private class OurLoadable implements Loadable {
 		
@@ -52,6 +54,7 @@ public class UnloadActionTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testCycle() throws Exception {
 		
 		UnloadAction test = new UnloadAction();

@@ -1,8 +1,11 @@
 package org.oddjob.sql;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -12,18 +15,19 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class SQLResultsBusTest extends TestCase {
+public class SQLResultsBusTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SQLResultsBusTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-----------------------------  " + getName() + "  ----------------");
 	}
 		
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -46,6 +50,7 @@ public class SQLResultsBusTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testExample2() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

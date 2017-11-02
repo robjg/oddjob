@@ -1,10 +1,13 @@
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -18,18 +21,19 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OurDirs;
 
-public class StdoutTypeTest extends TestCase {
+public class StdoutTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(StdoutTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		logger.debug("-------------------  " + getName() + "  --------------");
 	}
 	
 	
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testSimple() throws ArooaConversionException, IOException {
 		
 		ConsoleCapture results = new ConsoleCapture();
@@ -55,6 +59,7 @@ public class StdoutTypeTest extends TestCase {
 		assertEquals("Hello World." + EOL, results.getAll());
 	}
 	
+   @Test
 	public void testStdoutInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =
@@ -109,6 +114,7 @@ public class StdoutTypeTest extends TestCase {
 		assertEquals("World", lines[1].trim());
 	}
 	
+   @Test
 	public void testExample() throws ArooaParseException {
 
 		OurDirs dirs = new OurDirs();

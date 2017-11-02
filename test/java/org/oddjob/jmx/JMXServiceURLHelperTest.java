@@ -1,13 +1,16 @@
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import java.net.MalformedURLException;
 
 import javax.management.remote.JMXServiceURL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JMXServiceURLHelperTest extends TestCase {
+public class JMXServiceURLHelperTest extends OjTestCase {
 
+   @Test
 	public void testFullURL() throws MalformedURLException {
 
 		JMXServiceURLHelper test = new JMXServiceURLHelper();
@@ -20,6 +23,7 @@ public class JMXServiceURLHelperTest extends TestCase {
 		assertEquals(url, result.toString());
 	}
 	
+   @Test
 	public void testClientJMXServiceURL() throws MalformedURLException {
 		
 		JMXServiceURLHelper test = new JMXServiceURLHelper();

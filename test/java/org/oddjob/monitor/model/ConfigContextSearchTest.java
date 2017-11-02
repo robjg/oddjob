@@ -1,8 +1,11 @@
 package org.oddjob.monitor.model;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
 import java.io.IOException;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.parsing.DragPoint;
@@ -11,8 +14,10 @@ import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.ThreadManager;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
-public class ConfigContextSearchTest extends XMLTestCase{
+public class ConfigContextSearchTest {
 
 	class OurModel extends MockExplorerModel {
 		
@@ -36,6 +41,7 @@ public class ConfigContextSearchTest extends XMLTestCase{
 		}
 	}
 	
+   @Test
 	public void testOddjobDragPoint() throws SAXException, IOException {
 		
 		String xml = 
@@ -66,8 +72,12 @@ public class ConfigContextSearchTest extends XMLTestCase{
 		
 		String copy = result.copy();
 		
-		assertXMLEqual("<oddjob id='nested' name='Fred'/>", copy);
+		Diff diff = DiffBuilder.compare(copy)
+				.withTest("<oddjob id='nested' name='Fred'/>").ignoreWhitespace()
+				.build();
 
+		assertFalse(diff.toString(), diff.hasDifferences());
+		
 		oddjob.destroy();
 	}
 	

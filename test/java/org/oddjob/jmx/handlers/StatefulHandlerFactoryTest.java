@@ -3,10 +3,12 @@
  */
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import javax.management.Notification;
 import javax.management.NotificationListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.Stateful;
@@ -18,7 +20,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
-public class StatefulHandlerFactoryTest extends TestCase {
+public class StatefulHandlerFactoryTest extends OjTestCase {
 
 	private class OurStateful extends MockStateful {
 		StateListener l;
@@ -99,6 +101,7 @@ public class StatefulHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAddRemoveListener() throws Exception {
 		
 		StatefulHandlerFactory test = new StatefulHandlerFactory();
@@ -167,6 +170,7 @@ public class StatefulHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() throws Exception {
 		
 		StatefulHandlerFactory test = new StatefulHandlerFactory();

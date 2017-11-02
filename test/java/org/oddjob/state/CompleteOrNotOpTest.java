@@ -1,10 +1,13 @@
 package org.oddjob.state;
 
+import org.junit.Test;
 
-import junit.framework.TestCase;
 
-public class CompleteOrNotOpTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class CompleteOrNotOpTest extends OjTestCase {
+
+   @Test
 	public void testVariousStates() {
 		
 		CompleteOrNotOp test = new CompleteOrNotOp();

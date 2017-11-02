@@ -1,11 +1,13 @@
 package org.oddjob.monitor.view;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Action;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.design.actions.ActionMenu;
 import org.oddjob.arooa.design.actions.ArooaAction;
@@ -14,7 +16,7 @@ import org.oddjob.monitor.action.ExecuteAction;
 import org.oddjob.monitor.action.StopAction;
 import org.oddjob.monitor.actions.ExplorerAction;
 
-public class ExplorerJobActionsTest extends TestCase {
+public class ExplorerJobActionsTest extends OjTestCase {
 
 	class OurRegistry extends MockActionRegistry {
 
@@ -40,6 +42,7 @@ public class ExplorerJobActionsTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testActionName() {
 		
 		ExplorerAction[] actions = new ExplorerAction[] {

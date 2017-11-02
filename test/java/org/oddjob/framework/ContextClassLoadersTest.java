@@ -1,17 +1,20 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderTypeTest;
 
-public class ContextClassLoadersTest extends TestCase {
+public class ContextClassLoadersTest extends OjTestCase {
 
+   @Test
 	public void testSimple() throws ClassNotFoundException, InstantiationException, IllegalAccessException, IOException {
 		
 		OurDirs dirs = new OurDirs();

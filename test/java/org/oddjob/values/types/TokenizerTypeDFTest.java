@@ -1,8 +1,11 @@
 package org.oddjob.values.types;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -19,15 +22,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class TokenizerTypeDFTest extends TestCase {
+public class TokenizerTypeDFTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TokenizerTypeDFTest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException, ParseException {
 		
 		String xml =  

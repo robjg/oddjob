@@ -5,10 +5,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.logging.ConsoleOwner;
@@ -17,19 +18,19 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
 
-public class PathParserLaunchTest extends TestCase {
+public class PathParserLaunchTest extends OjTestCase {
 
 	final static String RUN_JAR = "run-oddjob.jar";
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		File built = new File(new OurDirs().base(), RUN_JAR);
 		
 		assertTrue(built.exists());
 		
 	}
 	
-	public static class Test implements Runnable {
+	public static class TestJob implements Runnable {
 		
 		public void run() {
 			System.out.println("That Worked.");
@@ -47,6 +48,7 @@ public class PathParserLaunchTest extends TestCase {
 	
 	static String EOL = System.getProperty("line.separator");
 	
+    @Test
 	public void testWithLaunch() throws ArooaConversionException, IOException {
 
 		OurDirs dirs = new OurDirs();

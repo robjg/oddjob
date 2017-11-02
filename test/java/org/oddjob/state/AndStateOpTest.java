@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class AndStateOpTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class AndStateOpTest extends OjTestCase {
+
+   @Test
 	public void testAndNoStates() {
 		
 		AndStateOp test = new AndStateOp();
@@ -11,6 +14,7 @@ public class AndStateOpTest extends TestCase {
 		assertEquals(ParentState.READY, test.evaluate());
 	}
 	
+   @Test
 	public void testAndOneStates() {
 		
 		AndStateOp test = new AndStateOp();
@@ -28,6 +32,7 @@ public class AndStateOpTest extends TestCase {
 				test.evaluate(JobState.EXECUTING));	
 	}
 	
+   @Test
 	public void testAndTwoStates() {
 				
 		AndStateOp test = new AndStateOp();

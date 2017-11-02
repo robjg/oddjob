@@ -2,10 +2,11 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
-
 import org.apache.log4j.Logger;
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.design.DesignInstance;
@@ -15,19 +16,22 @@ import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.xmlunit.matchers.CompareMatcher;
 
 /**
  *
  */
-public class VariablesDCTest extends XMLTestCase {
+public class VariablesDCTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(VariablesDCTest.class);
 	
 	DesignInstance design;
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 	
+   @Test
 	public void testCreate() throws Exception {
 		
 		String xml =  
@@ -72,9 +76,10 @@ public class VariablesDCTest extends XMLTestCase {
 			"    </veg>" + EOL +
 			"</variables>" + EOL;
 
-		assertXMLEqual(expected, xmlParser.getXml());
+		assertThat(xmlParser.getXml(), CompareMatcher.isSimilarTo(expected));
 	}
 	
+   @Test
 	public void testParseRubbish() throws Exception {
 		
 		String xml =  
@@ -108,9 +113,10 @@ public class VariablesDCTest extends XMLTestCase {
 			"    </fruit>" + EOL +
 			"</variables>" + EOL;
 
-		assertXMLEqual(expected, xmlParser.getXml());
+		assertThat(xmlParser.getXml(), CompareMatcher.isSimilarTo(expected));
 	}
 	
+   @Test
 	public void testParseNoValue() throws Exception {
 		
 		String xml =  
@@ -140,7 +146,7 @@ public class VariablesDCTest extends XMLTestCase {
 		String expected = 			
 			"<variables id=\"vars\"/>" + EOL;
 
-		assertXMLEqual(expected, xmlParser.getXml());
+		assertThat(xmlParser.getXml(), CompareMatcher.isSimilarTo(expected));
 	}
 	
 	public static void main(String args[]) throws Exception {

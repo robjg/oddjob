@@ -1,14 +1,17 @@
 package org.oddjob.io;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class WireTapInputStreamTest extends TestCase {
+public class WireTapInputStreamTest extends OjTestCase {
 
+   @Test
 	public void testReadingArray() throws IOException {
 		
 		ByteArrayInputStream input = new ByteArrayInputStream(
@@ -32,6 +35,7 @@ public class WireTapInputStreamTest extends TestCase {
 				new String(buffer, 0, 29));
 	}
 	
+   @Test
 	public void testReadingCharByChar() throws IOException {
 		
 		ByteArrayInputStream input = new ByteArrayInputStream(

@@ -1,9 +1,11 @@
 package org.oddjob.logging.polling;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.jmx.client.MockLogPollable;
 import org.oddjob.logging.ArchiveNameResolver;
@@ -16,7 +18,7 @@ import org.oddjob.logging.cache.PollingLogArchiver;
 /**
  * More tests for the basics - tracking down a bug.
  */
-public class PollingLogArchiver2Test extends TestCase {
+public class PollingLogArchiver2Test extends OjTestCase {
 
 	Object expected;
 	
@@ -62,6 +64,7 @@ public class PollingLogArchiver2Test extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimpleLogEvents() {
 		
 		MockLogPollable root = new MockLogPollable();
@@ -89,6 +92,7 @@ public class PollingLogArchiver2Test extends TestCase {
 		assertEquals("5", results.results.get(4).getMessage());
 	}
 	
+   @Test
 	public void testReAddingListener() {
 		
 		MockLogPollable root = new MockLogPollable();

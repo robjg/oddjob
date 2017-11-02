@@ -1,8 +1,10 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -15,8 +17,9 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 
-public class DailyScheduleExamplesTest extends TestCase {
+public class DailyScheduleExamplesTest extends OjTestCase {
 	
+   @Test
     public void testSimpleExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -46,6 +49,7 @@ public class DailyScheduleExamplesTest extends TestCase {
     }
 
     
+   @Test
     public void testTimeAndIntervalExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

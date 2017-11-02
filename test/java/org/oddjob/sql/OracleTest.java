@@ -1,10 +1,12 @@
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -15,8 +17,9 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class OracleTest extends TestCase {
+public class OracleTest extends OjTestCase {
 
+   @Test
 	public void testQueryAllTypes() 
 	throws ArooaPropertyException, ArooaConversionException, ParseException {
 		
@@ -93,6 +96,7 @@ public class OracleTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testTypeBasedDialect() 
 	throws ArooaPropertyException, ArooaConversionException, ParseException {
 		

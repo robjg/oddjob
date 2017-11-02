@@ -1,9 +1,12 @@
 package org.oddjob.input;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.jobs.ExecJob;
@@ -11,17 +14,18 @@ import org.oddjob.state.JobState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-public class ConsoleInputHandlerTest extends TestCase {
+public class ConsoleInputHandlerTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			ConsoleInputHandlerTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------------  " + getName() + "  -------------------------");
 	}
 	
+   @Test
 	public void testMultiplePrompts() {
 		
 		OurDirs dirs = new OurDirs();

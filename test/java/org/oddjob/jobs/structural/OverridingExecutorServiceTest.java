@@ -1,10 +1,12 @@
 package org.oddjob.jobs.structural;
 
+import org.junit.Test;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -23,7 +25,7 @@ import org.oddjob.tools.StateSteps;
  * @author rob
  *
  */
-public class OverridingExecutorServiceTest extends TestCase {
+public class OverridingExecutorServiceTest extends OjTestCase {
 
 	public static class ExecutorProvider {
 		
@@ -62,6 +64,7 @@ public class OverridingExecutorServiceTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 
 		Oddjob oddjob = new Oddjob();

@@ -3,6 +3,8 @@
  */
 package org.oddjob.monitor.view;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -35,7 +37,7 @@ import org.oddjob.util.ThreadManager;
 /**
  * 
  */
-public class ActionModelTest extends TestCase {
+public class ActionModelTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ActionModelTest.class); 
 	
@@ -105,6 +107,7 @@ public class ActionModelTest extends TestCase {
 	 * enabled for an Object.
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testSelectObject() throws ArooaParseException {
 		
 		Object object = new Object();
@@ -226,6 +229,7 @@ public class ActionModelTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testSelectOddjob() throws ArooaParseException {
 		
 		Oddjob oj = new Oddjob();

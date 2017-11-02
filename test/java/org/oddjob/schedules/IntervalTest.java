@@ -1,24 +1,23 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * 
  */
-public class IntervalTest extends TestCase {
-
-	public IntervalTest(String arg0) {
-		super(arg0);
-	}
+public class IntervalTest extends OjTestCase {
 
 	/*
 	 * Test for boolean equals(BetweenTimes)
 	 */
+   @Test
 	public void testEquals() throws ParseException {
 
 		Interval test = new IntervalTo(
@@ -33,6 +32,7 @@ public class IntervalTest extends TestCase {
 	/*
 	 * Test for boolean isBefore(BetweenTimes)
 	 */
+   @Test
 	public void testIsBeforeBetweenTimes() throws ParseException {
 
 		IntervalBase test1 = new IntervalTo(
@@ -49,6 +49,7 @@ public class IntervalTest extends TestCase {
 	/*
 	 * Test for boolean isPast(BetweenTimes)
 	 */
+   @Test
 	public void testIsPastBetweenTimes() throws ParseException {
 
 		IntervalBase test1 = new IntervalBase(
@@ -62,6 +63,7 @@ public class IntervalTest extends TestCase {
 		assertTrue(test2.isPast(test1));
 	}
 
+   @Test
 	public void testLimitSimpleRefinement() throws ParseException {
 		Interval result;
 		
@@ -79,6 +81,7 @@ public class IntervalTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testLimitExtendedRefinement() throws ParseException {
 		Interval result;
 		
@@ -99,6 +102,7 @@ public class IntervalTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testLimitEagerRefinement() throws ParseException {
 		Interval result;
 		
@@ -115,6 +119,7 @@ public class IntervalTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testLimitAntiRefinement() throws ParseException {
 		Interval result;
 		
@@ -131,6 +136,7 @@ public class IntervalTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testLimitDisjointedAfter() throws ParseException {
 		Interval result;
 		
@@ -146,6 +152,7 @@ public class IntervalTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testLimitDisjointedBefore() throws ParseException {
 		Interval result;
 		
@@ -161,6 +168,7 @@ public class IntervalTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testLimitNull() throws ParseException {
 		
 		Interval i1 = new IntervalTo(

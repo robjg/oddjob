@@ -1,8 +1,10 @@
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
@@ -12,8 +14,9 @@ import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.values.types.DateType;
 
-public class SQLConversionsTest extends TestCase {
+public class SQLConversionsTest extends OjTestCase {
 
+   @Test
 	public void testDateConversions() 
 	throws ArooaParseException, NoConversionAvailableException, 
 	ConversionFailedException, ParseException {

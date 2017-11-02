@@ -1,15 +1,17 @@
 package org.oddjob.images;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Iconic;
 
-public class IconHelperTest extends TestCase {
+public class IconHelperTest extends OjTestCase {
 
 	class OurListener implements IconListener {
 		
@@ -33,6 +35,7 @@ public class IconHelperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSameIdNotFired() {
 		
 		IconHelper test = new IconHelper(new OurIconic(), IconHelper.READY);

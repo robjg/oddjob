@@ -1,6 +1,9 @@
 package org.oddjob.designer.elements.schedule;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -21,15 +24,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class MonthlyScheduleDETest extends TestCase {
+public class MonthlyScheduleDETest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(MonthlyScheduleDETest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreateByDay() throws ArooaParseException {
 		
 		String xml =  
@@ -58,6 +63,7 @@ public class MonthlyScheduleDETest extends TestCase {
 		assertEquals(DayOfMonth.Shorthands.LAST, test.getToDay());
 	}
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

@@ -1,17 +1,20 @@
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.io.IOException;
 
 import javax.script.ScriptException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.io.BufferType;
 import org.oddjob.state.JobState;
 
-public class ScriptInvokerTest extends TestCase {
+public class ScriptInvokerTest extends OjTestCase {
 
+   @Test
 	public void testInvokeScript() throws IOException, ScriptException, NoSuchMethodException {
 
 		BufferType buffer = new BufferType();

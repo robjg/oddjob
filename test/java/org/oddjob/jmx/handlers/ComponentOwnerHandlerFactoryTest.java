@@ -1,11 +1,18 @@
 package org.oddjob.jmx.handlers;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.management.Notification;
 import javax.management.NotificationListener;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.design.DesignInstance;
@@ -36,8 +43,9 @@ import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.xmlunit.matchers.CompareMatcher;
 
-public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
+public class ComponentOwnerHandlerFactoryTest {
 
 	private class MySessionLite extends MockConfigurationSession {
 		
@@ -174,6 +182,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		
 	}
 	
+   @Test
 	public void testBasicInfo() {
 		
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
@@ -203,6 +212,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 				clientHandler.rootDesignFactory().getClass());
 	}
 	
+   @Test
 	public void testDragPointOperations() throws ArooaParseException {
 
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
@@ -297,6 +307,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testEditOperations() throws Exception {
 
 		
@@ -355,8 +366,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		String expected = "<class id=\"oranges\"/>" + 
 			System.getProperty("line.separator"); 
 		
-		assertXMLEqual(expected, 
-				savedXML.get());
+		Assert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
 	}
 	
 	private class NullConfigurationOwner extends MockConfigurationOwner {
@@ -383,6 +393,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testNullConfiguration() {
 		
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
@@ -439,6 +450,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testNullDropPointConfiguration() {
 		
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
@@ -577,6 +589,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testSessionStateNotification() {
 		
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
@@ -718,6 +731,7 @@ public class ComponentOwnerHandlerFactoryTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testSessionChangeNotification() {
 		
 		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();

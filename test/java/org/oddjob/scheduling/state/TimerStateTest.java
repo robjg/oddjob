@@ -1,14 +1,17 @@
 package org.oddjob.scheduling.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateConverter;
 import org.oddjob.state.StandardParentStateConverter;
 
-public class TimerStateTest extends TestCase{
+public class TimerStateTest extends OjTestCase{
 
+   @Test
 	public void testHowParentSeesTimerStates() {
 		
 		ParentStateConverter converter = new StandardParentStateConverter();
@@ -29,6 +32,7 @@ public class TimerStateTest extends TestCase{
 				converter.toStructuralState(TimerState.EXCEPTION));
 	}
 	
+   @Test
 	public void testSinityChecks() {
 		
 		assertEquals(false, new IsStoppable().test(TimerState.STARTABLE));

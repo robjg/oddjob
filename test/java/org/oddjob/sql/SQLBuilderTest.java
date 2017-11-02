@@ -1,11 +1,14 @@
 package org.oddjob.sql;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class SQLBuilderTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class SQLBuilderTest extends OjTestCase {
 		
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testLineFeedTest() {
 		
 		String sql = 

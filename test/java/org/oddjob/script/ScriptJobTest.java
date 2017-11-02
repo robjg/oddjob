@@ -3,10 +3,12 @@
  */
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.util.Date;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -22,9 +24,10 @@ import org.oddjob.values.VariablesJob;
 /**
  * 
  */
-public class ScriptJobTest extends TestCase {
+public class ScriptJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ScriptJobTest.class);
 	
+   @Test
 	public void testHelloWorld() {
 		
 		Oddjob oj = new Oddjob();
@@ -36,6 +39,7 @@ public class ScriptJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(oj));
 	}
 
+   @Test
 	public void testVariableFromAndToJava() throws ArooaPropertyException, ArooaConversionException {
 				
 		Oddjob oj = new Oddjob();
@@ -52,6 +56,7 @@ public class ScriptJobTest extends TestCase {
 		assertEquals("apple", snack);
 	}
 
+   @Test
 	public void testSettingOutput() {
 		
 		String xml = 
@@ -83,6 +88,7 @@ public class ScriptJobTest extends TestCase {
 		assertEquals("apple", results.get("fruit"));
 	}
 
+   @Test
 	public void testResult() {
 		
 		Oddjob oj = new Oddjob();
@@ -94,6 +100,7 @@ public class ScriptJobTest extends TestCase {
 		assertEquals(ParentState.INCOMPLETE, oj.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testSettingVariables() throws Exception {
 		
 		Oddjob oj = new Oddjob();

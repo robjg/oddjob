@@ -1,5 +1,7 @@
 package org.oddjob.scheduling;
 
+import org.junit.Test;
+
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -8,9 +10,9 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class DefaultOddjobServicesTest extends TestCase {
+public class DefaultOddjobServicesTest extends OjTestCase {
 
 	class AJob implements Runnable {
 		
@@ -21,6 +23,7 @@ public class DefaultOddjobServicesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRunAndWait() throws InterruptedException, ExecutionException {
 		
 		DefaultExecutors test = new DefaultExecutors();
@@ -54,6 +57,7 @@ public class DefaultOddjobServicesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInterruptRunningJob() throws InterruptedException, ExecutionException {
 		
 		DefaultExecutors test = new DefaultExecutors();
@@ -95,6 +99,7 @@ public class DefaultOddjobServicesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopServices() throws InterruptedException, ExecutionException {
 		
 		DefaultExecutors test = new DefaultExecutors();

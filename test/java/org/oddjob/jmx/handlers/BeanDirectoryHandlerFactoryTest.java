@@ -1,11 +1,13 @@
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanDirectoryOwner;
@@ -25,7 +27,7 @@ import org.oddjob.jmx.server.ServerContext;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerSession;
 
-public class BeanDirectoryHandlerFactoryTest extends TestCase {
+public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
 
 	class ServerSideOwner1 extends MockBeanDirectoryOwner {
 		
@@ -61,6 +63,7 @@ public class BeanDirectoryHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testGetServerId() {
 		
 		ServerSideOwner1 target = new ServerSideOwner1();
@@ -113,6 +116,7 @@ public class BeanDirectoryHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLookup() {
 		
 		ServerSideOwner2 target = new ServerSideOwner2();
@@ -208,6 +212,7 @@ public class BeanDirectoryHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testGetAllByType() {
 		
 		ServerSideOwner3 target = new ServerSideOwner3();

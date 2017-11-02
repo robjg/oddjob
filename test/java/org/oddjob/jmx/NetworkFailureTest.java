@@ -1,11 +1,14 @@
 package org.oddjob.jmx;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.management.remote.rmi.RMIConnectorServer;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobConsole;
@@ -17,16 +20,17 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class NetworkFailureTest extends TestCase {
+public class NetworkFailureTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(NetworkFailureTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		logger.info("------------------- " + getName() + " --------------");
 	}
 	
+   @Test
 	public void testSimpleExample() throws Exception {
 	
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {

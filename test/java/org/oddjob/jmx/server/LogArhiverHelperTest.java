@@ -3,14 +3,16 @@
  */
 package org.oddjob.jmx.server;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
-public class LogArhiverHelperTest extends TestCase {
+public class LogArhiverHelperTest extends OjTestCase {
 	
 	public static class MockLogArchiver implements LogArchiver {
 		boolean removed;
@@ -37,6 +39,7 @@ public class LogArhiverHelperTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testRetrieveLogEvents() {
 		Object bean = new Object();
 		

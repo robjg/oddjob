@@ -1,5 +1,9 @@
 package org.oddjob.tools;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -8,15 +12,18 @@ import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.Assert;
+import org.junit.Test;
 import org.oddjob.io.BufferType;
 import org.oddjob.util.IO;
 import org.xml.sax.SAXException;
+import org.xmlunit.matchers.CompareMatcher;
 
-public class DocPostProcessorTest extends XMLTestCase {
+public class DocPostProcessorTest {
 
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testJavaFilePattern() {
 		
 		Pattern test = new DocPostProcessor().new JavaCodeInjector().pattern;
@@ -29,6 +36,7 @@ public class DocPostProcessorTest extends XMLTestCase {
 				matcher.group(1));
 	}
 	
+   @Test
 	public void testxMLResourcePattern() {
 		
 		Pattern test = new DocPostProcessor.XMLResourceInjector().pattern;
@@ -41,6 +49,7 @@ public class DocPostProcessorTest extends XMLTestCase {
 				matcher.group(1));
 	}
 	
+   @Test
 	public void testInsertFile() throws SAXException, IOException {
 		
 		OurDirs dirs = new OurDirs();
@@ -81,7 +90,7 @@ public class DocPostProcessorTest extends XMLTestCase {
 		
 		System.out.println(result);
 		
-		assertXMLEqual(buffer.getText(), result);
+		Assert.assertThat(result, CompareMatcher.isSimilarTo(buffer.getText()));
 
 	}
 }

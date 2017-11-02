@@ -1,9 +1,11 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -14,7 +16,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class RunnableWrapperResetTest extends TestCase {
+public class RunnableWrapperResetTest extends OjTestCase {
 
 	public static class Bean1 implements Runnable {
 
@@ -46,6 +48,7 @@ public class RunnableWrapperResetTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testHardReset() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -104,6 +107,7 @@ public class RunnableWrapperResetTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSoftReset() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 

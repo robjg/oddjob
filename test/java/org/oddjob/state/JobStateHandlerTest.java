@@ -3,13 +3,15 @@
  */
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.Stateful;
@@ -17,7 +19,7 @@ import org.oddjob.Stateful;
 /**
  * 
  */
-public class JobStateHandlerTest extends TestCase {
+public class JobStateHandlerTest extends OjTestCase {
 
 		
 	private void setState(final JobStateHandler handler, 
@@ -42,6 +44,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertTrue(ran);
 	}
 	
+   @Test
 	public void testAllStates() {
 		
 		JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -84,6 +87,7 @@ public class JobStateHandlerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testListenersNotified() {
 
 		Stateful source = new MockStateful();
@@ -129,6 +133,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(JobState.DESTROYED, l.events.get(6).getState());
 	}
 
+   @Test
 	public void testDuplicateEventsNotified() {
 
 		Stateful source = new MockStateful();
@@ -160,6 +165,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(JobState.COMPLETE, l.events.get(4).getState());
 	}
 	
+   @Test
 	public void testManyListeners() throws Exception {
 		
 		RecordingStateListener l1 = new RecordingStateListener();
@@ -191,6 +197,7 @@ public class JobStateHandlerTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testListenerConcurrentModification() {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -216,6 +223,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(0, test.listenerCount());
 	}
 	
+   @Test
 	public void testThatAttemptsToChangeState() {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -275,6 +283,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(JobState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testListenerNotificationOrder() throws InterruptedException {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -330,6 +339,7 @@ public class JobStateHandlerTest extends TestCase {
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testSleep() throws InterruptedException {
 		
 		final CountDownLatch latch = new CountDownLatch(1);

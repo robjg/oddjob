@@ -1,10 +1,12 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
@@ -21,7 +23,7 @@ import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 
-public class BasePrimaryTest extends TestCase {
+public class BasePrimaryTest extends OjTestCase {
 
 	private class OurComp extends BasePrimary {
 		
@@ -101,6 +103,7 @@ public class BasePrimaryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSleep() throws InterruptedException {
 		
 		final OurComp test = new OurComp();

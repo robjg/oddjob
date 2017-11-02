@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.client;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -28,7 +31,7 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -73,7 +76,7 @@ import org.oddjob.util.MockThreadManager;
 /**
  * Test a ClientNode.
  */
-public class ClientNodeTest extends TestCase {
+public class ClientNodeTest extends OjTestCase {
 	public static final Logger logger = Logger.getLogger(ClientNodeTest.class);
 
 	/**
@@ -170,6 +173,7 @@ public class ClientNodeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSimple() throws Exception {
 		Simple mb = new Simple();
 		
@@ -193,6 +197,7 @@ public class ClientNodeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testEquals() throws Exception {
 		Simple mb = new Simple();
 		
@@ -230,7 +235,8 @@ public class ClientNodeTest extends TestCase {
 	
 	private BeanRegistry cr;
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== Running " + getName() + "================");
 		System.setProperty("mx4j.log.priority", "trace");
 		cr = new SimpleBeanRegistry();
@@ -242,6 +248,7 @@ public class ClientNodeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testRunnable() 
 	throws Exception {
 		MockRunnable mb = new MockRunnable();
@@ -396,6 +403,7 @@ public class ClientNodeTest extends TestCase {
 	}
 
 	// this test uses a dyna bean get
+   @Test
 	public void testSimpleGet() throws Exception {
 		MyDynamicMBean firstBean = new MyDynamicMBean();
 		
@@ -447,6 +455,7 @@ public class ClientNodeTest extends TestCase {
 	}
 	
 	// and this test uses an OddjobMBean get. 
+   @Test
 	public void testBean() throws Exception {
 		
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
@@ -520,6 +529,7 @@ public class ClientNodeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testLogging() 
 	throws Exception {
 		MockLogging mb = new MockLogging();

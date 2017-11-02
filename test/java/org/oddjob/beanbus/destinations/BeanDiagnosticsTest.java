@@ -1,10 +1,14 @@
 package org.oddjob.beanbus.destinations;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -15,13 +19,19 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class BeanDiagnosticsTest extends TestCase {
+public class BeanDiagnosticsTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(BeanDiagnosticsTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Rule public TestName name = new TestName();
+
+	public String getName() {
+        return name.getMethodName();
+    }
+
+   @Before
+   public void setUp() throws Exception {
+
 		logger.info("--------------------------------  " + getName() + 
 				"  -----------------------------");
 	}
@@ -50,6 +60,7 @@ public class BeanDiagnosticsTest extends TestCase {
 	
 	String LS = OddjobTestHelper.LS;
 	
+   @Test
 	public void testPrintTypeInfoTest() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -78,6 +89,7 @@ public class BeanDiagnosticsTest extends TestCase {
 		assertEquals(expected, new String(buffer.toByteArray()));
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 		File config = new File(getClass().getResource(

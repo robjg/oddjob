@@ -2,10 +2,13 @@
  * Copyright (c) 2005, Rob Gordon.
  */
 package org.oddjob.values;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -47,13 +50,15 @@ import org.oddjob.tools.OddjobTestHelper;
  * 
  * @author Rob Gordon.
  */
-public class VariablesJobTest extends TestCase {
+public class VariablesJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(VariablesJobTest.class);
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("-------------- " + getName() + " -------------");
 	}
 	
 	// test set and get
+   @Test
 	public void testSimple() throws Exception {
 		ValueType vt = new ValueType();
 		vt.setValue(new ArooaObject("fred"));
@@ -94,6 +99,7 @@ public class VariablesJobTest extends TestCase {
 	/**
 	 *  test the type property when setting a variables job.
 	 */
+   @Test
 	public void testTypesForSetting() {
 		
 		ArooaDescriptor descriptor = new VariablesJobDescriptorFactory(
@@ -135,6 +141,7 @@ public class VariablesJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testArooaDescriptor() throws ArooaConversionException {
 
 		String xml = 
@@ -178,6 +185,7 @@ public class VariablesJobTest extends TestCase {
 		assertEquals(VariablesJob.class, instance.getClass());
 	}
 	
+   @Test
 	public void testDescriptorBeanDoc() {
 		
 		VariablesJobDescriptorFactory test = 
@@ -208,6 +216,7 @@ public class VariablesJobTest extends TestCase {
 	/**
 	 * Check getting the values back with bean methods.
 	 */
+   @Test
 	public void testGetValues() throws Exception {
 		PropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
 		
@@ -233,6 +242,7 @@ public class VariablesJobTest extends TestCase {
 		assertEquals(new Short((short) 1234), r2);
 	}
 	
+   @Test
 	public void testNullValue() throws Exception {
 		String xml=
 			"<oddjob>" +
@@ -259,6 +269,7 @@ public class VariablesJobTest extends TestCase {
 				
 	}
 
+   @Test
 	public void testSelfUse() throws Exception {
 			
 		String xml = 
@@ -289,6 +300,7 @@ public class VariablesJobTest extends TestCase {
 	}
 
 	
+   @Test
     public void testInOddjob() {
         Oddjob oj = new Oddjob();
         oj.setConfiguration(new XMLConfiguration("Resource",
@@ -301,6 +313,7 @@ public class VariablesJobTest extends TestCase {
         assertEquals("Job state", JobState.COMPLETE, OddjobTestHelper.getJobState(check));
     }
     
+   @Test
     public void testExample() {
     	
     	Oddjob oddjob = new Oddjob();

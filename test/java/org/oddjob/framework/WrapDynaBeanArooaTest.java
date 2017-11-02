@@ -1,8 +1,10 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaParser;
@@ -19,7 +21,7 @@ import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class WrapDynaBeanArooaTest extends TestCase {
+public class WrapDynaBeanArooaTest extends OjTestCase {
 
 	public static class Root {
 		
@@ -69,6 +71,7 @@ public class WrapDynaBeanArooaTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInArooa() throws ArooaParseException, ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 

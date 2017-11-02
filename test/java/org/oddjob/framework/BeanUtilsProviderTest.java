@@ -3,10 +3,12 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -14,7 +16,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class BeanUtilsProviderTest extends TestCase {
+public class BeanUtilsProviderTest extends OjTestCase {
 
 	public static class DateBean {
 		Date date; 
@@ -28,6 +30,7 @@ public class BeanUtilsProviderTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInOddjob() throws ParseException {
 		
 		String xml = 

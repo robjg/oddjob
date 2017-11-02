@@ -1,8 +1,10 @@
 package org.oddjob.arooa.types;
 
+import org.junit.Test;
+
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -11,11 +13,12 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ConvertTypeExamplesTest extends TestCase {
+public class ConvertTypeExamplesTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(
 			ConvertTypeExamplesTest.class);
 
+   @Test
 	public void testFruitExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -49,6 +52,7 @@ public class ConvertTypeExamplesTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testIsPropertyUsage() {
 		
 		File file = new File(getClass().getResource(

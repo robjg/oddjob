@@ -1,9 +1,13 @@
 package org.oddjob.jmx;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -20,23 +24,23 @@ import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 
-public class JMXExamplesTest extends TestCase {
+public class JMXExamplesTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(JMXExamplesTest.class);
 
 	Oddjob serverOddjob;
 	Oddjob clientOddjob;
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("----------------  " + getName() + "  -----------------");
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+   @After
+   public void tearDown() throws Exception {
+
 		
 		if (clientOddjob != null) {
 			clientOddjob.destroy();
@@ -46,6 +50,7 @@ public class JMXExamplesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimpleClientServerExample() throws ArooaParseException, FailedToStopException {
 		
 		Properties props = new Properties();
@@ -84,6 +89,7 @@ public class JMXExamplesTest extends TestCase {
 		clientSteps.checkNow();
 	}
 	
+   @Test
 	public void testClientRunsServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 		
 		Properties props = new Properties();
@@ -127,6 +133,7 @@ public class JMXExamplesTest extends TestCase {
 		serverJobStates.checkNow();
 	}
 	
+   @Test
 	public void testClientTriggersOnServerJobExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 		
 		Properties props = new Properties();

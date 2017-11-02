@@ -3,7 +3,9 @@
  */
 package org.oddjob.logging.log4j;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -19,7 +21,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * 
  */
-public class Log4jArchiverTest extends TestCase {
+public class Log4jArchiverTest extends OjTestCase {
 	
 	private class X implements LogEnabled {
 		public String loggerName() {
@@ -35,6 +37,7 @@ public class Log4jArchiverTest extends TestCase {
 	}
 	
 	// test Log4jArchiver archives a message sent to a Log4j Logger.
+   @Test
 	public void testSimpleLogOutputCaptured() {
 		X x = new X();
 		Log4jArchiver archiver = new Log4jArchiver(x, "%m");
@@ -64,6 +67,7 @@ public class Log4jArchiverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testChildLogOutputCaptured() {
 		
 		X x = new X();
@@ -90,6 +94,7 @@ public class Log4jArchiverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLogArchiverChildLogOutputCaptured() {
 		
 		OurArchiver x = new OurArchiver();

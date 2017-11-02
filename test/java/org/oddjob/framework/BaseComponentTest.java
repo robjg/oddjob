@@ -1,5 +1,7 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -8,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
@@ -34,7 +36,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class BaseComponentTest extends TestCase {
+public class BaseComponentTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(BaseComponentTest.class);
 	
@@ -107,6 +109,7 @@ public class BaseComponentTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testExceptionOnSave() {
 		
 		final OurComponent test = new OurComponent();
@@ -191,6 +194,7 @@ public class BaseComponentTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testSerialisation() throws IOException, ClassNotFoundException, InterruptedException {
 		
 		SerializableComponent test = new SerializableComponent();
@@ -237,6 +241,7 @@ public class BaseComponentTest extends TestCase {
 	}
 	
 	/** Note this test should change classes as it test the BasePrimary. */
+   @Test
 	public void testStateNotifiedOnDestroy() {
 
 		final List<State> results = new ArrayList<State>();

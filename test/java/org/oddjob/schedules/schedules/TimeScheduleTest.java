@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.schedules.schedules;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
@@ -22,13 +25,15 @@ import org.oddjob.schedules.units.DayOfWeek;
 /**
  * 
  */
-public class TimeScheduleTest extends TestCase {
+public class TimeScheduleTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger("org.oddjob");
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("============== " + getName() + " ==================");
 	}
 	
+   @Test
 	public void testStandardIntervalDifferentStarts() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -73,6 +78,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 		
+   @Test
 	public void testForwardInterval() throws ParseException {
 		
 		TimeSchedule s = new TimeSchedule();
@@ -109,6 +115,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}	
 	
+   @Test
 	public void testOn() throws ParseException {
 		
 		TimeSchedule s = new TimeSchedule();
@@ -152,6 +159,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}	
 	
+   @Test
 	public void testWithLimits() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -179,6 +187,7 @@ public class TimeScheduleTest extends TestCase {
 	}
 	
 	// with just a from time
+   @Test
 	public void testDefaultTo() throws Exception {
 		TimeSchedule test = new TimeSchedule();
 		test.setFrom("10:00");
@@ -201,6 +210,7 @@ public class TimeScheduleTest extends TestCase {
 	}
 	
 	// with just a to time
+   @Test
 	public void testDefaultFrom() throws Exception {
 		
 		TimeSchedule s = new TimeSchedule();
@@ -221,6 +231,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);		
 	}
 	
+   @Test
 	public void testWithInterval() throws Exception {
 		TimeSchedule timeSchedule = new TimeSchedule();
 		timeSchedule.setFrom("08:00");
@@ -296,6 +307,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testWithIntervalOverMidnight() throws Exception {
 		TimeSchedule timeSchedule = new TimeSchedule();
 		timeSchedule.setFrom("23:00");
@@ -320,6 +332,7 @@ public class TimeScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testNextIntervalWithParent() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -384,6 +397,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);		
 	}
 	
+   @Test
 	public void testLastInterval() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -428,6 +442,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);						
 	}
 	
+   @Test
 	public void testLastIntervalOverMidnight() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -475,6 +490,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);		
 	}
 	
+   @Test
 	public void testWithParent() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -512,6 +528,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testAtWithParentWeekly() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -546,6 +563,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testAtWithParentMonthly() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -594,6 +612,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testAsChildWithInterval() throws Exception {
 		TimeSchedule test = new TimeSchedule();
 		test.setFrom("10:00");
@@ -636,6 +655,7 @@ public class TimeScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 
+   @Test
 	public void testAsChildOverMidnightWithInterval() throws Exception {
 		TimeSchedule test = new TimeSchedule();
 		test.setFrom("22:00");
@@ -704,6 +724,7 @@ public class TimeScheduleTest extends TestCase {
 	/**
 	 * Weird things happen with more than 24 hours in a day...
 	 */
+   @Test
 	public void testTimeAfter24() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();
@@ -742,6 +763,7 @@ public class TimeScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testTwoNestedTimes() throws ParseException {
 		
 		TimeSchedule schedule = new TimeSchedule();
@@ -760,6 +782,7 @@ public class TimeScheduleTest extends TestCase {
 		assertNull(results[0]);
 	}
 	
+   @Test
 	public void testLimitedTimeAndAnInterval() throws ParseException {
 		
 		TimeSchedule retry = new TimeSchedule();
@@ -797,6 +820,7 @@ public class TimeScheduleTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testDefaultTimesRollingForward() throws ParseException {
 		
 		TimeSchedule test = new TimeSchedule();

@@ -1,8 +1,10 @@
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import javax.swing.ImageIcon;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
@@ -15,7 +17,7 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 
-public class IconicTest extends TestCase {
+public class IconicTest extends OjTestCase {
 
 	class Result implements IconListener {
 		IconEvent event;
@@ -29,6 +31,7 @@ public class IconicTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testState() throws ArooaConversionException, InterruptedException {
 		
 		String xml =

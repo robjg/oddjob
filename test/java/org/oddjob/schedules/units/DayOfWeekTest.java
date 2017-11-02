@@ -1,6 +1,8 @@
 package org.oddjob.schedules.units;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaSession;
@@ -8,8 +10,9 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 
-public class DayOfWeekTest extends TestCase {
+public class DayOfWeekTest extends OjTestCase {
 
+   @Test
 	public void testBadString() throws NoConversionAvailableException, ConversionFailedException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();

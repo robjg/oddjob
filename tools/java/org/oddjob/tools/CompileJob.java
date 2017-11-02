@@ -72,7 +72,7 @@ public class CompileJob implements Runnable {
         }
 
         for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-        	System.out.format("Error on line %d in %d%n",
+        	System.out.format("Error on line %d in %s%n",
         			diagnostic.getLineNumber(),
         			diagnostic.getSource());
         }

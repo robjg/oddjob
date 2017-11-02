@@ -1,9 +1,12 @@
 package org.oddjob.scheduling;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TimeDisplayTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class TimeDisplayTest extends OjTestCase {
+
+   @Test
 	public void testLotsOfTimes() {
 		
 		assertEquals("1,000 00:00:00:000", new TimeDisplay(1000L * 24 * 60 * 60 * 1000).toString());

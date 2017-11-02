@@ -2,6 +2,9 @@
  * Copyright (c) 2005, Rob Gordon.
  */
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +22,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -72,12 +75,12 @@ import org.oddjob.tools.StateSteps;
  *
  * @author Rob Gordon.
  */
-public class ForEachJobTest extends TestCase {
+public class ForEachJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ForEachJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName() + "  ---------------");
 	}
@@ -121,6 +124,7 @@ public class ForEachJobTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testOneJobTwoValues() throws ArooaParseException {
 		
 		String xml = 
@@ -159,6 +163,7 @@ public class ForEachJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testWithEmptyList() {
 
 		String xml = "<foreach/>";
@@ -178,6 +183,7 @@ public class ForEachJobTest extends TestCase {
 		state.checkNow();
 	}
 	
+   @Test
 	public void testLoadOnJobTwoValues() throws ArooaParseException {
 		
 		String xml = 
@@ -244,6 +250,7 @@ public class ForEachJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testPseudoRegistry() {
 		
 		String findMe = new String("Fruit is Healthy.");
@@ -303,6 +310,7 @@ public class ForEachJobTest extends TestCase {
 		assertEquals("one", current);
 	}
 		
+   @Test
     public void testBasic() throws ParseException {
     	
     	checks = new Object[] { 
@@ -351,6 +359,7 @@ public class ForEachJobTest extends TestCase {
         }
     }
       
+   @Test
     public void testReset() throws Exception {
  
     	ChildCatcher childs = new ChildCatcher();
@@ -439,6 +448,7 @@ public class ForEachJobTest extends TestCase {
     	assertEquals(JobState.DESTROYED, child2.lastStateEvent().getState());
     }
 
+   @Test
     public void testIdenticalIdInForEachConfig() throws Exception {
     	
     	String config = 
@@ -480,6 +490,7 @@ public class ForEachJobTest extends TestCase {
     			oddjob.lastStateEvent().getState());    	
     }
 
+   @Test
     public void testSerializeForEach() throws IOException, ClassNotFoundException {
     	
     	String xml = 
@@ -527,6 +538,7 @@ public class ForEachJobTest extends TestCase {
 
     }
     
+   @Test
     public void testForEachPersistenceButNoChildren() throws Exception {
     	
     	String config = 
@@ -573,6 +585,7 @@ public class ForEachJobTest extends TestCase {
     			oddjob.lastStateEvent().getState());    	
     }
     
+   @Test
     public void testFileCopyExample() {
     	
     	OurDirs dirs = new OurDirs();
@@ -603,6 +616,7 @@ public class ForEachJobTest extends TestCase {
     	
     }
     
+   @Test
     public void testWithIds() throws ArooaPropertyException, ArooaConversionException {
     	
     	Oddjob oddjob = new Oddjob();
@@ -645,6 +659,7 @@ public class ForEachJobTest extends TestCase {
     	oddjob.destroy();    	
     }
     
+   @Test
     public void testPropertiesInChildren() {
     	
     	String config = 
@@ -711,6 +726,7 @@ public class ForEachJobTest extends TestCase {
     	oddjob.destroy();    	
     }
     
+   @Test
     public void testStop() throws InterruptedException {
     	
     	String xml = 
@@ -783,6 +799,7 @@ public class ForEachJobTest extends TestCase {
      * Tracking down a bug where execution services weren't getting passed in to the
      * internal configuration.
      */
+   @Test
     public void testAutoInject() {
     	
     	String forEachConfig =
@@ -916,6 +933,7 @@ public class ForEachJobTest extends TestCase {
      * @throws InvocationTargetException 
      * @throws InterruptedException 
      */
+   @Test
     public void testDestroyWithComplicateStructure() throws InterruptedException, InvocationTargetException {
     	
     	String forEachConfig =
@@ -1048,6 +1066,7 @@ public class ForEachJobTest extends TestCase {
      * Fixing a problem where resetting after a failure would cause
      * execution to start after the failure, not to re-run it.
      */
+   @Test
     public void testRetryRetriesFromCorrectValue() {
     	
     	ChildCatcher childs = new ChildCatcher();

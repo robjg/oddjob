@@ -1,14 +1,16 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.beans.ExceptionListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 
-public class ServiceStrategiesTest extends TestCase {
+public class ServiceStrategiesTest extends OjTestCase {
 
 	ArooaSession session = new StandardArooaSession();
 	
@@ -30,6 +32,7 @@ public class ServiceStrategiesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIsServiceAlreadyStrategy() throws Exception {
 		
 		ServiceStrategy test = 
@@ -81,6 +84,7 @@ public class ServiceStrategiesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testHasServiceAnotationsStrategy() throws Exception {
 		
 		ServiceStrategy test = 
@@ -127,6 +131,7 @@ public class ServiceStrategiesTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testHasServiceMethodsStrategy() throws Exception {
 		
 		ServiceStrategy test = 

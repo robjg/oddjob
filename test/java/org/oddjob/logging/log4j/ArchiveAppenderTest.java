@@ -1,9 +1,11 @@
 package org.oddjob.logging.log4j;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -11,7 +13,7 @@ import org.apache.log4j.SimpleLayout;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.cache.MockLogArchiverCache;
 
-public class ArchiveAppenderTest extends TestCase {
+public class ArchiveAppenderTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(ArchiveAppenderTest.class);
@@ -33,6 +35,7 @@ public class ArchiveAppenderTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAppender() {
 
 		OurArchiver archiver = new OurArchiver();

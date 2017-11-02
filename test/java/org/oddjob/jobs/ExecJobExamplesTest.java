@@ -1,12 +1,14 @@
 package org.oddjob.jobs;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Level;
@@ -24,9 +26,10 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class ExecJobExamplesTest extends TestCase {
+public class ExecJobExamplesTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ExecJobExamplesTest.class);
 	
+   @Test
 	public void testSimpleExamples() throws ArooaParseException {
 		
 		// Just check the XML.
@@ -41,6 +44,7 @@ public class ExecJobExamplesTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEnvironmentExample() throws ArooaPropertyException, ArooaConversionException {
 	
 		String envCommand;
@@ -91,6 +95,7 @@ public class ExecJobExamplesTest extends TestCase {
 		oddjob.destroy();
 	}
 		
+   @Test
 	public void testWithStdInExample() throws ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();
@@ -130,6 +135,7 @@ public class ExecJobExamplesTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testWithRedirectToFileExample() throws ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();
@@ -184,6 +190,7 @@ public class ExecJobExamplesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testWithRedirectToLogExample() throws IOException {
 		
 		OurDirs dirs = new OurDirs();

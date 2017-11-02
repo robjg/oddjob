@@ -3,10 +3,12 @@
  */
 package org.oddjob.monitor.model;
 
+import org.junit.Test;
+
 import java.util.Observable;
 import java.util.Observer;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
@@ -14,10 +16,11 @@ import org.oddjob.logging.LogLevel;
 /**
  * 
  */
-public class LogModelTest extends TestCase implements LogEventProcessor {
+public class LogModelTest extends OjTestCase implements LogEventProcessor {
 
 	String message;
 	
+   @Test
 	public void testMessage() {
 		class MyOb implements Observer {
 			public void update(Observable o, Object arg) {

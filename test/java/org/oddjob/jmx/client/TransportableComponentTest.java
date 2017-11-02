@@ -2,13 +2,16 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.client;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -37,11 +40,12 @@ import org.oddjob.util.MockThreadManager;
 /**
  *
  */
-public class TransportableComponentTest extends TestCase {
+public class TransportableComponentTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TransportableComponentTest.class);
 
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== Running " + getName() + "================");
 		System.setProperty("mx4j.log.priority", "trace");
 	}
@@ -87,6 +91,7 @@ public class TransportableComponentTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testRoundTrip() throws Exception {
 		
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {

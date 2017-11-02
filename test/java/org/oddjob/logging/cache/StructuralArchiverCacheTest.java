@@ -3,7 +3,9 @@
  */
 package org.oddjob.logging.cache;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Structural;
 import org.oddjob.logging.ArchiveNameResolver;
@@ -19,7 +21,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * Test LogArchiverCache
  */
-public class StructuralArchiverCacheTest extends TestCase {
+public class StructuralArchiverCacheTest extends OjTestCase {
 
 	public class Thing implements LogEnabled {
 		public String loggerName() {
@@ -43,6 +45,7 @@ public class StructuralArchiverCacheTest extends TestCase {
 	}
 	
 	// archive something.
+   @Test
 	public void testAddEvent() {
 		Thing thing = new Thing();
 		StructuralArchiverCache test = new StructuralArchiverCache(thing, new R());
@@ -58,6 +61,7 @@ public class StructuralArchiverCacheTest extends TestCase {
 	}
 
 	// try and break log archiver
+   @Test
 	public void testBadAddListeners() {
 		Thing thing = new Thing();
 		StructuralArchiverCache test = new StructuralArchiverCache(thing, new R());

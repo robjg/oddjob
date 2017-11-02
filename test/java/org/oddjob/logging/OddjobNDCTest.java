@@ -3,17 +3,20 @@
  */
 package org.oddjob.logging;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobNDCTest extends TestCase implements LogEnabled {
+public class OddjobNDCTest extends OjTestCase implements LogEnabled {
 	
 	private static final Logger logger = Logger.getLogger(OddjobNDCTest.class);
 
+   @Test
 	public void testAll() {
 		
 		String loggerName1 = "org.oddjob.TestLogger1";
@@ -34,6 +37,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		assertEquals(loggerName1, OddjobNDC.pop().getLogger());		
 	}
 
+   @Test
 	public void testEmptyPeek() {
 		
 		assertEquals(null, OddjobNDC.peek());
@@ -51,6 +55,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		return "our.unique.logger";
 	}
 	
+   @Test
 	public void testWithArchiver() {
 		
 		Log4jArchiver archiver = new Log4jArchiver(this, "%m%n");
@@ -70,6 +75,7 @@ public class OddjobNDCTest extends TestCase implements LogEnabled {
 		OddjobNDC.pop();
 	}
 
+   @Test
 	public void testChildThread() throws InterruptedException {
 		
 		String job = "My Important Job";

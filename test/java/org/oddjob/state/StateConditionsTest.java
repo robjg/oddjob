@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class StateConditionsTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class StateConditionsTest extends OjTestCase {
 	
+   @Test
 	public void testCompleteAlltates() {
 		
 		StateCondition test = StateConditions.COMPLETE;
@@ -30,6 +33,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.EXCEPTION));
 	}
 	
+   @Test
 	public void testDoneAllStates() {
 		
 		StateCondition test = StateConditions.DONE;
@@ -56,6 +60,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.EXCEPTION));
 	}
 	
+   @Test
 	public void testFinishedAllStates() {
 		
 		StateCondition test = StateConditions.FINISHED;
@@ -82,6 +87,7 @@ public class StateConditionsTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEndedAllStates() {
 		
 		StateCondition test = StateConditions.ENDED;
@@ -108,6 +114,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(true, test.test(ParentState.EXCEPTION));
 	}
 	
+   @Test
 	public void testFailureAllStates() {
 		
 		StateCondition test = StateConditions.FAILURE;
@@ -134,6 +141,7 @@ public class StateConditionsTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testRunningAllStates() {
 		
 		StateCondition test = StateConditions.RUNNING;
@@ -160,6 +168,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.EXCEPTION));
 	}
 	
+   @Test
 	public void testStartedAllStates() {
 		
 		StateCondition test = StateConditions.STARTED;
@@ -185,6 +194,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.EXCEPTION));		
 	}
 	
+   @Test
 	public void testActiveAllStates() {
 		
 		StateCondition test = StateConditions.ACTIVE;
@@ -210,6 +220,7 @@ public class StateConditionsTest extends TestCase {
 		assertEquals(false, test.test(ParentState.EXCEPTION));		
 	}
 	
+   @Test
 	public void testLiveAllStates() {
 		
 		StateCondition test = StateConditions.LIVE;

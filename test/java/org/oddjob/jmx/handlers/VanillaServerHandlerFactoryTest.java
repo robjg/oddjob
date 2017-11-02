@@ -1,16 +1,19 @@
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.management.MBeanOperationInfo;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.jmx.client.LogPollable;
 
-public class VanillaServerHandlerFactoryTest extends TestCase {
+public class VanillaServerHandlerFactoryTest extends OjTestCase {
 
+   @Test
 	public void testOpInfoForClass() {
 		
 		VanillaServerHandlerFactory<LogPollable> test = 

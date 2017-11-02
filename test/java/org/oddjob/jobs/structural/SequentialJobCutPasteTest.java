@@ -1,9 +1,11 @@
 package org.oddjob.jobs.structural;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -25,7 +27,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * Cut and Paste Tests.
  */
-public class SequentialJobCutPasteTest extends TestCase {
+public class SequentialJobCutPasteTest extends OjTestCase {
 
 	public static class ResultsJob implements Runnable {
 		
@@ -83,6 +85,7 @@ public class SequentialJobCutPasteTest extends TestCase {
 		"<bean class='" + ResultsJob.class.getName() + "'" +
 				" results='${results}' value='green'/>";
 	
+   @Test
 	public void testCutAndPaste() throws ArooaParseException {
 
 		List<String> results = new ArrayList<String>();
@@ -168,6 +171,7 @@ public class SequentialJobCutPasteTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testBadSave() throws ArooaParseException {
 
 		List<String> results = new ArrayList<String>();
@@ -232,6 +236,7 @@ public class SequentialJobCutPasteTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException
 	 */
+   @Test
 	public void testBadSave2() throws ArooaParseException {
 
 		List<String> results = new ArrayList<String>();
@@ -303,6 +308,7 @@ public class SequentialJobCutPasteTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException
 	 */
+   @Test
 	public void testBadSave3() throws ArooaParseException {
 
 		List<String> results = new ArrayList<String>();

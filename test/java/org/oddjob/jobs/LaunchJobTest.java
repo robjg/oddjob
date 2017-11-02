@@ -1,8 +1,10 @@
 package org.oddjob.jobs;
 
+import org.junit.Test;
+
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -12,10 +14,11 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-public class LaunchJobTest extends TestCase {
+public class LaunchJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(LaunchJobTest.class);
 	
+   @Test
     public void testLaunchAsjobInOddjob() throws IOException {
     	
     	ClassLoader existingContext = Thread.currentThread(

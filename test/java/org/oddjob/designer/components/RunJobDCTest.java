@@ -2,8 +2,11 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -22,15 +25,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class RunJobDCTest extends TestCase {
+public class RunJobDCTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(RunJobDCTest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testRun() throws ArooaParseException {
 		
 		String xml =  

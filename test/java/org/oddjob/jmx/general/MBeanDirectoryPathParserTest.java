@@ -1,13 +1,16 @@
 package org.oddjob.jmx.general;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
 import org.oddjob.jmx.general.MBeanDirectoryPathParser;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class MBeanDirectoryPathParserTest extends TestCase {
+public class MBeanDirectoryPathParserTest extends OjTestCase {
 
+   @Test
 	public void testSimpleType() throws ParseException {
 		
 		String path = "snack:type=fruit,name=apple";
@@ -20,6 +23,7 @@ public class MBeanDirectoryPathParserTest extends TestCase {
 		assertEquals(null, test.getProperty());
 	}
 	
+   @Test
 	public void testSimpleAttribute() throws ParseException {
 		
 		String path = "snack:type=fruit,name=apple.vendor";
@@ -32,6 +36,7 @@ public class MBeanDirectoryPathParserTest extends TestCase {
 		assertEquals("vendor", test.getProperty());
 	}
 	
+   @Test
 	public void testQuotedName() throws ParseException {
 		
 		String path = "\"snack:type=fruit,name=apple\".vendor";
@@ -44,6 +49,7 @@ public class MBeanDirectoryPathParserTest extends TestCase {
 		assertEquals("vendor", test.getProperty());
 	}
 	
+   @Test
 	public void testQuotedAll() throws ParseException {
 		
 		String path = "\"snack:type=fruit,name=apple/vendor\"";
@@ -56,6 +62,7 @@ public class MBeanDirectoryPathParserTest extends TestCase {
 		assertEquals(null, test.getProperty());
 	}
 	
+   @Test
 	public void testQuotedAttributeToo() throws ParseException {
 		
 		String path = "\"snack:type=fruit,name=apple\".\"vendor\"";
@@ -68,6 +75,7 @@ public class MBeanDirectoryPathParserTest extends TestCase {
 		assertEquals("\"vendor\"", test.getProperty());
 	}
 	
+   @Test
 	public void testMisquotedName() {
 		
 		String path = "\"snack:type=fruit,name=apple\",vendor";

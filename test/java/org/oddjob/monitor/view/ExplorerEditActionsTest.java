@@ -3,6 +3,8 @@
  */
 package org.oddjob.monitor.view;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -35,7 +37,7 @@ import org.xml.sax.SAXException;
 /**
  * 
  */
-public class ExplorerEditActionsTest extends TestCase {
+public class ExplorerEditActionsTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ExplorerEditActionsTest.class); 
 	
@@ -86,6 +88,7 @@ public class ExplorerEditActionsTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testNoDragPoint() throws ArooaParseException {
 		
 		Object object = new Object();
@@ -122,6 +125,7 @@ public class ExplorerEditActionsTest extends TestCase {
 	 * @throws IOException 
 	 * @throws SAXException 
 	 */
+   @Test
 	public void testNormalSelction() throws ArooaParseException, SAXException, IOException {
 
 		String xml = 
@@ -171,6 +175,7 @@ public class ExplorerEditActionsTest extends TestCase {
 	 * @throws IOException 
 	 * @throws SAXException 
 	 */
+   @Test
 	public void testNestedOddjob() throws ArooaParseException {
 
 		String xml = 
@@ -249,6 +254,7 @@ public class ExplorerEditActionsTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testSelectOddjob() throws ArooaParseException {
 		
 		Oddjob oj = new Oddjob();

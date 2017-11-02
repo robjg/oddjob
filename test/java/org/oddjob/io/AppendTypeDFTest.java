@@ -2,11 +2,14 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -24,15 +27,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class AppendTypeDFTest extends TestCase {
+public class AppendTypeDFTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(AppendTypeDFTest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException, IOException {
 		
 		String xml =  

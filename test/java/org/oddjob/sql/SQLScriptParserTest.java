@@ -1,9 +1,11 @@
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.beanbus.BusException;
@@ -11,8 +13,9 @@ import org.oddjob.beanbus.destinations.BeanCapture;
 import org.oddjob.io.BufferType;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
-public class SQLScriptParserTest extends TestCase {
+public class SQLScriptParserTest extends OjTestCase {
 
+   @Test
 	public void testNoDelimiter() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -34,6 +37,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("SIMPLE TEXT", stmts.get(0));
 	}
 	
+   @Test
 	public void testOneEmptyLine() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -56,6 +60,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("LINE TWO", stmts.get(1));
 	}
 	
+   @Test
 	public void testLotsOfEmptyLines() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -78,6 +83,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("LINE TWO", stmts.get(1));
 	}
 	
+   @Test
 	public void testWindowsLines() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -100,6 +106,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("LINE TWO", stmts.get(1));
 	}
 	
+   @Test
 	public void testComments() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -121,6 +128,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("LINE TWO", stmts.get(0));
 	}
 	
+   @Test
 	public void testDefaultDelimited() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -144,6 +152,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("THREE", stmts.get(2));
 	}
 	
+   @Test
 	public void testNonRowDelimiterOnSeperateLine() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -170,6 +179,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("THREE", stmts.get(2));
 	}
 	
+   @Test
 	public void testGoDelimiter() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -195,6 +205,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("THREE", stmts.get(2));
 	}
 	
+   @Test
 	public void testGoDelimiterWithBlankLines() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -220,6 +231,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals("THREE", stmts.get(2));
 	}
 	
+   @Test
 	public void testGoDelimiterWithBlankLines2() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -245,6 +257,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals(3, stmts.size());
 	}
 	
+   @Test
 	public void testGoDelimiterWithMultipleLines() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();
@@ -286,6 +299,7 @@ public class SQLScriptParserTest extends TestCase {
 		assertEquals(3, stmts.size());
 	}
 	
+   @Test
 	public void testReplaceProperties() throws IOException, BusException {
 		
 		BeanCapture<String> results = new BeanCapture<String>();

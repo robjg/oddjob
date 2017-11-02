@@ -1,5 +1,7 @@
 package org.oddjob.scheduling;
 
+import org.junit.Test;
+
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.ExecutionException;
@@ -9,9 +11,9 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JavaExecutorAssumptionsTest extends TestCase {
+public class JavaExecutorAssumptionsTest extends OjTestCase {
 
 	class SimpleRunnable implements Runnable {
 		boolean ran;
@@ -21,6 +23,7 @@ public class JavaExecutorAssumptionsTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCancelBeforeRun() throws InterruptedException {
 		
 		ScheduledExecutorService executor = 
@@ -48,6 +51,7 @@ public class JavaExecutorAssumptionsTest extends TestCase {
 		executor.shutdown();
 	}
 
+   @Test
 	public void testRunBeforeCancel() 
 	throws InterruptedException, ExecutionException {
 		
@@ -95,6 +99,7 @@ public class JavaExecutorAssumptionsTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCancelInterrupted() 
 	throws InterruptedException, ExecutionException {
 		

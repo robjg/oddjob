@@ -3,12 +3,14 @@
  */
 package org.oddjob.io;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
@@ -29,9 +31,10 @@ import org.oddjob.tools.OurDirs;
 /**
  * Test for BufferType.
  */
-public class BufferTypeTest extends TestCase {
+public class BufferTypeTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(BufferTypeTest.class);
 	
+   @Test
 	public void testConversions() 
 	throws NoConversionAvailableException, ConversionFailedException, IOException {
 		
@@ -52,6 +55,7 @@ public class BufferTypeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testOutputInputStream() throws Exception {
 		BufferType bt = new BufferType();
 		bt.configured();
@@ -83,6 +87,7 @@ public class BufferTypeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testAppend() throws Exception {
 		BufferType bt = new BufferType();
 		bt.configured();
@@ -107,6 +112,7 @@ public class BufferTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testBufferAppendExample() {
 		
 		Oddjob oddjob = new Oddjob(); 
@@ -145,6 +151,7 @@ public class BufferTypeTest extends TestCase {
 		oddjob.destroy();		
 	}
 	
+   @Test
 	public void testFileWritingAndCaptureExamples() {
 				
 		OurDirs dirs = new OurDirs();
@@ -187,6 +194,7 @@ public class BufferTypeTest extends TestCase {
 		oddjob2.destroy();
 	}
 	
+   @Test
 	public void testByIdInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =  
@@ -219,6 +227,7 @@ public class BufferTypeTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testTextToOutputStreamInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =  
@@ -260,6 +269,7 @@ public class BufferTypeTest extends TestCase {
 		oj.destroy();
 	}
 		
+   @Test
 	public void testToStringArray() throws IOException {
 		
 		BufferType test = new BufferType();
@@ -273,6 +283,7 @@ public class BufferTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testBufferAsLinesExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		OurDirs dirs = new OurDirs();
@@ -301,6 +312,7 @@ public class BufferTypeTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testLinesInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =  
@@ -344,6 +356,7 @@ public class BufferTypeTest extends TestCase {
 		assertEquals(String.format("Apple%nOrange%n"), result);
 	}
 	
+   @Test
 	public void testCapturingXML() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =  
@@ -374,6 +387,7 @@ public class BufferTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException, NoConversionAvailableException, ConversionFailedException {
 		
 		BufferType type = new BufferType();

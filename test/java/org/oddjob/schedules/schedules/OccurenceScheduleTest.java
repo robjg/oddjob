@@ -3,12 +3,14 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -26,11 +28,12 @@ import org.oddjob.schedules.units.DayOfWeek;
  *
  * @author Rob Gordon.
  */
-public class OccurenceScheduleTest extends TestCase {
+public class OccurenceScheduleTest extends OjTestCase {
 
     static DateFormat checkFormat = new SimpleDateFormat("dd-MMM-yy HH:mm:ss:SSS");
     static DateFormat inputFormat = new SimpleDateFormat("dd-MMM-yy HH:mm");
     
+   @Test
     public void testBasic() throws ParseException {
         OccurrenceSchedule schedule = new OccurrenceSchedule();
         schedule.setOccurrence("2");
@@ -58,6 +61,7 @@ public class OccurenceScheduleTest extends TestCase {
         		expected.equals(actual));
     }
     
+   @Test
     public void testOutsideLimits() throws ParseException {
     	
         OccurrenceSchedule test = new OccurrenceSchedule();
@@ -108,6 +112,7 @@ public class OccurenceScheduleTest extends TestCase {
         }
     }
     
+   @Test
     public void testThirdWednesday() throws ParseException {
     	
     	MonthlySchedule monthly = new MonthlySchedule();
@@ -135,6 +140,7 @@ public class OccurenceScheduleTest extends TestCase {
     }
     
     
+   @Test
     public void testOccurenceExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

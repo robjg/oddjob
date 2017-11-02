@@ -1,6 +1,8 @@
 package org.oddjob.arooa.types;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -10,10 +12,11 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class ImportTypeExamplesTest extends TestCase {
+public class ImportTypeExamplesTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			ImportTypeExamplesTest.class);
 	
+   @Test
 	public void testFruitExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

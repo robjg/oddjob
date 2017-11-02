@@ -1,6 +1,8 @@
 package org.oddjob.framework;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -8,7 +10,7 @@ import org.oddjob.arooa.registry.Services;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class ServicesJobTest extends TestCase {
+public class ServicesJobTest extends OjTestCase {
 
 	interface Snack {
 		// A marker interface only.		
@@ -37,6 +39,7 @@ public class ServicesJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testServiceRegisteredAndRetrieved() {
 		
 		ServicesJob test = new ServicesJob();
@@ -58,6 +61,7 @@ public class ServicesJobTest extends TestCase {
 		assertEquals(Cafe.class, service.getClass());
 	}
 	
+   @Test
 	public void testServiceLookup() {
 		
 		String xml = 

@@ -3,11 +3,13 @@
  */
 package org.oddjob.scheduling;
 
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaBeanDescriptor;
@@ -33,10 +35,11 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class TimerDesFaTest extends TestCase {
+public class TimerDesFaTest extends OjTestCase {
 	
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException, URISyntaxException, ParseException {
 		
 		String xml =  

@@ -3,7 +3,9 @@
  */
 package org.oddjob.logging;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -12,7 +14,7 @@ import org.oddjob.Reserved;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 
-public class LogHelperTest extends TestCase {
+public class LogHelperTest extends OjTestCase {
 
 	public static class AnyDynaBean implements DynaBean {
 		DynaBean delegate = new LazyDynaBean();
@@ -50,6 +52,7 @@ public class LogHelperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testTheProblem() throws ArooaPropertyException {
 		String loggerName = (String) new BeanUtilsPropertyAccessor().getProperty(
 				new AnyDynaBean(), Reserved.LOGGER_PROPERTY);
@@ -60,6 +63,7 @@ public class LogHelperTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testTheSolution() {
 		String loggerName = LogHelper.getLogger(new TheSolution());
 		assertEquals("logger name", "org.oddjob.TestLogger", loggerName);

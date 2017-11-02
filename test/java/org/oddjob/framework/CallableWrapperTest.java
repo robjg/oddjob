@@ -1,10 +1,12 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -18,7 +20,7 @@ import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.util.URLClassLoaderTypeTest;
 
-public class CallableWrapperTest extends TestCase {
+public class CallableWrapperTest extends OjTestCase {
 
 	public static class OurCallable implements Callable<Integer> {
 	
@@ -41,6 +43,7 @@ public class CallableWrapperTest extends TestCase {
         }
 	}
 	
+   @Test
     public void testInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +
@@ -66,6 +69,7 @@ public class CallableWrapperTest extends TestCase {
     	oddjob.destroy();
     }
 
+   @Test
     public void testIncompleteInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +
@@ -108,6 +112,7 @@ public class CallableWrapperTest extends TestCase {
         }
 	}
 	
+   @Test
     public void testVoidCallableInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +
@@ -144,6 +149,7 @@ public class CallableWrapperTest extends TestCase {
         }
 	}
 	
+   @Test
     public void testExceptionInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +
@@ -171,6 +177,7 @@ public class CallableWrapperTest extends TestCase {
      * to do with Callables.
      * @throws IOException
      */
+   @Test
 	public void testContextClassLoaderWhenRunningFromOddjob() throws ClassNotFoundException, InstantiationException, IllegalAccessException, ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();

@@ -1,14 +1,17 @@
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.io.StringReader;
 
 import javax.script.Invocable;
 import javax.script.ScriptException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ScriptCompilerTest extends TestCase {
+public class ScriptCompilerTest extends OjTestCase {
 
+   @Test
 	public void testCompile() throws ScriptException {
 		
 		ScriptCompiler test = new ScriptCompiler(null, null);
@@ -23,6 +26,7 @@ public class ScriptCompilerTest extends TestCase {
 		assertEquals("hello", evaluatable.get("result"));
 	}
 
+   @Test
 	public void testNoVarAtComile() throws ScriptException {
 		
 		ScriptCompiler test = new ScriptCompiler(null, null);
@@ -40,6 +44,7 @@ public class ScriptCompilerTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testInvocable() throws ScriptException, NoSuchMethodException {
 		
 		ScriptCompiler test = new ScriptCompiler(null, null);

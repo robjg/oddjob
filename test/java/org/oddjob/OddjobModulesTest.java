@@ -1,4 +1,7 @@
 package org.oddjob;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +12,7 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
@@ -22,11 +25,11 @@ import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
-public class OddjobModulesTest extends TestCase {
+public class OddjobModulesTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(OddjobModulesTest.class);
 		
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 	
 		logger.debug("-------------------  " + getName() + "  -------------");
 		
@@ -39,6 +42,7 @@ public class OddjobModulesTest extends TestCase {
 	 * @throws ClassNotFoundException
 	 * @throws ArooaNoPropertyException 
 	 */
+   @Test
 	public void testClassLoaderAssumptions() throws MalformedURLException, ClassNotFoundException, ArooaNoPropertyException {
 
 		OurDirs dirs = new OurDirs();
@@ -67,6 +71,7 @@ public class OddjobModulesTest extends TestCase {
 	 * Show resources in a different class loader.
 	 * @throws IOException 
 	 */
+   @Test
 	public void testClassLoaderAssumptions2() throws IOException {
 
 		OurDirs dirs = new OurDirs();
@@ -100,6 +105,7 @@ public class OddjobModulesTest extends TestCase {
 		return set;
 	}
 	
+   @Test
 	public void testOneModule() {
 		
 		OurDirs dirs = new OurDirs();

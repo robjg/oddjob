@@ -1,15 +1,18 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 
-public class SimpleIntervalTest extends TestCase {
+public class SimpleIntervalTest extends OjTestCase {
 
 	
+   @Test
 	public void testOn() throws ParseException {
 
 		Date date = DateHelper.parseDateTime("2006-03-02 10:00");
@@ -21,6 +24,7 @@ public class SimpleIntervalTest extends TestCase {
 		assertEquals(DateUtils.oneMillisAfter(date), test.getToDate()); 		
 	}
 	
+   @Test
 	public void testEquals() throws ParseException {
 		
 		Interval i1, i2;
@@ -41,6 +45,7 @@ public class SimpleIntervalTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testNotEquals() throws ParseException {
 		
 		Interval i1, i2;

@@ -2,12 +2,15 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.schedules.schedules;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -28,13 +31,14 @@ import org.oddjob.schedules.units.Month;
  *
  * @author Rob Gordon.
  */
-public class MonthScheduleTest extends TestCase {
+public class MonthScheduleTest extends OjTestCase {
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
     public void testFromAndTo() throws ParseException {
         YearlySchedule schedule = new YearlySchedule();
         schedule.setFromMonth(Month.Months.FEBRUARY);
@@ -52,6 +56,7 @@ public class MonthScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
     
+   @Test
     public void testAfter() throws ParseException {
         YearlySchedule schedule = new YearlySchedule();
         schedule.setFromMonth(Month.Months.FEBRUARY);
@@ -70,6 +75,7 @@ public class MonthScheduleTest extends TestCase {
         
     }
     
+   @Test
     public void testOverBoundry() throws ParseException {
         YearlySchedule schedule = new YearlySchedule();
         schedule.setFromMonth(Month.Months.NOVEMBER);
@@ -105,6 +111,7 @@ public class MonthScheduleTest extends TestCase {
         assertEquals(expected, result3);
     }
     
+   @Test
     public void testWithTime() throws ParseException {
 
     	YearlySchedule test = new YearlySchedule();
@@ -126,6 +133,7 @@ public class MonthScheduleTest extends TestCase {
     	assertEquals(expected, result);
     }
     
+   @Test
     public void testMonthExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -150,6 +158,7 @@ public class MonthScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testMonthExample2() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -174,6 +183,7 @@ public class MonthScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testYearlyInFebuaryIncludingLeapYears() throws ParseException {
     	
     	YearlySchedule test = new YearlySchedule();
@@ -216,6 +226,7 @@ public class MonthScheduleTest extends TestCase {
     	assertEquals(expected, results[4]);
     }
     
+   @Test
     public void testLastDayInFebuaryIncludingLeapYears() throws ParseException {
     	
     	YearlySchedule test = new YearlySchedule();

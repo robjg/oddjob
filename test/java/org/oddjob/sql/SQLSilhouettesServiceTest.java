@@ -1,8 +1,12 @@
 package org.oddjob.sql;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.sql.SQLException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -24,15 +28,15 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SQLSilhouettesServiceTest extends TestCase {
+public class SQLSilhouettesServiceTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(SQLSilhouettesServiceTest.class);
 	
 	ConnectionType ct;
 		
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------------- " + getName() + " ---------------------");
 		
 		ct = new ConnectionType();
@@ -58,8 +62,8 @@ public class SQLSilhouettesServiceTest extends TestCase {
 		sql.run();
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		
 		BufferType buffer = new BufferType();
 		buffer.setText("shutdown");
@@ -88,6 +92,7 @@ public class SQLSilhouettesServiceTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testArchiveAndRestore() throws ArooaPropertyException, 
 			ArooaConversionException, SQLException, ComponentPersistException {
 		

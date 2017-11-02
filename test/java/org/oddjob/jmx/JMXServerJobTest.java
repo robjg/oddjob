@@ -2,6 +2,10 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.HashMap;
@@ -12,7 +16,7 @@ import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -42,7 +46,7 @@ import org.oddjob.tools.WaitForChildren;
 /**
  *
  */
-public class JMXServerJobTest extends TestCase {
+public class JMXServerJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(JMXServerJobTest.class);
 	
 	int unique;
@@ -51,14 +55,15 @@ public class JMXServerJobTest extends TestCase {
 	
 	Map<Object, String> ids = new HashMap<Object, String>();
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================= " + getName() + " ==================");
 		close = OddjobConsole.initialise();
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+   @After
+   public void tearDown() throws Exception {
+
 		close.close();
 	}
 	
@@ -82,6 +87,7 @@ public class JMXServerJobTest extends TestCase {
 		
 	} 
 	
+   @Test
 	public void testServerMBeans() throws Exception {
 		
 		Object root = new Object() {
@@ -112,6 +118,7 @@ public class JMXServerJobTest extends TestCase {
 	}
 	
 	/** Test the Server job starts runs OK. */
+   @Test
 	public void testRun() throws Exception {
 		Object root = new Object() {
 			public String toString() {
@@ -158,6 +165,7 @@ public class JMXServerJobTest extends TestCase {
 	}
 	
 	/** Test a nested client. */
+   @Test
 	public void testLinkedServers() throws Exception {
 		
 		// server2
@@ -206,6 +214,7 @@ public class JMXServerJobTest extends TestCase {
 	 * 'oj' and the node has id 'test' the client should be able to look
 	 * up oj/test
 	 * */
+   @Test
 	public void testNestedOddjob() throws Exception {
 
 		String EOL = System.getProperty("line.separator");
@@ -322,6 +331,7 @@ public class JMXServerJobTest extends TestCase {
 	}
 	
 	/** Big Structural Test. */
+   @Test
 	public void testLotsOfStructural() throws Exception {
 		
 		OurSession session = new OurSession();
@@ -356,6 +366,7 @@ public class JMXServerJobTest extends TestCase {
 	}
 	
 	/** Test destroying server sets client to incomplete. */
+   @Test
 	public void testDestroyServer() throws Exception {
 		
 		OurSession session = new OurSession();
@@ -419,6 +430,7 @@ public class JMXServerJobTest extends TestCase {
 	// test for a bug where the server didn't clear down it's registry so
 	// bouncing a nested Oddjob caused an 'component with that id already exists'
 	// exception.
+   @Test
 	public void testBounceOddjob() throws Exception {
 		
 		String EOL = System.getProperty("line.separator");
@@ -464,6 +476,7 @@ public class JMXServerJobTest extends TestCase {
 	 * Tracking down a problem where the server doesn't stop when oddjob
 	 * is destroyed.
 	 */
+   @Test
 	public void testServerCopesWhenItsOddjobIsDestroyed() throws Exception {
 		
 		File file = new File(getClass().getResource(

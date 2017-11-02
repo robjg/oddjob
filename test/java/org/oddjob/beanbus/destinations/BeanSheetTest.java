@@ -1,9 +1,11 @@
 package org.oddjob.beanbus.destinations;
 
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
@@ -13,7 +15,7 @@ import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.destinations.BeanSheet;
 
-public class BeanSheetTest extends TestCase {
+public class BeanSheetTest extends OjTestCase {
 
 	public static class Fruit {
 		
@@ -102,6 +104,7 @@ public class BeanSheetTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testFruitReport() throws BusCrashException {
 
 		BasicBeanBus<Fruit> bus = new BasicBeanBus<Fruit>();
@@ -145,6 +148,7 @@ public class BeanSheetTest extends TestCase {
 		assertEquals(expected, out.toString());
 	}
 	
+   @Test
 	public void testNoHeaders() {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

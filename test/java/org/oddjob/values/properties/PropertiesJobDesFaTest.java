@@ -3,7 +3,9 @@
  */
 package org.oddjob.values.properties;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -20,10 +22,11 @@ import org.oddjob.values.properties.PropertiesJob;
 /**
  *
  */
-public class PropertiesJobDesFaTest extends TestCase {
+public class PropertiesJobDesFaTest extends OjTestCase {
 	
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

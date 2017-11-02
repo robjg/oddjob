@@ -3,7 +3,9 @@
  */
 package org.oddjob.monitor.model;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
@@ -14,7 +16,7 @@ import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.ThreadManager;
 
-public class ExplorerContextImplTest extends TestCase {
+public class ExplorerContextImplTest extends OjTestCase {
 
 	class OurModel extends MockExplorerModel {
 		
@@ -34,6 +36,7 @@ public class ExplorerContextImplTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testChildComponent() {
 		
 		ExplorerContext test = new ExplorerContextImpl(new OurModel());
@@ -50,6 +53,7 @@ public class ExplorerContextImplTest extends TestCase {
 	 * @throws ArooaParseException 
 	 *
 	 */
+   @Test
 	public void testComponentOwnerForNestedOddjob() throws ArooaParseException {
 		Oddjob oddjob = new Oddjob();
 		
@@ -73,6 +77,7 @@ public class ExplorerContextImplTest extends TestCase {
 	 * states.
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testComponentOwner() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();

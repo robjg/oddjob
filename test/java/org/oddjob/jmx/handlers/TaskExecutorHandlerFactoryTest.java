@@ -3,12 +3,14 @@
  */
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import java.util.Properties;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -38,7 +40,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
-public class TaskExecutorHandlerFactoryTest extends TestCase {
+public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 
 	private class OurTaskView extends MockStateful 
 	implements TaskView {
@@ -191,6 +193,7 @@ public class TaskExecutorHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testExecuteTaskAndAddRemoveListenerToView() throws Exception {
 
 		TaskExecutorHandlerFactory test = new TaskExecutorHandlerFactory();

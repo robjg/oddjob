@@ -1,8 +1,10 @@
 package org.oddjob.framework;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ProxyGeneratorTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class ProxyGeneratorTest extends OjTestCase {
 
 	// The component implements this.
 	interface Fruit {
@@ -42,6 +44,7 @@ public class ProxyGeneratorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testGenerate() {
 		
 		ProxyGenerator<Fruit> test = new ProxyGenerator<Fruit>();
@@ -107,6 +110,7 @@ public class ProxyGeneratorTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testGenerateAdaptor() {
 		
 		ProxyGenerator<Fruit> test = new ProxyGenerator<Fruit>();

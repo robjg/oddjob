@@ -1,6 +1,8 @@
 package org.oddjob.jmx.handlers;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteOperation;
@@ -18,7 +20,7 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.MockConsoleArchiver;
 
-public class LogPollableHandlerFactoryTest extends TestCase {
+public class LogPollableHandlerFactoryTest extends OjTestCase {
 
 	class OurServerSideToolkit extends MockServerSideToolkit {
 		
@@ -57,6 +59,7 @@ public class LogPollableHandlerFactoryTest extends TestCase {
 	}
 		
 	
+   @Test
 	public void testIds() {
 		
 		Object component = new Object();
@@ -136,6 +139,7 @@ public class LogPollableHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRetrieveLogEvents() {
 		
 		OurArchiver archiver = new OurArchiver();
@@ -227,6 +231,7 @@ public class LogPollableHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRetrieveConsoleEvents() {
 		
 		OurConsoleArchiver archiver = new OurConsoleArchiver();

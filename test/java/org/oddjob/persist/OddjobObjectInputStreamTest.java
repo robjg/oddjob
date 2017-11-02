@@ -1,4 +1,7 @@
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,16 +14,16 @@ import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.io.BufferType;
 import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.tools.OurDirs;
 
-public class OddjobObjectInputStreamTest extends TestCase {
+public class OddjobObjectInputStreamTest extends OjTestCase {
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		
 		new BuildOddballs().run();
 	}
@@ -31,6 +34,7 @@ public class OddjobObjectInputStreamTest extends TestCase {
 	 * @throws InstantiationException 
 	 * @throws ClassNotFoundException 
 	 */
+   @Test
 	public void testNonSystemClassLoaderDeserialisation() throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 
 		OurDirs dirs = new OurDirs();
@@ -87,6 +91,7 @@ public class OddjobObjectInputStreamTest extends TestCase {
 	 * @throws InvocationTargetException 
 	 * @throws IllegalArgumentException 
 	 */
+   @Test
 	public void testNonSystemClassLoaderProxyDeserialisation() throws IOException, InstantiationException, IllegalAccessException, ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 
 		OurDirs dirs = new OurDirs();

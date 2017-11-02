@@ -1,9 +1,12 @@
 package org.oddjob.script;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -19,13 +22,13 @@ import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class InvokeTypeTest extends TestCase {
+public class InvokeTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(InvokeTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-----------------  " + getName() + " ------------------");
 	}
@@ -57,6 +60,7 @@ public class InvokeTypeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimple() throws Throwable {
 		
 		InvokeType test = new InvokeType();
@@ -69,6 +73,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("simple", result);
 	}
 	
+   @Test
 	public void testStaticMethodOnObject() throws Throwable {
 		
 		
@@ -82,6 +87,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("Apples", test.toValue());
 	}
 	
+   @Test
 	public void testClassMethodInvoke() throws Throwable {
 		
 		
@@ -94,6 +100,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals(Thing.class, test.toValue().getClass());
 	}
 	
+   @Test
 	public void testWrongParameters() throws Throwable {
 		
 		InvokeType test = new InvokeType();
@@ -113,6 +120,7 @@ public class InvokeTypeTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testNumberToString() throws Throwable {
 		
 		InvokeType test = new InvokeType();
@@ -128,6 +136,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("1", result);
 	}
 
+   @Test
 	public void testNumbers() throws Throwable {
 		
 		InvokeType test = new InvokeType();
@@ -144,6 +153,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals(new Double(4), result);
 	}
 
+   @Test
 	public void testFiles() throws Throwable {
 		
 		InvokeType test = new InvokeType();
@@ -160,6 +170,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("BillAndBen", result);
 	}
 	
+   @Test
 	public void testConversion() throws ArooaConversionException {
 		
 		InvokeType test = new InvokeType();
@@ -179,6 +190,7 @@ public class InvokeTypeTest extends TestCase {
 		assertEquals("simple", result);
 	}
 	
+   @Test
 	public void testMethodExample() throws ArooaPropertyException, ArooaConversionException, ParseException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -203,6 +215,7 @@ public class InvokeTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStaticExample() throws ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

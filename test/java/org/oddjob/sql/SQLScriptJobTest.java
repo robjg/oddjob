@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.sql;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -19,16 +22,18 @@ import org.oddjob.io.BufferType;
 import org.oddjob.io.StdoutType;
 import org.oddjob.state.ParentState;
 
-public class SQLScriptJobTest extends TestCase {
+public class SQLScriptJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SQLScriptJobTest.class);
 	
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		logger.info("-----------------  " + getName() + "  --------------------");
 	}
 	
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testSql() throws Exception {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -74,6 +79,7 @@ public class SQLScriptJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -124,6 +130,7 @@ public class SQLScriptJobTest extends TestCase {
 				test, "results.row.count"));
 	}
 	
+   @Test
 	public void testSqlResultsSheet() throws Exception {
 
 		StdoutType out = new StdoutType();

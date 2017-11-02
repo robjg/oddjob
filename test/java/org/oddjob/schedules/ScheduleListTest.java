@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.schedules;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -21,14 +24,16 @@ import org.oddjob.schedules.units.DayOfWeek;
 /**
  * 
  */
-public class ScheduleListTest extends TestCase {
+public class ScheduleListTest extends OjTestCase {
 		
 	private static final Logger logger = Logger.getLogger(ScheduleListTest.class);
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("============== " + getName() + " ==================");
 	}
 	
+   @Test
 	public void testTwoTimes() throws ParseException {
 		
 		DailySchedule s1 = new DailySchedule();
@@ -65,6 +70,7 @@ public class ScheduleListTest extends TestCase {
 		assertEquals(expected, result);	
 	}
 	
+   @Test
 	public void testTwoTimesAsRefinement() throws ParseException {
 		
 		DailySchedule s1 = new DailySchedule();
@@ -109,6 +115,7 @@ public class ScheduleListTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testEmpty() throws ParseException {
 		
 		IntervalTo expected = new IntervalTo(
@@ -126,6 +133,7 @@ public class ScheduleListTest extends TestCase {
 		
 	}
 	
+   @Test
     public void testListExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

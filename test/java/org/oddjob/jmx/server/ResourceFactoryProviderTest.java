@@ -1,6 +1,8 @@
 package org.oddjob.jmx.server;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -11,8 +13,9 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class ResourceFactoryProviderTest extends TestCase {
+public class ResourceFactoryProviderTest extends OjTestCase {
 
+   @Test
 	public void testProvideFactories() throws ArooaParseException {
 
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -52,6 +55,7 @@ public class ResourceFactoryProviderTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFactoriesInOddjob() throws ArooaParseException, ArooaConversionException {
 
 		String xml =

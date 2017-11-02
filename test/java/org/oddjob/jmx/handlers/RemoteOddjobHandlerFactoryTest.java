@@ -1,8 +1,10 @@
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import javax.management.MBeanOperationInfo;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.jmx.RemoteOddjobBean;
@@ -14,7 +16,7 @@ import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInfo;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 
-public class RemoteOddjobHandlerFactoryTest extends TestCase {
+public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 
 	private class OurClientToolkit extends MockClientSideToolkit {
 		
@@ -46,6 +48,7 @@ public class RemoteOddjobHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAllOperations() {
 
 		RemoteOddjobHandlerFactory test = new RemoteOddjobHandlerFactory();
@@ -73,6 +76,7 @@ public class RemoteOddjobHandlerFactoryTest extends TestCase {
 		assertNull(serverInfo);
 	}
 	
+   @Test
 	public void testOperationInfo() {
 		
 		RemoteOddjobHandlerFactory test = new RemoteOddjobHandlerFactory();

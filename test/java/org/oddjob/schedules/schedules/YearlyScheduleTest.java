@@ -3,12 +3,14 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -25,8 +27,9 @@ import org.oddjob.schedules.ScheduleResult;
 /**
  * 
  */
-public class YearlyScheduleTest extends TestCase {
+public class YearlyScheduleTest extends OjTestCase {
 
+   @Test
 	public void testParseDay() throws ParseException {
 
 		Date referenceDate = DateHelper.parseDate("2011-11-17");
@@ -52,6 +55,7 @@ public class YearlyScheduleTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testNextDue1() throws ParseException {
 		YearlySchedule test = new YearlySchedule();
 		test.setFromDate("02-05");
@@ -100,6 +104,7 @@ public class YearlyScheduleTest extends TestCase {
 	}
 
 
+   @Test
 	public void testOverYearBoundary() throws ParseException {
 		YearlySchedule s = new YearlySchedule();
 		s.setFromDate("12-17");
@@ -116,6 +121,7 @@ public class YearlyScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testOn() throws ParseException {
 		
 		YearlySchedule test = new YearlySchedule();
@@ -144,6 +150,7 @@ public class YearlyScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void test29thFeb() throws ParseException {
 		
 		YearlySchedule test = new YearlySchedule();
@@ -160,6 +167,7 @@ public class YearlyScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testFromToExample() throws ArooaParseException, ParseException {
 		
 		OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -185,6 +193,7 @@ public class YearlyScheduleTest extends TestCase {
 		assertEquals(expected, next);
 	}
 	
+   @Test
 	public void testOnExample() throws ArooaParseException, ParseException {
 		
 		OddjobDescriptorFactory df = new OddjobDescriptorFactory();

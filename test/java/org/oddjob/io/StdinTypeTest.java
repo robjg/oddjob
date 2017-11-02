@@ -1,5 +1,7 @@
 package org.oddjob.io;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 
@@ -7,10 +9,11 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.tools.FragmentHelper;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class StdinTypeTest extends TestCase {
+public class StdinTypeTest extends OjTestCase {
 
+   @Test
 	public void testExample() throws ArooaParseException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
 		
 		// Just test XML for now.

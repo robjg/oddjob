@@ -2,11 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.framework;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.beans.ExceptionListener;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -38,13 +41,13 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class ServiceWrapperTest extends TestCase {
+public class ServiceWrapperTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ServiceWrapperTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-------------------------  " + getName() + 
 				"  ------------------------");
@@ -124,6 +127,7 @@ public class ServiceWrapperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStartStop() throws Exception {
 		MyService myService = new MyService();
 		
@@ -161,6 +165,7 @@ public class ServiceWrapperTest extends TestCase {
 		assertEquals(ServiceState.STARTABLE, OddjobTestHelper.getJobState(wrapper));
 	}
 
+   @Test
     public void testInOddjob() throws Exception {
     	String xml = "<oddjob>" +
     			" <job>" +
@@ -234,6 +239,7 @@ public class ServiceWrapperTest extends TestCase {
     	}
     }    
 
+   @Test
     public void testExceptionCallbackInOddjob() throws Exception {
     	
     	String xml = 
@@ -281,6 +287,7 @@ public class ServiceWrapperTest extends TestCase {
     	oddjob.destroy();    	
     }
     
+   @Test
 	public void testServiceDestroyedWhileRunningStates() throws Exception {
 		
 		MyService myService = new MyService();

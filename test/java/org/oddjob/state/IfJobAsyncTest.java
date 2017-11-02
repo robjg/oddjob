@@ -1,8 +1,10 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -13,8 +15,9 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.tools.StateSteps;
 
-public class IfJobAsyncTest extends TestCase {
+public class IfJobAsyncTest extends OjTestCase {
 
+   @Test
 	public void testAsyncCompletionWithThenJob() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		File file = new File(getClass().getResource(
@@ -46,6 +49,7 @@ public class IfJobAsyncTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testAsyncCompletionWithElseJob() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		File file = new File(getClass().getResource(
@@ -77,6 +81,7 @@ public class IfJobAsyncTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testAsyncStop() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		File file = new File(getClass().getResource(

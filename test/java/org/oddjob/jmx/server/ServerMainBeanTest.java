@@ -1,5 +1,7 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +11,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.Notification;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
@@ -24,7 +26,7 @@ import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ServerMainBeanTest extends TestCase {
+public class ServerMainBeanTest extends OjTestCase {
 
 	private class OurModel extends MockServerModel {
 		
@@ -126,6 +128,7 @@ public class ServerMainBeanTest extends TestCase {
 			}
 		}
 	}
+   @Test
 	public void testInterfaces() {
 
 		BeanDirectory beanDirectory = new MockBeanRegistry() {
@@ -184,6 +187,7 @@ public class ServerMainBeanTest extends TestCase {
 		assertEquals(2, toolkit.sent.size());
 	}
 		
+   @Test
 	public void testStructural() throws ServerLoopBackException {
 		
 		Object root = new Object();

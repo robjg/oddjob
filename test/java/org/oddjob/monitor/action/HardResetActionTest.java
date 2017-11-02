@@ -3,7 +3,9 @@
  */
 package org.oddjob.monitor.action;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Resetable;
 import org.oddjob.monitor.model.JobAction;
@@ -11,7 +13,7 @@ import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
-public class HardResetActionTest extends TestCase {
+public class HardResetActionTest extends OjTestCase {
 
 	class OurExplorerContext extends MockExplorerContext {
 
@@ -38,6 +40,7 @@ public class HardResetActionTest extends TestCase {
 	 * Test that performing the action works.
 	 *
 	 */
+   @Test
 	public void testPerform() throws Exception {
 		class MyR implements Resetable {
 			boolean reset = false;
@@ -66,6 +69,7 @@ public class HardResetActionTest extends TestCase {
 	 * Test action is disabled for an object.
 	 *
 	 */
+   @Test
 	public void testWithObject() {
 		OurExplorerContext eContext = new OurExplorerContext();
 		eContext.component = new Object();

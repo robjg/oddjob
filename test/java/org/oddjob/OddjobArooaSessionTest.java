@@ -1,6 +1,8 @@
 package org.oddjob;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -33,7 +35,7 @@ import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.persist.OddjobPersister;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobArooaSessionTest extends TestCase {
+public class OddjobArooaSessionTest extends OjTestCase {
 
 	private class OurDescriptor extends MockArooaDescriptor {
 		
@@ -57,6 +59,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testConversions() 
 	throws ArooaParseException, ArooaConversionException, 
 	InvalidIdException {
@@ -133,6 +136,7 @@ public class OddjobArooaSessionTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testNestedConversion() throws ArooaParseException, NoConversionAvailableException, ConversionFailedException {
 
 		OuterSession session = new OuterSession();
@@ -162,6 +166,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		assertEquals(new Integer(42), number);
 	}
 	
+   @Test
 	public void testNestedPropertyManager() {
 		
 		StandardArooaSession outerSession = new StandardArooaSession();
@@ -199,6 +204,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testNestedComponentPersisterNoOddjobId() {
 		
 		StandardArooaSession outerSession = new StandardArooaSession() {
@@ -217,6 +223,7 @@ public class OddjobArooaSessionTest extends TestCase {
 		assertNull(session.getComponentPersister());
 	}
 	
+   @Test
 	public void testNestedComponentPersister() {
 		
 		StandardArooaSession outerSession = new StandardArooaSession() {

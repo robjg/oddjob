@@ -1,6 +1,8 @@
 package org.oddjob.tools.doclet.utils;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.mockito.Mockito;
 import org.oddjob.doclet.CustomTagNames;
@@ -11,8 +13,9 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.Tag;
 
-public class PlainTextResourceTagProcessorTest extends TestCase {
+public class PlainTextResourceTagProcessorTest extends OjTestCase {
 		
+   @Test
 	public void testProcessTag() {
 
 		PackageDoc packageDoc = Mockito.mock(PackageDoc.class);

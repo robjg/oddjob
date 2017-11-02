@@ -1,4 +1,7 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.Exchanger;
@@ -9,15 +12,15 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 
-public class TrackingExecutorTest extends TestCase {
+public class TrackingExecutorTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TrackingExecutorTest.class);
 
-	@Override
-	protected void setUp() {
+    @Before
+    public void setUp() {
 		logger.debug("=============== " + getName() + " ===================");
 	}
 
@@ -28,6 +31,7 @@ public class TrackingExecutorTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testCancel() throws InterruptedException {
 
 		MockRunnable runnable = new MockRunnable();
@@ -66,6 +70,7 @@ public class TrackingExecutorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCancelWhenAlreadyRun() throws InterruptedException {
 
 		MyRunable runnable = new MyRunable();
@@ -120,6 +125,7 @@ public class TrackingExecutorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLongRunningCancel() throws InterruptedException {
 
 		StubbonRunnable runnable = new StubbonRunnable();

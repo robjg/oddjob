@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
 import javax.management.MBeanNotificationInfo;
@@ -10,12 +12,12 @@ import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import javax.management.ReflectionException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 
-public class InterfaceManagerImplTest extends TestCase {
+public class InterfaceManagerImplTest extends OjTestCase {
 
 	
 	interface MockI {
@@ -74,6 +76,7 @@ public class InterfaceManagerImplTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAllClientInfo() throws MBeanException, ReflectionException {
 		MockI target = new MockI() {};
 		
@@ -85,6 +88,7 @@ public class InterfaceManagerImplTest extends TestCase {
 		assertEquals(1, result.length);
 	}
 	
+   @Test
 	public void testAllClientInfoReadOnly() throws MBeanException, ReflectionException {
 		MockI target = new MockI() {};
 		
@@ -103,6 +107,7 @@ public class InterfaceManagerImplTest extends TestCase {
 		assertEquals(0, result.length);
 	}
 	
+   @Test
 	public void testInvoke() throws MBeanException, ReflectionException {
 		MockI target = new MockI() {};
 		
@@ -124,6 +129,7 @@ public class InterfaceManagerImplTest extends TestCase {
 		assertEquals("Oranges", result);
 	}
 	
+   @Test
 	public void testInvokeWithAccessController() throws MBeanException, ReflectionException {
 		MockI target = new MockI() {};
 		
@@ -156,6 +162,7 @@ public class InterfaceManagerImplTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDestory() {
 		MockI target = new MockI() {};
 		

@@ -1,12 +1,14 @@
 package org.oddjob.beanbus.destinations;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.script.ScriptException;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
+
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -21,8 +23,9 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
-public class TransformerScriptTest extends TestCase {
+public class TransformerScriptTest extends OjTestCase {
 
+   @Test
 	public void testSimpleMagicBeanTransform() throws ScriptException {
 		
 		MagicBeanClassCreator creator = new MagicBeanClassCreator("Test");
@@ -59,7 +62,7 @@ public class TransformerScriptTest extends TestCase {
 		test.add(bean1);
 		test.add(bean2);
 		
-		Assert.assertEquals(1,  results.size());
+		assertEquals(1,  results.size());
 	}
 	
 	public static class Fruit {
@@ -86,6 +89,7 @@ public class TransformerScriptTest extends TestCase {
 	}
 	
 	@SuppressWarnings("unchecked")
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();

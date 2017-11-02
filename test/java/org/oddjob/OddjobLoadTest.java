@@ -3,11 +3,13 @@
  */
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
@@ -38,12 +40,13 @@ import org.oddjob.util.URLClassLoaderType;
  * 
  * @author Rob Gordon.
  */
-public class OddjobLoadTest extends TestCase {
+public class OddjobLoadTest extends OjTestCase {
 	
 	/**
 	 * Test resetting Oddjob
 	 *
 	 */
+   @Test
 	public void testReset() {
 		class MyL implements StructuralListener {
 			int count;
@@ -117,6 +120,7 @@ public class OddjobLoadTest extends TestCase {
 	 * Test reseting Oddjob
 	 *
 	 */
+   @Test
 	public void testSoftReset() {
 		class MyL implements StructuralListener {
 			int count;
@@ -176,6 +180,7 @@ public class OddjobLoadTest extends TestCase {
 	 * failure using a soft reset.
 	 *
 	 */
+   @Test
 	public void testSoftResetOnFailure() {
 
 		String xml =
@@ -220,6 +225,7 @@ public class OddjobLoadTest extends TestCase {
 	 * @throws ArooaParseException 
 	 *
 	 */
+   @Test
     public void testLoadNoChild() throws ArooaParseException {
         String config = "<oddjob id='this'/>";
         
@@ -242,6 +248,7 @@ public class OddjobLoadTest extends TestCase {
         test.destroy();
     }
 
+   @Test
     public void testLoadNoFile() {
     	
 		OurDirs ourDirs = new OurDirs();
@@ -266,6 +273,7 @@ public class OddjobLoadTest extends TestCase {
      * @throws ArooaParseException 
      *
      */
+   @Test
     public void testLoadNestedOddjob() throws ArooaParseException {
         String config = 
         	"<oddjob>" +
@@ -305,6 +313,7 @@ public class OddjobLoadTest extends TestCase {
         oj.destroy();
     }
 
+   @Test
     public void testLoadOddjobClassloader() throws ArooaConversionException {
     	
     	
@@ -345,6 +354,7 @@ public class OddjobLoadTest extends TestCase {
      * Test a nested lookup.
      * @throws Exception
      */
+   @Test
     public void testLookup() throws Exception {
 
     	String nested = 
@@ -394,6 +404,7 @@ public class OddjobLoadTest extends TestCase {
         assertTrue(oj.isLoadable());
     }
 
+   @Test
     public void testArgs() throws Exception {
     	
     	String config = 
@@ -422,6 +433,7 @@ public class OddjobLoadTest extends TestCase {
         oj.destroy();
     }
     
+   @Test
     public void testSetArgs() {
 
     	String config = 
@@ -462,6 +474,7 @@ public class OddjobLoadTest extends TestCase {
         oj.destroy();
     }
     
+   @Test
     public void testExport() throws Exception {
     	
     	String config = 
@@ -512,6 +525,7 @@ public class OddjobLoadTest extends TestCase {
      * @throws ArooaParseException 
      * 
      */
+   @Test
     public void testRegistryManagement() throws ArooaParseException {
     	
     	final ArooaSession session = new OddjobSessionFactory().createSession();
@@ -586,6 +600,7 @@ public class OddjobLoadTest extends TestCase {
     	}
     }
     
+   @Test
     public void testFailedDestroy() {
     	
     	String xml = 

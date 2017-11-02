@@ -1,10 +1,13 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.beans.PropertyVetoException;
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -36,12 +39,12 @@ import org.oddjob.util.Clock;
  * @author rob
  *
  */
-public class TimerRetryCombinationTest extends TestCase {
+public class TimerRetryCombinationTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TimerRetryCombinationTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		logger.info("---------------------  " + getName() + "  --------------");
 	}
 	
@@ -109,6 +112,7 @@ public class TimerRetryCombinationTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testContextReset() throws ArooaConversionException, PropertyVetoException, InterruptedException {
 	
 		XMLConfiguration config = new XMLConfiguration(
@@ -210,6 +214,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		services.stop();
 	}
 	
+   @Test
 	public void testStateNotifications() throws FailedToStopException, InterruptedException {
 		
 		XMLConfiguration config = new XMLConfiguration(
@@ -281,6 +286,7 @@ public class TimerRetryCombinationTest extends TestCase {
 	 * @throws ParseException 
 	 * @throws InterruptedException 
 	 */
+   @Test
 	public void testRetriesWithCatchup() throws ArooaConversionException, PropertyVetoException, ParseException, InterruptedException {
 		
 		XMLConfiguration config = new XMLConfiguration(
@@ -389,6 +395,7 @@ public class TimerRetryCombinationTest extends TestCase {
 		oddjob2.destroy();
 	}
 	
+   @Test
 	public void testSimpleTimerRetryExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, ParseException, FailedToStopException {
 		
 		

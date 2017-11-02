@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -31,12 +34,12 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class CascadeJobTest extends TestCase {
+public class CascadeJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(CascadeJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("----------------  " + getName() + "  -----------------");
 	}
@@ -57,6 +60,7 @@ public class CascadeJobTest extends TestCase {
 	// which must also be ready when reset and empty.
 	// this is really a bug in StatefulChildHelper. An empty sequence should
 	// be ready until run and then be complete. I think.
+   @Test
 	public void testEmpty() throws InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 
@@ -75,6 +79,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 		
+   @Test
 	public void testSimpleRunnables() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 
@@ -137,6 +142,7 @@ public class CascadeJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testNotComplete() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -182,6 +188,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testException() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -239,6 +246,7 @@ public class CascadeJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testServiceAndException() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -295,6 +303,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testDestroyed() throws FailedToStopException, InterruptedException {
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -338,6 +347,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testWithFoldersMixedIn() throws InterruptedException {
 		
 		DefaultExecutors executors = new DefaultExecutors();
@@ -366,6 +376,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testRemovingAndInserting() throws InterruptedException {
 		
 		DefaultExecutors executors = new DefaultExecutors();
@@ -415,6 +426,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testInsertingWhileRuning() throws InterruptedException, FailedToStopException {
 		
 		DefaultExecutors executors = new DefaultExecutors();
@@ -487,6 +499,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testInOddjob() throws InterruptedException {
 		
 		String xml = 
@@ -517,6 +530,7 @@ public class CascadeJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStop() throws InterruptedException, FailedToStopException {
 	
 		DefaultExecutors executors = new DefaultExecutors();
@@ -578,6 +592,7 @@ public class CascadeJobTest extends TestCase {
 		executors.stop();
 	}
 	
+   @Test
 	public void testExample() throws InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -610,6 +625,7 @@ public class CascadeJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testWithParallel() throws InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -640,6 +656,7 @@ public class CascadeJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testCascadeOnHaltOnExample() throws InterruptedException {
 	
 		File file = new File(getClass().getResource(

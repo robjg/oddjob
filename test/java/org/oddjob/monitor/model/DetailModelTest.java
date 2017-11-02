@@ -3,10 +3,12 @@
  */
 package org.oddjob.monitor.model;
 
+import org.junit.Test;
+
 import java.util.Observable;
 import java.util.Observer;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.MockStateful;
@@ -23,7 +25,7 @@ import org.oddjob.state.StateListener;
 /**
  * 
  */
-public class DetailModelTest extends TestCase {
+public class DetailModelTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(DetailModelTest.class);
 	
 	class OurExplorerContext extends MockExplorerContext {
@@ -106,6 +108,7 @@ public class DetailModelTest extends TestCase {
 	 * Test the effect of selecting a node on the model.
 	 *
 	 */
+   @Test
 	public void testSelect() {
 		
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {

@@ -1,9 +1,12 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -23,12 +26,12 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.StateSteps;
 
-public class ExecutorThrottleTypeTest extends TestCase {
+public class ExecutorThrottleTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ExecutorThrottleTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("---------------------- " + getName() + "-----------------------");
 	}
 	
@@ -78,6 +81,7 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testThrottleInParallel() throws InterruptedException, ArooaPropertyException, ArooaConversionException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -156,6 +160,7 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStopParallel() throws InterruptedException, ArooaPropertyException, ArooaConversionException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -199,6 +204,7 @@ public class ExecutorThrottleTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testThrottleShared() throws InterruptedException, ArooaPropertyException, ArooaConversionException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();

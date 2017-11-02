@@ -1,6 +1,8 @@
 package org.oddjob.monitor.contexts;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.monitor.context.ContextInitialiser;
@@ -9,7 +11,7 @@ import org.oddjob.monitor.model.ExplorerContextImpl;
 import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.util.ThreadManager;
 
-public class ContextInitializerTest extends TestCase {
+public class ContextInitializerTest extends OjTestCase {
 
 	class OurInitialiser implements ContextInitialiser {
 		public void initialise(ExplorerContext context) {
@@ -42,6 +44,7 @@ public class ContextInitializerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInFirstLevel() {
 
 		ExplorerContext context = new ExplorerContextImpl(new OurModel());
@@ -49,6 +52,7 @@ public class ContextInitializerTest extends TestCase {
 		
 	}
 		
+   @Test
 	public void testSecondLevel() {
 		
 		ExplorerContext context = new ExplorerContextImpl(new OurModel());

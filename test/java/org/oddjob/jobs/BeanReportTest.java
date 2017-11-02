@@ -1,9 +1,11 @@
 package org.oddjob.jobs;
 
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -11,7 +13,7 @@ import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class BeanReportTest extends TestCase {
+public class BeanReportTest extends OjTestCase {
 
 	public static class Fruit {
 		
@@ -95,6 +97,7 @@ public class BeanReportTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testFruitReport() {
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -118,6 +121,7 @@ public class BeanReportTest extends TestCase {
 		assertEquals(expected, out.toString());
 	}
 	
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();

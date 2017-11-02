@@ -1,6 +1,8 @@
 package org.oddjob.monitor.model;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.logging.ConsoleArchiver;
@@ -10,7 +12,7 @@ import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.ThreadManager;
 
-public class LogContextInitialiserTest extends TestCase {
+public class LogContextInitialiserTest extends OjTestCase {
 
 	class OurModel extends MockExplorerModel {
 		
@@ -45,6 +47,7 @@ public class LogContextInitialiserTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testNextLevelLogArchiver() {
 		
 		OurModel model = new OurModel();
@@ -57,6 +60,7 @@ public class LogContextInitialiserTest extends TestCase {
 				LogContextInialiser.LOG_ARCHIVER));
 	}
 	
+   @Test
 	public void testNextLevelIsALogArchiver() {
 		
 		OurModel model = new OurModel();

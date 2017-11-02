@@ -1,4 +1,8 @@
 package org.oddjob.jmx;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.lang.management.ManagementFactory;
 import java.util.HashMap;
@@ -11,7 +15,7 @@ import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.management.remote.rmi.RMIConnectorServer;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -31,7 +35,7 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.StateSteps;
 
-public class JMXServiceJobTest extends TestCase {
+public class JMXServiceJobTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(JMXServiceJobTest.class);
 
@@ -43,9 +47,9 @@ public class JMXServiceJobTest extends TestCase {
 	
 	Vendor simple = new Vendor("Hay Medows");
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 
 		logger.info("-----------------  " + getName() + "  ----------------");
 	}
@@ -74,8 +78,8 @@ public class JMXServiceJobTest extends TestCase {
 		logger.info("Server started. Clients may connect to: " + address);
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
 		mBeanServer.unregisterMBean(objectName);
 		cntorServer.stop();
 	}
@@ -114,6 +118,7 @@ public class JMXServiceJobTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testExample() throws Exception {
 		
 		createServer(null);
@@ -200,6 +205,7 @@ public class JMXServiceJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testHeartBeat() throws Exception {
 		
 		

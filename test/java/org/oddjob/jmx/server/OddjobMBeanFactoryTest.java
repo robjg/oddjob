@@ -1,17 +1,19 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.jobs.structural.JobFolder;
 
-public class OddjobMBeanFactoryTest extends TestCase {
+public class OddjobMBeanFactoryTest extends OjTestCase {
 
 	private class OurServerContext extends MockServerContext {
 
@@ -39,6 +41,7 @@ public class OddjobMBeanFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStruture() throws JMException {
 		
 		JobFolder folder = new JobFolder();

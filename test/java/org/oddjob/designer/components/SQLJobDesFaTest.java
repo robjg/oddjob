@@ -1,6 +1,8 @@
 package org.oddjob.designer.components;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.OddjobDescriptorFactory;
@@ -16,10 +18,11 @@ import org.oddjob.sql.BasicGenericDialect;
 import org.oddjob.sql.SQLJob;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SQLJobDesFaTest extends TestCase {
+public class SQLJobDesFaTest extends OjTestCase {
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

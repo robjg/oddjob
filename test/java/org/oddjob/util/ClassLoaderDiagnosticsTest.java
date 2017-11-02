@@ -1,6 +1,8 @@
 package org.oddjob.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -8,8 +10,9 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class ClassLoaderDiagnosticsTest extends TestCase {
+public class ClassLoaderDiagnosticsTest extends OjTestCase {
 
+   @Test
 	public void testResource() {
 		
 		ClassLoaderDiagnostics test = new ClassLoaderDiagnostics();
@@ -21,6 +24,7 @@ public class ClassLoaderDiagnosticsTest extends TestCase {
 		assertTrue(test.getLocation().contains("arooa.xml"));
 	}
 	
+   @Test
 	public void testClassName() {
 		
 		ClassLoaderDiagnostics test = new ClassLoaderDiagnostics();
@@ -32,6 +36,7 @@ public class ClassLoaderDiagnosticsTest extends TestCase {
 		assertTrue(test.getLocation().contains("Oddjob.class"));
 	}
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

@@ -1,5 +1,7 @@
 package org.oddjob.jmx.general;
 
+import org.junit.Test;
+
 import static org.mockito.Mockito.*;
 
 import java.util.Set;
@@ -13,13 +15,14 @@ import javax.management.MBeanOperationInfo;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 
-public class MBeanCacheMapTest extends TestCase {
+public class MBeanCacheMapTest extends OjTestCase {
 
 	
+   @Test
 	public void testFindMany() throws Exception {
 		
 		ObjectName objectName1 = new ObjectName("fruit:name=apple");
@@ -54,6 +57,7 @@ public class MBeanCacheMapTest extends TestCase {
 		assertEquals(object[1], findAgain);
 	}
 	
+   @Test
 	public void testFindOne() throws Exception {
 		
 		ObjectName objectName = new ObjectName("fruit:name=orange");

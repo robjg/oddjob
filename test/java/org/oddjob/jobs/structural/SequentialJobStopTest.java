@@ -1,8 +1,11 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -16,18 +19,19 @@ import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.StateSteps;
 
 
-public class SequentialJobStopTest extends TestCase {
+public class SequentialJobStopTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SequentialJobStopTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------------------  " + getName() +
 				"  --------------------------------");
 	}
 	
+   @Test
 	public void testStopBeforeRun() throws FailedToStopException {
 		
 		FlagState job1 = new FlagState();
@@ -88,6 +92,7 @@ public class SequentialJobStopTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testWithNoneStoppingChildren() throws InterruptedException {
 	
 		NoneStoppingJob job1 = new NoneStoppingJob();
@@ -132,6 +137,7 @@ public class SequentialJobStopTest extends TestCase {
 		assertEquals(JobState.READY, job2.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStopNonStoppingChildWhenChildStartedDirectly() throws InterruptedException {
 		
 		NoneStoppingJob job1 = new NoneStoppingJob();

@@ -1,8 +1,11 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.framework.SimpleJob;
@@ -16,7 +19,7 @@ import org.oddjob.tools.StateSteps;
  * Bulk test.
  * 
  */
-public class TimerRetryBulkTest extends TestCase {
+public class TimerRetryBulkTest extends OjTestCase {
 
 	private static final Logger logger = 
 			Logger.getLogger(TimerRetryBulkTest.class);
@@ -36,12 +39,13 @@ public class TimerRetryBulkTest extends TestCase {
 		}
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 			
+   @Test
 	public void testTimerManyTimes() {
 		
 		DefaultExecutors services = new DefaultExecutors();
@@ -83,6 +87,7 @@ public class TimerRetryBulkTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRetryManyTimes() throws InterruptedException {
 		
 		DefaultExecutors services = new DefaultExecutors();

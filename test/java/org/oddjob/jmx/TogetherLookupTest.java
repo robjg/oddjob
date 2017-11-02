@@ -1,10 +1,12 @@
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import java.net.MalformedURLException;
 
 import javax.management.remote.JMXServiceURL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -16,8 +18,9 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class TogetherLookupTest extends TestCase {
+public class TogetherLookupTest extends OjTestCase {
 	
+   @Test
 	public void testSameRegistry() throws ArooaConversionException {
 		
 		String xml =
@@ -69,6 +72,7 @@ public class TogetherLookupTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDifferentRegistrySameServer() throws ArooaConversionException {
 		
 		String xml =
@@ -125,6 +129,7 @@ public class TogetherLookupTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDifferentServer() throws ArooaConversionException, MalformedURLException {
 		
 		String xml2 = 

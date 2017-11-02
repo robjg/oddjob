@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Date;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -40,14 +43,14 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class TriggerTest extends TestCase {
+public class TriggerTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(TriggerTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 		
@@ -139,6 +142,7 @@ public class TriggerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testTriggerFiresButThenNotAgainOnSameState() throws Exception {
 		
 		DefaultExecutors services = new DefaultExecutors();
@@ -215,6 +219,7 @@ public class TriggerTest extends TestCase {
 		services.stop();
 	}
 	
+   @Test
 	public void testTriggerReflectsChildJobState() throws Exception {
 		
 		final DefaultExecutors services = new DefaultExecutors();
@@ -262,6 +267,7 @@ public class TriggerTest extends TestCase {
 		services.stop();
 	}
 	
+   @Test
 	public void testDestroyCycle() throws Exception {
 		
 		final DefaultExecutors services = new DefaultExecutors();
@@ -301,6 +307,7 @@ public class TriggerTest extends TestCase {
 		services.stop();
 	}
 	
+   @Test
 	public void testStopBeforeTriggered() throws FailedToStopException {
 		
 		class NeverRun extends SimpleJob {
@@ -358,6 +365,7 @@ public class TriggerTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testSerialize() throws Exception {
 		
 		FlagState sample = new FlagState();
@@ -424,6 +432,7 @@ public class TriggerTest extends TestCase {
 		assertEquals(JobState.COMPLETE, sample.lastStateEvent().getState());
 	}
  
+   @Test
 	public void testReset() throws Exception {
 		
 		SequenceJob sequence = new SequenceJob();
@@ -488,6 +497,7 @@ public class TriggerTest extends TestCase {
 		assertEquals(TimerState.COMPLETE, test.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testNoChild() throws Exception {
 		
 		FlagState on = new FlagState();
@@ -514,6 +524,7 @@ public class TriggerTest extends TestCase {
 		test.destroy();
 	}
 	
+   @Test
 	public void testInOddjob() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -573,6 +584,7 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 
+   @Test
 	public void testCuttingTriggerJob() throws InterruptedException, ArooaParseException {
 		
 		String xml = 
@@ -624,6 +636,7 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testSimpleExample() throws InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -648,6 +661,7 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExample() throws InterruptedException {
 		
 
@@ -691,6 +705,7 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testCancelExample() throws InterruptedException {
 
 		DefaultExecutors services = new DefaultExecutors(); 
@@ -735,6 +750,7 @@ public class TriggerTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStop() throws InterruptedException, FailedToStopException {
 	
 		DefaultExecutors services = new DefaultExecutors(); 

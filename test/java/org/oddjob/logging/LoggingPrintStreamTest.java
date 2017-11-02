@@ -2,20 +2,23 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.logging;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.cache.LogArchiveImpl;
 
 /**
  * 
  */
-public class LoggingPrintStreamTest extends TestCase {
+public class LoggingPrintStreamTest extends OjTestCase {
 
 	PrintStream test;
 	
@@ -30,13 +33,15 @@ public class LoggingPrintStreamTest extends TestCase {
 		}
 	}
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		LogArchiveImpl logArchive = new LogArchiveImpl("whatever", 10);
 		test = new LoggingPrintStream(System.out, LogLevel.WARN, logArchive);
 		level = null;
 		logArchive.addListener(new  MyLL(), LogLevel.DEBUG, -1, 1000);
 	}
 	
+   @Test
 	public void testPrintlnString() {
 		test.println("Hello");
 		
@@ -47,6 +52,7 @@ public class LoggingPrintStreamTest extends TestCase {
 		assertEquals(LogLevel.WARN, level);
 	}
 	
+   @Test
 	public void testLn() throws IOException {
 		test.print("Hello");
 		assertEquals(0, text.size());

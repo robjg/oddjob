@@ -1,8 +1,11 @@
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,15 +26,15 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class FileSilhouettesTest extends TestCase {
+public class FileSilhouettesTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(FileSilhouettesTest.class);
 	
 	File archiveDir;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------------- " + getName() + " ---------------------");
 		
 		OurDirs dirs = new OurDirs();
@@ -60,6 +63,7 @@ public class FileSilhouettesTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testArchiveAndRestore() throws ArooaPropertyException, ArooaConversionException, ComponentPersistException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -113,6 +117,7 @@ public class FileSilhouettesTest extends TestCase {
 		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(children[1]));
 	}
 	
+   @Test
 	public void testWithNestedArchives() throws ArooaPropertyException, ArooaConversionException, ComponentPersistException {
 		
 		Oddjob oddjob = new Oddjob();

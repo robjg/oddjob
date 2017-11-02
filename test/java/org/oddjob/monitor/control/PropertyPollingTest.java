@@ -3,9 +3,11 @@
  */
 package org.oddjob.monitor.control;
 
+import org.junit.Test;
+
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
@@ -17,7 +19,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
-public class PropertyPollingTest extends TestCase {
+public class PropertyPollingTest extends OjTestCase {
 
 	private class OurExplorerContext extends MockExplorerContext {
 		@Override
@@ -37,6 +39,7 @@ public class PropertyPollingTest extends TestCase {
 	 * is selected.
 	 *
 	 */
+   @Test
 	public void testSelected() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -67,6 +70,7 @@ public class PropertyPollingTest extends TestCase {
 	 * is unselected.
 	 *
 	 */
+   @Test
 	public void testNotSelected() {
 		
 		ArooaSession session = new StandardArooaSession();
@@ -124,6 +128,7 @@ public class PropertyPollingTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testSelectedStateful() {
 		
 		ArooaSession session = new StandardArooaSession();

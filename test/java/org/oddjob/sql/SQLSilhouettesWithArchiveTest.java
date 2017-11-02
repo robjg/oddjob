@@ -1,9 +1,12 @@
 package org.oddjob.sql;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -21,14 +24,13 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
 
-public class SQLSilhouettesWithArchiveTest extends TestCase {
+public class SQLSilhouettesWithArchiveTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(SQLSilhouettesWithArchiveTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
 		
 		logger.debug("-----------------  " + getName() + "  -----------------");
 	}
@@ -48,6 +50,7 @@ public class SQLSilhouettesWithArchiveTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimple() throws ArooaPropertyException, ArooaConversionException, InterruptedException, ParseException {
 		
 		Oddjob oddjob = new Oddjob();

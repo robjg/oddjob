@@ -2,6 +2,9 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -18,13 +21,13 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.values.types.SequenceIterable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 /**
  *
  * @author Rob Gordon.
  */
-public class RepeatJobTest extends TestCase {
+public class RepeatJobTest extends OjTestCase {
 
     private static final Logger logger = Logger.getLogger(RepeatJobTest.class);
     
@@ -32,7 +35,8 @@ public class RepeatJobTest extends TestCase {
     
 	RepeatJob job;
     
-    public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("---------------- " + getName() 
 		        + " ----------------");        
 		
@@ -42,6 +46,7 @@ public class RepeatJobTest extends TestCase {
 		job.setName("Test Repeat");
 	}
     
+   @Test
     public void testSimpleRepeat3Times() {
     	    			
 		Counter childJob = new Counter();
@@ -54,6 +59,7 @@ public class RepeatJobTest extends TestCase {
 		assertEquals("Test job should have run.", 3, childJob.count);
 	}
 	
+   @Test
     public void testSimpleSequence() {
 		
     	SequenceIterable seq = new SequenceIterable(1, 3, 1);
@@ -68,6 +74,7 @@ public class RepeatJobTest extends TestCase {
 		assertEquals("Test job should have run.", 3, childJob.count);
 	}
 	
+   @Test
     public void testSimpleUntil() {
 		
 		Runnable childJob = new SimpleJob() {
@@ -87,6 +94,7 @@ public class RepeatJobTest extends TestCase {
 				((Stateful) childJob).lastStateEvent().getState());
 	}
     
+   @Test
     public void testInOddjob() throws FailedToStopException {
         String config = 
         	"<oddjob xmlns:scheduling='http://rgordon.co.uk/oddjob/scheduling'>" +
@@ -133,6 +141,7 @@ public class RepeatJobTest extends TestCase {
 	
 
 	// the same simple count from oddjob;
+   @Test
 	public void testSimpleCountOJ() throws Exception {
 		
 		String xml = 
@@ -161,6 +170,7 @@ public class RepeatJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimpleFailOJ() throws Exception {
 		
 		String xml = 
@@ -185,6 +195,7 @@ public class RepeatJobTest extends TestCase {
 		assertEquals(ParentState.EXCEPTION, oj.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testRepeatOnReady() {
 		
 		RepeatJob test = new RepeatJob();
@@ -199,6 +210,7 @@ public class RepeatJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testRepeatExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -229,6 +241,7 @@ public class RepeatJobTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testRepeatWithSequenceExample() {
 		
 		Oddjob oddjob = new Oddjob();

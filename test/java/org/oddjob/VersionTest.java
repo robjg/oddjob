@@ -1,13 +1,16 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
 import org.oddjob.arooa.utils.DateHelper;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class VersionTest extends TestCase {
+public class VersionTest extends OjTestCase {
 	
+   @Test
 	public void testToString() throws ParseException {
 		
 		Version test = new Version(1, 2, 3);
@@ -23,6 +26,7 @@ public class VersionTest extends TestCase {
 		assertEquals("1.2.3-SNAPSHOT 2013-09-08 09:45:00", test.toString());
 	}
 
+   @Test
 	public void testCreating() {
 		
 		Version test = Version.versionFor("1.2.3", null);
@@ -81,6 +85,7 @@ public class VersionTest extends TestCase {
 		assertEquals(0, test2.compareTo(test1));
 	}
 	
+   @Test
 	public void testEquals() {
 		
 		Version test1 = new Version(1, 2, 3);

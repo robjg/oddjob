@@ -3,10 +3,12 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -22,8 +24,9 @@ import org.oddjob.schedules.ScheduleContext;
 /**
  * 
  */
-public class DateScheduleTest extends TestCase {
+public class DateScheduleTest extends OjTestCase {
 
+   @Test
 	public void testAllOfTime() throws ParseException {
 		
 		DateSchedule test = new DateSchedule();
@@ -39,6 +42,7 @@ public class DateScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testNextDueSingleDayDate() throws ParseException {
 		DateSchedule test = new DateSchedule();
 		test.setFrom("2003-02-05");
@@ -61,6 +65,7 @@ public class DateScheduleTest extends TestCase {
 		assertNull(result);
 	}
 
+   @Test
 	public void testNextDueDateRange() throws ParseException {
 		DateSchedule test = new DateSchedule();
 		test.setFrom("2003-02-05");
@@ -83,6 +88,7 @@ public class DateScheduleTest extends TestCase {
 		assertEquals(null, result);
 	}
 
+   @Test
 	public void testNextDueAfterDate() throws ParseException {
 		DateSchedule test = new DateSchedule();
 		test.setFrom("2003-02-05");
@@ -95,6 +101,7 @@ public class DateScheduleTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testDueOnWithTimeRefinement() throws ParseException {
 		
 		// set schedule
@@ -123,6 +130,7 @@ public class DateScheduleTest extends TestCase {
     	assertNull(result);
 	}
 	
+   @Test
     public void testDateScheduleExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

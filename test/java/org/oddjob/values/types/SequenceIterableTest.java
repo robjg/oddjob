@@ -1,11 +1,14 @@
 package org.oddjob.values.types;
 
+import org.junit.Test;
+
 import java.util.Iterator;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class SequenceIterableTest extends TestCase {
+public class SequenceIterableTest extends OjTestCase {
 
+   @Test
 	public void testSimplePositiveSingleStep() {
 		
 		SequenceIterable test = new SequenceIterable(1, 3, 1);
@@ -25,6 +28,7 @@ public class SequenceIterableTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSimpleNegativeSingleStep() {
 		
 		SequenceIterable test = new SequenceIterable(-1, -3, -1);
@@ -43,6 +47,7 @@ public class SequenceIterableTest extends TestCase {
 		assertFalse(it.hasNext());
 	}
 	
+   @Test
 	public void testAllZeroParameters() {
 		
 		SequenceIterable test = new SequenceIterable(0, 0, 0);
@@ -56,6 +61,7 @@ public class SequenceIterableTest extends TestCase {
 		assertEquals(new Integer(0), it.next());
 	}
 	
+   @Test
 	public void testFromToZeroStepOne() {
 		
 		SequenceIterable test = new SequenceIterable(0, 0, 1);
@@ -68,6 +74,7 @@ public class SequenceIterableTest extends TestCase {
 		assertFalse(it.hasNext());
 	}
 	
+   @Test
 	public void testToLessThanFromPositiveStep() {
 		
 		SequenceIterable test = new SequenceIterable(0, -1, 1);
@@ -87,6 +94,7 @@ public class SequenceIterableTest extends TestCase {
 		assertEquals(new Integer(3), it.next());
 	}
 	
+   @Test
 	public void testBigSteps() {
 		
 		SequenceIterable test = new SequenceIterable(0, 30, 10);
@@ -106,6 +114,7 @@ public class SequenceIterableTest extends TestCase {
 		assertEquals(new Integer(30), it.next());
 	}
 	
+   @Test
 	public void testLargeStep() {
 		
 		SequenceIterable test = new SequenceIterable(1, 10, 20);

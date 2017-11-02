@@ -1,5 +1,7 @@
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -34,9 +36,9 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.log4j.Logger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JMXAssumptionsTest extends TestCase {
+public class JMXAssumptionsTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(JMXAssumptionsTest.class);
 	
 	public class OurMBean extends NotificationBroadcasterSupport implements
@@ -121,6 +123,7 @@ public class JMXAssumptionsTest extends TestCase {
 	
 	
 	
+   @Test
 	public void testStructuralNotificaitonAssumptions() throws Exception {
 		
 		

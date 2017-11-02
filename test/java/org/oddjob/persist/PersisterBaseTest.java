@@ -3,10 +3,12 @@
  */
 package org.oddjob.persist;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
@@ -22,7 +24,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class PersisterBaseTest extends TestCase {
+public class PersisterBaseTest extends OjTestCase {
 
 	public static class OurJob extends SerializableJob 
 	implements Serializable {
@@ -90,6 +92,7 @@ public class PersisterBaseTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInitialiseAndPersist() throws Exception {
 		final OurPersister test = new OurPersister();
 
@@ -131,6 +134,7 @@ public class PersisterBaseTest extends TestCase {
 		private static final long serialVersionUID = 2009042100L;
 	}
 		
+   @Test
 	public void testWithPath() throws ComponentPersistException {
 
 		OurPersister test = new OurPersister();

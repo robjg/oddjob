@@ -1,8 +1,10 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -17,9 +19,10 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleList;
 import org.oddjob.schedules.units.Month;
 
-public class LastScheduleTest extends TestCase {
+public class LastScheduleTest extends OjTestCase {
 
 	
+   @Test
 	public void testLastChristmas() throws ParseException {
 		
 		DateSchedule c1 = new DateSchedule();
@@ -50,6 +53,7 @@ public class LastScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testNever() throws ParseException {
 		
 		DateSchedule c1 = new DateSchedule();
@@ -66,6 +70,7 @@ public class LastScheduleTest extends TestCase {
 		assertNull(result);
 	}
 	
+   @Test
 	public void testLastDayOfApril() throws ParseException {
 		
 		LastSchedule test = new LastSchedule();
@@ -92,6 +97,7 @@ public class LastScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
     public void testLastExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

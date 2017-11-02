@@ -1,18 +1,20 @@
 package org.oddjob.schedules;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.schedules.schedules.DailySchedule;
+import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.tools.ManualClock;
 import org.oddjob.util.Clock;
 
-public class ScheduleCalculatorTest2 extends TestCase {
+public class ScheduleCalculatorX2Test {
 
 	class OurClock implements Clock {
 		
@@ -65,6 +67,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testUserGuideScheduleExample() throws ParseException {
 		
 		DailySchedule schedule = new DailySchedule();
@@ -107,6 +110,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 				results.scheduleDate);
 	}
 	
+	@Test
 	public void testUserGuideScheduleExampleLateStart() throws ParseException {
 		
 		DailySchedule schedule = new DailySchedule();
@@ -166,6 +170,7 @@ public class ScheduleCalculatorTest2 extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testClockNotUsedAfterInitialise() throws ParseException {
 		
 		IntervalSchedule interval = new IntervalSchedule();

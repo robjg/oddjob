@@ -1,20 +1,24 @@
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
-public class AppendTypeTest extends TestCase {
+public class AppendTypeTest extends OjTestCase {
 
 	File outputDir;
 
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		outputDir = new File(dirs.base(), "work/io/append");
@@ -24,6 +28,7 @@ public class AppendTypeTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testExample() throws Exception {
 		
 		FileUtils.forceMkdir(outputDir);
@@ -59,6 +64,7 @@ public class AppendTypeTest extends TestCase {
 		assertEquals("Goodbye World", lines[1]);
 	}
 
+   @Test
 	public void testAppendWithTeeType() throws Exception {
 		
 		FileUtils.forceMkdir(outputDir);

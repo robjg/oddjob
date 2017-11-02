@@ -1,16 +1,19 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobSerializeTest extends TestCase {
+public class OddjobSerializeTest extends OjTestCase {
 	
+   @Test
 	public void testSerializeAndReRun() throws IOException, ClassNotFoundException {
 		
 		String xml = 
@@ -44,6 +47,7 @@ public class OddjobSerializeTest extends TestCase {
 		assertEquals(JobState.READY, OddjobTestHelper.getJobState(echo));
 	}
 	
+   @Test
 	public void testSerializeWhenReset() throws IOException, ClassNotFoundException {
 		
 		String xml = 
@@ -79,6 +83,7 @@ public class OddjobSerializeTest extends TestCase {
 		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(echo));
 	}
 	
+   @Test
 	public void testSerializeNoConfig() throws IOException, ClassNotFoundException {
 		
 		Oddjob test = new Oddjob();

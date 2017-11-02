@@ -1,5 +1,4 @@
 package org.oddjob.monitor;
-
 import java.awt.GraphicsEnvironment;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
@@ -12,11 +11,12 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.design.designer.ArooaTree;
 import org.oddjob.arooa.parsing.ConfigSessionEvent;
@@ -31,17 +31,17 @@ import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.monitor.model.JobTreeNode;
 import org.oddjob.monitor.view.ExplorerComponent;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
-public class OddjobExplorerTest extends XMLTestCase {
+public class OddjobExplorerTest extends OjTestCase {
 
 	private Logger logger = Logger.getLogger(OddjobExplorerTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
 		
 		logger.info("----------------  " + getName() + "  --------------");
 		
@@ -56,13 +56,12 @@ public class OddjobExplorerTest extends XMLTestCase {
 
 	}
 	
+   @Test
 	public void testSave() throws SAXException, IOException, PropertyVetoException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			return;
 		}
-		
-		XMLUnit.setIgnoreWhitespace(true);
 		
 		String xml = 
 			"<oddjob>" +
@@ -103,8 +102,13 @@ public class OddjobExplorerTest extends XMLTestCase {
 		
 		Action action = test.new SaveAction();
 		action.actionPerformed(null);
-				
-		assertXMLEqual(xml, savedXML.get());
+
+		
+		Diff diff = DiffBuilder.compare(savedXML.get())
+				.withTest(xml).ignoreWhitespace()
+				.build();
+
+		assertFalse(diff.toString(), diff.hasDifferences());
 	}
 	
 	public static class OurConfigOwner extends MockConfigurationOwner {
@@ -149,14 +153,13 @@ public class OddjobExplorerTest extends XMLTestCase {
 		}
 	}
 	
+   @Test
 	public void testTitle() throws Exception {
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			return;
 		}
 
-		XMLUnit.setIgnoreWhitespace(true);
-			
 		String xml = 
 				"<oddjob>" +
 						" <job>" +
@@ -249,13 +252,12 @@ public class OddjobExplorerTest extends XMLTestCase {
 		assertEquals("Oddjob Explorer - apples *", test.getTitle());
 	}
 	
+   @Test
 	public void testNewOddjob() throws SAXException, IOException, PropertyVetoException, ArooaParseException, InterruptedException, InvocationTargetException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
 			return;
 		}
-		
-		XMLUnit.setIgnoreWhitespace(true);
 		
 		OddjobExplorer test = new OddjobExplorer();
 		test.setArooaSession(new OddjobSessionFactory().createSession());
@@ -274,13 +276,13 @@ public class OddjobExplorerTest extends XMLTestCase {
 			
 		tree.setSelectionRow(0);
 
-		final JobTreeNode node = (JobTreeNode) tree.getSelectionPath().getLastPathComponent();		
+//		final JobTreeNode node = (JobTreeNode) tree.getSelectionPath().getLastPathComponent();		
 		
 		SwingUtilities.invokeAndWait(new Runnable() {
 			
 			public void run() {
 
-				DragPoint dragPoint = tree.getDragPoint(node);
+				DragPoint dragPoint = tree.getCurrentDragPoint();
 				
 				try {
 					DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
@@ -295,6 +297,7 @@ public class OddjobExplorerTest extends XMLTestCase {
 		assertEquals("Oddjob Explorer - Oddjob *", test.getTitle());
 	}
 	
+   @Test
 	public void testResetOddjob() throws PropertyVetoException, ArooaParseException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
@@ -346,6 +349,7 @@ public class OddjobExplorerTest extends XMLTestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testCheckModifications() throws PropertyVetoException, ArooaParseException, InterruptedException, InvocationTargetException {
 		
 		if (GraphicsEnvironment.isHeadless()) {
@@ -395,6 +399,7 @@ public class OddjobExplorerTest extends XMLTestCase {
 		assertTrue(checked[0]);
 	}
 	
+   @Test
 	public void testModifiedOnCloseAction() throws SAXException, IOException, PropertyVetoException, ArooaParseException, InterruptedException, InvocationTargetException {
 				
 		if (GraphicsEnvironment.isHeadless()) {

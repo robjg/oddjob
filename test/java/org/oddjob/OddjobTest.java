@@ -3,12 +3,14 @@
  */
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaException;
@@ -37,7 +39,7 @@ import org.oddjob.tools.StateSteps;
  *
  * @author Rob Gordon.
  */
-public class OddjobTest extends TestCase {
+public class OddjobTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(OddjobTest.class);
 	
@@ -45,6 +47,7 @@ public class OddjobTest extends TestCase {
 	 * Test resetting Oddjob
 	 *
 	 */
+   @Test
 	public void testReset() {
 		class MyStructuralListener implements StructuralListener {
 			int count;
@@ -127,6 +130,7 @@ public class OddjobTest extends TestCase {
 	 * Test reseting Oddjob
 	 *
 	 */
+   @Test
 	public void testSoftReset() {
 		class MyL implements StructuralListener {
 			int count;
@@ -186,6 +190,7 @@ public class OddjobTest extends TestCase {
 	 * failure using a soft reset.
 	 *
 	 */
+   @Test
 	public void testSoftResetOnFailure() {
 
 		String xml =
@@ -226,6 +231,7 @@ public class OddjobTest extends TestCase {
 	 * @throws ArooaParseException 
 	 *
 	 */
+   @Test
     public void testLoadNoChild() throws ArooaParseException {
         String config = "<oddjob id='this'/>";
         
@@ -247,6 +253,7 @@ public class OddjobTest extends TestCase {
         test.destroy();
     }
 
+   @Test
     public void testLoadOddjobClassloader() {
         String config = 
         	"<oddjob>" +
@@ -284,6 +291,7 @@ public class OddjobTest extends TestCase {
      * Test a nested lookup.
      * @throws Exception
      */
+   @Test
     public void testLookup() throws Exception {
 
     	String config = 
@@ -326,6 +334,7 @@ public class OddjobTest extends TestCase {
         oj.destroy();
     }
 
+   @Test
     public void testArgs() throws Exception {
     	
     	String config = 
@@ -380,6 +389,7 @@ public class OddjobTest extends TestCase {
 		}
 	}
 	
+   @Test
     public void testOptionalArgumentExample() {
     
     	Oddjob oddjob = new Oddjob();
@@ -410,6 +420,7 @@ public class OddjobTest extends TestCase {
     	oddjob.destroy();
     }
     
+   @Test
     public void testInheritedProperties() throws Exception {
     	
     	String config = 
@@ -462,6 +473,7 @@ public class OddjobTest extends TestCase {
      * Test Oddjob dir property.
      *
      */
+   @Test
     public void testDir() {
     	OurDirs dirs = new OurDirs();
     	File testFile = dirs.relative("work/xyz.xml"); 
@@ -480,6 +492,7 @@ public class OddjobTest extends TestCase {
      * @throws ArooaParseException 
      * 
      */
+   @Test
     public void testRegistryManagement() throws ArooaParseException {
     	
     	final ArooaSession session = new OddjobSessionFactory().createSession();
@@ -538,6 +551,7 @@ public class OddjobTest extends TestCase {
     	oj.destroy();
     }
     
+   @Test
     public void testCreateFile() throws FileNotFoundException {
     	
     	OurDirs dirs = new OurDirs();

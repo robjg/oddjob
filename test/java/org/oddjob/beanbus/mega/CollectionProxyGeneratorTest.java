@@ -1,9 +1,13 @@
 package org.oddjob.beanbus.mega;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Describeable;
@@ -19,7 +23,7 @@ import org.oddjob.beanbus.BusListenerAdapter;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 
-public class CollectionProxyGeneratorTest extends TestCase {
+public class CollectionProxyGeneratorTest extends OjTestCase {
 
 	public class OurDestination extends AbstractDestination<String> {
 		
@@ -45,8 +49,8 @@ public class CollectionProxyGeneratorTest extends TestCase {
 
 	Object proxy;
 	
-	@Override
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		CollectionProxyGenerator<String> test = 
 				new CollectionProxyGenerator<String>();
 
@@ -56,12 +60,13 @@ public class CollectionProxyGeneratorTest extends TestCase {
 		((ArooaSessionAware) proxy).setArooaSession(new StandardArooaSession());
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+   @After
+   public void tearDown() throws Exception {
 		((ArooaLifeAware) proxy).destroy();
 	}	
 	
 	@SuppressWarnings("unchecked")
+   @Test
 	public void testCollection() {
 		
 		assertTrue(proxy instanceof Collection);
@@ -94,6 +99,7 @@ public class CollectionProxyGeneratorTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDescribeable() {
 				
 		assertTrue(proxy instanceof Describeable);
@@ -106,6 +112,7 @@ public class CollectionProxyGeneratorTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testDynaBean() {
 				
 		assertTrue(proxy instanceof DynaBean);
@@ -129,6 +136,7 @@ public class CollectionProxyGeneratorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIconicBusPart() throws BusCrashException {
 		
 		assertTrue(proxy instanceof Iconic);

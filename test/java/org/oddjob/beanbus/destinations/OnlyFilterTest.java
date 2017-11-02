@@ -1,9 +1,11 @@
 package org.oddjob.beanbus.destinations;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -13,8 +15,9 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class OnlyFilterTest extends TestCase {
+public class OnlyFilterTest extends OjTestCase {
 
+   @Test
 	public void testFiltersNoStop() {
 	
 		List<String> results = new ArrayList<String>();
@@ -31,6 +34,7 @@ public class OnlyFilterTest extends TestCase {
 		assertEquals(2, results.size());
 	}
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

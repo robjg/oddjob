@@ -1,9 +1,10 @@
 package org.oddjob.designer.components;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaType;
@@ -19,15 +20,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class ParallelDCTest extends TestCase {
+public class ParallelDCTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ParallelDCTest.class);
 	
-	public void setUp() {
+	@Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

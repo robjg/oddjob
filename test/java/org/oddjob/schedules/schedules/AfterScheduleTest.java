@@ -3,11 +3,13 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobSessionFactory;
@@ -30,11 +32,12 @@ import org.oddjob.schedules.SimpleScheduleResult;
  *
  * @author Rob Gordon.
  */
-public class AfterScheduleTest extends TestCase {
+public class AfterScheduleTest extends OjTestCase {
 
     static DateFormat checkFormat = new SimpleDateFormat("dd-MMM-yy HH:mm:ss:SSS");
     static DateFormat inputFormat = new SimpleDateFormat("dd-MMM-yy HH:mm");
     
+   @Test
     public void testAfterInterval() throws ParseException {
     	
         AfterSchedule after = new AfterSchedule();
@@ -65,6 +68,7 @@ public class AfterScheduleTest extends TestCase {
         assertEquals(expected, results[1]);        
     }
    
+   @Test
     public void testAfterEndOfSchedule() throws ParseException {
     	
         AfterSchedule after = new AfterSchedule();
@@ -89,6 +93,7 @@ public class AfterScheduleTest extends TestCase {
         assertEquals(null, results[1]);        
     }
     
+   @Test
     public void testAfterExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -123,6 +128,7 @@ public class AfterScheduleTest extends TestCase {
     	assertEquals(null, next);
     }
     
+   @Test
 	public void testAfterBusinessDays() throws ArooaParseException, ParseException {
     	
     	ArooaSession session = new OddjobSessionFactory().createSession();

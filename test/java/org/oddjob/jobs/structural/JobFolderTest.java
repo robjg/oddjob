@@ -1,6 +1,8 @@
 package org.oddjob.jobs.structural;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -13,8 +15,9 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class JobFolderTest extends TestCase {
+public class JobFolderTest extends OjTestCase {
 
+   @Test
 	public void testInOddjob() {
 		
 		String config = 
@@ -50,6 +53,7 @@ public class JobFolderTest extends TestCase {
 	String job = "<bean id='child'/>";
 	
 	
+   @Test
 	public void testCutAndPaste() throws ArooaParseException {
 	
 		Oddjob oddjob = new Oddjob();
@@ -69,6 +73,7 @@ public class JobFolderTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testCutFolder() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -96,6 +101,7 @@ public class JobFolderTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExample() throws ArooaParseException {
 		
 		// Just parse XML.

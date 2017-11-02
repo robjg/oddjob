@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2006
  */
 package org.oddjob.values.properties;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
@@ -30,11 +33,11 @@ import org.oddjob.tools.OurDirs;
  * @author rob
  *
  */
-public class PropertiesJobTest extends TestCase {
+public class PropertiesJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(PropertiesJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("---------------------  " + getName() + "  ------------------");
 	}
 	
@@ -43,6 +46,7 @@ public class PropertiesJobTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSimpleSetGet() throws Exception {
 
 		String xml = 
@@ -80,6 +84,7 @@ public class PropertiesJobTest extends TestCase {
 	
 	/**
 	 */
+   @Test
 	public void testPropertiesFromValues() throws Exception {
 
 		Oddjob oddjob = new Oddjob();
@@ -100,6 +105,7 @@ public class PropertiesJobTest extends TestCase {
 	
 	/**
 	 */
+   @Test
 	public void testPropertiesWithSubstitution() throws Exception {
 
 		Oddjob oddjob = new Oddjob();
@@ -121,6 +127,7 @@ public class PropertiesJobTest extends TestCase {
 	/**
 	 * Test setting properties from an input stream. 
 	 */
+   @Test
 	public void testSetFromInput() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -152,6 +159,7 @@ public class PropertiesJobTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testSetPropertiesFromFile() {
 		
 		OurDirs dirs = new OurDirs();
@@ -186,6 +194,7 @@ public class PropertiesJobTest extends TestCase {
 		assertEquals("test", myComp.props.get("a.b.c"));		
 	}
 		
+   @Test
 	public void testSetFromPrevious() {
 		String xml = 
 			"<oddjob id='oj'>" +
@@ -223,6 +232,7 @@ public class PropertiesJobTest extends TestCase {
 	}
 		
 	
+   @Test
 	public void testSettingSelfFromPrevious() throws ArooaConversionException {
 		String xml = 
 			"<oddjob id='oj'>" +
@@ -259,6 +269,7 @@ public class PropertiesJobTest extends TestCase {
 		oddjob.destroy();
 	}
 		
+   @Test
 	public void testMergeFiles() throws ArooaPropertyException, ArooaConversionException {
 		String xml = 
 			"<oddjob>" +
@@ -298,6 +309,7 @@ public class PropertiesJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testSerialzation() throws IOException, ClassNotFoundException, ArooaPropertyException, ArooaConversionException {
 	
 		String xml = 
@@ -365,6 +377,7 @@ public class PropertiesJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testOverridingProperties() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -388,6 +401,7 @@ public class PropertiesJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDescribeable() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =
@@ -512,6 +526,7 @@ public class PropertiesJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDescribeAll() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =
@@ -559,6 +574,7 @@ public class PropertiesJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testSettingSystemProperties() throws Exception {
 
 		Oddjob oddjob = new Oddjob();

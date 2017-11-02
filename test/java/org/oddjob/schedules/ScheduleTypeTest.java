@@ -1,9 +1,11 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -18,10 +20,11 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class ScheduleTypeTest extends TestCase {
+public class ScheduleTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ScheduleTypeTest.class);
 	
+   @Test
 	public void testConversion() {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -33,6 +36,7 @@ public class ScheduleTypeTest extends TestCase {
 		assertEquals("ScheduleType-Date-String", path.toString());
 	}	
    
+   @Test
     public void testNowExample() throws Exception {
     	        
         Oddjob oddjob = new Oddjob();
@@ -70,6 +74,7 @@ public class ScheduleTypeTest extends TestCase {
         oddjob.destroy();
     }
 
+   @Test
     public void testWithTimeZone() throws Exception {
         
         Oddjob oddjob = new Oddjob();
@@ -100,6 +105,7 @@ public class ScheduleTypeTest extends TestCase {
         oddjob.destroy();
     }
     
+   @Test
     public void testNextBusinessDateExample() throws Exception {
         
         Oddjob oddjob = new Oddjob();
@@ -123,6 +129,7 @@ public class ScheduleTypeTest extends TestCase {
         oddjob.destroy();
     }
 
+   @Test
     public void testScheduleTypeForEach() throws Exception {
         
         Oddjob oddjob = new Oddjob();

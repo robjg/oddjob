@@ -1,9 +1,11 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
@@ -13,8 +15,9 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.SimpleScheduleResult;
 
-public class ParentChildScheduleTest extends TestCase {
+public class ParentChildScheduleTest extends OjTestCase {
 
+   @Test
 	public void testParentNoChild() throws ParseException {
 		
 		final ScheduleResult parentResult = new IntervalTo(
@@ -39,6 +42,7 @@ public class ParentChildScheduleTest extends TestCase {
 		assertEquals(parentResult, result);
 	}
 	
+   @Test
 	public void testParentAndChildChildNotLimited() throws ParseException {
 		
 		final ScheduleResult parentResult = new IntervalTo(
@@ -74,6 +78,7 @@ public class ParentChildScheduleTest extends TestCase {
 		assertEquals(childResult, result);
 	}
 		
+   @Test
 	public void testParentNoChildWithLimits() throws ParseException {
 		
 		final ScheduleResult parentResult = new IntervalTo(
@@ -105,6 +110,7 @@ public class ParentChildScheduleTest extends TestCase {
 		assertEquals(null, result);
 	}
 	
+   @Test
 	public void testParentWhenChildReturnsNull() throws ParseException {
 		
 		final ScheduleResult parentResult = new IntervalTo(
@@ -136,6 +142,7 @@ public class ParentChildScheduleTest extends TestCase {
 		assertEquals(null, result);
 	}
 	
+   @Test
 	public void testParentAndChildWhenChildUseNextNull() throws ParseException {
 		
 		final ScheduleResult parentResult = new IntervalTo(
@@ -179,6 +186,7 @@ public class ParentChildScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testParentAndChildWhenChildUseNextNullInParentNextInterval() throws ParseException {
 		
 		final ScheduleResult parentResult1 = new IntervalTo(

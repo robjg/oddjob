@@ -3,16 +3,18 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaProperty;
 
-public class WrapDynaClassTest extends TestCase {
+public class WrapDynaClassTest extends OjTestCase {
 
 	public static class MyBean {
 		public String getSimple() { return null; }
@@ -21,6 +23,7 @@ public class WrapDynaClassTest extends TestCase {
 		public boolean isOk() { return true; }
 	}
 	
+   @Test
 	public void testProperties() {
 		WrapDynaClass test = WrapDynaClass.createDynaClass(MyBean.class);
 
@@ -52,6 +55,7 @@ public class WrapDynaClassTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testMixedTypes() {
 		WrapDynaClass test = WrapDynaClass.createDynaClass(MixedTypes.class);
 
@@ -62,6 +66,7 @@ public class WrapDynaClassTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 		WrapDynaClass test = WrapDynaClass.createDynaClass(MyBean.class);
 		

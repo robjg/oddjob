@@ -1,9 +1,12 @@
 package org.oddjob.scheduling;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class TimerBulkTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class TimerBulkTest extends OjTestCase {
+
+   @Test
 	public void testMoreWorkThanThreads() {
 		
 	}

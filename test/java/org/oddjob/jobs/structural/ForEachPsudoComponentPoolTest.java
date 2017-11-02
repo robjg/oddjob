@@ -1,8 +1,11 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobSessionFactory;
@@ -21,14 +24,14 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ForEachPsudoComponentPoolTest extends TestCase {
+public class ForEachPsudoComponentPoolTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			ForEachPsudoComponentPoolTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("-----------------------------------  " + 
 				getName() + "  --------------------------------");
@@ -55,6 +58,7 @@ public class ForEachPsudoComponentPoolTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException
 	 */
+   @Test
 	public void testSessionsAndRegistriesUsed() throws ArooaParseException {
 		
 		String xml = 
@@ -116,6 +120,7 @@ public class ForEachPsudoComponentPoolTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAddSameIdInTwoPoolsDoesntWarn() {
 		
 

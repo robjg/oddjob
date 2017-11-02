@@ -1,6 +1,8 @@
 package org.oddjob.tools.doclet.utils;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.mockito.Mockito;
 
@@ -8,8 +10,9 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.SeeTag;
 
-public class SeeTagProcessorTest extends TestCase {
+public class SeeTagProcessorTest extends OjTestCase {
 	
+   @Test
 	public void testProcessSeeTag() {
 
 		PackageDoc packageDoc = Mockito.mock(PackageDoc.class);

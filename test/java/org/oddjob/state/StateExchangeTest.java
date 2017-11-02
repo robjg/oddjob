@@ -1,12 +1,14 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 
-public class StateExchangeTest extends TestCase {
+public class StateExchangeTest extends OjTestCase {
 
 	private class OurStateful extends MockStateful {
 		
@@ -39,6 +41,7 @@ public class StateExchangeTest extends TestCase {
 	/**
 	 * Destroyed not passed on. Should it be?
 	 */
+   @Test
 	public void testDestroyedState() {
 		
 		OurStateful stateful = new OurStateful();

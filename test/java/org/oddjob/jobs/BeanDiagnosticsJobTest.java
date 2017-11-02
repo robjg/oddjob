@@ -1,15 +1,18 @@
 package org.oddjob.jobs;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class BeanDiagnosticsJobTest extends TestCase {
+public class BeanDiagnosticsJobTest extends OjTestCase {
 
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();

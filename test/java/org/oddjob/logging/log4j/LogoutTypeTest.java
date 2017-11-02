@@ -1,11 +1,14 @@
 package org.oddjob.logging.log4j;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
@@ -18,12 +21,12 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
-public class LogoutTypeTest extends TestCase {
+public class LogoutTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(LogoutTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("-------------------  " + getName() + "  --------------");
 	}
 	
@@ -51,6 +54,7 @@ public class LogoutTypeTest extends TestCase {
 	
 	String logName = "org.oddjob.wow.Test";
 	
+   @Test
 	public void testSimple() throws ArooaConversionException, IOException {
 		
 		Results results = new Results();
@@ -72,6 +76,7 @@ public class LogoutTypeTest extends TestCase {
 		assertEquals("Hello World.", results.messages.get(0));
 	}
 	
+   @Test
 	public void testLogoutInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =
@@ -127,6 +132,7 @@ public class LogoutTypeTest extends TestCase {
 		assertTrue(results.messages.get(0).toString().contains("World"));		
 	}
 	
+   @Test
 	public void testExample() {
 		
 		OurDirs dirs = new OurDirs();

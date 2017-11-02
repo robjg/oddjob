@@ -1,15 +1,18 @@
 package org.oddjob.tools.taglet;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.oddjob.tools.OurDirs;
 
-public class TagletsTest extends TestCase {
+public class TagletsTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(TagletsTest.class);
 	
@@ -17,8 +20,8 @@ public class TagletsTest extends TestCase {
 	
 	File dest = new File(dirs.base(), "work/javadoc");
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("-------------------  " + getName() + "  -------------------");
 		
 		// try 3 times - why does this fail?
@@ -48,6 +51,7 @@ public class TagletsTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testOne() {
 
 		File index = new File(dest, "index.html");

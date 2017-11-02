@@ -3,9 +3,11 @@
  */
 package org.oddjob.values.types;
 
+import org.junit.Test;
+
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.ConverterHelper;
@@ -20,11 +22,12 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  * Test PropertyType
  */
-public class PropertyTypeTest extends TestCase {
+public class PropertyTypeTest extends OjTestCase {
 	
 	/** 
 	 * Simple test to check valueFor
 	 */
+   @Test
 	public void testValueForString() throws Exception {
 		
 		PropertyType test = new PropertyType();
@@ -49,6 +52,7 @@ public class PropertyTypeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testAddingNull() throws Exception {
 		
 		ArooaConverter converter = 
@@ -81,6 +85,7 @@ public class PropertyTypeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testAddingNestedPropertyFails() throws Exception {
 		PropertyType p = new PropertyType();
 
@@ -101,6 +106,7 @@ public class PropertyTypeTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSettingProperties() throws Exception {
 		PropertyType p = new PropertyType();
 
@@ -121,6 +127,7 @@ public class PropertyTypeTest extends TestCase {
 	/** 
 	 * Check properties are returned.
 	 */
+   @Test
 	public void testGetProperties() throws Exception {
 		PropertyType p = new PropertyType();
 
@@ -145,6 +152,7 @@ public class PropertyTypeTest extends TestCase {
 		assertEquals(String.class, type);
 	}
 	
+   @Test
 	public void testUsingBeanUtilsBeanHelper() throws Exception {
 		
     	ArooaDescriptor descriptor = 
@@ -176,6 +184,7 @@ public class PropertyTypeTest extends TestCase {
 		assertEquals("apples", converter.convert(result2, String.class));
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 		
 		PropertyType p = new PropertyType();

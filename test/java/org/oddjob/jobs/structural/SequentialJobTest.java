@@ -2,8 +2,11 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs.structural;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -30,7 +33,7 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class SequentialJobTest extends TestCase {
+public class SequentialJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SequentialJobTest.class);
 	
@@ -42,9 +45,9 @@ public class SequentialJobTest extends TestCase {
 		}
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("---------------------------------  " + getName() + 
 				"  ----------------------------------");
@@ -55,6 +58,7 @@ public class SequentialJobTest extends TestCase {
 	// which must also be ready when reset and empty.
 	// this is really a bug in StatefulChildHelper. An empty sequence should
 	// be ready until run and then be complete. I think.
+   @Test
 	public void testEmpty() {
 		SequentialJob test = new SequentialJob();
 		
@@ -66,6 +70,7 @@ public class SequentialJobTest extends TestCase {
 	}
 	
 	// a sequence of just objects will always be complete when it runs
+   @Test
 	public void testObject() {
 		SequentialJob test = new SequentialJob();
 		
@@ -78,6 +83,7 @@ public class SequentialJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testTriggers() {
 		OurJob j1 = new OurJob();
 		MirrorState t1 = new MirrorState();
@@ -112,6 +118,7 @@ public class SequentialJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 	}
 	
+   @Test
 	public void testTwoRunnableJobs() {
 		OurJob j1 = new OurJob();
 		
@@ -134,6 +141,7 @@ public class SequentialJobTest extends TestCase {
 	/**
 	 * Test a mixture of Objects and jobs.
 	 */
+   @Test
 	public void testMixtureOfJobMirrorAndObject() {
 		OurJob j1 = new OurJob();
 		
@@ -161,6 +169,7 @@ public class SequentialJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 	}
 	
+   @Test
 	public void testOneJobCompleteOneJobNotComplete() {
 		FlagState j1 = new FlagState();
 		j1.setState(JobState.COMPLETE);
@@ -183,6 +192,7 @@ public class SequentialJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDependentProgression() {
 		FlagState j1 = new FlagState();
 		j1.setState(JobState.INCOMPLETE);
@@ -209,6 +219,7 @@ public class SequentialJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testIndependentProgression() {
 		FlagState j1 = new FlagState();
 		j1.setState(JobState.INCOMPLETE);
@@ -238,6 +249,7 @@ public class SequentialJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testException() {
 		FlagState j1 = new FlagState();
 		j1.setState(JobState.COMPLETE);
@@ -260,6 +272,7 @@ public class SequentialJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testWhenSequentialJobDestroyedStateIsDestroyed() {
 		
 		FlagState j1 = new FlagState();
@@ -283,6 +296,7 @@ public class SequentialJobTest extends TestCase {
 		sequentialState.checkNow();
 	}
 	
+   @Test
 	public void testStatesWhenOddjobDestroyed() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -318,6 +332,7 @@ public class SequentialJobTest extends TestCase {
 		public void stop() {}
 	}
 	
+   @Test
 	public void testAServiceAndAJob() throws FailedToStopException {
 		
 		Object service = new OddjobComponentResolver().resolve(
@@ -346,6 +361,7 @@ public class SequentialJobTest extends TestCase {
 		states.checkNow();
 	}
 	
+   @Test
 	public void testTwoServices() throws FailedToStopException {
 		
 		Object service1 = new OddjobComponentResolver().resolve(
@@ -404,6 +420,7 @@ public class SequentialJobTest extends TestCase {
 			
 	}
 	
+   @Test
 	public void testNestedSequentials() throws FailedToStopException {
 		
 		Object service = new OddjobComponentResolver().resolve(
@@ -440,6 +457,7 @@ public class SequentialJobTest extends TestCase {
 		states.checkNow();		
 	}
 	
+   @Test
 	public void testExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -472,6 +490,7 @@ public class SequentialJobTest extends TestCase {
 		oddjob.destroy();	
 	}
 
+   @Test
 	public void testPersistence() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -515,6 +534,7 @@ public class SequentialJobTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testPersistenceWhenTransient() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 

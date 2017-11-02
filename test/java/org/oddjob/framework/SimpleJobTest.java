@@ -1,11 +1,13 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -18,7 +20,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.StateSteps;
 
-public class SimpleJobTest extends TestCase {
+public class SimpleJobTest extends OjTestCase {
 
 	
 	public static class OurJob extends SimpleJob {
@@ -77,6 +79,7 @@ public class SimpleJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testFullLifeCycleInOddjob() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -133,6 +136,7 @@ public class SimpleJobTest extends TestCase {
 		}
 	}
 		
+   @Test
 	public void testSleepAndComplete() throws InterruptedException, FailedToStopException {
 		
 		SleepyJob test = new SleepyJob();
@@ -152,6 +156,7 @@ public class SimpleJobTest extends TestCase {
 		icons.checkNow();
 	}
 	
+   @Test
 	public void testSleepAndStop() throws InterruptedException, FailedToStopException {
 		
 		SleepyJob test = new SleepyJob();
@@ -179,6 +184,7 @@ public class SimpleJobTest extends TestCase {
 		icons.checkNow();
 	}
 	
+   @Test
 	public void testForceable() {
 		
 		SimpleJob test = new SimpleJob() {

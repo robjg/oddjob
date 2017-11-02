@@ -1,6 +1,8 @@
 package org.oddjob;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaConfiguration;
@@ -35,8 +37,9 @@ import org.oddjob.state.ParentState;
  * @author rob
  *
  */
-public class OddjobArooaTest extends TestCase {
+public class OddjobArooaTest extends OjTestCase {
 
+   @Test
 	public void testInnerJobDescriptor() throws ArooaParseException {
 
 		OddjobServices services = new MockOddjobServices() {
@@ -85,6 +88,7 @@ public class OddjobArooaTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInnerSession() {
 		
 		String xml = 
@@ -151,6 +155,7 @@ public class OddjobArooaTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testHierarchicalRegistry() {
 		
 		OurSession existingSession = new OurSession();
@@ -211,6 +216,7 @@ public class OddjobArooaTest extends TestCase {
         "</oddjob>";
 	
 	
+   @Test
 	public void testDescriptorOverride() {
 
 		Oddjob oddjob = new Oddjob();
@@ -230,6 +236,7 @@ public class OddjobArooaTest extends TestCase {
 				oddjob.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testNestedDescriptorOverride() throws ArooaParseException {
 
 		// add another layer of Oddjob.

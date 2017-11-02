@@ -1,9 +1,12 @@
 package org.oddjob.sql;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -19,19 +22,20 @@ import org.oddjob.io.CopyJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class SQLResultsSheetTest extends TestCase {
+public class SQLResultsSheetTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SQLResultsSheetTest.class);
 	
 	String EOL = System.getProperty("line.separator");
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-----------------------------  " + getName() + "  ----------------");
 	}
 		
+   @Test
 	public void testNoHeaders() throws BusCrashException {
 		
 		SQLResultsSheet test = new SQLResultsSheet();
@@ -98,6 +102,7 @@ public class SQLResultsSheetTest extends TestCase {
 		return new Object[] { fruit1, fruit2 };
 	}
 	
+   @Test
 	public void testExample() {
 		
 		Oddjob oddjob = new Oddjob();

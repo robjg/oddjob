@@ -3,7 +3,9 @@
  */
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.Structural;
@@ -13,7 +15,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * 
  */
-public class StructuralStateHelperTest extends TestCase {
+public class StructuralStateHelperTest extends OjTestCase {
 	
 	State state;
 
@@ -33,6 +35,7 @@ public class StructuralStateHelperTest extends TestCase {
 	}
 	
 	// test with lots of children
+   @Test
 	public void testManyDifferentChildren() {
 		FlagState j1 = new FlagState(JobState.COMPLETE);
 		
@@ -103,6 +106,7 @@ public class StructuralStateHelperTest extends TestCase {
 
 	// If a job just contains a folder like object
 	// it should be complete.
+   @Test
 	public void testLikeFolder() {
 		Object j1 = new Object();
 		
@@ -119,6 +123,7 @@ public class StructuralStateHelperTest extends TestCase {
 
 	
 	// one runnable one not
+   @Test
 	public void testTwo() {
 		Object j1 = new Object();
 		Object j2 = new FlagState(JobState.COMPLETE);
@@ -141,6 +146,7 @@ public class StructuralStateHelperTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testEmpty() {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 	
@@ -180,6 +186,7 @@ public class StructuralStateHelperTest extends TestCase {
 	 * must be removed before they are destroyed - which is what 
 	 * Arooa does.
 	 */
+   @Test
 	public void testDestroyed() {
 		
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());

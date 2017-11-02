@@ -1,6 +1,8 @@
 package org.oddjob.persist;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -13,7 +15,7 @@ import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ArchiveBrowserJobTest extends TestCase {
+public class ArchiveBrowserJobTest extends OjTestCase {
 	
 	public static class OurArchiver extends MockComponentPersister 
 	implements OddjobPersister {
@@ -43,6 +45,7 @@ public class ArchiveBrowserJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testBrowse() {
 				
 		Oddjob oddjob = new Oddjob();

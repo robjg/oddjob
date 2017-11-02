@@ -1,11 +1,13 @@
 package org.oddjob.beanbus.mega;
 
+import org.junit.Test;
+
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
@@ -21,7 +23,7 @@ import org.oddjob.beanbus.Outbound;
 import org.oddjob.framework.ComponentWrapper;
 import org.oddjob.framework.DefaultInvocationHandler;
 
-public class OutboundStratagiesTest extends TestCase {
+public class OutboundStratagiesTest extends OjTestCase {
 	
 	public class AnOutbound extends AbstractFilter<String, String> {
 		
@@ -38,6 +40,7 @@ public class OutboundStratagiesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInstanceAlready() {
 		
 		OutboundStrategies test = new OutboundStrategies();
@@ -59,6 +62,7 @@ public class OutboundStratagiesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFromAnnotation() {
 		
 		OutboundStrategies test = new OutboundStrategies();
@@ -90,6 +94,7 @@ public class OutboundStratagiesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFromDescriptorAnnotation() {
 		
 		String descriptorXml = 
@@ -132,6 +137,7 @@ public class OutboundStratagiesTest extends TestCase {
 		assertSame(list, outbound.stuff);
 	}
 	
+   @Test
 	public void testWithProxy() {
 		
 //		Method[] ms = BusFilter.class.getDeclaredMethods();

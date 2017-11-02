@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jobs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.ConverterHelper;
@@ -36,14 +39,15 @@ import org.oddjob.tools.OurDirs;
 /**
  * test for exec job.
  */
-public class ExecJobTest extends TestCase {
+public class ExecJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ExecJobTest.class);
 	
 	String catCmd;
 	String echoCmd;
 	String[] setFruitCmd;
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== " + getName() + " ===================");
 		
 		if (System.getProperty("os.name").startsWith("Windows")) {
@@ -58,6 +62,7 @@ public class ExecJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCreate() {
 		
 		String xml =  
@@ -86,6 +91,7 @@ public class ExecJobTest extends TestCase {
 				(Stateful) children[0]));
 	}
 	
+   @Test
 	public void testCommand() {
 		ExecJob job = new ExecJob();
 		job.setCommand("java -version");
@@ -95,6 +101,7 @@ public class ExecJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testStop() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
@@ -155,6 +162,7 @@ public class ExecJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testFailure() {
 		ExecJob job = new ExecJob();
 		job.setCommand("java rubbish");
@@ -163,6 +171,7 @@ public class ExecJobTest extends TestCase {
 		assertEquals(JobState.INCOMPLETE, job.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testOutput() throws IOException {
 		
 		ExecJob ej = new ExecJob();
@@ -174,6 +183,7 @@ public class ExecJobTest extends TestCase {
 		assertEquals("hello" + System.getProperty("line.separator"), new String(bytes));
 	}
 	
+   @Test
 	public void testConsole1() throws IOException {
 		
 		ExecJob ej = new ExecJob();
@@ -187,6 +197,7 @@ public class ExecJobTest extends TestCase {
 		assertEquals("hello" + System.getProperty("line.separator"), result);
 	}
 
+   @Test
 	public void testChained() throws IOException {
 		
 		String xml =
@@ -256,6 +267,7 @@ public class ExecJobTest extends TestCase {
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
+   @Test
 	public void testEnvironment() throws IOException, InterruptedException {
 		
 		ProcessBuilder processBuilder = new ProcessBuilder(setFruitCmd);
@@ -271,6 +283,7 @@ public class ExecJobTest extends TestCase {
 		assertNull(env.get("FRUIT"));
 	}
 	
+   @Test
 	public void testSplitCommand() throws ParseException {
 		
 		ArooaTokenizer tokenizer = new ExecJob().commandTokenizer();
@@ -303,6 +316,7 @@ public class ExecJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testEnvironmentInOddjob() throws Exception {
 		
 		String envCommand;
@@ -355,6 +369,7 @@ public class ExecJobTest extends TestCase {
 		assertTrue(output.contains("FRUIT=apples"));
 	}
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException {
 		
 		ExecJob test = new ExecJob();

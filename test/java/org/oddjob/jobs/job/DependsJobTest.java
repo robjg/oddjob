@@ -3,7 +3,9 @@
  */
 package org.oddjob.jobs.job;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.framework.SimpleJob;
@@ -17,7 +19,7 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class DependsJobTest extends TestCase {
+public class DependsJobTest extends OjTestCase {
 
 	class TestJob extends SimpleJob {
 		boolean ran;
@@ -32,6 +34,7 @@ public class DependsJobTest extends TestCase {
 	 *
 	 */
 	@SuppressWarnings("deprecation")
+   @Test
 	public void testReady() {
 		TestJob testJob = new TestJob();
 		DependsJob j = new DependsJob();
@@ -47,6 +50,7 @@ public class DependsJobTest extends TestCase {
 	 *
 	 */
 	@SuppressWarnings("deprecation")
+   @Test
 	public void testAlreadyComplete() {
 		TestJob testJob = new TestJob();
 		testJob.run();
@@ -81,6 +85,7 @@ public class DependsJobTest extends TestCase {
 	 *
 	 */
 	@SuppressWarnings("deprecation")
+   @Test
 	public void testExecuting() throws InterruptedException {
 		class Executing extends MockStateful {
 			JobStateHandler h = new JobStateHandler(this);

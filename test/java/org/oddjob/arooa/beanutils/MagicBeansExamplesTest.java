@@ -3,10 +3,12 @@
  */
 package org.oddjob.arooa.beanutils;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -17,11 +19,12 @@ import org.oddjob.tools.ConsoleCapture;
  * @author rob
  *
  */
-public class MagicBeansExamplesTest extends TestCase {
+public class MagicBeansExamplesTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			MagicBeansExamplesTest.class);
 
 	
+   @Test
 	public void testFileSizesExample() {
 		
 		URL url = getClass().getResource("MagicBeansExample.xml");

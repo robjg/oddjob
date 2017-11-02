@@ -1,13 +1,16 @@
 package org.oddjob.jmx.client;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ClientInterfaceManagerFactoryTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class ClientInterfaceManagerFactoryTest extends OjTestCase {
 
 	interface Foo {
 		public void foo();
 	}
 	
+   @Test
 	public void testInvoke() throws Throwable {
 		
 		class MockFoo implements Foo {
@@ -47,6 +50,7 @@ public class ClientInterfaceManagerFactoryTest extends TestCase {
 	 * 
 	 * @throws Throwable
 	 */
+   @Test
 	public void testNoFactory() throws Throwable {
 		
 		class MockFoo implements Foo {
@@ -77,6 +81,7 @@ public class ClientInterfaceManagerFactoryTest extends TestCase {
 	 * 
 	 * @throws Throwable
 	 */
+   @Test
 	public void testForObject() throws Throwable {
 				
 		class MockFoo implements Foo {

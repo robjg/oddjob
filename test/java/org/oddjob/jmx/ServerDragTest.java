@@ -1,8 +1,14 @@
 package org.oddjob.jmx;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -22,8 +28,9 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.xmlunit.matchers.CompareMatcher;
 
-public class ServerDragTest extends XMLTestCase {
+public class ServerDragTest {
 
 	XMLConfiguration configuration = new XMLConfiguration(
 			"TEST", "<oddjob id='apples'>" +
@@ -72,8 +79,8 @@ public class ServerDragTest extends XMLTestCase {
 		}
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 
 		ArooaSession serverSession = new OddjobSessionFactory().createSession();
 		
@@ -122,8 +129,8 @@ public class ServerDragTest extends XMLTestCase {
 		remoteOddjob = (ConfigurationOwner) new OddjobLookup(client).lookup("main");
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		client.stop();
 		server.stop();
 	}
@@ -131,6 +138,7 @@ public class ServerDragTest extends XMLTestCase {
 	String EOL = System.getProperty("line.separator");
 	
 	
+    @Test
 	public void testCutLeaf() throws Exception {
 		
 		assertNotNull(remoteOddjob);
@@ -148,9 +156,10 @@ public class ServerDragTest extends XMLTestCase {
 		
 		String expected = "<oddjob id=\"apples\"/>" + EOL;
 		
-		assertXMLEqual(expected, savedXML.get());
+		assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
 	}
 	
+   @Test
 	public void testEditRoot() throws Exception {
 		
 		assertNotNull(remoteOddjob);
@@ -183,9 +192,10 @@ public class ServerDragTest extends XMLTestCase {
 		
 		remoteOddjob.provideConfigurationSession().save();
 		
-		assertXMLEqual(replacement, savedXML.get());
+		assertThat(savedXML.get(), CompareMatcher.isSimilarTo(replacement));
 	}
 	
+   @Test
 	public void testPaste() throws Exception {
 		
 		testCutLeaf();
@@ -211,9 +221,10 @@ public class ServerDragTest extends XMLTestCase {
 			"    </job>" + EOL +
 			"</oddjob>" + EOL;
 		
-		assertXMLEqual(expected, savedXML.get());
+		assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
 	}
 	
+   @Test
 	public void testFailedPaste() throws ArooaParseException {
 
 		// No Cut!

@@ -1,14 +1,16 @@
 package org.oddjob.jmx.client;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.Notification;
 import javax.management.NotificationListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class SynchronizerTest extends TestCase {
+public class SynchronizerTest extends OjTestCase {
 
 	class OurListener implements NotificationListener {
 
@@ -23,6 +25,7 @@ public class SynchronizerTest extends TestCase {
 		
 	String type = "X";
 	
+   @Test
 	public void testSynch() {
 		
 		Notification n0 = new Notification(type, this, 100);

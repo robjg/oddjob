@@ -1,9 +1,11 @@
 package org.oddjob.jobs.structural;
 
+import org.junit.Test;
+
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
@@ -20,7 +22,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.StateSteps;
 
-public class ParallelJobInStepsTest extends TestCase {
+public class ParallelJobInStepsTest extends OjTestCase {
 
 	private class ManualExecutor1 extends MockScheduledExecutorService {
 
@@ -35,6 +37,7 @@ public class ParallelJobInStepsTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStatesExecutingAndCompletingOneJob() {
 		
 		FlagState job1 = new FlagState(JobState.COMPLETE);
@@ -97,6 +100,7 @@ public class ParallelJobInStepsTest extends TestCase {
 	}
 	
 
+   @Test
 	public void testStatesWhenStoppingJobThatHasntExecuted() throws FailedToStopException {
 		
 		CaptureStoppedJob job1 = new CaptureStoppedJob();
@@ -135,6 +139,7 @@ public class ParallelJobInStepsTest extends TestCase {
 		steps.checkNow();
 	}
 	
+   @Test
 	public void testStatesWhenDestroyedWithoutStoppingJobThatHasntExecuted() {
 		
 		CaptureStoppedJob job1 = new CaptureStoppedJob();
@@ -229,6 +234,7 @@ public class ParallelJobInStepsTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStatesWhenStoppingAsyncJobThatIsStillExecuting() throws FailedToStopException {
 		
 		AsyncJob job1 = new AsyncJob();
@@ -269,6 +275,7 @@ public class ParallelJobInStepsTest extends TestCase {
 		steps.checkNow();
 	}
 	
+   @Test
 	public void testStatesWhenDestroyedWithoutStoppingAsyncJobThatIsStillExecuting() {
 		
 		AsyncJob job1 = new AsyncJob();

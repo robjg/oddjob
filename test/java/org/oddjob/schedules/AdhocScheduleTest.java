@@ -1,20 +1,23 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.schedules.schedules.WeeklySchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.schedules.units.DayOfWeek;
 
-public class AdhocScheduleTest extends TestCase {
+public class AdhocScheduleTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(AdhocScheduleTest.class);
 	
+   @Test
 	public void testForMeena() throws ParseException {
 		SimpleDateFormat format = new SimpleDateFormat("dd-MMM-yy hh:mm");
 		

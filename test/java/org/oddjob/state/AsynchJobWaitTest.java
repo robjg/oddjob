@@ -1,5 +1,7 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -9,10 +11,11 @@ import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.OddjobLockedException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class AsynchJobWaitTest extends TestCase {
+public class AsynchJobWaitTest extends OjTestCase {
 
+   @Test
 	public void testGivenSimpleJobWhenRunThenNoWait() {
 
 		AsynchJobWait test = new AsynchJobWait();
@@ -66,6 +69,7 @@ public class AsynchJobWaitTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testSlowToStartJobBlocks() {
 		
 		AsynchJobWait test = new AsynchJobWait();
@@ -93,6 +97,7 @@ public class AsynchJobWaitTest extends TestCase {
 		assertTrue(asynchronous);
 	}
 	
+   @Test
 	public void testGivenParallelJobThenAsync() throws InterruptedException {
 		
 		FlagState job = new FlagState(JobState.COMPLETE);
@@ -121,6 +126,7 @@ public class AsynchJobWaitTest extends TestCase {
 		defaultServices.stop();
 	}
 	
+   @Test
 	public void testParallelChildWithJoin() {
 		
 		FlagState job = new FlagState(JobState.COMPLETE);

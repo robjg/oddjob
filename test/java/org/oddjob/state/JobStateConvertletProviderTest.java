@@ -1,6 +1,8 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -9,7 +11,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class JobStateConvertletProviderTest extends TestCase {
+public class JobStateConvertletProviderTest extends OjTestCase {
 
 	public static class OurBean {
 		
@@ -21,6 +23,7 @@ public class JobStateConvertletProviderTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testConversions() throws ArooaParseException {
 
     	ArooaDescriptor descriptor = 

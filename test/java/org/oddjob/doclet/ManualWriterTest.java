@@ -1,9 +1,12 @@
 package org.oddjob.doclet;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ManualWriterTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class ManualWriterTest extends OjTestCase {
+
+   @Test
 	public void testIndexFileWithPackage() {
 		
 		String result = ManualWriter.getIndexFile("com.foo.ba.HelloWorld");
@@ -11,6 +14,7 @@ public class ManualWriterTest extends TestCase {
 		assertEquals("../../../index.html", result);
 	}
 
+   @Test
 	public void testIndexFileWithSmallNames() {
 		
 		String result = ManualWriter.getIndexFile("a.b.c.X");
@@ -18,6 +22,7 @@ public class ManualWriterTest extends TestCase {
 		assertEquals("../../../index.html", result);
 	}
 	
+   @Test
 	public void testIndexFileNoPackage() {
 		
 		String result = ManualWriter.getIndexFile("HelloWorld");
@@ -25,6 +30,7 @@ public class ManualWriterTest extends TestCase {
 		assertEquals("index.html", result);
 	}
 	
+   @Test
 	public void testIndexFileNoClass() {
 		
 		String result = ManualWriter.getIndexFile("");

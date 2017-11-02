@@ -1,13 +1,16 @@
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
 import org.oddjob.arooa.utils.DateHelper;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class SimpleScheduleResultTest extends TestCase {
+public class SimpleScheduleResultTest extends OjTestCase {
 
+   @Test
 	public void testEquals() throws ParseException {
 	
 		Object o1, o2;
@@ -40,6 +43,7 @@ public class SimpleScheduleResultTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testNotEquals() throws ParseException {
 		
 		Object o1, o2;

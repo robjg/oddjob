@@ -1,9 +1,12 @@
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -11,7 +14,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-public class TeeTypeTest extends TestCase {
+public class TeeTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(TeeTypeTest.class);
 	
@@ -19,7 +22,8 @@ public class TeeTypeTest extends TestCase {
 
 	File testFile;
 	
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		
 		logger.info("----------------------  " + getName() + 
 				"  ----------------------");
@@ -36,6 +40,7 @@ public class TeeTypeTest extends TestCase {
 		testFile.delete();
 	}
 	
+   @Test
 	public void testOutputStreamExample() {
 		
 		File config = new File(getClass().getResource(
@@ -64,6 +69,7 @@ public class TeeTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testInputStreamExample() {
 		
 		File config = new File(getClass().getResource(

@@ -2,7 +2,7 @@ package org.oddjob.persist;
 
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -14,7 +14,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
-public class PersistAssumptionsTest extends TestCase {
+public class PersistAssumptionsTest extends OjTestCase {
 
 	public static class Thing implements Runnable, Serializable {
 		private static final long serialVersionUID = 2010121300L;

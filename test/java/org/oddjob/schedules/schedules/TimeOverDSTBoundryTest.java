@@ -1,9 +1,11 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.IntervalTo;
@@ -11,11 +13,12 @@ import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.schedules.ScheduleRoller;
 import org.oddjob.schedules.units.DayOfWeek;
 
-public class TimeOverDSTBoundryTest extends TestCase {
+public class TimeOverDSTBoundryTest extends OjTestCase {
 
 	//
 	// At boundary start.
 	
+   @Test
 	public void testDayLightSavingInAutumnWithAtBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -47,6 +50,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringWithAtBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -81,6 +85,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 	//
 	// At boundary end.
 
+   @Test
 	public void testDayLightSavingInAutumnWithAtBoundry2() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -112,6 +117,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringWithAtBoundry2() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -145,6 +151,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 	//
 	// On boundary.
 	
+   @Test
 	public void testDayLightSavingInAutumnWithFromToOnBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -179,6 +186,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringWithFromToOnBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -214,6 +222,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 	//
 	// Spanning boundary start
 	
+   @Test
 	public void testDayLightSavingInAutumnWithFromToSpanningBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -248,6 +257,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringWithFromToSpanningBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -284,6 +294,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 	//
 	// Spanning boundary end
 	
+   @Test
 	public void testDayLightSavingInAutumnWithFromToSpanningBoundry2() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -318,6 +329,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringWithFromToSpanningBoundry2() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -354,6 +366,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 	//
 	// Over Midnight (from > to)
 
+   @Test
 	public void testDayLightSavingInAutumnOverMidnightSpanningBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
@@ -388,6 +401,7 @@ public class TimeOverDSTBoundryTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testDayLightSavingInSpringOverMidnightSpanningBoundry() throws ParseException {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		

@@ -1,9 +1,12 @@
 package org.oddjob.tools.includes;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class FilterFactoryTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class FilterFactoryTest extends OjTestCase {
+
+   @Test
 	public void testForSnippet() {
 		
 		FilterFactory test = new FilterFactory("x/y/z/abc.txt#snippet");
@@ -13,6 +16,7 @@ public class FilterFactoryTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testForNoneSnippet() {
 		
 		FilterFactory test = new FilterFactory("x/y/z/abc.txt");

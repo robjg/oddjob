@@ -1,16 +1,20 @@
 package org.oddjob.jobs;
 
+import static org.junit.Assert.assertThat;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import org.custommonkey.xmlunit.XMLTestCase;
+import org.junit.Test;
 import org.oddjob.io.BufferType;
 import org.xml.sax.SAXException;
+import org.xmlunit.matchers.CompareMatcher;
 
-public class XSLTJobTest extends XMLTestCase {
+public class XSLTJobTest {
 
 	String EOL = System.getProperty("line.separator");
 	
+    @Test
 	public void testIdentity() throws SAXException, IOException {
 	
 		String xml = 
@@ -30,10 +34,11 @@ public class XSLTJobTest extends XMLTestCase {
 		
 		test.run();
 				
-		assertXMLEqual(xml, result.getText());
+		assertThat(result.getText(), CompareMatcher.isSimilarTo(xml));
 	}
 	
 	
+   @Test
 	public void testParmeter() throws SAXException, IOException {
 		
 		String xml = 
@@ -55,6 +60,6 @@ public class XSLTJobTest extends XMLTestCase {
 		
 		test.run();
 				
-		assertXMLEqual(xml, result.getText());
+		assertThat(result.getText(), CompareMatcher.isSimilarTo(xml));
 	}
 }

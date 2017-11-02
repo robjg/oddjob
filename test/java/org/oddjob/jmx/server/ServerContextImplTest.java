@@ -3,7 +3,9 @@
  */
 package org.oddjob.jmx.server;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.registry.Address;
@@ -20,9 +22,10 @@ import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
 
-public class ServerContextImplTest extends TestCase {
+public class ServerContextImplTest extends OjTestCase {
 
 	
+   @Test
 	public void testSimple() throws InvalidIdException {
 		Object comp = new Object();
 		SimpleBeanRegistry cr1 = new SimpleBeanRegistry();
@@ -51,6 +54,7 @@ public class ServerContextImplTest extends TestCase {
 	}
 	
 	// registry when the top node is a registry owner.
+   @Test
 	public void testTopChildRegistry() throws ServerLoopBackException {
 		OurOwner client = new OurOwner();
 		
@@ -87,6 +91,7 @@ public class ServerContextImplTest extends TestCase {
 	}
 
 	// registry when the second node is a registry owner.
+   @Test
 	public void testChildRegistry() throws ServerLoopBackException {
 		Object top = new Object();
 		
@@ -120,6 +125,7 @@ public class ServerContextImplTest extends TestCase {
 	}
 
 	// registry when the second node is a registry owner.
+   @Test
 	public void testChildRegistryNoPath() throws ServerLoopBackException {
 		SimpleBeanRegistry cr1 = new SimpleBeanRegistry();
 		
@@ -187,6 +193,7 @@ public class ServerContextImplTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDifferentServers() throws ServerLoopBackException {
 		OurRemote top = new OurRemote();
 		SimpleBeanRegistry cr1 = new SimpleBeanRegistry();
@@ -218,6 +225,7 @@ public class ServerContextImplTest extends TestCase {
 		assertEquals(address2, sc2.getAddress());
 	}
 	
+   @Test
 	public void testDuplicateServers() throws ServerLoopBackException {
 		OurRemote top = new OurRemote();
 		SimpleBeanRegistry cr1 = new SimpleBeanRegistry();
@@ -251,6 +259,7 @@ public class ServerContextImplTest extends TestCase {
 		
 	}
 			
+   @Test
 	public void testLogArchiver() throws ServerLoopBackException {
 		
 		final Object node = new Object();

@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -14,19 +17,20 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class EchoJobTest extends TestCase {
+public class EchoJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(EchoJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("------------------  " + getName() + "  -----------------------");
 	}
 	
+   @Test
 	public void testInOddjob1() throws Exception {
 		
 		String xml = 
@@ -46,6 +50,7 @@ public class EchoJobTest extends TestCase {
 		assertEquals("Hello", PropertyUtils.getProperty(test, "text"));
 	}
 	
+   @Test
 	public void testInOddjob2() throws Exception {
 				
 		Oddjob oj = new Oddjob();
@@ -60,6 +65,7 @@ public class EchoJobTest extends TestCase {
 		assertEquals("Hello", PropertyUtils.getProperty(test, "text"));
 	}
 	
+   @Test
 	public void testLines() throws Exception {
 		
 		OurDirs dirs = new OurDirs();
@@ -88,6 +94,7 @@ public class EchoJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExample1() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -116,6 +123,7 @@ public class EchoJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExample2() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();

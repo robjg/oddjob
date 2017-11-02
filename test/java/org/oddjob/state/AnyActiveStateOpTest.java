@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class AnyActiveStateOpTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class AnyActiveStateOpTest extends OjTestCase {
+
+   @Test
 	public void testEvaluateSingleJobOp() {
 		
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -25,6 +28,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testAssociative() {
 
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -42,6 +46,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testEvaluateSingleServiceOp() {
 		
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -63,6 +68,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEvaluateTwoJobOps() {
 		
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -143,6 +149,7 @@ public class AnyActiveStateOpTest extends TestCase {
 				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
 	}
 	
+   @Test
 	public void testEvaluateTwoServiceOps() {
 		
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -218,6 +225,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testEvaluateAJobAndAServiceOp() {
 		
 		AnyActiveStateOp test = new AnyActiveStateOp();
@@ -299,6 +307,7 @@ public class AnyActiveStateOpTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testDestroyed() {
 
 		

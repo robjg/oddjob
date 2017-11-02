@@ -1,5 +1,7 @@
 package org.oddjob.scheduling;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockOddjobServices;
@@ -45,7 +47,7 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
 
-public class RetryTest extends TestCase {
+public class RetryTest extends OjTestCase {
 
 	private class OurClock implements Clock {
 
@@ -92,6 +94,7 @@ public class RetryTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testRetry() throws ParseException, FailedToStopException {
 		
 		FlagState job = new FlagState();
@@ -164,6 +167,7 @@ public class RetryTest extends TestCase {
 	 * @throws ParseException
 	 * @throws FailedToStopException 
 	 */
+   @Test
 	public void testLongRetry() throws ParseException, FailedToStopException {
 		
 		FlagState job = new FlagState();
@@ -236,6 +240,7 @@ public class RetryTest extends TestCase {
 	 * @throws ParseException
 	 * @throws FailedToStopException 
 	 */
+   @Test
 	public void testManualRetry() throws ParseException, FailedToStopException {
 		
 		FlagState job = new FlagState();
@@ -327,6 +332,7 @@ public class RetryTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSimpleSchedule() 
 	throws Exception {
 		DateSchedule schedule = new DateSchedule();
@@ -374,6 +380,7 @@ public class RetryTest extends TestCase {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
+   @Test
 	public void testSerializeUnserializbleSchedule() throws IOException, ClassNotFoundException {
 
 		Retry test = new Retry();
@@ -388,6 +395,7 @@ public class RetryTest extends TestCase {
 		assertNull(copy.getSchedule());
 	}
 
+   @Test
 	public void testStateNotifications() throws InterruptedException {
 		
 		FlagState incomplete = new FlagState(JobState.INCOMPLETE);
@@ -487,6 +495,7 @@ public class RetryTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testLocking() throws FailedToStopException {
 		
 		Retry test = new Retry();
@@ -540,6 +549,7 @@ public class RetryTest extends TestCase {
 	
 	/** Test for Bug where listener wasn't removed before scheduling. 
 	 * @throws FailedToStopException */
+   @Test
 	public void testListeners() throws FailedToStopException {
 		
 		Retry test = new Retry();
@@ -606,6 +616,7 @@ public class RetryTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testStopFirst() throws FailedToStopException {
 		
 		Retry test = new Retry();
@@ -637,6 +648,7 @@ public class RetryTest extends TestCase {
 		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStopLast() throws FailedToStopException {
 		
 		Retry test = new Retry();
@@ -660,6 +672,7 @@ public class RetryTest extends TestCase {
 		assertEquals(TimerState.STARTABLE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testWithLimitsLongOverDue() throws ParseException {
 		
 		FlagState job = new FlagState(JobState.INCOMPLETE);
@@ -692,6 +705,7 @@ public class RetryTest extends TestCase {
 		assertEquals(null, test.getNextDue());
 	}
 	
+   @Test
 	public void testWithLimitsLongOverDueCountSchedule() throws ParseException {
 		
 		FlagState job = new FlagState(JobState.INCOMPLETE);
@@ -725,6 +739,7 @@ public class RetryTest extends TestCase {
 		assertEquals(null, test.getNextDue());
 	}
 	
+   @Test
 	public void testFilePollingExample() throws FailedToStopException, InterruptedException {
 		
 	    	Oddjob oddjob = new Oddjob();

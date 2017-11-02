@@ -1,8 +1,10 @@
 package org.oddjob.scheduling.state;
 
+import org.junit.Test;
+
 import java.util.concurrent.Callable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
@@ -12,7 +14,7 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
-public class TimerStateAdapterTest extends TestCase {
+public class TimerStateAdapterTest extends OjTestCase {
 	
 	private class OurStateful implements Stateful {
 		
@@ -42,6 +44,7 @@ public class TimerStateAdapterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStateChanges() {
 		
 		final ParentStateHandler parentStateful = new ParentStateHandler(

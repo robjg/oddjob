@@ -3,7 +3,9 @@
  */
 package org.oddjob.monitor.action;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Stoppable;
 import org.oddjob.monitor.model.JobAction;
@@ -11,7 +13,7 @@ import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
-public class StopActionTest extends TestCase {
+public class StopActionTest extends OjTestCase {
 
 	class OurExplorerContext extends MockExplorerContext {
 		
@@ -37,6 +39,7 @@ public class StopActionTest extends TestCase {
 	 * Test that performing the action works.
 	 *
 	 */
+   @Test
 	public void testPerform() throws Exception {
 		class MyS implements Stoppable {
 			boolean stopped = false;
@@ -63,6 +66,7 @@ public class StopActionTest extends TestCase {
 	 * Test action is disabled for an object.
 	 *
 	 */
+   @Test
 	public void testWithObject() {
 		OurExplorerContext ec = new OurExplorerContext();
 		ec.component = new Object();

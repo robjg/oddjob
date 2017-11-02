@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class StandardParentStateConverterTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class StandardParentStateConverterTest extends OjTestCase {
+
+   @Test
 	public void testJobStates() {
 		
 		ParentStateConverter test = new StandardParentStateConverter();
@@ -28,6 +31,7 @@ public class StandardParentStateConverterTest extends TestCase {
 		
 	}
 
+   @Test
 	public void testServiceStates() {
 		
 		ParentStateConverter test = new StandardParentStateConverter();
@@ -51,6 +55,7 @@ public class StandardParentStateConverterTest extends TestCase {
 				test.toStructuralState(ServiceState.DESTROYED));
 	}
 	
+   @Test
 	public void testParentStates() {
 		
 		ParentStateConverter test = new StandardParentStateConverter();

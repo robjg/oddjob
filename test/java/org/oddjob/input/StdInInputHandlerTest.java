@@ -1,12 +1,15 @@
 package org.oddjob.input;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class StdInInputHandlerTest extends TestCase {
+public class StdInInputHandlerTest extends OjTestCase {
 
+   @Test
 	public void testLineReader() throws IOException {
 		
 		String s = "hello\r\n" +

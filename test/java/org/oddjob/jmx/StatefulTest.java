@@ -1,5 +1,7 @@
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -11,9 +13,9 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class StatefulTest extends TestCase {
+public class StatefulTest extends OjTestCase {
 
 	class Result implements StateListener {
 		StateEvent event;
@@ -27,6 +29,7 @@ public class StatefulTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testState() throws ArooaConversionException, InterruptedException {
 		
 		String xml =

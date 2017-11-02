@@ -3,10 +3,12 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.Serializable;
 import java.lang.reflect.Proxy;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -23,7 +25,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SerializableWrapperTest extends TestCase {
+public class SerializableWrapperTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(SerializableWrapperTest.class);
 	
 	public static class Test1 implements Runnable, Serializable {
@@ -58,6 +60,7 @@ public class SerializableWrapperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimple() throws Exception {	
 
 		Runnable test = new Test1();
@@ -75,6 +78,7 @@ public class SerializableWrapperTest extends TestCase {
 		assertEquals("hello", copy.get("check"));
 	}
 	
+   @Test
 	public void testNotSerializable () throws Exception {
 		Runnable test = new Test2();
 		
@@ -135,6 +139,7 @@ public class SerializableWrapperTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testSerializeInOddjob() {
 		
 		String xml = 
@@ -199,6 +204,7 @@ public class SerializableWrapperTest extends TestCase {
 		oddjob2.destroy();
 	}
 	
+   @Test
 	public void testPersistCount() {
 		
 		Oddjob oddjob = new Oddjob();

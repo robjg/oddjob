@@ -4,7 +4,7 @@
 			<jobs>
 				<echo>${java.class.path}</echo>
 				<echo>${oddjob.home}</echo>
-				<bean class='org.oddjob.launch.PathParserLaunchTest$Test'/>
+				<bean class='org.oddjob.launch.PathParserLaunchTest$TestJob'/>
 			</jobs>
 		</sequential>
 	</job>

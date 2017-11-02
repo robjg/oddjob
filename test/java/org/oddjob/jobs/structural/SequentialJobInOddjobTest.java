@@ -1,6 +1,8 @@
 package org.oddjob.jobs.structural;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -11,7 +13,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SequentialJobInOddjobTest extends TestCase {
+public class SequentialJobInOddjobTest extends OjTestCase {
 
 	public static class OurService {
 		
@@ -24,6 +26,7 @@ public class SequentialJobInOddjobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testException() throws FailedToStopException {
 		
 		String xml = 

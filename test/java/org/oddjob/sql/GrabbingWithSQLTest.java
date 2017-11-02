@@ -1,6 +1,10 @@
 package org.oddjob.sql;
+import org.junit.Before;
+import org.junit.After;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -22,16 +26,16 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 
-public class GrabbingWithSQLTest extends TestCase {
+public class GrabbingWithSQLTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(GrabbingWithSQLTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("-----------------  " + getName() + "  --------------------");
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		
 		ConnectionType ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
@@ -52,6 +56,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		sql.run();
 	}
 	
+   @Test
 	public void testSimpleExample() 
 	throws ArooaPropertyException, ArooaConversionException {
 		
@@ -120,6 +125,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testFailedWinner() 
 	throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
@@ -180,6 +186,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStoppingGrabber() 
 	throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
@@ -246,6 +253,7 @@ public class GrabbingWithSQLTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStoppingService() 
 	throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		

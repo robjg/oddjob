@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.server;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +16,7 @@ import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
@@ -41,7 +44,7 @@ import org.oddjob.util.MockThreadManager;
 /**
  * Tests for an OddjobMBeanTest.
  */
-public class OddjobMBeanTest extends TestCase {
+public class OddjobMBeanTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(OddjobMBeanTest.class);
 	
 	private ServerModel sm;
@@ -58,7 +61,8 @@ public class OddjobMBeanTest extends TestCase {
 		
 	}
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("==================== Running " + getName() + " =====================");
 
 		ServerInterfaceManagerFactoryImpl imf = 
@@ -87,6 +91,7 @@ public class OddjobMBeanTest extends TestCase {
 	/**
 	 * Test creating and registering an OddjobMBean.
 	 */
+   @Test
 	public void testRegister() 
 	throws Exception {
 		Runnable myJob = new Runnable() {
@@ -115,6 +120,7 @@ public class OddjobMBeanTest extends TestCase {
 	/**
 	 * Test notifying job state to a NotificationListener.
 	 */
+   @Test
 	public void testNotifyState() 
 	throws Exception {
 		/** Fixture Stateful */
@@ -169,6 +175,7 @@ public class OddjobMBeanTest extends TestCase {
 	/**
 	 * Test notification of structural change.
 	 */
+   @Test
 	public void testNotifyStructure() 
 	throws JMException {
 		final Object myChild = new Object() {
@@ -239,6 +246,7 @@ public class OddjobMBeanTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testGetDynaClass() throws Exception {
 		MyBean sampleBean = new MyBean();
 		
@@ -268,6 +276,7 @@ public class OddjobMBeanTest extends TestCase {
 	 * Test retrieving log events
 	 *
 	 */
+   @Test
 	public void testLogging() throws Exception {
 		LoggingBean bean = new LoggingBean();
 				

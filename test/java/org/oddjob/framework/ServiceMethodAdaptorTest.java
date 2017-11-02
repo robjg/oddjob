@@ -1,11 +1,13 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.beans.ExceptionListener;
 import java.lang.reflect.Method;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ServiceMethodAdaptorTest extends TestCase {
+public class ServiceMethodAdaptorTest extends OjTestCase {
 
 	public static class MyService {
 		
@@ -29,6 +31,7 @@ public class ServiceMethodAdaptorTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testAllMethods() throws Exception {
 		
 		MyService service = new MyService();

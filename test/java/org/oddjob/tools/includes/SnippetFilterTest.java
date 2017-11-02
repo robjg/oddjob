@@ -1,16 +1,19 @@
 package org.oddjob.tools.includes;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.tools.OurDirs;
 
-public class SnippetFilterTest extends TestCase {
+public class SnippetFilterTest extends OjTestCase {
 	
+	 @Test
 	// #our-snippet {
 	public void testFilter() throws IOException {
 		// } #our-snippet

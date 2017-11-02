@@ -1,11 +1,13 @@
 package org.oddjob.beanbus.destinations;
 
+import org.junit.Test;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Oddjob;
@@ -16,7 +18,7 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 
-public class BeanCopyTest extends TestCase {
+public class BeanCopyTest extends OjTestCase {
 
 	public static class Fruit {
 
@@ -42,6 +44,7 @@ public class BeanCopyTest extends TestCase {
 	
 	}
 
+   @Test
 	public void testSimpleCopy() throws ArooaPropertyException, ArooaConversionException {
 
 		List<Fruit> in = Arrays.asList(
@@ -79,6 +82,7 @@ public class BeanCopyTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testCopyWithMagicClass() throws ArooaPropertyException, ArooaConversionException {
 
 		List<Fruit> in = Arrays.asList(
@@ -134,6 +138,7 @@ public class BeanCopyTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testCopyWithJavaClass() throws ArooaPropertyException, ArooaConversionException {
 
 		List<Fruit> in = Arrays.asList(
@@ -159,12 +164,12 @@ public class BeanCopyTest extends TestCase {
 		BeanTo bean1 = (BeanTo) results.get(0);
 		assertEquals("apple", bean1.snack);
 		assertEquals(5, bean1.number);
-		assertEquals(2.45, bean1.COST);
+		assertEquals(2.45, bean1.COST, 0.01);
 		
 		BeanTo bean2 = (BeanTo) results.get(1);
 		assertEquals("pear", bean2.snack);
 		assertEquals(2, bean2.number);
-		assertEquals(1.25, bean2.COST);
+		assertEquals(1.25, bean2.COST, 0.01);
 		
 		assertEquals(2, results.size());
 		
@@ -193,6 +198,7 @@ public class BeanCopyTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCopyWithNestedBeans() throws ArooaPropertyException, ArooaConversionException {
 
 		List<Meal> in = Arrays.asList(
@@ -221,7 +227,7 @@ public class BeanCopyTest extends TestCase {
 				
 		assertEquals("apple", bean1.snack);
 		assertEquals(5, bean1.number);
-		assertEquals(2.45, bean1.COST);
+		assertEquals(2.45, bean1.COST, 0.01);
 		
 		Snack snack2 = (Snack) results.get(1);
 		
@@ -229,7 +235,7 @@ public class BeanCopyTest extends TestCase {
 		
 		assertEquals("pear", bean2.snack);
 		assertEquals(2, bean2.number);
-		assertEquals(1.25, bean2.COST);
+		assertEquals(1.25, bean2.COST, 0.01);
 		
 		assertEquals(2, results.size());
 		

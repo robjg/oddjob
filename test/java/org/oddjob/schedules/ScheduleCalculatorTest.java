@@ -2,6 +2,9 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.schedules;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -11,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.utils.DateHelper;
@@ -26,7 +29,7 @@ import org.oddjob.tools.ManualClock;
  *
  * @author Rob Gordon.
  */
-public class ScheduleCalculatorTest extends TestCase {
+public class ScheduleCalculatorTest extends OjTestCase {
 
     private static final Logger logger = Logger.getLogger(ScheduleCalculatorTest.class);
 
@@ -106,7 +109,8 @@ public class ScheduleCalculatorTest extends TestCase {
 		}
 	}
 	
-    public void setUp() throws ParseException {
+   @Before
+   public void setUp() throws ParseException {
 		logger.debug("------------- " + getName() + " -------------");
 
 		logger.debug("Default time zone: " + 
@@ -126,6 +130,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
     }
     
+   @Test
     public void testInitialiseBeforeDue() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -141,6 +146,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		assertFalse("failed", failed);
     }    
 	
+   @Test
     public void testInitialiseDuringDue() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 12:10");
@@ -157,6 +163,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
     }    
 
+   @Test
     public void testInitialiseAfterDue() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 14:10");
@@ -173,6 +180,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
     }    
     
+   @Test
     public void testComplete() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -192,6 +200,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
 	}
     
+   @Test
     public void testCompleteComplete() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -212,6 +221,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
 	}
     
+   @Test
     public void testFailNoException() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -229,6 +239,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		
 	}
     
+   @Test
     public void testCompleteFailNoException() throws Exception {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -248,6 +259,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		assertTrue("failed", failed);		
 	}
     
+   @Test
     public void testExceptionScheduleOnce() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -267,6 +279,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		assertFalse("failed", failed);				
     }	
     
+   @Test
 	public void testExceptionScheduleTwice() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -290,6 +303,7 @@ public class ScheduleCalculatorTest extends TestCase {
 
 	// with a retry count of 2 this fails twice and then switches back
 	// to the normal schedule.
+   @Test
 	public void testExceptionScheduleThrice() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -314,6 +328,7 @@ public class ScheduleCalculatorTest extends TestCase {
 	
 	// with a retry count of 2 this fails twice and then switches back
 	// to the normal schedule, then back to the retry.
+   @Test
 	public void testExceptionScheduleFourth() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -342,6 +357,7 @@ public class ScheduleCalculatorTest extends TestCase {
      * Test what happens when a schedule completes
      * all together.
      */
+   @Test
     public void testCompletes()
 	throws InterruptedException, ParseException {
     	ManualClock clock = new ManualClock();
@@ -374,6 +390,7 @@ public class ScheduleCalculatorTest extends TestCase {
     /** 
      * Test as if states been persited by setting lastComplete.
      */
+   @Test
     public void testPersitence() 
     throws Exception {
     	ManualClock clock = new ManualClock();
@@ -396,6 +413,7 @@ public class ScheduleCalculatorTest extends TestCase {
 		assertFalse("failed", failed);
     }
 
+   @Test
     public void testPersistence2() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 11:00");
@@ -431,6 +449,7 @@ public class ScheduleCalculatorTest extends TestCase {
     }
     
 	// test the retry is limited by the main schedule
+   @Test
 	public void testLimitedRetry() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 13:55");
@@ -465,6 +484,7 @@ public class ScheduleCalculatorTest extends TestCase {
     }
 	
 	// test behaviour of a retry after the next due interval.
+   @Test
 	public void testRetryAfterInterval() throws ParseException {
     	ManualClock clock = new ManualClock();
     	clock.setDateText("2003-12-25 14:05");

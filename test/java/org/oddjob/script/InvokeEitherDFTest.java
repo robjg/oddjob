@@ -1,6 +1,9 @@
 package org.oddjob.script;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobDescriptorFactory;
@@ -17,15 +20,17 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class InvokeEitherDFTest extends TestCase {
+public class InvokeEitherDFTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(InvokeEitherDFTest.class);
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreateJob() throws ArooaParseException {
 		
 		String xml =  
@@ -62,6 +67,7 @@ public class InvokeEitherDFTest extends TestCase {
 		assertEquals("abc", test.getResult());
 	}
 
+   @Test
 	public void testCreateType() throws Throwable {
 		
 		String xml =  

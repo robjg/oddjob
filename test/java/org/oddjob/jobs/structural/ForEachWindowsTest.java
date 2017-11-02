@@ -1,8 +1,11 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -12,16 +15,17 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ForEachWindowsTest extends TestCase {
+public class ForEachWindowsTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ForEachWindowsTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName() + "  ---------------");
 	}
 	
+   @Test
 	public void testPreLoad() {
 	
     	String xml =
@@ -56,6 +60,7 @@ public class ForEachWindowsTest extends TestCase {
     	test.destroy();
 	}
 	
+   @Test
 	public void testPurgeAfter() {
 		
     	String xml = 
@@ -90,6 +95,7 @@ public class ForEachWindowsTest extends TestCase {
     	test.destroy();
 	}
 	
+   @Test
 	public void testPreLoadAndPurgeAfter() {
 		
     	String xml = 
@@ -125,6 +131,7 @@ public class ForEachWindowsTest extends TestCase {
     	test.destroy();
 	}
 	
+   @Test
 	public void testForEachWithExecutionWindowExample() {
 		
     	Oddjob oddjob = new Oddjob();

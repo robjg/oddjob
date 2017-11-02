@@ -2,8 +2,11 @@
  * 
  */
 package org.oddjob.arooa.types;
-
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -16,18 +19,25 @@ import org.oddjob.tools.OddjobTestHelper;
  * @author rob
  *
  */
-public class ListTypeExamplesTest extends TestCase {
+public class ListTypeExamplesTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			ListTypeExamplesTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Rule public TestName name = new TestName();
+
+	public String getName() {
+        return name.getMethodName();
+    }
+
+	@Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("-----------------------------  " + getName() 
 				+ "  --------------------------------");
 	}
 	
+   @Test
 	public void testSimpleWithNestedListExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -61,6 +71,7 @@ public class ListTypeExamplesTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testMergeFruitExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -94,6 +105,7 @@ public class ListTypeExamplesTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testTestConvertExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -126,6 +138,7 @@ public class ListTypeExamplesTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testAddingToAListOnTheFly() {
 		
 		Oddjob oddjob = new Oddjob();

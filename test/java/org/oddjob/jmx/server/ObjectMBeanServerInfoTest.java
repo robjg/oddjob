@@ -1,12 +1,14 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
@@ -19,7 +21,7 @@ import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.handlers.RunnableHandlerFactory;
 import org.oddjob.util.MockThreadManager;
 
-public class ObjectMBeanServerInfoTest extends TestCase {
+public class ObjectMBeanServerInfoTest extends OjTestCase {
 
 	private class OurClassResolver extends MockClassResolver {
 		
@@ -54,6 +56,7 @@ public class ObjectMBeanServerInfoTest extends TestCase {
 	/**
 	 * Test creating and registering an OddjobMBean.
 	 */
+   @Test
 	public void testServerInfo() 
 	throws Exception {
 		Runnable myJob = new Runnable() {

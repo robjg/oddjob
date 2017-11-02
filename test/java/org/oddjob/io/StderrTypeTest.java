@@ -1,6 +1,9 @@
 package org.oddjob.io;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -9,18 +12,19 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.FragmentHelper;
 
-public class StderrTypeTest extends TestCase {
+public class StderrTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(StderrTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		logger.debug("-------------------  " + getName() + "  --------------");
 	}
 	
 	
 	String EOL = System.getProperty("line.separator");
 	
+   @Test
 	public void testStderrInOddjob() {
 		
 		String xml =
@@ -67,6 +71,7 @@ public class StderrTypeTest extends TestCase {
 		assertEquals("World", lines[1].trim());
 	}
 	
+   @Test
 	public void testExample() throws ArooaParseException {
 
 		FragmentHelper helper = new FragmentHelper();

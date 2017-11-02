@@ -1,5 +1,7 @@
 package org.oddjob.monitor.action;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -7,7 +9,7 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -18,7 +20,7 @@ import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.state.ParentState;
 
-public class DesignInsideActionTest extends TestCase {
+public class DesignInsideActionTest extends OjTestCase {
 
 	class OurExplorerContext extends MockExplorerContext {
 
@@ -39,6 +41,7 @@ public class DesignInsideActionTest extends TestCase {
 	
 	DesignInsideAction test = new DesignInsideAction();
 	
+   @Test
 	public void testBadRootConfig() throws Exception {
 		
 		config = new XMLConfiguration("TEST",
@@ -70,6 +73,7 @@ public class DesignInsideActionTest extends TestCase {
 		assertFalse(test.isEnabled());
 	}
 
+   @Test
 	public void testGoodRootConfig() throws Exception {
 		
 		config = new XMLConfiguration("TEST",
@@ -101,6 +105,7 @@ public class DesignInsideActionTest extends TestCase {
 		assertFalse(test.isEnabled());
 	}
 	
+   @Test
 	public void testNonConfigurationOwner() {
 		
 		String xml = 
@@ -135,6 +140,7 @@ public class DesignInsideActionTest extends TestCase {
 		assertFalse(test.isEnabled());
 	}
 	
+   @Test
 	public void testNestedOddjobNoConfig() {
 		
 		String xml = 
@@ -169,6 +175,7 @@ public class DesignInsideActionTest extends TestCase {
 		assertFalse(test.isEnabled());
 	}
 	
+   @Test
 	public void testNestedOddjob() {
 		
 		String xml = 

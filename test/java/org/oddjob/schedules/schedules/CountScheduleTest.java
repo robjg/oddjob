@@ -3,12 +3,14 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
@@ -29,7 +31,7 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  * 
  */
-public class CountScheduleTest extends TestCase {
+public class CountScheduleTest extends OjTestCase {
 	
 	private static class Counter implements Schedule {
 		int count;
@@ -39,6 +41,7 @@ public class CountScheduleTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCount() {
 		
 		CountSchedule test = new CountSchedule();
@@ -63,6 +66,7 @@ public class CountScheduleTest extends TestCase {
 		assertEquals(null, nextDue);
 	}
 	
+   @Test
 	public void testWithParentInterval() throws ParseException {
 				
 		CountSchedule test = new CountSchedule();
@@ -95,6 +99,7 @@ public class CountScheduleTest extends TestCase {
 		assertEquals(6, counter.count);
 	}
 	
+   @Test
 	public void testHowManyNextDues() {
 
 		int count = 0;
@@ -117,6 +122,7 @@ public class CountScheduleTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testSerialize() throws Exception {
 		CountSchedule test = new CountSchedule();
 		test.setCount(1);
@@ -140,6 +146,7 @@ public class CountScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testCountExample() throws ArooaParseException, ParseException {
     	
     	ArooaSession session = new OddjobSessionFactory().createSession();
@@ -197,6 +204,7 @@ public class CountScheduleTest extends TestCase {
     	assertEquals(expected, results[5]);
 	}
 	
+   @Test
 	public void testCountDaily() throws ArooaParseException, ParseException {
     	
     	ArooaSession session = new OddjobSessionFactory().createSession();
@@ -264,6 +272,7 @@ public class CountScheduleTest extends TestCase {
     	assertEquals(expected, results[6]);
 	}
 	
+   @Test
 	public void testCountDifferentCounts() throws ArooaParseException, ParseException {
     	
     	ArooaSession session = new OddjobSessionFactory().createSession();

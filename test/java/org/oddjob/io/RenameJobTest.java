@@ -2,11 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
@@ -16,11 +19,12 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class RenameJobTest extends TestCase {
+public class RenameJobTest extends OjTestCase {
 
 	File dir;
 	
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		OurDirs dirs = new OurDirs();
 		dir = dirs.relative("work/io/rename");
 		
@@ -30,6 +34,7 @@ public class RenameJobTest extends TestCase {
 		FileUtils.forceMkdir(dir);
 	}
 
+   @Test
 	public void testSimple() throws Exception {
 		File a = new File(dir, "a");
 		File b = new File(dir, "b");
@@ -48,6 +53,7 @@ public class RenameJobTest extends TestCase {
 		assertFalse(a.exists());
 	}
 
+   @Test
 	public void testDir() throws Exception {
 		File a = new File(dir, "a");
 		File b = new File(dir, "b");
@@ -63,6 +69,7 @@ public class RenameJobTest extends TestCase {
 		assertFalse(a.exists());
 	}
 	
+   @Test
 	public void testExample() throws Exception {
 		File a = new File(dir, "a.txt");
 		File b = new File(dir, "b.txt");
@@ -99,6 +106,7 @@ public class RenameJobTest extends TestCase {
 		assertFalse(b.exists());		
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 		File a = new File(dir, "a");
 		File b = new File(dir, "b");

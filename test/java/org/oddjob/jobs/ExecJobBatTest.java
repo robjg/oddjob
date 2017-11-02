@@ -1,18 +1,20 @@
 package org.oddjob.jobs;
 
+import org.junit.Test;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
 
-public class ExecJobBatTest extends TestCase {
+public class ExecJobBatTest extends OjTestCase {
 
 	class Console implements LogListener {
 
@@ -23,6 +25,7 @@ public class ExecJobBatTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testConsole() throws IOException {
 	
 		if (!System.getProperty("os.name").startsWith("Windows")) {

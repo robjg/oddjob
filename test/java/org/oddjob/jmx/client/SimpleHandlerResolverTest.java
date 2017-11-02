@@ -1,17 +1,20 @@
 package org.oddjob.jmx.client;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class SimpleHandlerResolverTest extends TestCase {
+public class SimpleHandlerResolverTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SimpleHandlerResolverTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		logger.info("------------------  " + getName() + "  -----------------");
 	}
 	
@@ -32,6 +35,7 @@ public class SimpleHandlerResolverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testResolveForMinorVersionDiferences() {
 		
 		SimpleHandlerResolver<Object> test = 
@@ -47,6 +51,7 @@ public class SimpleHandlerResolverTest extends TestCase {
 	}
 		
 	
+   @Test
 	public void testResolveNullForMajorVersionDiferences() {
 		
 		SimpleHandlerResolver<Object> test = 

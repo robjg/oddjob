@@ -1,5 +1,7 @@
 package org.oddjob.beanbus.mega;
 
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -50,10 +52,11 @@ import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.IconSteps;
 
-public class MegaBeanBusTest extends TestCase {
+public class MegaBeanBusTest extends OjTestCase {
 
 	private static Logger logger = Logger.getLogger(MegaBeanBusTest.class);
 	
+   @Test
 	public void testSimpleLifecycle() {
 		
 
@@ -78,6 +81,7 @@ public class MegaBeanBusTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -103,6 +107,7 @@ public class MegaBeanBusTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testConfigurationSession() throws URISyntaxException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -197,6 +202,7 @@ public class MegaBeanBusTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testWithNoBusConductor() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -291,6 +297,7 @@ public class MegaBeanBusTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testWithBadBusPart() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
@@ -368,6 +375,7 @@ public class MegaBeanBusTest extends TestCase {
 	}
 	
 	@SuppressWarnings("unchecked")
+   @Test
 	public void testNoAutoLink() throws ArooaPropertyException, ArooaConversionException {
 		
 		List<String> ourList = new ArrayList<String>();
@@ -459,6 +467,7 @@ public class MegaBeanBusTest extends TestCase {
 	/**
 	 * Need to ensure the order of configuration and auto linking is OK.
 	 */
+   @Test
 	public void testWithComplicatedOutbound() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -556,6 +565,7 @@ public class MegaBeanBusTest extends TestCase {
      * 
      * @throws Exception
      */
+   @Test
     public void testDefaultLogger() throws Exception {
     	
     	final List<String> messages = new ArrayList<String>();
@@ -625,6 +635,7 @@ public class MegaBeanBusTest extends TestCase {
     	oddjob.destroy();
     }
 
+   @Test
 	public void testCutPasteBusPartInvalidatesBus() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();

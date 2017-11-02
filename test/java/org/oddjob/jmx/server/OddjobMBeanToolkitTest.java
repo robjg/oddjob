@@ -1,17 +1,19 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.Notification;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.MockClientHandlerResolver;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobMBeanToolkitTest extends TestCase {
+public class OddjobMBeanToolkitTest extends OjTestCase {
 
 	private class OurServerContext extends MockServerContext {
 		OurSIMF simf = new OurSIMF();
@@ -71,6 +73,7 @@ public class OddjobMBeanToolkitTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testNotification() throws Exception {
 		
 		Object node = new Object();

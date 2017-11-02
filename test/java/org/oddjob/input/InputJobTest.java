@@ -1,9 +1,11 @@
 package org.oddjob.input;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobInheritance;
@@ -20,7 +22,7 @@ import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
-public class InputJobTest extends TestCase {
+public class InputJobTest extends OjTestCase {
 
 	private class OurInputHandler implements InputHandler {
 		
@@ -35,6 +37,7 @@ public class InputJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFullLifeCycle() throws ArooaPropertyException, ArooaConversionException {
 
 		String xml =
@@ -86,6 +89,7 @@ public class InputJobTest extends TestCase {
 		assertEquals("pears", lookup.lookup("favourite.fruit"));
 	}
 	
+   @Test
 	public void testSerialisable() throws IOException, ClassNotFoundException, ArooaPropertyException, ArooaConversionException {
 	
 		String xml =

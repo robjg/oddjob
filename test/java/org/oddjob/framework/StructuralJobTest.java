@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.framework;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
@@ -13,7 +16,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -40,12 +43,12 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class StructuralJobTest extends TestCase {
+public class StructuralJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(StructuralJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("------------------  " + getName() + "  -----------------");
 	}
@@ -71,6 +74,7 @@ public class StructuralJobTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testRunComplete() {
 		final FlagState child = new FlagState(JobState.COMPLETE);
 		
@@ -95,6 +99,7 @@ public class StructuralJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testRunInComplete() {
 		final FlagState child = new FlagState(JobState.INCOMPLETE);
 		
@@ -126,6 +131,7 @@ public class StructuralJobTest extends TestCase {
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());		
 	}
 
+   @Test
 	public void testRunStop() throws FailedToStopException, InterruptedException, ExecutionException, TimeoutException {
 		final FlagState child = new FlagState(JobState.INCOMPLETE);
 		
@@ -173,6 +179,7 @@ public class StructuralJobTest extends TestCase {
 		executor.shutdown();
 	}
 	
+   @Test
 	public void testJustChild() {
 		final FlagState child = new FlagState(JobState.INCOMPLETE);
 		child.run();
@@ -195,6 +202,7 @@ public class StructuralJobTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());		
 	}
 
+   @Test
 	public void testPersist() throws IOException, ClassNotFoundException {
 		
 		FlagState child = new FlagState(JobState.COMPLETE);
@@ -237,6 +245,7 @@ public class StructuralJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRunCompletePersist() {
 		OurSession session = new OurSession();
 		
@@ -332,6 +341,7 @@ public class StructuralJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testChildDestroyed() throws FailedToStopException {
 		
 		SimpleJob component = new SimpleJob() {
@@ -373,6 +383,7 @@ public class StructuralJobTest extends TestCase {
 	
 	
 	
+   @Test
 	public void testBothDestroyed() throws FailedToStopException {
 		
 		SimpleJob component = new SimpleJob() {
@@ -445,6 +456,7 @@ public class StructuralJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testChildStopped() throws FailedToStopException {
 
 		final AtomicBoolean stopped = new AtomicBoolean();

@@ -1,9 +1,12 @@
 package org.oddjob.jobs.job;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -12,18 +15,19 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class ResetJobTest extends TestCase {
+public class ResetJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			ResetJobTest .class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		logger.info("-------------------------  " + getName() + 
 				"  ------------------------");
 	}
 	
+   @Test
 	public void testReset() {
 		
 		FlagState job = new FlagState(JobState.INCOMPLETE);
@@ -56,6 +60,7 @@ public class ResetJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testResetForceExample() throws IOException {
 		
 		File file = new File(getClass().getResource(

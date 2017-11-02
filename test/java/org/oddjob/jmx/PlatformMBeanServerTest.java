@@ -1,6 +1,9 @@
 package org.oddjob.jmx;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -12,15 +15,16 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class PlatformMBeanServerTest extends TestCase {
+public class PlatformMBeanServerTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(PlatformMBeanServerTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		logger.info("----------------------  " + getName() + "  --------------------");
 	}
 	
+   @Test
 	public void testClientServer() throws Exception {
 		
 		Object echo = new OddjobComponentResolver().resolve(new EchoJob(), null);
@@ -44,6 +48,7 @@ public class PlatformMBeanServerTest extends TestCase {
 		server.stop();
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 		Oddjob server = new Oddjob();

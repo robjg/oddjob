@@ -1,19 +1,22 @@
 package org.oddjob.doclet;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.tools.OurDirs;
 
-public class ManualDocletBasicTest extends TestCase {
+public class ManualDocletBasicTest extends OjTestCase {
 
 	OurDirs dirs = new OurDirs();
 	
+   @Test
 	public void testJobsAndTypes() {
 		
 		new BuildOddballs().run();

@@ -1,9 +1,11 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -21,7 +23,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 /**
  * 
  */
-public class OddjobLifecycleTest extends TestCase {
+public class OddjobLifecycleTest extends OjTestCase {
 
 	public static class MyValue implements ValueFactory<String> {
 		
@@ -105,6 +107,7 @@ public class OddjobLifecycleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testOddjobConfiguresThingsOnce() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml =

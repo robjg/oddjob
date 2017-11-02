@@ -3,10 +3,12 @@
  */
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.Notification;
 import javax.swing.ImageIcon;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Iconic;
 import org.oddjob.arooa.ArooaSession;
@@ -19,7 +21,7 @@ import org.oddjob.images.IconListener;
 import org.oddjob.jmx.handlers.IconicHandlerFactory;
 import org.oddjob.util.MockThreadManager;
 
-public class IconicInfoTest extends TestCase {
+public class IconicInfoTest extends OjTestCase {
 //	private static final Logger logger = Logger.getLogger(IconicInfoTest.class);
 	
 	private class OurHierarchicalRegistry extends MockBeanRegistry {
@@ -54,6 +56,7 @@ public class IconicInfoTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIconForId() throws Exception {
 		MyIconic iconic = new MyIconic();
 		

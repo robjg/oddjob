@@ -1,22 +1,25 @@
 package org.oddjob.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.MockStructural;
 
-public class ChildMatchTest extends TestCase {
+public class ChildMatchTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			ChildMatchTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.debug("-------------------  " + getName() + "  -----------------");
 	}
@@ -73,6 +76,7 @@ public class ChildMatchTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testExactMatch() {
 		
 		ChildHelper<String> childHelper = 
@@ -99,6 +103,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testReversed() {
 		
 		ChildHelper<String> childHelper = 
@@ -130,6 +135,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testInsertedAtBeginning() {
 		
 		ChildHelper<String> childHelper = 
@@ -158,6 +164,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testInsertedInMiddle() {
 		
 		ChildHelper<String> childHelper = 
@@ -186,6 +193,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testInsertedAtEnd() {
 		
 		ChildHelper<String> childHelper = 
@@ -214,6 +222,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testRemoveFromBeginning() {
 		
 		ChildHelper<String> childHelper = 
@@ -242,6 +251,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testRemoveFromMiddle() {
 		
 		ChildHelper<String> childHelper = 
@@ -270,6 +280,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testRemoveFromEnd() {
 		
 		ChildHelper<String> childHelper = 
@@ -298,6 +309,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testCompletelyDifferent() {
 		
 		ChildHelper<String> childHelper = 
@@ -330,6 +342,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testNothingToStartWith() {
 		
 		ChildHelper<String> childHelper = 
@@ -355,6 +368,7 @@ public class ChildMatchTest extends TestCase {
 		assertMatches(childHelper, desired);
 	}
 	
+   @Test
 	public void testNothingToEndWith() {
 		
 		ChildHelper<String> childHelper = 
@@ -386,6 +400,7 @@ public class ChildMatchTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testNothingAndNothing() {
 		
 		ChildHelper<String> childHelper = 

@@ -1,10 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 
-public class SequentialHelperTest extends TestCase {
+public class SequentialHelperTest extends OjTestCase {
 
 	private class OurStateful extends MockStateful {
 		
@@ -20,6 +22,7 @@ public class SequentialHelperTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testAllStates() {
 		
 		SequentialHelper test = new SequentialHelper();

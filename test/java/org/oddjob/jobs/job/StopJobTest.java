@@ -1,12 +1,14 @@
 package org.oddjob.jobs.job;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.state.JobState;
 
-public class StopJobTest extends TestCase {
+public class StopJobTest extends OjTestCase {
 
 	private class MyStoppable implements Stoppable {
 		
@@ -18,6 +20,7 @@ public class StopJobTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testSimpleStop() {
 		
 		MyStoppable stoppable = new MyStoppable();
@@ -31,6 +34,7 @@ public class StopJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testLoopbackStop() {
 		
 		StopJob test = new StopJob();

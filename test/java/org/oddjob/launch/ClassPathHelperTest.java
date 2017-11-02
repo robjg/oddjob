@@ -1,14 +1,17 @@
 package org.oddjob.launch;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ClassPathHelperTest extends TestCase {
+public class ClassPathHelperTest extends OjTestCase {
 
 
+   @Test
 	public void testAll() throws IOException {
 
 		File a = new File("a.jar");

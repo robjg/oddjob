@@ -3,7 +3,9 @@
  */
 package org.oddjob.logging.console;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobConsole;
 import org.oddjob.logging.ConsoleOwner;
@@ -17,7 +19,7 @@ import org.oddjob.logging.cache.LogArchiveImpl;
 /**
  * 
  */
-public class LocalConsoleArchiverTest extends TestCase {
+public class LocalConsoleArchiverTest extends OjTestCase {
 
 	static final String LS = System.getProperty("line.separator");
 	
@@ -37,6 +39,7 @@ public class LocalConsoleArchiverTest extends TestCase {
 	 * test writing to our global console, and ensuring the listener
 	 * picks things up.
 	 */
+   @Test
 	public void testArchiveAndRetrieve() {
 
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
@@ -81,6 +84,7 @@ public class LocalConsoleArchiverTest extends TestCase {
 	 * test writing to a ConsoleArchive, and ensuring the listener
 	 * picks things up.
 	 */
+   @Test
 	public void testConsoleArchive() {
 		class CA implements ConsoleOwner {
 			LogArchiveImpl la = new LogArchiveImpl("test", 10);

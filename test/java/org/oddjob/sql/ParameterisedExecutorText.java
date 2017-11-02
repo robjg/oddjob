@@ -1,5 +1,7 @@
 package org.oddjob.sql;
 
+import static org.junit.Assert.assertEquals;
+
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -8,9 +10,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.AssertionFailedError;
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -23,8 +23,11 @@ import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 
-public class ParameterisedExecutorText extends TestCase {
+import junit.framework.AssertionFailedError;
 
+public class ParameterisedExecutorText {
+
+	@Test
 	public void testHSQLDataTypes() throws SQLException, ClassNotFoundException, ArooaConversionException {
 		
 		ConnectionType ct = new ConnectionType();
@@ -92,6 +95,7 @@ public class ParameterisedExecutorText extends TestCase {
 		}
 	}
 	
+	@Test
 	public void testBeanTypes() throws ArooaConversionException, BusCrashException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);
@@ -180,6 +184,7 @@ public class ParameterisedExecutorText extends TestCase {
 		test.add("shutdown");
 	}
 	
+	@Test
 	public void testNullParameter() throws ArooaConversionException, BusCrashException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);

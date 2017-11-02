@@ -1,15 +1,17 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import javax.inject.Inject;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.input.InputHandler;
 import org.oddjob.state.ParentState;
 
-public class OddjobServicesTest extends TestCase {
+public class OddjobServicesTest extends OjTestCase {
 
 	public static class MyOddjobAware implements Runnable {
 		OddjobServices oddjobServices;
@@ -27,6 +29,7 @@ public class OddjobServicesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDefaultServices() throws ArooaConversionException {
 	
 		String xml = 
@@ -83,6 +86,7 @@ public class OddjobServicesTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testMyServices() throws ArooaConversionException {
 		
 		String xml = 
@@ -109,6 +113,7 @@ public class OddjobServicesTest extends TestCase {
 		test.destroy();
 	}
 	
+   @Test
 	public void testNestedServices() throws ArooaConversionException {
 		
 		String xml = 

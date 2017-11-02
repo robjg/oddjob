@@ -1,11 +1,13 @@
 package org.oddjob.jmx.server;
 
+import org.junit.Test;
+
 import javax.management.MBeanException;
 import javax.management.ReflectionException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ServerAllOperationsHandlerTest extends TestCase {
+public class ServerAllOperationsHandlerTest extends OjTestCase {
 
 	interface Fruit {
 		
@@ -19,6 +21,7 @@ public class ServerAllOperationsHandlerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInvoke() throws MBeanException, ReflectionException {
 	
 		ServerAllOperationsHandler<Fruit> test = 

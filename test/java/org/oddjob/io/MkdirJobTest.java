@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
@@ -14,11 +17,12 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class MkdirJobTest extends TestCase {
+public class MkdirJobTest extends OjTestCase {
 
 	File dir;
 	
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		dir = dirs.relative("work/io/mkdir");
@@ -28,6 +32,7 @@ public class MkdirJobTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testSimple() {
 		MkdirJob test = new MkdirJob();
 		test.setDir(dir);
@@ -36,6 +41,7 @@ public class MkdirJobTest extends TestCase {
 		assertTrue(dir.exists());
 	}
 
+   @Test
 	public void testFileExists() throws Exception {
 		FileUtils.touch(dir);
 		
@@ -51,6 +57,7 @@ public class MkdirJobTest extends TestCase {
 		assertTrue(dir.isFile());
 	}
 	
+   @Test
 	public void testDirExists() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -61,6 +68,7 @@ public class MkdirJobTest extends TestCase {
 		assertTrue(dir.isDirectory());
 	}
 	
+   @Test
 	public void testMissingParents() throws Exception {		
 		File create = new File(dir, "a/b/c");
 		
@@ -71,6 +79,7 @@ public class MkdirJobTest extends TestCase {
 		assertTrue(create.exists());
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 
@@ -86,6 +95,7 @@ public class MkdirJobTest extends TestCase {
 		assertTrue(new File(dir, "a/b/c").exists());		
 	}
 	
+   @Test
 	public void testSerailize() throws Exception {
 		MkdirJob test = new MkdirJob();
 		test.setDir(dir);

@@ -1,11 +1,13 @@
 package org.oddjob.jmx.general;
 
+import org.junit.Test;
+
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
@@ -14,7 +16,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 
-public class MBeanDirectoryTest extends TestCase {
+public class MBeanDirectoryTest extends OjTestCase {
 
 	public static class Vendor {
 		
@@ -23,6 +25,7 @@ public class MBeanDirectoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLookup() throws Exception {
 
 		DynaProperty prop = new DynaProperty("vendor");

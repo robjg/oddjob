@@ -32,6 +32,7 @@ public class OddjobRunner implements Runnable {
 	
 	private final ExitHandler exitHandler;
 	
+	@FunctionalInterface
 	public interface ExitHandler {
 		public void exit(int exitStatus);
 	}
@@ -155,18 +156,8 @@ public class OddjobRunner implements Runnable {
 	
 	/**
 	 * Oddjob's shutdown hook.
-	 * <p>
-	 * This Class has evolved quite a lot though trial and error due to
-	 * a lack of understanding of JVM shutdown. Should this thread be a
-	 * daemon? Current thinking is no because you don't want other daemon
-	 * threads to terminate until Oddjob has been shutdown properly.
-	 *
 	 */
 	class ShutdownHook extends OddjobShutdownThread {
-		
-		/** Killer thread will forcibly halt Oddjob if it hasn't terminated
-		 * cleanly. */
-		private Thread killer;
 		
 		/*
 		 * (non-Javadoc)
@@ -177,7 +168,7 @@ public class OddjobRunner implements Runnable {
 			logger.info("Shutdown Hook Executing.");
 			
 			// killer will just kill process if we can't stop in 15 sec
-			killer = new Thread(new Killer(), "Killer-Thread");
+			Thread killer = new Thread(new Killer(), "Killer-Thread");
 			
 			// start the killer. This is a daemon so it will be terminated when other thread die.
 			logger.debug("Starting killer thread.");
@@ -185,7 +176,7 @@ public class OddjobRunner implements Runnable {
 			killer.start();
 
 			if (!destroying) {
-				logger.debug("Stopping Oddjob.");
+				logger.debug("Stopping [" + oddjob + "]");
 				try {
 					oddjob.stop();
 				} 

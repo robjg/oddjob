@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jmx.client;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -41,11 +44,12 @@ import org.oddjob.logging.LogListener;
  * Test RemoteLogPoller
  *
  */
-public class RemoteLogPollerTest extends TestCase {
+public class RemoteLogPollerTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(RemoteLogPollerTest.class);
 
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== Running " + getName() + "================");
 		System.setProperty("mx4j.log.priority", "trace");
 	}
@@ -94,6 +98,7 @@ public class RemoteLogPollerTest extends TestCase {
 	 * Test polling using a mock LogPollable.
 	 *
 	 */
+   @Test
 	public void testPoll() {
 		OurLogPollable pollable = new OurLogPollable();
 		RemoteLogPoller test = new RemoteLogPoller(pollable, 10, 10);
@@ -238,6 +243,7 @@ public class RemoteLogPollerTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testLoggingUsingMBean() throws Exception {
 		// set up interfaces for MBean
 		LogThing component = new LogThing();
@@ -294,6 +300,7 @@ public class RemoteLogPollerTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testNotLoggingUsingMBean() throws Exception {
 		NoLogThing component = new NoLogThing();
 		

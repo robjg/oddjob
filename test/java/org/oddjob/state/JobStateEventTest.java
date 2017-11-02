@@ -3,6 +3,8 @@
  */
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +14,7 @@ import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.OddjobException;
@@ -20,7 +22,7 @@ import org.oddjob.OddjobException;
 /**
  * 
  */
-public class JobStateEventTest extends TestCase {
+public class JobStateEventTest extends OjTestCase {
 
 	String message = "This should serialize.";
 	
@@ -48,6 +50,7 @@ public class JobStateEventTest extends TestCase {
 		NotSerializable ns = new NotSerializable();
 	}
 	
+    @Test
 	public void testSerializeWithSerializableException() 
 	throws IOException, ClassNotFoundException {
 		
@@ -66,6 +69,7 @@ public class JobStateEventTest extends TestCase {
 		assertEquals(message, event2.getException().getMessage());
 	}
 	
+    @Test
 	public void testSerializeWithNoneSerializableException() 
 	throws IOException, ClassNotFoundException {
 		
@@ -85,6 +89,7 @@ public class JobStateEventTest extends TestCase {
 				event2.getException().getMessage());
 	}
 	
+   @Test
 	public void testSerializeComplete() throws IOException, ClassNotFoundException {
 		OurStateful source = new OurStateful();
 		

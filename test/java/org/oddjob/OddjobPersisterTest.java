@@ -1,4 +1,7 @@
 package org.oddjob;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.beans.PropertyVetoException;
 import java.io.Serializable;
@@ -7,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
@@ -26,12 +29,12 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class OddjobPersisterTest extends TestCase {
+public class OddjobPersisterTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(OddjobPersisterTest.class);
 	
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("----------------- " + getName() + " -------------");
 	}
 	
@@ -121,6 +124,7 @@ public class OddjobPersisterTest extends TestCase {
     	
     }
     
+   @Test
     public void testPersist() throws PropertyVetoException {
     	
     	String xml = 
@@ -187,6 +191,7 @@ public class OddjobPersisterTest extends TestCase {
 		" </job>" +
 		"</oddjob>";
 	
+   @Test
 	public void testNestedPersisterResets() throws PropertyVetoException, ArooaPropertyException, ArooaConversionException {
 				
 		Oddjob test = new Oddjob();
@@ -271,6 +276,7 @@ public class OddjobPersisterTest extends TestCase {
     	
 	}
 	
+   @Test
 	public void testNestedPersisterRestore() throws PropertyVetoException, ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob test = new Oddjob();
@@ -349,6 +355,7 @@ public class OddjobPersisterTest extends TestCase {
     	
 	}
 
+   @Test
 	public void testResetsBeforeLoad() throws PropertyVetoException, ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob test = new Oddjob();
@@ -469,6 +476,7 @@ public class OddjobPersisterTest extends TestCase {
 		"</oddjob>";
 	
 	
+   @Test
 	public void testSoftResetsBeforeLoad() {
 		
 		Oddjob test = new Oddjob();
@@ -527,6 +535,7 @@ public class OddjobPersisterTest extends TestCase {
 	/**
 	 * 
 	 */
+   @Test
 	public void testResetBeforeLoadPersister() throws ComponentPersistException {
 		
 		MapPersister persister = new MapPersister();

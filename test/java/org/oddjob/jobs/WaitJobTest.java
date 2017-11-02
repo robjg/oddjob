@@ -2,11 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.beans.PropertyVetoException;
 import java.lang.reflect.InvocationTargetException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -28,15 +31,16 @@ import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class WaitJobTest extends TestCase {
+public class WaitJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(WaitJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 	}
 	
+   @Test
 	public void testInOddjob() throws Exception {
 	
 		Oddjob oddjob = new Oddjob();
@@ -60,6 +64,7 @@ public class WaitJobTest extends TestCase {
 		oddjob.destroy();
 	}
 
+   @Test
 	public void testStateWait() throws InterruptedException {
 
 		FlagState flag = new FlagState();
@@ -87,6 +92,7 @@ public class WaitJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStopStateWait() throws InterruptedException, FailedToStopException {
 		FlagState sample = new FlagState();
 		sample.setState(JobState.COMPLETE);
@@ -122,6 +128,7 @@ public class WaitJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testStateWaitInOJ() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -143,6 +150,7 @@ public class WaitJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testNotStateWait() {
 		FlagState sample = new FlagState();
 		sample.setState(JobState.COMPLETE);
@@ -158,6 +166,7 @@ public class WaitJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSimpleStop() throws Exception {
 
 		String xml = 
@@ -214,6 +223,7 @@ public class WaitJobTest extends TestCase {
 		services.stop();
 	}
 	
+   @Test
 	public void testStateStop() throws PropertyVetoException, InterruptedException {
 
 		String xml = 
@@ -256,6 +266,7 @@ public class WaitJobTest extends TestCase {
 		oddjob.destroy();		
 	}
 	
+   @Test
 	public void testWaitExample() throws InterruptedException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, ArooaParseException {
 		
 		FragmentHelper helper = new FragmentHelper();

@@ -1,4 +1,7 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -30,19 +33,20 @@ import org.oddjob.state.StateListener;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ParallelJobTest extends TestCase {
+public class ParallelJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ParallelJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName()  + "  ----------------");
 	}
 	
+   @Test
 	public void testThreeJobsWithDefaultExecutors() throws InterruptedException {
 	
 		FlagState job1 = new FlagState(JobState.COMPLETE);
@@ -97,6 +101,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
+   @Test
 	public void testOneObjectSetsStateComplete() throws InterruptedException {
 		
 		Object job1 = new Object();
@@ -136,6 +141,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
+   @Test
 	public void testTwoJobsAndAnObjectSetsStateComplete() throws InterruptedException {
 		
 		Object job1 = new Object();
@@ -188,6 +194,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}
 	
+   @Test
 	public void testThrottledExecution() throws InterruptedException {
 		
 		FlagState job1 = new FlagState(JobState.COMPLETE);
@@ -219,6 +226,7 @@ public class ParallelJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStopWithDefaultExecutorsAndOneJob() throws InterruptedException, FailedToStopException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
@@ -300,6 +308,7 @@ public class ParallelJobTest extends TestCase {
 	 * shouln't get that state.
 	 * @throws InterruptedException 
 	 */
+   @Test
 	public void testChildDestroyed() throws InterruptedException {
 		
 		ParallelJob test = new ParallelJob();
@@ -331,6 +340,7 @@ public class ParallelJobTest extends TestCase {
 		
 	}
 		
+   @Test
 	public void testInOddjob() throws InterruptedException, FailedToStopException {
 				
 		Oddjob oddjob = new Oddjob();
@@ -366,6 +376,7 @@ public class ParallelJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testStopInOddjob() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		String xml = 
@@ -422,6 +433,7 @@ public class ParallelJobTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testParallelServices() throws FailedToStopException, InterruptedException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
@@ -471,6 +483,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}	
 	
+   @Test
 	public void testJoin() throws FailedToStopException, InterruptedException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
@@ -522,6 +535,7 @@ public class ParallelJobTest extends TestCase {
 		defaultServices.stop();
 	}	
 	
+   @Test
 	public void testEmpty() throws InterruptedException {
 
 		ParallelJob test = new ParallelJob();
@@ -550,6 +564,7 @@ public class ParallelJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testParallelServiceExample() throws InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -589,6 +604,7 @@ public class ParallelJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testParallelServiceThatCompletesExample() 
 	throws InterruptedException, FailedToStopException {
 		

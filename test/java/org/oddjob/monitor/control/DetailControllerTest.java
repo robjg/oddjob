@@ -1,5 +1,7 @@
 package org.oddjob.monitor.control;
 
+import org.junit.Test;
+
 import java.awt.Component;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -9,7 +11,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.tree.TreePath;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -26,7 +28,7 @@ import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.monitor.view.DetailView;
 import org.oddjob.util.ThreadManager;
 
-public class DetailControllerTest extends TestCase {
+public class DetailControllerTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(DetailControllerTest.class);
 	Component comp;
@@ -50,6 +52,7 @@ public class DetailControllerTest extends TestCase {
 		}
 	}
 		
+   @Test
 	public void testSelectionOnCut() throws Exception {
 		
 		OurExplorerModel explorerModel = new OurExplorerModel();

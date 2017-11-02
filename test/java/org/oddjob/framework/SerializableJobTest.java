@@ -1,8 +1,10 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.MockArooaSession;
@@ -14,7 +16,7 @@ import org.oddjob.images.IconListener;
 import org.oddjob.state.JobState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SerializableJobTest extends TestCase {
+public class SerializableJobTest extends OjTestCase {
 
 	class OurSession extends MockArooaSession {
 		
@@ -48,6 +50,7 @@ public class SerializableJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSaveOnChangeState() {
 
 		OurSession session = new OurSession();
@@ -87,6 +90,7 @@ public class SerializableJobTest extends TestCase {
 	
 	
 	
+   @Test
 	public void testSerialization() throws IOException, ClassNotFoundException {
 		
 		OurJob test = new OurJob();
@@ -140,6 +144,7 @@ public class SerializableJobTest extends TestCase {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
+   @Test
 	public void testStopAndReset() throws IOException, ClassNotFoundException {
 		
 		OurStopJob test = new OurStopJob();

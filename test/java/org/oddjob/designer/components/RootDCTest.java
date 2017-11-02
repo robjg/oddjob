@@ -1,6 +1,8 @@
 package org.oddjob.designer.components;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
@@ -17,8 +19,9 @@ import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
-public class RootDCTest extends TestCase {
+public class RootDCTest extends OjTestCase {
 
+   @Test
 	public void testPasteAndCut() throws ArooaParseException {
 				
     	ArooaDescriptor descriptor = 
@@ -55,6 +58,7 @@ public class RootDCTest extends TestCase {
 	
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

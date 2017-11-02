@@ -1,12 +1,14 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -28,8 +30,9 @@ import org.oddjob.arooa.types.ValueType;
 import org.oddjob.jobs.SequenceJob;
 import org.oddjob.jobs.structural.JobFolder;
 
-public class OddjobArooaDescriptorTest extends TestCase {
+public class OddjobArooaDescriptorTest extends OjTestCase {
 
+   @Test
 	public void testArooaXml() {
 		
 		URL url = getClass().getClassLoader().getResource(
@@ -56,6 +59,7 @@ public class OddjobArooaDescriptorTest extends TestCase {
 		
 	
 	
+   @Test
 	public void testLoad() throws ArooaParseException, ClassNotFoundException {
 		
     	ArooaDescriptor test = new OddjobDescriptorFactory(
@@ -87,6 +91,7 @@ public class OddjobArooaDescriptorTest extends TestCase {
 	 * Tracking down some weird features of the Designer
 	 * @throws ArooaParseException 
 	 */
+   @Test
 	public void testSupports() throws Exception {
 
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -109,6 +114,7 @@ public class OddjobArooaDescriptorTest extends TestCase {
 		assertTrue(set.contains(ValueType.ELEMENT));
 	}
 
+   @Test
 	public void testSupportsArooaValue() throws Exception {
 
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -128,6 +134,7 @@ public class OddjobArooaDescriptorTest extends TestCase {
 		assertTrue(set.contains(ValueType.ELEMENT));
 	}
 
+   @Test
 	public void testArooaBeanDescriptor() {
 		
     	ArooaDescriptor descriptor = 
@@ -145,6 +152,7 @@ public class OddjobArooaDescriptorTest extends TestCase {
 	}
 	
 	/** Finding a bug with setting properties. */
+   @Test
 	public void testSomeConversions() {
 		
     	ArooaDescriptor descriptor = 

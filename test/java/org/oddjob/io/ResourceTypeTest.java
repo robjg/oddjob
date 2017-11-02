@@ -3,11 +3,13 @@
  */
 package org.oddjob.io;
 
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.ConverterHelper;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -15,8 +17,9 @@ import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.ClassesOnlyDescriptor;
 
-public class ResourceTypeTest extends TestCase {
+public class ResourceTypeTest extends OjTestCase {
 	
+   @Test
 	public void test1() throws Exception {
 		
 		ArooaConverter converter = 

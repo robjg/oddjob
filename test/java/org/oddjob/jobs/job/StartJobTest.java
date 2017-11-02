@@ -3,9 +3,11 @@
  */
 package org.oddjob.jobs.job;
 
+import org.junit.Test;
+
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.Oddjob;
@@ -17,7 +19,7 @@ import org.oddjob.state.ParentState;
 /**
  * 
  */
-public class StartJobTest extends TestCase {
+public class StartJobTest extends OjTestCase {
 	
 	public static class OurRunnable implements Runnable {
 		boolean ran;
@@ -29,6 +31,7 @@ public class StartJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCode() {
 		OurRunnable r = new OurRunnable();
 		
@@ -41,6 +44,7 @@ public class StartJobTest extends TestCase {
 		assertTrue(r.ran);
 	}
 	
+   @Test
 	public void testInOddjob() throws Exception {
 		
 		String xml = 
@@ -63,6 +67,7 @@ public class StartJobTest extends TestCase {
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(r, "ran"));
 	}
 	
+   @Test
 	public void testExample() {
 
 		Properties properties = new Properties();

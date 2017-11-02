@@ -3,7 +3,9 @@
  */
 package org.oddjob.logging.polling;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogArchiver;
@@ -13,7 +15,7 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.logging.cache.LogEventSource;
 import org.oddjob.logging.cache.PollingLogArchiver;
 
-public class PollingLogArchiverTest extends TestCase {
+public class PollingLogArchiverTest extends OjTestCase {
 
 	private class OurLogEventSource implements LogEventSource {
 		Object component;
@@ -48,6 +50,7 @@ public class PollingLogArchiverTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testPoll() {
 		OurLogEventSource source = new OurLogEventSource();
 		OurArchiveNameResolver resolver = new OurArchiveNameResolver();

@@ -1,13 +1,15 @@
 package org.oddjob.script;
 
+import org.junit.Test;
+
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.utils.DateHelper;
 
-public class MethodInvokerTest extends TestCase {
+public class MethodInvokerTest extends OjTestCase {
 
 	public static String echo(String value) {
 		return value;
@@ -27,6 +29,7 @@ public class MethodInvokerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInvoking() throws Exception {
 		
 		Simple simple = new Simple();
@@ -44,6 +47,7 @@ public class MethodInvokerTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testStatic() throws Exception {
 		
 		MethodInvoker test = new MethodInvoker(MethodInvokerTest.class);

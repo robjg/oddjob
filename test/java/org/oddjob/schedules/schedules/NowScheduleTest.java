@@ -1,9 +1,11 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
@@ -11,8 +13,9 @@ import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 
-public class NowScheduleTest extends TestCase {
+public class NowScheduleTest extends OjTestCase {
 
+   @Test
 	public void testNow() throws ParseException {
 		
 		NowSchedule test = new NowSchedule();
@@ -27,6 +30,7 @@ public class NowScheduleTest extends TestCase {
 		assertEquals(testTime, result.getUseNext());
 	}
 	
+   @Test
 	public void testNowWithLimits() throws ParseException {
 		
 		NowSchedule test = new NowSchedule();

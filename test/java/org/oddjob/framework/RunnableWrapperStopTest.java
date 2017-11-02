@@ -1,9 +1,11 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.CyclicBarrier;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
@@ -13,7 +15,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class RunnableWrapperStopTest extends TestCase {
+public class RunnableWrapperStopTest extends OjTestCase {
 
 	private final class WaitingJob implements Runnable {
 		
@@ -38,6 +40,7 @@ public class RunnableWrapperStopTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopViaInterrupt() throws InterruptedException, BrokenBarrierException, FailedToStopException {
 
 		WaitingJob job = new WaitingJob();

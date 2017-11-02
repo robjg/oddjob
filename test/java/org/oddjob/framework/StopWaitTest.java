@@ -1,10 +1,13 @@
 package org.oddjob.framework;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -16,13 +19,13 @@ import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.OddjobLockedException;
 
-public class StopWaitTest extends TestCase {
+public class StopWaitTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(StopWaitTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-------------------  " + getName() + "  ----------------");
 	}
@@ -62,6 +65,7 @@ public class StopWaitTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopWaitOnReady() throws FailedToStopException {
 		
 		OurStateful stateful = new OurStateful();
@@ -71,6 +75,7 @@ public class StopWaitTest extends TestCase {
 		assertEquals(0, stateful.listeners.size());	
 	}
 	
+   @Test
 	public void testFailedTostop() throws OddjobLockedException {
 		
 		final OurStateful stateful = new OurStateful();
@@ -88,6 +93,7 @@ public class StopWaitTest extends TestCase {
 	
 	}
 	
+   @Test
 	public void testSlowToStop() throws OddjobLockedException, FailedToStopException {
 		
 		final OurStateful stateful = new OurStateful();
@@ -123,6 +129,7 @@ public class StopWaitTest extends TestCase {
 	
 	}
 	
+   @Test
 	public void testStatefulDestroyed() throws OddjobLockedException, FailedToStopException {
 		
 		final OurStateful stateful = new OurStateful();

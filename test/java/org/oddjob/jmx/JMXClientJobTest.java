@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx;
+import org.junit.Before;
+
+import org.junit.Test;
 
 
 import java.util.HashSet;
@@ -11,7 +14,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -62,7 +65,7 @@ import org.oddjob.tools.WaitForChildren;
 /**
  * Test the JMXClientJob
  */
-public class JMXClientJobTest extends TestCase {
+public class JMXClientJobTest extends OjTestCase {
 	static final Logger logger = Logger.getLogger(JMXClientJobTest.class);
 	
 	/**
@@ -87,7 +90,8 @@ public class JMXClientJobTest extends TestCase {
 	}
 	
 	
-	public void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================== Running " + getName() + "================");
 //		System.setProperty("mx4j.log.priority", "trace");
 	}
@@ -142,6 +146,7 @@ public class JMXClientJobTest extends TestCase {
 	 *  
 	 * @throws Exception
 	 */
+   @Test
 	public void testRun() throws Exception {
 	
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
@@ -174,6 +179,7 @@ public class JMXClientJobTest extends TestCase {
 	 * @throws ArooaConversionException 
 	 * @throws FailedToStopException 
 	 */
+   @Test
 	public void testPrinciplesOfNextTest() throws ArooaConversionException, FailedToStopException {
 		
 		String xml =
@@ -225,6 +231,7 @@ public class JMXClientJobTest extends TestCase {
 	 * This test creates a server and then attempts to
 	 * connect and disconnect multiple times
 	 */
+   @Test
 	public void testRunLotsOfClients() throws Exception {
 
 		String xml = 
@@ -293,6 +300,7 @@ public class JMXClientJobTest extends TestCase {
 	}
 	
 	// test looking up a property on a server using a path.
+   @Test
 	public void testLookup() throws Exception {
 		Oddjob server = new Oddjob();
 		server.setConfiguration(
@@ -334,6 +342,7 @@ public class JMXClientJobTest extends TestCase {
 		
 	}
 
+   @Test
 	public void testHostRelative() throws Exception {
 		
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
@@ -399,6 +408,7 @@ public class JMXClientJobTest extends TestCase {
 	}
 	
 	// test a remote nested registry.
+   @Test
 	public void testRemoteNestedRegistry() throws Exception {
 		OurSession serverSession = new OurSession();
 		
@@ -462,6 +472,7 @@ public class JMXClientJobTest extends TestCase {
 	 * When a client node such as Oddjob resets, check that the client
 	 * removes it's registry.
 	 */
+   @Test
 	public void testRegistryManagement() throws Exception {
 		
 		Oddjob oddjob = new Oddjob();
@@ -579,6 +590,7 @@ public class JMXClientJobTest extends TestCase {
 	 * Test the client job as a log archiver.
 	 *
 	 */
+   @Test
 	public void testLogArchiver() throws Exception {
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
 			OurSession session = new OurSession();
@@ -691,6 +703,7 @@ public class JMXClientJobTest extends TestCase {
      * 
      * @throws Exception 
      */
+   @Test
     public void testDestroyWithComplicatedStructure() throws Exception {
     	
     	String serverConfig = 

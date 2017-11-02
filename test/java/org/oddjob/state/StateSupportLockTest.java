@@ -1,13 +1,15 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.util.OddjobLockedException;
 
-public class StateSupportLockTest extends TestCase {
+public class StateSupportLockTest extends OjTestCase {
 
 //	private static final Logger logger = Logger.getLogger(StateSupportLockTest.class);
 	
@@ -35,6 +37,7 @@ public class StateSupportLockTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAsIfExecuting() throws InterruptedException {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -75,6 +78,7 @@ public class StateSupportLockTest extends TestCase {
 		assertEquals(JobState.COMPLETE, test.getState());
 	}
 	
+   @Test
 	public void testWaitFor() throws InterruptedException {
 		
 		final JobStateHandler test = new JobStateHandler(new MockStateful());
@@ -116,6 +120,7 @@ public class StateSupportLockTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testInturruptedFlag() {
 		
 		JobStateHandler test = new JobStateHandler(new MockStateful());

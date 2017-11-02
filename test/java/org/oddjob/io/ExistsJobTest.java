@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -23,16 +26,17 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 
-public class ExistsJobTest extends TestCase {
+public class ExistsJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ExistsJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("---------------------  " + getName() + "  --------------");
 	}
 	
+   @Test
 	public void testFile() {
 		OurDirs dirs = new OurDirs();
 		
@@ -51,6 +55,7 @@ public class ExistsJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testWild() {
 		OurDirs dirs = new OurDirs();
 		
@@ -66,6 +71,7 @@ public class ExistsJobTest extends TestCase {
 		assertNull(test.getLastModified());		
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 		OurDirs dirs = new OurDirs();
@@ -82,6 +88,7 @@ public class ExistsJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testInOddjob2() {
 		String xml = 
 			"<oddjob>" +
@@ -99,6 +106,7 @@ public class ExistsJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testExistsResultsExample() {
 		
 		String xml = 
@@ -117,6 +125,7 @@ public class ExistsJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testExistsWithFilesExample() {
 		
 		OurDirs dirs = new OurDirs();
@@ -143,6 +152,7 @@ public class ExistsJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExistsFilePollingExample() throws IOException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		OurDirs dirs = new OurDirs();
@@ -205,6 +215,7 @@ public class ExistsJobTest extends TestCase {
 		oddjob.destroy();
 	}	
 	
+   @Test
 	public void testSerialize() throws Exception {
 		OurDirs dirs = new OurDirs();
 		

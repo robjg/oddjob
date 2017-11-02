@@ -245,7 +245,9 @@
 				<include name="**/*.xsl"/>
 			</fileset>
 		</copy>
-		
+
+		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
+
 		<javac srcdir="${tools.src}"
 		   destdir="${build.tools.classes}"
 		   debug="${debug}"
@@ -494,8 +496,10 @@
 			</fileset>
 		</copy>
 		
+        <echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
+
 		<!-- Compile tests -->
-		<javac srcdir="${test.src}"
+		<javac source="1.8" target="1.8" srcdir="${test.src}"
             destdir="${build.test.classes}"
             debug="${debug}"
             optimize="${optimize}"

@@ -1,9 +1,12 @@
 package org.oddjob.jobs.tasks;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -13,17 +16,18 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class TaskRequestTest extends TestCase {
+public class TaskRequestTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(TaskRequestTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName() + "  ------------------");
 	}
 	
+   @Test
 	public void testSimpleExample() {
 		
 		File file = new File(getClass().getResource("TaskRequestSimple.xml"
@@ -76,6 +80,7 @@ public class TaskRequestTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testAsynchronousTaskException() throws InterruptedException {
 		
 		OurTaskExecutor taskExecutor = new OurTaskExecutor();

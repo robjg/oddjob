@@ -3,7 +3,9 @@
  */
 package org.oddjob.jmx.handlers;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -21,7 +23,7 @@ import org.oddjob.jmx.server.ServerModelImpl;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.util.MockThreadManager;
 
-public class LogEnabledHandlerFactoryTest extends TestCase {
+public class LogEnabledHandlerFactoryTest extends OjTestCase {
 //	private static final Logger logger = Logger.getLogger(IconicInfoTest.class);
 
 	private class MockLogEnabled implements LogEnabled {
@@ -50,6 +52,7 @@ public class LogEnabledHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLoggerName() throws Exception {
 		MockLogEnabled target = new MockLogEnabled();
 		

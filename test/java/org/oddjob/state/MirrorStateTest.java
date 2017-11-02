@@ -1,6 +1,9 @@
 package org.oddjob.state;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -19,12 +22,12 @@ import org.oddjob.images.IconListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.tools.StateSteps;
 
-public class MirrorStateTest extends TestCase {
+public class MirrorStateTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(MirrorStateTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.info("-----------------   " + getName() + "  ---------------");
 	}
 	
@@ -46,6 +49,7 @@ public class MirrorStateTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testComplete() {
 		
 		MirrorState test = new MirrorState();
@@ -91,6 +95,7 @@ public class MirrorStateTest extends TestCase {
 		assertEquals(JobState.READY, listener.result);
 	}	
 	
+   @Test
 	public void testReset() {
 		
 		MirrorState test = new MirrorState();
@@ -146,6 +151,7 @@ public class MirrorStateTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStop() {
 		
 		MirrorState test = new MirrorState();
@@ -207,6 +213,7 @@ public class MirrorStateTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDestroyed() {
 		
 		MirrorState test = new MirrorState();
@@ -223,6 +230,7 @@ public class MirrorStateTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testInOddjob() throws InterruptedException {
 		
 		String xml = 
@@ -252,6 +260,7 @@ public class MirrorStateTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testMirroredJobCut() throws ArooaParseException {
 		
 		String xml = 
@@ -301,6 +310,7 @@ public class MirrorStateTest extends TestCase {
 		assertEquals(ParentState.DESTROYED, oddjob.lastStateEvent().getState());	
 	}
 	
+   @Test
 	public void testStopWhenRunning() {
 
 		OurStateful running = new OurStateful();
@@ -321,6 +331,7 @@ public class MirrorStateTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testStopWhenRunningInOddjob() throws FailedToStopException {
 
 		OurStateful running = new OurStateful();

@@ -1,6 +1,8 @@
 package org.oddjob.jmx;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.arooa.registry.BeanDirectory;
@@ -14,7 +16,7 @@ import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.server.ServerInfo;
 
-public class RemoteRegistryCrawlerTest extends TestCase {
+public class RemoteRegistryCrawlerTest extends OjTestCase {
 
 	class ServerRegistry extends SimpleBeanRegistry
 	implements RemoteDirectory {
@@ -38,6 +40,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testRemoteBean() {
 
 
@@ -52,6 +55,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 	}
 	
 	/** Test a single local registry with no children. */
+   @Test
 	public void testSingle() {
 		Object comp = new Object();
 		
@@ -90,6 +94,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 	}
 	
 	/** Test a hierarchy for the same server */
+   @Test
 	public void testSameServer() {
 		Component comp1 = new Component("comp1");
 
@@ -123,6 +128,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 	}
 
 	/** Test a hierarchy with a different server */
+   @Test
 	public void testDifferentServer() {
 		Component comp1 = new Component("comp1");
 
@@ -160,6 +166,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 	
 	/** Test a double sided owner object - has an id in both registries such
 	 * as Oddjob */
+   @Test
 	public void testTwoFaced() {
 		Component comp1 = new Component("comp");
 
@@ -189,6 +196,7 @@ public class RemoteRegistryCrawlerTest extends TestCase {
 						new Address(new ServerId("server2"), new Path("b"))));
 	}
 	
+   @Test
 	public void testNoServerFor() {
 		
 		Component comp1 = new Component("comp");

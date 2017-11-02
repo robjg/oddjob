@@ -1,12 +1,15 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class FlagStateTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class FlagStateTest extends OjTestCase {
 
 	/**
 	 * Everything apart from COMPLETE and INCOMPLETE sets state EXCEPTION.
 	 */
+   @Test
 	public void testSettingStateDestoyed() {
 		
 		FlagState test = new FlagState();

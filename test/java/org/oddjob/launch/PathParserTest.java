@@ -1,12 +1,15 @@
 package org.oddjob.launch;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
 import org.apache.log4j.Logger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class PathParserTest extends TestCase {
+public class PathParserTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			PathParserTest.class);
@@ -15,9 +18,9 @@ public class PathParserTest extends TestCase {
 	String result1 = null;
 	String result2 = null;
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		logger.info("-----------------" + getName() + "-----------");
 	}
 	
@@ -41,6 +44,7 @@ public class PathParserTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testPathParse() {
 		pathSetUp();
 		
@@ -70,6 +74,7 @@ public class PathParserTest extends TestCase {
 		assertEquals(result2, results[1]);
 	}
 	
+   @Test
 	public void testArgButNoPath() {
 		
 		PathParser test = new PathParser();
@@ -84,6 +89,7 @@ public class PathParserTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testContinue() {
 		
 		PathParser test = new PathParser();
@@ -97,6 +103,7 @@ public class PathParserTest extends TestCase {
 		assertEquals(2, after.length);
 	}
 	
+   @Test
 	public void testTwoClassPathsContinue() {
 		
 		PathParser test = new PathParser();

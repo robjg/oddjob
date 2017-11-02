@@ -1,4 +1,7 @@
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -20,12 +23,12 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.StateSteps;
 
-public class ExecutorServiceThrottleTest extends TestCase {
+public class ExecutorServiceThrottleTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ExecutorServiceThrottle.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("---------------  " + getName() + "  -----------------");
 	}
@@ -61,6 +64,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testQuickJobs() throws InterruptedException, ExecutionException {
 		
 		ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -94,6 +98,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		executorService.shutdown();
 	}
 	
+   @Test
 	public void testSlowJobs() throws InterruptedException, ExecutionException, FailedToStopException {
 		
 		ExecutorService executorService = Executors.newFixedThreadPool(5);
@@ -171,6 +176,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testPendingJobsWhenShutdown() throws InterruptedException, ExecutionException, FailedToStopException {
 		
 		ExecutorService executorService = Executors.newFixedThreadPool(5);		
@@ -215,6 +221,7 @@ public class ExecutorServiceThrottleTest extends TestCase {
 		assertEquals(JobState.READY, wait2.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testCancelledWork() throws InterruptedException, ExecutionException, FailedToStopException {
 		
 		ExecutorService executorService = Executors.newFixedThreadPool(5);		

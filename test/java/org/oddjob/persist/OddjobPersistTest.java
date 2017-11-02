@@ -2,11 +2,14 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -27,14 +30,14 @@ import org.oddjob.tools.OurDirs;
  *
  * @author Rob Gordon.
  */
-public class OddjobPersistTest extends TestCase {
+public class OddjobPersistTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(OddjobPersistTest.class);
 
 	private File config;
 	private File persistIn;
 
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("-------------  " + getName() + "  -------------------");
 		
 		OurDirs dirs = new OurDirs();
@@ -50,6 +53,7 @@ public class OddjobPersistTest extends TestCase {
 	/*
 	 * Test saving a job.
 	 */
+   @Test
 	public void test1Save() throws Exception {
 	    // delete existing file.
 		FilePersister persister = new FilePersister();
@@ -106,6 +110,7 @@ public class OddjobPersistTest extends TestCase {
 	/**
 	 * Test loading the job we've just saved.
 	 */
+   @Test
 	public void test2Load() throws Exception {
 	
 		test1Save();

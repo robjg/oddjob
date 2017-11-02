@@ -1,9 +1,11 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.scheduling.DefaultExecutors;
@@ -11,7 +13,7 @@ import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class OrStateTest extends TestCase {
+public class OrStateTest extends OjTestCase {
 
 	private class Result implements StateListener {
 		State result;
@@ -25,6 +27,7 @@ public class OrStateTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testComplete() {
 		
 		OrState test = new OrState();
@@ -65,6 +68,7 @@ public class OrStateTest extends TestCase {
 		assertEquals(ParentState.READY, listener.result);
 	}
 	
+   @Test
 	public void testException() {
 		
 		OrState test = new OrState();
@@ -105,6 +109,7 @@ public class OrStateTest extends TestCase {
 		assertEquals(ParentState.READY, listener.result);
 	}
 	
+   @Test
 	public void testManyComplete() {
 		
 		OrState test = new OrState();
@@ -135,6 +140,7 @@ public class OrStateTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException, InterruptedException {
 		
 		DefaultExecutors services = new DefaultExecutors();

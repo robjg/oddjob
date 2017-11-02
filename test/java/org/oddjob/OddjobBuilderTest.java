@@ -1,5 +1,7 @@
 package org.oddjob;
 
+import org.junit.Test;
+
 import java.io.File;
 
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
@@ -7,10 +9,11 @@ import org.oddjob.arooa.deploy.ListDescriptorBean;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class OddjobBuilderTest extends TestCase {
+public class OddjobBuilderTest extends OjTestCase {
 
+   @Test
 	public void testResolveOddballs() {
 		
 		OddjobBuilder test = new OddjobBuilder();

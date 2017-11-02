@@ -3,7 +3,9 @@
  */
 package org.oddjob.monitor.action;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.MockStateful;
 import org.oddjob.monitor.model.JobAction;
@@ -14,7 +16,7 @@ import org.oddjob.state.StateListener;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 
-public class ExecuteActionTest extends TestCase {
+public class ExecuteActionTest extends OjTestCase {
 
 	class OurThreadManager extends MockThreadManager {
 		
@@ -43,6 +45,7 @@ public class ExecuteActionTest extends TestCase {
 	 * Test that performing the action works.
 	 *
 	 */
+   @Test
 	public void testPerform() throws Exception {
 		class MyR implements Runnable {
 			boolean ran = false;
@@ -68,6 +71,7 @@ public class ExecuteActionTest extends TestCase {
 	 * Test action is enabled when a stateful is selected in ready state.
 	 *
 	 */
+   @Test
 	public void testEnabled() {
 		class MySR extends MockStateful implements Runnable {
 			boolean removed;
@@ -100,6 +104,7 @@ public class ExecuteActionTest extends TestCase {
 	 * Test action is disable when a stateful is selected in ready complete.
 	 *
 	 */
+   @Test
 	public void testDisabled() {
 		class MySR extends MockStateful implements Runnable {
 			boolean removed;
@@ -132,6 +137,7 @@ public class ExecuteActionTest extends TestCase {
 	 * Test action is disabled for an object.
 	 *
 	 */
+   @Test
 	public void testWithObject() {
 		OurExplorerContext explorerContext = new OurExplorerContext();
 		explorerContext.component = new Object();

@@ -1,8 +1,10 @@
 package org.oddjob.jobs;
 
+import org.junit.Test;
+
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.jobs.GrabJob.LoosingAction;
@@ -17,7 +19,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class GrabJobTest extends TestCase {
+public class GrabJobTest extends OjTestCase {
 
 	class WinnerKeeper implements Keeper {
 		
@@ -47,6 +49,7 @@ public class GrabJobTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testAsWinner() throws IOException, ClassNotFoundException {
 		
 		GrabJob test = new GrabJob();
@@ -117,6 +120,7 @@ public class GrabJobTest extends TestCase {
 	}	
 	
 	
+   @Test
 	public void testNotWinner() {
 		
 		GrabJob test = new GrabJob();
@@ -142,6 +146,7 @@ public class GrabJobTest extends TestCase {
 		assertEquals("not you", test.getWinner());
 	}
 	
+   @Test
 	public void testStopAsLooser() throws FailedToStopException {
 		
 		GrabJob test = new GrabJob();
@@ -167,6 +172,7 @@ public class GrabJobTest extends TestCase {
 		assertEquals("not you", test.getWinner());
 	}
 	
+   @Test
 	public void testStopAsWinner() throws FailedToStopException, InterruptedException {
 		
 		GrabJob test = new GrabJob();
@@ -195,6 +201,7 @@ public class GrabJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException {
 		
 		GrabJob test = new GrabJob();

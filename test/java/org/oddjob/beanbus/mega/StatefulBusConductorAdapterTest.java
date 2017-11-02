@@ -1,8 +1,10 @@
 package org.oddjob.beanbus.mega;
 
+import org.junit.Test;
+
 import java.util.Collection;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusCrashException;
@@ -14,7 +16,7 @@ import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 
-public class StatefulBusConductorAdapterTest extends TestCase {
+public class StatefulBusConductorAdapterTest extends OjTestCase {
 
 	int started;
 	int tripStarted;
@@ -61,6 +63,7 @@ public class StatefulBusConductorAdapterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStartedAndStopped() {
 		
 		FlagState flag = new FlagState();
@@ -92,6 +95,7 @@ public class StatefulBusConductorAdapterTest extends TestCase {
 		assertEquals(1, stopped);
 	}
 	
+   @Test
 	public void testStartedAndCrashed() {
 		
 		FlagState flag = new FlagState(JobState.EXCEPTION);
@@ -134,6 +138,7 @@ public class StatefulBusConductorAdapterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCrashedByListenerWhenStarting() {
 		
 		FlagState flag = new FlagState();
@@ -169,6 +174,7 @@ public class StatefulBusConductorAdapterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCleanBusWithBatcher() {
 
 		Batcher<String> batcher = new Batcher<String>();
@@ -233,6 +239,7 @@ public class StatefulBusConductorAdapterTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testWithNaughtyDestination() {
 
 		NaughtyDestination naughty = new NaughtyDestination();

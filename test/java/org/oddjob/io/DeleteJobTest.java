@@ -2,12 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -18,13 +21,14 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class DeleteJobTest extends TestCase {
+public class DeleteJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(DeleteJobTest.class);
 	
 	File dir;
 
 	
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		logger.debug("----------------" + getName() + "------------------");
 		
 		OurDirs dirs = new OurDirs();
@@ -36,6 +40,7 @@ public class DeleteJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDeleteFile() throws Exception {
 		FileUtils.forceMkdir(dir);
 	
@@ -66,6 +71,7 @@ public class DeleteJobTest extends TestCase {
 		assertEquals(false, found[0].exists());
 	}
 	
+   @Test
 	public void testDeleteFiles() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -100,6 +106,7 @@ public class DeleteJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDeleteDir() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -132,6 +139,7 @@ public class DeleteJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testDeleteFullDir() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -180,6 +188,7 @@ public class DeleteJobTest extends TestCase {
 		oj.destroy();
 	}
 	
+   @Test
 	public void testDeleteFileThatDoesntExist() throws IOException, InterruptedException {
 		
 		DeleteJob test = new DeleteJob();
@@ -195,6 +204,7 @@ public class DeleteJobTest extends TestCase {
 		assertEquals(0, test.getErrorCount());
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 		FileUtils.forceMkdir(dir);
 
@@ -209,6 +219,7 @@ public class DeleteJobTest extends TestCase {
 		assertFalse(dir.exists());
 	}
 	
+   @Test
 	public void testReallyRoot() throws IOException, InterruptedException {
 		
 		File file = new File("/");

@@ -1,12 +1,15 @@
 package org.oddjob;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.junit.Test;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaTools;
@@ -37,7 +40,7 @@ import org.oddjob.structural.StructuralListener;
  * @author rob
  *
  */
-public class OddjobTest2 extends TestCase {
+public class OddjobX2Test {
 
 	class OurStructuralListener implements StructuralListener {
 		List<Object> children = new ArrayList<Object>();
@@ -186,6 +189,7 @@ public class OddjobTest2 extends TestCase {
 		
 	}
 	
+	@Test
 	public void testBadSave2() throws ArooaParseException {
 
     	ArooaDescriptor descriptor = new OddjobDescriptorFactory(

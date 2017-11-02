@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.scheduling;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +19,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -63,10 +66,11 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class TimerTest extends TestCase {
+public class TimerTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TimerTest.class);
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("=============== " + getName() + " ===================");
 	}
 	
@@ -122,6 +126,7 @@ public class TimerTest extends TestCase {
 		}
 	};
 	
+   @Test
 	public void testSimpleNonRepeatingSchedule() 
 	throws Exception {
 		
@@ -234,6 +239,7 @@ public class TimerTest extends TestCase {
 		assertEquals(0, ourJob.listeners.size());
 	}
 
+   @Test
 	public void testRecurringScheduleWhenStopped() throws ParseException {
 	
 		FlagState job = new FlagState();
@@ -270,6 +276,7 @@ public class TimerTest extends TestCase {
 				oddjobServices.delay);
 	}
 	
+   @Test
 	public void testOverdueSchedule() throws ParseException {
 		
 		FlagState job = new FlagState();
@@ -307,6 +314,7 @@ public class TimerTest extends TestCase {
 		assertEquals(18 * 60 * 60 * 1000, oddjobServices.delay);
 	}
 	
+   @Test
 	public void testSkipMissedSchedule() throws ParseException {
 		
 		FlagState job = new FlagState();
@@ -340,6 +348,7 @@ public class TimerTest extends TestCase {
 		assertEquals(23 * 60 * 60 * 1000, oddjobServices.delay);
 	}
 	
+   @Test
 	public void testHaltOnFailure() throws ParseException {
 		
 		FlagState job = new FlagState();
@@ -376,6 +385,7 @@ public class TimerTest extends TestCase {
 		assertEquals(TimerState.INCOMPLETE, test.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testTimeZone() 
 	throws Exception {
 		TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
@@ -405,6 +415,7 @@ public class TimerTest extends TestCase {
 		TimeZone.setDefault(null);
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 						
 		FlagState sample = new FlagState();
@@ -454,6 +465,7 @@ public class TimerTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testSerializeNotComplete() throws Exception {
 		
 		FlagState sample = new FlagState();
@@ -533,6 +545,7 @@ public class TimerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopWhileANestedRetryJobIsExecutingASecondTime() 
 	throws ParseException, InterruptedException, FailedToStopException {
 		
@@ -586,6 +599,7 @@ public class TimerTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testStopBeforeTriggered() throws FailedToStopException {
 
 		class Executor extends MockScheduledExecutorService {
@@ -665,6 +679,7 @@ public class TimerTest extends TestCase {
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 */
+   @Test
 	public void testSerializeUnserializbleSchedule() throws IOException, ClassNotFoundException {
 
 		Timer test = new Timer();
@@ -679,6 +694,7 @@ public class TimerTest extends TestCase {
 		assertNull(copy.getSchedule());
 	}
 	
+   @Test
 	public void testPersistedScheduleInOddjob() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException, IOException, ParseException {
 		
 		OurDirs dirs = new OurDirs();
@@ -790,6 +806,7 @@ public class TimerTest extends TestCase {
 		oddjob3.destroy();
 	}
 	
+   @Test
 	public void testTimerExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException, ParseException {
 		
     	Oddjob oddjob = new Oddjob();
@@ -843,6 +860,7 @@ public class TimerTest extends TestCase {
     	oddjob.destroy();    	
 	}
 	
+   @Test
 	public void testTimerOnceExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
     	Oddjob oddjob = new Oddjob();
@@ -891,6 +909,7 @@ public class TimerTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testTimerStopJobExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		OurOddjobExecutor executors = new OurOddjobExecutor();
@@ -952,6 +971,7 @@ public class TimerTest extends TestCase {
     	oddjob.destroy();    	
 	}
 	
+   @Test
 	public void testTimerCrashPersistance() {
 		
 		String xml = 
@@ -1014,6 +1034,7 @@ public class TimerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSetNextDue() throws ArooaPropertyException, ArooaConversionException, FailedToStopException, ParseException {
 	
 		ManualClock clock = new ManualClock("2012-12-27 08:00");
@@ -1066,6 +1087,7 @@ public class TimerTest extends TestCase {
     	oddjob.destroy();
 	}
 	
+   @Test
 	public void testSetReshedule() throws ArooaPropertyException, ArooaConversionException, FailedToStopException, ParseException {
 		
 		ManualClock clock = new ManualClock("2013-01-16 08:00");

@@ -3,10 +3,12 @@
  */
 package org.oddjob.values;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
@@ -36,7 +38,7 @@ import org.oddjob.tools.OddjobTestHelper;
  *
  * @author Rob Gordon.
  */
-public class SetJobTest extends TestCase {
+public class SetJobTest extends OjTestCase {
 
 	public static class SimpleBean {
 		String prop;
@@ -84,6 +86,7 @@ public class SetJobTest extends TestCase {
 	 * Test using the set value method.
 	 *
 	 */
+   @Test
 	public void testSetValue() {
 		final SimpleBean obj = new SimpleBean();
 		
@@ -103,6 +106,7 @@ public class SetJobTest extends TestCase {
 		assertEquals("Test", obj.prop);
 	}
 	
+   @Test
     public void testBasic() {
         Oddjob oj = new Oddjob();
         oj.setConfiguration(new XMLConfiguration("Resource", 
@@ -128,6 +132,7 @@ public class SetJobTest extends TestCase {
     	}
     }
 
+   @Test
     public void testSetMapped() {
     	
     	String xml = 
@@ -265,6 +270,7 @@ public class SetJobTest extends TestCase {
      * Test the 3 set types on a DynaBean.
      *
      */
+   @Test
     public void testSetDynaBean() {
     	
     	String xml = 

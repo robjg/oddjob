@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.oddjob.Oddjob;
@@ -17,12 +20,13 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class CopyJobTest extends TestCase {
+public class CopyJobTest extends OjTestCase {
 
 	File reference;
 	File dir;
 
-	public void setUp() throws Exception {
+   @Before
+   public void setUp() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		reference = new File(dirs.base(), "test/io/reference");
@@ -33,6 +37,7 @@ public class CopyJobTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testCopyFile() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -50,6 +55,7 @@ public class CopyJobTest extends TestCase {
 		assertTrue(new File(dir, "test1.txt").exists());
 	}
 
+   @Test
 	public void testCopyFiles() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -77,6 +83,7 @@ public class CopyJobTest extends TestCase {
 				new File(dir, "*.txt")).findFiles().length);
 	}
 
+   @Test
 	public void testCopyDirectory() throws Exception {
 		FileUtils.forceMkdir(dir);
 		
@@ -95,6 +102,7 @@ public class CopyJobTest extends TestCase {
 		assertTrue(new File(dir, "a/x/test3.txt").exists());
 	}
 
+   @Test
 	public void testCopyDirectory2() throws Exception {
 		// directory doesn't exist this time.
 		// dir.mkdir();
@@ -114,6 +122,7 @@ public class CopyJobTest extends TestCase {
 		assertTrue(new File(dir, "x/test3.txt").exists());
 	}
 	
+   @Test
 	public void testSerialize() throws Exception {
 		dir.mkdir();
 
@@ -130,6 +139,7 @@ public class CopyJobTest extends TestCase {
 		assertTrue(new File(dir, "test1.txt").exists());
 	}
 
+   @Test
 	public void testCopyBuffer() throws ArooaPropertyException, ArooaConversionException {
 		
 		OurDirs dirs = new OurDirs();

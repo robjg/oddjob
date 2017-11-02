@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class IsSoftResetableTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class IsSoftResetableTest extends OjTestCase {
+
+   @Test
 	public void testJobStates() {
 		
 		StateCondition test = new IsSoftResetable();
@@ -15,6 +18,7 @@ public class IsSoftResetableTest extends TestCase {
 		assertEquals(true, test.test(JobState.EXCEPTION));
 	}
 	
+   @Test
 	public void testServiceStates() {
 		
 		StateCondition test = new IsSoftResetable();
@@ -26,6 +30,7 @@ public class IsSoftResetableTest extends TestCase {
 		assertEquals(false, test.test(ServiceState.STOPPED));
 	}
 	
+   @Test
 	public void testParentStates() {
 		
 		StateCondition test = new IsSoftResetable();

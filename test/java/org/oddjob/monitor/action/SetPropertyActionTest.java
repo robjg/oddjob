@@ -3,7 +3,9 @@
  */
 package org.oddjob.monitor.action;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.design.DesignInstance;
@@ -21,7 +23,7 @@ import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 
-public class SetPropertyActionTest extends TestCase {
+public class SetPropertyActionTest extends OjTestCase {
 
 	class RootContext extends MockExplorerContext {
 		
@@ -31,6 +33,7 @@ public class SetPropertyActionTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testRootContext() {
 		
 		SetPropertyAction test = new SetPropertyAction();
@@ -92,6 +95,7 @@ public class SetPropertyActionTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSetProperty() throws Exception {
 		Component component = new Component();
 				

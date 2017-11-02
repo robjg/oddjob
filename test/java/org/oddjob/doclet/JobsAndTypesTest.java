@@ -1,6 +1,8 @@
 package org.oddjob.doclet;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.beandocs.BeanDoc;
@@ -9,8 +11,9 @@ import org.oddjob.arooa.beandocs.WriteableArooaDoc;
 import org.oddjob.arooa.beandocs.WriteableBeanDoc;
 import org.oddjob.arooa.standard.StandardArooaSession;
 
-public class JobsAndTypesTest extends TestCase {
+public class JobsAndTypesTest extends OjTestCase {
 
+   @Test
 	public void testTypes() {
 		
 		StandardArooaSession session = new StandardArooaSession();
@@ -26,6 +29,7 @@ public class JobsAndTypesTest extends TestCase {
 				test.docFor("org.oddjob.arooa.types.IsType"));
 	}
 	
+   @Test
 	public void testDuplicateType() {
 		
 		StandardArooaSession session = new StandardArooaSession();

@@ -1,11 +1,13 @@
 package org.oddjob;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.log4j.Logger;
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
+import org.junit.Test;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -27,6 +29,8 @@ import org.oddjob.arooa.runtime.MockConfigurationNode;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.EchoJob;
 import org.xml.sax.SAXException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.Diff;
 
 /**
  * Test being a ConfigurationOwner.
@@ -34,13 +38,12 @@ import org.xml.sax.SAXException;
  * @author rob
  *
  */
-public class OddjobConfigurationTest extends XMLTestCase {
+public class OddjobConfigurationTest {
 
 	private static final Logger logger = Logger.getLogger(OddjobConfigurationTest.class); 
 
+   @Test
 	public void testCopy() throws SAXException, IOException {
-		
-		XMLUnit.setIgnoreWhitespace(true);
 		
 		String xml = 
 			"<oddjob>" +
@@ -59,12 +62,15 @@ public class OddjobConfigurationTest extends XMLTestCase {
 	
 		logger.debug("XML:" + result);
 		
-		assertXMLEqual(xml, result);
+		Diff diff = DiffBuilder.compare(xml)
+				.withTest(result).ignoreWhitespace()
+				.build();
+
+		assertFalse(diff.toString(), diff.hasDifferences());
 	}
 	
+   @Test
 	public void testPaste() throws SAXException, IOException, ArooaParseException {
-		
-		XMLUnit.setIgnoreWhitespace(true);
 		
 		String xml = 
 			"<oddjob/>";
@@ -105,7 +111,11 @@ public class OddjobConfigurationTest extends XMLTestCase {
 		
 		logger.debug("XML:" + result);
 		
-		assertXMLEqual(expected, result);
+		Diff diff = DiffBuilder.compare(expected)
+				.withTest(result).ignoreWhitespace()
+				.build();
+
+		assertFalse(diff.toString(), diff.hasDifferences());
 	}
 	
 	private class OurConfig implements ArooaConfiguration {
@@ -140,6 +150,7 @@ public class OddjobConfigurationTest extends XMLTestCase {
 	 * Tracking down a failure to understand an 
 	 * OddjobExplorer Test for the new action.
 	 */
+   @Test
 	public void testConfigurationSession() {
 		
 		Oddjob oddjob = new Oddjob();

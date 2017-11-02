@@ -1,10 +1,12 @@
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.swing.ImageIcon;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
@@ -15,7 +17,7 @@ import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 
-public class IconicHandlerFactoryTest extends TestCase {
+public class IconicHandlerFactoryTest extends OjTestCase {
 
 	class OurIconic implements Iconic {
 		
@@ -67,6 +69,7 @@ public class IconicHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testClientIconFor() {
 		OurIconic iconic = new OurIconic();
 		
@@ -157,6 +160,7 @@ public class IconicHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIconListeners() {
 		OurIconic iconic = new OurIconic();
 		

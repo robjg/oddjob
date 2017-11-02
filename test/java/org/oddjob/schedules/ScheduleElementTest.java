@@ -3,9 +3,11 @@
  */
 package org.oddjob.schedules;
 
+import org.junit.Test;
+
 import java.text.SimpleDateFormat;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -17,7 +19,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
  * @author rob
  *
  */
-public class ScheduleElementTest extends TestCase {
+public class ScheduleElementTest extends OjTestCase {
 
 	
 	public static class OurJob implements Runnable {
@@ -39,6 +41,7 @@ public class ScheduleElementTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testParse() throws Exception {
 		
 		String xml = 

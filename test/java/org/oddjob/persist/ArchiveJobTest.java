@@ -1,11 +1,14 @@
 package org.oddjob.persist;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -33,15 +36,16 @@ import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
 
-public class ArchiveJobTest extends TestCase {
+public class ArchiveJobTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		logger.info("----------------  " + getName() + "  -----------------");
 	}
 	
+   @Test
 	public void testWithSimpleJob() throws ComponentPersistException {
 		
 		final MapPersister persister = new MapPersister();
@@ -74,6 +78,7 @@ public class ArchiveJobTest extends TestCase {
 		test.destroy();		
 	}
 	
+   @Test
 	public void testState() throws FailedToStopException, ComponentPersistException, InterruptedException {
 
 		final MapPersister persister = new MapPersister();
@@ -115,6 +120,7 @@ public class ArchiveJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, stateful.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testReflectsChildState() throws FailedToStopException, ComponentPersistException, InterruptedException {
 
 		final MapPersister persister = new MapPersister();
@@ -147,6 +153,7 @@ public class ArchiveJobTest extends TestCase {
 		assertEquals(JobState.INCOMPLETE, stateful.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testStop() throws InterruptedException, FailedToStopException {
 		
 		DefaultExecutors executors = new DefaultExecutors();
@@ -199,6 +206,7 @@ public class ArchiveJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInOddjob() 
 	throws ComponentPersistException, IOException, InterruptedException, ParseException {
 		
@@ -241,6 +249,7 @@ public class ArchiveJobTest extends TestCase {
 		assertEquals(3, archives.length);
 	}
 	
+   @Test
 	public void testStateChangesForAsynchronousJobs() throws InterruptedException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();

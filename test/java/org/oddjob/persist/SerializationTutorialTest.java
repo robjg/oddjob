@@ -1,14 +1,16 @@
 package org.oddjob.persist;
 
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.Serializable;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.tools.OddjobTestHelper;
 
-public class SerializationTutorialTest extends TestCase {
+public class SerializationTutorialTest extends OjTestCase {
 
 	static class NonSerializable {
 		String fruit;
@@ -20,6 +22,7 @@ public class SerializationTutorialTest extends TestCase {
 		String colour;
 	}	
 	
+   @Test
 	public void testBaseSerialization() throws IOException, ClassNotFoundException {
 		
 		SerializableSub sub = new SerializableSub();
@@ -38,6 +41,7 @@ public class SerializationTutorialTest extends TestCase {
 		NonSerializable memeber = new NonSerializable();
 	}
 	
+   @Test
 	public void testNonSerializableMemeber() throws ClassNotFoundException {
 		
 		try {

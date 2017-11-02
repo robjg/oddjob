@@ -1,9 +1,11 @@
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
@@ -23,8 +25,9 @@ import org.oddjob.schedules.SimpleScheduleResult;
 import org.oddjob.schedules.units.DayOfWeek;
 import org.oddjob.schedules.units.Month;
 
-public class DayAfterScheduleTest extends TestCase {
+public class DayAfterScheduleTest extends OjTestCase {
 
+   @Test
 	public void testDayAfterInterval() throws ParseException {
 		
 		DayAfterSchedule test = new DayAfterSchedule();
@@ -43,6 +46,7 @@ public class DayAfterScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
 	public void testDayAfterWithRefinement() throws ParseException {
 
 		WeeklySchedule weekly = new WeeklySchedule();
@@ -73,6 +77,7 @@ public class DayAfterScheduleTest extends TestCase {
 		assertEquals(expected, results[1]);
 	}
 	
+   @Test
 	public void testDayAfterScheduleExample() throws ArooaParseException, ParseException {
     	
     	ArooaSession session = new OddjobSessionFactory().createSession();

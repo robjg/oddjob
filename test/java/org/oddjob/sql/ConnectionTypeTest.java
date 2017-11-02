@@ -1,6 +1,8 @@
 package org.oddjob.sql;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaBeanDescriptor;
@@ -10,8 +12,9 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class ConnectionTypeTest extends TestCase {
+public class ConnectionTypeTest extends OjTestCase {
 
+   @Test
 	public void testSerialize() throws Exception {
 		ConnectionType test = new ConnectionType();
 		test.setUrl("x:/y/z");
@@ -21,6 +24,7 @@ public class ConnectionTypeTest extends TestCase {
 		assertEquals("x:/y/z", copy.getUrl());
 	}
 	
+   @Test
 	public void testIsClassLoaderAuto() throws ArooaParseException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
@@ -33,6 +37,7 @@ public class ConnectionTypeTest extends TestCase {
 		assertTrue(descriptor.isAuto("classLoader"));
 	}
 	
+   @Test
 	public void testBadUrl() {
 		
 		ConnectionType test = new ConnectionType();
@@ -50,6 +55,7 @@ public class ConnectionTypeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testBadUrl2() {
 		
 		ConnectionType test = new ConnectionType();

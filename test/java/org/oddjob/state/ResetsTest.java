@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class ResetsTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class ResetsTest extends OjTestCase {
+
+   @Test
 	public void testReverse() {
 		
 		Resets test = new Resets();
@@ -27,6 +30,7 @@ public class ResetsTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testNormal() {
 		
 		Resets test = new Resets();

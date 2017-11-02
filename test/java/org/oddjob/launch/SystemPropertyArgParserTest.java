@@ -1,9 +1,12 @@
 package org.oddjob.launch;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class SystemPropertyArgParserTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class SystemPropertyArgParserTest extends OjTestCase {
+
+   @Test
 	public void testArgs() {
 		
 		SystemPropertyArgParser test = new SystemPropertyArgParser();
@@ -26,6 +29,7 @@ public class SystemPropertyArgParserTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testContinue() {
 		
 		SystemPropertyArgParser test = new SystemPropertyArgParser();
@@ -37,6 +41,7 @@ public class SystemPropertyArgParserTest extends TestCase {
 		assertEquals(2, after.length);
 	}
 	
+   @Test
 	public void testNoneMatches() {
 		
 		SystemPropertyArgParser test = new SystemPropertyArgParser();

@@ -1,16 +1,18 @@
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.scheduling.MockExecutorService;
 import org.oddjob.scheduling.MockFuture;
 
-public class AsyncExecutionSupportTest extends TestCase {
+public class AsyncExecutionSupportTest extends OjTestCase {
 
 	private class OurExecutor extends MockExecutorService {
 		
@@ -24,6 +26,7 @@ public class AsyncExecutionSupportTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAddTwoJobs() {
 		
 		OurExecutor executor = new OurExecutor();
@@ -63,6 +66,7 @@ public class AsyncExecutionSupportTest extends TestCase {
 		assertEquals(true, done.get());
 	}
 	
+   @Test
 	public void testStopBeforeAnyJobsSubmitted() {
 		
 		final AtomicBoolean done = new AtomicBoolean();

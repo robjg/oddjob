@@ -1,12 +1,14 @@
 package org.oddjob.beanbus.destinations;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -19,18 +21,25 @@ import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
-public class BeanQueueTest extends TestCase {
+public class BeanQueueTest extends Assert {
 
 	private static final Logger logger = Logger.getLogger(BeanQueueTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Rule public TestName name = new TestName();
+
+	public String getName() {
+        return name.getMethodName();
+    }
+
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("--------------------------  " + getName() + 
 				"  ------------------------");
 	}
 	
+    @Test
 	public void testQueueStop() throws InterruptedException, BusCrashException {
 
 		final BeanQueue<String> test = new BeanQueue<String>();
@@ -75,6 +84,7 @@ public class BeanQueueTest extends TestCase {
 		
 	}
 	
+    @Test
 	public void testStopBeforeEmpty() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<String>();
@@ -105,6 +115,7 @@ public class BeanQueueTest extends TestCase {
 		
 	}
 	
+    @Test
 	public void testStartConsumingFirst() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<String>();
@@ -136,6 +147,7 @@ public class BeanQueueTest extends TestCase {
 		
 	}
 	
+    @Test
 	public void testMulitipleConsumers() throws InterruptedException {
 
 		final BeanQueue<Integer> test = new BeanQueue<Integer>();
@@ -187,6 +199,7 @@ public class BeanQueueTest extends TestCase {
 				+ consumer3.results.size());
 	}	
 	
+    @Test
 	public void testInOddjob() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -248,6 +261,7 @@ public class BeanQueueTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+    @Test
 	public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();

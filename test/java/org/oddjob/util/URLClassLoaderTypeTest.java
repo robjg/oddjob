@@ -1,4 +1,7 @@
 package org.oddjob.util;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +21,16 @@ import org.oddjob.tools.CompileJob;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class URLClassLoaderTypeTest extends TestCase {
+public class URLClassLoaderTypeTest extends OjTestCase {
 
 	private static final Logger logger = 
 		Logger.getLogger(URLClassLoaderTypeTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.debug("-----------------  " + getName() + "  -----------------");
 
@@ -41,6 +44,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testLoadMixedJob() throws Exception {
 		
 		ClassLoader existingContextClassLoader = 
@@ -119,6 +123,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		}
 	}
 
+   @Test
 	public void testInOddjob() throws URISyntaxException, IOException {
 	
 		OurDirs dirs = new OurDirs();
@@ -140,6 +145,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		assertEquals("AJob", aJob.getClass().getName());
 	}
 	
+   @Test
 	public void testNoParent() {
 		
 		URLClassLoaderType test = new URLClassLoaderType();
@@ -155,6 +161,7 @@ public class URLClassLoaderTypeTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testFromLaunchJar() throws SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, IOException {
 		
 		OurDirs dirs = new OurDirs();

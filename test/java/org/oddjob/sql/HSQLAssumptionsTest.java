@@ -1,4 +1,8 @@
 package org.oddjob.sql;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.Serializable;
 import java.sql.Blob;
@@ -7,7 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -16,14 +20,14 @@ import org.oddjob.io.BufferType;
 import org.oddjob.persist.SerializeWithBinaryStream;
 import org.oddjob.persist.SerializeWithBytes;
 
-public class HSQLAssumptionsTest extends TestCase {
+public class HSQLAssumptionsTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(HSQLAssumptionsTest.class);
 	
 	ConnectionType ct;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		ct = new ConnectionType();
 		ct.setDriver("org.hsqldb.jdbcDriver");
 		ct.setUrl("jdbc:hsqldb:mem:test");
@@ -47,8 +51,8 @@ public class HSQLAssumptionsTest extends TestCase {
 		sql.run();
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		
 		BufferType buffer = new BufferType();
 		buffer.setText("shutdown");
@@ -77,6 +81,7 @@ public class HSQLAssumptionsTest extends TestCase {
 	 * @author rob
 	 *
 	 */
+   @Test
 	public void testBytes() throws SQLException, ArooaConversionException {
 		
 		Connection connection = ct.toValue();

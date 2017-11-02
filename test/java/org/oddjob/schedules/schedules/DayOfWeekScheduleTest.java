@@ -3,10 +3,12 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -24,8 +26,9 @@ import org.oddjob.schedules.units.DayOfWeek;
  *
  * @author Rob Gordon.
  */
-public class DayOfWeekScheduleTest extends TestCase {
+public class DayOfWeekScheduleTest extends OjTestCase {
     
+   @Test
     public void testFromAndTo() throws ParseException {
         WeeklySchedule schedule = new WeeklySchedule();
         schedule.setFrom(DayOfWeek.Days.TUESDAY);
@@ -44,6 +47,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
     
+   @Test
     public void testAfter() throws ParseException {
         WeeklySchedule schedule = new WeeklySchedule();
         schedule.setFrom(DayOfWeek.Days.TUESDAY);
@@ -60,6 +64,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
     
+   @Test
     public void testOverBoundry() throws ParseException {
         WeeklySchedule schedule = new WeeklySchedule();
         schedule.setFrom(DayOfWeek.Days.FRIDAY);
@@ -91,6 +96,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         assertEquals(expected, result3);
     }
     
+   @Test
     public void testWithTime() throws ParseException {
     	
         WeeklySchedule schedule = new WeeklySchedule();
@@ -112,6 +118,7 @@ public class DayOfWeekScheduleTest extends TestCase {
     	assertEquals(expected, nextDue);
     }
     
+   @Test
     public void testDefaultFrom() throws ParseException {
 		
         WeeklySchedule schedule = new WeeklySchedule();
@@ -134,6 +141,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
 
+   @Test
     public void testDefaultTo() throws ParseException {
 		
         WeeklySchedule schedule = new WeeklySchedule();
@@ -155,6 +163,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
     
+   @Test
     public void testInclusive() throws ParseException {
 		
         WeeklySchedule schedule = new WeeklySchedule();
@@ -171,6 +180,7 @@ public class DayOfWeekScheduleTest extends TestCase {
     	
     }
 
+   @Test
     public void testWithOverMidnightTime() throws ParseException {
     	
 		WeeklySchedule test = new WeeklySchedule(); 
@@ -206,6 +216,7 @@ public class DayOfWeekScheduleTest extends TestCase {
         		result);
     }
     
+   @Test
     public void testOnExample() throws ArooaParseException, ParseException {
     	
     	
@@ -232,6 +243,7 @@ public class DayOfWeekScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testBetweenExample() throws ArooaParseException, ParseException {
     	
     	
@@ -281,6 +293,7 @@ public class DayOfWeekScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testToString() {
     	
     	WeeklySchedule test = new WeeklySchedule();

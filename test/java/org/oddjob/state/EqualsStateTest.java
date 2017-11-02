@@ -1,11 +1,13 @@
 package org.oddjob.state;
 
+import org.junit.Test;
+
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -16,8 +18,9 @@ import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 
-public class EqualsStateTest extends TestCase {
+public class EqualsStateTest extends OjTestCase {
 
+   @Test
 	public void testComplete() {
 		
 		EqualsState test = new EqualsState();
@@ -42,6 +45,7 @@ public class EqualsStateTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testNotComplete() {
 		
 		EqualsState test = new EqualsState();
@@ -64,6 +68,7 @@ public class EqualsStateTest extends TestCase {
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 
+   @Test
 	public void testNotException() {
 		
 		EqualsState test = new EqualsState();
@@ -86,6 +91,7 @@ public class EqualsStateTest extends TestCase {
 		assertEquals(ParentState.INCOMPLETE, test.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testInOddjob() {
 		
 		String xml = 
@@ -107,6 +113,7 @@ public class EqualsStateTest extends TestCase {
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 	
+   @Test
 	public void testExample() throws InterruptedException, IOException, ArooaPropertyException, ArooaConversionException {
 		
 		OurDirs dirs = new OurDirs();

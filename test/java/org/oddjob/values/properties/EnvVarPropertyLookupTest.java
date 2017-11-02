@@ -1,9 +1,12 @@
 package org.oddjob.values.properties;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class EnvVarPropertyLookupTest extends TestCase {
+import org.oddjob.OjTestCase;
 
+public class EnvVarPropertyLookupTest extends OjTestCase {
+
+   @Test
 	public void testLookup() {
 		
 		EnvVarPropertyLookup test = new EnvVarPropertyLookup("env");

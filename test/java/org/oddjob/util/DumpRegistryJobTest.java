@@ -1,10 +1,12 @@
 package org.oddjob.util;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -14,11 +16,12 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class DumpRegistryJobTest extends TestCase {
+public class DumpRegistryJobTest extends OjTestCase {
 
 	private static final Logger logger = 
 			Logger.getLogger(DumpRegistryJobTest.class);
 	
+   @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		File file = new File(getClass().getResource(

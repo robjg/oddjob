@@ -3,7 +3,9 @@
  */
 package org.oddjob.jobs;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
@@ -17,7 +19,7 @@ import org.oddjob.state.StateListener;
  *
  * @author Rob Gordon.
  */
-public class JobStateTest extends TestCase {
+public class JobStateTest extends OjTestCase {
 
 	JobState jobState;
 	String iconId;
@@ -34,6 +36,7 @@ public class JobStateTest extends TestCase {
 		}
 	};
 		
+   @Test
 	public void testException() {
 		final FlagState j = new FlagState ();
 		j.setName("Exception Test");
@@ -52,6 +55,7 @@ public class JobStateTest extends TestCase {
 				iconId.equals(IconHelper.EXCEPTION));
 	}
 	
+   @Test
 	public void testNotComplete() {
 		final FlagState j = new FlagState ();
 		j.setName("Test Not Complete");
@@ -69,6 +73,7 @@ public class JobStateTest extends TestCase {
 				iconId.equals(IconHelper.NOT_COMPLETE));
 	}
 	
+   @Test
 	public void testComplete() {
 		final FlagState j = new FlagState ();
 		j.setName("Test Complete");

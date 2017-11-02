@@ -1,6 +1,8 @@
 package org.oddjob.jobs;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.OddjobDescriptorFactory;
@@ -15,10 +17,11 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.tools.OddjobTestHelper;
 
-public class CheckJobDesFaTest extends TestCase {
+public class CheckJobDesFaTest extends OjTestCase {
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

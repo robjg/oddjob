@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +12,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -27,15 +30,16 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class SequenceJobTest extends TestCase {
+public class SequenceJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(SequenceJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 	}
 
+   @Test
 	public void testSerialize() throws Exception {
 		SequenceJob test = new SequenceJob();
 		test.setFrom(22);
@@ -49,6 +53,7 @@ public class SequenceJobTest extends TestCase {
 		assertEquals(new Integer(22), copy.getCurrent());
 	}
 	
+   @Test
 	public void testSerializedByWrapper() throws Exception {
 		SequenceJob test = new SequenceJob();
 		test.setFrom(22);
@@ -66,6 +71,7 @@ public class SequenceJobTest extends TestCase {
 		assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(copy));
 	}
 	
+   @Test
 	public void testDescribe() {
 		
 		SequenceJob test = new SequenceJob();
@@ -79,6 +85,7 @@ public class SequenceJobTest extends TestCase {
 		assertEquals("0", current);
 	}
 	
+   @Test
 	public void testSequenceExample() throws IOException, ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
 		
 		OurDirs dirs = new OurDirs();

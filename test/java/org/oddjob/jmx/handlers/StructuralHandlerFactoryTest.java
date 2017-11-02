@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx.handlers;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +17,7 @@ import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteOperation;
@@ -34,7 +36,7 @@ import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
-public class StructuralHandlerFactoryTest extends TestCase {
+public class StructuralHandlerFactoryTest extends OjTestCase {
 
 	int unique;
 	
@@ -106,6 +108,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testServerSide() throws MBeanException, ReflectionException, MalformedObjectNameException, NullPointerException {
 		MyStructural structural = new MyStructural();
 		structural.helper.insertChild(0, new Object());
@@ -257,6 +260,7 @@ public class StructuralHandlerFactoryTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testClientSide() throws MalformedObjectNameException, NullPointerException {
 		
 		ClientInterfaceHandlerFactory<Structural> clientFactory = 

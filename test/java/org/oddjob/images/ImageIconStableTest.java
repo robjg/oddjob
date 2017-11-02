@@ -1,5 +1,7 @@
 package org.oddjob.images;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,12 +12,13 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class ImageIconStableTest extends TestCase {
+public class ImageIconStableTest extends OjTestCase {
 
 	ImageIcon copy;
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException {
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();

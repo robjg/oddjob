@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2006
  */
 package org.oddjob.io;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.ConverterHelper;
@@ -26,13 +29,13 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
-public class FileTypeTest extends TestCase {
+public class FileTypeTest extends OjTestCase {
 	
 	File ourFile;
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 
 		OurDirs dirs = new OurDirs();
 		ourFile = dirs.relative("work/io/FileTypeTest.dat");
@@ -98,6 +101,7 @@ public class FileTypeTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testFileManefestation() throws Exception {
 		
 		FileType test = new FileType();
@@ -110,6 +114,7 @@ public class FileTypeTest extends TestCase {
 		assertTrue(v instanceof File);
 	}
 	
+   @Test
 	public void testInputStream() throws Exception {
 		
 		ourFile.createNewFile();
@@ -126,6 +131,7 @@ public class FileTypeTest extends TestCase {
 		assertTrue(result instanceof InputStream);		
 	}
 
+   @Test
 	public void testOutputStream() throws Exception {
 		
 		FileType test = new FileType();
@@ -140,6 +146,7 @@ public class FileTypeTest extends TestCase {
 		assertTrue(result instanceof OutputStream);		
 	}
 
+   @Test
 	public void testInOddjob() throws IOException {
 		
 		ourFile.delete();
@@ -194,6 +201,7 @@ public class FileTypeTest extends TestCase {
 		is.close();
 	}
 	
+   @Test
 	public void testNullFile() throws Exception {
 		
 		FileType test = new FileType();
@@ -210,6 +218,7 @@ public class FileTypeTest extends TestCase {
 	/**
 	 * Property will be blank.
 	 */
+   @Test
 	public void testNullInOddjob() throws Exception {
 		
 		String xml = 
@@ -241,6 +250,7 @@ public class FileTypeTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testInvalidFileName() {
 		
 		FileType test = new FileType();
@@ -255,6 +265,7 @@ public class FileTypeTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testSerialisation() 
 	throws IOException, ClassNotFoundException {
 		

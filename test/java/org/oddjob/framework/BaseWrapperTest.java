@@ -3,9 +3,11 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.arooa.ArooaSession;
@@ -22,7 +24,7 @@ import org.oddjob.state.StateHandler;
  * Tests on BaseWrapper.
  *
  */
-public class BaseWrapperTest extends TestCase {
+public class BaseWrapperTest extends OjTestCase {
 	
 	/** Bean fixture */
 	public static class Result {
@@ -86,6 +88,7 @@ public class BaseWrapperTest extends TestCase {
 	 * @throws ArooaPropertyException 
 	 *
 	 */
+   @Test
 	public void testWithResult() throws ArooaPropertyException, ArooaConversionException {
 		MockWrapper test = new MockWrapper(new Result());
 		test.setArooaSession(new StandardArooaSession());
@@ -98,6 +101,7 @@ public class BaseWrapperTest extends TestCase {
 	 * @throws ArooaPropertyException 
 	 *
 	 */
+   @Test
 	public void testNoResult() throws ArooaPropertyException, ArooaConversionException {
 		MockWrapper test = new MockWrapper(new Object());
 		assertEquals(0, test.getResult(null));
@@ -118,6 +122,7 @@ public class BaseWrapperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDescribe() {
 		ArooaSession session = new StandardArooaSession(); 
 		

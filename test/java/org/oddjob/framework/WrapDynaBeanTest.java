@@ -3,10 +3,12 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
@@ -14,7 +16,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * Test WrapDynaBean.
  *
  */
-public class WrapDynaBeanTest extends TestCase {
+public class WrapDynaBeanTest extends OjTestCase {
 
 	/** Simple Bean fixture. */
 	public static class SimpleBean {
@@ -27,6 +29,7 @@ public class WrapDynaBeanTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testSimple() throws Exception {
 		SimpleBean bean = new SimpleBean();
 		
@@ -53,6 +56,7 @@ public class WrapDynaBeanTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testMapped() throws Exception {
 		MappedBean bean = new MappedBean();
 		
@@ -83,6 +87,7 @@ public class WrapDynaBeanTest extends TestCase {
 //		}
 	}
 	
+   @Test
 	public void testIndexed() throws Exception {
 		IndexedBean bean = new IndexedBean();
 		
@@ -108,6 +113,7 @@ public class WrapDynaBeanTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInAccessable() throws Exception {
 		InAccessableBean bean = new InAccessableBean();
 		
@@ -139,6 +145,7 @@ public class WrapDynaBeanTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testInAccessableMapped() throws Exception {
 		InAccessableMappedBean bean = new InAccessableMappedBean();
 		

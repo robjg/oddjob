@@ -1,14 +1,16 @@
 package org.oddjob.sql;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.beanbus.AbstractDestination;
 
-public class SQLScriptProcessorTest extends TestCase {
+public class SQLScriptProcessorTest extends OjTestCase {
 
 	String EOL = System.getProperty("line.separator");
 	
@@ -26,6 +28,7 @@ public class SQLScriptProcessorTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStandardDelimiter() throws Exception {
 		
 		String script =  

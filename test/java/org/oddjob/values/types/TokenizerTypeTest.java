@@ -1,8 +1,10 @@
 package org.oddjob.values.types;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -10,11 +12,12 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class TokenizerTypeTest extends TestCase {
+public class TokenizerTypeTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			TokenizerTypeTest.class);
 	
+   @Test
 	public void testSimpleCSV() throws ParseException {
 		
 		TokenizerType test = new TokenizerType();
@@ -27,6 +30,7 @@ public class TokenizerTypeTest extends TestCase {
 		assertEquals("c", result[2]);
 	}
 	
+   @Test
 	public void testTabDelimited() throws ParseException {
 		
 		TokenizerType test = new TokenizerType();
@@ -40,6 +44,7 @@ public class TokenizerTypeTest extends TestCase {
 		assertEquals("c", result[2]);
 	}
 	
+   @Test
 	public void testRegexpDelimited() throws ParseException {
 		
 		TokenizerType test = new TokenizerType();
@@ -54,6 +59,7 @@ public class TokenizerTypeTest extends TestCase {
 		assertEquals("c", result[2]);
 	}
 	
+   @Test
 	public void testQuoted() throws ParseException {
 		
 		TokenizerType test = new TokenizerType();
@@ -66,6 +72,7 @@ public class TokenizerTypeTest extends TestCase {
 		assertEquals("b,c", result[1]);
 	}
 	
+   @Test
 	public void testExample() {
 		
 		Oddjob oddjob = new Oddjob();

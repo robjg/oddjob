@@ -1,6 +1,8 @@
 package org.oddjob.monitor.actions;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
@@ -17,8 +19,9 @@ import org.oddjob.monitor.action.SoftResetAction;
 import org.oddjob.monitor.action.StopAction;
 import org.oddjob.monitor.action.UnloadAction;
 
-public class ResourceActionProviderTest extends TestCase {
+public class ResourceActionProviderTest extends OjTestCase {
 
+   @Test
 	public void testActions() throws ArooaParseException {
 		
 		ExplorerAction[] results = new ResourceActionProvider(

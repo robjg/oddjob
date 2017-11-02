@@ -2,6 +2,10 @@
  * Copyright (c) 2005, Rob Gordon.
  */
 package org.oddjob.launch;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -11,7 +15,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Main;
@@ -24,21 +28,21 @@ import org.oddjob.util.URLClassLoaderType;
  *
  * @author Rob Gordon.
  */
-public class LauncherTest extends TestCase {
+public class LauncherTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(LauncherTest.class);
 	
 	String oddjobHome;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 		
 		oddjobHome = System.getProperty("oddjob.home");		
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		if (oddjobHome == null) {
 			System.getProperties().remove("oddjob.home");
 		}
@@ -47,6 +51,7 @@ public class LauncherTest extends TestCase {
 		}
 	}
 	
+   @Test
     public void testGetClassLoader() throws IOException, URISyntaxException {
     	
     	OurDirs dirs = new OurDirs();
@@ -79,6 +84,7 @@ public class LauncherTest extends TestCase {
     }
     
     
+   @Test
     public void testInitOddjob() throws Exception {
     	
     	OurDirs dirs = new OurDirs();
@@ -114,6 +120,7 @@ public class LauncherTest extends TestCase {
         		ClassLoader.getSystemClassLoader());
     }
     
+   @Test
     public void testLaunchAsJob() throws Exception {
     	
     	OurDirs dirs = new OurDirs();

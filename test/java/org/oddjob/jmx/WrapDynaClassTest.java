@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx;
 
+import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,17 +13,18 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaProperty;
 import org.oddjob.framework.WrapDynaClass;
 
-public class WrapDynaClassTest extends TestCase {
+public class WrapDynaClassTest extends OjTestCase {
 
 	public class Bean {
 		public String getFruit() { return "apples"; }
 	}
 	
+   @Test
 	public void testSerialize() throws IOException, ClassNotFoundException {
 		
 		WrapDynaClass dc = WrapDynaClass.createDynaClass(Bean.class);

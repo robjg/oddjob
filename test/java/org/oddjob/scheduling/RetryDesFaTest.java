@@ -3,7 +3,9 @@
  */
 package org.oddjob.scheduling;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -22,10 +24,11 @@ import org.oddjob.tools.OddjobTestHelper;
 /**
  *
  */
-public class RetryDesFaTest extends TestCase {
+public class RetryDesFaTest extends OjTestCase {
 	
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  

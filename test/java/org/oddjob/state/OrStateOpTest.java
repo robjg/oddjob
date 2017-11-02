@@ -1,9 +1,12 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class OrStateOpTest extends TestCase {
+import org.oddjob.OjTestCase;
+
+public class OrStateOpTest extends OjTestCase {
 	
+   @Test
 	public void testOrNoStates() {
 		
 		OrStateOp test = new OrStateOp();
@@ -11,6 +14,7 @@ public class OrStateOpTest extends TestCase {
 		assertEquals(ParentState.READY, test.evaluate());
 	}
 	
+   @Test
 	public void testOrOneStates() {
 		
 		OrStateOp test = new OrStateOp();
@@ -28,6 +32,7 @@ public class OrStateOpTest extends TestCase {
 				test.evaluate(JobState.EXECUTING));
 		
 	}
+   @Test
 	public void testOr() {
 		
 		OrStateOp test = new OrStateOp();

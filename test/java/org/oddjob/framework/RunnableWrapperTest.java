@@ -3,12 +3,14 @@
  */
 package org.oddjob.framework;
 
+import org.junit.Test;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -56,7 +58,7 @@ import org.oddjob.tools.StateSteps;
  *
  * @author Rob Gordon.
  */
-public class RunnableWrapperTest extends TestCase {
+public class RunnableWrapperTest extends OjTestCase {
 
 	private class OurContext extends MockArooaContext {
 		
@@ -128,6 +130,7 @@ public class RunnableWrapperTest extends TestCase {
 	 * state of the wrapper.
 	 *
 	 */
+   @Test
     public void testGoodRunnable() {
     	OurSession session = new OurSession();
     	
@@ -176,6 +179,7 @@ public class RunnableWrapperTest extends TestCase {
      * state of the wrapper.
      *
      */
+   @Test
     public void testBadRunnable() {
     	
     	Runnable test = new Runnable() {
@@ -211,6 +215,7 @@ public class RunnableWrapperTest extends TestCase {
     }
     
     
+   @Test
     public void testStop() throws InterruptedException, FailedToStopException {
     	
     	final CountDownLatch latch = new CountDownLatch(1);
@@ -265,6 +270,7 @@ public class RunnableWrapperTest extends TestCase {
      * This test is a bit weak.
      *
      */
+   @Test
     public void testHashCode() {
     	Runnable wrapped = new Runnable() {
     		public void run() {}
@@ -285,6 +291,7 @@ public class RunnableWrapperTest extends TestCase {
      * Test the equals method.
      *
      */
+   @Test
     public void testEquals() {
     	Runnable wrapped = new Runnable() {
     		public void run() {}
@@ -326,6 +333,7 @@ public class RunnableWrapperTest extends TestCase {
      * A simple test in oddjob. Ensures the wrapped job runs and the 
      * state is OK.
      */
+   @Test
     public void testInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +
@@ -387,6 +395,7 @@ public class RunnableWrapperTest extends TestCase {
      * Test that all property setting and getting works
      * for a wrapped job by testing the proxy created.
      */
+   @Test
     public void testPropertiesInProxy() throws Exception {
     	LotsOfProperties bean = new LotsOfProperties();
     	
@@ -420,6 +429,7 @@ public class RunnableWrapperTest extends TestCase {
      * Test that all property setting and getting works
      * for a wrapped job when in Oddjob.
      */
+   @Test
     public void testProperitesInOddjob() throws Exception{
     	
     	String xml = 
@@ -489,6 +499,7 @@ public class RunnableWrapperTest extends TestCase {
      * 
      * @throws Exception
      */
+   @Test
     public void testDefaultLogger() throws Exception {
     	class MyL implements LogListener {
     		StringBuffer messages = new StringBuffer();
@@ -531,6 +542,7 @@ public class RunnableWrapperTest extends TestCase {
     	}
     }
     
+   @Test
     public void testSpecificLogger() throws Exception {
 
     	class MyL implements LogListener {
@@ -563,6 +575,7 @@ public class RunnableWrapperTest extends TestCase {
      * Test describing a component via a RunnableWrapper.
      *
      */
+   @Test
     public void testDescribe() {
     	
     	ArooaSession session = new StandardArooaSession();
@@ -611,6 +624,7 @@ public class RunnableWrapperTest extends TestCase {
      *
      * @throws Exception
      */
+   @Test
     public void testDestroyInOddjob() throws Exception {
     	String xml = 
     		"<oddjob>" +

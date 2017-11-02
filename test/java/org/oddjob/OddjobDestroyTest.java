@@ -1,6 +1,9 @@
 package org.oddjob;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaException;
@@ -22,19 +25,19 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.StateSteps;
 
-public class OddjobDestroyTest extends TestCase {
+public class OddjobDestroyTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			OddjobDestroyTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
 		
 		logger.info("----------------------"  + getName() + 
 				"--------------------");
 	}
 	
+   @Test
 	public void testDestroyWhileChildRunning() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		String xml = 
@@ -89,6 +92,7 @@ public class OddjobDestroyTest extends TestCase {
     	}
     }
     
+   @Test
     public void testFailedDestroy() {
     	
     	String xml = 
@@ -182,6 +186,7 @@ public class OddjobDestroyTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testDestroyWhileAsyncJobActive() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		String xml = 

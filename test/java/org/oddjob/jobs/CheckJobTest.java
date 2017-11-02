@@ -1,6 +1,9 @@
 package org.oddjob.jobs;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -21,15 +24,16 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class CheckJobTest extends TestCase {
+public class CheckJobTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(CheckJobTest.class); 
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------- " + getName() + " ----------------");
 	}
 	
+   @Test
 	public void testNoValue() {
 		
 		CheckJob test = new CheckJob();
@@ -58,6 +62,7 @@ public class CheckJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testIntegerEq() {
 		
 		CheckJob test = new CheckJob();
@@ -81,6 +86,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(1, test.getResult());
 	}
 	
+   @Test
 	public void testIntegerNe() {
 		
 		CheckJob test = new CheckJob();
@@ -104,6 +110,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testIntegerLt() {
 		
 		CheckJob test = new CheckJob();
@@ -128,6 +135,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testIntegerLe() {
 		
 		CheckJob test = new CheckJob();
@@ -152,6 +160,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testIntegerGt() {
 		
 		CheckJob test = new CheckJob();
@@ -176,6 +185,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testIntegerGe() {
 		
 		CheckJob test = new CheckJob();
@@ -200,6 +210,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testStringEq() {
 		
 		CheckJob test = new CheckJob();
@@ -218,6 +229,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(1, test.getResult());
 	}
 	
+   @Test
 	public void testStringNe() {
 		
 		CheckJob test = new CheckJob();
@@ -236,6 +248,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(0, test.getResult());
 	}
 	
+   @Test
 	public void testStringLt() {
 		
 		CheckJob test = new CheckJob();
@@ -260,6 +273,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(1, test.getResult());
 	}
 	
+   @Test
 	public void testStringGt() {
 		
 		CheckJob test = new CheckJob();
@@ -326,6 +340,7 @@ public class CheckJobTest extends TestCase {
 		assertEquals(1, test.getResult());
 	}
 	
+   @Test
 	public void testTextExample() {
 				
 		Oddjob oddjob = new Oddjob();
@@ -341,6 +356,7 @@ public class CheckJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testTextIncompleteExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -369,6 +385,7 @@ public class CheckJobTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testNumberExample() {
 		
 		Oddjob oddjob = new Oddjob();
@@ -384,6 +401,7 @@ public class CheckJobTest extends TestCase {
 		oddjob.destroy();
 	}	
 	
+   @Test
 	public void testExistsExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

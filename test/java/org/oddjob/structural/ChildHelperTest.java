@@ -2,6 +2,9 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -11,7 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.MockStructural;
@@ -20,15 +23,16 @@ import org.oddjob.MockStructural;
 /**
  * 
  */
-public class ChildHelperTest extends TestCase {
+public class ChildHelperTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ChildHelperTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------   " + getName() + "  -------------");
 	}
 	
+   @Test
 	public void testReplaceChild() {
 		class MyL implements StructuralListener {
 			int added;
@@ -64,6 +68,7 @@ public class ChildHelperTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testDeadlockOnNotify() throws InterruptedException {
 
 		final ExecutorService executor = Executors.newFixedThreadPool(5);
@@ -159,6 +164,7 @@ public class ChildHelperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testNoMissedEvent() {
 				
 		ChildHelper<String> test = new ChildHelper<String>(new MockStructural());
@@ -192,6 +198,7 @@ public class ChildHelperTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAddAndRemove() {
 		
 		ChildHelper<Object> test = new ChildHelper<Object>(new MockStructural());
@@ -265,6 +272,7 @@ public class ChildHelperTest extends TestCase {
 		assertEquals(7, listener.types.size());
 	}
 	
+   @Test
 	public void testIterable() {
 		
 		ChildHelper<String> test = new ChildHelper<String>(new MockStructural());
@@ -298,6 +306,7 @@ public class ChildHelperTest extends TestCase {
 		assertEquals(false, iterator.hasNext());
 	}
 	
+   @Test
 	public void testIterableInFor() {
 		
 		ChildHelper<String> test = new ChildHelper<String>(new MockStructural());

@@ -1,11 +1,14 @@
 package org.oddjob.state;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.scheduling.state.TimerState;
 
-public class StateMatchTest extends TestCase {
+public class StateMatchTest extends OjTestCase {
 
+   @Test
 	public void testLotsOfExamples() {
 		
 		assertEquals(true, new StateMatch(

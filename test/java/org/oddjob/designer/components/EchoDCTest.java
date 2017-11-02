@@ -2,10 +2,14 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.log4j.Logger;
@@ -24,15 +28,23 @@ import org.oddjob.tools.OurDirs;
 /**
  *
  */
-public class EchoDCTest extends TestCase {
+public class EchoDCTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(EchoDCTest.class);
 	
-	public void setUp() {
+	@Rule public TestName name = new TestName();
+
+	public String getName() {
+        return name.getMethodName();
+    }
+
+	@Before
+    public void setUp() {
 		logger.debug("========================== " + getName() + "===================" );
 	}
 
 	DesignInstance design;
 	
+   @Test
 	public void testCreate() throws ArooaParseException {
 		
 		OurDirs dirs = new OurDirs();

@@ -1,4 +1,7 @@
 package org.oddjob.util;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
@@ -9,7 +12,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.mockito.Mockito;
@@ -17,17 +20,18 @@ import org.oddjob.Structural;
 import org.oddjob.oddballs.BuildOddballs;
 import org.oddjob.tools.OurDirs;
 
-public class ClassLoaderSorterTest extends TestCase {
+public class ClassLoaderSorterTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ClassLoaderSorterTest.class);
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("----------------------  " + getName() + "  -------------------------");
 	}
 	
+   @Test
 	public void testUnderstandingOfCreatingProxyWithWrongClassLoader() throws MalformedURLException, ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 
 		logger.info("System class loader is: " + ClassLoader.getSystemClassLoader());
@@ -62,6 +66,7 @@ public class ClassLoaderSorterTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testWhenTwoClassesUsedThenHighestClassLoaderIsUsed() throws MalformedURLException, ClassNotFoundException, SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 		
 		new BuildOddballs().run();
@@ -91,6 +96,7 @@ public class ClassLoaderSorterTest extends TestCase {
 		assertTrue(fruitClass.isInstance(proxy));
 	}
 	
+   @Test
 	public void testWhenSingleStructuralClassProxyRequiredCorrectClassLoaderIsGiven() throws MalformedURLException, ClassNotFoundException {
 		
 		

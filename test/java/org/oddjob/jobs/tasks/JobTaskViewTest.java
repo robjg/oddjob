@@ -1,13 +1,16 @@
 package org.oddjob.jobs.tasks;
 
+import org.junit.Test;
+
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.tools.StateSteps;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class JobTaskViewTest extends TestCase {
+public class JobTaskViewTest extends OjTestCase {
 
+   @Test
 	public void testJobStateExceptionReflectedOK() {
 		
 		FlagState flagState = new FlagState(JobState.EXCEPTION);

@@ -3,15 +3,18 @@
  */
 package org.oddjob.logging;
 
+import org.junit.Test;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.logging.cache.LogArchiveImpl;
 
-public class LogArchiveImplTest extends TestCase {
+public class LogArchiveImplTest extends OjTestCase {
 
+   @Test
 	public void testFullArchive() {
 		class MyL implements LogListener {
 			String previous;
@@ -44,6 +47,7 @@ public class LogArchiveImplTest extends TestCase {
 		assertNull(l2.previous);
 	}
 	
+   @Test
 	public void testOneMessage() {
 		class MyL implements LogListener {
 			List<LogEvent> results = new ArrayList<LogEvent>();
@@ -71,6 +75,7 @@ public class LogArchiveImplTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testFromMessage() {
 		class MyL implements LogListener {
 			List<LogEvent> results = new ArrayList<LogEvent>();
@@ -111,6 +116,7 @@ public class LogArchiveImplTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testLevel() {
 		class MyL implements LogListener {
 			List<LogEvent> results = new ArrayList<LogEvent>();

@@ -3,11 +3,13 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -32,7 +34,7 @@ import org.oddjob.schedules.units.DayOfWeek;
 /**
  * 
  */
-public class BrokenScheduleTest extends TestCase {
+public class BrokenScheduleTest extends OjTestCase {
 	
 	static Schedule brokenSchedule() throws ParseException, NoConversionAvailableException, ConversionFailedException {
 		
@@ -63,6 +65,7 @@ public class BrokenScheduleTest extends TestCase {
 	// 24  26
 	// 31
 	
+   @Test
 	public void testFromStartBeforeBreaks() throws Exception {
 		Schedule s = brokenSchedule();
 		
@@ -111,6 +114,7 @@ public class BrokenScheduleTest extends TestCase {
 
 	}
 	
+   @Test
 	public void testFromStartOnBreak() throws Exception {
 		Schedule s = brokenSchedule();
 				
@@ -135,6 +139,7 @@ public class BrokenScheduleTest extends TestCase {
 
 	}
 
+   @Test
 	public void testStartAfterBreaks() throws Exception {
 		Schedule s = brokenSchedule();
 		
@@ -165,6 +170,7 @@ public class BrokenScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testScheduleSpansBreaks() throws ParseException {
 		
 		MonthlySchedule schedule = new MonthlySchedule();
@@ -194,6 +200,7 @@ public class BrokenScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testWithTimeThatIsMaskedByBreak() throws ParseException {
 		
 		DateSchedule date = new DateSchedule();
@@ -219,6 +226,7 @@ public class BrokenScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testOverlappingSchedule() throws ParseException {
 		
 		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
@@ -289,6 +297,7 @@ public class BrokenScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testOverlappingIntervalSchedule() throws ParseException {
 		
 		WeeklySchedule dayOfWeekSchedule = new WeeklySchedule();
@@ -333,6 +342,7 @@ public class BrokenScheduleTest extends TestCase {
 		assertEquals(expected, results[1]);
 	}
 	
+   @Test
 	public void testAlternateScheduleInternals() throws ParseException {
 		
 		final List<Interval> parentIntervals = new ArrayList<Interval>();
@@ -423,6 +433,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testAlternateScheduleOverWeekend() throws ParseException {
 		
 		final List<Interval> parentIntervals = new ArrayList<Interval>();
@@ -519,6 +530,7 @@ public class BrokenScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
     public void testBrokenScheduleExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -543,6 +555,7 @@ public class BrokenScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testBrokenScheduleAlternative() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();

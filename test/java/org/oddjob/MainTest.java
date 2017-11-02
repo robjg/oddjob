@@ -2,6 +2,10 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -9,7 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
@@ -20,14 +24,14 @@ import org.oddjob.tools.StateSteps;
 /**
  * 
  */
-public class MainTest extends TestCase {
+public class MainTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(MainTest.class);
 	
 	String oddjobHome;
 	
-	@Override
-	protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
 		logger.debug(System.getProperty("ant.file"));
 		
@@ -35,8 +39,8 @@ public class MainTest extends TestCase {
 		System.getProperties().remove("oddjob.home");
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+   public void tearDown() throws Exception {
 		if (oddjobHome == null) {
 			System.getProperties().remove("oddjob.home");
 		}
@@ -46,6 +50,7 @@ public class MainTest extends TestCase {
 	}
 	
 	// test oddjob args past through
+   @Test
 	public void testInit() throws IOException {
 		OurDirs dirs = new OurDirs();
 		
@@ -57,6 +62,7 @@ public class MainTest extends TestCase {
 		assertEquals("x", oj.getArgs()[0]);
 	}
 	
+   @Test
 	public void testBadArg() throws IOException {
 		OurDirs dirs = new OurDirs();
 		
@@ -70,6 +76,7 @@ public class MainTest extends TestCase {
 		assertEquals("something-else.xml", oj.getArgs()[2]);
 	}
 		
+   @Test
 	public void testPassArgs() throws IOException {
 		OurDirs dirs = new OurDirs();
 		
@@ -83,6 +90,7 @@ public class MainTest extends TestCase {
 		assertEquals("something-else.xml", oj.getArgs()[1]);
 	}
 		
+   @Test
 	public void testOddjobName() throws IOException {
 		OurDirs dirs = new OurDirs();
 		
@@ -94,16 +102,19 @@ public class MainTest extends TestCase {
 		assertEquals("Test Jobs", oj.toString());
 	}
 		
+   @Test
 	public void testUsage() throws IOException {
 		
 		Main.main(new String[] { "-h" });
 	}
 	
+   @Test
 	public void testVersion() throws IOException {
 		
 		Main.main(new String[] { "-version" });
 	}
 	
+   @Test
 	public void testInitNoBalls() throws IOException {
 
 		OurDirs dirs = new OurDirs();
@@ -117,6 +128,7 @@ public class MainTest extends TestCase {
 		assertNull(oddjob.getDescriptorFactory());
 	}
 	
+   @Test
 	public void testDefaultBalls() throws IOException {
 
 		OurDirs dirs = new OurDirs();
@@ -135,6 +147,7 @@ public class MainTest extends TestCase {
 				result.getBaseDir().getCanonicalPath());
 	}
 	
+   @Test
 	public void testWithBalls() throws IOException {
 
 		OurDirs dirs = new OurDirs();
@@ -150,6 +163,7 @@ public class MainTest extends TestCase {
 		assertEquals(new File("someballs"), result.getBaseDir());
 	}	
 	
+   @Test
 	public void testBadFile() {
 
 		Main test = new Main();
@@ -164,6 +178,7 @@ public class MainTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testUserProperties() throws IOException {
 				
 		File userProperties = new File(System.getProperty("user.home"), 
@@ -201,6 +216,7 @@ public class MainTest extends TestCase {
 		}		
 	}
 	
+   @Test
 	public void testOddjobDestroyOnComplete() throws IOException {
 		
 		File f = new OurDirs().relative("test/conf/simple-echo.xml");
@@ -216,6 +232,7 @@ public class MainTest extends TestCase {
 				oddjob.lastStateEvent().getState());		
 	}
 	
+   @Test
 	public void testOddjobDestroyOnComleteWithServices() throws IOException, InterruptedException {
 		
 		File f = new OurDirs().relative("test/conf/testflow2.xml");

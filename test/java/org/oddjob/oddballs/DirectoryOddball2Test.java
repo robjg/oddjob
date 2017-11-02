@@ -1,5 +1,7 @@
 package org.oddjob.oddballs;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -8,11 +10,12 @@ import java.util.HashSet;
 
 import org.oddjob.tools.OurDirs;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
-public class DirectoryOddball2Test extends TestCase {
+public class DirectoryOddball2Test extends OjTestCase {
 
 	
+   @Test
 	public void testURLs() throws IOException {
 		
 		DirectoryOddball test = new DirectoryOddball();

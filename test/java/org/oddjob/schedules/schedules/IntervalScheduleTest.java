@@ -3,9 +3,11 @@
  */
 package org.oddjob.schedules.schedules;
 
+import org.junit.Test;
+
 import java.text.ParseException;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -20,8 +22,9 @@ import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleRoller;
 import org.oddjob.schedules.units.DayOfWeek;
 
-public class IntervalScheduleTest extends TestCase {
+public class IntervalScheduleTest extends OjTestCase {
 
+   @Test
 	public void testSimple() throws ParseException {
 		
 		IntervalSchedule test = new IntervalSchedule();
@@ -53,6 +56,7 @@ public class IntervalScheduleTest extends TestCase {
 		assertEquals(expected, results[2]);
 	}
 	
+   @Test
 	public void testSimpleConstrained() throws ParseException {
 		
 		TimeSchedule time = new TimeSchedule();
@@ -101,6 +105,7 @@ public class IntervalScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testEvery7HoursOnWednesday() throws ParseException {
 		
 		WeeklySchedule schedule = new WeeklySchedule();
@@ -149,6 +154,7 @@ public class IntervalScheduleTest extends TestCase {
 	 * 
 	 * @throws ParseException
 	 */
+   @Test
 	public void testEvery7HoursOnWednesday2() throws ParseException {
 		
 		WeeklySchedule schedule = new WeeklySchedule();
@@ -179,6 +185,7 @@ public class IntervalScheduleTest extends TestCase {
 		assertEquals(expected, results[1]);
 	}
 	
+   @Test
 	public void testOverMidnightWednesday() throws ParseException {
 		
 		WeeklySchedule day = new WeeklySchedule();
@@ -229,6 +236,7 @@ public class IntervalScheduleTest extends TestCase {
 		
 	}
 	
+   @Test
 	public void testInALargeParentInterval() throws ParseException {
 	
 		DateSchedule date = new DateSchedule();
@@ -251,6 +259,7 @@ public class IntervalScheduleTest extends TestCase {
 		assertEquals(expected, result);
 	}
 	
+   @Test
     public void testIntervalExample() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -276,6 +285,7 @@ public class IntervalScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testBadInterval() throws ParseException {
     	
 		IntervalSchedule test = new IntervalSchedule();		

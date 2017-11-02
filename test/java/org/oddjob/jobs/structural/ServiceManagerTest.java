@@ -1,11 +1,14 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -26,7 +29,7 @@ import org.oddjob.state.StateListener;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
 
-public class ServiceManagerTest extends TestCase {
+public class ServiceManagerTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(ServiceManagerTest.class);
 	
@@ -114,13 +117,14 @@ public class ServiceManagerTest extends TestCase {
 		}
 	}
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-------------------  " + getName() + "  -------------------");
 	}
 	
+   @Test
 	public void testExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -194,6 +198,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testException() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -254,6 +259,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testOneJob() throws ArooaPropertyException, ArooaConversionException, FailedToStopException {
 		
 		File file = new File(getClass().getResource(
@@ -318,6 +324,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testParallelExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		File file = new File(getClass().getResource(
@@ -399,6 +406,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testMultiParallelExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		File file = new File(getClass().getResource(
@@ -480,6 +488,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testMultiParallelExample2() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		File file = new File(getClass().getResource(
@@ -561,6 +570,7 @@ public class ServiceManagerTest extends TestCase {
 		oddjob.destroy();	
 	}
 	
+   @Test
 	public void testTimersExample() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		final List<Object> capture = new ArrayList<>();

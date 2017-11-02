@@ -2,6 +2,9 @@
  * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.schedules.schedules;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -9,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -32,13 +35,14 @@ import org.oddjob.schedules.units.WeekOfMonth;
  *
  * @author Rob Gordon.
  */
-public class MonthlyScheduleTest extends TestCase {
+public class MonthlyScheduleTest extends OjTestCase {
 //	private static Logger logger = Logger.getLogger(DayOfMonthScheduleTest.class); 
 	
     DateFormat checkFormat;
     DateFormat inputFormat;
     
-    protected void setUp() {
+   @Before
+   public void setUp() {
     	checkFormat = new SimpleDateFormat("dd-MMM-yy HH:mm:ss:SSS");
     	inputFormat = new SimpleDateFormat("dd-MMM-yy HH:mm");
     }
@@ -47,6 +51,7 @@ public class MonthlyScheduleTest extends TestCase {
      * Test the next due time when a date is between the from 
      * and the to date.
      */
+   @Test
     public void testFromAndTo() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setFromDay(new DayOfMonth.Number(5));
@@ -67,6 +72,7 @@ public class MonthlyScheduleTest extends TestCase {
      * Test the next due time when a date is after
      * the to time.
      */
+   @Test
     public void testAfter() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setFromDay(new DayOfMonth.Number(5));
@@ -88,6 +94,7 @@ public class MonthlyScheduleTest extends TestCase {
      * Test the next due when the from and to span
      * a month boundry.
      */
+   @Test
     public void testOverBoundry() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setFromDay(new DayOfMonth.Number(25));
@@ -120,6 +127,7 @@ public class MonthlyScheduleTest extends TestCase {
     /**
      * Test last day of the month.
      */
+   @Test
     public void testLastDay() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setFromDay(new DayOfMonth.Number(5));
@@ -146,6 +154,7 @@ public class MonthlyScheduleTest extends TestCase {
         assertEquals(expected2, interval2);        
     }
     
+   @Test
     public void testPenultimateDayOfMonth() throws ParseException {
     	
         MonthlySchedule schedule = new MonthlySchedule();
@@ -187,6 +196,7 @@ public class MonthlyScheduleTest extends TestCase {
         assertEquals(expected, results[4]);        
     }
     
+   @Test
     public void testLastDayOfMonthWithTimeOverMidnight() throws ParseException {
     	
         MonthlySchedule test = new MonthlySchedule();
@@ -253,6 +263,7 @@ public class MonthlyScheduleTest extends TestCase {
     }
     
     
+   @Test
     public void testDefaultFrom() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setToDay(new DayOfMonth.Number(25));
@@ -266,6 +277,7 @@ public class MonthlyScheduleTest extends TestCase {
         		result);
     }
 
+   @Test
     public void testDefaultTo() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setFromDay(new DayOfMonth.Number(5));
@@ -281,6 +293,7 @@ public class MonthlyScheduleTest extends TestCase {
         assertEquals(expected, result);
     }
     
+   @Test
     public void testInclusive() throws ParseException {
         MonthlySchedule schedule = new MonthlySchedule();
         schedule.setToDay(new DayOfMonth.Number(25));
@@ -295,6 +308,7 @@ public class MonthlyScheduleTest extends TestCase {
     	
     }
     
+   @Test
     public void testDayOfMonthExample1() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -329,6 +343,7 @@ public class MonthlyScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testDayOfMonthExample2() throws ArooaParseException, ParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -365,6 +380,7 @@ public class MonthlyScheduleTest extends TestCase {
     	assertEquals(expected, next);
     }
     
+   @Test
     public void testShiftFromCalendar() throws ParseException {
     	
     	MonthlySchedule test = new MonthlySchedule();
@@ -383,6 +399,7 @@ public class MonthlyScheduleTest extends TestCase {
     			result.getTime());
     }
     
+   @Test
     public void testDayOfWeekInMonth() throws ParseException {
     	
     	MonthlySchedule test = new MonthlySchedule();
@@ -406,6 +423,7 @@ public class MonthlyScheduleTest extends TestCase {
     	assertEquals(expected, result);
     }
     
+   @Test
     public void testDayOfWeekInMonthOverBoundry() throws ParseException {
     	
     	MonthlySchedule test = new MonthlySchedule();
@@ -439,6 +457,7 @@ public class MonthlyScheduleTest extends TestCase {
     			results[10]);
     }
     
+   @Test
     public void testLastFridayOfMonth() throws ParseException, ArooaParseException {
     	
     	OddjobDescriptorFactory df = new OddjobDescriptorFactory();
@@ -486,6 +505,7 @@ public class MonthlyScheduleTest extends TestCase {
     	assertEquals(expected, results[3]);
     }
     
+   @Test
     public void testToString() {
     	MonthlySchedule test = new MonthlySchedule();
     	test.setOnDayOfWeek(DayOfWeek.Days.FRIDAY);

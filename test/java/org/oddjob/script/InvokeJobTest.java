@@ -1,9 +1,12 @@
 package org.oddjob.script;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -19,17 +22,18 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
-public class InvokeJobTest extends TestCase {
+public class InvokeJobTest extends OjTestCase {
 	
 	private static final Logger logger = Logger.getLogger(InvokeJobTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("--------------------  " + getName() + "  -------------------------");
 	}
 	
+   @Test
 	public void testMethodExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		OddjobPersister persister = new MapPersister();
@@ -83,6 +87,7 @@ public class InvokeJobTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStop() throws InterruptedException, FailedToStopException {
 		
 		Foo foo = new Foo();
@@ -102,6 +107,7 @@ public class InvokeJobTest extends TestCase {
 		test.stop();	
 	}
 	
+   @Test
 	public void testStaticMethodExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();

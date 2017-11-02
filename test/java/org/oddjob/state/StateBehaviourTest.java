@@ -1,6 +1,9 @@
 package org.oddjob.state;
+import org.junit.Before;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -16,13 +19,12 @@ import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.tools.StateSteps;
 
-public class StateBehaviourTest extends TestCase {
+public class StateBehaviourTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(StateBehaviourTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
 		
 		logger.info("--------------------  " + getName() + "  ----------------");
 	}
@@ -33,6 +35,7 @@ public class StateBehaviourTest extends TestCase {
 	 * 
 	 * @throws ArooaParseException
 	 */
+   @Test
 	public void testEmptyParentState() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -63,6 +66,7 @@ public class StateBehaviourTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testEmptySequential() throws ArooaParseException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -84,6 +88,7 @@ public class StateBehaviourTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testExecutingSequential() throws ArooaParseException, InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -131,6 +136,7 @@ public class StateBehaviourTest extends TestCase {
 		public void stop() {}
 	}
 	
+   @Test
 	public void testActiveSequential() throws ArooaParseException, InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -176,6 +182,7 @@ public class StateBehaviourTest extends TestCase {
 		oddjob.destroy();
 	}
 
+   @Test
 	public void testServiceActiveSequential() throws ArooaParseException, InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -224,6 +231,7 @@ public class StateBehaviourTest extends TestCase {
 	}
 	
 	
+   @Test
 	public void testRunningChildren() throws ArooaParseException, InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();

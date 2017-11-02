@@ -2,10 +2,13 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jmx;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.io.File;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Logger;
@@ -36,10 +39,11 @@ import org.oddjob.values.VariablesJob;
  * Test for both client and server together.
  *
  */
-public class TogetherTest extends TestCase {
+public class TogetherTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(TogetherTest.class);
 
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		logger.debug("================= " + getName() + "==================");
 	}
 	
@@ -53,6 +57,7 @@ public class TogetherTest extends TestCase {
 	 * @throws NoConversionAvailableException 
 	 * @throws Exception 
 	 */
+   @Test
 	public void testMultipleClientServers() throws NoConversionAvailableException, ConversionFailedException, Exception {
 
 		DefaultExecutors services = new DefaultExecutors();
@@ -126,6 +131,7 @@ public class TogetherTest extends TestCase {
 	 * 
 	 * @throws Exception
 	 */
+   @Test
 	public void testValueCanBeRetrievedAccrossMultipleServers() throws Exception {
 		
 		File file = new File(getClass().getResource("together2.xml").getFile());
@@ -148,6 +154,7 @@ public class TogetherTest extends TestCase {
 	/**
 	 * Test a serving a nested oddjob. 
 	 */ 
+   @Test
 	public void testServingNestedOddjob() throws Exception {
 		
 		Oddjob oj = new Oddjob();
@@ -170,6 +177,7 @@ public class TogetherTest extends TestCase {
 	}
 	
 	// test a client and server pair that share each other.
+   @Test
 	public void testClientServerLoopback() throws Exception {
 		
 		TrackingServices services = new TrackingServices(3);
@@ -223,6 +231,7 @@ public class TogetherTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testAnyInterface() {
 		
 		String serverXml = 
@@ -291,6 +300,7 @@ public class TogetherTest extends TestCase {
 		serverOddjob.destroy();
 	}
 	
+   @Test
 	public void testForEachConfigurationOwner() throws FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();

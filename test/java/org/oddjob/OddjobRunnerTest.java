@@ -1,8 +1,12 @@
 package org.oddjob;
+import org.junit.Before;
+import org.junit.After;
+
+import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.OddjobRunner.ExitHandler;
@@ -15,15 +19,15 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class OddjobRunnerTest extends TestCase {
+public class OddjobRunnerTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(OddjobRunnerTest.class);
 	
 	String timeoutProperty;
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+    public void setUp() throws Exception {
+
 		
 		logger.info("-----------------  " + getName() + "  ---------------------");
 		
@@ -31,9 +35,9 @@ public class OddjobRunnerTest extends TestCase {
 				OddjobRunner.KILLER_TIMEOUT_PROPERTY);
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
-		super.tearDown();
+    @After
+    public void tearDown() throws Exception {
+
 		
 		if (timeoutProperty == null) {
 			System.getProperties().remove(
@@ -70,6 +74,7 @@ public class OddjobRunnerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testOddjobDestroyedFromShutdownHook() throws Exception {
 		
 		System.setProperty(OddjobRunner.KILLER_TIMEOUT_PROPERTY, 
@@ -160,6 +165,7 @@ public class OddjobRunnerTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testTimeoutKiller() throws Exception {
 		
 		System.setProperty(OddjobRunner.KILLER_TIMEOUT_PROPERTY, "1");

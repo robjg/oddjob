@@ -1,9 +1,11 @@
 package org.oddjob.oddballs;
 
+import org.junit.Test;
+
 import java.io.File;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -16,10 +18,11 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
-public class OddballsDescriptorFactoryTest extends TestCase {
+public class OddballsDescriptorFactoryTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(
 			OddballsDescriptorFactoryTest.class);
 	
+   @Test
 	public void testOddballs() throws ArooaParseException {
 
 		new BuildOddballs().run();
@@ -45,6 +48,7 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 	}
 
 	
+   @Test
 	public void testOddballsExample() throws ArooaParseException {
 
 		new BuildOddballs().run();
@@ -65,6 +69,7 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testClassResolverResources() {
 		
 		new BuildOddballs().run();
@@ -86,6 +91,7 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 		assertTrue(urls[2].toExternalForm().contains("apple"));
 	}
 	
+   @Test
 	public void testClassResolverClassLoaders() {
 		
 		new BuildOddballs().run();
@@ -126,6 +132,7 @@ public class OddballsDescriptorFactoryTest extends TestCase {
 		assertTrue(classLoaders[1].toString().contains("apple"));
 	}
 	
+   @Test
 	public void testNoOddballs() {
 		
 		OddballsDirDescriptorFactory test = new OddballsDirDescriptorFactory();

@@ -2,8 +2,12 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.values.properties;
+import org.junit.Before;
+import org.junit.After;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Oddjob;
@@ -13,10 +17,11 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 /**
  * Test System Properties.
  */
-public class PropertiesJobSystemTest extends TestCase {
+public class PropertiesJobSystemTest extends OjTestCase {
 	private static final Logger logger = Logger.getLogger(PropertiesJobSystemTest.class);
 	
-	protected void setUp() {
+   @Before
+   public void setUp() {
 		
 		logger.debug("--------------- " + getName() + " -----------------" );
 		
@@ -26,11 +31,12 @@ public class PropertiesJobSystemTest extends TestCase {
 		System.setProperty("oddjob.test", "Test");
 	}
 	
-	@Override
-	protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
 		System.getProperties().remove("oddjob.test");
 	}
 		
+   @Test
 	public void testSystemPropertyInOddjob() throws Exception {
 
 		String xml=
@@ -54,6 +60,7 @@ public class PropertiesJobSystemTest extends TestCase {
 	
 
 	
+   @Test
 	public void testSettingAllInOddjob() throws Exception {
 		
 		String xml=

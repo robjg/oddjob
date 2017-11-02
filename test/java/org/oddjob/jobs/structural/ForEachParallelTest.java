@@ -1,4 +1,7 @@
 package org.oddjob.jobs.structural;
+import org.junit.Before;
+
+import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.Future;
 
-import junit.framework.TestCase;
+import org.oddjob.OjTestCase;
 
 import org.apache.log4j.Logger;
 import org.oddjob.FailedToStopException;
@@ -33,19 +36,20 @@ import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 
-public class ForEachParallelTest extends TestCase {
+public class ForEachParallelTest extends OjTestCase {
 
 	private static final Logger logger = Logger.getLogger(
 			ForEachParallelTest.class);
 	
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+   @Before
+   public void setUp() throws Exception {
+
 		
 		logger.info("----------------------------------  " + getName() +
 				"  ---------------------------------------");
 	}
 	
+   @Test
 	public void testSimpleParallel() throws InterruptedException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
@@ -85,6 +89,7 @@ public class ForEachParallelTest extends TestCase {
     	defaultServices.stop();
 	}
 	
+   @Test
 	public void testStop() throws InterruptedException, FailedToStopException {
 		
 		DefaultExecutors defaultServices = new DefaultExecutors();
@@ -162,6 +167,7 @@ public class ForEachParallelTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testStopWithSlowStartingChild() throws InterruptedException, FailedToStopException {
 		
 		MyExecutor executor = new MyExecutor();
@@ -214,6 +220,7 @@ public class ForEachParallelTest extends TestCase {
     	test.destroy();    	
 	}
 	
+   @Test
 	public void testExampleInOddjob() throws InterruptedException, FailedToStopException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -311,6 +318,7 @@ public class ForEachParallelTest extends TestCase {
 	}
 		
 	
+   @Test
 	public void testParallelWithWindow() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();
@@ -381,6 +389,7 @@ public class ForEachParallelTest extends TestCase {
 		oddjob.destroy();
 	}
 	
+   @Test
 	public void testParallelWithWindowStop() throws FailedToStopException, ArooaPropertyException, ArooaConversionException, InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();

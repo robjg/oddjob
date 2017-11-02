@@ -1,6 +1,8 @@
 package org.oddjob.jmx.handlers;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+
+import org.oddjob.OjTestCase;
 
 import org.oddjob.Loadable;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
@@ -16,7 +18,7 @@ import org.oddjob.jmx.server.ServerInterfaceManager;
 import org.oddjob.jmx.server.ServerInterfaceManagerFactory;
 import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
 
-public class LoadableHandlerFactoryTest extends TestCase {
+public class LoadableHandlerFactoryTest extends OjTestCase {
 
 	public class MyLoadable implements Loadable {
 		boolean loaded;
@@ -52,6 +54,7 @@ public class LoadableHandlerFactoryTest extends TestCase {
 		}
 	}
 	
+   @Test
 	public void testCreation() {
 		
 		HandlerFactoryProvider provider = 
