@@ -1,9 +1,10 @@
 package org.oddjob.persist;
 
+import static org.junit.Assert.assertEquals;
+
 import java.io.Serializable;
 
-import org.oddjob.OjTestCase;
-
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -14,7 +15,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 
-public class PersistAssumptionsTest extends OjTestCase {
+public class PersistAssumptionsTest {
 
 	public static class Thing implements Runnable, Serializable {
 		private static final long serialVersionUID = 2010121300L;
@@ -48,7 +49,8 @@ public class PersistAssumptionsTest extends OjTestCase {
 		}
 	}
 	
-	public static void testValues() throws ArooaPropertyException, ArooaConversionException {
+	@Test
+	public void testValues() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
 			"<oddjob id='this'>" +

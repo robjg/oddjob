@@ -300,7 +300,7 @@ public class BeanQueueTest extends Assert {
 		
 		((Runnable) parallel).run();
 		
-		states.checkNow();
+		states.checkWait();
 		
 		results = lookup.lookup(
 				"results.beans", List.class);
