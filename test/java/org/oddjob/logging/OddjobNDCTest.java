@@ -3,11 +3,10 @@
  */
 package org.oddjob.logging;
 
-import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.tools.OddjobTestHelper;

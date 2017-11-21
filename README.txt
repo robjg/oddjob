@@ -3,15 +3,16 @@ Oddjob-1.6.0
 
 * Oddjob 1.6 requires Java 8, maybe Java 9 by the time it's released..
 
-* Please Note: This is release is not serialisation compatible with 
+* Please Note: This release is not serialisation compatible with 
 Oddjob 1.5. All persisted job state will need to be deleted before upgrading.
 
 Changes in 1.6.0
 ----------------
+- Move Tests to JUnit 4.
+- Upgrade oj-ant to Ant 1.10.1
 
 Still Todo
 ----------
-- Move Tests to Junit 4.
 - Add Security to the WebApp (with a Read Only role).  
 
 Deferred to A Later Version

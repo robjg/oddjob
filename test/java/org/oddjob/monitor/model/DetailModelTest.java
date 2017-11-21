@@ -3,21 +3,19 @@
  */
 package org.oddjob.monitor.model;
 
-import org.junit.Test;
-
 import java.util.Observable;
 import java.util.Observer;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobConsole;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
 import org.oddjob.state.StateListener;

@@ -1,21 +1,21 @@
-package org.oddjob.logging.log4j;
-import org.junit.Before;
-
-import org.junit.Test;
+package org.oddjob.logging.slf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oddjob.OjTestCase;
-
-import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.logging.Appender;
+import org.oddjob.arooa.logging.AppenderAdapter;
+import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.logging.LoggingEvent;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -31,22 +31,13 @@ public class LogoutTypeTest extends OjTestCase {
 	}
 	
 	
-	private class Results extends AppenderSkeleton {
+	private class Results implements Appender {
 		
 		List<Object> messages = new ArrayList<Object>();
 		
 		@Override
-		protected void append(LoggingEvent arg0) {
-			messages.add(arg0.getMessage());
-		}
-
-		@Override
-		public void close() {
-		}
-
-		@Override
-		public boolean requiresLayout() {
-			return false;
+		public void append(LoggingEvent event) {
+			messages.add(event.getMessage());
 		}
 	}
 	
@@ -59,7 +50,7 @@ public class LogoutTypeTest extends OjTestCase {
 		
 		Results results = new Results();
 		
-		Logger.getLogger(logName).addAppender(results);
+		LoggerAdapter.appenderAdapterFor(logName).addAppender(results);
 		
 		LogoutType logout = new LogoutType();		
 		logout.setLogger(logName);
@@ -70,7 +61,7 @@ public class LogoutTypeTest extends OjTestCase {
 		
 		test.close();
 		
-		Logger.getLogger(logName).removeAppender(results);
+		LoggerAdapter.appenderAdapterFor(logName).removeAppender(results);
 		
 		assertEquals(1, results.messages.size());
 		assertEquals("Hello World.", results.messages.get(0));
@@ -114,15 +105,15 @@ public class LogoutTypeTest extends OjTestCase {
 		
 		Results results = new Results();
 		
-		Logger logger = Logger.getLogger(logName);;
-		logger.addAppender(results);
+		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(logName);;
+		appenderAdapter.addAppender(results);
 		
 		oddjob.run();
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
 
-		logger.removeAppender(results);
+		appenderAdapter.removeAppender(results);
 		
 		String sanityCheck = new OddjobLookup(oddjob).lookup("hello", String.class);
 		assertEquals("Hello", sanityCheck.trim());
@@ -139,13 +130,13 @@ public class LogoutTypeTest extends OjTestCase {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/logging/log4j/LogoutExample.xml", 
+				"org/oddjob/logging/slf4j/LogoutExample.xml", 
 				getClass().getClassLoader()));
 		oddjob.setArgs(new String[] { dirs.base().toString() } );
 		
 		Results results = new Results();
 		
-		Logger logger = Logger.getLogger(LogoutType.class);;
+		AppenderAdapter logger = LoggerAdapter.appenderAdapterFor(LogoutType.class);
 		logger.addAppender(results);
 		
 		oddjob.run();
@@ -156,6 +147,8 @@ public class LogoutTypeTest extends OjTestCase {
 		oddjob.destroy();
 		
 		assertTrue(results.messages.get(0).toString().trim().equals("Test"));		
+		
+		logger.removeAppender(results);
 	}
 	
 }

@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogEventSink;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**

@@ -8,13 +8,13 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.oddjob.Stateful;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
 
 /**
  * An base implementation of a Cache for LogEvents.

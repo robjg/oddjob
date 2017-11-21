@@ -24,7 +24,7 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
-import org.oddjob.logging.LogLevel;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.monitor.model.LogAction;
 import org.oddjob.monitor.model.LogEventProcessor;
 

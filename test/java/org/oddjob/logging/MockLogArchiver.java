@@ -1,5 +1,7 @@
 package org.oddjob.logging;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 public class MockLogArchiver implements LogArchiver {
 
 	public void addLogListener(LogListener l, Object component, LogLevel level,

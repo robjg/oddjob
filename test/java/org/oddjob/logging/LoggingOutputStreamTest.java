@@ -2,10 +2,6 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.logging;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,9 +9,11 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.util.IO;
 
 /**

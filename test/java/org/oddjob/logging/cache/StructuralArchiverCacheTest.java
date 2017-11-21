@@ -4,17 +4,14 @@
 package org.oddjob.logging.cache;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.Structural;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
-import org.oddjob.logging.cache.StructuralArchiverCache;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 

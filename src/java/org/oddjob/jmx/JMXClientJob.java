@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 import javax.management.MBeanServerConnection;
 
 import org.oddjob.Structural;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.jmx.client.ClientSession;
 import org.oddjob.jmx.client.ClientSessionImpl;
 import org.oddjob.jmx.client.RemoteLogPoller;
@@ -14,7 +15,6 @@ import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;

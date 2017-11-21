@@ -12,8 +12,8 @@ import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
-import org.oddjob.logging.log4j.Log4jArchiver;
 
 /**
  *  Provide a server context which can be passed down through the nodes
@@ -50,7 +50,7 @@ public class ServerContextImpl implements ServerContext {
 		this.node = root;
 		
 		String logFormat = model.getLogFormat();
-		logArchiver = new Log4jArchiver(root, 
+		logArchiver = new AppenderArchiver(root, 
 				logFormat == null ? OJConstants.DEFAULT_LOG_FORMAT : logFormat);
 		consoleArchiver = new LocalConsoleArchiver();
 

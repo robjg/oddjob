@@ -4,14 +4,12 @@
 package org.oddjob.logging.console;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.OddjobConsole;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
 import org.oddjob.logging.cache.LogArchiveImpl;

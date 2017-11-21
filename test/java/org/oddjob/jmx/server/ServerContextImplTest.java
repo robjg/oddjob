@@ -4,10 +4,9 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.InvalidIdException;
@@ -18,7 +17,6 @@ import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
 

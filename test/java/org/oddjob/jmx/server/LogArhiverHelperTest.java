@@ -4,12 +4,10 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 public class LogArhiverHelperTest extends OjTestCase {

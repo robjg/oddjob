@@ -5,6 +5,8 @@ package org.oddjob.logging;
 
 import java.io.Serializable;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 /**
  * A LogEvent is archived in a LogArchiver. These LogEvents are Serialised so
  * they may be sent across the network. 

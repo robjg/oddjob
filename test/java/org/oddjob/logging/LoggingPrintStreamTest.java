@@ -2,17 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.logging;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.cache.LogArchiveImpl;
 
 /**

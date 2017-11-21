@@ -3,7 +3,7 @@
  */
 package org.oddjob.monitor.model;
 
-import org.oddjob.logging.LogLevel;
+import org.oddjob.arooa.logging.LogLevel;
 
 /**
  *  

@@ -3,6 +3,8 @@
  */
 package org.oddjob.logging;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 /**
  * A LogArchiver is something which has archived away log messages for different
  * components. A components archived log messages are identified by an archive

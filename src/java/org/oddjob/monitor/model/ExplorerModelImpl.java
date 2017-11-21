@@ -11,8 +11,8 @@ import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
-import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.monitor.actions.ExplorerAction;
 import org.oddjob.monitor.actions.ResourceActionProvider;
 import org.oddjob.monitor.context.ContextInitialiser;
@@ -37,7 +37,7 @@ public class ExplorerModelImpl implements ExplorerModel {
 	private ThreadManager threadManager;
 	
 	/** The logArchiver */
-	private Log4jArchiver logArchiver;
+	private AppenderArchiver logArchiver;
 	
 	/** The console archiver. */
 	private LocalConsoleArchiver consoleArchiver;
@@ -81,7 +81,7 @@ public class ExplorerModelImpl implements ExplorerModel {
 	 */
 	public void setOddjob(Oddjob rootNode) {
 		this.oddjob = rootNode;
-		logArchiver = new Log4jArchiver(rootNode, 
+		logArchiver = new AppenderArchiver(rootNode, 
 				logFormat == null ? OJConstants.DEFAULT_LOG_FORMAT : logFormat);
 		consoleArchiver = new LocalConsoleArchiver();
 	}

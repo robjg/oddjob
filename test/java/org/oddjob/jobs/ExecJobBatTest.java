@@ -1,16 +1,14 @@
 package org.oddjob.jobs;
 
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
 

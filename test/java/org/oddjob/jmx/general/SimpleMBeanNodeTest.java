@@ -1,23 +1,20 @@
 package org.oddjob.jmx.general;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.script.ConvertableArguments;

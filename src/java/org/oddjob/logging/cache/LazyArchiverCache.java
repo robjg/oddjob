@@ -3,9 +3,9 @@
  */
 package org.oddjob.logging.cache;
 
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**

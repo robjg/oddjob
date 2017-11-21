@@ -3,15 +3,13 @@
  */
 package org.oddjob.monitor.model;
 
-import org.junit.Test;
-
 import java.util.Observable;
 import java.util.Observer;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 
 /**
  * 

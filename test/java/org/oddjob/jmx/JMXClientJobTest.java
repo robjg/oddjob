@@ -2,11 +2,6 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx;
-import org.junit.Before;
-
-import org.junit.Test;
-
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,21 +9,23 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobConsole;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanDirectoryOwner;
@@ -43,7 +40,6 @@ import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.EventThreadLaterExecutor;

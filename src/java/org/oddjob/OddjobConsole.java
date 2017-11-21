@@ -3,10 +3,10 @@ package org.oddjob;
 import java.io.PrintStream;
 
 import org.apache.log4j.Logger;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEventSink;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LoggingPrintStream;
 import org.oddjob.logging.cache.LogArchiveImpl;
 

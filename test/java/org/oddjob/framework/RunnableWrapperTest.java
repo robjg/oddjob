@@ -3,24 +3,22 @@
  */
 package org.oddjob.framework;
 
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -31,6 +29,7 @@ import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.parsing.MockArooaContext;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
@@ -44,7 +43,6 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.state.JobState;

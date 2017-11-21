@@ -1,18 +1,20 @@
 /*
  * (c) Rob Gordon 2005
  */
-package org.oddjob.logging.log4j;
+package org.oddjob.logging.appender;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
+import org.oddjob.arooa.logging.AppenderAdapter;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.MockLogArchiver;
+import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -38,10 +40,12 @@ public class Log4jArchiverTest extends OjTestCase {
    @Test
 	public void testSimpleLogOutputCaptured() {
 		X x = new X();
-		Log4jArchiver archiver = new Log4jArchiver(x, "%m");
+		AppenderArchiver archiver = new AppenderArchiver(x, "%m");
 		
+		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo");
+		adapter.setLevel(LogLevel.DEBUG);
+
 		Logger logger = Logger.getLogger("foo");
-		logger.setLevel(Level.DEBUG);
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();
@@ -73,16 +77,20 @@ public class Log4jArchiverTest extends OjTestCase {
 		OurStructural root = new OurStructural();
 		root.children.insertChild(0, x);
 		
-		Log4jArchiver archiver = new Log4jArchiver(root, "%m");
+		AppenderArchiver archiver = new AppenderArchiver(root, "%m");
+
+		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
+				.setLevel(LogLevel.DEBUG);
 		
 		Logger logger = Logger.getLogger("foo");
-		logger.setLevel(Level.DEBUG);
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();
 		archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
 		
 		assertEquals("event message", "Hello World", tl.le.getMessage());
+
+		adapter.setLevel(LogLevel.INFO);
 	}
 	
 	private class OurArchiver extends MockLogArchiver implements LogEnabled {
@@ -101,14 +109,18 @@ public class Log4jArchiverTest extends OjTestCase {
 		root.children.insertChild(0, x);
 		
 		Log4jArchiver archiver = new Log4jArchiver(root, "%m");
+
+		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
+				.setLevel(LogLevel.DEBUG);
 		
 		Logger logger = Logger.getLogger("foo");
-		logger.setLevel(Level.DEBUG);
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();
 		archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
 		
 		assertEquals("event message", "Hello World", tl.le.getMessage());
+		
+		adapter.setLevel(LogLevel.INFO);
 	}
 }

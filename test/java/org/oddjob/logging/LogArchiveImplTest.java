@@ -3,13 +3,12 @@
  */
 package org.oddjob.logging;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.cache.LogArchiveImpl;
 
 public class LogArchiveImplTest extends OjTestCase {

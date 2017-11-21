@@ -2,10 +2,6 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jobs;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -14,21 +10,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.utils.ArooaTokenizer;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FilesType;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;

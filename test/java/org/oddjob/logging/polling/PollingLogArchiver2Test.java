@@ -1,16 +1,14 @@
 package org.oddjob.logging.polling;
 
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.jmx.client.MockLogPollable;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.cache.LogEventSource;
 import org.oddjob.logging.cache.PollingLogArchiver;

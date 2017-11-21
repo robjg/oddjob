@@ -9,11 +9,11 @@ import java.beans.PropertyChangeSupport;
 import java.util.Observable;
 
 import org.oddjob.Stateful;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.PropertyChangeNotifier;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;

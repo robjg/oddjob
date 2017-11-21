@@ -1,13 +1,13 @@
-package org.oddjob.logging.log4j;
+package org.oddjob.logging.appender;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.SimpleLayout;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.cache.MockLogArchiverCache;
 
@@ -39,11 +39,11 @@ public class ArchiveAppenderTest extends OjTestCase {
 		OurArchiver archiver = new OurArchiver();
 		
 		ArchiveAppender test = new ArchiveAppender(
-				archiver, new SimpleLayout());
+				archiver, LoggerAdapter.layoutFor("%p - %m"));
 		
 		logger.setLevel(Level.TRACE);
 		
-		logger.addAppender(test);
+		LoggerAdapter.appenderAdapterFor(ArchiveAppenderTest.class).addAppender(test);
 		
 		logger.trace("trace.");
 		logger.debug("debug.");
@@ -52,7 +52,7 @@ public class ArchiveAppenderTest extends OjTestCase {
 		logger.error("error.");
 		logger.fatal("fatal.");
 		
-		logger.removeAppender(test);
+		LoggerAdapter.appenderAdapterFor(ArchiveAppenderTest.class).removeAppender(test);
 		
 		assertEquals("TRACE - trace.", 
 				archiver.messages.get(LogLevel.TRACE).trim());

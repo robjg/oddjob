@@ -1,6 +1,6 @@
 package org.oddjob.logging.cache;
 
-import org.oddjob.logging.LogLevel;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 public class MockLogArchiverCache implements LogArchiverCache {

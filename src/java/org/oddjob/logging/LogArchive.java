@@ -3,6 +3,7 @@
  */
 package org.oddjob.logging;
 
+import org.oddjob.arooa.logging.LogLevel;
 
 /**
  * A log archive. This archives events and supports listeners.

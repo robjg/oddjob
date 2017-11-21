@@ -2,10 +2,6 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.client;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,13 +27,14 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OddjobConsole;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ClassResolver;
@@ -45,6 +42,7 @@ import org.oddjob.arooa.MockArooaDescriptor;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.MockClassResolver;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -70,7 +68,6 @@ import org.oddjob.jmx.server.ServerModel;
 import org.oddjob.jmx.server.ServerModelImpl;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.util.MockThreadManager;
 
 /**

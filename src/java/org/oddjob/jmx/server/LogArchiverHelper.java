@@ -6,10 +6,10 @@ package org.oddjob.jmx.server;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**

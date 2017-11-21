@@ -3,17 +3,15 @@
  */
 package org.oddjob.jmx.server;
 
-import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
 

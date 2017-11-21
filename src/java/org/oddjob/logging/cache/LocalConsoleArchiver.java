@@ -4,10 +4,10 @@
 package org.oddjob.logging.cache;
 
 import org.oddjob.OddjobConsole;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogArchive;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**

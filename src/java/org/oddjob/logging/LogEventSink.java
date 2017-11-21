@@ -1,5 +1,7 @@
 package org.oddjob.logging;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 /**
  * Something that is able to accept log messages.
  * 

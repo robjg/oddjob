@@ -2,23 +2,21 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jmx.client;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.MockArooaDescriptor;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.MockClassResolver;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -37,7 +35,6 @@ import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 
 /**

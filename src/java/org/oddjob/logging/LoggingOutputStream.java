@@ -2,6 +2,8 @@ package org.oddjob.logging;
 
 import java.io.OutputStream;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 /**
  * An output stream that splits output into an existing
  * output stream if supplied, and a console archive. 

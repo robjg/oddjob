@@ -1,7 +1,5 @@
 package org.oddjob.beanbus.mega;
 
-import org.junit.Test;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -12,14 +10,14 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.Resetable;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -27,6 +25,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.InstantiationContext;
+import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
@@ -46,7 +45,6 @@ import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogLevel;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.state.ParentState;

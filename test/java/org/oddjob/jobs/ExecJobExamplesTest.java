@@ -9,18 +9,19 @@ import java.util.List;
 import java.util.Properties;
 
 import org.oddjob.OjTestCase;
-
-import org.apache.log4j.AppenderSkeleton;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.spi.LoggingEvent;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.logging.Appender;
+import org.oddjob.arooa.logging.AppenderAdapter;
+import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.logging.LoggingEvent;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.logging.log4j.LogoutType;
+import org.oddjob.logging.slf4j.LogoutType;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
@@ -165,28 +166,19 @@ public class ExecJobExamplesTest extends OjTestCase {
 	}
 	
 	
-	private class Results extends AppenderSkeleton {
+	private class Results implements Appender {
 		
 		List<Object> info = new ArrayList<Object>();
 		List<Object> warn = new ArrayList<Object>();
 		
 		@Override
-		protected void append(LoggingEvent arg0) {
-			if (arg0.getLevel().equals(Level.INFO)) {
+		public void append(LoggingEvent arg0) {
+			if (arg0.getLevel() == LogLevel.INFO) {
 				info.add(arg0.getMessage());
 			}
-			if (arg0.getLevel().equals(Level.WARN)) {
+			if (arg0.getLevel() == (LogLevel.WARN)) {
 				warn.add(arg0.getMessage());
 			}
-		}
-
-		@Override
-		public void close() {
-		}
-
-		@Override
-		public boolean requiresLayout() {
-			return false;
 		}
 	}
 	
@@ -207,11 +199,14 @@ public class ExecJobExamplesTest extends OjTestCase {
 		
 		Results results = new Results();
 		
-		Logger logger = Logger.getLogger(LogoutType.class);;
-		logger.addAppender(results);
+		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(LogoutType.class);
+		
+		appenderAdapter.addAppender(results);
 		
 		oddjob.run();
 				
+		appenderAdapter.removeAppender(results);
+		
 		assertEquals(ParentState.INCOMPLETE,
 				oddjob.lastStateEvent().getState());
 		
