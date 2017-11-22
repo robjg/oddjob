@@ -43,13 +43,13 @@ implements Iterable<E>, Stoppable {
 
 	private static final Logger logger = Logger.getLogger(BeanQueue.class);
 	
-	private int capacity;
+	private final static Object STOP = new Object();
+	
+	private volatile int capacity;
 
 	private volatile BlockingQueue<Object> queue;
 	
-	private final static Object STOP = new Object();
-	
-	private String name;
+	private volatile String name;
 	
 	private volatile int taken;
 	

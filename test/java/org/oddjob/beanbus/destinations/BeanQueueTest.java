@@ -294,6 +294,8 @@ public class BeanQueueTest extends Assert {
 		
 		((Resetable) parallel).hardReset();
 		
+		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+		
 		states.startCheck(ParentState.READY,
 				ParentState.ACTIVE,
 				ParentState.COMPLETE);

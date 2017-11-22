@@ -16,7 +16,7 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
-import org.oddjob.logging.log4j.Log4jArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.script.ConvertableArguments;
 import org.oddjob.script.InvokerArguments;
 
@@ -96,7 +96,7 @@ public class SimpleMBeanNodeTest extends OjTestCase {
 				objectName, mBeanServer, 
 				new ClassLoaderClassResolver(getClass().getClassLoader()));
 		
-		Log4jArchiver archiver = new Log4jArchiver(test, "%m");
+		AppenderArchiver archiver = new AppenderArchiver(test, "%m");
 		
 		archiver.addLogListener(new TestListener(), test, 
 				LogLevel.DEBUG, -1, 10000);

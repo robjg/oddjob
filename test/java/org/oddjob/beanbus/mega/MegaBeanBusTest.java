@@ -46,7 +46,7 @@ import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
-import org.oddjob.logging.log4j.Log4jArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.IconSteps;
 
@@ -595,7 +595,7 @@ public class MegaBeanBusTest extends OjTestCase {
     	
     	Logger.getLogger(loggerName).setLevel(Level.INFO);
     	
-    	Log4jArchiver archiver = new Log4jArchiver(thingWithLogging, "%m%n");
+    	AppenderArchiver archiver = new AppenderArchiver(thingWithLogging, "%m%n");
     	
     	MyLogListener ll = new MyLogListener();
     	archiver.addLogListener(ll, thingWithLogging, LogLevel.DEBUG, 0, 1000);

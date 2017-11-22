@@ -44,7 +44,7 @@ import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
-import org.oddjob.logging.log4j.Log4jArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
@@ -521,7 +521,7 @@ public class RunnableWrapperTest extends OjTestCase {
     	
     	Logger.getLogger(proxyLoggerName).setLevel(Level.DEBUG);
     	
-    	Log4jArchiver archiver = new Log4jArchiver(proxy, "%m%n");
+    	AppenderArchiver archiver = new AppenderArchiver(proxy, "%m%n");
     	
     	MyL ll = new MyL();
     	archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);
@@ -559,7 +559,7 @@ public class RunnableWrapperTest extends OjTestCase {
     	assertEquals("MyLogger", ((LogEnabled) proxy).loggerName());
     	Logger.getLogger(((LogEnabled) proxy).loggerName()).setLevel(Level.DEBUG);
     	
-    	Log4jArchiver archiver = new Log4jArchiver(proxy, "%m%n");
+    	AppenderArchiver archiver = new AppenderArchiver(proxy, "%m%n");
     	
     	MyL ll = new MyL();
     	archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);

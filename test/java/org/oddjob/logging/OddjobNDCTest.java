@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.framework.ComponentBoundry;
-import org.oddjob.logging.log4j.Log4jArchiver;
+import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobNDCTest extends OjTestCase implements LogEnabled {
@@ -57,7 +57,7 @@ public class OddjobNDCTest extends OjTestCase implements LogEnabled {
    @Test
 	public void testWithArchiver() {
 		
-		Log4jArchiver archiver = new Log4jArchiver(this, "%m%n");
+		AppenderArchiver archiver = new AppenderArchiver(this, "%m%n");
 		
 		MyLL ll = new MyLL();
 		archiver.addLogListener(ll, this, LogLevel.INFO, -1, 100);
@@ -79,7 +79,7 @@ public class OddjobNDCTest extends OjTestCase implements LogEnabled {
 		
 		String job = "My Important Job";
 		
-		Log4jArchiver archiver = new Log4jArchiver(this, "[%X{ojname}] %m%n");
+		AppenderArchiver archiver = new AppenderArchiver(this, "[%X{ojname}] %m%n");
 		
 		MyLL ll = new MyLL();
 		archiver.addLogListener(ll, this, LogLevel.INFO, -1, 100);

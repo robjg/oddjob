@@ -14,7 +14,6 @@ import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.MockLogArchiver;
-import org.oddjob.logging.log4j.Log4jArchiver;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -108,7 +107,7 @@ public class Log4jArchiverTest extends OjTestCase {
 		OurStructural root = new OurStructural();
 		root.children.insertChild(0, x);
 		
-		Log4jArchiver archiver = new Log4jArchiver(root, "%m");
+		AppenderArchiver archiver = new AppenderArchiver(root, "%m");
 
 		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
 				.setLevel(LogLevel.DEBUG);
