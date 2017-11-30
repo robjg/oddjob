@@ -6,7 +6,8 @@ package org.oddjob.tools;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.util.Clock;
 
@@ -16,7 +17,7 @@ import org.oddjob.util.Clock;
  */
 public class ManualClock implements Clock {
 
-    private static final Logger logger = Logger.getLogger(ManualClock.class);
+    private static final Logger logger = LoggerFactory.getLogger(ManualClock.class);
     
     private Date date;
 

@@ -3,7 +3,8 @@ package org.oddjob.beanbus;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for {@link BusConductor}s. Provides methods for firing 
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 abstract public class AbstractBusConductor implements BusConductor {
 
-	private static final Logger logger = Logger.getLogger(AbstractBusConductor.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBusConductor.class);
 	
 	private final List<BusListener> busListeners = 
 			new ArrayList<BusListener>();

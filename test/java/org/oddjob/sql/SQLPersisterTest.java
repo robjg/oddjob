@@ -13,7 +13,8 @@ import java.sql.Connection;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.life.ComponentPersister;
@@ -23,7 +24,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
 public class SQLPersisterTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(SQLPersisterTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLPersisterTest.class);
 	
 	public static class Sample implements Serializable {
 		private static final long serialVersionUID = 2006111;

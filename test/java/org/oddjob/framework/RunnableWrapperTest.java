@@ -10,8 +10,6 @@ import java.util.concurrent.CountDownLatch;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
@@ -30,6 +28,7 @@ import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.parsing.MockArooaContext;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
@@ -51,6 +50,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -488,7 +488,7 @@ public class RunnableWrapperTest extends OjTestCase {
     /** A Logger fixture. */
     public static class AnyLogger implements Runnable { 
     	public void run() {
-    		Logger.getLogger("AnyLogger").error("FINDME");
+    		LoggerFactory.getLogger("AnyLogger").error("FINDME");
     	}
     }
     
@@ -512,14 +512,14 @@ public class RunnableWrapperTest extends OjTestCase {
     			(Runnable) l,
     			getClass().getClassLoader());  
     	
-    	Logger.getLogger("AnyLogger").setLevel(Level.DEBUG);
+    	LoggerAdapter.appenderAdapterFor("AnyLogger").setLevel(LogLevel.DEBUG);
     	
     	String proxyLoggerName = ((LogEnabled) proxy).loggerName();
     
     	assertEquals(AnyLogger.class.getName(),
     			proxyLoggerName.substring(0, AnyLogger.class.getName().length()));
     	
-    	Logger.getLogger(proxyLoggerName).setLevel(Level.DEBUG);
+    	LoggerAdapter.appenderAdapterFor(proxyLoggerName).setLevel(LogLevel.DEBUG);
     	
     	AppenderArchiver archiver = new AppenderArchiver(proxy, "%m%n");
     	
@@ -536,7 +536,7 @@ public class RunnableWrapperTest extends OjTestCase {
     		return "MyLogger";
     	}
     	public void run() {
-    		Logger.getLogger(loggerName()).error("FINDME");
+    		LoggerFactory.getLogger(loggerName()).error("FINDME");
     	}
     }
     
@@ -557,7 +557,7 @@ public class RunnableWrapperTest extends OjTestCase {
     			getClass().getClassLoader());  
         
     	assertEquals("MyLogger", ((LogEnabled) proxy).loggerName());
-    	Logger.getLogger(((LogEnabled) proxy).loggerName()).setLevel(Level.DEBUG);
+    	LoggerAdapter.appenderAdapterFor(((LogEnabled) proxy).loggerName()).setLevel(LogLevel.DEBUG);
     	
     	AppenderArchiver archiver = new AppenderArchiver(proxy, "%m%n");
     	

@@ -8,7 +8,8 @@ import java.sql.SQLException;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -31,7 +32,7 @@ import org.oddjob.tools.OddjobTestHelper;
 public class SQLSilhouettesServiceTest extends OjTestCase {
 
 	private static final Logger logger = 
-		Logger.getLogger(SQLSilhouettesServiceTest.class);
+		LoggerFactory.getLogger(SQLSilhouettesServiceTest.class);
 	
 	ConnectionType ct;
 		

@@ -13,7 +13,8 @@ import javax.swing.tree.TreePath;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
@@ -30,7 +31,7 @@ import org.oddjob.util.ThreadManager;
 
 public class DetailControllerTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(DetailControllerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DetailControllerTest.class);
 	Component comp;
 	
 	class OurExplorerModel extends MockExplorerModel {

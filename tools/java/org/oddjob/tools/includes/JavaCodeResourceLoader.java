@@ -2,7 +2,8 @@ package org.oddjob.tools.includes;
 
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.io.ResourceType;
 
 /**
@@ -15,7 +16,7 @@ import org.oddjob.io.ResourceType;
  */
 public class JavaCodeResourceLoader implements IncludeLoader {
 	
-	private static final Logger logger = Logger.getLogger(JavaCodeResourceLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(JavaCodeResourceLoader.class);
 	
 	private static final String EOL = System.getProperty("line.separator");
 	

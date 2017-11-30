@@ -4,7 +4,8 @@
 package org.oddjob.designer.components;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OjTestCase;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,7 +26,7 @@ import org.oddjob.tools.OddjobTestHelper;
  *
  */
 public class DeleteDCTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(DeleteDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeleteDCTest.class);
 	
 	@Rule public TestName name = new TestName();
 

@@ -5,7 +5,8 @@ import org.junit.Test;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
@@ -27,7 +28,7 @@ import org.oddjob.tools.StateSteps;
 
 public class OddjobDestroyTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			OddjobDestroyTest.class);
 	
     @Before

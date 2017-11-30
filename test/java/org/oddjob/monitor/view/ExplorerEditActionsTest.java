@@ -16,7 +16,8 @@ import javax.swing.JSeparator;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
@@ -39,7 +40,7 @@ import org.xml.sax.SAXException;
  */
 public class ExplorerEditActionsTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ExplorerEditActionsTest.class); 
+	private static final Logger logger = LoggerFactory.getLogger(ExplorerEditActionsTest.class); 
 	
 	class ParentContext extends MockExplorerContext {
 		
@@ -325,7 +326,7 @@ public class ExplorerEditActionsTest extends OjTestCase {
 				logger.debug("Separator");
 			}
 			else {
-				logger.debug(component.getClass());
+				logger.debug("Component class " + component.getClass());
 			}
 		}
 

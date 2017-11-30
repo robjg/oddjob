@@ -6,7 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
@@ -21,7 +22,7 @@ import org.oddjob.Structural;
 
 public class ChildHelper<E> 
 implements Structural, Iterable<E>, ChildList<E> {
-	private static final Logger logger = Logger.getLogger(ChildHelper.class);
+	private static final Logger logger = LoggerFactory.getLogger(ChildHelper.class);
 	
 	/** Contains the child jobs. */
 	private final List<E> jobList = 

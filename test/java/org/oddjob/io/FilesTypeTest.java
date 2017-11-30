@@ -13,7 +13,8 @@ import java.util.Set;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -53,9 +54,9 @@ import org.oddjob.tools.OurDirs;
  * @author Rob Gordon.
  */
 public class FilesTypeTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(FilesTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilesTypeTest.class);
 	
-   @Test
+    @Test
     public void testPattern() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
@@ -82,7 +83,7 @@ public class FilesTypeTest extends OjTestCase {
         assertTrue(strings.length > 1);
     }
         
-   @Test
+    @Test
     public void testNestedFileList() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
@@ -100,7 +101,7 @@ public class FilesTypeTest extends OjTestCase {
         }        
     }
     
-   @Test
+    @Test
     public void testXMLCreate() throws Exception {
     	String xml = "<files files='*.txt'/>";
     	
@@ -109,7 +110,7 @@ public class FilesTypeTest extends OjTestCase {
     	assertEquals("*.txt", ft.getFiles());
     }
     
-   @Test
+    @Test
     public void testXMLCreate2() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
@@ -129,7 +130,7 @@ public class FilesTypeTest extends OjTestCase {
     	File[] files = converter.convert(listType, File[].class);
     	
     	for (int i = 0; i < files.length; ++i) {
-        	logger.debug(files[i]);
+        	logger.debug(String.valueOf(files[i]));
     	}
     	
     	assertEquals(4, files.length);
@@ -139,7 +140,7 @@ public class FilesTypeTest extends OjTestCase {
     			new File(dirs.base(), "test/io/reference/test1.txt")));
     }
     
-   @Test
+    @Test
     public void testXMLCreate3() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
@@ -156,8 +157,8 @@ public class FilesTypeTest extends OjTestCase {
     	
     	assertEquals(3, files.length);
     	
-    	logger.debug(files[0]);
-    	logger.debug(files[1]);
+    	logger.debug(String.valueOf(files[0]));
+    	logger.debug(String.valueOf(files[1]));
     	
     	Set<File> set = new HashSet<File>(Arrays.asList(files));
     	assertTrue(set.contains(new File(dirs.base(), "test/io/reference/test1.txt")));
@@ -178,7 +179,7 @@ public class FilesTypeTest extends OjTestCase {
     	}
     }
     
-   @Test
+    @Test
     public void testInOddjob() {
     	
     	OurDirs dirs = new OurDirs();
@@ -207,7 +208,7 @@ public class FilesTypeTest extends OjTestCase {
 		oddjob.destroy();
     }
     
-   @Test
+    @Test
     public void testInOddjob2() throws Exception {
     	OurDirs dirs = new OurDirs();
     	
@@ -242,7 +243,7 @@ public class FilesTypeTest extends OjTestCase {
 		oddjob.destroy();
     }
 
-   @Test
+    @Test
     public void testSupports() throws ArooaParseException {
     
     	ArooaSession session = new OddjobSessionFactory().createSession();
@@ -278,7 +279,7 @@ public class FilesTypeTest extends OjTestCase {
      * Why doesn't 'files' appear in the designer selection for File[]???
      * @throws ArooaParseException 
      */
-   @Test
+    @Test
     public void testSupports2() throws ArooaParseException {
     	
     	final ArooaSession session = 
@@ -326,7 +327,7 @@ public class FilesTypeTest extends OjTestCase {
     					new ArooaElement("file"));
     }
     
-   @Test
+    @Test
     public void testFileListToString() throws NoConversionAvailableException, ConversionFailedException, ArooaParseException {
 
     	OurDirs dirs = new OurDirs();
@@ -360,7 +361,7 @@ public class FilesTypeTest extends OjTestCase {
     	assertEquals(expected, result);
     }
     
-   @Test
+    @Test
     public void testMixedTypesExample() throws IOException {
     	
 		Oddjob oddjob = new Oddjob();

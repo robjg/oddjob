@@ -10,7 +10,8 @@ import java.util.Properties;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -31,7 +32,7 @@ import org.oddjob.tools.StateSteps;
 
 public class ServiceManagerTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ServiceManagerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceManagerTest.class);
 	
 	public static class Lights implements Service {
 		

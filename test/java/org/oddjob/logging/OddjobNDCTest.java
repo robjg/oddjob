@@ -3,7 +3,8 @@
  */
 package org.oddjob.logging;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
@@ -13,7 +14,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobNDCTest extends OjTestCase implements LogEnabled {
 	
-	private static final Logger logger = Logger.getLogger(OddjobNDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobNDCTest.class);
 
    @Test
 	public void testAll() {

@@ -25,7 +25,6 @@ import javax.swing.ImageIcon;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.apache.log4j.Logger;
 import org.oddjob.Describeable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.ClassResolver;
@@ -35,6 +34,8 @@ import org.oddjob.images.IconListener;
 import org.oddjob.images.ImageIconStable;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.script.InvokerArguments;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Simple implementation of an {@link MBeanNode}.
@@ -55,7 +56,7 @@ public class SimpleMBeanNode implements
 					"MBean");
 
 	/** The logger for this instance. */
-	private final Logger logger = Logger.getLogger(getClass().getName() + 
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName() + 
 			"." + instanceCount.incrementAndGet());
 	
 	/** Then name. */
@@ -379,9 +380,8 @@ public class SimpleMBeanNode implements
 			this.info = info;
 		}
 		
-		@SuppressWarnings("rawtypes")
 		@Override
-		public Class getType() {
+		public Class<?> getType() {
 			return classResolver.findClass(info.getType());
 		}		
 	}

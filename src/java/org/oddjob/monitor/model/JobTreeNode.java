@@ -9,7 +9,8 @@ import java.util.concurrent.Executor;
 import javax.swing.ImageIcon;
 import javax.swing.tree.TreeNode;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
@@ -28,7 +29,7 @@ import org.oddjob.structural.StructuralListener;
 public class JobTreeNode 
 		implements TreeNode {
 
-	private static final Logger logger = Logger.getLogger(JobTreeNode.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobTreeNode.class);
 	
 	/** How to dispatch tree model changes. */
 	private final Executor executor;

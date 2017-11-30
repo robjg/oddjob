@@ -3,7 +3,8 @@ package org.oddjob.schedules;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
@@ -60,7 +61,7 @@ import org.oddjob.arooa.utils.DateHelper;
  */
 public class ScheduleType implements ArooaValue, ArooaLifeAware {
 
-	private static final Logger logger = Logger.getLogger(ScheduleType.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScheduleType.class);
 	
 	public static class Conversions implements ConversionProvider {
 		public void registerWith(ConversionRegistry registry) {

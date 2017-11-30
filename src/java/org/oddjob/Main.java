@@ -6,14 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
-import java.util.Enumeration;
 import java.util.Properties;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PatternLayout;
 import org.apache.log4j.PropertyConfigurator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -26,7 +23,7 @@ public class Main {
 
 	private static Logger logger() {
 		if (logger == null) {
-			logger = Logger.getLogger(Main.class);
+			logger = LoggerFactory.getLogger(Main.class);
 		}
 		return logger;
 	}
@@ -94,16 +91,7 @@ public class Main {
 		if (logConfig != null) {
 			configureLog(logConfig);
 		}
-		// crude attempt to see if logging is initialise either statically or via
-		// a file. If it hasn't set a default so we don't get warnings.
-		Enumeration<?> enumeration = Logger.getRootLogger().getAllAppenders();
-		boolean hasAppenders = enumeration.hasMoreElements();
-		if (!hasAppenders) {
-		    Logger.getRootLogger().addAppender(new ConsoleAppender(
-		    		new PatternLayout("%-5p %m%n")));
-		    Logger.getRootLogger().setLevel(Level.ERROR);
-		}
-		
+				
 		Oddjob oddjob = oddjobBuilder.buildOddjob();
 		
 		oddjob.setProperties(props);

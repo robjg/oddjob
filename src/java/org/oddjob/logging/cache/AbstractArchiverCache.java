@@ -6,7 +6,8 @@ package org.oddjob.logging.cache;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
@@ -22,7 +23,7 @@ import org.oddjob.state.StateListener;
  * @author Rob Gordon
  */
 abstract public class AbstractArchiverCache implements LogArchiverCache {
-	private static final Logger logger = Logger.getLogger(AbstractArchiverCache.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractArchiverCache.class);
 	
 	/** 
 	 * Map of archive name to archive. 

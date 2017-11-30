@@ -2,7 +2,8 @@ package org.oddjob.jobs;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -61,7 +62,7 @@ public class CheckJob
 implements Runnable, Serializable, ArooaSessionAware {
 	private static final long serialVersionUID = 2009092700L;
 	
-	private static final Logger logger = Logger.getLogger(CheckJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(CheckJob.class);
 	
 	/**
 	 * @oddjob.property

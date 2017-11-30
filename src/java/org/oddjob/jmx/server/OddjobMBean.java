@@ -14,7 +14,8 @@ import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
 
@@ -34,7 +35,7 @@ import org.oddjob.jmx.Utils;
 
 public class OddjobMBean extends NotificationBroadcasterSupport implements
 		DynamicMBean {
-	private static final Logger logger = Logger.getLogger(OddjobMBean.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobMBean.class);
 
 	/** The server node this object represents. */
 	private final Object node;
@@ -129,10 +130,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 			try {
 				attr = new Attribute(attribute, getAttribute(attribute));
 				al.add(attr);
-			} catch (ReflectionException e) {
-				logger.debug(e);
-			} catch (MBeanException e) {
-				logger.debug(e);
+			} catch (ReflectionException | MBeanException e) {
+				logger.debug("Get attributes.", e);
 			}
 		}
 		return al;
@@ -148,10 +147,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 			try {
 				setAttribute(attribute);
 				al.add(attribute);
-			} catch (ReflectionException e) {
-				logger.debug(e);
-			} catch (MBeanException e) {
-				logger.debug(e);
+			} catch (ReflectionException | MBeanException e) {
+				logger.debug("Set attributes.", e);
 			}
 		}
 		return al;

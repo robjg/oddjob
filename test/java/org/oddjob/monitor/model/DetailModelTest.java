@@ -6,7 +6,8 @@ package org.oddjob.monitor.model;
 import java.util.Observable;
 import java.util.Observer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
@@ -24,7 +25,7 @@ import org.oddjob.state.StateListener;
  * 
  */
 public class DetailModelTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(DetailModelTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DetailModelTest.class);
 	
 	class OurExplorerContext extends MockExplorerContext {
 

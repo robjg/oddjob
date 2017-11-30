@@ -6,7 +6,8 @@ import java.io.File;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -15,7 +16,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class ConvertTypeExamplesTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			ConvertTypeExamplesTest.class);
 
    @Test

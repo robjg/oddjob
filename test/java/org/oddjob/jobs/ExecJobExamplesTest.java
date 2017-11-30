@@ -1,6 +1,7 @@
 package org.oddjob.jobs;
 
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,8 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import org.oddjob.OjTestCase;
-import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
@@ -26,11 +29,24 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ExecJobExamplesTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(ExecJobExamplesTest.class);
+public class ExecJobExamplesTest {
+	private static final Logger logger = LoggerFactory.getLogger(ExecJobExamplesTest.class);
 	
-   @Test
+	// Do not use oddjob.run.jar as it's set by the Launcher test if it runs first.
+	static final String ODDJOB_RUN_JAR_PROPERTY = "oddjob.test.run.jar";
+	
+	@Rule public TestName name = new TestName();
+
+	@Before
+	public void setUp() {
+        logger.info("---------------------  " + name.getMethodName() + "  -------------------");
+    }
+
+	
+	@Test
 	public void testSimpleExamples() throws ArooaParseException {
 		
 		// Just check the XML.
@@ -45,7 +61,7 @@ public class ExecJobExamplesTest extends OjTestCase {
 		
 	}
 	
-   @Test
+    @Test
 	public void testEnvironmentExample() throws ArooaPropertyException, ArooaConversionException {
 	
 		String envCommand;
@@ -96,14 +112,16 @@ public class ExecJobExamplesTest extends OjTestCase {
 		oddjob.destroy();
 	}
 		
-   @Test
+    @Test
 	public void testWithStdInExample() throws ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();
 		File runJar = dirs.relative("run-oddjob.jar");
 		
+		logger.info("Setting {} to {}", ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
+		
 		Properties properties = new Properties();
-		properties.put("oddjob.run.jar", runJar.getCanonicalPath());
+		properties.put(ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setFile(dirs.relative(
@@ -115,15 +133,16 @@ public class ExecJobExamplesTest extends OjTestCase {
 		ExecJob exec = new OddjobLookup(oddjob).lookup("exec", ExecJob.class);
 		
 		ConsoleCapture console = new ConsoleCapture();
+		console.setLeaveLogging(true);
 		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
 			
 			oddjob.run();
 		}
 		
+		console.dump(logger);
+		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
-		
-		console.dump(logger);
 		
 		String[] lines = console.getLines();
 		
@@ -136,7 +155,7 @@ public class ExecJobExamplesTest extends OjTestCase {
 		oddjob.destroy();
 	}
 	
-   @Test
+    @Test
 	public void testWithRedirectToFileExample() throws ArooaPropertyException, ArooaConversionException, IOException {
 		
 		OurDirs dirs = new OurDirs();
@@ -148,15 +167,27 @@ public class ExecJobExamplesTest extends OjTestCase {
 		}
 		
 		Properties properties = new Properties();
-		properties.put("oddjob.run.jar", runJar.getCanonicalPath());
+		properties.put(ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
 		properties.put("work.dir", workDir.getCanonicalPath());
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setFile(dirs.relative(
 				"test/java/org/oddjob/jobs/ExecWithRedirectToFile.xml"));
 		oddjob.setProperties(properties);
+
+		oddjob.load();
 		
-		oddjob.run();
+		ExecJob exec = new OddjobLookup(oddjob).lookup("exec", ExecJob.class);
+		
+		ConsoleCapture console = new ConsoleCapture();
+		console.setLeaveLogging(true);
+		
+		try (ConsoleCapture.Close close = console.capture(exec.consoleLog())) {
+			
+			oddjob.run();
+		}
+		
+		console.dump(logger);
 		
 		assertEquals(ParentState.COMPLETE, 
 				oddjob.lastStateEvent().getState());
@@ -189,7 +220,7 @@ public class ExecJobExamplesTest extends OjTestCase {
 		File runJar = dirs.relative("run-oddjob.jar");
 		
 		Properties properties = new Properties();
-		properties.put("oddjob.run.jar", runJar.getCanonicalPath());
+		properties.put(ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
 
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(

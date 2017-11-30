@@ -7,10 +7,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleThreadManagerTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			SimpleThreadManagerTest.class);
 	
 	class OurThing implements Runnable {

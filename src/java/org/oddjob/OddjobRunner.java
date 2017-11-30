@@ -1,6 +1,7 @@
 package org.oddjob;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.framework.StopWait;
 import org.oddjob.state.StateEvent;
 
@@ -14,7 +15,7 @@ import org.oddjob.state.StateEvent;
  *
  */
 public class OddjobRunner implements Runnable {
-	private static final Logger logger = Logger.getLogger(OddjobRunner.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobRunner.class);
 		
 	public static final String KILLER_TIMEOUT_PROPERTY = 
 		"oddjob.shutdown.killer.timeout";
@@ -131,7 +132,7 @@ public class OddjobRunner implements Runnable {
 			}
 		} 
 		catch (Throwable t) {
-			logger.fatal("Exception running Oddjob.", t);
+			logger.error("Exception running Oddjob.", t);
 			exitHandler.exit(1);
 		}
 	}

@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.util.Clock;
@@ -21,7 +22,7 @@ import org.oddjob.util.Clock;
  * @author Rob Gordon
  */
 public class ScheduleCalculator {
-	private static final Logger logger = Logger.getLogger(ScheduleCalculator.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScheduleCalculator.class);
 	/**
 	 * The normal schedule.
 	 */

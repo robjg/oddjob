@@ -10,11 +10,12 @@ import java.net.SocketException;
 import java.net.SocketImpl;
 import java.net.UnknownHostException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailableSocket extends Socket {
 	
-	private static final Logger logger = Logger.getLogger(FailableSocket.class);
+	private static final Logger logger = LoggerFactory.getLogger(FailableSocket.class);
 	
 	volatile boolean fail;
 

@@ -2,20 +2,18 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
-import org.junit.Before;
-
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.oddjob.OjTestCase;
-
-import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
+import org.oddjob.OjTestCase;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -30,12 +28,14 @@ import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  */
 public class CascadeJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(CascadeJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(CascadeJobTest.class);
 	
     @Before
     public void setUp() throws Exception {
@@ -531,7 +531,7 @@ public class CascadeJobTest extends OjTestCase {
 	}
 	
    @Test
-	public void testStop() throws InterruptedException, FailedToStopException {
+	public void testGivenCascadeThenStopStopsChildTasks() throws InterruptedException, FailedToStopException {
 	
 		DefaultExecutors executors = new DefaultExecutors();
 		
@@ -554,19 +554,26 @@ public class CascadeJobTest extends OjTestCase {
 		
 		wait1State.startCheck(JobState.READY, JobState.EXECUTING);
 		
-		test.run();
+		logger.info("** Running cascade.");
 		
-		testState.checkNow();
+		test.run();
 		
 		wait1State.checkWait();
 		
+		testState.checkNow();
+		
+		assertThat( wait2.lastStateEvent().getState(), is(JobState.READY));
+		
 		testState.startCheck(ParentState.ACTIVE, ParentState.READY);
+
+		logger.info("** Stopping cascade");
 		
 		test.stop();
 		
 		testState.checkNow();
 		
-		assertEquals(JobState.READY, wait2.lastStateEvent().getState());
+		assertThat( wait1.lastStateEvent().getState(), is(JobState.COMPLETE));
+		assertThat( wait2.lastStateEvent().getState(), is(JobState.READY));
 		
 		//
 		// Second run.
@@ -576,19 +583,26 @@ public class CascadeJobTest extends OjTestCase {
 		
 		wait2State.startCheck(JobState.READY, JobState.EXECUTING);
 		
-		test.softReset();
+		logger.info("** Running cascade again");
+
 		test.run();
-		
-		testState.checkNow();
 		
 		wait2State.checkWait();
 		
+		testState.checkWait();
+		
+		
+		logger.info("** Stopping cascade again");
+
 		testState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 		
 		test.stop();
 		
 		testState.checkNow();
 		
+		assertThat( wait1.lastStateEvent().getState(), is(JobState.COMPLETE));
+		assertThat( wait2.lastStateEvent().getState(), is(JobState.COMPLETE));
+
 		executors.stop();
 	}
 	

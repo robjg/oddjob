@@ -9,7 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.persist.SerializeWithBinaryStream;
 import org.oddjob.persist.SerializeWithBytes;
@@ -45,7 +46,7 @@ public class HSQLSerializationFactory implements SQLSerializationFactory {
 }
 
 class HSQLSerialization implements SQLSerialization {
-	private static final Logger logger = Logger.getLogger(HSQLSerialization.class);
+	private static final Logger logger = LoggerFactory.getLogger(HSQLSerialization.class);
 	
 	private final Connection connection;
 	

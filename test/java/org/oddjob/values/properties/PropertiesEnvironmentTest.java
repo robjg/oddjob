@@ -10,7 +10,8 @@ import java.util.Map;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -21,7 +22,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
  * Tests for EnvrionmentType. 
  */
 public class PropertiesEnvironmentTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(PropertiesEnvironmentTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(PropertiesEnvironmentTest.class);
 
    @Before
    public void setUp() {

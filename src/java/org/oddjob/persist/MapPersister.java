@@ -4,7 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.registry.Path;
 
@@ -15,7 +16,7 @@ import org.oddjob.arooa.registry.Path;
  *
  */
 public class MapPersister extends PersisterBase {
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			MapPersister.class);
 	
 	private final Map<Path, Map<String, byte[]>> cache;

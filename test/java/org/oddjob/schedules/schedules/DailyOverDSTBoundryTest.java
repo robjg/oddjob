@@ -10,7 +10,8 @@ import java.util.TimeZone;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.utils.SpringSafeCalendar;
 import org.oddjob.arooa.utils.TimeParser;
@@ -20,7 +21,7 @@ import org.oddjob.schedules.ScheduleRoller;
 
 public class DailyOverDSTBoundryTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(DailyOverDSTBoundryTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DailyOverDSTBoundryTest.class);
 	
     @Before
     public void setUp() throws Exception {

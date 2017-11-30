@@ -7,7 +7,8 @@ import java.rmi.RemoteException;
 
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
@@ -33,7 +34,7 @@ import org.oddjob.util.ClassLoaderSorter;
  */
 
 public class ClientNode implements InvocationHandler, Exportable {
-	private static final Logger logger = Logger.getLogger(ClientNode.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientNode.class);
 	
 	/** The name of the mbean this node represents. */
 	private final ObjectName objectName;

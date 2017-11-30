@@ -2,14 +2,15 @@ package org.oddjob.jmx.handlers;
 
 import org.junit.Test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.tools.OddjobTestHelper;
 
 import org.oddjob.OjTestCase;
 
 public class OddjobTransportableExceptionTest extends OjTestCase{
 
-	private static final Logger logger = Logger.getLogger(OddjobTransportableExceptionTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobTransportableExceptionTest.class);
 	
    @Test
 	public void testCreate() throws Exception {

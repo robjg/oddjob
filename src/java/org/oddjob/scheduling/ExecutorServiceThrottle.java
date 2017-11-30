@@ -7,7 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link ExecutorService} that limits the number of {@link Runnable}s 
@@ -20,7 +21,7 @@ import org.apache.log4j.Logger;
  */
 public class ExecutorServiceThrottle extends AbstractExecutorService {
 
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			ExecutorServiceThrottle.class);
 	
 	/**

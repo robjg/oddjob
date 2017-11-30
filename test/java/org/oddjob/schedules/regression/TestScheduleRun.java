@@ -3,7 +3,8 @@ package org.oddjob.schedules.regression;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
@@ -15,7 +16,7 @@ import org.oddjob.schedules.ScheduleContext;
  */
 public class TestScheduleRun {
 
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			TestScheduleRun.class);
 	
 	/** Date running for. */

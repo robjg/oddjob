@@ -8,7 +8,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobExecutors;
 
 /**
@@ -18,7 +19,7 @@ import org.oddjob.OddjobExecutors;
  *
  */
 public class DefaultExecutors implements OddjobExecutors {
-	private static final Logger logger = Logger.getLogger(DefaultExecutors.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultExecutors.class);
 	
 	public static final String POOL_SIZE_PROPERTY = "oddjob.executors.default.poolsize";
 	

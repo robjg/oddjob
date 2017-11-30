@@ -10,7 +10,8 @@ import java.io.PrintStream;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
@@ -21,7 +22,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class BeanDiagnosticsTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(BeanDiagnosticsTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanDiagnosticsTest.class);
 	
 	@Rule public TestName name = new TestName();
 

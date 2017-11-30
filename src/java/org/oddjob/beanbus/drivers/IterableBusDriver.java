@@ -2,7 +2,8 @@ package org.oddjob.beanbus.drivers;
 
 import java.util.Iterator;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stoppable;
 import org.oddjob.beanbus.AbstractBusComponent;
 import org.oddjob.beanbus.BeanBus;
@@ -21,7 +22,7 @@ import org.oddjob.framework.SoftReset;
 public class IterableBusDriver<T> extends AbstractBusComponent<T> 
 implements Runnable, Stoppable {
 
-	private static final Logger logger = Logger.getLogger(IterableBusDriver.class);
+	private static final Logger logger = LoggerFactory.getLogger(IterableBusDriver.class);
 	
 	private Iterable<? extends T> beans;
 	

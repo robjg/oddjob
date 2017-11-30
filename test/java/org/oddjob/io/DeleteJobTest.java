@@ -13,7 +13,8 @@ import java.util.concurrent.Callable;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -22,7 +23,7 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
 
 public class DeleteJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(DeleteJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeleteJobTest.class);
 	
 	File dir;
 

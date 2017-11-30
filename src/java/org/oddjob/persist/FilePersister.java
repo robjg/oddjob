@@ -5,7 +5,8 @@ package org.oddjob.persist;
 
 import java.io.File;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.registry.Path;
@@ -30,7 +31,7 @@ import org.oddjob.arooa.registry.Path;
  * @author Rob Gordon.
  */
 public class FilePersister extends PersisterBase {
-	private static final Logger logger = Logger.getLogger(FilePersister.class);
+	private static final Logger logger = LoggerFactory.getLogger(FilePersister.class);
 
     /**
      * @oddjob.property dir

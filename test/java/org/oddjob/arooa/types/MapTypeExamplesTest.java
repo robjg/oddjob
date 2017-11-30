@@ -8,7 +8,8 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
@@ -20,7 +21,7 @@ import org.oddjob.tools.OddjobTestHelper;
  *
  */
 public class MapTypeExamplesTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			MapTypeExamplesTest.class);
 
 	@Rule public TestName name = new TestName();

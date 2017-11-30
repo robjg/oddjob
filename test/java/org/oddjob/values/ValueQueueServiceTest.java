@@ -8,7 +8,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -21,7 +22,7 @@ import org.oddjob.tools.WaitForChildren;
 
 public class ValueQueueServiceTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(ValueQueueService.class);
+	private static final Logger logger = LoggerFactory.getLogger(ValueQueueService.class);
 	
     @Before
     public void setUp() throws Exception {

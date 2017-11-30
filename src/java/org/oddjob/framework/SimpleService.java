@@ -2,7 +2,8 @@ package org.oddjob.framework;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stateful;
@@ -38,7 +39,7 @@ implements Runnable, Stateful, Resetable,
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
 	/** Instance of the logger. */
-	private final Logger logger = Logger.getLogger(getClass().getName() + 
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName() + 
 			"." + instanceCount.incrementAndGet());
 	
 	/** Handle state. */
@@ -269,7 +270,7 @@ implements Runnable, Stateful, Resetable,
 		try {
 			stop();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Failed to stop.", e);
 		}
 	}
 	

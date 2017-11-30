@@ -4,7 +4,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A {@link ResultSetExtractor} that uses simple java types for most
@@ -19,7 +20,7 @@ import org.apache.log4j.Logger;
  */
 public class TypeBasedDialect implements DatabaseDialect {
 
-	private static final Logger logger = Logger.getLogger(TypeBasedDialect.class);
+	private static final Logger logger = LoggerFactory.getLogger(TypeBasedDialect.class);
 	
 	@Override
 	public ResultSetExtractor resultSetExtractorFor(final ResultSet resultSet)

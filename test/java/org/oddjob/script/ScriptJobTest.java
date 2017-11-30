@@ -3,16 +3,13 @@
  */
 package org.oddjob.script;
 
-import org.junit.Test;
-
 import java.util.Date;
 import java.util.Map;
 
-import org.oddjob.OjTestCase;
-
-import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.DefaultConverter;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -20,12 +17,14 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.values.VariablesJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  */
 public class ScriptJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(ScriptJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScriptJobTest.class);
 	
    @Test
 	public void testHelloWorld() {
@@ -121,7 +120,7 @@ public class ScriptJobTest extends OjTestCase {
 
 		Object formatted = v.get("formattedToday");
 		assertNotNull(formatted);
-		logger.info(formatted);
+		logger.info("Formatted: " + formatted);
 	}
 		
 }

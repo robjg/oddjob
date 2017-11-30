@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.structural.StructuralEvent;
@@ -19,7 +20,7 @@ import org.oddjob.structural.StructuralListener;
  *
  */
 public class StructuralStateHelper implements Stateful {
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			StructuralStateHelper.class);
 
 	/** The structural we're helping. */

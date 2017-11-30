@@ -5,7 +5,8 @@ package org.oddjob.jmx.client;
 
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.framework.Transportable;
 import org.oddjob.jmx.ObjectNames;
 
@@ -18,7 +19,7 @@ import org.oddjob.jmx.ObjectNames;
 public class ComponentTransportable implements Transportable {
 	private static final long serialVersionUID=20051116;
 	
-	private static final Logger logger = Logger.getLogger(ComponentTransportable.class);
+	private static final Logger logger = LoggerFactory.getLogger(ComponentTransportable.class);
 	
 	/** The address which identify this component. */
 	private ObjectName name;

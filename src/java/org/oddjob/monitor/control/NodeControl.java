@@ -7,7 +7,8 @@ import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.ExpandVetoException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.monitor.model.JobTreeNode;
 
 /**
@@ -18,7 +19,7 @@ import org.oddjob.monitor.model.JobTreeNode;
  * @author Rob Gordon.
  */
 public class NodeControl implements TreeWillExpandListener {
-	private static final Logger logger = Logger.getLogger(NodeControl.class);
+	private static final Logger logger = LoggerFactory.getLogger(NodeControl.class);
 	
     public void treeWillCollapse(TreeExpansionEvent event)
     		throws ExpandVetoException {

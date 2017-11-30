@@ -18,7 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
@@ -44,7 +45,7 @@ import org.oddjob.tools.StateSteps;
  * 
  */
 public class StructuralJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(StructuralJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(StructuralJobTest.class);
 	
     @Before
     public void setUp() throws Exception {

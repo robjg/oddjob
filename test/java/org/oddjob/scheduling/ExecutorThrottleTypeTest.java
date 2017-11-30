@@ -8,7 +8,8 @@ import java.util.Set;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -28,7 +29,7 @@ import org.oddjob.tools.StateSteps;
 
 public class ExecutorThrottleTypeTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ExecutorThrottleTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExecutorThrottleTypeTest.class);
 	
     @Before
     public void setUp() throws Exception {

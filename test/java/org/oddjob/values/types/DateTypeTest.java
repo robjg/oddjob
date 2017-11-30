@@ -14,7 +14,8 @@ import java.util.TimeZone;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
@@ -34,7 +35,7 @@ import org.oddjob.tools.ManualClock;
  * 
  */
 public class DateTypeTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(DateTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(DateTypeTest.class);
 	
     @Before
     public void setUp() throws Exception {
@@ -176,7 +177,7 @@ public class DateTypeTest extends OjTestCase {
    @Test
 	public void testDateTimezoneExample() throws ParseException {
 				
-		logger.debug(TimeZone.getDefault());
+		logger.debug("TimeZone: " + TimeZone.getDefault());
 		
 		Oddjob oj = new Oddjob(); 
 		oj.setConfiguration(new XMLConfiguration(

@@ -13,7 +13,8 @@ import java.sql.SQLException;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.io.BufferType;
@@ -22,7 +23,7 @@ import org.oddjob.persist.SerializeWithBytes;
 
 public class HSQLAssumptionsTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(HSQLAssumptionsTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(HSQLAssumptionsTest.class);
 	
 	ConnectionType ct;
 	

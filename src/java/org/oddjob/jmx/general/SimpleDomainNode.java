@@ -5,7 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.management.ObjectName;
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
@@ -32,7 +33,7 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 			"folder");
 
 	/** Logger for this instance. */
-	private final Logger logger = Logger.getLogger(getClass().getName() + 
+	private final Logger logger = LoggerFactory.getLogger(getClass().getName() + 
 			"." + instanceCount.incrementAndGet());
 	
 	/** The name. */

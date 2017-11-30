@@ -8,7 +8,8 @@ import org.junit.Test;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
@@ -35,7 +36,7 @@ import org.oddjob.tools.StateSteps;
  */
 public class SequentialJobTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SequentialJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SequentialJobTest.class);
 	
 	public static class OurJob extends SimpleJob {
 

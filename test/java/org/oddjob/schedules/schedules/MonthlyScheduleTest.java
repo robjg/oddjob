@@ -36,7 +36,7 @@ import org.oddjob.schedules.units.WeekOfMonth;
  * @author Rob Gordon.
  */
 public class MonthlyScheduleTest extends OjTestCase {
-//	private static Logger logger = Logger.getLogger(DayOfMonthScheduleTest.class); 
+//	private static Logger logger = LoggerFactory.getLogger(DayOfMonthScheduleTest.class); 
 	
     DateFormat checkFormat;
     DateFormat inputFormat;

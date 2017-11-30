@@ -3,14 +3,15 @@ package org.oddjob.oddballs;
 import java.io.File;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.io.CopyJob;
 import org.oddjob.io.FilesType;
 import org.oddjob.tools.CompileJob;
 import org.oddjob.tools.OurDirs;
 
 public class BuildOddballs implements Runnable {
-	private static final Logger logger = Logger.getLogger(BuildOddballs.class);
+	private static final Logger logger = LoggerFactory.getLogger(BuildOddballs.class);
 
 	public void run() {
 		try {

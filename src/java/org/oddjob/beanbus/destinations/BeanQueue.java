@@ -8,7 +8,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.Configured;
 import org.oddjob.arooa.life.Initialised;
@@ -41,7 +42,7 @@ import org.oddjob.beanbus.TrackingBusListener;
 public class BeanQueue<E> extends AbstractDestination<E>
 implements Iterable<E>, Stoppable {
 
-	private static final Logger logger = Logger.getLogger(BeanQueue.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanQueue.class);
 	
 	private final static Object STOP = new Object();
 	

@@ -9,12 +9,13 @@ import java.io.IOException;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.tools.OurDirs;
 
 public class TagletsTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(TagletsTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(TagletsTest.class);
 	
 	OurDirs dirs = new OurDirs();
 	

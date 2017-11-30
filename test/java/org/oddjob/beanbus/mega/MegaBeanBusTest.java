@@ -10,8 +10,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.oddjob.Iconic;
 import org.oddjob.Oddjob;
@@ -26,6 +24,7 @@ import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.ConfigurationSession;
@@ -49,10 +48,12 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.IconSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MegaBeanBusTest extends OjTestCase {
 
-	private static Logger logger = Logger.getLogger(MegaBeanBusTest.class);
+	private static Logger logger = LoggerFactory.getLogger(MegaBeanBusTest.class);
 	
    @Test
 	public void testSimpleLifecycle() {
@@ -593,7 +594,7 @@ public class MegaBeanBusTest extends OjTestCase {
     	assertEquals(DestinationWithLogger.class.getName(),
     			loggerName.substring(0, DestinationWithLogger.class.getName().length()));
     	
-    	Logger.getLogger(loggerName).setLevel(Level.INFO);
+    	LoggerAdapter.appenderAdapterFor(loggerName).setLevel(LogLevel.INFO);
     	
     	AppenderArchiver archiver = new AppenderArchiver(thingWithLogging, "%m%n");
     	

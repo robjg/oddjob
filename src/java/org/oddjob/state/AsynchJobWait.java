@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 
 /**
@@ -22,7 +23,7 @@ public class AsynchJobWait implements Serializable {
 	private static final long serialVersionUID = 2015041600L;
 
 	private static final Logger logger = 
-			Logger.getLogger(AsynchJobWait.class);
+			LoggerFactory.getLogger(AsynchJobWait.class);
 	
 	private volatile transient Thread thread;
 	

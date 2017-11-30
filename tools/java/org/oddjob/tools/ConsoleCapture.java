@@ -2,13 +2,15 @@ package org.oddjob.tools;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.oddjob.OddjobConsole;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
+import org.slf4j.Logger;
 
 /**
  * Capturing Oddjob.CONSOLE: Because tests append to the console log to 
@@ -25,31 +27,28 @@ import org.oddjob.logging.LogListener;
  */
 public class ConsoleCapture {
 
+	static final Pattern LOG_PATTERN = Pattern.compile("^(TRACE|DEBUG| INFO| WARN|ERROR).*", Pattern.DOTALL);
+	
 	private int dumped;
 	
 	private int logged;
 	
-	private Log4jConsoleThresholdChanger thresholdChanger;
-	
 	private boolean leaveLogging;
 	
-	class Console implements LogListener  {
+	static class Console implements LogListener  {
 		List<String> lines = new ArrayList<String>();
-		
+
 		public synchronized void logEvent(LogEvent logEvent) {
-			lines.add(logEvent.getMessage());
+			String line = logEvent.getMessage();
+			// Trim would remove leading spaces, we only want to remove end new lines.
+			line = line.replaceAll("\r?\n?$", "");
+			lines.add(line);
 		}
 	}
 
 	private final Console console = new Console();
 	
-	private LogArchive archive;
-	
 	public Close captureConsole() {
-		if (!leaveLogging) {
-			thresholdChanger = new Log4jConsoleThresholdChanger();
-		}
-
 		final OddjobConsole.Close oddjobConsoleClose = OddjobConsole.initialise();
 		
 		final Close consoleArchiveClose = capture(OddjobConsole.console());
@@ -59,38 +58,35 @@ public class ConsoleCapture {
 			public void close() {
 				consoleArchiveClose.close();
 				oddjobConsoleClose.close();
-				
-				if (thresholdChanger != null) {
-					thresholdChanger.close();
-					thresholdChanger = null;
-				}
 			}
 		};
 	}
 	
 	public Close capture(LogArchive archive) {
-		if (this.archive != null) {
-			throw new IllegalStateException("Already listening to " + archive);
-		}
 
-		this.archive = archive;
-		archive.addListener(console, LogLevel.INFO, -1, 0);
+		Predicate<String> filter = getFilter();
+		
+		LogListener logListener = new LogListener() {
+		
+				@Override
+				public void logEvent(LogEvent logEvent) {
+					String message = logEvent.getMessage();
+					if (filter.test(message)) {
+						console.logEvent(logEvent);
+					}
+				}
+			};
+		
+		archive.addListener(logListener, LogLevel.INFO, -1, 0);
 		
 		return new Close() {
 			@Override
 			public void close() {
-				ConsoleCapture.this.close();
+				archive.removeListener(logListener);
 			}
 		};
 	}
 
-	private void close() {
-		if (archive != null) {
-			archive.removeListener(console);
-			archive = null;
-		}
-	}
-	
 	public String[] getLines() {
 		return console.lines.toArray(new String[console.lines.size()]);
 	}
@@ -118,7 +114,7 @@ public class ConsoleCapture {
 	public void dump() {
 		System.out.println("******************");
 		for (; dumped < console.lines.size(); ++dumped) {
-			System.out.print(console.lines.get(dumped));
+			System.out.println(console.lines.get(dumped));
 		}
 		System.out.println("******************");
 	}
@@ -126,7 +122,7 @@ public class ConsoleCapture {
 	public void dump(Logger logger) {
 		logger.info("******************");
 		for (; logged < console.lines.size(); ++logged) {
-			logger.info(console.lines.get(logged).replaceFirst("\r?\n?$", ""));
+			logger.info(console.lines.get(logged));
 		}
 		logger.info("******************");
 	}
@@ -134,5 +130,14 @@ public class ConsoleCapture {
 	public static interface Close extends AutoCloseable {
 		
 		public void close();
+	}
+
+	public Predicate<String> getFilter() {
+		if (leaveLogging) {
+			return s -> true;
+		}
+		else {
+			return s -> !LOG_PATTERN.matcher(s).matches();
+		}
 	}
 }

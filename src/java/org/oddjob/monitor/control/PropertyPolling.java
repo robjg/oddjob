@@ -8,7 +8,8 @@ import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.describe.UniversalDescriber;
@@ -23,8 +24,8 @@ import org.oddjob.state.StateListener;
  *  @author Rob Gordon.
  */
 public class PropertyPolling implements PropertyChangeListener {
-	private static final Logger logger = Logger
-			.getLogger(PropertyPolling.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(PropertyPolling.class);
 
 	private Object subject;
 	private Object kick;

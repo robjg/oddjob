@@ -9,7 +9,8 @@ import java.util.Arrays;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
 import org.oddjob.arooa.reflect.ArooaClass;
@@ -24,7 +25,7 @@ import org.oddjob.tools.ConsoleCapture;
 
 public class SQLResultsSheetTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SQLResultsSheetTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLResultsSheetTest.class);
 	
 	String EOL = System.getProperty("line.separator");
 	

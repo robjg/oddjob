@@ -3,7 +3,8 @@ package org.oddjob.schedules.schedules;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -26,7 +27,7 @@ final public class LastSchedule extends AbstractSchedule implements Serializable
 
     private static final long serialVersionUID = 20050226;
     
-    private static final Logger logger = Logger.getLogger(LastSchedule.class);
+    private static final Logger logger = LoggerFactory.getLogger(LastSchedule.class);
     
 	/**
 	 * Calculate the next due interval within the given interval.

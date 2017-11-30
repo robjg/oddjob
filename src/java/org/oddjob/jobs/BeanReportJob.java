@@ -23,7 +23,7 @@ import org.oddjob.io.StdoutType;
  */
 public class BeanReportJob implements Runnable, ArooaSessionAware {
 
-//	private static final Logger logger = Logger.getLogger(BeanReportJob.class);
+//	private static final Logger logger = LoggerFactory.getLogger(BeanReportJob.class);
 	
 	/** 
 	 * @oddjob.property

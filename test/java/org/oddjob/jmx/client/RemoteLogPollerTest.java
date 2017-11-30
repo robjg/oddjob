@@ -6,7 +6,8 @@ import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
@@ -42,7 +43,7 @@ import org.oddjob.logging.LogListener;
  *
  */
 public class RemoteLogPollerTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(RemoteLogPollerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(RemoteLogPollerTest.class);
 
 	
    @Before

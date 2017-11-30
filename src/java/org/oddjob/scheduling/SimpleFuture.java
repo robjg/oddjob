@@ -7,13 +7,14 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // We need to augment concurrent Future to ensure
 // complete cancellation. isDone and isCancelled return true even
 // if the job is still hogging a thread.
 class SimpleFuture {
-	private static final Logger logger = Logger.getLogger(SimpleFuture.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleFuture.class);
 
 	private final RunnableWrapper wrapper;
 	

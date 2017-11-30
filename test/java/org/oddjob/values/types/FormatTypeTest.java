@@ -13,7 +13,8 @@ import java.util.TimeZone;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -30,7 +31,7 @@ import org.oddjob.tools.OddjobTestHelper;
  * 
  */
 public class FormatTypeTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(FormatTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(FormatTypeTest.class);
 	
 	
     @After
@@ -61,7 +62,7 @@ public class FormatTypeTest extends OjTestCase {
 		TimeZone.setDefault(TimeZone.getTimeZone("Europe/London"));
 		
 		Date date = DateHelper.parseDateTime("2005-11-01 22:00", "America/Chicago");
-		logger.debug(date);
+		logger.debug("Date: {}", date);
 		FormatType ft = new FormatType();
 		ft.setDate(date);
 		ft.setFormat("yyyyMMdd");

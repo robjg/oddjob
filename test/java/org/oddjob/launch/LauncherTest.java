@@ -17,7 +17,8 @@ import java.util.HashSet;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Main;
 import org.oddjob.io.CopyJob;
 import org.oddjob.tools.OurDirs;
@@ -30,7 +31,7 @@ import org.oddjob.util.URLClassLoaderType;
  */
 public class LauncherTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(LauncherTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(LauncherTest.class);
 	
 	String oddjobHome;
 	

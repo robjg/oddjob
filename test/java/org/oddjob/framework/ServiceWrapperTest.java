@@ -12,7 +12,8 @@ import java.util.Map;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -43,7 +44,7 @@ import org.oddjob.tools.StateSteps;
 
 public class ServiceWrapperTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ServiceWrapperTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceWrapperTest.class);
 	
     @Before
     public void setUp() throws Exception {

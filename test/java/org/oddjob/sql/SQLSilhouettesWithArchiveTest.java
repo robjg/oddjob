@@ -8,7 +8,8 @@ import java.util.Date;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
@@ -27,7 +28,7 @@ import org.oddjob.util.Clock;
 public class SQLSilhouettesWithArchiveTest extends OjTestCase {
 
 	private static final Logger logger = 
-		Logger.getLogger(SQLSilhouettesWithArchiveTest.class);
+		LoggerFactory.getLogger(SQLSilhouettesWithArchiveTest.class);
 	
     @Before
     public void setUp() throws Exception {

@@ -9,15 +9,15 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  Checks beans to see if they support property change listeners.
  */
 public class PropertyChangeHelper {
 
-	private static final Logger logger = Logger
-			.getLogger(PropertyChangeHelper.class);
+	private static final Logger logger = LoggerFactory.getLogger(PropertyChangeHelper.class);
 
 	private static final Map<Class<?>, PropertyChangeHelper> helpers = 
 		new HashMap<Class<?>, PropertyChangeHelper>();
@@ -38,7 +38,7 @@ public class PropertyChangeHelper {
 			removePropListenerMethod = beanClass.getMethod(
 					"removePropertyChangeListener", argClasses);
 		} catch (SecurityException e) {
-			logger.debug(e);
+			logger.debug("Failed getting methods.", e);
 		} catch (NoSuchMethodException e) {
 			// ignore
 		}
@@ -64,12 +64,8 @@ public class PropertyChangeHelper {
 		Object[] args = { obj };
 		try {
 			helper.addPropListenerMethod.invoke(obj, args);
-		} catch (IllegalArgumentException e) {
-			logger.debug(e);
-		} catch (IllegalAccessException e) {
-			logger.debug(e);
-		} catch (InvocationTargetException e) {
-			logger.debug(e);
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			logger.debug("Failed adding property listener.", e);
 		}
 	}
 
@@ -82,12 +78,8 @@ public class PropertyChangeHelper {
 		Object[] args = { obj };
 		try {
 			helper.removePropListenerMethod.invoke(obj, args);
-		} catch (IllegalArgumentException e) {
-			logger.debug(e);
-		} catch (IllegalAccessException e) {
-			logger.debug(e);
-		} catch (InvocationTargetException e) {
-			logger.debug(e);
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			logger.debug("Failed to remove property listener.", e);
 		}
 	}
 }

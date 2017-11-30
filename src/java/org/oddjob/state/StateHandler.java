@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.util.OddjobLockedException;
@@ -29,7 +30,7 @@ import org.oddjob.util.OddjobLockedException;
 public class StateHandler<S extends State> 
 implements Stateful, StateLock {
 	
-	private static final Logger logger = Logger.getLogger(StateHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(StateHandler.class);
 	
 	private final S readyState;
 	

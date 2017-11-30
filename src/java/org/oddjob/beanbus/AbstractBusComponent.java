@@ -2,7 +2,8 @@ package org.oddjob.beanbus;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A base class for Jobs and Services that provide an {@link BeanBus}.
@@ -18,7 +19,7 @@ import org.apache.log4j.Logger;
 abstract public class AbstractBusComponent<T> 
 implements BusServiceProvider, Outbound<T> {
 	
-	private static final Logger logger = Logger.getLogger(AbstractBusComponent.class);
+	private static final Logger logger = LoggerFactory.getLogger(AbstractBusComponent.class);
 	
 	private final BasicBeanBus<T> beanBus = new BasicBeanBus<T>(
 			new Runnable() {

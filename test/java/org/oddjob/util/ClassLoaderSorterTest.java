@@ -14,7 +14,8 @@ import java.util.List;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mockito.Mockito;
 import org.oddjob.Structural;
 import org.oddjob.oddballs.BuildOddballs;
@@ -22,7 +23,7 @@ import org.oddjob.tools.OurDirs;
 
 public class ClassLoaderSorterTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ClassLoaderSorterTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClassLoaderSorterTest.class);
 
     @Before
     public void setUp() throws Exception {

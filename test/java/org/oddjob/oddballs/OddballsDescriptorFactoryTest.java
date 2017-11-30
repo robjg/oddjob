@@ -7,7 +7,8 @@ import java.net.URL;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -19,7 +20,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
 public class OddballsDescriptorFactoryTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			OddballsDescriptorFactoryTest.class);
 	
    @Test

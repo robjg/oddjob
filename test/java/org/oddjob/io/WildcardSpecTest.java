@@ -15,13 +15,14 @@ import java.util.Set;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.io.WildcardSpec.DirectorySplit;
 import org.oddjob.tools.OurDirs;
 
 public class WildcardSpecTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(WildcardSpecTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(WildcardSpecTest.class);
 	
    @Before
    public void setUp() throws Exception {

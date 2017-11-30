@@ -4,7 +4,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.logging.LogEnabled;
@@ -49,10 +50,10 @@ public class StopWait {
 	public StopWait(Stateful stateful, long timeout) {
 		this.stateful = stateful;
 		if (stateful instanceof LogEnabled) {
-			logger = Logger.getLogger(((LogEnabled) stateful).loggerName());
+			logger = LoggerFactory.getLogger(((LogEnabled) stateful).loggerName());
 		}
 		else {
-			logger = Logger.getLogger(stateful.getClass());
+			logger = LoggerFactory.getLogger(stateful.getClass());
 		}
 		this.timeout = timeout;
 	}

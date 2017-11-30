@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Structural;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
@@ -18,7 +19,7 @@ import org.oddjob.structural.StructuralListener;
  *
  */
 public class WaitForChildren implements StructuralListener {
-	private static final Logger logger = Logger.getLogger(WaitForChildren.class);
+	private static final Logger logger = LoggerFactory.getLogger(WaitForChildren.class);
 	
 	private final Structural structural; 
 	private List<Object> children;

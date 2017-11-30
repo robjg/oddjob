@@ -9,7 +9,8 @@ import java.util.Set;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.state.IsAnyState;
@@ -21,7 +22,7 @@ import org.oddjob.util.OddjobLockedException;
 
 public class StopWaitTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(StopWaitTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(StopWaitTest.class);
 	
     @Before
     public void setUp() throws Exception {

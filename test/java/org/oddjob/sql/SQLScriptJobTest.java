@@ -12,7 +12,8 @@ import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -24,7 +25,7 @@ import org.oddjob.state.ParentState;
 
 public class SQLScriptJobTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SQLScriptJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLScriptJobTest.class);
 	
    @Before
    public void setUp() throws Exception {

@@ -9,7 +9,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobExecutors;
 
 /**
@@ -22,7 +23,7 @@ import org.oddjob.OddjobExecutors;
 public class OddjobTimerService 
 implements OddjobExecutors {
 	
-	private static final Logger logger = Logger.getLogger(OddjobTimerService.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobTimerService.class);
 
 	private transient String name;
 			

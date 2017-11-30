@@ -2,7 +2,8 @@ package org.oddjob.tools;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
@@ -14,7 +15,7 @@ import org.oddjob.images.IconListener;
  *
  */
 public class IconSteps {
-	private static final Logger logger = Logger.getLogger(IconSteps.class);
+	private static final Logger logger = LoggerFactory.getLogger(IconSteps.class);
 	
 	private final Iconic iconic;
 	

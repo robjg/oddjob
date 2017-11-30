@@ -11,7 +11,8 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.types.ValueFactory;
 
@@ -27,7 +28,7 @@ import org.oddjob.arooa.types.ValueFactory;
 public class ConnectionType implements ValueFactory<Connection>, Serializable {
 	private final static long serialVersionUID = 20070315;
 	
-	private static final Logger logger = Logger.getLogger(ConnectionType.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConnectionType.class);
 		
 	/** 
 	 * @oddjob.property

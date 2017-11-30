@@ -1,6 +1,7 @@
 package org.oddjob.designer.components;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OddjobDescriptorFactory;
@@ -21,7 +22,7 @@ import org.oddjob.tools.OddjobTestHelper;
  *
  */
 public class ParallelDCTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(ParallelDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParallelDCTest.class);
 	
 	@Before
    public void setUp() {

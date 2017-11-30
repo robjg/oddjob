@@ -76,7 +76,7 @@ import org.oddjob.util.Clock;
  */
 public class SQLClock {
 		
-//	private static final Logger logger = Logger.getLogger(SqlJob.class);
+//	private static final Logger logger = LoggerFactory.getLogger(SqlJob.class);
 	   
 	public static final String DEFAULT_SQL = "VALUES CURRENT_TIMESTAMP";
 	

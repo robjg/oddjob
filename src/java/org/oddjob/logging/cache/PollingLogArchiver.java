@@ -8,7 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogArchiver;
@@ -27,7 +28,7 @@ import org.oddjob.logging.LogListener;
  * @author Rob Gordon
  */
 public class PollingLogArchiver implements LogArchiver {
-	private static final Logger logger = Logger.getLogger(PollingLogArchiver.class);
+	private static final Logger logger = LoggerFactory.getLogger(PollingLogArchiver.class);
 	
 	/** A local LogArchiver we delegate to. */
 	private final LogArchiverCache cache;

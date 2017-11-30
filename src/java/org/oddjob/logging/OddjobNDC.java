@@ -6,7 +6,7 @@ package org.oddjob.logging;
 
 import java.util.Stack;
 
-import org.apache.log4j.MDC;
+import org.slf4j.MDC;
 
 /**
  * An OddjobNDC is a Nested Diagnostic Context for Oddjob. It provides a way of

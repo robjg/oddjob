@@ -2,7 +2,8 @@ package org.oddjob.tools;
 
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -15,7 +16,7 @@ import org.oddjob.state.State;
  *
  */
 public class StateSteps {
-	private static final Logger logger = Logger.getLogger(StateSteps.class);
+	private static final Logger logger = LoggerFactory.getLogger(StateSteps.class);
 	
 	private final Stateful stateful;
 	
@@ -124,7 +125,7 @@ public class StateSteps {
 			}
 		}
 		catch (IllegalStateException e) {
-			logger.error(e);
+			logger.error("Failed", e);
 			throw e;
 		}
 		finally {

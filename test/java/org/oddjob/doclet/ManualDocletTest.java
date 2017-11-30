@@ -7,7 +7,8 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.doclet.ManualDoclet;
 import org.oddjob.oddballs.BuildOddballs;
@@ -17,7 +18,7 @@ import org.oddjob.OjTestCase;
 
 public class ManualDocletTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(ManualDocletTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ManualDocletTest.class);
 	
 	OurDirs dirs = new OurDirs();
 	

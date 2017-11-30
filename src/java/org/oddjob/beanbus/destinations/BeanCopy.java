@@ -5,7 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
@@ -46,7 +47,7 @@ import org.oddjob.beanbus.BusFilter;
  */
 public class BeanCopy<F, T> extends AbstractDestination<F>
 implements BusFilter<F, T>, ArooaSessionAware {
-	private static final Logger logger = Logger.getLogger(BeanCopy.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanCopy.class);
 
 	private static AtomicInteger instance = new AtomicInteger();
 

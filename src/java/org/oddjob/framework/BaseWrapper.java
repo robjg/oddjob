@@ -11,7 +11,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Reserved;
@@ -73,7 +74,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
     		if (logger == null) {
     			logger = LogHelper.uniqueLoggerName(getWrapped());
     		}
-			theLogger = Logger.getLogger(logger);
+			theLogger = LoggerFactory.getLogger(logger);
     	}
     	return theLogger;
     }

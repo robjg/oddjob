@@ -9,7 +9,8 @@ import java.util.Map;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -28,7 +29,7 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.values.properties.PropertiesJob;
 
 public class OddjobNestedTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobNestedTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobNestedTest.class);
 	
     /**
      * Test a nested Oddjob.

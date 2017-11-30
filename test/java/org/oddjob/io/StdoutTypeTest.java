@@ -9,7 +9,8 @@ import java.util.Properties;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
@@ -23,7 +24,7 @@ import org.oddjob.tools.OurDirs;
 
 public class StdoutTypeTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(StdoutTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(StdoutTypeTest.class);
 	
    @Before
    public void setUp() throws Exception {
@@ -33,7 +34,7 @@ public class StdoutTypeTest extends OjTestCase {
 	
 	String EOL = System.getProperty("line.separator");
 	
-   @Test
+    @Test
 	public void testSimple() throws ArooaConversionException, IOException {
 		
 		ConsoleCapture results = new ConsoleCapture();
@@ -56,7 +57,7 @@ public class StdoutTypeTest extends OjTestCase {
 		
 		results.dump(logger);
 		
-		assertEquals("Hello World." + EOL, results.getAll());
+		assertEquals("Hello World.", results.getAll());
 	}
 	
    @Test

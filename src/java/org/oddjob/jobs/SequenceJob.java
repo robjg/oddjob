@@ -2,7 +2,8 @@ package org.oddjob.jobs;
 
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 
 
@@ -25,7 +26,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 public class SequenceJob implements Runnable, Serializable {
 	private static final long serialVersionUID=20060109;
 
-	private static final Logger logger = Logger.getLogger(SequenceJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(SequenceJob.class);
 	
     /**
      * @oddjob.property

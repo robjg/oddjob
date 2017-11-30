@@ -10,7 +10,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.types.ValueFactory;
 import org.oddjob.values.VariablesJob;
@@ -37,7 +38,7 @@ import org.oddjob.values.VariablesJob;
 public class URLClassLoaderType 
 implements ValueFactory<ClassLoader>, ArooaLifeAware {
 
-	private static final Logger logger = Logger.getLogger(URLClassLoaderType.class);
+	private static final Logger logger = LoggerFactory.getLogger(URLClassLoaderType.class);
 	
 	private ClassLoader parent;
 	

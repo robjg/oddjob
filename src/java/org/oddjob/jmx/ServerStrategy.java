@@ -13,7 +13,8 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Used to alter behaviour between having a remote connector
@@ -45,7 +46,7 @@ abstract public class ServerStrategy {
 }
 
 class ConnectorServerStrategy extends ServerStrategy {
-	private static final Logger logger = Logger.getLogger(ConnectorServerStrategy.class);	
+	private static final Logger logger = LoggerFactory.getLogger(ConnectorServerStrategy.class);	
 	
 	private final JMXServiceURL serviceURL;
 	
@@ -87,7 +88,7 @@ class ConnectorServerStrategy extends ServerStrategy {
 }
 
 class PlatformMBeanServerStrategy extends ServerStrategy {
-	private static final Logger logger = Logger.getLogger(PlatformMBeanServerStrategy.class);	
+	private static final Logger logger = LoggerFactory.getLogger(PlatformMBeanServerStrategy.class);	
 	
 	@Override
 	public MBeanServer findServer() {

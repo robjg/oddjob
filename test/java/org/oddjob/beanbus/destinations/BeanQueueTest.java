@@ -3,7 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,7 +24,7 @@ import org.oddjob.tools.StateSteps;
 
 public class BeanQueueTest extends Assert {
 
-	private static final Logger logger = Logger.getLogger(BeanQueueTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanQueueTest.class);
 	
 	@Rule public TestName name = new TestName();
 

@@ -6,7 +6,8 @@ package org.oddjob.sql;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.persist.OddjobPersister;
@@ -36,7 +37,7 @@ import org.oddjob.persist.PersisterBase;
  * @author Rob Gordon.
  */
 public class SQLPersisterService {
-	private static final Logger logger = Logger.getLogger(SQLPersisterService.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLPersisterService.class);
 
 	/** 
 	 * @oddjob.property

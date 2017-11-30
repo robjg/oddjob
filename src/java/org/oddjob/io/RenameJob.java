@@ -3,7 +3,8 @@ package org.oddjob.io;
 import java.io.File;
 import java.io.Serializable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 
 
@@ -25,7 +26,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 public class RenameJob implements Runnable, Serializable {
 	private static final long serialVersionUID = 20060117;
 	
-	private static final Logger logger = Logger.getLogger(RenameJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(RenameJob.class);
 	
 	/** 
 	 * @oddjob.property

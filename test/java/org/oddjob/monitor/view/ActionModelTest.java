@@ -3,8 +3,6 @@
  */
 package org.oddjob.monitor.view;
 
-import org.junit.Test;
-
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,11 +11,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
-import org.oddjob.OjTestCase;
-
-import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.design.actions.ConfigurableMenus;
@@ -33,13 +30,15 @@ import org.oddjob.monitor.model.ConfigContextInialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
  */
 public class ActionModelTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ActionModelTest.class); 
+	private static final Logger logger = LoggerFactory.getLogger(ActionModelTest.class); 
 	
 	private class OurSessionLite extends MockConfigurationSession {
 		
@@ -145,7 +144,7 @@ public class ActionModelTest extends OjTestCase {
 				logger.debug("Separator");
 			}
 			else {
-				logger.debug(component.getClass());
+				logger.debug("Component class " + component.getClass());
 			}
 		}
 
@@ -266,7 +265,7 @@ public class ActionModelTest extends OjTestCase {
 				logger.debug("Separator");
 			}
 			else {
-				logger.debug(component.getClass());
+				logger.debug("Component class " + component.getClass());
 			}
 		}
 

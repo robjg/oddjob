@@ -12,7 +12,8 @@ import java.io.File;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -29,7 +30,7 @@ import org.oddjob.tools.OurDirs;
  *
  */
 public class EchoDCTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(EchoDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(EchoDCTest.class);
 	
 	@Rule public TestName name = new TestName();
 

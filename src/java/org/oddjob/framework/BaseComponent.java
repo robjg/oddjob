@@ -6,7 +6,6 @@ import java.beans.PropertyChangeSupport;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaConfigurationException;
@@ -26,6 +25,7 @@ import org.oddjob.state.IsAnyState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 import org.oddjob.state.StateListener;
+import org.slf4j.Logger;
 
 /**
  * An abstract implementation of a component which provides common 

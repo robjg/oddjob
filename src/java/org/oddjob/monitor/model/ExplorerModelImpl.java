@@ -25,7 +25,7 @@ import org.oddjob.util.ThreadManager;
  * @author Rob Gordon
  */
 public class ExplorerModelImpl implements ExplorerModel {
-//	private static final Logger logger = Logger.getLogger(ExplorerModel.class);
+//	private static final Logger logger = LoggerFactory.getLogger(ExplorerModel.class);
 	
 	/** The root node of the model. */
 	private Oddjob oddjob; 

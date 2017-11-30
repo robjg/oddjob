@@ -4,7 +4,8 @@ import java.util.Collection;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BadBeanTransfer;
@@ -24,7 +25,7 @@ import org.oddjob.beanbus.TrackingBusListener;
 public class BadBeanFilter<T> extends AbstractDestination<T>
 implements BusFilter<T, T> {
 
-	private static final Logger logger = Logger.getLogger(BadBeanFilter.class);
+	private static final Logger logger = LoggerFactory.getLogger(BadBeanFilter.class);
 	
 	private Collection<? super BadBeanTransfer<T>> badBeanHandler;
 

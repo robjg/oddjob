@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
@@ -50,7 +51,7 @@ final public class CountSchedule extends AbstractSchedule
 implements Serializable {
     private static final long serialVersionUID = 20050226;
     
-    private static final Logger logger = Logger.getLogger(CountSchedule.class);
+    private static final Logger logger = LoggerFactory.getLogger(CountSchedule.class);
     
     private static final String COUNT_KEY = "countschedulecount";
     

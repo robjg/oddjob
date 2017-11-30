@@ -17,7 +17,8 @@ import javax.management.remote.rmi.RMIConnectorServer;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -37,7 +38,7 @@ import org.oddjob.tools.StateSteps;
 
 public class JMXServiceJobTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(JMXServiceJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(JMXServiceJobTest.class);
 
 	ObjectName objectName;
 	

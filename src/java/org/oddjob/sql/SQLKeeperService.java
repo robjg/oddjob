@@ -16,7 +16,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
@@ -71,7 +72,7 @@ import org.oddjob.state.StateListener;
  * @author Rob Gordon.
  */
 public class SQLKeeperService {
-	private static final Logger logger = Logger.getLogger(SQLKeeperService.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLKeeperService.class);
 
 	/** The default table name. */
 	public static final String TABLE_NAME = "oddjob_grabbable";

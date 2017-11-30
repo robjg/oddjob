@@ -9,7 +9,8 @@ import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.ListSetterHelper;
 import org.oddjob.values.properties.PropertiesJobBase;
 
@@ -33,7 +34,7 @@ import org.oddjob.values.properties.PropertiesJobBase;
 public class InputJob extends PropertiesJobBase {
 	private static final long serialVersionUID = 2011011700L;
 
-	private static final Logger logger = Logger.getLogger(InputJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(InputJob.class);
 	/**
 	 * @oddjob.property 
 	 * @oddjob.description The input handler to use.

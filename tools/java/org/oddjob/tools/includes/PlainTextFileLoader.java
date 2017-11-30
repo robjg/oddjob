@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.doclet.CustomTagNames;
 
 /**
@@ -16,7 +17,7 @@ import org.oddjob.doclet.CustomTagNames;
  */
 public class PlainTextFileLoader implements IncludeLoader, CustomTagNames {
 
-	private static final Logger logger = Logger.getLogger(PlainTextFileLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(PlainTextFileLoader.class);
 	
 	private final File base;
 	

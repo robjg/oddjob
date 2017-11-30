@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -62,7 +63,7 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 public class InvokeType 
 implements ArooaValue, ArooaSessionAware {
 
-	private static final Logger logger = Logger.getLogger(InvokeType.class);
+	private static final Logger logger = LoggerFactory.getLogger(InvokeType.class);
 	
 	/**
 	 * @oddjob.property 

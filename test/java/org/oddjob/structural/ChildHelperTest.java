@@ -16,7 +16,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.MockStructural;
 
 
@@ -25,7 +26,7 @@ import org.oddjob.MockStructural;
  */
 public class ChildHelperTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ChildHelperTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ChildHelperTest.class);
 	
     @Before
     public void setUp() throws Exception {

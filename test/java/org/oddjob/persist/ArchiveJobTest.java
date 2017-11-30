@@ -11,7 +11,8 @@ import java.util.Date;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
@@ -37,7 +38,7 @@ import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
 
 public class ArchiveJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(ArchiveJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ArchiveJobTest.class);
 
     @Before
     public void setUp() throws Exception {

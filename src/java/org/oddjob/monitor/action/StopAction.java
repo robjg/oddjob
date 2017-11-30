@@ -2,7 +2,8 @@ package org.oddjob.monitor.action;
 
 import javax.swing.KeyStroke;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.monitor.Standards;
@@ -18,7 +19,7 @@ import org.oddjob.util.ThreadManager;
 
 public class StopAction extends JobAction {
 
-	private static final Logger logger = Logger.getLogger(StopAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(StopAction.class);
 	
 	/** The job. */
 	private Object job = null;
@@ -77,7 +78,7 @@ public class StopAction extends JobAction {
 				try {
 					((Stoppable) job).stop();
 				} catch (FailedToStopException e) {
-					logger.warn(e);
+					logger.warn("Failed to stop.", e);
 				}
 			}
 		}, "Stopping " + job);

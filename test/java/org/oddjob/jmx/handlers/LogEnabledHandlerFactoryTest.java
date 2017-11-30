@@ -24,7 +24,7 @@ import org.oddjob.logging.LogEnabled;
 import org.oddjob.util.MockThreadManager;
 
 public class LogEnabledHandlerFactoryTest extends OjTestCase {
-//	private static final Logger logger = Logger.getLogger(IconicInfoTest.class);
+//	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
 
 	private class MockLogEnabled implements LogEnabled {
 		public String loggerName() {

@@ -399,7 +399,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 					}
 					
 					if (state.isComplete()) {
-						ready.remove(source);
+						ready.remove((Runnable) source);
 						complete.add(source);
 					}
 				}
@@ -621,7 +621,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 						parallelRun(executionWatcher, (Runnable) next);
 					}
 				} catch (ArooaParseException e) {
-					logger().error(e);
+					logger().error("Failed to load Jobs.", e);
 				}
 			}
 		};
@@ -855,7 +855,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		try {
 			childHelper.stopChildren();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Failed to stop.", e);
 		}
 		
 		Object[] children = childHelper.getChildren();

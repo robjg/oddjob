@@ -13,7 +13,8 @@ import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -31,7 +32,7 @@ import org.oddjob.tools.OurDirs;
  * @author Rob Gordon.
  */
 public class OddjobPersistTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobPersistTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobPersistTest.class);
 
 	private File config;
 	private File persistIn;

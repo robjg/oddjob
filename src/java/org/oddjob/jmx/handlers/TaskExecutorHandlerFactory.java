@@ -16,7 +16,8 @@ import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.input.InputRequest;
@@ -41,7 +42,7 @@ import org.oddjob.state.StateListener;
 public class TaskExecutorHandlerFactory 
 implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	
-	private static final Logger logger = Logger.getLogger(TaskExecutorHandlerFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaskExecutorHandlerFactory.class);
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 		

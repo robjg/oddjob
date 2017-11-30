@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
@@ -22,7 +23,7 @@ import org.oddjob.framework.Transient;
 abstract public class PersisterBase 
 implements OddjobPersister {
 
-	private static final Logger logger = Logger.getLogger(PersisterBase.class);
+	private static final Logger logger = LoggerFactory.getLogger(PersisterBase.class);
 
 	/** List of ids to include. */
 	private List<String> include;

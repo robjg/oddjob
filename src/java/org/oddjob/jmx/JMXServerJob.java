@@ -9,7 +9,8 @@ import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnectorServer;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
@@ -107,7 +108,7 @@ import org.oddjob.util.ThreadManager;
  * @author Rob Gordon
  */
 public class JMXServerJob implements ArooaSessionAware {
-	private static final Logger logger = Logger.getLogger(JMXServerJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(JMXServerJob.class);
 	
 	public static final String ACCESS_FILE_PROPERTY = "oddjob.jmx.remote.x.access.file";
 	

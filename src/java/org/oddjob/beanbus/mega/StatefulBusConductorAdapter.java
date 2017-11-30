@@ -1,6 +1,7 @@
 package org.oddjob.beanbus.mega;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -24,7 +25,7 @@ public class StatefulBusConductorAdapter extends AbstractBusConductor
 implements BusConductor {
 
 	private static final Logger logger = 
-			Logger.getLogger(StatefulBusConductorAdapter.class);
+			LoggerFactory.getLogger(StatefulBusConductorAdapter.class);
 	
 	// javacc via ant wont resolve FINISHED if it's in-lined
 	// No idea why!!!!

@@ -14,7 +14,8 @@ import java.util.Set;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.reflect.ArooaNoPropertyException;
@@ -26,7 +27,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 
 public class OddjobModulesTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobModulesTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobModulesTest.class);
 		
     @Before
     public void setUp() throws Exception {

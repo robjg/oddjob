@@ -6,7 +6,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobException;
 import org.oddjob.arooa.utils.SpringSafeCalendar;
 import org.oddjob.arooa.utils.TimeParser;
@@ -69,7 +70,7 @@ import org.oddjob.scheduling.Timer;
 
 final public class TimeSchedule extends AbstractSchedule implements Serializable {
 
-	private static Logger logger = Logger.getLogger(ConstrainedSchedule.class);
+	private static Logger logger = LoggerFactory.getLogger(ConstrainedSchedule.class);
 	
     private static final long serialVersionUID = 200502262011092000L;
     	

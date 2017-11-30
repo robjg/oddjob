@@ -13,7 +13,8 @@ import java.util.List;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -32,7 +33,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 
 public class SQLJobTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(SQLJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLJobTest.class);
 
     @Before
     public void setUp() throws Exception {

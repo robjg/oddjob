@@ -8,7 +8,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.input.InputRequest;
 import org.oddjob.state.FlagState;
@@ -18,7 +19,7 @@ import org.oddjob.tools.ConsoleCapture;
 
 public class TaskRequestTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(TaskRequestTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaskRequestTest.class);
 	
     @Before
     public void setUp() throws Exception {

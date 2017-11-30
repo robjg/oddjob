@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.schedules.Schedule;
@@ -14,7 +15,7 @@ import org.oddjob.schedules.Schedule;
  */
 public class SingleTestSchedule {
 
-    private static Logger logger = Logger.getLogger(SingleTestSchedule.class); 
+    private static Logger logger = LoggerFactory.getLogger(SingleTestSchedule.class); 
 
     /** The schedule. */
     private Schedule schedule;

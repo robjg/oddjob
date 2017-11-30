@@ -12,7 +12,8 @@ import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
 
@@ -23,7 +24,7 @@ import org.oddjob.jmx.Utils;
  *
  */
 class ClientSideToolkitImpl implements ClientSideToolkit {
-	private static final Logger logger = Logger.getLogger(ClientSideToolkitImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClientSideToolkitImpl.class);
 
 	private final static int ACTIVE = 0;
 
@@ -99,10 +100,8 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 				clientSession.getServerConnection().removeNotificationListener(objectName,
 						clientListener);
 			}
-		} catch (JMException e) {
-			logger.debug(e);
-		} catch (IOException e) {
-			logger.debug(e);
+		} catch (JMException | IOException e) {
+			logger.debug("Client destroy.", e);
 		}
 		
 		logger.debug("Destroyed client for [" + toString() + "]");
@@ -146,7 +145,7 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 							listener.handleNotification(notification, object);
 						} catch (Exception e) {
 							// this will happen when the remote node disappears
-							logger.debug(e);
+							logger.debug("Handle notification.", e);
 						}
 					}
 				};

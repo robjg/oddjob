@@ -9,8 +9,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
+import org.slf4j.Logger;
 
 /**
  * Simple implementation of a {@link ClientSession}

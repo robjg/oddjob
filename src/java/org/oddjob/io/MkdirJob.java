@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 
 /**
@@ -23,7 +24,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
  */
 
 public class MkdirJob implements Runnable, Serializable {
-	private static final Logger logger = Logger.getLogger(MkdirJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(MkdirJob.class);
 	
 	private static final long serialVersionUID = 20060117;
 

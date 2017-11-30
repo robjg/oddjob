@@ -10,7 +10,8 @@ import javax.security.auth.DestroyFailedException;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
 import org.oddjob.OddjobComponentResolver;
@@ -41,7 +42,7 @@ import org.oddjob.tools.StateSteps;
  */
 public class SimpleSecurityTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SimpleSecurityTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleSecurityTest.class);
 	
 	static final String SECURITY_CONFIG_PARAM = "oddjob.jmx.test.security.config";
 	

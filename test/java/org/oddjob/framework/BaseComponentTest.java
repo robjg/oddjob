@@ -12,7 +12,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -38,7 +39,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class BaseComponentTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(BaseComponentTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BaseComponentTest.class);
 	
 	private class OurComponent extends BaseComponent {
 

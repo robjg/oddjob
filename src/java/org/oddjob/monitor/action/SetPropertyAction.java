@@ -3,7 +3,8 @@ package org.oddjob.monitor.action;
 import javax.swing.KeyStroke;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
@@ -39,7 +40,7 @@ import org.oddjob.monitor.model.JobFormAction;
  */
 
 public class SetPropertyAction extends JobFormAction implements FormAction {
-	private static final Logger logger = Logger.getLogger(SetPropertyAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(SetPropertyAction.class);
 	
 	/** The job */
 	private Object job = null;

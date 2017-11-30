@@ -7,7 +7,8 @@ import java.util.Arrays;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -26,7 +27,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class ForEachPsudoComponentPoolTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			ForEachPsudoComponentPoolTest.class);
 	
    @Before

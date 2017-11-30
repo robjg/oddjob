@@ -12,7 +12,8 @@ import java.io.PrintStream;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -32,7 +33,7 @@ import org.oddjob.tools.OurDirs;
  * Test for BufferType.
  */
 public class BufferTypeTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(BufferTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BufferTypeTest.class);
 	
    @Test
 	public void testConversions() 

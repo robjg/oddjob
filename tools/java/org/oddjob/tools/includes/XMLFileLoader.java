@@ -6,7 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.doclet.CustomTagNames;
 import org.oddjob.jobs.XSLTJob;
 
@@ -21,7 +22,7 @@ import org.oddjob.jobs.XSLTJob;
  */
 public class XMLFileLoader implements IncludeLoader, CustomTagNames {
 
-	private static final Logger logger = Logger.getLogger(XMLFileLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(XMLFileLoader.class);
 	
 	private final File base;
 	

@@ -2,11 +2,12 @@ package org.oddjob.beanbus;
 
 import java.util.Collection;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BasicBeanBus<T> extends AbstractDestination<T>
 implements BeanBus<T> {
-	private static final Logger logger = Logger.getLogger(BasicBeanBus.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasicBeanBus.class);
 
 	private volatile Collection<? super T> to;
 

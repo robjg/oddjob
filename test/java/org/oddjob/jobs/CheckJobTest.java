@@ -5,7 +5,8 @@ import org.junit.Test;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
@@ -26,7 +27,7 @@ import org.oddjob.tools.StateSteps;
 
 public class CheckJobTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(CheckJobTest.class); 
+	private static final Logger logger = LoggerFactory.getLogger(CheckJobTest.class); 
 	
     @Before
     public void setUp() throws Exception {

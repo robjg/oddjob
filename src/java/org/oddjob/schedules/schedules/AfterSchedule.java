@@ -3,7 +3,8 @@ package org.oddjob.schedules.schedules;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.AbstractSchedule;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
@@ -50,7 +51,7 @@ final public class AfterSchedule extends AbstractSchedule implements Serializabl
     
     private static final long serialVersionUID = 200902262011092000L;
     
-    private static final Logger logger = Logger.getLogger(AfterSchedule.class);
+    private static final Logger logger = LoggerFactory.getLogger(AfterSchedule.class);
     
 	/**
 	 * @oddjob.property

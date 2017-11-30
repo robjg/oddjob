@@ -12,7 +12,8 @@ import java.util.Map;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -30,7 +31,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.tools.OddjobTestHelper;
 
 public class OddjobPersisterTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobPersisterTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobPersisterTest.class);
 	
 	
     @Before

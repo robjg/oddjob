@@ -30,7 +30,8 @@ import javax.management.ReflectionException;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OddjobConsole;
@@ -74,7 +75,7 @@ import org.oddjob.util.MockThreadManager;
  * Test a ClientNode.
  */
 public class ClientNodeTest extends OjTestCase {
-	public static final Logger logger = Logger.getLogger(ClientNodeTest.class);
+	public static final Logger logger = LoggerFactory.getLogger(ClientNodeTest.class);
 
 	/**
 	 * Fixture interface which contains the minimum

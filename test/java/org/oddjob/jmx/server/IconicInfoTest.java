@@ -22,7 +22,7 @@ import org.oddjob.jmx.handlers.IconicHandlerFactory;
 import org.oddjob.util.MockThreadManager;
 
 public class IconicInfoTest extends OjTestCase {
-//	private static final Logger logger = Logger.getLogger(IconicInfoTest.class);
+//	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
 	
 	private class OurHierarchicalRegistry extends MockBeanRegistry {
 		

@@ -7,7 +7,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.deploy.ClassPathDescriptorFactory;
 import org.oddjob.arooa.deploy.ClassesOnlyDescriptor;
@@ -22,7 +23,7 @@ import org.oddjob.arooa.deploy.ClassesOnlyDescriptor;
  *
  */
 public class DirectoryOddball implements OddballFactory {
-	private static final Logger logger = Logger.getLogger(DirectoryOddball.class);
+	private static final Logger logger = LoggerFactory.getLogger(DirectoryOddball.class);
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.oddballs.OddballFactory#createFrom(java.io.File, java.lang.ClassLoader)

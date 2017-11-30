@@ -6,7 +6,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @oddjob.description Provide a schedule based on a list of schedules. All schedules are
@@ -25,7 +26,7 @@ import org.apache.log4j.Logger;
 final public class ScheduleList implements Serializable, Schedule {
     private static final long serialVersionUID = 20051125;
     
-    private static final Logger logger = Logger.getLogger(ScheduleList.class);
+    private static final Logger logger = LoggerFactory.getLogger(ScheduleList.class);
     
     /** 
      * @oddjob.property

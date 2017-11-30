@@ -10,7 +10,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -40,7 +41,7 @@ import org.oddjob.io.StdoutType;
 public class BeanSheet extends AbstractDestination<Object>
 implements ArooaSessionAware, Outbound<Object> {
 
-	private static final Logger logger = Logger.getLogger(BeanSheet.class);
+	private static final Logger logger = LoggerFactory.getLogger(BeanSheet.class);
 	
 	/** The padding character. A space. */
 	private static final char PADDING = ' ';

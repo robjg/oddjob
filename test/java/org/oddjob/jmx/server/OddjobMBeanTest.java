@@ -2,10 +2,6 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.server;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +12,16 @@ import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
 
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.MockStateful;
+import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -40,12 +37,14 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.util.MockThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Tests for an OddjobMBeanTest.
  */
 public class OddjobMBeanTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobMBeanTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobMBeanTest.class);
 	
 	private ServerModel sm;
 	
@@ -290,8 +289,8 @@ public class OddjobMBeanTest extends OjTestCase {
 				new OurServerSession(), 
 				serverContext);
 		
-		Logger testLogger = Logger.getLogger(bean.loggerName());
-		testLogger.setLevel(Level.DEBUG);
+		LoggerAdapter.appenderAdapterFor(bean.loggerName()).setLevel(LogLevel.DEBUG);
+		Logger testLogger = LoggerFactory.getLogger(bean.loggerName());
 		testLogger.info("Test");
 		
 		LogEvent[] events = (LogEvent[]) ojmb.invoke(SharedConstants.RETRIEVE_LOG_EVENTS_METHOD,
@@ -308,7 +307,7 @@ public class OddjobMBeanTest extends OjTestCase {
 
 /** Fixture listener. */
 class MyNotLis implements NotificationListener {
-	private static final Logger logger = Logger.getLogger(MyNotLis.class); 
+	private static final Logger logger = LoggerFactory.getLogger(MyNotLis.class); 
 	private class Pair {
 		private final Notification notification;
 		private final Object handback;

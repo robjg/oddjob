@@ -11,7 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 
@@ -20,7 +21,7 @@ import org.oddjob.Stoppable;
  * ensure that all threads are complete before a job terminates.
  */
 public class SimpleThreadManager implements ThreadManager {
-	private static final Logger logger = Logger.getLogger(SimpleThreadManager.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleThreadManager.class);
 	
 	/** Map of active threads to their description. */
 	private final Map<Runnable, Remember> active = 

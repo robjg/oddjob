@@ -4,7 +4,8 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The simplest most generic dialect. The default that {@link SQLJob}
@@ -15,7 +16,7 @@ import org.apache.log4j.Logger;
  */
 public class BasicGenericDialect implements DatabaseDialect {
 
-	private static final Logger logger = Logger.getLogger(BasicGenericDialect.class);
+	private static final Logger logger = LoggerFactory.getLogger(BasicGenericDialect.class);
 	
 	private ClassLoader classLoader;	
 	

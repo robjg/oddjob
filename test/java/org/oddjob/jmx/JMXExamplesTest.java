@@ -9,7 +9,8 @@ import java.util.Properties;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -26,7 +27,7 @@ import org.oddjob.tools.StateSteps;
 
 public class JMXExamplesTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(JMXExamplesTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(JMXExamplesTest.class);
 
 	Oddjob serverOddjob;
 	Oddjob clientOddjob;
@@ -130,7 +131,7 @@ public class JMXExamplesTest extends OjTestCase {
 		
 		clientOddjobStates.checkWait();
 		
-		serverJobStates.checkNow();
+		serverJobStates.checkWait();
 	}
 	
    @Test

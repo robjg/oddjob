@@ -40,7 +40,8 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobServices;
@@ -96,7 +97,7 @@ implements Stoppable {
 	
     private static final long serialVersionUID = 2011101400L;
 
-    private static final Logger logger = Logger.getLogger(OddjobExplorer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OddjobExplorer.class);
 
     public static final String ODDJOB_PROPERTY ="oddjob";
     

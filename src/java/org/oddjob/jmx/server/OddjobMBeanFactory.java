@@ -14,7 +14,8 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 
 /**
@@ -23,7 +24,7 @@ import org.oddjob.arooa.ArooaSession;
  * 
  */
 public class OddjobMBeanFactory implements ServerSession {
-	private static final Logger logger = Logger.getLogger(OddjobMBeanFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobMBeanFactory.class);
 	
 	/** The server */
 	private final MBeanServer server;

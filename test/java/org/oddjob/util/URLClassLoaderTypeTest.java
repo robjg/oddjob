@@ -12,7 +12,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -26,7 +27,7 @@ import org.oddjob.OjTestCase;
 public class URLClassLoaderTypeTest extends OjTestCase {
 
 	private static final Logger logger = 
-		Logger.getLogger(URLClassLoaderTypeTest.class);
+		LoggerFactory.getLogger(URLClassLoaderTypeTest.class);
 	
     @Before
     public void setUp() throws Exception {

@@ -11,7 +11,8 @@ import java.io.File;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobInheritance;
@@ -30,7 +31,7 @@ import org.oddjob.tools.OurDirs;
  *
  */
 public class OddjobDCTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(OddjobDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobDCTest.class);
 	
 	@Rule public TestName name = new TestName();
 

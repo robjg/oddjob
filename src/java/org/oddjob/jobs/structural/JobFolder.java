@@ -3,7 +3,8 @@ package org.oddjob.jobs.structural;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
 import org.oddjob.Structural;
@@ -33,7 +34,7 @@ import org.oddjob.structural.StructuralListener;
 public class JobFolder 
 			implements Structural, Iconic {
 
-	private static final Logger logger = Logger.getLogger(JobFolder.class);
+	private static final Logger logger = LoggerFactory.getLogger(JobFolder.class);
 	
 	/** Icon. */
 	private static final ImageIcon icon = new ImageIconStable(	
@@ -177,7 +178,7 @@ public class JobFolder
 		try {
 			childHelper.stopChildren();
 		} catch (FailedToStopException e) {
-			logger.warn(e);
+			logger.warn("Failed to stop.", e);
 		}
 		destroyed = true;
 	}

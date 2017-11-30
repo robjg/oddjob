@@ -14,10 +14,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TrackingExecutorTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(TrackingExecutorTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(TrackingExecutorTest.class);
 
     @Before
     public void setUp() {

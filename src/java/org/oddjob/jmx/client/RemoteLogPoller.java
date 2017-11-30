@@ -3,7 +3,8 @@
  */
 package org.oddjob.jmx.client;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.ConsoleArchiver;
@@ -22,7 +23,7 @@ import org.oddjob.logging.cache.PollingLogArchiver;
  */
 public class RemoteLogPoller 
 implements Runnable, LogArchiver, ConsoleArchiver {
-	private static final Logger logger = Logger.getLogger(RemoteLogPoller.class);
+	private static final Logger logger = LoggerFactory.getLogger(RemoteLogPoller.class);
 
 	/** Archiver to store console messages retrieved from the server side. */
 	private final PollingLogArchiver consoleArchiver;

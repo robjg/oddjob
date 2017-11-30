@@ -8,7 +8,8 @@ import java.io.File;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -29,7 +30,7 @@ import org.oddjob.tools.OurDirs;
 public class FileSilhouettesTest extends OjTestCase {
 
 	private static final Logger logger = 
-		Logger.getLogger(FileSilhouettesTest.class);
+		LoggerFactory.getLogger(FileSilhouettesTest.class);
 	
 	File archiveDir;
 	

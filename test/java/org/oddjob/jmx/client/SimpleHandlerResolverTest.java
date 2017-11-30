@@ -3,14 +3,15 @@ import org.junit.Before;
 
 import org.junit.Test;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 
 import org.oddjob.OjTestCase;
 
 public class SimpleHandlerResolverTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SimpleHandlerResolverTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SimpleHandlerResolverTest.class);
 	
    @Before
    public void setUp() throws Exception {

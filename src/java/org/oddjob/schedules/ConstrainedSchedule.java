@@ -4,7 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.schedules.ParentChildSchedule;
 
 /**
@@ -17,7 +18,7 @@ abstract public class ConstrainedSchedule extends AbstractSchedule {
 
     private static final long serialVersionUID = 20050226;
     
-    private static Logger logger = Logger.getLogger(ConstrainedSchedule.class);
+    private static Logger logger = LoggerFactory.getLogger(ConstrainedSchedule.class);
 
     /**
      * Provide a Calendar for the start of the constraint.

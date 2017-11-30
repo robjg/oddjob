@@ -7,7 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Future;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
@@ -37,7 +38,7 @@ import org.oddjob.OjTestCase;
 
 public class ParallelJobTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ParallelJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ParallelJobTest.class);
 	
     @Before
     public void setUp() throws Exception {

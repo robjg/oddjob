@@ -23,7 +23,8 @@ import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Display Diagnostics about the ClassLoader.
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
  */
 public class ClassLoaderDiagnostics implements Runnable {
 	
-	private static final Logger logger = Logger.getLogger(ClassLoaderDiagnostics.class);
+	private static final Logger logger = LoggerFactory.getLogger(ClassLoaderDiagnostics.class);
 	
 	private String name;
 	

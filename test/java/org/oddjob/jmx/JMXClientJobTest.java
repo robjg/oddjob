@@ -11,8 +11,6 @@ import javax.swing.event.TreeModelListener;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.FailedToStopException;
@@ -26,6 +24,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanDirectoryOwner;
@@ -57,12 +56,14 @@ import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.tools.WaitForChildren;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test the JMXClientJob
  */
 public class JMXClientJobTest extends OjTestCase {
-	static final Logger logger = Logger.getLogger(JMXClientJobTest.class);
+	static final Logger logger = LoggerFactory.getLogger(JMXClientJobTest.class);
 	
 	/**
 	 * Fixture
@@ -601,8 +602,9 @@ public class JMXClientJobTest extends OjTestCase {
 			server.setUrl("service:jmx:rmi://");
 			server.start();
 			
-			Logger ourLogger = Logger.getLogger(serverNode.loggerName());
-			ourLogger.setLevel(Level.DEBUG);
+			Logger ourLogger = LoggerFactory.getLogger(serverNode.loggerName());
+			LoggerAdapter.appenderAdapterFor(serverNode.loggerName()).setLevel(LogLevel.DEBUG);
+
 			ourLogger.info("Test");
 			
 			JMXClientJob client = new JMXClientJob();

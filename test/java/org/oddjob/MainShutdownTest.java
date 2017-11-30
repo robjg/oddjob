@@ -8,7 +8,8 @@ import java.util.concurrent.Exchanger;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.io.BufferType;
@@ -22,7 +23,7 @@ import org.oddjob.tools.OurDirs;
 
 public class MainShutdownTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(MainTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(MainTest.class);
 	
     @Before
     public void setUp() throws Exception {

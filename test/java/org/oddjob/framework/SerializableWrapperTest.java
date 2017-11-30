@@ -11,7 +11,8 @@ import java.lang.reflect.Proxy;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -26,7 +27,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
 public class SerializableWrapperTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(SerializableWrapperTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SerializableWrapperTest.class);
 	
 	public static class Test1 implements Runnable, Serializable {
 		private static final long serialVersionUID = 20051231;

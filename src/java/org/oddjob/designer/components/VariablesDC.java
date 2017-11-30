@@ -408,10 +408,6 @@ class VariablesDesignContext implements ArooaContext {
 			public ArooaContext onStartElement(ArooaElement element,
 					ArooaContext parentContext) throws ArooaException {
 
-				if (variables.properties.contains(element.getTag())) {
-					throw new ArooaException("Duplicate property " + element);
-				}
-				
 				if (element.getAttributes().getAttributNames().length > 0) {
 					throw new ArooaException("Property can't contain attributes: " + 
 							element.getAttributes().getAttributNames()[0]);

@@ -4,7 +4,8 @@ import java.util.Properties;
 
 import javax.swing.KeyStroke;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.tasks.BasicTask;
@@ -27,7 +28,7 @@ import org.oddjob.util.ThreadManager;
 public class TaskAction extends JobAction 
 implements StateListener {
 
-	private static final Logger logger = Logger.getLogger(TaskAction.class);
+	private static final Logger logger = LoggerFactory.getLogger(TaskAction.class);
 	
 	/** The job */
 	private Object job = null;
@@ -108,7 +109,7 @@ implements StateListener {
 					try {
 						execution.execute(new BasicTask(props));
 					} catch (TaskException e) {
-						logger.warn(e);
+						logger.warn("Failed to execute task.", e);
 					}
 				}
 			}, "Executing " + job);

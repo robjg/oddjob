@@ -12,7 +12,8 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.ArooaSession;
@@ -142,7 +143,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
     		if (logger == null) {
     			logger = LogHelper.uniqueLoggerName(getWrapped());
     		}
-			theLogger = Logger.getLogger(logger);
+			theLogger = LoggerFactory.getLogger(logger);
     	}
     	return theLogger;
     }

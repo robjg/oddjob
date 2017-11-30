@@ -13,7 +13,8 @@ import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -33,7 +34,7 @@ import org.oddjob.tools.StateSteps;
 
 public class WaitJobTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(WaitJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(WaitJobTest.class);
 	
     @Before
     public void setUp() throws Exception {

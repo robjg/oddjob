@@ -198,7 +198,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 				try {
 					stop();
 				} catch (FailedToStopException e1) {
-					logger().error(e);
+					logger().error("Failed to stop.", e);
 				}
 			}
 
@@ -410,7 +410,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 					try {
 						((Stoppable) job).stop();
 					} catch (FailedToStopException e) {
-						logger().error(e);
+						logger().error("Failed to stop", e);
 					}
 				}
 			}

@@ -7,7 +7,8 @@ import java.util.Date;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
@@ -22,7 +23,7 @@ import org.oddjob.tools.ConsoleCapture;
 
 public class ScheduleTypeTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(ScheduleTypeTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScheduleTypeTest.class);
 	
    @Test
 	public void testConversion() {

@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Calculate where the Oddjob source code is.
@@ -14,7 +15,7 @@ import org.apache.log4j.Logger;
  */
 public class OddjobSrc {
 
-	private static final Logger logger = Logger.getLogger(OddjobSrc.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobSrc.class);
 	
 	private final File oddjobSrc;	
 

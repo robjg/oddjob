@@ -2,7 +2,8 @@ package org.oddjob.state;
 
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -19,7 +20,7 @@ import org.oddjob.persist.Persistable;
  */
 public class BaseStateChanger<S extends State> implements StateChanger<S> {
 		
-	private static final Logger logger = Logger.getLogger(BaseStateChanger.class);
+	private static final Logger logger = LoggerFactory.getLogger(BaseStateChanger.class);
 	
 	private final StateHandler<S> stateHandler;
 	private final IconHelper iconHelper;

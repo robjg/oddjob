@@ -3,7 +3,8 @@ package org.oddjob.framework;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.logging.LogEnabled;
@@ -38,7 +39,7 @@ implements LogEnabled {
 	 */
 	protected Logger logger() {
 	    if (theLogger == null) {
-	        theLogger = Logger.getLogger(this.getClass().getName() 
+	        theLogger = LoggerFactory.getLogger(this.getClass().getName() 
 	                + "." + instanceCount.incrementAndGet());
 	    }
 	    return theLogger;
@@ -103,7 +104,7 @@ implements LogEnabled {
 		if (theLogger != null) {
 			theLogger.debug("Logger being replaced by [" + logger + "]");
 		}
-		theLogger = Logger.getLogger(logger); 
+		theLogger = LoggerFactory.getLogger(logger); 
 	}
 	
 	/**

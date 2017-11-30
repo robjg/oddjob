@@ -10,14 +10,15 @@ import java.util.Date;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.io.BufferType;
 
 public class SQLClockTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(SQLClockTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLClockTest.class);
 	
 	ConnectionType ct;
 	
@@ -59,7 +60,7 @@ public class SQLClockTest extends OjTestCase {
 		
 		assertNotNull(date);
 		
-		logger.info(date);
+		logger.info("Date: " + date);
 		
 		test.stop();
 	}

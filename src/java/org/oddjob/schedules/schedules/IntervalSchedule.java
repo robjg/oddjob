@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalHelper;
@@ -43,7 +44,7 @@ public class IntervalSchedule implements Schedule, Serializable {
 
     private static final long serialVersionUID = 20050226;
     
-    private static Logger logger = Logger.getLogger(IntervalSchedule.class);
+    private static Logger logger = LoggerFactory.getLogger(IntervalSchedule.class);
     
 	/**
 	 * Milliseconds for the interval.

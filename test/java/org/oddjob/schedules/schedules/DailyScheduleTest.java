@@ -11,7 +11,8 @@ import java.util.Date;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
@@ -23,7 +24,7 @@ import org.oddjob.schedules.units.DayOfWeek;
  * 
  */
 public class DailyScheduleTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger("org.oddjob");
+	private static final Logger logger = LoggerFactory.getLogger("org.oddjob");
 	
    @Before
    public void setUp() {

@@ -2,7 +2,8 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OddjobDescriptorFactory;
@@ -22,7 +23,7 @@ import org.xmlunit.matchers.CompareMatcher;
  *
  */
 public class VariablesDCTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(VariablesDCTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(VariablesDCTest.class);
 	
 	DesignInstance design;
 	

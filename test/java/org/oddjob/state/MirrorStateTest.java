@@ -5,7 +5,8 @@ import org.junit.Test;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.MockStateful;
 import org.oddjob.Oddjob;
@@ -24,7 +25,7 @@ import org.oddjob.tools.StateSteps;
 
 public class MirrorStateTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(MirrorStateTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(MirrorStateTest.class);
 	
     @Before
     public void setUp() throws Exception {

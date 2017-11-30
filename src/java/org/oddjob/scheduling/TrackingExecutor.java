@@ -12,10 +12,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TrackingExecutor implements ScheduledExecutorService {
-	static final Logger logger = Logger.getLogger(TrackingExecutor.class);
+	static final Logger logger = LoggerFactory.getLogger(TrackingExecutor.class);
 
 	private final ScheduledExecutorService executor;
 

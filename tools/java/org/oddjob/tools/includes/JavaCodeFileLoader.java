@@ -3,7 +3,8 @@ package org.oddjob.tools.includes;
 import java.io.File;
 import java.io.FileInputStream;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.doclet.CustomTagNames;
 
 /**
@@ -16,7 +17,7 @@ import org.oddjob.doclet.CustomTagNames;
  */
 public class JavaCodeFileLoader implements IncludeLoader, CustomTagNames {
 	
-	private static final Logger logger = Logger.getLogger(JavaCodeFileLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(JavaCodeFileLoader.class);
 	
 	private final File base;
 	

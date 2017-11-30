@@ -2,8 +2,8 @@ package org.oddjob.jmx.client;
 
 import javax.management.ObjectName;
 
-import org.apache.log4j.Logger;
 import org.oddjob.arooa.ArooaSession;
+import org.slf4j.Logger;
 
 public class MockClientSession implements ClientSession {
 

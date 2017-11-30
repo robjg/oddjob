@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobRunner.ExitHandler;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
@@ -21,7 +22,7 @@ import org.oddjob.tools.StateSteps;
 
 public class OddjobRunnerTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(OddjobRunnerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobRunnerTest.class);
 	
 	String timeoutProperty;
 	

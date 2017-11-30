@@ -6,7 +6,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
@@ -24,7 +25,7 @@ import org.oddjob.oddballs.OddballsDirDescriptorFactory;
  */
 public class OddjobBuilder {
 
-	private static final Logger logger = Logger.getLogger(
+	private static final Logger logger = LoggerFactory.getLogger(
 			OddjobBuilder.class);
 	
 	public static final String ODDBALLS_DIR = "oddballs";

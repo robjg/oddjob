@@ -11,7 +11,7 @@ import org.oddjob.util.OddjobLockedException;
 
 public class StateSupportLockTest extends OjTestCase {
 
-//	private static final Logger logger = Logger.getLogger(StateSupportLockTest.class);
+//	private static final Logger logger = LoggerFactory.getLogger(StateSupportLockTest.class);
 	
 	class IsLocked implements Runnable {
 		boolean locked;

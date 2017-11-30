@@ -3,17 +3,18 @@
  */
 package org.oddjob.jmx.server;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ServerModelTest extends OjTestCase {
 
@@ -52,14 +53,14 @@ public class ServerModelTest extends OjTestCase {
 		
 		sm.setLogFormat("%m");
 							
-		Logger testLogger = Logger.getLogger(bean.loggerName());
+		Logger testLogger = LoggerFactory.getLogger(bean.loggerName());
+		LoggerAdapter.appenderAdapterFor(bean.loggerName()).setLevel(LogLevel.DEBUG);
 		
 		LL ll = new LL();
 
 		ServerContext serverContext = new ServerContextImpl(
 				bean, sm, new OurRegistry());
 		
-		testLogger.setLevel(Level.DEBUG);
 		testLogger.info("Test");
 		
 		serverContext.getLogArchiver().addLogListener(ll, bean, LogLevel.DEBUG, -1, 10);

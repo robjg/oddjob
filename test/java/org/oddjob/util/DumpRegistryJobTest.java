@@ -8,7 +8,8 @@ import java.util.regex.Pattern;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -19,7 +20,7 @@ import org.oddjob.tools.OddjobTestHelper;
 public class DumpRegistryJobTest extends OjTestCase {
 
 	private static final Logger logger = 
-			Logger.getLogger(DumpRegistryJobTest.class);
+			LoggerFactory.getLogger(DumpRegistryJobTest.class);
 	
    @Test
 	public void testExample() throws ArooaPropertyException, ArooaConversionException {

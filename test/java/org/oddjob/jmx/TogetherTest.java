@@ -2,19 +2,19 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jmx;
-import org.junit.Before;
-
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.File;
-
-import org.oddjob.OjTestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.apache.log4j.Logger;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.convert.ConversionFailedException;
@@ -31,16 +31,17 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.TrackingServices;
 import org.oddjob.state.ParentState;
-import org.oddjob.tools.Log4jConsoleThresholdChanger;
 import org.oddjob.tools.WaitHelper;
 import org.oddjob.values.VariablesJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Test for both client and server together.
  *
  */
 public class TogetherTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(TogetherTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(TogetherTest.class);
 
    @Before
    public void setUp() {
@@ -68,56 +69,54 @@ public class TogetherTest extends OjTestCase {
 				this.getClass().getResourceAsStream("together1.xml")));
 		
 		logger.info("** Before Running ** ");
-		try (Log4jConsoleThresholdChanger thresholdChanger = new Log4jConsoleThresholdChanger()) {
 
-			oj.run();
+		oj.run();
 
-			OddjobLookup lookup = new OddjobLookup(oj);
+		OddjobLookup lookup = new OddjobLookup(oj);
 
-			assertEquals("apples", lookup.lookup("result.fruit", String.class));
+		assertEquals("apples", lookup.lookup("result.fruit", String.class));
 
-			// test logging.
+		// test logging.
 
-			class LL implements LogListener {
-				String message;
+		class LL implements LogListener {
+			List<String> messages = new ArrayList<>();
 
-				public void logEvent(LogEvent logEvent) {
-					message = logEvent.getMessage();
-				}
+			public void logEvent(LogEvent logEvent) {
+				messages.add(logEvent.getMessage().trim());
 			}
-
-			ConsoleArchiver archiver1 = (ConsoleArchiver) new OddjobLookup(
-					oj).lookup("client1"); 
-
-			Object fruit1 = new OddjobLookup(oj).lookup("client1/fruit");
-
-			LL results1 = new LL();
-
-			archiver1.addConsoleListener(results1, fruit1, -1, 1);
-
-			assertEquals("apples" + EOL, results1.message);
-
-			archiver1.removeConsoleListener(results1, fruit1);
-
-			ConsoleArchiver archiver2 = (ConsoleArchiver) new OddjobLookup(
-					oj).lookup("client2"); 
-
-			Object fruit2 = new OddjobLookup(oj).lookup("client2/client1/fruit");
-
-			LL results2 = new LL();
-
-			archiver2.addConsoleListener(results2, fruit2, -1, 1);
-
-			assertEquals("apples" + EOL, results2.message);
-
-			archiver2.removeConsoleListener(results2, fruit2);
-
-			// stop
-
-			Runnable stopAll = (Runnable) new OddjobLookup(oj).lookup("stopAll");
-
-			stopAll.run();
 		}
+
+		ConsoleArchiver archiver1 = (ConsoleArchiver) new OddjobLookup(
+				oj).lookup("client1"); 
+
+		Object fruit1 = new OddjobLookup(oj).lookup("client1/fruit");
+
+		LL results1 = new LL();
+
+		archiver1.addConsoleListener(results1, fruit1, -1, 1);
+
+		assertThat(results1.messages.contains("apples"), is(true));
+
+		archiver1.removeConsoleListener(results1, fruit1);
+
+		ConsoleArchiver archiver2 = (ConsoleArchiver) new OddjobLookup(
+				oj).lookup("client2"); 
+
+		Object fruit2 = new OddjobLookup(oj).lookup("client2/client1/fruit");
+
+		LL results2 = new LL();
+
+		archiver2.addConsoleListener(results2, fruit2, -1, 1);
+
+		assertThat(results2.messages.contains("apples"), is(true));
+
+		archiver2.removeConsoleListener(results2, fruit2);
+
+		// stop
+
+		Runnable stopAll = (Runnable) new OddjobLookup(oj).lookup("stopAll");
+
+		stopAll.run();
 		
 		logger.info("** After Running ** ");
 		oj.destroy();

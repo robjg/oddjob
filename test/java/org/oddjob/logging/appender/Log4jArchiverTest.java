@@ -3,7 +3,8 @@
  */
 package org.oddjob.logging.appender;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
@@ -44,7 +45,7 @@ public class Log4jArchiverTest extends OjTestCase {
 		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo");
 		adapter.setLevel(LogLevel.DEBUG);
 
-		Logger logger = Logger.getLogger("foo");
+		Logger logger = LoggerFactory.getLogger("foo");
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();
@@ -81,7 +82,7 @@ public class Log4jArchiverTest extends OjTestCase {
 		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
 				.setLevel(LogLevel.DEBUG);
 		
-		Logger logger = Logger.getLogger("foo");
+		Logger logger = LoggerFactory.getLogger("foo");
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();
@@ -112,7 +113,7 @@ public class Log4jArchiverTest extends OjTestCase {
 		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
 				.setLevel(LogLevel.DEBUG);
 		
-		Logger logger = Logger.getLogger("foo");
+		Logger logger = LoggerFactory.getLogger("foo");
 		logger.debug("Hello World");
 
 		TestListener tl = new TestListener();

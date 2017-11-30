@@ -5,7 +5,8 @@ import org.junit.Test;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -17,7 +18,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class PlatformMBeanServerTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(PlatformMBeanServerTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(PlatformMBeanServerTest.class);
 
    @Before
    public void setUp() throws Exception {

@@ -25,7 +25,8 @@ import java.util.Map;
 import javax.inject.Inject;
 import javax.script.Invocable;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.framework.SerializableJob;
 import org.oddjob.util.OddjobConfigException;
 
@@ -73,7 +74,7 @@ import org.oddjob.util.OddjobConfigException;
 public class ScriptJob extends SerializableJob {
 	private static final long serialVersionUID = 2010012600;
 	
-	private static final Logger logger = Logger.getLogger(ScriptJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(ScriptJob.class);
 	
 	/** 
 	 * @oddjob.property

@@ -8,14 +8,15 @@ import java.util.Date;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.schedules.schedules.WeeklySchedule;
 import org.oddjob.schedules.schedules.TimeSchedule;
 import org.oddjob.schedules.units.DayOfWeek;
 
 public class AdhocScheduleTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(AdhocScheduleTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(AdhocScheduleTest.class);
 	
    @Test
 	public void testForMeena() throws ParseException {

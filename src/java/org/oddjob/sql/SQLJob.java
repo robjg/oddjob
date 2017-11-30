@@ -144,7 +144,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 		BusServiceProvider {
 	private static final long serialVersionUID = 20051106;
 		
-//	private static final Logger logger = Logger.getLogger(SqlJob.class);
+//	private static final Logger logger = LoggerFactory.getLogger(SqlJob.class);
 	
     /**
      * delimiter type between SQL statements.

@@ -13,7 +13,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.jobs.WaitJob;
@@ -24,7 +25,7 @@ import org.oddjob.state.StateListener;
 import org.oddjob.tools.StateSteps;
 
 public class ExecutorServiceThrottleTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(ExecutorServiceThrottle.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExecutorServiceThrottle.class);
 	
     @Before
     public void setUp() throws Exception {

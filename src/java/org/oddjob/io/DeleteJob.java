@@ -10,7 +10,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.framework.HardReset;
 import org.oddjob.framework.SoftReset;
 
@@ -34,7 +35,7 @@ import org.oddjob.framework.SoftReset;
 public class DeleteJob implements Callable<Integer>, Serializable {
 	private static final long serialVersionUID = 200601172014032400L;
 
-	private static final Logger logger = Logger.getLogger(DeleteJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(DeleteJob.class);
 	
 	/** 
 	 * @oddjob.property

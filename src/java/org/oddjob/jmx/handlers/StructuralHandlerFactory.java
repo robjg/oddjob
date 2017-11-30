@@ -19,7 +19,8 @@ import javax.management.NotificationListener;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
@@ -41,7 +42,7 @@ import org.oddjob.structural.StructuralListener;
 public class StructuralHandlerFactory 
 implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	
-	private static final Logger logger = Logger.getLogger(StructuralHandlerFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(StructuralHandlerFactory.class);
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	

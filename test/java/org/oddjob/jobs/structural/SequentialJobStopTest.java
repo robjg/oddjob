@@ -7,7 +7,8 @@ import java.util.concurrent.CountDownLatch;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.SimpleJob;
@@ -21,7 +22,7 @@ import org.oddjob.tools.StateSteps;
 
 public class SequentialJobStopTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SequentialJobStopTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SequentialJobStopTest.class);
 	
     @Before
     public void setUp() throws Exception {

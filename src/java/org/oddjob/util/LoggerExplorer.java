@@ -20,8 +20,7 @@ import org.oddjob.structural.StructuralListener;
  */
 public class LoggerExplorer implements Runnable, Structural {
 
-	private static final Logger logger = 
-			Logger.getLogger(LoggerExplorer.class);
+	private static final Logger logger = Logger.getLogger(LoggerExplorer.class);
 	
 	private final ChildHelper<LoggerNode> children =
 				new ChildHelper<LoggerNode>(this);

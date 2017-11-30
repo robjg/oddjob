@@ -10,7 +10,8 @@ import javax.management.remote.rmi.RMIConnectorServer;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobConsole;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -22,7 +23,7 @@ import org.oddjob.tools.StateSteps;
 
 public class NetworkFailureTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(NetworkFailureTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(NetworkFailureTest.class);
 	
    @Before
    public void setUp() throws Exception {

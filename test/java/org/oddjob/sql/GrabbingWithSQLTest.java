@@ -7,7 +7,8 @@ import org.junit.Test;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -27,7 +28,7 @@ import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 
 public class GrabbingWithSQLTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(GrabbingWithSQLTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(GrabbingWithSQLTest.class);
 
     @Before
     public void setUp() throws Exception {

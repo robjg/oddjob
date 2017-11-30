@@ -16,7 +16,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.life.ComponentPersistException;
 
 /**
@@ -30,7 +31,7 @@ import org.oddjob.arooa.life.ComponentPersistException;
  * @author Rob Gordon.
  */
 public class SerializeWithFile {
-	private static final Logger logger = Logger.getLogger(SerializeWithFile.class);
+	private static final Logger logger = LoggerFactory.getLogger(SerializeWithFile.class);
 
 	private final static String EXTENSION = ".ser";
 

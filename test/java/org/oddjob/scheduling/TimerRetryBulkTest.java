@@ -7,7 +7,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.schedules.schedules.NowSchedule;
@@ -22,7 +23,7 @@ import org.oddjob.tools.StateSteps;
 public class TimerRetryBulkTest extends OjTestCase {
 
 	private static final Logger logger = 
-			Logger.getLogger(TimerRetryBulkTest.class);
+			LoggerFactory.getLogger(TimerRetryBulkTest.class);
 
 	private static final int COUNT_TO = 1000;
 	

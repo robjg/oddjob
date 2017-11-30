@@ -1,14 +1,17 @@
 package org.oddjob;
 
 import java.io.PrintStream;
+import java.util.Deque;
+import java.util.LinkedList;
 
-import org.apache.log4j.Logger;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEventSink;
 import org.oddjob.logging.LoggingPrintStream;
 import org.oddjob.logging.cache.LogArchiveImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manage capture of console output to ensure original stream is replaced.
@@ -24,63 +27,89 @@ import org.oddjob.logging.cache.LogArchiveImpl;
  */
 public class OddjobConsole {
 
-	private static final Logger logger = Logger.getLogger(OddjobConsole.class);
+	private static final Logger logger = LoggerFactory.getLogger(OddjobConsole.class);
 
-    /** The archiver to which all console output will be captured. */
-    private static volatile LogArchive console;
-    
-    private static volatile PrintStream stdoutLoggingPrintStream;
-    
-    private static volatile PrintStream stderrloggingPrintStream;
-    
+	private static final Deque<Console> stack = new LinkedList<>();
+	
 	public static Close initialise() {
 		
-		if (System.out == stdoutLoggingPrintStream) {
-			return new Close() {
+		synchronized (stack) {
+			
+			if (!stack.isEmpty()) {
+				Console current = stack.peek();
+				if (current.stdoutLoggingPrintStream == System.out && 
+						current.stderrloggingPrintStream == System.err) {
+							
+					return new Close() {
+						@Override
+						public void close() {
+							// Nothing to restore
+						}
+					};
+				}
+			}
+		
+		    final PrintStream originalStdOut = System.out;
+		    final PrintStream originalStdErr = System.err;
+	
+	    	// Force logger class to load first so that console appender attaches
+	    	// to original not to ours.
+	    	logger.debug("Replacing sdterr [{}] and stdout [{}].", originalStdErr, originalStdOut);
+	    	
+	    	LogArchive archive = new LogArchiveImpl("CONSOLE_MAIN", LogArchiver.MAX_HISTORY);
+	    	
+	    	PrintStream stdoutLoggingPrintStream = new LoggingPrintStream(System.out, LogLevel.INFO, 
+	    			(LogEventSink) archive);
+	    	PrintStream stderrloggingPrintStream = new LoggingPrintStream(System.err, LogLevel.ERROR, 
+	    			(LogEventSink) archive);
+	
+	    	Console console = new Console(archive, stdoutLoggingPrintStream, stderrloggingPrintStream);
+
+	    	stack.push(console);
+	    	
+	    	System.setOut(stdoutLoggingPrintStream);
+	    	System.setErr(stderrloggingPrintStream);	    	
+		
+	    	return new Close() {
+				
 				@Override
 				public void close() {
-					// Nothing to restore
+					
+					synchronized (stack) {
+					
+						Console current = stack.pop();
+
+						if (current != console) {
+							throw new IllegalStateException("Not current console");
+						}
+						
+						if (System.out != stdoutLoggingPrintStream) {
+							
+							logger.debug("Something has set stdout to [{}] - it will be replaced!", System.out);
+						}
+						if (System.err != stderrloggingPrintStream) {
+							
+							logger.debug("Something has set stderr [{}] - it will be replaced!", System.err);
+						}
+
+						System.out.flush();
+						System.err.flush();
+							
+				    	System.setOut(originalStdOut);
+				    	System.setErr(originalStdErr);
+					}
 				}
 			};
-		}
-
-	    final PrintStream originalStdOut = System.out;
-	    final PrintStream originalStdErr = System.err;
-
-    	// Force logger class to load first so that console appender attaches
-    	// to original not to ours.
-    	logger.debug("Replacing sdterr and stdout.");
-    	
-    	console = new LogArchiveImpl("CONSOLE_MAIN", LogArchiver.MAX_HISTORY);
-    	
-    	stdoutLoggingPrintStream = new LoggingPrintStream(System.out, LogLevel.INFO, 
-    			(LogEventSink) console);
-    	stderrloggingPrintStream = new LoggingPrintStream(System.err, LogLevel.ERROR, 
-    			(LogEventSink) console);
-
-    	System.setOut(stdoutLoggingPrintStream);
-    	System.setErr(stderrloggingPrintStream);
-		
-    	return new Close() {
-			
-			@Override
-			public void close() {
-				stdoutLoggingPrintStream.flush();
-				stderrloggingPrintStream.flush();
-				
-		    	System.setOut(originalStdOut);
-		    	System.setErr(originalStdErr);
-		    	
-		    	console = null;
-			}
-		};
+		}		
 	}
 	
 	public static LogArchive console() {
-		if (console == null) {
-			throw new IllegalStateException("OddjobConsole not initialised.");
+		synchronized (stack) {
+			if (stack.isEmpty()) {
+				throw new IllegalStateException("OddjobConsole not initialised.");
+			}
+			return stack.peek().console;
 		}
-		return console;
 	}
 	
 	public interface Close extends AutoCloseable {
@@ -89,4 +118,21 @@ public class OddjobConsole {
 		public void close();
 	}
 	
+	static class Console {
+		
+	    /** The archiver to which all console output will be captured. */
+	    private final LogArchive console;
+	    
+	    private final PrintStream stdoutLoggingPrintStream;
+	    
+	    private final PrintStream stderrloggingPrintStream;
+	    
+	    Console(LogArchive console, PrintStream stdoutLoggingPrintStream, PrintStream stderrloggingPrintStream) {
+	    	this.console = console;
+	    	this.stdoutLoggingPrintStream = stdoutLoggingPrintStream;
+	    	this.stderrloggingPrintStream = stderrloggingPrintStream;
+	    }
+	    
+	    
+	}
 }

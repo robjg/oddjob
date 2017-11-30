@@ -17,7 +17,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @oddjob.description A job that performs XSLT transformations.
@@ -29,7 +30,7 @@ import org.apache.log4j.Logger;
  */
 public class XSLTJob implements Runnable {
 
-	private static final Logger logger = Logger.getLogger(XSLTJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(XSLTJob.class);
 	
 	private String name;
 	

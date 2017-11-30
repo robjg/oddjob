@@ -232,7 +232,7 @@ implements
 				}
 				catch (FailedToStopException e) {
 					iconHelper.changeIcon(lastIcon.get());
-					logger().warn(e);
+					logger().warn("Failed to stop", e);
 				}
 				
 				logger().info("Stopped.");

@@ -8,7 +8,8 @@ import java.util.Map;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
@@ -28,7 +29,7 @@ import org.oddjob.tools.OddjobTestHelper;
 
 public class SilhouetteFactoryTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(SilhouetteFactoryTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(SilhouetteFactoryTest.class);
 
 	
     @Before

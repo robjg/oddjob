@@ -8,7 +8,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -24,7 +25,7 @@ import org.oddjob.tools.ConsoleCapture;
 
 public class InvokeJobTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(InvokeJobTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(InvokeJobTest.class);
 	
     @Before
     public void setUp() throws Exception {

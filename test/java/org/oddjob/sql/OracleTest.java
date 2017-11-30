@@ -67,12 +67,12 @@ public class OracleTest extends OjTestCase {
 				lookup.lookup("query-numeric-types.results.row.A_THIRTY_EIGHT_DIGIT_NUMBER", 
 						BigDecimal.class));
 		assertEquals(0.0099F, (float) lookup.lookup(
-				"query-numeric-types.results.row.A_SMALL_DECIMAL", float.class));
+				"query-numeric-types.results.row.A_SMALL_DECIMAL", float.class), 000000.1);
 		assertEquals(new BigDecimal("0.99988877766655544433322211199988877766"),  
 				lookup.lookup("query-numeric-types.results.row.A_SMALL_PRECISE_DECIMAL", 
 						BigDecimal.class));
 		assertEquals(9998887.77, (double) lookup.lookup(
-				"query-numeric-types.results.row.A_MEDIUM_DECIMAL", double.class));
+				"query-numeric-types.results.row.A_MEDIUM_DECIMAL", double.class), 000000.1);
 		assertEquals(new BigDecimal("999888777666555444333222111999888777.66"), 
 				lookup.lookup("query-numeric-types.results.row.A_LARGE_DECIMAL", 
 						BigDecimal.class));
@@ -146,12 +146,12 @@ public class OracleTest extends OjTestCase {
 				lookup.lookup("query-numeric-types.results.row.A_THIRTY_EIGHT_DIGIT_NUMBER", 
 						BigDecimal.class));
 		assertEquals(0.0099F, (float) lookup.lookup(
-				"query-numeric-types.results.row.A_SMALL_DECIMAL", float.class));
+				"query-numeric-types.results.row.A_SMALL_DECIMAL", float.class), 000000.1);
 		assertEquals(new BigDecimal("0.99988877766655544433322211199988877766"),  
 				lookup.lookup("query-numeric-types.results.row.A_SMALL_PRECISE_DECIMAL", 
 						BigDecimal.class));
 		assertEquals(9998887.77, (double) lookup.lookup(
-				"query-numeric-types.results.row.A_MEDIUM_DECIMAL", double.class));
+				"query-numeric-types.results.row.A_MEDIUM_DECIMAL", double.class), 000000.1);
 		assertEquals(new BigDecimal("999888777666555444333222111999888777.66"), 
 				lookup.lookup("query-numeric-types.results.row.A_LARGE_DECIMAL", 
 						BigDecimal.class));

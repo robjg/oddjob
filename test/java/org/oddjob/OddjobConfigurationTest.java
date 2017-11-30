@@ -6,7 +6,8 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaDescriptor;
@@ -40,7 +41,7 @@ import org.xmlunit.diff.Diff;
  */
 public class OddjobConfigurationTest {
 
-	private static final Logger logger = Logger.getLogger(OddjobConfigurationTest.class); 
+	private static final Logger logger = LoggerFactory.getLogger(OddjobConfigurationTest.class); 
 
    @Test
 	public void testCopy() throws SAXException, IOException {

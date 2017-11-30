@@ -7,11 +7,12 @@ import java.rmi.server.RMISocketFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FailableSocketFactory extends RMISocketFactory {
 
-	private static final Logger logger = Logger.getLogger(FailableSocketFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(FailableSocketFactory.class);
 	
 	private boolean fail;
 	

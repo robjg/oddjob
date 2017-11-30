@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,7 +38,7 @@ import org.apache.log4j.Logger;
 public class ExistsJob implements Runnable, Serializable {
 	private static final long serialVersionUID = 20060117;
 
-	private static final Logger logger = Logger.getLogger(ExistsJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(ExistsJob.class);
 	
 	/** 
 	 * @oddjob.property

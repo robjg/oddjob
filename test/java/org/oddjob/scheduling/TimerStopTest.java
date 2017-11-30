@@ -12,7 +12,8 @@ import java.util.concurrent.TimeUnit;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.CapturingMatcher;
 import org.oddjob.FailedToStopException;
@@ -37,7 +38,7 @@ import org.oddjob.tools.StateSteps;
 
 public class TimerStopTest extends OjTestCase {
 
-	private static final Logger logger = Logger.getLogger(TimerStopTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(TimerStopTest.class);
 	
     @Before
     public void setUp() throws Exception {

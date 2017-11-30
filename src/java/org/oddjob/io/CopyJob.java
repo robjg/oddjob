@@ -10,7 +10,8 @@ import java.io.Serializable;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.util.OddjobConfigException;
 
@@ -47,7 +48,7 @@ import org.oddjob.util.OddjobConfigException;
 public class CopyJob implements Runnable, Serializable {
     private static final long serialVersionUID = 20050806;
 
-	private static final Logger logger = Logger.getLogger(CopyJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(CopyJob.class);
 	
 	/** 
 	 * @oddjob.property

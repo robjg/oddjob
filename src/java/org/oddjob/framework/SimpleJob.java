@@ -326,7 +326,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 		try {
 			stop();
 		} catch (FailedToStopException e) {
-			logger().warn(e);
+			logger().warn("Failed to stop.", e);
 		}
 	}
 	

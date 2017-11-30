@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
@@ -107,7 +108,8 @@ public class TeeType implements ArooaValue, ArooaSessionAware {
 	}
 	
 	public OutputStream toOutputStream() throws NoConversionAvailableException, ConversionFailedException {
-
+		Objects.requireNonNull(converter, "Converter required - set session");
+		
 		final List<OutputStream> outputs =
 				new ArrayList<>();
 		

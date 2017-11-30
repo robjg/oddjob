@@ -10,7 +10,8 @@ import javax.swing.Action;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -38,7 +39,7 @@ import org.xmlunit.diff.Diff;
 
 public class OddjobExplorerTest extends OjTestCase {
 
-	private Logger logger = Logger.getLogger(OddjobExplorerTest.class);
+	private Logger logger = LoggerFactory.getLogger(OddjobExplorerTest.class);
 	
     @Before
     public void setUp() throws Exception {

@@ -34,12 +34,13 @@ import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.oddjob.OjTestCase;
 
 public class JMXAssumptionsTest extends OjTestCase {
-	private static final Logger logger = Logger.getLogger(JMXAssumptionsTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(JMXAssumptionsTest.class);
 	
 	public class OurMBean extends NotificationBroadcasterSupport implements
 	DynamicMBean {

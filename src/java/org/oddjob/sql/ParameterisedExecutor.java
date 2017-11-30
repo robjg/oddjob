@@ -13,7 +13,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
@@ -39,7 +40,7 @@ import org.oddjob.beanbus.TrackingBusListener;
 public class ParameterisedExecutor extends AbstractDestination<String> 
 implements ArooaSessionAware {
 
-	private static final Logger logger = Logger.getLogger(SQLJob.class);
+	private static final Logger logger = LoggerFactory.getLogger(SQLJob.class);
 	
 	/** The connection. */
 	private Connection connection;

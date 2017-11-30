@@ -8,11 +8,12 @@ import java.util.Arrays;
 
 import org.oddjob.OjTestCase;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileSpecTest extends OjTestCase {
 	
-	private static final Logger logger = Logger.getLogger(FileSpecTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileSpecTest.class);
 	
    @Test
 	public void testMatch() {
