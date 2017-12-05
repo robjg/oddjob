@@ -339,5 +339,19 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			return throwable;
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		return obj.getClass() == this.getClass();
+	}
+	
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
+
 }
 

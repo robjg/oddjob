@@ -275,6 +275,8 @@ public class BeanQueueTest extends Assert {
 				ParentState.EXECUTING,
 				ParentState.COMPLETE);
 		
+		logger.info("** First Run.");
+		
 		oddjob.run();
 		
 		states.checkNow();
@@ -293,6 +295,8 @@ public class BeanQueueTest extends Assert {
 		
 		Object parallel = lookup.lookup("parallel");
 		
+		logger.info("** Reset.");
+		
 		((Resetable) parallel).hardReset();
 		
 		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
@@ -301,12 +305,17 @@ public class BeanQueueTest extends Assert {
 				ParentState.ACTIVE,
 				ParentState.COMPLETE);
 		
+		logger.info("** Second Run.");
+		
 		((Runnable) parallel).run();
 		
-		states.checkWait();
+		states.checkNow();
+		
+		logger.info("** Complete.");
 		
 		results = lookup.lookup(
 				"results.beans", List.class);
+		
 		
 		assertEquals("Apple", results.get(0));
 		assertEquals("Orange", results.get(1));

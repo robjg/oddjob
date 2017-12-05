@@ -1,14 +1,14 @@
 package org.oddjob.jmx.handlers;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.management.ObjectName;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanDirectoryOwner;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -212,7 +212,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-   @Test
+    @Test
 	public void testGetAllByType() {
 		
 		ServerSideOwner3 target = new ServerSideOwner3();
@@ -241,4 +241,14 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
 		assertEquals(1, results.size());
 		assertEquals("Cat", results.get(0));
 	}
+   
+    @Test
+    public void testEqualsAndHashCode() {
+    	
+    	BeanDirectoryHandlerFactory factory1 = new BeanDirectoryHandlerFactory();
+    	BeanDirectoryHandlerFactory factory2 = new BeanDirectoryHandlerFactory();
+
+    	assertThat(factory1.equals(factory2), is(true));    	
+    	assertThat(factory1.hashCode(), is( factory2.hashCode()));    	
+    }
 }

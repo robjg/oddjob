@@ -1,7 +1,9 @@
 package org.oddjob.jmx.client;
 
-import org.junit.Test;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import org.junit.Test;
 import org.oddjob.OjTestCase;
 
 public class ClientInterfaceManagerFactoryTest extends OjTestCase {
@@ -128,4 +130,23 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
 		assertEquals("Test", result);
 	}
 
+   @Test
+   public void whenMethodRegisteredTwiceThenExceptionThrown() {
+	
+	   @SuppressWarnings("unchecked")
+	   ClientInterfaceHandlerFactory<Runnable> handlerFactory = 
+	   		mock(ClientInterfaceHandlerFactory.class);
+	  
+	   when(handlerFactory.interfaceClass()).thenReturn(Runnable.class);
+	   
+	   try {
+		   new ClientInterfaceManagerFactory(
+				   new ClientInterfaceHandlerFactory[] { handlerFactory, handlerFactory });
+				   fail("Exception expected");
+	   } 
+	   catch (IllegalArgumentException e) {
+		   // expected.
+	   }
+	   
+   }
 }

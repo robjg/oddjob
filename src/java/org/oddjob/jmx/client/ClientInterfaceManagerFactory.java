@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Client side utility class for managing ClientInterfaceHandlers.
+ * Client side utility class for creating {@link ClientInterfaceManager}s.
  *
  * @author Rob Gordon
  */
@@ -35,10 +35,22 @@ class ClientInterfaceManagerFactory {
 		
 	public void addHandlerFactory(ClientInterfaceHandlerFactory<?> handlerFactory) {
 		
+		if (this.clientHandlerFactories.contains(handlerFactory)) {
+			throw new IllegalArgumentException("Handler factory [" + handlerFactory + 
+					"] is already registered.");						
+		}
+		
 		// add to factories.
 		this.clientHandlerFactories.add(handlerFactory);
 		
-		if (handlerFactory.interfaceClass().isInterface()) {
+		Class<?> interfaceClass = handlerFactory.interfaceClass();
+
+		if (interfaces.contains(interfaceClass)) {
+			throw new IllegalArgumentException("A Client Interface Handler Factory is already registered for ["
+					+ interfaceClass + "], handlerFactory [" + handlerFactory + "]");			
+		}
+		
+		if (interfaceClass.isInterface()) {
 			// add to interfaces supported.
 			interfaces.add(handlerFactory.interfaceClass());
 		}
@@ -129,7 +141,8 @@ class ClientInterfaceManagerFactory {
 			Operation<?> op = operations.get(m);
 			
 			if (op != null) {
-				throw new IllegalArgumentException("Method [" + 
+				throw new IllegalArgumentException("Failed adding methods for Interface Hander [" + 
+						interfaceHandler + "], method [" + 
 						m + "] already registered by factory for " +
 						op.getFactory().interfaceClass().getName());
 			}

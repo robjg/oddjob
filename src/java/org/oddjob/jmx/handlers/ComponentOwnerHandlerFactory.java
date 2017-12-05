@@ -686,6 +686,20 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 
 		}
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		return obj.getClass() == this.getClass();
+	}
+	
+	@Override
+	public int hashCode() {
+		return getClass().hashCode();
+	}
+
 }
 
 class DragPointInfo implements Serializable {

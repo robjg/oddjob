@@ -9,7 +9,8 @@ Oddjob 1.5. All persisted job state will need to be deleted before upgrading.
 Changes in 1.6.0
 ----------------
 - Move Tests to JUnit 4.
-- Upgrade oj-ant to Ant 1.10.1
+- Upgraded oj-ant to Ant 1.10.1
+- Migrated Logging to SLF4J
 
 Still Todo
 ----------

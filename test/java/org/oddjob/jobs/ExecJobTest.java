@@ -111,9 +111,12 @@ public class ExecJobTest extends OjTestCase {
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();
 		
+		
+		
 		FilesType files = new FilesType();
 		files.setFiles(new File(dirs.base(), "lib/*.jar").toString());
-		
+		files.setList(0, new File[] { dirs.relative("opt/classes") });
+				
 		File[] cpFiles = files.toFiles();
 
 		String classPath = converter.convert(cpFiles, String.class);

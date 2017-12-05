@@ -1,6 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
@@ -43,6 +44,8 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * handlers.
 	 */
 	public VanillaServerHandlerFactory(Class<T> cl) {
+		Objects.requireNonNull(cl);
+		
 		this.cl = cl;	
 		Method[] ms = cl.getMethods();
 		opInfo = new MBeanOperationInfo[ms.length];
@@ -98,5 +101,28 @@ implements ServerInterfaceHandlerFactory<T, T> {
 
 	public ClientHandlerResolver<T> clientHandlerFactory() {
 		return new VanillaHandlerResolver<T>(cl.getName());
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		
+		if (obj.getClass() != this.getClass()) {
+			return false;
+		}
+		
+		return ((VanillaServerHandlerFactory<?>) obj).cl == this.cl;
+	}
+	
+	@Override
+	public int hashCode() {
+		return getClass().hashCode() * 31 + cl.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ", for class=" + cl;
 	}
 }

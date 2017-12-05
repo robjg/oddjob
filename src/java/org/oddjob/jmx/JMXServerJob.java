@@ -22,6 +22,7 @@ import org.oddjob.jmx.server.HandlerFactoryProvider;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jmx.server.ResourceFactoryProvider;
 import org.oddjob.jmx.server.ServerContextMain;
+import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
 import org.oddjob.jmx.server.ServerLoopBackException;
 import org.oddjob.jmx.server.ServerMainBean;
@@ -265,14 +266,16 @@ public class JMXServerJob implements ArooaSessionAware {
 		threadManager = new SimpleThreadManager();
 		
 		// Add supported interfaces.
-		// note that some interface are hardwired in the factory because
+		// note that some interfaces are hardwired in the factory because
 		// they are aspects of the server.
 		ServerInterfaceManagerFactoryImpl imf = 
 			new ServerInterfaceManagerFactoryImpl(environment);
 		
-		imf.addServerHandlerFactories(
-				new ResourceFactoryProvider(session
-					).getHandlerFactories());
+		ServerInterfaceHandlerFactory<?, ?>[] sihfs = new ResourceFactoryProvider(session
+				).getHandlerFactories();
+		
+		imf.addServerHandlerFactories(sihfs);
+
 		if (handlerFactories != null) {
 			imf.addServerHandlerFactories(handlerFactories.getHandlerFactories());
 		}

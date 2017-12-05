@@ -5,7 +5,7 @@ package org.oddjob.jmx.server;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -25,8 +25,8 @@ public class ServerInterfaceManagerFactoryImpl
 implements ServerInterfaceManagerFactory {
 	
 	/** Handler factories. */
-	private Set<ServerInterfaceHandlerFactory<?, ?>> serverHandlerFactories = 
-		new HashSet<ServerInterfaceHandlerFactory<?, ?>>();
+	private final Set<ServerInterfaceHandlerFactory<?, ?>> serverHandlerFactories = 
+		new HashSet<>();
 	
 	/** Access controller. */
 	private OddjobJMXAccessController accessController;
@@ -35,8 +35,7 @@ implements ServerInterfaceManagerFactory {
 	 * Default Constructor.
 	 */
 	public ServerInterfaceManagerFactoryImpl() {
-		this.serverHandlerFactories.addAll(Arrays.asList(
-				SharedConstants.DEFAULT_SERVER_HANDLER_FACTORIES));
+		this(SharedConstants.DEFAULT_SERVER_HANDLER_FACTORIES);
 	}
 	
 	/**
@@ -46,7 +45,7 @@ implements ServerInterfaceManagerFactory {
 	 */
 	public ServerInterfaceManagerFactoryImpl(
 				ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories) {
-		this.serverHandlerFactories.addAll(Arrays.asList(serverHandlerFactories));
+		this(new HashMap<>(), serverHandlerFactories);
 	}
 	
 	/**
@@ -56,7 +55,7 @@ implements ServerInterfaceManagerFactory {
 	 * 
 	 * @throws IOException
 	 */
-	public ServerInterfaceManagerFactoryImpl(Map<String, ?> env) throws IOException {
+	public ServerInterfaceManagerFactoryImpl(Map<String, ?> env) {
 		this(env, SharedConstants.DEFAULT_SERVER_HANDLER_FACTORIES);
 		
 	}
@@ -70,13 +69,17 @@ implements ServerInterfaceManagerFactory {
 	 * @throws IOException 
 	 */
 	public ServerInterfaceManagerFactoryImpl(Map<String, ?> env,
-			ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories) throws IOException {
-		this.serverHandlerFactories.addAll(Arrays.asList(serverHandlerFactories));
+			ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories) {
+		addServerHandlerFactories(serverHandlerFactories);
 		
 		if (env != null) {
 			Object accessFile = env.get(JMXServerJob.ACCESS_FILE_PROPERTY);
 			if (accessFile != null) {
-				accessController = new OddjobJMXFileAccessController(accessFile.toString());
+				try {
+					accessController = new OddjobJMXFileAccessController(accessFile.toString());
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
 			}
 		}
 	}
@@ -90,7 +93,15 @@ implements ServerInterfaceManagerFactory {
 		if (serverHandlerFactories == null) {
 			return;
 		}
-		this.serverHandlerFactories.addAll(Arrays.asList(serverHandlerFactories));
+
+		for (ServerInterfaceHandlerFactory<?, ?> factory : serverHandlerFactories)
+		{
+			if (this.serverHandlerFactories.contains(factory)) {
+				throw new IllegalArgumentException("Failed registering [" + factory + 
+						", it is already registered for class [" + factory.interfaceClass() +"]");
+			}
+			this.serverHandlerFactories.add(factory);			
+		}
 	}
 	
 	/*

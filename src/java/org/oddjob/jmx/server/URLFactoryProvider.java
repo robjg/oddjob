@@ -1,6 +1,8 @@
 package org.oddjob.jmx.server;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardFragmentParser;
@@ -37,9 +39,8 @@ public class URLFactoryProvider implements HandlerFactoryProvider {
 		if (urls.length == 0) {
 			return null;
 		}
-		
-		AccumulatingFactoryProvider accumulator = 
-			new AccumulatingFactoryProvider();
+
+		Map<ServerInterfaceHandlerFactory<?, ?>, URL> allFactories = new HashMap<>();
 		
 		try {
 				
@@ -56,7 +57,19 @@ public class URLFactoryProvider implements HandlerFactoryProvider {
 				HandlerFactoryProvider provider = 
 					(HandlerFactoryProvider) parser.getRoot();
 				
-				accumulator.addProvider(provider);
+				ServerInterfaceHandlerFactory<?, ?>[] theseFactories = provider.getHandlerFactories();
+
+				for (ServerInterfaceHandlerFactory<?, ?> factory : theseFactories) {
+
+					if (allFactories.containsKey(factory)) {
+						throw new IllegalArgumentException("Can't add Service Interface Handler Factory [" + 
+							factory + "] from URL [" + url + "] as one already exists from URL [" + 
+								allFactories.get(factory) + "]");
+					}
+
+					allFactories.put(factory, url);
+				}
+				
 			}
 		}
 		catch (RuntimeException e) {
@@ -66,7 +79,7 @@ public class URLFactoryProvider implements HandlerFactoryProvider {
 			throw new RuntimeException(e);
 		}
 
-		return accumulator.getHandlerFactories();
+		return allFactories.keySet().toArray(new ServerInterfaceHandlerFactory<?, ?>[allFactories.size()]);
 	}
 	
 }

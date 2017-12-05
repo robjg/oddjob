@@ -71,10 +71,11 @@ public class ClientNode implements InvocationHandler, Exportable {
 			toolkit.getClientSession().getArooaSession(
 					).getArooaDescriptor().getClassResolver();
 		
+		ClientInterfaceHandlerFactory<?>[] clientHandlerFactories = new ResolverHelper(classResolver
+				).resolveAll(serverInfo.getClientResolvers());
+		
 		ClientInterfaceManagerFactory managerFactory =
-			new ClientInterfaceManagerFactory(
-					new ResolverHelper(classResolver
-							).resolveAll(serverInfo.getClientResolvers()));
+			new ClientInterfaceManagerFactory(clientHandlerFactories);
 		
 		// all proxies are exportable.
 		managerFactory.addHandlerFactory(new ExportableHandlerFactory());

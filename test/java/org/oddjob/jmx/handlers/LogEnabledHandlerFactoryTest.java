@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx.handlers;
 
+import static org.hamcrest.CoreMatchers.is;
+
 import org.junit.Test;
 
 import org.oddjob.OjTestCase;
@@ -52,7 +54,7 @@ public class LogEnabledHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-   @Test
+    @Test
 	public void testLoggerName() throws Exception {
 		MockLogEnabled target = new MockLogEnabled();
 		
@@ -79,4 +81,15 @@ public class LogEnabledHandlerFactoryTest extends OjTestCase {
 		
 		assertEquals("logger name", "org.oddjob.TestLogger", loggerName);
 	}
+   
+    @Test
+    public void testEqualsAndHashCode() {
+    	
+    	LogEnabledHandlerFactory factory1 = new LogEnabledHandlerFactory();
+    	LogEnabledHandlerFactory factory2 = new LogEnabledHandlerFactory();
+
+    	assertThat(factory1.equals(factory2), is(true));    	
+    	assertThat(factory1.hashCode(), is( factory2.hashCode()));    	
+    }
+
 }

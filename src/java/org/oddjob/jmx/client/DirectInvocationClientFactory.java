@@ -3,6 +3,7 @@ package org.oddjob.jmx.client;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Objects;
 
 /**
  * A {@link ClientInterfaceHandlerFactory} that creates a client handler
@@ -18,6 +19,7 @@ implements ClientInterfaceHandlerFactory<T> {
 	private final Class<T> type;
 	
 	public DirectInvocationClientFactory(Class<T> type) {
+		Objects.requireNonNull(type);
 		this.type = type;
 	}
 	
@@ -42,5 +44,10 @@ implements ClientInterfaceHandlerFactory<T> {
 	
 	public Class<T> interfaceClass() {
 		return type;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + ", type=" + type.getName();
 	}
 }
