@@ -25,6 +25,7 @@ import org.oddjob.state.IsAnyState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 import org.oddjob.state.StateListener;
+import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 
 /**
@@ -117,25 +118,17 @@ implements Iconic, Stateful,
 			@Override
 			public void beforeDestroy(RuntimeEvent event) throws ArooaException {
 				stateHandler().assertAlive();
-				ComponentBoundry.push(logger().getName(), BaseComponent.this);
-				try {
+				try (Restore restore = ComponentBoundry.push(logger().getName(), BaseComponent.this)) {
 					logger().debug("Destroying.");
 					onDestroy();
-				}
-				finally {
-					ComponentBoundry.pop();
 				}
 			}
 			
 			@Override
 			public void afterDestroy(RuntimeEvent event) throws ArooaException {
 				
-				ComponentBoundry.push(logger().getName(), BaseComponent.this);
-				try {
+				try (Restore restore = ComponentBoundry.push(logger().getName(), BaseComponent.this)) {
 					fireDestroyedState();
-				}
-				finally {
-					ComponentBoundry.pop();
 				}
 			}
 		});
@@ -284,13 +277,9 @@ implements Iconic, Stateful,
 	 */
 	public void initialise() throws JobDestroyedException {
 		stateHandler().assertAlive();
-		ComponentBoundry.push(logger().getName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(logger().getName(), this)) {
 			onInitialised();
 			onConfigured();
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}	
 	
@@ -302,14 +291,10 @@ implements Iconic, Stateful,
 	 */
 	public void destroy() throws JobDestroyedException { 
 		stateHandler().assertAlive();
-		ComponentBoundry.push(logger().getName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(logger().getName(), this)) {
 			onDestroy();
 			fireDestroyedState();
 		}
-		finally {
-			ComponentBoundry.pop();
-		}		
 	}
 	
 	/**

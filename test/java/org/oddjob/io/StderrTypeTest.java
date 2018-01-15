@@ -68,8 +68,8 @@ public class StderrTypeTest extends OjTestCase {
 		
 		String[] lines = results.getLines();
 				
-		assertEquals("Hello", lines[0].trim());
-		assertEquals("World", lines[1].trim());
+		assertEquals("Hello", lines[0]);
+		assertEquals("World", lines[1]);
 	}
 	
    @Test

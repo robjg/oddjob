@@ -575,7 +575,7 @@ public class JMXClientJobTest extends OjTestCase {
 		}
 	}
 
-	class MockLogListener implements LogListener {
+	private class MockLogListener implements LogListener {
 		LogEvent e;
 		synchronized public void logEvent(LogEvent logEvent) {
 			this.e = logEvent;
@@ -626,10 +626,11 @@ public class JMXClientJobTest extends OjTestCase {
 			// log poller runs on separate thread, so need to wait for event
 			while (ll.e == null) {
 				synchronized (ll) {
-					ll.wait();
+					ll.wait(5000L);
 				}
 			}
-			assertNotNull("event", ll.e);
+			
+			assertNotNull("No log event", ll.e);
 			assertEquals("message", "Test", ll.e.getMessage());
 			
 			client.stop();

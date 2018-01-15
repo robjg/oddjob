@@ -19,6 +19,7 @@ import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ServiceState;
 import org.oddjob.state.ServiceStateChanger;
 import org.oddjob.state.ServiceStateHandler;
+import org.oddjob.util.Restore;
 
 /**
  * Wraps a Service object and adds state to it. 
@@ -102,8 +103,7 @@ implements ComponentWrapper {
     }
     
     public void run() {
-		ComponentBoundry.push(loggerName(), wrapped);
-        try {
+        try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
         			getStateChanger().setState(ServiceState.STARTING);
@@ -151,9 +151,6 @@ implements ComponentWrapper {
     	    	});
     	    }
         }
-        finally {
-        	ComponentBoundry.pop();
-        }
     }
     
     /**
@@ -175,8 +172,7 @@ implements ComponentWrapper {
         
     protected void onStop() throws FailedToStopException {
     			
-		ComponentBoundry.push(loggerName(), wrapped);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			service.stop();
 			
 	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
@@ -188,17 +184,13 @@ implements ComponentWrapper {
 		catch (Exception e) {
 			throw new FailedToStopException(service, e);
 		}
-        finally {
-        	ComponentBoundry.pop();
-        }
     }
     
 	/**
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), wrapped);
-        try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -207,9 +199,6 @@ implements ComponentWrapper {
 				}
 			});
         }
-        finally {
-        	ComponentBoundry.pop();
-        }
 	}
 	
 	/**
@@ -217,8 +206,7 @@ implements ComponentWrapper {
 	 */
 	public boolean hardReset() {
 		
-		ComponentBoundry.push(loggerName(), wrapped);
-        try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
         	return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -226,9 +214,6 @@ implements ComponentWrapper {
 					logger().info("Hard Reset complete.");
 				}
 			});
-        }
-        finally {
-        	ComponentBoundry.pop();
         }
 	}
 	

@@ -11,6 +11,7 @@ import org.oddjob.framework.StructuralJob;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
+import org.oddjob.util.Restore;
 
 /**
  * @oddjob.description Executes it's children in a sequence one after the
@@ -127,12 +128,8 @@ public class SequentialJob extends StructuralJob<Object>
 	 */
 	@ArooaAttribute
 	public void setStateOperator(StateOperator stateOperator) {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			this.structuralState.setStateOperator(stateOperator);
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}
 	

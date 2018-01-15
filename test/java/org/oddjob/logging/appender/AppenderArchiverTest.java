@@ -21,7 +21,7 @@ import org.oddjob.structural.StructuralListener;
 /**
  * 
  */
-public class Log4jArchiverTest extends OjTestCase {
+public class AppenderArchiverTest extends OjTestCase {
 	
 	private class X implements LogEnabled {
 		public String loggerName() {

@@ -20,6 +20,7 @@ import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.OddjobConfigException;
+import org.oddjob.util.Restore;
 
 /**
  * @oddjob.description A job which runs another job. The other job can be
@@ -94,8 +95,7 @@ implements Structural, Stoppable {
 		
 		@Override
 		protected ParentState onDestroyed(int index) {
-			ComponentBoundry.push(loggerName(), RunJob.this);
-			try {
+			try (Restore restore = ComponentBoundry.push(loggerName(), RunJob.this)) {
 				childStateReflector.stop();
 				childHelper.removeAllChildren();
 				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
@@ -111,9 +111,6 @@ implements Structural, Stoppable {
 						}
 					}
 				});
-			}
-			finally {
-				ComponentBoundry.pop();
 			}
 			// This will be unsed as we've stopped the child state reflector.
 			return ParentState.EXCEPTION;
@@ -240,8 +237,7 @@ implements Structural, Stoppable {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 				
@@ -255,9 +251,7 @@ implements Structural, Stoppable {
 					logger().info("Soft Reset complete.");
 				}
 			});	
-		} finally {
-			ComponentBoundry.pop();
-		}
+		} 
 	}
 	
 	/**
@@ -265,8 +259,7 @@ implements Structural, Stoppable {
 	 */
 	public boolean hardReset() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			
@@ -279,8 +272,6 @@ implements Structural, Stoppable {
 					logger().info("Hard Reset complete.");
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	

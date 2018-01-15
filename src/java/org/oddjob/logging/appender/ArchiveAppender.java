@@ -3,7 +3,7 @@ package org.oddjob.logging.appender;
 import org.oddjob.arooa.logging.Appender;
 import org.oddjob.arooa.logging.Layout;
 import org.oddjob.arooa.logging.LoggingEvent;
-import org.oddjob.logging.LoggingConstants;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.logging.cache.LogArchiverCache;
 
 /**
@@ -32,12 +32,14 @@ public class ArchiveAppender implements Appender {
 	public void append(LoggingEvent event) {
 		String archive = event.getLoggerName();
 		if (!logArchiver.hasArchive(archive)) {
-			archive = event.getMdc(LoggingConstants.MDC_LOGGER);
+			archive = OddjobNDC.current()
+					.map(lc -> lc.getLogger())
+					.orElse(null);
 			if (!logArchiver.hasArchive(archive)) {
 				return;
 			}
 		}		
-
+		
 		logArchiver.addEvent(archive, event.getLevel(), this.layout.format(event));
 	}	
 }

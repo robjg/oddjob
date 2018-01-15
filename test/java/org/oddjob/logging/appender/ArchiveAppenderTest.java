@@ -1,18 +1,26 @@
 package org.oddjob.logging.appender;
 
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.AppenderAdapter;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.logging.OddjobNDC;
+import org.oddjob.logging.cache.LogArchiverCache;
 import org.oddjob.logging.cache.MockLogArchiverCache;
+import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArchiveAppenderTest extends OjTestCase {
+public class ArchiveAppenderTest {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(ArchiveAppenderTest.class);
@@ -34,8 +42,8 @@ public class ArchiveAppenderTest extends OjTestCase {
 		}
 	}
 	
-   @Test
-	public void testAppender() {
+    @Test
+	public void testAppenderCapturesMessagesToLogger() {
 
 		OurArchiver archiver = new OurArchiver();
 		
@@ -66,4 +74,40 @@ public class ArchiveAppenderTest extends OjTestCase {
 		assertEquals("ERROR - error.", 
 				archiver.messages.get(LogLevel.ERROR).trim());
 	}
+    
+    @Test
+	public void testAppenderCapturesMessagesToNestedLoggerOnSeparteThead() throws InterruptedException {
+
+    	Logger nestedLogger = LoggerFactory.getLogger(ArchiveAppenderTest.class.getName() + ".Nested");
+    	
+    	
+    	LogArchiverCache archiver = mock(LogArchiverCache.class);
+    	when(archiver.hasArchive(logger.getName())).thenReturn(true);
+    	
+		ArchiveAppender test = new ArchiveAppender(
+				archiver, LoggerAdapter.layoutFor("%m"));
+		
+		
+		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(nestedLogger.getName());
+		appenderAdapter.addAppender(test);
+		
+		try (Restore restore = OddjobNDC.push(logger.getName(), "Our Job")) {
+			
+			nestedLogger.info("Same Thread");
+				
+			Thread t = new Thread(() -> nestedLogger.info("New Thread"));
+			
+			t.start();
+			t.join();	
+		}
+
+		verify(archiver).addEvent(eq(logger.getName()), eq(LogLevel.INFO),
+				eq("Same Thread"));
+		verify(archiver).addEvent(eq(logger.getName()), eq(LogLevel.INFO),
+				eq("New Thread"));
+		
+		appenderAdapter.removeAppender(test);
+		
+	}
+    
 }

@@ -17,6 +17,8 @@ import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
 
 public class PathParserLaunchTest extends OjTestCase {
 
@@ -55,6 +57,20 @@ public class PathParserLaunchTest extends OjTestCase {
 		
 		File buildTest = new File(dirs.base(), "build/test/classes");
 		assertTrue("Tests must have been built with ant.", buildTest.exists());
+
+		ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
+		String className = loggerFactory.getClass().getName();
+		String logConfig;
+		switch (className) {
+		case "org.slf4j.impl.Log4jLoggerFactory":
+			logConfig = "test/launch/log4j.properties";
+			break;
+		case "ch.qos.logback.classic.LoggerContext":
+			logConfig = "test/launch/logback.xml";
+			break;
+		default:
+			throw new IllegalStateException("No config for " + className);
+		}
 		
 		String xml = 
 			"<oddjob id='this'>" +
@@ -62,7 +78,7 @@ public class PathParserLaunchTest extends OjTestCase {
 			"  <exec id='exec'>" +
 			" java -jar \"" + new File(dirs.base(), RUN_JAR).getPath() + "\"" +
 			" -cp \"${this.args[0]}/build/test/classes\"" +
-			" -l \"${this.args[0]}/test/launch/log4j.properties\"" +
+			" -l \"${this.args[0]}/" + logConfig +"\"" +
 			" -f \"${this.args[0]}/test/launch/classpath-test1.xml\"" +
 			"  </exec>" +
 			" </job>" +

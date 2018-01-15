@@ -4,8 +4,10 @@
  */
 package org.oddjob.logging;
 
-import java.util.Stack;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.oddjob.util.Restore;
 import org.slf4j.MDC;
 
 /**
@@ -23,19 +25,13 @@ import org.slf4j.MDC;
 public class OddjobNDC implements LoggingConstants {
 	
 	/** The stack of contexts. */
-	private static InheritableThreadLocal<Stack<LoggerAndJob>> local = 
-			new InheritableThreadLocal<Stack<LoggerAndJob>>() {
-		protected Stack<LoggerAndJob> initialValue() {
-			return new Stack<LoggerAndJob>();
+	private static InheritableThreadLocal<AtomicReference<LogContext>> local = 
+			new InheritableThreadLocal<AtomicReference<LogContext>>() {
+		protected AtomicReference<LogContext> initialValue() {
+			return new AtomicReference<>();
 		}
-		@SuppressWarnings("unchecked")
-		protected Stack<LoggerAndJob> childValue(Stack<LoggerAndJob> parentValue) {
-			if (parentValue != null) {
-				return (Stack<LoggerAndJob>)parentValue.clone();
-			}
-			else {
-				return null;
-			}
+		protected AtomicReference<LogContext> childValue(AtomicReference<LogContext> parentValue) {
+				return new AtomicReference<>(parentValue.get());
 		}
 	};
 	
@@ -43,30 +39,6 @@ public class OddjobNDC implements LoggingConstants {
 	private OddjobNDC() {
 	}
 
-	/**
-	 * Clients should call this method before leaving a diagnostic context.
-	 * 
-	 * <p>
-	 * The returned value is the value that was pushed last. If no context is
-	 * available, then the empty string "" is returned.
-	 * 
-	 * @return LoggerAndJob The innermost diagnostic context.
-	 * 
-	 */
-	public static LoggerAndJob pop() {
-		Stack<LoggerAndJob> stack = local.get();
-		LoggerAndJob result = stack.pop();
-		if (stack.isEmpty()) {
-			MDC.remove(MDC_LOGGER);
-			MDC.remove(MDC_JOB_NAME);
-		} else {
-			LoggerAndJob peek = stack.peek();
-			
-			MDC.put(MDC_LOGGER, peek.getLogger());
-			MDC.put(MDC_JOB_NAME, peek.getJob().toString());
-		}
-		return result; 
-	}
 
 	/**
 	 * Looks at the last diagnostic context at the top of this NDC without
@@ -74,17 +46,13 @@ public class OddjobNDC implements LoggingConstants {
 	 * 
 	 * <p>
 	 * The returned value is the value that was pushed last. If no context is
-	 * available, then the empty string "" is returned.
+	 * available, then null is returned.
 	 * 
-	 * @return LoggerAndJob The innermost diagnostic context.
+	 * @return LoggerAndJob The inner most diagnostic context.
 	 * 
 	 */
-	public static LoggerAndJob peek() {
-		Stack<LoggerAndJob> stack = local.get();		
-		if (stack.isEmpty()) {
-			return null;
-		}
-		return stack.peek();
+	public static Optional<LogContext> current() {
+		return Optional.ofNullable(local.get().get());
 	}
 
 	/**
@@ -94,7 +62,7 @@ public class OddjobNDC implements LoggingConstants {
 	 *            The new diagnostic context information.
 	 * 
 	 */
-	public static void push(String loggerName, Object job) {
+	public static Restore push(String loggerName, Object job) {
 		if (loggerName == null) {
 			throw new NullPointerException("Can't push null logger name.");
 		}
@@ -102,25 +70,80 @@ public class OddjobNDC implements LoggingConstants {
 			throw new NullPointerException("Can't push null job.");
 		}
 		
-		Stack<LoggerAndJob> stack = local.get();
-		stack.push(new LoggerAndJob(loggerName, job));
+		LogContext existingContext = local.get().get();
+		String padding = Optional.ofNullable(existingContext)
+				.map(lc -> lc.getPadding())
+				.map(p -> p + " ")
+				.orElse("");
+
+		LogContext logContext = new LogContext(loggerName, job, padding);
 		
-		MDC.put(MDC_LOGGER, loggerName);
-		MDC.put(MDC_JOB_NAME, job.toString());
+		local.get().set(logContext);
+
+		Restore ndcRestore = setLoggingNDC(logContext);
+		
+		return new Restore() {
+
+			@Override
+			public void close() {
+				ndcRestore.close();
+				local.get().set(existingContext);
+			};
+		};
 	}
 
+	public static Restore setLoggingNDC(LogContext ndcs) {
+		
+		String existingLoggerName = MDC.get(MDC_LOGGER);
+		String existingJobName = MDC.get(MDC_JOB_NAME);
+		String existingPadding = MDC.get(MDC_LEVEL_PADDING);
+		
+		MDC.put(MDC_LOGGER, ndcs.getLogger());
+		MDC.put(MDC_JOB_NAME, String.valueOf(ndcs.getJob()));
+		MDC.put(MDC_LEVEL_PADDING, ndcs.getPadding());
+		
+		return new Restore() {
+			@Override
+			public void close() {
+				if (existingLoggerName == null) {
+					MDC.remove(MDC_LOGGER);
+				}
+				else {
+					MDC.put(MDC_LOGGER, existingLoggerName);
+				}
+
+				if (existingJobName == null) {
+					MDC.remove(MDC_JOB_NAME);
+				}
+				else {
+					MDC.put(MDC_JOB_NAME, existingJobName);
+				}
+				
+				if (existingPadding == null) {
+					MDC.remove(MDC_LEVEL_PADDING);
+				}
+				else {
+					MDC.put(MDC_LEVEL_PADDING, existingPadding);
+				}
+			}
+		};
+	}
+	
 	/**
 	 * Holds Logger and Job information for the Stack.
 	 */
-	public static class LoggerAndJob implements Cloneable {
+	public static class LogContext implements Cloneable {
 		
 		private final String logger;
 		
 		private final Object job;
 		
-		public LoggerAndJob(String logger, Object job) {
+		private final String padding;
+		
+		public LogContext(String logger, Object job, String padding) {
 			this.logger = logger;
 			this.job = job;
+			this.padding = padding;
 		}
 		
 		public Object getJob() {
@@ -129,6 +152,10 @@ public class OddjobNDC implements LoggingConstants {
 		
 		public String getLogger() {
 			return logger;
+		}
+		
+		public String getPadding() {
+			return padding;
 		}
 		
 		public Object clone() throws CloneNotSupportedException {

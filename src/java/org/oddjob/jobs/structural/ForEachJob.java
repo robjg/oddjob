@@ -71,6 +71,7 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
+import org.oddjob.util.Restore;
 
 
 /**
@@ -501,8 +502,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 */
 	@Override
 	public void load() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
@@ -520,9 +520,6 @@ implements Stoppable, Loadable, ConfigurationOwner {
 				    }
 				}
 			});
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	};
 	
@@ -884,8 +881,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					childStateReflector.stop();
@@ -896,8 +892,6 @@ implements Stoppable, Loadable, ConfigurationOwner {
 					logger().info("Hard Reset complete." );
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 

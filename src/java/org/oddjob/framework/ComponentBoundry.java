@@ -5,6 +5,7 @@
 package org.oddjob.framework;
 
 import org.oddjob.logging.OddjobNDC;
+import org.oddjob.util.Restore;
 
 /**
  * Handles the crossover between components. This should probably be done with
@@ -35,17 +36,17 @@ public class ComponentBoundry {
 	 * @param component
 	 * 			  The component.
 	 */
-	public static void push(String loggerName, Object component) {
-		OddjobNDC.push(loggerName, component);
-		ContextClassloaders.push(component);
-	}
-
-	/**
-	 * Called on leaving a component method.
-	 */
-	public static void pop() {
-		ContextClassloaders.pop();
-		OddjobNDC.pop();
+	public static Restore push(String loggerName, Object component) {
+		Restore ndcRestore = OddjobNDC.push(loggerName, component);
+		Restore classLoaderRestore = ContextClassloaders.push(component);
+		return new Restore() {
+			
+			@Override
+			public void close() {
+				classLoaderRestore.close();
+				ndcRestore.close();
+			}
+		};
 	}
 
 }

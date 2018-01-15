@@ -40,6 +40,7 @@ import org.oddjob.state.StateOperator;
 import org.oddjob.state.StructuralStateHelper;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.util.Restore;
 
 /**
  * Common functionality for jobs that schedule things.
@@ -139,8 +140,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					stop = false;
@@ -184,9 +184,6 @@ implements
 				});
 			}	
 		}
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -201,8 +198,7 @@ implements
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			final AtomicReference<String> lastIcon = new AtomicReference<String>();
 			
 			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {				
@@ -242,9 +238,6 @@ implements
 				childHelper.stopChildren();		
 			}
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -265,8 +258,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Soft Reset to children.");			
@@ -281,8 +273,6 @@ implements
 					logger().info("Soft Reset complete.");			
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -290,8 +280,7 @@ implements
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					
@@ -307,8 +296,6 @@ implements
 					logger().info("Hard Reset complete.");			
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
@@ -326,8 +313,7 @@ implements
 	@Override
 	public void force() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			
@@ -336,9 +322,6 @@ implements
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -403,8 +386,7 @@ implements
 		
 		super.onDestroy();
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			logger().info("Destroying.");
 			
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
@@ -418,9 +400,6 @@ implements
 				}					
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**

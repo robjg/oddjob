@@ -36,6 +36,7 @@ import org.oddjob.state.StateMatch;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
 import org.oddjob.util.OddjobLockedException;
+import org.oddjob.util.Restore;
 
 /**
  * Common functionality for Timers.
@@ -219,8 +220,7 @@ abstract public class TimerBase extends ScheduleBase {
 	@ArooaHidden
 	public void setReschedule(final Date reSchedule) throws ComponentPersistException, OddjobLockedException {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED), 
 				new Runnable() {
 					@Override
@@ -238,9 +238,6 @@ abstract public class TimerBase extends ScheduleBase {
 				logger().info("Can only reschedule once the timer has started.");
 			}
 		}	
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -324,8 +321,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 */
 	@ArooaHidden
 	public void setNextDue(final Date nextDue) throws OddjobLockedException {
-		ComponentBoundry.push(loggerName(), this);
-		try {			
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED),
 				new Runnable() {
 					@Override
@@ -343,9 +339,6 @@ abstract public class TimerBase extends ScheduleBase {
 				logger().info("Can't set nextDue until timer has STARTED."); 
 			}
 		}	
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -497,8 +490,8 @@ abstract public class TimerBase extends ScheduleBase {
 		@Override
 		public void jobStateChange(StateEvent event) {
 			
-			ComponentBoundry.push(loggerName(), TimerBase.this);
-			try {
+			
+			try (Restore restore = ComponentBoundry.push(loggerName(), TimerBase.this)) {
 				handleChildState(event, this);
 			} catch (final ComponentPersistException e) {
 				stateHandler().waitToWhen(new IsAnyState(), 
@@ -508,9 +501,6 @@ abstract public class TimerBase extends ScheduleBase {
 							getStateChanger().setStateException(e);
 						}
 					});
-			}
-			finally {
-				ComponentBoundry.pop();
 			}
 		}
 	}
@@ -573,8 +563,7 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
-			ComponentBoundry.push(loggerName(), this);
-			try {
+			try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 				try {
 					// Wait for the timer to start to ensure predictable
 					// state transitions.
@@ -628,8 +617,6 @@ abstract public class TimerBase extends ScheduleBase {
 						}
 					});
 				}
-			} finally {
-				ComponentBoundry.pop();
 			}
 		}
 		

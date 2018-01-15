@@ -25,6 +25,7 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
+import org.oddjob.util.Restore;
 
 /**
  * @oddjob.description A trigger runs it's job when the job being triggered
@@ -240,8 +241,7 @@ public class Trigger extends ScheduleBase {
 	class Execution implements Runnable {
 		public void run() {
 			
-			ComponentBoundry.push(loggerName(), Trigger.this);
-			try {
+			try (Restore restore = ComponentBoundry.push(loggerName(), Trigger.this)) {
 
 				logger().info("Executing child.");
 
@@ -276,9 +276,6 @@ public class Trigger extends ScheduleBase {
 				
 				childStateReflector.start();
 			}
-			finally {
-				ComponentBoundry.pop();
-			} 
 		}
 	}
 	

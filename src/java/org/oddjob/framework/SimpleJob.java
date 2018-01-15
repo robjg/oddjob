@@ -22,6 +22,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateChanger;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateChanger;
+import org.oddjob.util.Restore;
 
 /**
  * An abstract implementation of a job which provides common functionality to
@@ -89,8 +90,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(JobState.EXECUTING);
@@ -131,9 +131,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 					}
 				}
 			});
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -185,8 +182,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					logger().info("Stopping.");
@@ -226,9 +222,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 				throw failedToStopException;
 			}
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -250,8 +243,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	 */
 	@Override
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					onReset();
@@ -263,8 +255,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 					logger().info("Soft Reset complete.");
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -273,8 +263,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	 */
 	@Override
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					onReset();
@@ -286,8 +275,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 					logger().info("Hard Reset complete.");
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
@@ -304,8 +291,7 @@ implements  Runnable, Resetable, Stateful, Forceable {
 	@Override
 	public void force() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			
@@ -314,9 +300,6 @@ implements  Runnable, Resetable, Stateful, Forceable {
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	@Override

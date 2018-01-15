@@ -21,6 +21,7 @@ import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ServiceState;
 import org.oddjob.state.ServiceStateChanger;
 import org.oddjob.state.ServiceStateHandler;
+import org.oddjob.util.Restore;
 
 /**
  * Base class for providing a common Service implementation.
@@ -101,8 +102,7 @@ implements Runnable, Stateful, Resetable,
     
 	
 	public void run() {
-		ComponentBoundry.push(logger().getName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTING);
@@ -134,9 +134,6 @@ implements Runnable, Stateful, Resetable,
 				});
 			}
 		}
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -147,8 +144,7 @@ implements Runnable, Stateful, Resetable,
 	
 	@Override
 	public void stop() throws FailedToStopException {
-		ComponentBoundry.push(logger().getName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			logger().debug("Stop requested.");
 			
 			if (!stateHandler.waitToWhen(new IsStoppable(), 
@@ -183,9 +179,6 @@ implements Runnable, Stateful, Resetable,
 				});
 			}
 		}
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -198,8 +191,7 @@ implements Runnable, Stateful, Resetable,
 	 */
 	@Override
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -208,9 +200,6 @@ implements Runnable, Stateful, Resetable,
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -218,8 +207,7 @@ implements Runnable, Stateful, Resetable,
 	 */
 	@Override
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -228,9 +216,6 @@ implements Runnable, Stateful, Resetable,
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 
 	

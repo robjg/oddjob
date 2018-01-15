@@ -49,12 +49,12 @@ public class MagicBeansExamplesTest extends OjTestCase {
 		
 		String fs = File.separator;
 		 
-		assertEquals("Checking Big File (" + fs + "files" + fs + "big)", lines[1].trim());
-		assertEquals("less than 1000000 bytes...", lines[2].trim());
-		assertEquals("Checking Medium File (" + fs + "files" + fs + "medium)", lines[4].trim());
-		assertEquals("less than 20000 bytes...", lines[5].trim());
-		assertEquals("Checking Small File (" + fs + "files" + fs + "small)", lines[7].trim());
-		assertEquals("less than 3000 bytes...", lines[8].trim());
+		assertEquals("Checking Big File (" + fs + "files" + fs + "big)", lines[1]);
+		assertEquals("less than 1000000 bytes...", lines[2]);
+		assertEquals("Checking Medium File (" + fs + "files" + fs + "medium)", lines[4]);
+		assertEquals("less than 20000 bytes...", lines[5]);
+		assertEquals("Checking Small File (" + fs + "files" + fs + "small)", lines[7]);
+		assertEquals("less than 3000 bytes...", lines[8]);
 		
 		assertEquals(9, lines.length);
 		

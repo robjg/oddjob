@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Describeable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Reserved;
@@ -32,6 +30,9 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
 import org.oddjob.state.IsStoppable;
+import org.oddjob.util.Restore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for proxy creators.
@@ -156,8 +157,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			final AtomicReference<String> icon = new AtomicReference<String>();
 			
 	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
@@ -196,9 +196,6 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 				throw failedToStopException;
 			}
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	protected void onStop() throws FailedToStopException {} 

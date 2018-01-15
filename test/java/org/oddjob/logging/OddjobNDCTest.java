@@ -3,21 +3,26 @@
  */
 package org.oddjob.logging;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.hamcrest.CoreMatchers.is;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.framework.ComponentBoundry;
 import org.oddjob.logging.appender.AppenderArchiver;
-import org.oddjob.tools.OddjobTestHelper;
+import org.oddjob.util.Restore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class OddjobNDCTest extends OjTestCase implements LogEnabled {
+public class OddjobNDCTest extends OjTestCase {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OddjobNDCTest.class);
 
-   @Test
-	public void testAll() {
+    @Test
+	public void testContextTracksPushesAsExpected() {
 		
 		String loggerName1 = "org.oddjob.TestLogger1";
 		String loggerName2 = "org.oddjob.TestLogger2";
@@ -25,85 +30,101 @@ public class OddjobNDCTest extends OjTestCase implements LogEnabled {
 		Object job1 = new Object();
 		Object job2 = new Object();
 				
-		ComponentBoundry.push(loggerName1, job1);
-		assertEquals(loggerName1, OddjobNDC.peek().getLogger());
-		assertEquals(job1, OddjobNDC.peek().getJob());
-		
-		ComponentBoundry.push(loggerName2, job2);
-		assertEquals(loggerName2, OddjobNDC.peek().getLogger());
-		assertEquals(job2, OddjobNDC.peek().getJob());
-		
-		assertEquals(loggerName2, OddjobNDC.pop().getLogger());
-		assertEquals(loggerName1, OddjobNDC.pop().getLogger());		
+		try (Restore r1 = ComponentBoundry.push(loggerName1, job1)) {
+			assertEquals(loggerName1, OddjobNDC.current().get().getLogger());
+			assertEquals(job1, OddjobNDC.current().get().getJob());
+			
+			try (Restore r2 = ComponentBoundry.push(loggerName2, job2)) {
+				assertEquals(loggerName2, OddjobNDC.current().get().getLogger());
+				assertEquals(job2, OddjobNDC.current().get().getJob());
+			}
+			
+			assertEquals(loggerName1, OddjobNDC.current().get().getLogger());
+			assertEquals(job1, OddjobNDC.current().get().getJob());
+		}
+				
+		assertThat(OddjobNDC.current().isPresent(), is(false));
 	}
 
-   @Test
+    @Test
 	public void testEmptyPeek() {
 		
-		assertEquals(null, OddjobNDC.peek());
+		assertThat(OddjobNDC.current().isPresent(), is(false));
 	}
 	
 	
-	class MyLL implements LogListener {
-		String message;
+	private class MyLL implements LogListener {
+		final List<String> messages = new ArrayList<>();
+		
 		public void logEvent(LogEvent logEvent) {
-			message = logEvent.getMessage();
+			messages.add(logEvent.getMessage());
 		}
 	}
 	
-	public String loggerName() {
-		return "our.unique.logger";
-	}
+	static private class OurLogEnabled implements LogEnabled {
 	
-   @Test
-	public void testWithArchiver() {
+		public String loggerName() {
+			return "our.unique.logger";
+		}
+	}
 		
-		AppenderArchiver archiver = new AppenderArchiver(this, "%m%n");
+    @Test
+	public void givenArchiverWhenLoggingThenOnlyCorrectContextGetsArchived() {
+		
+ 	   OurLogEnabled logEnabled = new OurLogEnabled();
+
+	   AppenderArchiver archiver = new AppenderArchiver(logEnabled, "%m");
 		
 		MyLL ll = new MyLL();
-		archiver.addLogListener(ll, this, LogLevel.INFO, -1, 100);
+		archiver.addLogListener(ll, logEnabled, LogLevel.INFO, -1, 100);
 		
 		logger.info("Will not be archived!");
 		
-		assertNull(ll.message);
+		assertThat(ll.messages.isEmpty(), is(true));
 		
-		OddjobNDC.push(loggerName(), new Object());
+		try (Restore r1 = OddjobNDC.push(logEnabled.loggerName(), new Object())) {
 
-		logger.info("Will be archived!");
-		assertEquals("Will be archived!" + OddjobTestHelper.LS, ll.message);
+			logger.info("Will be archived!");
+	
+			try (Restore r2 = OddjobNDC.push("SomethingElse", new Object())) {
 				
-		OddjobNDC.pop();
+				logger.info("Also Will not be archived!");
+			}	
+		}
+		
+		assertThat(ll.messages.size(), is(1));				
+		assertThat(ll.messages.get(0), is("Will be archived!"));
+		
 	}
 
-   @Test
+    @Test
 	public void testChildThread() throws InterruptedException {
 		
-		String job = "My Important Job";
+ 	    OurLogEnabled logEnabled = new OurLogEnabled();
+
+   	    String job = "My Important Job";
 		
-		AppenderArchiver archiver = new AppenderArchiver(this, "[%X{ojname}] %m%n");
+		AppenderArchiver archiver = new AppenderArchiver(logEnabled, "[%X{ojname}] %m");
 		
 		MyLL ll = new MyLL();
-		archiver.addLogListener(ll, this, LogLevel.INFO, -1, 100);
+		archiver.addLogListener(ll, logEnabled, LogLevel.INFO, -1, 100);
 		
-		OddjobNDC.push(loggerName(), job);
+		try (Restore r = OddjobNDC.push(logEnabled.loggerName(), job)) {
 
-		Thread t = new Thread(new Runnable() {
-			public void run() {
-				logger.info("Child Thread Message.");
+			Thread t = new Thread(new Runnable() {
 				
-			}
-		});
-
+				public void run() {
+					logger.info("Child Thread Message.");
+				}
+			});
 		
-		OddjobNDC.pop();
+			t.start();	
+			t.join();
+		}		
 		
-		t.start();
+		// Note that MDC is no longer set automatically in thread in SLF4J.
+		assertEquals("[] Child Thread Message.", ll.messages.get(0));
 		
-		t.join();
-		
-		assertEquals("[My Important Job] Child Thread Message." + OddjobTestHelper.LS, ll.message);
-		
-
 	}
 
 }

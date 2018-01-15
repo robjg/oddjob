@@ -12,9 +12,9 @@ import org.oddjob.logging.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CosoleCaptureTest {
+public class ConsoleCaptureTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(CosoleCaptureTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(ConsoleCaptureTest.class);
 	
 	@Test
 	public void testLogFilter() {

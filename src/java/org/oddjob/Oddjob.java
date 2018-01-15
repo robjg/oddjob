@@ -72,6 +72,7 @@ import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
 import org.oddjob.util.OddjobConfigException;
+import org.oddjob.util.Restore;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.values.properties.PropertiesType;
 
@@ -655,8 +656,7 @@ implements Loadable,
 	 */
 	@Override
 	public void load() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
@@ -677,9 +677,6 @@ implements Loadable,
 				    }
 				}
 			});
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -784,8 +781,7 @@ implements Loadable,
 	@Override
 	public boolean softReset() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 
@@ -806,8 +802,6 @@ implements Loadable,
 					restored = false;
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
@@ -845,8 +839,7 @@ implements Loadable,
 	 * so as not to reset the child but destroy them.
 	 */
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 
@@ -871,8 +864,6 @@ implements Loadable,
 					logger().info("Hard Reset complete.");
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -983,13 +974,10 @@ implements Loadable,
 			export.remove(key);
 		}
 		else {
-			ComponentBoundry.push(loggerName(), this);
-			try {
+			try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 				logger().debug("Adding value to export: " + 
 					key + "=" + value);
 				export.put(key, value);
-			} finally {
-				ComponentBoundry.pop();
 			}
 		}
 	}

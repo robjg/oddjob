@@ -31,6 +31,7 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateChanger;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateEvent;
+import org.oddjob.util.Restore;
 
 /**
  * Creates a proxy for any {@link java.lang.Runnable} to allow it to be controlled and
@@ -142,8 +143,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	@Override
 	public void run() {
 		
-		ComponentBoundry.push(loggerName(), wrapped);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(JobState.EXECUTING);
@@ -215,8 +215,6 @@ implements ComponentWrapper, Serializable, Forceable {
 					}
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
@@ -248,8 +246,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					if (resetableAdaptor == null) {
@@ -266,9 +263,6 @@ implements ComponentWrapper, Serializable, Forceable {
 				}
 			});
 		}
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -276,8 +270,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean hardReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					if (resetableAdaptor == null) {
@@ -294,9 +287,6 @@ implements ComponentWrapper, Serializable, Forceable {
 				}
 			});
 		}
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**
@@ -305,8 +295,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	@Override
 	public void force() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
 			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			
@@ -315,9 +304,6 @@ implements ComponentWrapper, Serializable, Forceable {
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 
 	/**

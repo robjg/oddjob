@@ -35,6 +35,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.util.Restore;
 
 /**
  * @oddjob.description A Job that is capable of taking a snapshot of the
@@ -139,8 +140,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ParentState.EXECUTING);
@@ -150,7 +150,6 @@ implements
 			}
 			
 			logger().info("Executing.");
-
 			try {
 				configure();
 				
@@ -166,9 +165,6 @@ implements
 				});
 			}	
 			logger().info("Execution finished.");
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -222,8 +218,7 @@ implements
 		@Override
 		public void jobStateChange(final StateEvent event) {
 
-			ComponentBoundry.push(loggerName(), ArchiveJob.this);
-			try {
+			try (Restore restore = ComponentBoundry.push(loggerName(), ArchiveJob.this)) {
 				this.event = event;
 
 				if (reflect) {
@@ -258,22 +253,17 @@ implements
 					})) {
 					}
 				}
-			} finally {
-				ComponentBoundry.pop();
 			}
 		}
 		
 		private void persist(Stateful source) throws ComponentPersistException {
-			ComponentBoundry.push(loggerName(), ArchiveJob.this);
-			try {
+			
+			try (Restore restore = ComponentBoundry.push(loggerName(), ArchiveJob.this)) {
 				Object silhouette = new SilhouetteFactory().create(
 						child, ArchiveJob.this.getArooaSession());
 				
 				componentPersister.persist(archiveIdentifier.toString(), 
 						silhouette, getArooaSession());
-			}
-			finally {
-				ComponentBoundry.pop();					
 			}
 		}		
 	}
@@ -341,8 +331,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {		
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					stop = true;
@@ -370,8 +359,6 @@ implements
 			stopListening((Stateful) childHelper.getChild());
 			
 			logger().info("Stopped.");
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 		
@@ -400,8 +387,7 @@ implements
 	 */
 	private boolean commonReset(StateCondition condition, final String text) {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(condition, new Runnable() {
 				public void run() {
 					logger().debug("Propagating " + text + 
@@ -423,9 +409,6 @@ implements
 				}
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 
 	/**
@@ -551,8 +534,7 @@ implements
 		
 		super.onDestroy();
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
 					stop = true;
@@ -560,9 +542,6 @@ implements
 				}					
 			});
 		} 
-		finally {
-			ComponentBoundry.pop();
-		}
 	}
 	
 	/**

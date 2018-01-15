@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.Properties;
 
-import org.apache.log4j.PropertyConfigurator;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,8 +110,8 @@ public class Main {
      * @param logConfigFileName The log file name.
      */
 	public void configureLog(String logConfigFileName) {
-		System.setProperty("log4j.defaultInitOverride", "true");
-	    PropertyConfigurator.configure(logConfigFileName);
+		LoggerAdapter.configure(logConfigFileName);
+		
 		logger().info("Configured logging with file [" + logConfigFileName + "]");
 	}
 	

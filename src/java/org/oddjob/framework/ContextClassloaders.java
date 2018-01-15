@@ -6,8 +6,11 @@ package org.oddjob.framework;
 
 import java.util.Stack;
 
+import org.oddjob.util.Restore;
+
 /**
  * Stack of class loaders.
+ * 
  * @author rob
  */
 public class ContextClassloaders {
@@ -48,17 +51,31 @@ public class ContextClassloaders {
 	 *            The new current component.
 	 * 
 	 */
-	public static void push(Object component) {
+	public static Restore push(Object component) {
 		if (component == null) {
 			throw new NullPointerException("Can't push null job.");
 		}
 		
 		Stack<ClassLoader> stack = local.get();
+
+		Thread currentThread = Thread.currentThread();
 		
-		stack.push(Thread.currentThread().getContextClassLoader());
+		stack.push(currentThread.getContextClassLoader());
 		
 		Thread.currentThread().setContextClassLoader(
 				component.getClass().getClassLoader());
+		
+		return new Restore() {
+			
+			@Override
+			public void close() {
+				if (Thread.currentThread() != currentThread) {
+					throw new IllegalStateException("Restore can only happen on same thread as push.");
+				}
+
+				pop();
+			}
+		};
 	}
 
 }

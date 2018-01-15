@@ -12,6 +12,7 @@ import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
+import org.oddjob.util.Restore;
 
 
 /**
@@ -78,8 +79,7 @@ implements Runnable, Stoppable, Resetable {
 	
 	synchronized public void run() {
 				
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					if (listener != null) {
@@ -111,8 +111,6 @@ implements Runnable, Stoppable, Resetable {
 					job.addStateListener(listener);
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
@@ -157,8 +155,7 @@ implements Runnable, Stoppable, Resetable {
 	}
 	
 	public synchronized void stop() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (listener != null) {
 				job.removeStateListener(listener);
 				listener = null;
@@ -171,8 +168,6 @@ implements Runnable, Stoppable, Resetable {
 				});
 				job = null;
 			}
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	

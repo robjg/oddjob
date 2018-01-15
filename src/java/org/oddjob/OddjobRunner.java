@@ -166,7 +166,7 @@ public class OddjobRunner implements Runnable {
 		 */
 		public void run() {
 
-			logger.info("Shutdown Hook Executing.");
+			logger.debug("Shutdown Hook Executing.");
 			
 			// killer will just kill process if we can't stop in 15 sec
 			Thread killer = new Thread(new Killer(), "Killer-Thread");

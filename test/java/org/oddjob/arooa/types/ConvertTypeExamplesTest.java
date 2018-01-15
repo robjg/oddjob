@@ -45,7 +45,7 @@ public class ConvertTypeExamplesTest extends OjTestCase {
 				).getResourceAsStream("ConvertDelimitedTextToArray.txt"));
 		
 		for (int i = 0; i < expected.length; ++i) {
-			assertEquals(expected[i], lines[i].trim());
+			assertEquals(expected[i], lines[i]);
 		}
 		
 		assertEquals(3, lines.length);

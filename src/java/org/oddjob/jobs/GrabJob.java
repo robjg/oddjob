@@ -42,6 +42,7 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.oddjob.util.Restore;
 
 /**
  * @oddjob.description Grab work to do. By competing for work with
@@ -178,8 +179,7 @@ implements
 	 */
 	public final void run() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					if (listener != null) {
@@ -208,9 +208,6 @@ implements
 				});
 			}	
 			logger().info("Execution finished.");
-		}
-		finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -399,8 +396,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			logger().debug("Stop requested.");
 
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
@@ -432,8 +428,6 @@ implements
 			}
 
 			logger().info("Stopped.");		
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -441,8 +435,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 
@@ -460,8 +453,6 @@ implements
 					logger().info("Soft reset complete.");
 				}
 			});	
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 	
@@ -470,8 +461,7 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		ComponentBoundry.push(loggerName(), this);
-		try {
+		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			
@@ -488,8 +478,6 @@ implements
 					logger().info("Hard reset complete.");
 				}
 			});
-		} finally {
-			ComponentBoundry.pop();
 		}
 	}
 
