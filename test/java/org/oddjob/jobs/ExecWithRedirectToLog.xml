@@ -8,7 +8,7 @@
             <stderr>
                 <logout level="WARN"/>
             </stderr>
-            <![CDATA[java -jar ${oddjob.test.run.jar} -f Missing.xml]]>
+            <![CDATA[java -jar ${oddjob.test.run.jar} -f Missing.xml ${logConfigArgs}/]]>
         </exec>
     </job>
 </oddjob>

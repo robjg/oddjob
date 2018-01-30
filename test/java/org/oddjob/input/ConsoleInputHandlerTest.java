@@ -33,8 +33,11 @@ public class ConsoleInputHandlerTest extends OjTestCase {
 		File example = dirs.relative(
 				"test/java/org/oddjob/input/InputHandlerExample.xml");
 
-		String command = "java -jar \"" + dirs.relative("run-oddjob.jar"
-				).getPath() + "\" -f \"" + example + "\"";
+		String logConfig = OjTestCase.logConfig();
+				
+		String command = "java -jar \"" + dirs.relative("run-oddjob.jar").getPath() + "\" "
+						+ "-f \"" + example + "\" "
+						+ "-l \"" + dirs.relative(logConfig) + "\"";
 		
 		String input = "/bin/oddjob\n" +
 				"\n" +

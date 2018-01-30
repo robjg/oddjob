@@ -7,6 +7,8 @@
                         <value value="-nb"/>
                         <value value="-f"/>
                         <value value="${this.args[0]}/test/conf/echo-class-loader.xml"/>
+                        <value value="-l"/>
+                        <value value="${this.args[0]}/${this.args[2]}"/>
                     </values>
                 </list>
             </args>

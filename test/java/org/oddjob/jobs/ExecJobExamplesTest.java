@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.logging.Appender;
@@ -122,6 +123,7 @@ public class ExecJobExamplesTest {
 		
 		Properties properties = new Properties();
 		properties.put(ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
+		properties.put("logConfigArgs", "-l " + dirs.relative(OjTestCase.logConfig()));
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setFile(dirs.relative(
@@ -221,7 +223,8 @@ public class ExecJobExamplesTest {
 		
 		Properties properties = new Properties();
 		properties.put(ODDJOB_RUN_JAR_PROPERTY, runJar.getCanonicalPath());
-
+		properties.put("logConfigArgs", "-l " + dirs.relative(OjTestCase.logConfig()));
+		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
 				"org/oddjob/jobs/ExecWithRedirectToLog.xml", 

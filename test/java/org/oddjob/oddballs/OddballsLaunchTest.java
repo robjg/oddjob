@@ -1,26 +1,21 @@
 package org.oddjob.oddballs;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.jobs.ExecJob;
-import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogListener;
+import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OddballsLaunchTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(
 			OddballsLaunchTest.class);
 	
 	final static String RUN_JAR = "run-oddjob.jar";
-	
-	final static String EOL = System.getProperty("line.separator");
 	
     @Before
     public void setUp() throws Exception {
@@ -32,34 +27,28 @@ public class OddballsLaunchTest extends OjTestCase {
 		
 	}
 	
-	class Console implements LogListener  {
-		List<String> lines = new ArrayList<String>();
-		
-		public void logEvent(LogEvent logEvent) {
-			lines.add(logEvent.getMessage());
-		}
-	}
-	
    @Test
 	public void testOddjobFailsNoFile() throws InterruptedException {
-		
-		Console console = new Console();
 		
 		OurDirs dirs = new OurDirs();
 		
 		ExecJob exec = new ExecJob();
 		exec.setCommand("java -jar \"" + dirs.relative(RUN_JAR).getPath() + "\"" + 
 				" -ob \"" + dirs.relative("/test/oddballs").getPath() + "\"" +
-				" -f \"" + dirs.relative("/test/launch/oddballs-launch.xml") + "\"");
-		
-		exec.consoleLog().addListener(console, LogLevel.INFO, -1, 1000);
-		
-		exec.run();
+				" -f \"" + dirs.relative("/test/launch/oddballs-launch.xml") + "\"" +
+				" -l \"" + dirs.relative(OjTestCase.logConfig()) + "\"");
 
-		dump(console.lines);
+		ConsoleCapture capture = new ConsoleCapture();
+		try (ConsoleCapture.Close close = capture.capture(exec.consoleLog())) {
+			exec.run();
+		}
 		
-		assertEquals("Apple: Red" + EOL, console.lines.get(0));
-		assertEquals("Colour As String: Red" + EOL, console.lines.get(1));
+		capture.dump();
+
+		String[] lines = capture.getLines();
+		
+		assertEquals("Apple: Red", lines[0]);
+		assertEquals("Colour As String: Red", lines[1]);
 		
 		exec.destroy();
 	}

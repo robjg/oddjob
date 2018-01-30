@@ -2,25 +2,29 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.arooa.logging.Appender;
+import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.utils.Try;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -34,7 +38,7 @@ public class MainTest extends OjTestCase {
     @Before
     public void setUp() throws Exception {
 		logger.debug("------------------ " + getName() + " -----------------");
-		logger.debug(System.getProperty("ant.file"));
+		logger.debug("Ant file is " + System.getProperty("ant.file"));
 		
 		oddjobHome = System.getProperty("oddjob.home");
 		System.getProperties().remove("oddjob.home");
@@ -52,24 +56,26 @@ public class MainTest extends OjTestCase {
 	
 	// test oddjob args past through
    @Test
-	public void testInit() throws IOException {
+	public void testInit() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
-				"-f", dirs.base() + "/oddjob.xml",  "x" } );
+				"-f", dirs.base() + "/oddjob.xml",  "x" } )
+				.get().orElseThrow();
 		
 		assertEquals(1, oj.getArgs().length);
 		assertEquals("x", oj.getArgs()[0]);
 	}
 	
    @Test
-	public void testBadArg() throws IOException {
+	public void testBadArg() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { "-f", dirs.base() + "/oddjob.xml", 
-				"x", "-f", "something-else.xml" });
+				"x", "-f", "something-else.xml" })
+				.get().orElseThrow();
 		
 		assertEquals(3, oj.getArgs().length);
 		assertEquals("x", oj.getArgs()[0]);
@@ -78,13 +84,14 @@ public class MainTest extends OjTestCase {
 	}
 		
    @Test
-	public void testPassArgs() throws IOException {
+	public void testPassArgs() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
 				"-f", dirs.base() + "/oddjob.xml", "--", 
-				"-f", "something-else.xml" } );
+				"-f", "something-else.xml" } )
+				.get().orElseThrow();
 		
 		assertEquals(2, oj.getArgs().length);
 		assertEquals("-f", oj.getArgs()[0]);
@@ -92,31 +99,32 @@ public class MainTest extends OjTestCase {
 	}
 		
    @Test
-	public void testOddjobName() throws IOException {
+	public void testOddjobName() throws Exception {
 		OurDirs dirs = new OurDirs();
 		
 		Main m = new Main();
 		Oddjob oj = m.init(new String[] { 
 				"-n", "Test Jobs", "-f", dirs.base() + 
-				"/oddjob.xml"} );
+				"/oddjob.xml"} )
+				.get().orElseThrow();
 		
 		assertEquals("Test Jobs", oj.toString());
 	}
 		
    @Test
-	public void testUsage() throws IOException {
+	public void testUsage() throws Exception {
 		
 		Main.main(new String[] { "-h" });
 	}
 	
    @Test
-	public void testVersion() throws IOException {
+	public void testVersion() throws Exception {
 		
 		Main.main(new String[] { "-version" });
 	}
 	
    @Test
-	public void testInitNoBalls() throws IOException {
+	public void testInitNoBalls() throws Exception {
 
 		OurDirs dirs = new OurDirs();
 		
@@ -124,13 +132,14 @@ public class MainTest extends OjTestCase {
 
 		Oddjob oddjob = test.init(new String[] { 
 			"-nb", 
-			"-f", dirs.base() + "/oddjob.xml" });
+			"-f", dirs.base() + "/oddjob.xml" })
+				.get().orElseThrow();
 		
 		assertNull(oddjob.getDescriptorFactory());
 	}
 	
    @Test
-	public void testDefaultBalls() throws IOException {
+	public void testDefaultBalls() throws Exception {
 
 		OurDirs dirs = new OurDirs();
 		
@@ -139,7 +148,8 @@ public class MainTest extends OjTestCase {
 		System.setProperty("oddjob.home", 
 				dirs.base().getCanonicalPath());
 		
-		Oddjob oddjob = test.init(new String[] { });
+		Oddjob oddjob = test.init(new String[] { })
+				.get().orElseThrow();
 		
 		OddballsDirDescriptorFactory result = (OddballsDirDescriptorFactory)
 			oddjob.getDescriptorFactory();
@@ -149,14 +159,15 @@ public class MainTest extends OjTestCase {
 	}
 	
    @Test
-	public void testWithBalls() throws IOException {
+	public void testWithBalls() throws Exception {
 
 		OurDirs dirs = new OurDirs();
 		Main test = new Main();
 
 		Oddjob oddjob = test.init(new String[] { 
 			"-nb", "-oddballs", "someballs", 
-			"-f", dirs.base() + "/oddjob.xml"});
+			"-f", dirs.base() + "/oddjob.xml"})
+				.get().orElseThrow();
 		
 		OddballsDirDescriptorFactory result = (OddballsDirDescriptorFactory)
 			oddjob.getDescriptorFactory();
@@ -165,18 +176,35 @@ public class MainTest extends OjTestCase {
 	}	
 	
    @Test
-	public void testBadFile() {
+	public void testBadFile() throws Exception {
 
-		Main test = new Main();
+	   
+	   List<String> errors = new ArrayList<>();
+	
+	   Appender appender = e -> { 
+		   if (e.getLevel() == LogLevel.ERROR) {
+			   errors.add(e.getThrowable().getMessage()); 
+		   }
+		   return; 
+	   };
+	   
+	   LoggerAdapter.appenderAdapterFor(OddjobBuilder.class).addAppender(appender);
+	   
+	   Main test = new Main();
 
-		try {
-			test.init(new String[] { 
-				"-file", "iDontExist.xml" });
-			fail("Should fail.");
-		} catch (IOException e) {
-			assertTrue("File name in message", e.getMessage().contains("iDontExist.xml"));
-		}
+	   Try<Oddjob> result = test.init(new String[] { "-file", "iDontExist.xml" }).get();
+	
+	   LoggerAdapter.appenderAdapterFor(OddjobBuilder.class).removeAppender(appender);
 		
+	   try {
+		   result.orElseThrow();
+		   fail("Should fail");
+	   }
+	   catch (Exception e) {
+		   assertThat(e.getMessage().contains("iDontExist.xml"), is(true));
+	   }
+
+	   assertThat(errors.size(), is(0));		
 	}
 	
    @Test
@@ -218,14 +246,15 @@ public class MainTest extends OjTestCase {
 	}
 	
    @Test
-	public void testOddjobDestroyOnComplete() throws IOException {
+	public void testOddjobDestroyOnComplete() throws Exception {
 		
 		File f = new OurDirs().relative("test/conf/simple-echo.xml");
 	
 		Main test = new Main();
 		
 		Oddjob oddjob = test.init(new String[] { 
-				"-f", f.toString() });
+				"-f", f.toString() })
+				.get().orElseThrow();
 	
 		oddjob.run();
 
@@ -234,14 +263,15 @@ public class MainTest extends OjTestCase {
 	}
 	
    @Test
-	public void testOddjobDestroyOnComleteWithServices() throws IOException, InterruptedException {
+	public void testOddjobDestroyOnComleteWithServices() throws Exception {
 		
 		File f = new OurDirs().relative("test/conf/testflow2.xml");
 	
 		Main test = new Main();
 		
 		Oddjob oddjob = test.init(new String[] { 
-				"-f", f.toString() });
+				"-f", f.toString() })
+				.get().orElseThrow();
 	
 		StateSteps state = new StateSteps(oddjob);
 		state.startCheck(ParentState.READY, ParentState.EXECUTING, 

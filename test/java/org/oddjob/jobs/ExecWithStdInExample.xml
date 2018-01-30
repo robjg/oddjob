@@ -18,7 +18,7 @@ pears
                     <stdout>
                         <value value="${vars.ourBuffer}"/>
                     </stdout><![CDATA[
-java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml"
+java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml" ${logConfigArgs}
         ]]></exec>
                 <exec id="exec">
                     <stdin>
@@ -27,7 +27,7 @@ java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml"
                     <stdout>
                         <stdout/>
                     </stdout><![CDATA[
-java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml"
+java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml" ${logConfigArgs}
         ]]></exec>
             </jobs>
         </sequential>

@@ -6,9 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.utils.Try;
+import org.oddjob.logging.OddjobNDC;
+import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +42,7 @@ public class Main {
 	 * @return A configured and ready to run Oddjob.
 	 * @throws FileNotFoundException 
 	 */
-    public Oddjob init(String args[]) throws IOException {
+    public Supplier<Try<Oddjob>> init(String args[]) throws IOException {
 	    
     	OddjobBuilder oddjobBuilder = new OddjobBuilder();
     	
@@ -56,10 +61,10 @@ public class Main {
 
 			if (arg.equals("-h") || arg.equals("-help")) {
 			    usage();
-			    return null;
+			    return () -> Try.of(null);
 			} else if (arg.equals("-v") || arg.equals("-version")) {
 			    version();
-			    return null;
+			    return () -> Try.of(null);
 			}
 			else if (arg.equals("-n") || arg.equals("-name")) {
 				oddjobBuilder.setName(args[++i]);
@@ -92,16 +97,24 @@ public class Main {
 			configureLog(logConfig);
 		}
 				
-		Oddjob oddjob = oddjobBuilder.buildOddjob();
-		
-		oddjob.setProperties(props);
-		
 		// pass remaining args into Oddjob.
 		Object newArray = Array.newInstance(String.class, args.length - startArg);
 	    System.arraycopy(args, startArg, newArray, 0, args.length - startArg);
-	    oddjob.setArgs((String[]) newArray);
-	    	    
-		return oddjob;
+
+	    return () -> {
+		
+			Try<Oddjob> oddjob = oddjobBuilder.buildOddjob();
+			
+			oddjob.map(oj -> {
+				oj.setProperties(props);
+	
+			    oj.setArgs((String[]) newArray);
+	
+			    return oj;
+			});
+		
+			return oddjob;
+		};
 	}
 
     /**
@@ -180,19 +193,26 @@ public class Main {
 	 * @param args The command line args.
 	 * @throws FileNotFoundException 
 	 */
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 
 		Main ojm = new Main();
 		
-		Oddjob oddjob = ojm.init(args);
+		Supplier<Try<Oddjob>> sup = ojm.init(args);
 		
-		if (oddjob == null) {
-		    return;
+		try (Restore restore = OddjobNDC.push(logger().getName(), Main.class.getSimpleName())) {
+		
+
+			Try<Oddjob> tryOj = sup.get();
+			
+			Optional<Oddjob> optOj = tryOj.map(oj -> Optional.ofNullable(oj))
+					.orElseThrow();
+			
+					
+					
+			optOj.ifPresent(oj -> { OddjobRunner runner = new OddjobRunner(oj);					                    
+						            runner.initShutdownHook();
+						            runner.run();
+						          });
 		}
-		
-		OddjobRunner runner = new OddjobRunner(oddjob);
-		runner.initShutdownHook();
-		
-		runner.run();
 	}
 }

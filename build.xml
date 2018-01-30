@@ -112,6 +112,8 @@
 		        
 		<ivy:resolve conf="test"/>
 		
+        <ivy:cachepath pathid="provided-cachepath" conf="provided" />
+
 		<ivy:cachepath pathid="test-cachepath" conf="test" />
 			
 		<path id="classpath">
@@ -122,6 +124,7 @@
 			<fileset dir="${opt.lib}">
 				<include name="*.jar"/>
 			</fileset>
+            <path refid="provided-cachepath"/>
 		</path>
 
 		<ivy:cachepath pathid="tools-cachepath" conf="tools" />
@@ -459,8 +462,10 @@
 			</fileset>
 		</copy>
 		
-		<copy file="${opt.dir}/classes/log4j.properties" 
-	    	toDir="${to.dir}/opt/classes"/>
+		<copy toDir="${to.dir}/opt/classes">
+			<fileset dir="${opt.dir}/classes">
+			</fileset>
+		</copy>
 
 		<copy file="${launch.jar.name}"
 	    	tofile="${to.dir}/${launch.jar.name}"/>

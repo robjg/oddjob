@@ -6,15 +6,16 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.convert.convertlets.FileConvertlets;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptorBean;
+import org.oddjob.arooa.utils.Try;
 import org.oddjob.input.ConsoleInputHandler;
 import org.oddjob.input.StdInInputHandler;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Builds an {@link Oddjob} from properties. Used by {@link Main} and 
@@ -49,7 +50,7 @@ public class OddjobBuilder {
 	 * 
 	 * @throws FileNotFoundException
 	 */
-	public Oddjob buildOddjob() throws FileNotFoundException {
+	public Try<Oddjob> buildOddjob() {
 		
 		Oddjob oddjob = new Oddjob();
 		
@@ -69,7 +70,15 @@ public class OddjobBuilder {
 			logger.info("Oddjob Home has been provided and is [" + oddjobHome + "]");
 		}
 		
-		oddjob.setFile(findFileToUse(oddjobFile, oddjobHome));
+		File fileToUse;
+		try {
+			fileToUse = findFileToUse(oddjobFile, oddjobHome);
+		}
+		catch (FileNotFoundException e) {
+			return Try.fail(e);
+		}
+				
+		oddjob.setFile(fileToUse);
 		
 		oddjob.setName(name);
 		
@@ -82,7 +91,7 @@ public class OddjobBuilder {
 			oddjob.setInputHandler(new ConsoleInputHandler());
 		}
 		
-		return oddjob;
+		return Try.of(oddjob);
 	}
 
 	/**
@@ -142,7 +151,7 @@ public class OddjobBuilder {
 		
 		if (oddballsPath != null) {
 			
-			logger.info("Adding Descriptor Factory for path [" + 
+			logger.debug("Adding Descriptor Factory for path [" + 
 					oddballsPath + "]");
 			
 			descriptors.add(
@@ -153,7 +162,7 @@ public class OddjobBuilder {
 		
 		if (oddballsDir != null) {
 			
-			logger.info("Adding Descriptor Factory for Oddballs dir [" + 
+			logger.debug("Adding Descriptor Factory for Oddballs dir [" + 
 					oddballsDir + "]");
 
 			descriptors.add(
@@ -163,7 +172,7 @@ public class OddjobBuilder {
 		if (!noBalls) {
 			File defaultOddballsDir = new File(oddjobHome, ODDBALLS_DIR);
 			
-			logger.info("Adding Descriptor factory for default Oddballs from dir [" + 
+			logger.debug("Adding Descriptor factory for default Oddballs from dir [" + 
 					defaultOddballsDir + "]");
 			
 			descriptors.add(

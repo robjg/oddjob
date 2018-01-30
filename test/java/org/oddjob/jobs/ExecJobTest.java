@@ -122,7 +122,8 @@ public class ExecJobTest extends OjTestCase {
 		String classPath = converter.convert(cpFiles, String.class);
 		
 		String command = "java -cp \"" + classPath + "\" org.oddjob.Main -f \"" +
-				dirs.relative("test/conf/wait.xml").getPath() + "\"";
+				dirs.relative("test/conf/wait.xml").getPath() + "\""
+				+ " -l \"" + dirs.relative(OjTestCase.logConfig()) + "\"";
 		
 		job.setCommand(command);
 

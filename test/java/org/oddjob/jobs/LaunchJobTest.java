@@ -40,7 +40,8 @@ public class LaunchJobTest extends OjTestCase {
 					getClass().getClassLoader()));
 			oddjob.setArgs(new String[] { 
 					dirs.base().toString(),
-					Launcher.ODDJOB_MAIN_CLASS } );
+					Launcher.ODDJOB_MAIN_CLASS,
+					OjTestCase.logConfig()} );
 					
 			ConsoleCapture console = new ConsoleCapture();
 			try (ConsoleCapture.Close close = console.captureConsole()) {
