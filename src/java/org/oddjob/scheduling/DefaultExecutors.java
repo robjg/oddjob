@@ -5,12 +5,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.oddjob.OddjobExecutors;
+import org.oddjob.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.OddjobExecutors;
 
 /**
  * Provide Simple Oddjob Services.
@@ -18,28 +20,35 @@ import org.oddjob.OddjobExecutors;
  * @author rob
  *
  */
-public class DefaultExecutors implements OddjobExecutors {
+public class DefaultExecutors implements OddjobExecutors, Stoppable {
 	private static final Logger logger = LoggerFactory.getLogger(DefaultExecutors.class);
 	
 	public static final String POOL_SIZE_PROPERTY = "oddjob.executors.default.poolsize";
 	
+	private volatile ThreadFactory threadFactory;
+	
 	/** The pool size for the {@link ScheduledExecutorService}. */
-	private int poolSize;
+	private volatile int poolSize;
 	
 	/** share Executor and Scheduled services. */
-	private boolean shareServices;
+	private volatile boolean shareServices;
 
+	/** The name prefix for threads. */
+	private volatile String poolBaseName;
+	
 	/** The standard executor service. */
 	private ExecutorService poolExecutorService;
 	
 	/** The scheduler */
 	private ScheduledExecutorService scheduledExecutorService;
-		
+	
 	/**
 	 * Create a new instance. The scheduler is initialised with a 
 	 * fixed pool size that is either from the system property
 	 * or based on the number of available processors discovered at
 	 * runtime. The pool size can also be set by the property.
+	 * 
+	 * @param poolBaseName Name that will prefix threads.
 	 */
 	public DefaultExecutors() {
 		String poolSizeString = System.getProperty(POOL_SIZE_PROPERTY);
@@ -48,7 +57,7 @@ public class DefaultExecutors implements OddjobExecutors {
 		}
 		else {
 			poolSize = Integer.parseInt(poolSizeString);
-		}
+		}		
 	}
 		
 	/**
@@ -102,6 +111,13 @@ public class DefaultExecutors implements OddjobExecutors {
 		}
 	}
 
+	private synchronized ThreadFactory getThreadFactory() {
+		if (threadFactory == null) {
+			this.threadFactory = new OddjobThreadFactory(poolBaseName);
+		}
+		return threadFactory;
+	}
+	
 	/**
 	 * Provide lazy service starting.
 	 * 
@@ -114,7 +130,7 @@ public class DefaultExecutors implements OddjobExecutors {
 			logger.info("Starting Scheduled Exector with " + poolSize + " threads.");
 			
 			scheduledExecutorService = new OddjobScheduledExecutorService(
-					new ScheduledThreadPoolExecutor(poolSize));
+					new ScheduledThreadPoolExecutor(poolSize, getThreadFactory()));
 		}
 		
 		return scheduledExecutorService;		
@@ -134,7 +150,9 @@ public class DefaultExecutors implements OddjobExecutors {
 			poolExecutorService = new OddjobExecutorService(
 					new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
-                                      new SynchronousQueue<Runnable>()));
+                                      new SynchronousQueue<Runnable>(),
+                                      getThreadFactory()
+                                      ));
 		}
 		
 		return poolExecutorService;		
@@ -170,6 +188,15 @@ public class DefaultExecutors implements OddjobExecutors {
 	 */
 	public void setShareServices(boolean shareServices) {
 		this.shareServices = shareServices;
+	}
+	
+	
+	public String getPoolBaseName() {
+		return poolBaseName;
+	}
+
+	public void setPoolBaseName(String poolBaseName) {
+		this.poolBaseName = poolBaseName;
 	}
 
 	@Override

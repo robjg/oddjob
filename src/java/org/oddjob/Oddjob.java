@@ -541,7 +541,8 @@ implements Loadable,
 		OddjobExecutors oddjobExecutors = this.oddjobExecutors;
 		if (oddjobExecutors == null) {
 			if (oddjobServices == null) {
-				internalExecutors = new DefaultExecutors();			    	    
+				internalExecutors = new DefaultExecutors();
+				internalExecutors.setPoolBaseName(getName());
 				oddjobExecutors = internalExecutors;
 			}
 			else {
