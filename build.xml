@@ -84,6 +84,10 @@
 		<property name="tools.sources.jar.name"   	value="${tools.name}-${build.version}-sources.jar"/>
 		<property name="tools.javadoc.jar.name"  	value="${tools.name}-${build.version}-javadoc.jar"/>
 		
+        <property name="antlr.src.dir"              value="${src.dir}/antlr4"/>
+		<property name="generated.src.dir"			value="${build.dir}/generated"/>
+
+		
 		<!-- selector for run-oddjob.jar -->
 		
 		  <selector id="run.oddjob">
@@ -116,6 +120,8 @@
 
 		<ivy:cachepath pathid="test-cachepath" conf="test" />
 			
+        <ivy:cachepath pathid="antlr-classpath" conf="antlr" />
+
 		<path id="classpath">
 			<fileset dir="${lib.dir}">
 				<include name="*.jar"/>
@@ -139,6 +145,7 @@
 			<pathelement path="${build.classes}" />
 			<pathelement path="${build.tools.classes}" />
 		</path>
+		
 		
 		<mkdir dir="${build.dir}"/>
 
@@ -168,7 +175,20 @@
 				<include name="**/*.xsl"/>
 			</fileset>
 		</copy>
-	</target>
+		
+		<java classname="org.antlr.v4.Tool" classpathref="antlr-classpath" fork="true">
+			<arg value="-o"/>
+			<arg value="${generated.src.dir}/org/oddjob/state/antlr"/>
+			<arg value="-package"/>
+			<arg value="org.oddjob.state.antlr"/>
+			<arg value="${antlr.src.dir}/StateCondition.g4"/>
+		</java>
+		
+        <copy todir="${build.src}">
+            <fileset dir="${generated.src.dir}"/>
+        </copy>
+
+</target>
 
 	<target name="jar-sources" depends="prepare-src-main">
 	    <jar destfile="${build.dir}/${sources.jar.name}"

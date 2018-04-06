@@ -11,10 +11,19 @@ Changes in 1.6.0
 - Move Tests to JUnit 4.
 - Upgraded oj-ant to Ant 1.10.1
 - Migrated Logging to SLF4J
+- Migrated from Log4j to Logback as the default logging framework. (Log4j is still supported)
+- Add experimental feature of a state expression using ANTLR. See 
 
 Still Todo
 ----------
-- Add Security to the WebApp (with a Read Only role).  
+- Support State Expressions for triggering Jobs.
+- Add SSL to the web client/server.
+- Support all Methods in the Web client.
+- Add Security to the WebApp (with a Read Only role).
+- Enhance the Web Service to support everything the JMX server does.
+- Create a web client that provides everything the JMX client does.
+- Enhance the Web interface for cut and paste etc.
+- Add a multi-execution task interface.
 
 Deferred to A Later Version
 ---------------------------

@@ -7,6 +7,7 @@
         <conf name="launch" visibility="public"></conf>
         <conf name="tools" visibility="public"></conf>
         <conf name="test" extends="default,tools" visibility="public"></conf>
+        <conf name="antlr" visibility="public"></conf>
 	</configurations>  
         
 	<publications>
@@ -26,6 +27,10 @@
 			conf="test->default" />
         <dependency org="log4j" name="log4j" rev="1.2.17"
             conf="provided->default"/>
+        <dependency org="org.antlr" name="antlr4" rev="4.7.1"
+            conf="antlr->default"/>
+        <dependency org="org.antlr" name="antlr4-runtime" rev="4.7.1"
+            conf="default->default"/>
 	</dependencies>
   
 </ivy-module>

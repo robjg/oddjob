@@ -1,0 +1,32 @@
+<oddjob xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
+        xmlns:state="http://rgordon.co.uk/oddjob/state">
+    <job>
+        <sequential name="Trigger on Two Things">
+            <jobs>
+                <bean class="org.oddjob.scheduling.Trigger2" id="trigger">
+                    <trigger>
+                        <bean class="org.oddjob.scheduling.StateExpressionValue">
+thing1 is success and thing2 is success and not (thing3 is success or thing4 is success)
+                        </bean>
+                    </trigger>
+                    <job>
+                        <echo id="notify"
+                              name="Triggered Job">You ran two things!</echo>
+                    </job>
+                </bean>
+                <folder name="A Folder of Jobs">
+                    <jobs>
+                        <echo id="thing1"
+                              name="Run me!">Thank you</echo>
+                        <echo id="thing2"
+                              name="Run me!">Thank you</echo>
+                        <echo id="thing3"
+                              name="Don't Run me!">Uh oh!</echo>
+                        <echo id="thing4"
+                              name="Don't Run me!">Uh oh!</echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

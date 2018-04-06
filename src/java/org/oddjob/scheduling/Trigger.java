@@ -4,6 +4,7 @@
 package org.oddjob.scheduling;
 
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -117,7 +118,7 @@ public class Trigger extends ScheduleBase {
 	/** The schedule id. */
 	private transient Future<?> future;
 	
-	private transient StateListener listener;
+	private transient Restore restore;
 	
 	@ArooaHidden
 	@Inject
@@ -132,19 +133,22 @@ public class Trigger extends ScheduleBase {
 	
 	@Override
 	protected void begin() {
-			if (on == null) {
-				throw new NullPointerException("Nothing to trigger on.");
-			}
-			if (executors == null) {
-				throw new NullPointerException("No ExecutorService.");
-			}
-			
-			listener = new TriggerStateListener();
-			
-			on.addStateListener(listener);
-			
-			logger().info("Waiting for [" + on + "] to have state [" +
-					state + "]");
+		
+		if (on == null) {
+			throw new NullPointerException("Nothing to trigger on.");
+		}
+		if (executors == null) {
+			throw new NullPointerException("No ExecutorService.");
+		}
+		
+		StateListener listener = new TriggerStateListener();
+		
+		on.addStateListener(listener);
+		
+		restore = () -> on.removeStateListener(listener);
+		
+		logger().info("Waiting for [" + on + "] to have state [" +
+				state + "]");
 	}
 	
 	@Override
@@ -173,15 +177,7 @@ public class Trigger extends ScheduleBase {
 	 */
 	private void removeListener() {
 
-		StateListener listener = null;
-		
-		synchronized (this) {
-			listener = this.listener;
-			this.listener = null;
-		}
-		if (listener != null) {
-			on.removeStateListener(listener);
-		}
+		Optional.ofNullable(restore).ifPresent(Restore::close);		
 	}
 	
 	/**
@@ -234,7 +230,7 @@ public class Trigger extends ScheduleBase {
 	public void setOn(Stateful triggerOn) {
 		this.on = triggerOn;
 	}
-
+	
 	/**
 	 * Wrap the job. This is the Runnable that is submitted.
 	 */

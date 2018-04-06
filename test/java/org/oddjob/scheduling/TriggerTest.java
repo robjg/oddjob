@@ -2,21 +2,18 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.scheduling;
-import org.junit.Before;
-
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.Date;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.MockArooaSession;
@@ -40,6 +37,8 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -662,7 +661,7 @@ public class TriggerTest extends OjTestCase {
 		oddjob.destroy();
 	}
 	
-   @Test
+    @Test
 	public void testExample() throws InterruptedException {
 		
 
@@ -675,6 +674,8 @@ public class TriggerTest extends OjTestCase {
 		oddjob.setOddjobExecutors(services);
 				
 		oddjob.load();
+		
+		assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
@@ -705,8 +706,9 @@ public class TriggerTest extends OjTestCase {
 		
 		oddjob.destroy();
 	}
-	
-   @Test
+
+    
+    @Test
 	public void testCancelExample() throws InterruptedException {
 
 		DefaultExecutors services = new DefaultExecutors(); 

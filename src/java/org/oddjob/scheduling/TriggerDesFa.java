@@ -31,7 +31,7 @@ public class TriggerDesFa implements DesignFactory {
 
 class TriggerDesign extends BaseDC {
 
-	private final ReferenceAttribute on;;
+	private final ReferenceAttribute on;
 	
 	private final SimpleTextAttribute state;
 
