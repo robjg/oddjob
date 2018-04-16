@@ -1,5 +1,6 @@
 package org.oddjob.scheduling;
 
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -45,7 +46,12 @@ implements ValueFactory<Function<Consumer<Try<Boolean>>, Restore >>,
 		StateExpressionParser<StateExpression> expressionParser = new StateExpressionParser<>(
 			() -> new CaptureToExpression());		
 		
-		StateExpression expression = expressionParser.parse(nonNullExpr);
+		StateExpression expression;
+		try {
+			expression = expressionParser.parse(nonNullExpr);
+		} catch (ParseException e) {
+			throw new ArooaConversionException(e);
+		}
 
 		return new Function<Consumer<Try<Boolean>>, Restore>() {
 		

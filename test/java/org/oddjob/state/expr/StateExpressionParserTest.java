@@ -1,7 +1,9 @@
 package org.oddjob.state.expr;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -75,8 +77,22 @@ public class StateExpressionParserTest {
 			job3.run();
 			
 			assertThat(result.get().orElseThrow(), is(true));
-		}
-		
-		
+		}		
 	}
+
+	@Test
+	public void testBadGrammer() throws Exception {
+	
+		StateExpressionParser<StateExpression> test = 
+				new StateExpressionParser<>(() -> new CaptureToExpression());
+		
+		try {
+			test.parse("This wont work");
+			fail("Should fail");
+		}
+		catch (Exception e) {
+			assertThat(e.getMessage(), notNullValue());
+		}
+	}
+
 }

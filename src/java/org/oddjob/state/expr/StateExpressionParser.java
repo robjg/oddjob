@@ -1,9 +1,15 @@
 package org.oddjob.state.expr;
 
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Supplier;
 
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.RecognitionException;
+import org.antlr.v4.runtime.Recognizer;
 import org.antlr.v4.runtime.TokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
@@ -30,7 +36,7 @@ public class StateExpressionParser<T> {
 		this.captureSupplier = captureSupplier;
 	}
 	
-	public T parse(String text) {
+	public T parse(String text) throws ParseException {
 				
 		StateConditionLexer lexer = new StateConditionLexer(
 				CharStreams.fromString(text));
@@ -38,8 +44,18 @@ public class StateExpressionParser<T> {
 		TokenStream tokens = new CommonTokenStream(lexer);
 		
 		StateConditionParser parser = new StateConditionParser(tokens);
-		
+
+		ListErrorListener errorListener = new ListErrorListener();
+	
+		parser.removeErrorListeners();
+		parser.addErrorListener(errorListener);
+			
 		ParseTree tree = parser.stat();
+
+		if (errorListener.hasErrors()) {
+			throw new ParseException("Error parsing state expression: [" + text + "]\n" + 
+						errorListener.toString(), errorListener.getFirstErrorOffset());
+		}
 		
 		ParseTreeWalker walker = new ParseTreeWalker();
 
@@ -80,4 +96,43 @@ public class StateExpressionParser<T> {
 			capture.or();
 		}
 	}
+	
+	static class ListErrorListener extends BaseErrorListener {
+		
+		private final List<String> errors = new ArrayList<>();
+
+		private int firstError;
+		
+		@Override
+		public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine,
+				String msg, RecognitionException e) {
+
+			if (errors.isEmpty()) {
+				firstError = charPositionInLine;
+			}
+			errors.add("line" + line + ":"  + charPositionInLine + " " + msg);
+		}
+		
+		boolean hasErrors() {
+			return !errors.isEmpty();
+		}
+
+		int getFirstErrorOffset() {
+			return firstError;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder builder = new StringBuilder();
+			for (String error: errors) {
+				if (builder.length() > 0) {
+					builder.append("\n");
+				}
+				builder.append(error);
+			}
+			return builder.toString();
+		}
+	}
+	
+	
 }
