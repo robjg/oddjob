@@ -11,7 +11,7 @@ import org.oddjob.OjTestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.io.BufferType;
 import org.oddjob.jobs.ExecJob;
 import org.oddjob.jobs.WaitJob;

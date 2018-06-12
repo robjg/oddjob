@@ -6,6 +6,7 @@ import java.util.Map;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
 import org.oddjob.arooa.types.IsType;
+import org.oddjob.framework.extend.SimpleJob;
 
 /**
  * @oddjob.description Allows objects to be registered that will

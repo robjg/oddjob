@@ -2,7 +2,7 @@ package org.oddjob.jobs.structural;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.OptionallyTransient;
-import org.oddjob.framework.SimultaneousStructural;
+import org.oddjob.framework.extend.SimultaneousStructural;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.CascadeJob;
 import org.oddjob.state.StateOperator;

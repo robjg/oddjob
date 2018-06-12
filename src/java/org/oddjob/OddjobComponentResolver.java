@@ -9,12 +9,12 @@ import java.util.concurrent.Callable;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.framework.CallableProxyGenerator;
-import org.oddjob.framework.ServiceStrategies;
-import org.oddjob.framework.RunnableProxyGenerator;
-import org.oddjob.framework.ServiceAdaptor;
-import org.oddjob.framework.ServiceProxyGenerator;
-import org.oddjob.framework.WrapperInvocationHandler;
+import org.oddjob.framework.adapt.WrapperInvocationHandler;
+import org.oddjob.framework.adapt.job.CallableProxyGenerator;
+import org.oddjob.framework.adapt.job.RunnableProxyGenerator;
+import org.oddjob.framework.adapt.service.ServiceAdaptor;
+import org.oddjob.framework.adapt.service.ServiceProxyGenerator;
+import org.oddjob.framework.adapt.service.ServiceStrategies;
 
 /**
  * Possibly provide a proxy to use as the component. The proxy will provide

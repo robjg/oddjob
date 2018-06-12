@@ -10,10 +10,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.FileUtils;
+import org.oddjob.framework.adapt.HardReset;
+import org.oddjob.framework.adapt.SoftReset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.framework.HardReset;
-import org.oddjob.framework.SoftReset;
 
 
 /**

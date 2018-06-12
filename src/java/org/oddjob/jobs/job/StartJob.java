@@ -1,7 +1,7 @@
 package org.oddjob.jobs.job;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.state.MirrorState;
 import org.oddjob.util.OddjobConfigException;
 

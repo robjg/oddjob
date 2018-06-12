@@ -11,7 +11,7 @@ import org.oddjob.arooa.logging.Appender;
 import org.oddjob.arooa.logging.AppenderAdapter;
 import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.logging.LoggingEvent;
-import org.oddjob.framework.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundry;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;

@@ -9,7 +9,7 @@ import javax.management.ReflectionException;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.oddjob.framework.WrapDynaClass;
+import org.oddjob.framework.adapt.beanutil.WrapDynaClass;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;

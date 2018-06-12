@@ -14,9 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.oddjob.OjTestCase;
-
+import org.oddjob.framework.adapt.beanutil.WrapDynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.oddjob.framework.WrapDynaClass;
 
 public class WrapDynaClassTest extends OjTestCase {
 

@@ -26,7 +26,7 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.jobs.SequenceJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.state.TimerState;

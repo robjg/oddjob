@@ -20,8 +20,8 @@ import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusFilter;
 import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.Outbound;
-import org.oddjob.framework.ComponentWrapper;
-import org.oddjob.framework.DefaultInvocationHandler;
+import org.oddjob.framework.adapt.ComponentWrapper;
+import org.oddjob.framework.adapt.DefaultInvocationHandler;
 
 public class OutboundStratagiesTest extends OjTestCase {
 	

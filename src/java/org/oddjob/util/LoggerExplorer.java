@@ -8,8 +8,8 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.Destroy;
-import org.oddjob.framework.HardReset;
-import org.oddjob.framework.SoftReset;
+import org.oddjob.framework.adapt.HardReset;
+import org.oddjob.framework.adapt.SoftReset;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 

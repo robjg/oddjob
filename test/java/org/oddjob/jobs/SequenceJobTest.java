@@ -25,7 +25,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.describe.UniversalDescriber;
-import org.oddjob.framework.RunnableProxyGenerator;
+import org.oddjob.framework.adapt.job.RunnableProxyGenerator;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;

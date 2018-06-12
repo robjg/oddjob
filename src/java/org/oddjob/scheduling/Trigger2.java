@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.utils.Try;
-import org.oddjob.framework.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundry;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsAnyState;
@@ -37,7 +37,7 @@ import org.oddjob.util.Restore;
  */
 public class Trigger2 extends ScheduleBase {
 	
-	private static final long serialVersionUID = 2009031000L; 
+	private static final long serialVersionUID = 2018060600L; 
 	
 	/**
 	 * @oddjob.property

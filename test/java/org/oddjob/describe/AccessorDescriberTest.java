@@ -13,7 +13,7 @@ import org.oddjob.arooa.beanutils.MagicBeanDefinition;
 import org.oddjob.arooa.beanutils.MagicBeanDescriptorProperty;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.framework.WrapDynaBean;
+import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 
 public class AccessorDescriberTest extends OjTestCase {
 	

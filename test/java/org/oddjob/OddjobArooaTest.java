@@ -28,7 +28,7 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.ParentState;
 
 /**

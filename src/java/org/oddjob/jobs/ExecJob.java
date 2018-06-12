@@ -17,7 +17,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.utils.ArooaTokenizer;
 import org.oddjob.arooa.utils.QuoteTokenizerFactory;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.logging.ConsoleOwner;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogArchiver;

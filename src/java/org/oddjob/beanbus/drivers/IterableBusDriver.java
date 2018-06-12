@@ -8,8 +8,8 @@ import org.oddjob.Stoppable;
 import org.oddjob.beanbus.AbstractBusComponent;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.BusException;
-import org.oddjob.framework.HardReset;
-import org.oddjob.framework.SoftReset;
+import org.oddjob.framework.adapt.HardReset;
+import org.oddjob.framework.adapt.SoftReset;
 
 /**
  * A Runnable that can be used as an Oddjob job to take beans from an

@@ -27,7 +27,7 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;

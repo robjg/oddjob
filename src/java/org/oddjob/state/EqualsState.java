@@ -4,7 +4,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 
 /**
  * @oddjob.description

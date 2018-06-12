@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
-import org.oddjob.framework.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundry;
 import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;

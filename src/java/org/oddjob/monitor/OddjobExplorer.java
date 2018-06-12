@@ -64,7 +64,7 @@ import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SessionStateListener;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.monitor.context.AncestorSearch;
 import org.oddjob.monitor.control.PropertyPolling;
 import org.oddjob.monitor.model.ConfigContextInialiser;

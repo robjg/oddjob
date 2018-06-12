@@ -21,7 +21,7 @@ import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.tools.OddjobTestHelper;
 
 public class PersisterBaseTest extends OjTestCase {

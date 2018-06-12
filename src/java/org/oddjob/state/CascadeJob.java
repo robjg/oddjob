@@ -12,7 +12,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ExecutionWatcher;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.jobs.structural.SequentialJob;
 

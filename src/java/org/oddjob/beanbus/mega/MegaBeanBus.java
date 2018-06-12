@@ -25,7 +25,7 @@ import org.oddjob.beanbus.BusServiceProvider;
 import org.oddjob.beanbus.Outbound;
 import org.oddjob.beanbus.SimpleBusService;
 import org.oddjob.beanbus.TrackingBusListener;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
 

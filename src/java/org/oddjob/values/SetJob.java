@@ -9,7 +9,7 @@ import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 
 
 /**

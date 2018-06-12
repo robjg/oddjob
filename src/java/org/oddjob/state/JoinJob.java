@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.util.OddjobConfigException;
 
 /**

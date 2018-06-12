@@ -22,7 +22,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;

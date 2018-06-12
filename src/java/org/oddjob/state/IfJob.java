@@ -13,8 +13,8 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.registry.ServiceFinder;
-import org.oddjob.framework.AsyncExecutionSupport;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
+import org.oddjob.framework.util.AsyncExecutionSupport;
 
 /**
  * @oddjob.description

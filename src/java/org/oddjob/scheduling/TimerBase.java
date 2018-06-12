@@ -19,7 +19,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.framework.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundry;
 import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;

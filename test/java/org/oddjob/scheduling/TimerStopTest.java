@@ -19,7 +19,7 @@ import org.mockito.internal.matchers.CapturingMatcher;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;

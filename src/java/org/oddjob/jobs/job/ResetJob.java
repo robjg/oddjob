@@ -2,7 +2,7 @@ package org.oddjob.jobs.job;
 
 import org.oddjob.Forceable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.persist.FilePersister;
 
 /**

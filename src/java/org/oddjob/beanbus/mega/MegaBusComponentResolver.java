@@ -9,7 +9,7 @@ import java.util.Collection;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.framework.WrapperInvocationHandler;
+import org.oddjob.framework.adapt.WrapperInvocationHandler;
 
 /**
  * Possibly provide a proxy to use as the component. 

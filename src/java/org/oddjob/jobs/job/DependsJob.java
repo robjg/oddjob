@@ -3,7 +3,7 @@ package org.oddjob.jobs.job;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;

@@ -3,7 +3,7 @@ package org.oddjob.swing;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 
 public class ConfirmationJob extends SerializableJob {
 	private static final long serialVersionUID = 2010010600L;

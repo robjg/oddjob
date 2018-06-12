@@ -2,7 +2,7 @@ package org.oddjob.persist;
 
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersister;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 

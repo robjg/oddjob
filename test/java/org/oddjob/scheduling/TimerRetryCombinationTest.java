@@ -21,7 +21,7 @@ import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.persist.ArchiveBrowserJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.scheduling.state.TimerState;

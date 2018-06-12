@@ -20,7 +20,7 @@ import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.ListSetterHelper;
-import org.oddjob.framework.SimpleService;
+import org.oddjob.framework.extend.SimpleService;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.jobs.job.ResetActions;

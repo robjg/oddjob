@@ -1,7 +1,7 @@
 package org.oddjob.state;
 
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.io.ExistsJob;
 
 /**

@@ -6,8 +6,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import org.oddjob.OjTestCase;
-
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.tools.OddjobTestHelper;

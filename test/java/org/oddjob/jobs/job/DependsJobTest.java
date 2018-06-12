@@ -6,9 +6,8 @@ package org.oddjob.jobs.job;
 import org.junit.Test;
 
 import org.oddjob.OjTestCase;
-
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.MockStateful;
-import org.oddjob.framework.SimpleJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.JobStateHandler;
 import org.oddjob.state.StateListener;

@@ -20,7 +20,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.scheduling.DefaultExecutors;

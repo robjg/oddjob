@@ -11,7 +11,7 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.scheduling.MockScheduledFuture;
 import org.oddjob.state.FlagState;

@@ -4,7 +4,7 @@
 package org.oddjob.state;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 
 /**
  * @oddjob.description

@@ -7,7 +7,7 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.OddjobException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;

@@ -19,7 +19,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
-import org.oddjob.framework.StopWait;
+import org.oddjob.framework.util.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;

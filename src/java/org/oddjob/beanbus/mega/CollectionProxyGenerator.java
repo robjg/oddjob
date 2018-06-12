@@ -9,9 +9,9 @@ import org.oddjob.Describeable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.framework.ComponentWrapper;
-import org.oddjob.framework.ProxyGenerator;
-import org.oddjob.framework.WrapperFactory;
+import org.oddjob.framework.adapt.ComponentWrapper;
+import org.oddjob.framework.adapt.ProxyGenerator;
+import org.oddjob.framework.adapt.WrapperFactory;
 import org.oddjob.logging.LogEnabled;
 
 /**

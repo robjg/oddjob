@@ -1,7 +1,7 @@
 package org.oddjob.state;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.framework.SimultaneousStructural;
+import org.oddjob.framework.extend.SimultaneousStructural;
 
 /**
  * Base class for Jobs that are designed purely to reflect the state of 

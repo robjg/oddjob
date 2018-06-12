@@ -17,7 +17,7 @@ import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;

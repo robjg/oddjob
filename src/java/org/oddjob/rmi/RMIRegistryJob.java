@@ -3,7 +3,7 @@ package org.oddjob.rmi;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.ExportException;
 
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 
 /**
  * @oddjob.description A job which creates an RMI registry.

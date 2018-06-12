@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobRunner.ExitHandler;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;

@@ -27,7 +27,7 @@ import javax.script.Invocable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.util.OddjobConfigException;
 
 /**

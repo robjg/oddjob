@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.IsStoppable;

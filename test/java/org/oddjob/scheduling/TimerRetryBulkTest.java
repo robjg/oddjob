@@ -6,10 +6,9 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.oddjob.OjTestCase;
-
+import org.oddjob.framework.extend.SimpleJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.framework.SimpleJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.schedules.schedules.NowSchedule;
 import org.oddjob.scheduling.state.TimerState;

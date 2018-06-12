@@ -9,7 +9,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaElement;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsStoppable;

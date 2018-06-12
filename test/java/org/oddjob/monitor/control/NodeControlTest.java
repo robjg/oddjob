@@ -23,7 +23,7 @@ import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.monitor.context.ContextInitialiser;

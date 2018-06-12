@@ -12,7 +12,7 @@ import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListener;
 import org.oddjob.beanbus.destinations.Batcher;
 import org.oddjob.beanbus.destinations.BeanCapture;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 

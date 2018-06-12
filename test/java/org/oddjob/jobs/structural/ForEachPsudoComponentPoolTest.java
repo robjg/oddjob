@@ -21,7 +21,7 @@ import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.LinkedBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 

@@ -1,5 +1,5 @@
 
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 
 public class AJob extends SimpleJob {
 	

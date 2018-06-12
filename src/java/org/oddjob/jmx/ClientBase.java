@@ -16,7 +16,7 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.framework.SimpleService;
+import org.oddjob.framework.extend.SimpleService;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.ServiceState;
 

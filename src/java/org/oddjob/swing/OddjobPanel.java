@@ -42,7 +42,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
-import org.oddjob.framework.SimpleService;
+import org.oddjob.framework.extend.SimpleService;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.input.InputHandler;

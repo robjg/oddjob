@@ -9,7 +9,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.framework.ExecutionWatcher;
-import org.oddjob.framework.StructuralJob;
+import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.monitor.model.FileHistory;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;

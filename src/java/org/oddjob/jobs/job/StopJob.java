@@ -3,7 +3,7 @@ package org.oddjob.jobs.job;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.framework.SerializableJob;
+import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.jmx.JMXClientJob;
 
 /**

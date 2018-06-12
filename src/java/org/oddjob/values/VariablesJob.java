@@ -16,7 +16,7 @@ import org.apache.commons.beanutils.MutableDynaClass;
 import org.oddjob.arooa.ArooaConstants;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
-import org.oddjob.framework.SimpleJob;
+import org.oddjob.framework.extend.SimpleJob;
 
 
 /**
