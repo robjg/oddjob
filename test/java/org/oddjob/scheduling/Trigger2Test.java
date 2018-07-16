@@ -2,6 +2,8 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.scheduling;
+import static org.hamcrest.CoreMatchers.is;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -39,6 +41,8 @@ public class Trigger2Test extends OjTestCase {
  				getClass().getClassLoader()));
  				
  		oddjob.load();
+
+ 		assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
  		
  		OddjobLookup lookup = new OddjobLookup(oddjob);
  		

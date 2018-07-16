@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Exchanger;
@@ -291,7 +292,7 @@ public class ForEachParallelTest extends OjTestCase {
 	
 	private class ChildTracker implements StructuralListener {
 		
-		List<Object> children = new ArrayList<Object>();
+		List<Object> children = Collections.synchronizedList(new ArrayList<Object>());
 		
 		Exchanger<Stateful> lastChild;
 				

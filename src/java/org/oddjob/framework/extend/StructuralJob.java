@@ -188,6 +188,11 @@ implements
 		}
 	}
 	
+	protected void stopChildStateReflector() {
+		childStateReflector.stop();
+		logger().debug("Child State Reflector Stopped.");
+	}
+	
 	/**
 	 * Implementation for a typical stop. 
 	 * <p>

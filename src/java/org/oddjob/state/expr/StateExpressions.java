@@ -35,7 +35,7 @@ public class StateExpressions {
 		}
 		
 		@Override
-		public Restore evaluate(ArooaSession session, Consumer<Try<Boolean>> results) {
+		public Restore evaluate(ArooaSession session, Consumer<? super Try<Boolean>> results) {
 			
 			Stateful stateful;
 			try {
@@ -85,7 +85,7 @@ public class StateExpressions {
 		}
 
 		@Override
-		public Restore evaluate(ArooaSession session, Consumer<Try<Boolean>> results) {
+		public Restore evaluate(ArooaSession session, Consumer<? super Try<Boolean>> results) {
 			
 			AtomicReference<Try<Boolean>> lResult = new AtomicReference<>();
 			AtomicReference<Try<Boolean>> rResult = new AtomicReference<>();			
@@ -136,7 +136,7 @@ public class StateExpressions {
 		}
 
 		@Override
-		public Restore evaluate(ArooaSession session, Consumer<Try<Boolean>> results) {
+		public Restore evaluate(ArooaSession session, Consumer<? super Try<Boolean>> results) {
 			
 			return expr.evaluate(session, 
 					r -> results.accept(r.map(b -> !b)));

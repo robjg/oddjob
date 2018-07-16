@@ -3,16 +3,14 @@
     <job>
         <sequential name="Trigger on Two Things">
             <jobs>
-                <bean class="org.oddjob.scheduling.Trigger2" id="trigger">
-                    <trigger>
-                        <bean class="org.oddjob.state.expr.StateExpressionValue">
+                <bean class="org.oddjob.events.Trigger" id="trigger">
+                    <jobs>
+                        <bean class="org.oddjob.state.expr.StateExpressionNode">
 thing1 is success and thing2 is success and not (thing3 is success or thing4 is success)
                         </bean>
-                    </trigger>
-                    <job>
                         <echo id="notify"
                               name="Triggered Job">You ran two things!</echo>
-                    </job>
+                    </jobs>
                 </bean>
                 <folder name="A Folder of Jobs">
                     <jobs>

@@ -32,6 +32,9 @@ public class IconHelper implements Iconic {
 	public static final String STOPPED= "stopped";
 	public static final String STARTED = "started"; 
 	public static final String ACTIVE = "active"; 
+	public static final String WAITING = "waiting"; 
+	public static final String FIRING = "firing"; 
+	public static final String TRIGGERED = "triggered"; 
 	public static final String INVALID = "invalid"; 
 	
 	public static final ImageIcon nullIcon
@@ -104,6 +107,21 @@ public class IconHelper implements Iconic {
 			IconHelper.class.getResource("right_green.gif"),
 			"Active");
 	
+	public static final ImageIcon waitingIcon
+	= new ImageIconStable(
+		IconHelper.class.getResource("diamond_blue.gif"),
+		"Waiting");
+
+	public static final ImageIcon firingIcon
+	= new ImageIconStable(
+		IconHelper.class.getResource("star_red.gif"),
+		"Firing");
+	
+	public static final ImageIcon triggeredIcon
+	= new ImageIconStable(
+		IconHelper.class.getResource("star_green.gif"),
+		"Triggered");
+
 	private static Map<String, ImageIcon> defaultIconMap = 
 		new ConcurrentHashMap<String, ImageIcon>();
 
@@ -121,6 +139,9 @@ public class IconHelper implements Iconic {
 		defaultIconMap.put(INVALID, invalidIcon);
 		defaultIconMap.put(EXCEPTION, exceptionIcon);
 		defaultIconMap.put(STARTED, startedIcon);
+		defaultIconMap.put(WAITING, waitingIcon);
+		defaultIconMap.put(FIRING, firingIcon);
+		defaultIconMap.put(TRIGGERED, triggeredIcon);
 		defaultIconMap.put(ACTIVE, activeIcon);
 	}
 

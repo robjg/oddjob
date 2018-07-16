@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -130,10 +131,10 @@ public class StateExpressionsTest {
 		lhsConsumer.get().accept(Try.fail(new Exception("Doh!")));
 
 		try {
-			result.get().orElseThrow();
+			result.get().orElseThrow(Function.identity());
 			fail("Should throw an Exception");
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			assertThat(e.getMessage(), is("Doh!"));
 		}
 		
@@ -141,10 +142,10 @@ public class StateExpressionsTest {
 		rhsConsumer.get().accept(Try.fail(new Exception("Doh!")));
 		
 		try {
-			result.get().orElseThrow();
+			result.get().orElseThrow(Function.identity());
 			fail("Should throw an Exception");
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			assertThat(e.getMessage(), is("Doh!"));
 		}
 		
@@ -225,10 +226,10 @@ public class StateExpressionsTest {
 		lhsConsumer.get().accept(Try.fail(new Exception("Doh!")));
 
 		try {
-			result.get().orElseThrow();
+			result.get().orElseThrow(Function.identity());
 			fail("Should throw an Exception");
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			assertThat(e.getMessage(), is("Doh!"));
 		}
 		
@@ -236,10 +237,10 @@ public class StateExpressionsTest {
 		rhsConsumer.get().accept(Try.fail(new Exception("Doh!")));
 		
 		try {
-			result.get().orElseThrow();
+			result.get().orElseThrow(Function.identity());
 			fail("Should throw an Exception");
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			assertThat(e.getMessage(), is("Doh!"));
 		}
 		
@@ -300,10 +301,10 @@ public class StateExpressionsTest {
 		exprConsumer.get().accept(Try.fail(new Exception("Doh!")));
 
 		try {
-			result.get().orElseThrow();
+			result.get().orElseThrow(Function.identity());
 			fail("Should throw an Exception");
 		}
-		catch (Exception e) {
+		catch (Throwable e) {
 			assertThat(e.getMessage(), is("Doh!"));
 		}
 		

@@ -139,6 +139,7 @@ implements
 	 * Implement the main execute method for a job. This surrounds the 
 	 * doExecute method of the sub class and sets state for the job.
 	 */
+	@Override
 	public final void run() {
 		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
@@ -195,6 +196,7 @@ implements
 	 * to manually started jobs.
 	 * @throws FailedToStopException 
 	 */
+	@Override
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 

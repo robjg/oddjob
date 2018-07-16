@@ -72,7 +72,7 @@ public class Trigger2 extends ScheduleBase {
 		Objects.requireNonNull(trigger, "No Trigger.");
 
 		restore = trigger.apply(result -> {
-			if (result.orElse( e -> {
+			if (result.recover( e -> {
 				stateHandler.waitToWhen(new IsAnyState(), 
 						() -> getStateChanger().setStateException(e));					
 				removeListener();

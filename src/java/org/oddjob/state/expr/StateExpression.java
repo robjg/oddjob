@@ -24,6 +24,6 @@ public interface StateExpression {
 	 * 
 	 * @return Something that can be used to stop and cleanup the evaluation.
 	 */
-	Restore evaluate(ArooaSession session, Consumer<Try<Boolean>> results);
+	Restore evaluate(ArooaSession session, Consumer<? super Try<Boolean>> results);
 	
 }
