@@ -59,11 +59,9 @@ import org.oddjob.util.Restore;
  * @oddjob.description 
  * 
  */
-public class ForEvents<T> extends SubscribeNodeBase<List<T>>
+public class ForEvents<T> extends EventSourceBase<List<T>>
 implements Structural, ConfigurationOwner {
 
-	private static final long serialVersionUID = 200903212011060700L;
-	
     /** Root element for configuration. */
     public static final ArooaElement FOREACH_ELEMENT = 
     	new ArooaElement("events");
@@ -239,7 +237,7 @@ implements Structural, ConfigurationOwner {
 			return null;
 		}
 		
-	    if (! (root instanceof SubscribeNode<?>)) {
+	    if (! (root instanceof EventSource<?>)) {
 	    	throw new UnsupportedOperationException("Job " + root + 
 	    			" not a SubscribeNode.");
 	    }	    
@@ -252,7 +250,7 @@ implements Structural, ConfigurationOwner {
 		
 		// Must happen after configure so we see the correct value
 		// in the job tree.
-		childHelper.addChild((SubscribeNode<Object>) root);
+		childHelper.addChild((EventSource<Object>) root);
 		
 	    return root;
 	}
@@ -326,6 +324,7 @@ implements Structural, ConfigurationOwner {
 	}	
 	
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Restore doStart(Consumer<? super List<T>> consumer) throws Exception {
 
@@ -336,11 +335,11 @@ implements Structural, ConfigurationOwner {
 					() -> getStateChanger().setStateException(e));
 		}
 
-		List<SubscribeNode<T>> susbscribeNodes = new ArrayList<>();
+		List<EventSource<T>> susbscribeNodes = new ArrayList<>();
 		
 		for (Object child : childHelper) {
-			if (child instanceof SubscribeNode<?>) {
-				susbscribeNodes.add((SubscribeNode<T>) child);
+			if (child instanceof EventSource<?>) {
+				susbscribeNodes.add((EventSource<T>) child);
 			}
 		}
 		

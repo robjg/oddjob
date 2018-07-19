@@ -6,12 +6,16 @@ package org.oddjob.events;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.inject.Inject;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -92,12 +96,10 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		// we start this ourselves
 	}
 	
-	abstract protected SwitchoverStrategy getSwitchoverStrategy();
-
-
 	@Override
 	protected void execute() throws Throwable {
-		Object[] children = childHelper.getChildren();
+
+		final Object[] children = childHelper.getChildren();
 		
 		if (children.length < 1) {
 			throw new IllegalArgumentException("No When Node.");
@@ -106,32 +108,34 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		asyncSupport.reset();
 
 		@SuppressWarnings("unchecked")
-		SubscribeNode<? super T> when = (SubscribeNode<? super T>) children[0];
+		final EventSource<T> eventSource = (EventSource<T>) children[0];
 		
-		Object job;
+		final Object job;
 		if (children.length > 1) {
-			job = children[1];			
+			job = children[1];
 		}
 		else {
 			job = null;
 		}
 		
-		Restore close = when.start(
-				v -> {
+		Executor executor = j -> {
+			try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
+				asyncSupport.submitJob(executorService, j);
+				asyncSupport.startWatchingJobs();
+				logger().info("Submitted [" + j + "]");				
+			}
+		};
+		
+		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
+		consumer.set(
+				event -> {
 					try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
-						stopChildStateReflector();
-						getSwitchoverStrategy().switchover(
-							() -> current = v, 
-							job,
-							j -> {
-								asyncSupport.submitJob(executorService, j);
-								asyncSupport.startWatchingJobs();
-								logger().info("Submitted [" + j + "]");
-	
-							});
+						onImmediateEvent(event);
 					}
-				});		
-				
+				});
+
+		Restore close = eventSource.start(event -> consumer.get().accept(event));
+
 		if (job == null) {
 			EventJobBase.super.startChildStateReflector();
 		}
@@ -140,12 +144,32 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 					() -> getStateChanger().setState(ParentState.ACTIVE));
 		}
 
+		consumer.set(
+				event -> {
+					try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
+						childStateReflector.stop();
+						onLaterEvent(event, job, executor);
+						if (job == null) {
+							childStateReflector.start();
+						}
+					}
+				});
+		
 		restore = () -> {
 			close.close();
 			restore = null;
 			
 		};
+		
+		onSubscriptonStarted(job, executor);		
 	}
+
+	abstract void onImmediateEvent(T event);
+
+	abstract void onSubscriptonStarted(Object job, Executor executor);
+	
+	abstract void onLaterEvent(T event, Object job, Executor executor);
+
 	
 	@Override
 	protected void onStop() {
@@ -154,11 +178,15 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		Optional.ofNullable(restore).ifPresent(Restore::close);		
 	}
 	
-//	@Override
-//	protected void postStop() {
-//	    childStateReflector.start();
-//	}
-				
+	@Override
+	protected void postStop() throws FailedToStopException {
+		super.startChildStateReflector();
+	}
+					
+	protected void setCurrent(Object current) {
+		this.current = current;
+	}
+	
 	public Object getCurrent() {
 		return current;
 	}
@@ -186,12 +214,40 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 			childHelper.insertChild(index, child);
 		}
 	}
+	
+	protected static class ExecutionContext<T> {
+		
+		private final EventSource<T> eventSource;
+		
+		private final Optional<Object> job;
+		
+		private final ExecutorService executorService;
+		
+		protected ExecutionContext(EventSource<T> eventSource,
+									Object job,
+									ExecutorService executorService) {
+			Objects.requireNonNull(eventSource, "Ann Event Source must be provided.");
+			Objects.requireNonNull(executorService, "An Executor Service must be provided.");
+			
+			this.eventSource = eventSource;
+			this.job = Optional.ofNullable(job);
+			this.executorService = executorService;
+		}
 
-	
-	public interface SwitchoverStrategy {
-	
-		void switchover(Runnable changeValues, Object job, Executor exector);
-	}	
+		public EventSource<T> getEventSource() {
+			return eventSource;
+		}
+
+		public Optional<Object> getJob() {
+			return job;
+		}
+
+		public ExecutorService getExecutorService() {
+			return executorService;
+		}
+
+		
+	}
 	
 	/*
 	 * Custom serialization.

@@ -13,7 +13,7 @@ public class AllEvents<T> {
 	
 	@SuppressWarnings("unchecked")
 	public Restore start( List<T> previous, 
-			List<? extends SubscribeNode<? extends T>> nodes, 
+			List<? extends EventSource<? extends T>> nodes, 
 			Consumer<? super List<T>> results) throws Exception {
 	
 		final Object[] values;

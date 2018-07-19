@@ -3,6 +3,7 @@
  */
 package org.oddjob.events;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -12,13 +13,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,6 +29,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.events.state.EventState;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
@@ -49,7 +51,7 @@ public class TriggerTest extends OjTestCase {
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 
-	private static class OurSubscribeable extends SubscribeNodeBase<Integer> {
+	private static class OurSubscribeable extends EventSourceBase<Integer> {
 
 		final List<Integer> ints = Arrays.asList(1, 2, 3);
 		
@@ -64,6 +66,7 @@ public class TriggerTest extends OjTestCase {
 		}
 		
 		void next() {
+			Objects.requireNonNull(consumer);
 			consumer.accept(ints.get(index.getAndIncrement()));
 		}
 	}; 
@@ -118,14 +121,156 @@ public class TriggerTest extends OjTestCase {
 		
 		states.checkNow();
 
-		assertThat(subscribe.consumer, CoreMatchers.nullValue());
+		assertThat(subscribe.consumer, nullValue());
 
 		assertThat(results.get(0), is(1));
 		assertThat(results.size(), is(1));
 		
 		verify(future, times(0)).cancel(true);
 	}
-        
+
+	@Test
+	public void testStopUntriggered() throws FailedToStopException {
+		
+		OurSubscribeable subscribe = new OurSubscribeable();
+		
+		ExecutorService executorService = mock(ExecutorService.class);
+		
+		Trigger<Number> test = new Trigger<Number>(); 
+
+		SimpleJob job = new SimpleJob() {
+
+			protected int execute() throws Throwable {
+				throw new RuntimeException("Unexpected");
+			}
+		};
+		
+		test.setJobs(0, subscribe);
+		test.setJobs(1, job);
+		test.setExecutorService(executorService);
+		test.initialise();
+		
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		
+		test.run();
+
+		states.checkNow();
+
+		states.startCheck(ParentState.ACTIVE, ParentState.INCOMPLETE);
+
+		test.stop();
+		
+		states.checkNow();
+
+		Mockito.verifyZeroInteractions(executorService);
+	}
+	
+	@Test
+	public void testNoChildJob() throws FailedToStopException {
+		
+		OurSubscribeable subscribe = new OurSubscribeable();
+				
+		ExecutorService executorService = mock(ExecutorService.class);
+		
+		Trigger<Number> test = new Trigger<Number>(); 
+
+		test.setJobs(0, subscribe);
+		test.setExecutorService(executorService);
+		test.initialise();
+		
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+		StateSteps subscribeStates = new StateSteps(subscribe);
+		subscribeStates.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
+		
+		test.run();
+
+		subscribeStates.checkNow();
+		testStates.checkNow();
+
+		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		subscribeStates.startCheck(EventState.WAITING, EventState.FIRING, EventState.COMPLETE);
+		
+		subscribe.next();
+		
+		assertThat(test.getCurrent(), is(1));
+		
+		subscribeStates.checkNow();
+		testStates.checkNow();
+		
+		assertThat(subscribe.consumer, nullValue());
+		
+		testStates.startCheck(ParentState.COMPLETE);
+
+		test.stop();
+		
+		testStates.checkNow();
+
+		Mockito.verifyZeroInteractions(executorService);
+	}
+	
+	private static class SendWhenConnecting extends EventSourceBase<Integer> {
+		
+		@Override
+		protected Restore doStart(Consumer<? super Integer> consumer) {
+			consumer.accept(42);;
+			return () -> {};
+		}
+		
+	}; 
+	
+
+	@Test
+	public void testJobExecutedQuickly() throws FailedToStopException {
+		
+		ExecutorService executorService = mock(ExecutorService.class);
+		
+		Future<?> future = mock(Future.class);
+		doAnswer(invocation -> {
+			invocation.getArgumentAt(0, Runnable.class).run();
+			return future;
+			}).when(executorService).submit(Mockito.any(Runnable.class));
+
+		Trigger<Number> test = new Trigger<Number>(); 
+
+		List<Object> results = new ArrayList<>();
+
+		SimpleJob job = new SimpleJob() {
+
+			protected int execute() throws Throwable {
+				results.add(test.getCurrent());
+				return 0;
+			}
+			
+			@Override
+			public String toString() {
+				return "Our Job";
+			}
+		};
+		
+		test.setJobs(0, new SendWhenConnecting());
+		test.setJobs(1, job);
+		test.setExecutorService(executorService);
+		test.initialise();
+		
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, 
+				ParentState.EXECUTING, 
+				ParentState.ACTIVE, 
+				ParentState.COMPLETE);
+		
+		test.run();
+
+		states.checkNow();
+
+		assertThat(results.get(0), is(42));
+		assertThat(results.size(), is(1));
+		
+		verify(future, times(0)).cancel(true);
+	}
+	
+	
     @Test
  	public void testExpressionExample() throws InterruptedException {
  		

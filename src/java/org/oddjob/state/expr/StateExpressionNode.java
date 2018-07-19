@@ -5,19 +5,19 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.oddjob.arooa.deploy.annotations.ArooaText;
-import org.oddjob.events.SubscribeNodeBase;
-import org.oddjob.scheduling.Trigger2;
+import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.Trigger;
 import org.oddjob.util.Restore;
 
 /**
  * Provide a State Expression.
  * 
- * @see Trigger2
+ * @see Trigger
  * 
  * @author rob
  *
  */
-public class StateExpressionNode extends SubscribeNodeBase<Boolean> {
+public class StateExpressionNode extends EventSourceBase<Boolean> {
 
 	private String expression;
 	

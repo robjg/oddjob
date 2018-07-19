@@ -3,7 +3,9 @@
  */
 package org.oddjob.events;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
@@ -25,42 +27,48 @@ import org.oddjob.Stoppable;
 public class When<T> extends EventJobBase<T> {
 	
 	private static final long serialVersionUID = 2018060600L; 
+
+	private final AtomicReference<T> eventRef = new AtomicReference<>();
+
+	@Override
+	void onImmediateEvent(T event) {
+		eventRef.set(event);
+	}
 	
 	@Override
-	protected SwitchoverStrategy getSwitchoverStrategy() {
-		return new StopStartSwitchover();
+	synchronized void onSubscriptonStarted(Object job, Executor executor) {
+		Optional.ofNullable(eventRef.getAndSet(null)).ifPresent(
+				e -> trigger(e, job, executor));
 	}
-
 	
-	static class StopStartSwitchover implements SwitchoverStrategy {
-		
-		
-		@Override
-		public void switchover(Runnable changeValues, Object job, Executor executor) {
+	@Override
+	synchronized void onLaterEvent(T event, Object job, Executor executor) {
+		trigger(event, job, executor);
+	}
+	
+	void trigger(T event, Object job, Executor executor) {
 
-			if (job != null) {
-				if (job instanceof Stoppable) {
+		if (job != null) {
+			if (job instanceof Stoppable) {
 
-					try {
-						((Stoppable) job).stop();
-					} catch (FailedToStopException e) {
-						throw new RuntimeException(e);
-					}
-				}
-			
-				if (job instanceof Resetable) {
-					((Resetable) job).hardReset();
+				try {
+					((Stoppable) job).stop();
+				} catch (FailedToStopException e) {
+					throw new RuntimeException(e);
 				}
 			}
+		
+			if (job instanceof Resetable) {
+				((Resetable) job).hardReset();
+			}
+		}
 
-			changeValues.run();
-			
-			if (job != null) {
-				if (job != null && job instanceof Runnable) {
-					executor.execute((Runnable) job);
-				}
+		setCurrent(event);
+		
+		if (job != null) {
+			if (job != null && job instanceof Runnable) {
+				executor.execute((Runnable) job);
 			}
 		}
 	}
-	
 }

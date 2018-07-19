@@ -1,12 +1,12 @@
 package org.oddjob.events.state;
 
-import org.oddjob.events.SubscribeNode;
+import org.oddjob.events.EventSource;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.State;
 
 /**
- * Encapsulate the allowed states for a {@link SubscribeNode}.
+ * Encapsulate the allowed states for a {@link EventSource}.
  * 
  * @author Rob Gordon
  */

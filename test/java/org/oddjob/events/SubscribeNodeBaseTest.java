@@ -13,7 +13,7 @@ import org.oddjob.util.Restore;
 
 public class SubscribeNodeBaseTest {
 
-	private class OurSubscriber extends SubscribeNodeBase<Integer> {
+	private class OurSubscriber extends EventSourceBase<Integer> {
 		
 		private Consumer<? super Integer> consumer;
 		
@@ -71,7 +71,7 @@ public class SubscribeNodeBaseTest {
 		
 		Consumer<Number> consumer = v -> {};
 		
-		SubscribeNodeBase<Integer> test = new SubscribeNodeBase<Integer>() {
+		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
 			protected Restore doStart(Consumer<? super Integer> consumer) {
@@ -100,7 +100,7 @@ public class SubscribeNodeBaseTest {
 		
 		Consumer<Number> consumer = v -> {};
 		
-		SubscribeNodeBase<Integer> test = new SubscribeNodeBase<Integer>() {
+		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
 			protected Restore doStart(Consumer<? super Integer> consumer) {
@@ -127,7 +127,7 @@ public class SubscribeNodeBaseTest {
 				
 		Consumer<Number> consumer = v -> {};
 		
-		SubscribeNodeBase<Integer> test = new SubscribeNodeBase<Integer>() {
+		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
 			protected Restore doStart(Consumer<? super Integer> consumer) {

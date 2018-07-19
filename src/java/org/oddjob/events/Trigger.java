@@ -1,51 +1,60 @@
 package org.oddjob.events;
 
+import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Trigger<T> extends EventJobBase<T> {
 
 	private static final long serialVersionUID = 2018071300L; 
 
-	private volatile transient SwitchoverStrategy switchOverStrategy;
+	private final AtomicBoolean ran = new AtomicBoolean();
 
-	@Override
-	protected void onInitialised() {
-		switchOverStrategy = new RunOnceSwitchover();
-		super.onInitialised();
-	}
+	private final AtomicReference<T> eventRef = new AtomicReference<>();
 	
-	@Override
-	protected SwitchoverStrategy getSwitchoverStrategy() {
-		return switchOverStrategy;
-	}
-
 	@Override
 	protected void onReset() {
-		switchOverStrategy = new RunOnceSwitchover();
+		ran.set(false);
+		eventRef.set(null);
 		super.onReset();
 	}
+
+	@Override
+	void onImmediateEvent(T value) {
+		if (ran.getAndSet(true)) {
+			return;
+		}
+		eventRef.set(value);
+		
+	}
 	
-	class RunOnceSwitchover implements SwitchoverStrategy {
+	@Override
+	void onSubscriptonStarted(Object job, Executor executor) {
+		Optional.ofNullable(eventRef.get()).ifPresent(
+				e -> trigger(e, job, executor));
+	}
+
+	@Override
+	void onLaterEvent(T value, Object job, Executor executor) {
+		if (ran.getAndSet(true)) {
+			return;
+		}		
+		trigger( value, job, executor);
+	}
+	
+	private void trigger(T event, Object job, Executor executor) {
 		
-		private final Semaphore ran = new Semaphore(1);
-		
-		@Override
-		public void switchover(Runnable changeValues, Object job, Executor executor) {
-			
-			if (!ran.tryAcquire()) {
-				return;
-			}
-			
-			onStop();
-			changeValues.run();
-			
-			if (job != null) {
-				if (job != null && job instanceof Runnable) {
-					executor.execute((Runnable) job);
-				}
+		onStop();
+		setCurrent(event);
+		if (job != null) {
+			if (job instanceof Runnable) {
+				executor.execute((Runnable) job);
 			}
 		}
 	}
 	
+	public AtomicBoolean getRan() {
+		return ran;
+	}
 }

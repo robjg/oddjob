@@ -13,24 +13,28 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.events.state.EventState;
+import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 
 public class ForEventsTest {
 
-	public static class SubscribeInts implements SubscribeNode<Integer> {
+	public static class SubscribeInts extends EventSourceBase<Integer> {		
+
 		@Override
-		public Restore start(Consumer<? super Integer> consumer) {
+		protected Restore doStart(Consumer<? super Integer> consumer) throws Exception {
 			IntStream.of(1, 2, 3).forEach(consumer::accept);;
 			return () -> {};
-		}
+		}		
 	}
 
 	@Test
 	public void givenHappyPathThenWorks() throws Exception {
 
-		String xml = "<events>" + 
+		String xml = "<events id='x'>" + 
 					"<job>"
-					+ "<bean class='"	+ SubscribeInts.class.getName() + "'/>" +
+					+ "<bean class='"	+ SubscribeInts.class.getName() + "'" +
+					"  name='Subuscribe ${x.current}'/>" +
 					"</job>" +
 				"</events>";
 				
@@ -42,15 +46,118 @@ public class ForEventsTest {
 		
 		List<List<Integer>> results = new ArrayList<>();
 
-		test.start(results::add);
+		StateSteps state = new StateSteps(test);
+		state.startCheck(EventState.READY, EventState.CONNECTING, 
+				EventState.FIRING, EventState.TRIGGERED,
+				EventState.FIRING, EventState.TRIGGERED,
+				EventState.FIRING, EventState.TRIGGERED);
 		
+		Restore close = test.start(results::add);
+		
+		state.checkNow();
 		assertThat(results.size(), is(3));
 		assertThat(results.get(0), is(Arrays.asList(3, 1)));
 		assertThat(results.get(1), is(Arrays.asList(3, 2)));
-		assertThat(results.get(2), is(Arrays.asList(3, 3)));
+		assertThat(results.get(2), is(Arrays.asList(3, 3)));		
 		
+		state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
+
+		close.close();
 		
+		state.checkNow();
 	}
 	
+	private static Consumer<? super String> stuffConsumer;
+
+	public static class SubscribeStuff extends EventSourceBase<String> {		
+
+		
+		@Override
+		protected Restore doStart(Consumer<? super String> consumer) throws Exception {
+			stuffConsumer = consumer;
+			return () -> stuffConsumer = null;
+		}
+		
+		void send(String stuff) {
+			stuffConsumer.accept(stuff);
+		}
+	}
+
+	@Test
+	public void whenTriggeredThenStops() throws Exception {
+
+		String xml = "<events id='x'>" + 
+					"<job>"
+					+ "<bean class='"	+ SubscribeStuff.class.getName() + "'" +
+					"  name='Subuscribe ${x.current}'/>" +
+					"</job>" +
+				"</events>";
+				
+		
+		ForEvents<String> test = new ForEvents<>();
+		test.setConfiguration(new XMLConfiguration("XML", xml));
+		test.setValues(Stream.of("Foo"));
+		test.setArooaSession(new StandardArooaSession());
+		
+		List<List<String>> results = new ArrayList<>();
+
+		StateSteps state = new StateSteps(test);
+		state.startCheck(EventState.READY, EventState.CONNECTING, 
+				EventState.WAITING);
+		
+		Restore close = test.start(results::add);
+
+		state.checkNow();
+		
+		state.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
+
+		stuffConsumer.accept("Hello");
+		
+		state.checkNow();
+
+		assertThat(results.size(), is(1));
+		assertThat(results.get(0), is(Arrays.asList("Hello")));		
+		
+		state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
+
+		close.close();
+		
+		state.checkNow();
+	}
+
+	@Test
+	public void whenNotTriggeredThenStops() throws Exception {
+
+		String xml = "<events id='x'>" + 
+					"<job>"
+					+ "<bean class='"	+ SubscribeStuff.class.getName() + "'" +
+					"  name='Subuscribe ${x.current}'/>" +
+					"</job>" +
+				"</events>";
+				
+		
+		ForEvents<String> test = new ForEvents<>();
+		test.setConfiguration(new XMLConfiguration("XML", xml));
+		test.setValues(Stream.of(10,20));
+		test.setArooaSession(new StandardArooaSession());
+		
+		List<List<String>> results = new ArrayList<>();
+
+		StateSteps state = new StateSteps(test);
+		state.startCheck(EventState.READY, EventState.CONNECTING, 
+				EventState.WAITING);
+		
+		Restore close = test.start(results::add);
+		
+		state.checkNow();
+
+		assertThat(results.size(), is(0));
+		
+		state.startCheck(EventState.WAITING, EventState.INCOMPLETE);
+
+		close.close();
+		
+		state.checkNow();
+	}
 	
 }

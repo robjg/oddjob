@@ -13,7 +13,7 @@ import org.oddjob.util.Restore;
 
 public class AllEventsTest {
 
-	private class IntEvents implements SubscribeNode<Integer> {
+	private class IntEvents implements EventSource<Integer> {
 		
 		Consumer<? super Integer> consumer;
 		
@@ -28,7 +28,7 @@ public class AllEventsTest {
 		}
 	}
 	
-	private class DoubleEvents implements SubscribeNode<Double> {
+	private class DoubleEvents implements EventSource<Double> {
 		
 		Consumer<? super Double> consumer;
 		

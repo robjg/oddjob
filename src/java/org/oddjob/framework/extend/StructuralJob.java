@@ -223,6 +223,8 @@ implements
 				
 				childHelper.stopChildren();
 				
+				postStop();
+				
 				new StopWait(this).run();
 				
 				stop = false;
@@ -241,6 +243,10 @@ implements
 	 */
 	protected void onStop() throws FailedToStopException { }
 	
+	/**
+	 * Subclasses can override to perform actions once children have stopped.
+	 */
+	protected void postStop() throws FailedToStopException { }
 	
 	/**
 	 * Perform a soft reset on the job.

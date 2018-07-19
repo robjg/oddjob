@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import org.oddjob.util.Restore;
 
-public interface SubscribeNode<T> {
+public interface EventSource<T> {
 
 	Restore start(Consumer<? super T> consumer) throws Exception;
 }
