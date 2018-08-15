@@ -22,7 +22,7 @@ import org.oddjob.framework.adapt.BaseWrapper;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.ResetableAdaptorFactory;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
@@ -148,7 +148,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	@Override
 	public void run() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(JobState.EXECUTING);
@@ -251,7 +251,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					if (resetableAdaptor == null) {
@@ -275,7 +275,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	 */
 	@Override
 	public boolean hardReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					if (resetableAdaptor == null) {
@@ -300,7 +300,7 @@ implements ComponentWrapper, Serializable, Forceable {
 	@Override
 	public void force() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			

@@ -13,7 +13,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -135,7 +135,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					// it's possible to reset children and then execute again so this
@@ -204,7 +204,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					logger().info("Stopping.");
@@ -251,7 +251,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 				
@@ -274,7 +274,7 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			
@@ -319,7 +319,7 @@ implements
 	@Override
 	public void force() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			

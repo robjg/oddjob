@@ -8,7 +8,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.AsynchJobWait;
 import org.oddjob.state.DestroyHandlingStateOp;
@@ -95,7 +95,7 @@ implements Structural, Stoppable {
 		
 		@Override
 		protected ParentState onDestroyed(int index) {
-			try (Restore restore = ComponentBoundry.push(loggerName(), RunJob.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), RunJob.this)) {
 				stopChildStateReflector();
 				childHelper.removeAllChildren();
 				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
@@ -237,7 +237,7 @@ implements Structural, Stoppable {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 				
@@ -259,7 +259,7 @@ implements Structural, Stoppable {
 	 */
 	public boolean hardReset() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			

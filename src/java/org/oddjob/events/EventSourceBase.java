@@ -9,7 +9,7 @@ import org.oddjob.events.state.EventState;
 import org.oddjob.events.state.EventStateChanger;
 import org.oddjob.events.state.EventStateHandler;
 import org.oddjob.framework.extend.BasePrimary;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
@@ -76,7 +76,7 @@ implements EventSource<T> {
 
 		final Semaphore barrier = new Semaphore(1);
 		Consumer<T> consumerWrapper = value ->  {
-			try (Restore boundary2 = ComponentBoundry.push(loggerName(), EventSourceBase.this)) {
+			try (Restore boundary2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 				barrier.acquire();
 				stateHandler().waitToWhen(s -> true, 
 						() -> getStateChanger().setState(EventState.FIRING));
@@ -92,7 +92,7 @@ implements EventSource<T> {
 			}
 		};
 
-		try (Restore boundary = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore boundary = ComponentBoundary.push(loggerName(), this)) {
 
 			logger().info("Starting");
 			
@@ -106,7 +106,7 @@ implements EventSource<T> {
 						() -> getStateChanger().setState(EventState.WAITING));
 				
 				return () -> {
-					try (Restore boundary2 = ComponentBoundry.push(loggerName(), EventSourceBase.this)) {
+					try (Restore boundary2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 						restore.close();
 						logger().info("Stopped");
 					}

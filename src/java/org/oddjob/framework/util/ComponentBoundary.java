@@ -26,19 +26,19 @@ import org.oddjob.util.Restore;
  * 
  * @author rob
  */
-public class ComponentBoundry {
+public class ComponentBoundary {
 	
 	private final String loggerName; 
 	
 	private final Object component;
 	
-	private ComponentBoundry(String loggerName, Object component) {
+	private ComponentBoundary(String loggerName, Object component) {
 		this.loggerName = loggerName;
 		this.component = component;
 	}
 
-	public static ComponentBoundry of(String loggerName, Object component) {
-		return new ComponentBoundry(loggerName, component);
+	public static ComponentBoundary of(String loggerName, Object component) {
+		return new ComponentBoundary(loggerName, component);
 	}
 	
 	/**

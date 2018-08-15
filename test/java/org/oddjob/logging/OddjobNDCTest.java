@@ -11,7 +11,7 @@ import java.util.List;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.logging.LogLevel;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
@@ -30,11 +30,11 @@ public class OddjobNDCTest extends OjTestCase {
 		Object job1 = new Object();
 		Object job2 = new Object();
 				
-		try (Restore r1 = ComponentBoundry.push(loggerName1, job1)) {
+		try (Restore r1 = ComponentBoundary.push(loggerName1, job1)) {
 			assertEquals(loggerName1, OddjobNDC.current().get().getLogger());
 			assertEquals(job1, OddjobNDC.current().get().getJob());
 			
-			try (Restore r2 = ComponentBoundry.push(loggerName2, job2)) {
+			try (Restore r2 = ComponentBoundary.push(loggerName2, job2)) {
 				assertEquals(loggerName2, OddjobNDC.current().get().getLogger());
 				assertEquals(job2, OddjobNDC.current().get().getJob());
 			}

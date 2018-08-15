@@ -53,7 +53,7 @@ import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.RootDC;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.input.InputHandler;
 import org.oddjob.jobs.EchoJob;
 import org.oddjob.oddballs.OddballsDescriptorFactory;
@@ -657,7 +657,7 @@ implements Loadable,
 	 */
 	@Override
 	public void load() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
@@ -782,7 +782,7 @@ implements Loadable,
 	@Override
 	public boolean softReset() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 
@@ -840,7 +840,7 @@ implements Loadable,
 	 * so as not to reset the child but destroy them.
 	 */
 	public boolean hardReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 
@@ -975,7 +975,7 @@ implements Loadable,
 			export.remove(key);
 		}
 		else {
-			try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 				logger().debug("Adding value to export: " + 
 					key + "=" + value);
 				export.put(key, value);

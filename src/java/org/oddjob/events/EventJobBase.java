@@ -21,7 +21,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.AsyncExecutionSupport;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
@@ -119,7 +119,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		}
 		
 		Executor executor = j -> {
-			try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
 				asyncSupport.submitJob(executorService, j);
 				asyncSupport.startWatchingJobs();
 				logger().info("Submitted [" + j + "]");				
@@ -129,7 +129,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
 		consumer.set(
 				event -> {
-					try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
+					try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
 						onImmediateEvent(event);
 					}
 				});
@@ -146,7 +146,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 
 		consumer.set(
 				event -> {
-					try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
+					try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
 						stopChildStateReflector();
 						onLaterEvent(event, job, executor);
 						if (job == null) {

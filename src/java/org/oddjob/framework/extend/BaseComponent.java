@@ -21,7 +21,7 @@ import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.PropertyChangeNotifier;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.state.IsAnyState;
@@ -121,7 +121,7 @@ implements Iconic, Stateful,
 			@Override
 			public void beforeDestroy(RuntimeEvent event) throws ArooaException {
 				stateHandler().assertAlive();
-				try (Restore restore = ComponentBoundry.push(logger().getName(), BaseComponent.this)) {
+				try (Restore restore = ComponentBoundary.push(logger().getName(), BaseComponent.this)) {
 					logger().debug("Destroying.");
 					onDestroy();
 				}
@@ -130,7 +130,7 @@ implements Iconic, Stateful,
 			@Override
 			public void afterDestroy(RuntimeEvent event) throws ArooaException {
 				
-				try (Restore restore = ComponentBoundry.push(logger().getName(), BaseComponent.this)) {
+				try (Restore restore = ComponentBoundary.push(logger().getName(), BaseComponent.this)) {
 					fireDestroyedState();
 				}
 			}
@@ -280,7 +280,7 @@ implements Iconic, Stateful,
 	 */
 	public void initialise() throws JobDestroyedException {
 		stateHandler().assertAlive();
-		try (Restore restore = ComponentBoundry.push(logger().getName(), this)) {
+		try (Restore restore = ComponentBoundary.push(logger().getName(), this)) {
 			onInitialised();
 			onConfigured();
 		}
@@ -294,7 +294,7 @@ implements Iconic, Stateful,
 	 */
 	public void destroy() throws JobDestroyedException { 
 		stateHandler().assertAlive();
-		try (Restore restore = ComponentBoundry.push(logger().getName(), this)) {
+		try (Restore restore = ComponentBoundary.push(logger().getName(), this)) {
 			onDestroy();
 			fireDestroyedState();
 		}

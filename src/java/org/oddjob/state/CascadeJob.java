@@ -14,7 +14,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.jobs.structural.SequentialJob;
 
@@ -168,7 +168,7 @@ public class CascadeJob extends StructuralJob<Object> {
 					}
 				});
 				
-				Runnable wrapper = ComponentBoundry.of(loggerName(), CascadeJob.this).wrap(
+				Runnable wrapper = ComponentBoundary.of(loggerName(), CascadeJob.this).wrap(
 						executionWatcher.addJob(next));
 				
 				if (first.get()) {

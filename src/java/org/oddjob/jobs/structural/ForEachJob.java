@@ -57,7 +57,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.designer.components.ForEachRootDC;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
 import org.oddjob.state.AnyActiveStateOp;
@@ -502,7 +502,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 */
 	@Override
 	public void load() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
 					new Runnable() {
 				public void run() {
@@ -881,7 +881,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					stopChildStateReflector();

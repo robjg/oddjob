@@ -8,7 +8,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.BasePrimary;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
@@ -79,7 +79,7 @@ implements Runnable, Stoppable, Resetable {
 	
 	synchronized public void run() {
 				
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					if (listener != null) {
@@ -155,7 +155,7 @@ implements Runnable, Stoppable, Resetable {
 	}
 	
 	public synchronized void stop() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (listener != null) {
 				job.removeStateListener(listener);
 				listener = null;

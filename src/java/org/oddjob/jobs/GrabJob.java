@@ -15,7 +15,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.BasePrimary;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -179,7 +179,7 @@ implements
 	 */
 	public final void run() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					if (listener != null) {
@@ -396,7 +396,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			logger().debug("Stop requested.");
 
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
@@ -435,7 +435,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 
@@ -461,7 +461,7 @@ implements
 	 */
 	public boolean hardReset() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			

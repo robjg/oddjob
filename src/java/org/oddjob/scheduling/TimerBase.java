@@ -19,7 +19,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.Schedule;
@@ -220,7 +220,7 @@ abstract public class TimerBase extends ScheduleBase {
 	@ArooaHidden
 	public void setReschedule(final Date reSchedule) throws ComponentPersistException, OddjobLockedException {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED), 
 				new Runnable() {
 					@Override
@@ -321,7 +321,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 */
 	@ArooaHidden
 	public void setNextDue(final Date nextDue) throws OddjobLockedException {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED),
 				new Runnable() {
 					@Override
@@ -491,7 +491,7 @@ abstract public class TimerBase extends ScheduleBase {
 		public void jobStateChange(StateEvent event) {
 			
 			
-			try (Restore restore = ComponentBoundry.push(loggerName(), TimerBase.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), TimerBase.this)) {
 				handleChildState(event, this);
 			} catch (final ComponentPersistException e) {
 				stateHandler().waitToWhen(new IsAnyState(), 
@@ -563,7 +563,7 @@ abstract public class TimerBase extends ScheduleBase {
 		
 		public void run() {
 			
-			try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 				try {
 					// Wait for the timer to start to ensure predictable
 					// state transitions.

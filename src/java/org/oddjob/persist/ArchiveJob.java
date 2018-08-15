@@ -14,7 +14,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.framework.extend.BasePrimary;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -140,7 +140,7 @@ implements
 	 * doExecute method of the sub class and sets state for the job.
 	 */
 	public final void run() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ParentState.EXECUTING);
@@ -218,7 +218,7 @@ implements
 		@Override
 		public void jobStateChange(final StateEvent event) {
 
-			try (Restore restore = ComponentBoundry.push(loggerName(), ArchiveJob.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), ArchiveJob.this)) {
 				this.event = event;
 
 				if (reflect) {
@@ -258,7 +258,7 @@ implements
 		
 		private void persist(Stateful source) throws ComponentPersistException {
 			
-			try (Restore restore = ComponentBoundry.push(loggerName(), ArchiveJob.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), ArchiveJob.this)) {
 				Object silhouette = new SilhouetteFactory().create(
 						child, ArchiveJob.this.getArooaSession());
 				
@@ -331,7 +331,7 @@ implements
 	public void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
 				public void run() {
 					stop = true;
@@ -387,7 +387,7 @@ implements
 	 */
 	private boolean commonReset(StateCondition condition, final String text) {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(condition, new Runnable() {
 				public void run() {
 					logger().debug("Propagating " + text + 
@@ -534,7 +534,7 @@ implements
 		
 		super.onDestroy();
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 				public void run() {
 					stop = true;

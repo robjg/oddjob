@@ -11,7 +11,7 @@ import org.oddjob.arooa.logging.Appender;
 import org.oddjob.arooa.logging.AppenderAdapter;
 import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.logging.LoggingEvent;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
@@ -45,7 +45,7 @@ public class OddjobThreadFactoryTest {
 		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(logger.getName());
 		appenderAdapter.addAppender(appender);
 		
-		try (Restore restore = ComponentBoundry.push("our.logger", "Some-Job")) {
+		try (Restore restore = ComponentBoundary.push("our.logger", "Some-Job")) {
 						
 			ThreadFactory test = new OddjobThreadFactory("Our-Thread");
 

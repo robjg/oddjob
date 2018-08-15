@@ -25,7 +25,7 @@ import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.ImageIconStable;
@@ -179,7 +179,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	@Override
     public void prepare(BusConductor busConductor) {
     	
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			
 			busListener.setBusConductor(busConductor);
 			
@@ -309,7 +309,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		if (busCrashException != null) {
 			throw new RuntimeException(busCrashException);
 		}
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.add(e);
 		}
 	}
@@ -319,84 +319,84 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		if (busCrashException != null) {
 			throw new RuntimeException(busCrashException);
 		}
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.addAll(c);
 		}
 	}
 	
 	@Override
 	public void clear() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			wrapped.clear();
 		}
 	}
 	
 	@Override
 	public boolean contains(Object o) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.contains(o);
 		}
 	}
 	
 	@Override
 	public boolean containsAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.containsAll(c);
 		}
 	}
 	
 	@Override
 	public boolean isEmpty() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.isEmpty();
 		}
 	}
 	
 	@Override
 	public Iterator<E> iterator() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.iterator();
 		}
 	}
 	
 	@Override
 	public boolean remove(Object o) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.remove(o);
 		}
 	}
 	
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.removeAll(c);
 		}
 	}
 	
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.retainAll(c);
 		}
 	}
 	
 	@Override
 	public int size() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.size();
 		}
 	}
 	
 	@Override
 	public Object[] toArray() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.toArray();
 		}
 	}
 	
 	@Override
 	public <T> T[] toArray(T[] a) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return wrapped.toArray(a);
 		}
 	}
@@ -410,7 +410,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void busStarting(BusEvent event,
 				BusListener listener) throws BusCrashException {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.busStarting(event, listener);
 			}
 		}
@@ -418,7 +418,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void tripBeginning(BusEvent event,
 				BusListener listener) throws BusCrashException {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.tripBeginning(event, listener);
 			}
 		}
@@ -426,7 +426,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void tripEnding(BusEvent event,
 				BusListener listener) throws BusCrashException {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.tripEnding(event, listener);
 			}
 		}
@@ -434,7 +434,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void busStopRequested(BusEvent event,
 				BusListener listener) {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.busStopRequested(event, listener);
 			}
 		}
@@ -442,7 +442,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void busStopping(BusEvent event,
 				BusListener listener) throws BusCrashException {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.busStopping(event, listener);
 			}
 		}
@@ -450,7 +450,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void busCrashed(BusEvent event,
 				BusListener listener) {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.busCrashed(event, listener);
 			}
 		}
@@ -458,7 +458,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		@Override
 		protected void busTerminated(BusEvent event,
 				BusListener listener) {
-			try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 				super.busTerminated(event, listener);
 			}
 		}

@@ -11,7 +11,7 @@ import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.adapt.BaseWrapper;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
@@ -107,7 +107,7 @@ implements ComponentWrapper {
     }
     
     public void run() {
-        try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+        try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
         	if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
         		public void run() {
         			getStateChanger().setState(ServiceState.STARTING);
@@ -176,7 +176,7 @@ implements ComponentWrapper {
         
     protected void onStop() throws FailedToStopException {
     			
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			service.stop();
 			
 	    	stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
@@ -194,7 +194,7 @@ implements ComponentWrapper {
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -210,7 +210,7 @@ implements ComponentWrapper {
 	 */
 	public boolean hardReset() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), wrapped)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
         	return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);

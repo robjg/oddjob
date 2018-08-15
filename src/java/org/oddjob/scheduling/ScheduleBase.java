@@ -16,7 +16,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.extend.BasePrimary;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -141,7 +141,7 @@ implements
 	 */
 	@Override
 	public final void run() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					stop = false;
@@ -200,7 +200,7 @@ implements
 	public final void stop() throws FailedToStopException {
 		stateHandler.assertAlive();
 
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			final AtomicReference<String> lastIcon = new AtomicReference<String>();
 			
 			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {				
@@ -260,7 +260,7 @@ implements
 	 * Perform a soft reset on the job.
 	 */
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					logger().debug("Propagating Soft Reset to children.");			
@@ -282,7 +282,7 @@ implements
 	 * Perform a hard reset on the job.
 	 */
 	public boolean hardReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					
@@ -315,7 +315,7 @@ implements
 	@Override
 	public void force() {
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
 				public void run() {
 					logger().info("Forcing complete.");			
@@ -388,7 +388,7 @@ implements
 		
 		super.onDestroy();
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			logger().info("Destroying.");
 			
 			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {

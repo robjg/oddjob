@@ -27,7 +27,7 @@ import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.framework.extend.BaseComponent;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
@@ -160,7 +160,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			final AtomicReference<String> icon = new AtomicReference<String>();
 			
 	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {

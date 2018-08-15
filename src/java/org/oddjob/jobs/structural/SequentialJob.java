@@ -7,7 +7,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.framework.OptionallyTransient;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.state.SequentialHelper;
 import org.oddjob.state.StateOperator;
 import org.oddjob.state.WorstStateOp;
@@ -128,7 +128,7 @@ public class SequentialJob extends StructuralJob<Object>
 	 */
 	@ArooaAttribute
 	public void setStateOperator(StateOperator stateOperator) {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			this.structuralState.setStateOperator(stateOperator);
 		}
 	}

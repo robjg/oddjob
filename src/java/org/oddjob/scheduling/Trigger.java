@@ -16,7 +16,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsAnyState;
@@ -237,7 +237,7 @@ public class Trigger extends ScheduleBase {
 	class Execution implements Runnable {
 		public void run() {
 			
-			try (Restore restore = ComponentBoundry.push(loggerName(), Trigger.this)) {
+			try (Restore restore = ComponentBoundary.push(loggerName(), Trigger.this)) {
 
 				logger().info("Executing child.");
 

@@ -9,7 +9,7 @@ import org.oddjob.Resetable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.framework.util.ComponentBoundry;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.LogEnabled;
@@ -103,7 +103,7 @@ implements Runnable, Stateful, Resetable,
     
 	
 	public void run() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTING);
@@ -145,7 +145,7 @@ implements Runnable, Stateful, Resetable,
 	
 	@Override
 	public void stop() throws FailedToStopException {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			logger().debug("Stop requested.");
 			
 			if (!stateHandler.waitToWhen(new IsStoppable(), 
@@ -192,7 +192,7 @@ implements Runnable, Stateful, Resetable,
 	 */
 	@Override
 	public boolean softReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
@@ -208,7 +208,7 @@ implements Runnable, Stateful, Resetable,
 	 */
 	@Override
 	public boolean hardReset() {
-		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
 					getStateChanger().setState(ServiceState.STARTABLE);
