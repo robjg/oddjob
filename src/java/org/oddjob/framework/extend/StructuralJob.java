@@ -62,8 +62,7 @@ implements
 	protected transient volatile StructuralStateHelper structuralState;
 		
 	/** Reflect state of children. */
-	protected transient volatile 
-	StateExchange<ParentState> childStateReflector;
+	private transient volatile StateExchange<ParentState> childStateReflector;
 	
 	private transient volatile ParentStateChanger stateChanger;
 	
@@ -141,7 +140,7 @@ implements
 				public void run() {
 					// it's possible to reset children and then execute again so this
 					// is just in case there was no reset.
-					childStateReflector.stop();
+					stopChildStateReflector();
 					
 					getStateChanger().setState(ParentState.EXECUTING);
 				}					
@@ -183,14 +182,14 @@ implements
 	 */
 	protected void startChildStateReflector() {
 		if (!destroy) {
+			logger().debug("Starting Child State Reflector.");
 			childStateReflector.start();
-			logger().debug("Child State Reflector Started.");
 		}
 	}
 	
 	protected void stopChildStateReflector() {
+		logger().debug("Stopping Child State Reflector.");
 		childStateReflector.stop();
-		logger().debug("Child State Reflector Stopped.");
 	}
 	
 	/**

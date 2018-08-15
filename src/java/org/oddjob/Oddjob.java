@@ -856,7 +856,7 @@ implements Loadable,
 						lastReset = null;
 					}	
 
-					childStateReflector.stop();
+					stopChildStateReflector();
 					childHelper.hardResetChildren();
 					reset();
 					stop = false;

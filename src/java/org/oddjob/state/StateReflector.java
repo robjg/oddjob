@@ -15,10 +15,6 @@ abstract public class StateReflector extends SimultaneousStructural {
 	
 	public void stop() throws FailedToStopException {
 		
-		if (!childStateReflector.isRunning()) {
-			return;
-		}
-		
 		logger().info("Stopping.");		
 		
 		childHelper.stopChildren();

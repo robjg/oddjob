@@ -28,6 +28,19 @@ import org.oddjob.util.Restore;
  */
 public class ComponentBoundry {
 	
+	private final String loggerName; 
+	
+	private final Object component;
+	
+	private ComponentBoundry(String loggerName, Object component) {
+		this.loggerName = loggerName;
+		this.component = component;
+	}
+
+	public static ComponentBoundry of(String loggerName, Object component) {
+		return new ComponentBoundry(loggerName, component);
+	}
+	
 	/**
 	 * Called on entering a component method.
 	 * 
@@ -47,6 +60,31 @@ public class ComponentBoundry {
 				ndcRestore.close();
 			}
 		};
+	}
+	
+	/**
+	 * Wrap a unit of execution in this Component Boundary.
+	 * 
+	 * @param runnable The unit of execution.
+	 * @return A new unit of execution that will execute within this Component Boundary.
+	 */
+	public Runnable wrap(Runnable runnable) {
+		
+		return () -> {
+			try (Restore restore = push(loggerName, component)) {
+				runnable.run();
+			}
+		};
+	}
+	
+	/**
+	 * Execute a unit of execution within this Component Boundary.
+	 * 
+	 * @param runnable The unit of execution.
+	 */
+	public void execute(Runnable runnable) {
+		
+		wrap(runnable).run();
 	}
 
 }

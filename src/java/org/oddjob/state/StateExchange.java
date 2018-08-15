@@ -1,6 +1,7 @@
 package org.oddjob.state;
 
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
@@ -17,7 +18,7 @@ public class StateExchange<T extends State> {
 	
 	private final Stateful source;
 	
-	private boolean running;
+	private final AtomicBoolean running = new AtomicBoolean();
 
 	private final StateListener stateListener = 
 			new StateListener() {
@@ -49,25 +50,18 @@ public class StateExchange<T extends State> {
 	}
 	
 	public void start() throws JobDestroyedException {
-		synchronized (this) {
-			if (running) {
-				return;
-			}
-			running = true;
+		if (running.compareAndSet(true, true)) {
+			return;
 		}
 		source.addStateListener(stateListener);
 	}
 	
 	public void stop() {
-		synchronized (this) {
-			running = false;
-		}
+		running.set(false);
 		source.removeStateListener(stateListener);
 	}
 	
 	public boolean isRunning() {
-		synchronized(this) {
-			return running;
-		}
+			return running.get();
 	}
 }

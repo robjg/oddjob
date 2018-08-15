@@ -147,10 +147,10 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		consumer.set(
 				event -> {
 					try (Restore restore = ComponentBoundry.push(loggerName(), EventJobBase.this)) {
-						childStateReflector.stop();
+						stopChildStateReflector();
 						onLaterEvent(event, job, executor);
 						if (job == null) {
-							childStateReflector.start();
+							super.startChildStateReflector();
 						}
 					}
 				});

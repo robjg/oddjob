@@ -884,7 +884,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		try (Restore restore = ComponentBoundry.push(loggerName(), this)) {		
 			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
 				public void run() {
-					childStateReflector.stop();
+					stopChildStateReflector();
 					
 					reset();
 					

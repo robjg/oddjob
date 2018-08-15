@@ -96,7 +96,7 @@ implements Structural, Stoppable {
 		@Override
 		protected ParentState onDestroyed(int index) {
 			try (Restore restore = ComponentBoundry.push(loggerName(), RunJob.this)) {
-				childStateReflector.stop();
+				stopChildStateReflector();
 				childHelper.removeAllChildren();
 				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
 					@Override
@@ -243,7 +243,7 @@ implements Structural, Stoppable {
 				
 					logger().debug("Propagating Soft Reset to children.");			
 					
-					childStateReflector.stop();
+					stopChildStateReflector();
 					childHelper.removeAllChildren();
 					stop = false;
 					getStateChanger().setState(ParentState.READY);
@@ -264,7 +264,7 @@ implements Structural, Stoppable {
 				public void run() {
 					logger().debug("Propagating Hard Reset to children.");			
 					
-					childStateReflector.stop();
+					stopChildStateReflector();
 					childHelper.removeAllChildren();
 					stop = false;
 					getStateChanger().setState(ParentState.READY);

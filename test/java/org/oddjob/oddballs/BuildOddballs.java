@@ -13,6 +13,17 @@ import org.oddjob.tools.OurDirs;
 public class BuildOddballs implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(BuildOddballs.class);
 
+	private final String oddballsDir;
+	
+	public BuildOddballs() {
+		this("test/oddballs/");
+	}
+	
+	public BuildOddballs(String oddballsDir) {
+		this.oddballsDir = oddballsDir;
+	}
+	
+	
 	public void run() {
 		try {
 			build("apple");
@@ -28,9 +39,9 @@ public class BuildOddballs implements Runnable {
 		final OurDirs dirs = new OurDirs();
 
 		File classesDir = new File(dirs.base(), 
-				"test/oddballs/" + oddball + "/classes");
+				oddballsDir + oddball + "/classes");
 		File srcDir = new File(dirs.base(), 
-		"test/oddballs/" + oddball + "/src");
+		oddballsDir + oddball + "/src");
 		
 		if (classesDir.exists()) {
 			logger.debug("" + classesDir + 
@@ -49,7 +60,7 @@ public class BuildOddballs implements Runnable {
 		
 		FilesType sources = new FilesType();
 		sources.setFiles(dirs.relative(
-				"test/oddballs/" + oddball + "/src/fruit").getPath() +
+				oddballsDir + oddball + "/src/fruit").getPath() +
 				File.separator + "*.java"); 
 
 		CompileJob compile = new CompileJob();

@@ -1,6 +1,7 @@
 package org.oddjob.state;
 
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -13,6 +14,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.extend.StructuralJob;
+import org.oddjob.framework.util.ComponentBoundry;
 import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.jobs.structural.SequentialJob;
 
@@ -105,27 +107,18 @@ public class CascadeJob extends StructuralJob<Object> {
 			throw new NullPointerException("No Executor! Were services set?");
 		}
 		
-		final StateCondition cascadeOn;
-		if (this.cascadeOn == null) {
-			cascadeOn = StateConditions.DONE;
-		}
-		else {
-			cascadeOn = this.cascadeOn;
-		}
+		final StateCondition cascadeOn = Optional.ofNullable(this.cascadeOn)
+				.orElse(StateConditions.DONE);
 		
-		final StateCondition haltOn;
-		if (this.haltOn == null) {
-			haltOn = StateConditions.FAILURE;
-		}
-		else {
-			haltOn = this.haltOn;
-		}
+		final StateCondition haltOn = Optional.ofNullable(this.haltOn)
+				.orElse(StateConditions.FAILURE);
 		
 		final Iterator<Object> children = childHelper.iterator();
 				
 		final ExecutionWatcher executionWatcher = 
 			new ExecutionWatcher(new Runnable() {
 				public void run() {
+					logger().debug("ExecutionWatcher action executing.");
 					stop = false;
 					CascadeJob.super.startChildStateReflector();
 				}
@@ -152,6 +145,7 @@ public class CascadeJob extends StructuralJob<Object> {
 				}
 				
 				if (next == null || stop) {
+					logger().debug("Starting ExecutionWatcher.");
 					executionWatcher.start();
 					return;
 				}
@@ -174,7 +168,8 @@ public class CascadeJob extends StructuralJob<Object> {
 					}
 				});
 				
-				Runnable wrapper = executionWatcher.addJob(next);
+				Runnable wrapper = ComponentBoundry.of(loggerName(), CascadeJob.this).wrap(
+						executionWatcher.addJob(next));
 				
 				if (first.get()) {
 					first.set(false);

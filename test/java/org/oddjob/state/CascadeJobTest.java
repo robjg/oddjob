@@ -7,9 +7,11 @@ import static org.hamcrest.CoreMatchers.is;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
@@ -530,16 +532,18 @@ public class CascadeJobTest extends OjTestCase {
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 	}
 	
-   @Test
+    @Test
 	public void testGivenCascadeThenStopStopsChildTasks() throws InterruptedException, FailedToStopException {
-	
+		
 		DefaultExecutors executors = new DefaultExecutors();
 		
 		CascadeJob test = new CascadeJob();
 		test.setExecutorService(executors.getPoolExecutor());
 		
 		WaitJob wait1 = new WaitJob();
+		wait1.setName("Wait1");
 		WaitJob wait2 = new WaitJob();
+		wait2.setName("Wait2");
 		
 		test.setJobs(0, wait1);
 		test.setJobs(1, wait2);
@@ -606,7 +610,101 @@ public class CascadeJobTest extends OjTestCase {
 		executors.stop();
 	}
 	
-   @Test
+    @Test
+	public void testCascadeWhenExecutionOrderDifferent() throws InterruptedException, FailedToStopException {
+
+    	List<Runnable> jobs = new ArrayList<>();
+    	
+		ExecutorService executors = Mockito.mock(ExecutorService.class);
+		Mockito.doAnswer(invocation -> {
+			Runnable job = invocation.getArgumentAt(0, Runnable.class);
+			jobs.add(job);
+			return null;
+		}).when(executors).submit(Mockito.any(Runnable.class));
+
+		CascadeJob test = new CascadeJob();
+		test.setExecutorService(executors);
+		
+		FlagState job1 = new FlagState();
+		job1.setName("Job1");
+		FlagState job2 = new FlagState();
+		job2.setName("Job2");
+		
+		test.setJobs(0, job1);
+		test.setJobs(1, job2);
+		
+		StateSteps testState = new StateSteps(test);		
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE);
+		
+		StateSteps job1State = new StateSteps(job1);		
+		StateSteps job2State = new StateSteps(job2);		
+		
+		job1State.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		
+		logger.info("** Running cascade.");
+		
+		test.run();
+
+		assertThat(jobs.size(), is( 1));
+		
+		jobs.get(0).run();
+
+		assertThat(jobs.size(), is(2));
+
+		
+		job1State.checkNow();		
+		testState.checkNow();
+		
+		assertThat( job2.lastStateEvent().getState(), is(JobState.READY));
+		
+		testState.startCheck(ParentState.ACTIVE, ParentState.READY);
+
+		logger.info("** Stopping cascade");
+		
+		test.stop();
+		
+		testState.checkNow();
+		
+		assertThat( job1.lastStateEvent().getState(), is(JobState.COMPLETE));
+		assertThat( job2.lastStateEvent().getState(), is(JobState.READY));
+		
+		//
+		// Second run.
+		
+		jobs.clear();
+		
+		testState.startCheck(ParentState.READY, ParentState.EXECUTING, 
+				ParentState.ACTIVE, ParentState.COMPLETE);
+		
+		job2State.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+		
+		logger.info("** Running cascade again");
+
+		test.run();
+		
+		assertThat(jobs.size(), is(2));
+
+		jobs.get(0).run();
+
+		assertThat(jobs.size(), is(2));
+
+		jobs.get(1).run();
+
+		job2State.checkNow();
+		
+		testState.checkNow();
+				
+		logger.info("** Stopping cascade again");
+
+		test.stop();
+		
+		assertThat( job1.lastStateEvent().getState(), is(JobState.COMPLETE));
+		assertThat( job2.lastStateEvent().getState(), is(JobState.COMPLETE));
+	}
+
+    @Test
 	public void testExample() throws InterruptedException {
 		
 		Oddjob oddjob = new Oddjob();

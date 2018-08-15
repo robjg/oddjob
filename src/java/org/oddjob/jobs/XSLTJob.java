@@ -152,6 +152,8 @@ public class XSLTJob implements Runnable {
 		if (transformer == null) {			
 			
 			if (stylesheet == null) {
+				logger.info("No stylesheet given.");
+
 				transformer = TransformerFactory.newInstance().newTransformer();
 			}
 			else {
@@ -160,10 +162,15 @@ public class XSLTJob implements Runnable {
 			}
 		}
 
-		for (Map.Entry<String, Object> entry: parameters.entrySet()) {
-			transformer.setParameter(entry.getKey(), entry.getValue());
+		if (!parameters.isEmpty()) {
+			logger.info("Setting parameters: " + parameters);
+			for (Map.Entry<String, Object> entry: parameters.entrySet()) {
+				transformer.setParameter(entry.getKey(), entry.getValue());
+			}
 		}
 
+		logger.info("Performing transformation with " + transformer);
+		
 		transformer.transform(
 				new StreamSource(input), 
 				new StreamResult(output));

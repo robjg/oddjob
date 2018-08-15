@@ -548,9 +548,6 @@
 			<classpath>
 				<pathelement location="${build.test.classes}" />
 			</classpath>
-			<classpath>
-				<pathelement location="${java.home}/../lib/tools.jar"/>
-			</classpath>
 			<classpath refid="test-classpath"/>
 			<batchtest todir="${test.reports}">
 				<fileset dir="${build.test.classes}">
