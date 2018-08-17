@@ -2,10 +2,9 @@
  * Copyright (c) 2005, Rob Gordon.
  */
 package org.oddjob.launch;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -15,24 +14,33 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
 
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestName;
 import org.oddjob.Main;
 import org.oddjob.io.CopyJob;
 import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  *
  * @author Rob Gordon.
  */
-public class LauncherTest extends OjTestCase {
+public class LauncherTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(LauncherTest.class);
-	
+
+	@Rule public TestName name = new TestName();
+
+	public String getName() {
+        return name.getMethodName();
+    }
+
 	String oddjobHome;
 	
     @Before

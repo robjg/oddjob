@@ -1,26 +1,25 @@
 package org.oddjob.jobs;
 
-import org.junit.Test;
-
+import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Test;
 import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.launch.Launcher;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class LaunchJobTest extends OjTestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(LaunchJobTest.class);
 	
    @Test
-    public void testLaunchAsjobInOddjob() throws IOException {
+    public void testLaunchAsjobInOddjob() throws IOException, URISyntaxException {
     	
     	ClassLoader existingContext = Thread.currentThread(
     			).getContextClassLoader();
@@ -34,13 +33,14 @@ public class LaunchJobTest extends OjTestCase {
     	
 			OurDirs dirs = new OurDirs();
 			
+			File config = new File(getClass().getResource("LaunchExample.xml")
+					.toURI().getPath());
+			
 			Oddjob oddjob = new Oddjob();
-			oddjob.setConfiguration(new XMLConfiguration(
-					"org/oddjob/jobs/LaunchExample.xml",
-					getClass().getClassLoader()));
+			oddjob.setFile(config);
 			oddjob.setArgs(new String[] { 
 					dirs.base().toString(),
-					Launcher.ODDJOB_MAIN_CLASS,
+					"org.oddjob.Main",
 					OjTestCase.logConfig()} );
 					
 			ConsoleCapture console = new ConsoleCapture();

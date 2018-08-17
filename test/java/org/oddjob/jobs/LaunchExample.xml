@@ -17,6 +17,7 @@
                     <files>
                         <files files="${this.args[0]}/lib/*.jar">
                             <list>
+                                <file file="${this.args[0]}/classes"/>
                                 <file file="${this.args[0]}/opt/classes"/>
                             </list>
                         </files>

@@ -12,13 +12,14 @@
         
 	<publications>
 		<artifact name="oddjob" conf="default"/>
-		<artifact name="run-oddjob" conf="launch"/>
 		<artifact name="oj-tools" conf="tools"/>
 	</publications>  
 
 	<dependencies>
 	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
 	    	conf="default->default" />
+        <dependency org="uk.co.rgordon" name="run-oddjob" rev="latest.integration"
+            conf="launch->default"/>
 		<dependency org="commons-io" name="commons-io" rev="2.4"
 			conf="default->default" />
 	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"

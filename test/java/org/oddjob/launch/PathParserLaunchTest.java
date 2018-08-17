@@ -1,5 +1,8 @@
 package org.oddjob.launch;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +21,7 @@ import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.tools.OurDirs;
 
-public class PathParserLaunchTest extends OjTestCase {
+public class PathParserLaunchTest {
 
 	final static String RUN_JAR = "run-oddjob.jar";
 	

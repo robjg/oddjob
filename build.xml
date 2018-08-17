@@ -88,12 +88,6 @@
 		<property name="generated.src.dir"			value="${build.dir}/generated"/>
 
 		
-		<!-- selector for run-oddjob.jar -->
-		
-		  <selector id="run.oddjob">
-		    <filename name="${oddjob.package}/launch/**/*"/>
-		  </selector>
-
 		<filter token="Name"    value="${Name}"/>
 		<filter token="name"    value="${name}"/>
 		<filter token="version" value="${build.version}"/>
@@ -112,8 +106,12 @@
 	<!-- =================================================================== -->
 	<target name="prepare" depends="init">
 
+		<ivy:resolve/> 
+		
 		<ivy:retrieve conf="default"/>
 		        
+		<ivy:retrieve pattern="[artifact].[ext]" conf="launch"/>
+		
 		<ivy:resolve conf="test"/>
 		
         <ivy:cachepath pathid="provided-cachepath" conf="provided" />
@@ -142,6 +140,7 @@
 		
 		<path id="test-classpath">
 			<path refid="test-cachepath"/>
+            <pathelement path="${launch.jar.name}"/>
 			<pathelement path="${build.classes}" />
 			<pathelement path="${build.tools.classes}" />
 		</path>
@@ -232,17 +231,8 @@
 
 	<target name="jar" depends="compile, compile-tools" description="Generates the jar packages">
 
-	    <jar destfile="${launch.jar.name}"
-	         basedir="${build.classes}"
-	    	 manifest="${src.dir}/manifest.template">
-	      <selector refid="run.oddjob"/>
-	    </jar>
-
 	    <jar destfile="${lib.dir}/${jar.name}"
 	         basedir="${build.classes}">
-	      <not>
-	        <selector refid="run.oddjob"/>
-	      </not>
 	      <metainf dir="${build.dir}" includes="LICENSE.txt"/>
 	    </jar>
 		
@@ -378,11 +368,6 @@
 		   <artifacts pattern="${lib.dir}/[artifact]-[revision].[ext]" />
 		</ivy:publish>
 
-		<ivy:publish resolver="local" conf="launch" publishivy="false" 
-			pubrevision="${build.version}" overwrite="true">
-		   <artifacts pattern="[artifact].[ext]" />
-		</ivy:publish>
-		
 		<ivy:publish resolver="local" conf="tools" publishivy="false"
 			pubrevision="${build.version}" overwrite="true">
 		   <artifacts pattern="${build.tools}/[artifact]-[revision].[ext]" />
