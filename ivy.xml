@@ -3,16 +3,14 @@
 
 	<configurations>
         <conf name="default" visibility="public"></conf>
-        <conf name="provided" visibility="public"></conf>
         <conf name="launch" visibility="public"></conf>
-        <conf name="tools" visibility="public"></conf>
-        <conf name="test" extends="default,tools" visibility="public"></conf>
+        <conf name="provided" extends="launch" visibility="public"></conf>
+        <conf name="test" extends="default,provided" visibility="public"></conf>
         <conf name="antlr" visibility="public"></conf>
 	</configurations>  
         
 	<publications>
 		<artifact name="oddjob" conf="default"/>
-		<artifact name="oj-tools" conf="tools"/>
 	</publications>  
 
 	<dependencies>

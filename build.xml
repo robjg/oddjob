@@ -55,8 +55,6 @@
 		<property name="work.dir"     value="./work"/>
 		<property name="lib.dir"      value="./lib"/>
 		<property name="bin.dir"      value="./bin"/>
-		<property name="tools.dir"    value="./tools"/>
-		<property name="tools.src"    value="${tools.dir}/java"/>
 		<property name="opt.dir"      value="./opt"/>
 		<property name="opt.lib"      value="${opt.dir}/lib"/>
 		<property name="packages"     value="org.oddjob"/>
@@ -66,10 +64,7 @@
 		<property name="build.classes"     		value="${build.dir}/classes"/>
 		<property name="build.test"      		value="${build.dir}/test"/>
 		<property name="build.test.classes"     value="${build.test}/classes"/>
-		<property name="build.tools"     		value="${build.dir}/tools"/>
-		<property name="build.tools.classes"    value="${build.tools}/classes"/>
 		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
-		<property name="build.tools.javadocs" 	value="${build.tools}/javadocs"/>
 
 		<property name="test.reports" value="${build.test}/reports"/>
 			
@@ -77,12 +72,6 @@
 		<property name="launch.jar.name"    value="run-${name}.jar"/>
 		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
 		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
-
-		<property name="tools.name"					value="oj-tools"/>
-		<property name="tools.Name"					value="Oddjob Tools"/>
-		<property name="tools.jar.name"     		value="${tools.name}-${build.version}.jar"/>
-		<property name="tools.sources.jar.name"   	value="${tools.name}-${build.version}-sources.jar"/>
-		<property name="tools.javadoc.jar.name"  	value="${tools.name}-${build.version}-javadoc.jar"/>
 		
         <property name="antlr.src.dir"              value="${src.dir}/antlr4"/>
 		<property name="generated.src.dir"			value="${build.dir}/generated"/>
@@ -130,19 +119,10 @@
 			</fileset>
             <path refid="provided-cachepath"/>
 		</path>
-
-		<ivy:cachepath pathid="tools-cachepath" conf="tools" />
-		
-		<path id="tools-classpath">
-			<path refid="tools-cachepath"/>
-			<pathelement path="${build.classes}" />
-		</path>
 		
 		<path id="test-classpath">
 			<path refid="test-cachepath"/>
-            <pathelement path="${launch.jar.name}"/>
 			<pathelement path="${build.classes}" />
-			<pathelement path="${build.tools.classes}" />
 		</path>
 		
 		
@@ -194,9 +174,6 @@
 	         basedir="${build.src}">
 	    </jar>
 		
-	    <jar destfile="${build.tools}/${tools.sources.jar.name}"
-	         basedir="${tools.src}">
-	    </jar>
 	</target>
 
 	<!-- =================================================================== -->
@@ -229,57 +206,21 @@
 	<!-- Creates the jar file                                                -->
 	<!-- =================================================================== -->
 
-	<target name="jar" depends="compile, compile-tools" description="Generates the jar packages">
+	<target name="jar" depends="compile" description="Generates the jar packages">
 
 	    <jar destfile="${lib.dir}/${jar.name}"
 	         basedir="${build.classes}">
 	      <metainf dir="${build.dir}" includes="LICENSE.txt"/>
 	    </jar>
 		
-	    <jar destfile="${build.tools}/${tools.jar.name}"
-	         basedir="${build.tools.classes}">
-	    </jar>
-		
 	</target>
 
 
-	<!-- =================================================================== -->
-	<!-- Compile tools                                                   -->
-	<!-- =================================================================== -->
-
-	<target name="compile-tools" depends="compile" description="Compile tools">
-		<mkdir dir="${build.tools.classes}"/>
-
-		<copy todir="${build.tools.classes}" filtering="off">
-			<fileset dir="${tools.src}">
-				<include name="**/*.gif"/>
-				<include name="**/*.properties"/>
-				<include name="**/*.xml"/>
-				<include name="**/*.xsl"/>
-			</fileset>
-		</copy>
-
-		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
-
-		<javac srcdir="${tools.src}"
-		   destdir="${build.tools.classes}"
-		   debug="${debug}"
-		   optimize="${optimize}"
-		   deprecation="${deprecation}"
-		   nowarn="${nowarn}">
-			<classpath>
-				<path refid="classpath"/>
-				<pathelement location="${build.classes}"/>
-			</classpath>
-		</javac>
-	</target>
-	
 	<!-- =================================================================== -->
 	<!-- Set a variable if javadoc is already up-to-date.                    -->
 	<!-- =================================================================== -->
 	<target name="javadocs_check">
 		<mkdir dir="${build.javadocs}"/>
-		<mkdir dir="${build.tools.javadocs}"/>
 		<uptodate property="javadocs.notrequired" targetfile="${build.javadocs}/index.html" >
 			<srcfiles dir= "${build.src}" includes="**/*.java,**/package.html"/>
 		</uptodate>
@@ -327,27 +268,12 @@
 			<tag name="throws"/>
 		</javadoc>
 		
-		<javadoc packagenames="${packages}.*"
-             sourcepath="${tools.src}"
-             destdir="${build.javadocs}"
-             author="true"
-             version="true"
-             use="false"
-             noindex="true"
-             windowtitle="${tools.Name} API"
-             doctitle="${tools.Name}">
-			<classpath refid="tools-classpath"/>
-		</javadoc>
 	</target>
 	
 	<target name="jar-javadoc" depends="javadocs">
 	    <jar destfile="${build.dir}/${javadoc.jar.name}"
 	         basedir="${build.javadocs}">
-	    </jar>
-		
-	    <jar destfile="${build.tools}/${tools.javadoc.jar.name}"
-	         basedir="${build.tools.javadocs}">
-	    </jar>
+	    </jar>		
 	</target>
 
 	<!-- =================================================================== -->
@@ -368,11 +294,6 @@
 		   <artifacts pattern="${lib.dir}/[artifact]-[revision].[ext]" />
 		</ivy:publish>
 
-		<ivy:publish resolver="local" conf="tools" publishivy="false"
-			pubrevision="${build.version}" overwrite="true">
-		   <artifacts pattern="${build.tools}/[artifact]-[revision].[ext]" />
-		</ivy:publish>
-		
 	</target>
 	
 	<!-- =================================================================== -->
@@ -388,7 +309,6 @@
 		<mkdir dir="${to.dir}/opt"/>
 		<mkdir dir="${to.dir}/src"/>
 		<mkdir dir="${to.dir}/test"/>
-		<mkdir dir="${to.dir}/tools"/>
 
 		<copy todir="${to.dir}/bin">
 			<fileset dir="${bin.dir}"/>
@@ -430,10 +350,6 @@
 				<include name="LICENSE.txt"/>
 				<include name="README.txt"/>
 			</fileset>
-		</copy>
-
-		<copy todir="${to.dir}/tools">
-			<fileset dir="${tools.dir}"/>
 		</copy>
 
 	</target>
@@ -493,7 +409,7 @@
 	<!-- Test targets                                                       -->
 	<!-- =================================================================== -->
 	
-	<target name="compile-tests" depends="compile, compile-tools" description="Compile jUnit tests">
+	<target name="compile-tests" depends="compile" description="Compile jUnit tests">
 		<mkdir dir="${build.test}"/>
 
 		<copy todir="${build.test.classes}" filtering="off">
@@ -592,11 +508,6 @@
 		<property name="maven.javadoc.jar" 	value="${basedir}/build/${javadoc.jar.name}" />
 		<property name="maven.sources.jar" 	value="${basedir}/build/${sources.jar.name}" />
 		<property name="maven.pom" 			value="${basedir}/build/pom.xml" />
-
-		<property name="maven.tools.jar" 			value="${basedir}/build/tools/${tools.jar.name}" />
-		<property name="maven.tools.javadoc.jar" 	value="${basedir}/build/tools/${tools.javadoc.jar.name}" />
-		<property name="maven.tools.sources.jar" 	value="${basedir}/build/tools/${tools.sources.jar.name}" />
-		<property name="maven.tools.pom" 			value="${basedir}/build/tools/pom.xml" />
 		
 	    <!-- defined maven snapshots and staging repository id and url -->
 		<property name="maven.snapshots.repository.id" 	value="sonatype-nexus-snapshots" />
@@ -608,7 +519,6 @@
 		<property name="maven.gpg.plugin" 		value="org.apache.maven.plugins:maven-gpg-plugin:1.3" />
 		
 		<copy file="${src.dir}/pom.xml" todir="${build.dir}" filtering="on"/>
-		<copy file="${tools.dir}/pom.xml" todir="${build.tools}" filtering="on"/>
 	</target>
 	
 	<target name="maven-install" depends="maven-init" 
@@ -617,13 +527,7 @@
 	    	<pom file="${maven.pom}"/>
 			<attach file="${maven.sources.jar}" type="jar" classifier="sources"/>
 			<attach file="${maven.javadoc.jar}" type="jar" classifier="javadoc"/>	  
-		</artifact:install>
-		
-		<artifact:install file="${maven.tools.jar}">
-	    	<pom file="${maven.tools.pom}"/>
-			<attach file="${maven.tools.sources.jar}" type="jar" classifier="sources"/>
-			<attach file="${maven.tools.javadoc.jar}" type="jar" classifier="javadoc"/>	  
-		</artifact:install>
+		</artifact:install>		
 	</target>
 	
     <target name="maven-deploy" depends="maven-init" 
@@ -636,15 +540,6 @@
 			<arg value="-Dfile=${maven.jar}" />
 			<arg value="-Dsources=${maven.sources.jar}" />
 			<arg value="-Djavadoc=${maven.javadoc.jar}" />
-		</artifact:mvn>    	
-		<artifact:mvn>
-			<arg value="${maven.deploy.plugin}:deploy-file" />
-			<arg value="-Durl=${maven.snapshots.repository.url}" />
-			<arg value="-DrepositoryId=${maven.snapshots.repository.id}" />
-			<arg value="-DpomFile=${maven.tools.pom}" />
-			<arg value="-Dfile=${maven.tools.jar}" />
-			<arg value="-Dsources=${maven.tools.sources.jar}" />
-			<arg value="-Djavadoc=${maven.tools.javadoc.jar}" />
 		</artifact:mvn>    	
     </target>
 	
@@ -682,37 +577,6 @@
 	        <arg value="-Pgpg" />
 		</artifact:mvn>
 		
-		<!-- sign and deploy the tools main artifact -->
-		<artifact:mvn>
-			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
-			<arg value="-Durl=${maven.staging.repository.url}" />
-			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
-			<arg value="-DpomFile=${maven.tools.pom}" />
-			<arg value="-Dfile=${maven.tools.jar}" />
-	        <arg value="-Pgpg" />
-		</artifact:mvn>
-
-		<!-- sign and deploy the tools sources artifact -->
-		<artifact:mvn>
-			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
-			<arg value="-Durl=${maven.staging.repository.url}" />
-			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
-			<arg value="-DpomFile=${maven.tools.pom}" />
-			<arg value="-Dfile=${maven.tools.sources.jar}" />
-			<arg value="-Dclassifier=sources" />
-			<arg value="-Pgpg" />
-		</artifact:mvn>
-	
-		<!-- sign and deploy the tools javadoc artifact -->
-		<artifact:mvn>
-			<arg value="${maven.gpg.plugin}:sign-and-deploy-file" />
-			<arg value="-Durl=${maven.staging.repository.url}" />
-			<arg value="-DrepositoryId=${maven.staging.repository.id}" />
-			<arg value="-DpomFile=${maven.tools.pom}" />
-			<arg value="-Dfile=${maven.tools.javadoc.jar}" />
-			<arg value="-Dclassifier=javadoc" />
-	        <arg value="-Pgpg" />
-		</artifact:mvn>
 	</target>
 	
 	<!-- =================================================================== -->

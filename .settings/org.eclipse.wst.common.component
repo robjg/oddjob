@@ -2,7 +2,6 @@
     <wb-module deploy-name="projects.oddjob">
         <wb-resource deploy-path="/" source-path="/src/java"/>
         <wb-resource deploy-path="/" source-path="/test/java"/>
-        <wb-resource deploy-path="/" source-path="/tools/java"/>
         <wb-resource deploy-path="/" source-path="/build/generated"/>
     </wb-module>
 </project-modules>
