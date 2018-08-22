@@ -1,0 +1,21 @@
+<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'
+  id='this'>
+  <job>
+    <sequential>
+      <jobs>
+        <jmx:client id='remote'/>
+        <task-request taskExecutor="${remote/task-executor}" id="task-request">
+          <properties>
+            <properties>
+              <values>
+                <value key="name" value="Jane"/>
+              </values>
+            </properties>
+          </properties>
+        </task-request>
+        <echo>${task-request.response}</echo>
+        <stop job="${remote}"/>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <folder>
+                    <jobs>
+                        <state:flag id="apples" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                        <state:flag id="oranges" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                    </jobs>
+                </folder>
+                <state:join id="our-join" xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <job>
+                        <sequential>
+                            <jobs>
+                                <scheduling:trigger newOnly="true" on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                                    <job>
+                                        <echo>Apples</echo>
+                                    </job>
+                                </scheduling:trigger>
+                                <scheduling:trigger newOnly="true" on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                                    <job>
+                                        <echo>Oranges</echo>
+                                    </job>
+                                </scheduling:trigger>
+                            </jobs>
+                        </sequential>
+                    </job>
+                </state:join>
+                <echo id="last-job">And that's that!</echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

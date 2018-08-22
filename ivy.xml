@@ -16,18 +16,25 @@
 	<dependencies>
 	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
 	    	conf="default->default" />
+
         <dependency org="uk.co.rgordon" name="run-oddjob" rev="latest.integration"
             conf="launch->default"/>
+
 		<dependency org="commons-io" name="commons-io" rev="2.4"
 			conf="default->default" />
+			
 	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
 	    	conf="test->test" />
+	    	
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.3.3"
 			conf="test->default" />
+
         <dependency org="log4j" name="log4j" rev="1.2.17"
             conf="provided->default"/>
+            
         <dependency org="org.antlr" name="antlr4" rev="4.7.1"
             conf="antlr->default"/>
+            
         <dependency org="org.antlr" name="antlr4-runtime" rev="4.7.1"
             conf="default->default"/>
 	</dependencies>

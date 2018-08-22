@@ -35,7 +35,7 @@
 		<property name="build.version"  value="${project.version}"/>
 
 		<echo message="--------------------------------------------------------------"/>
-		<echo message="            ${Name} ${build.version}                                "/>
+		<echo message="            ${Name} ${build.version}                          "/>
 		<echo message="--------------------------------------------------------------"/>
 		<echo message="Building with ${ant.version}"/>
 		<echo message="using build file ${ant.file}"/>
@@ -49,9 +49,11 @@
 
 		<property name="oddjob.package"  value="org/oddjob"/>
 		<property name="src.dir"      value="./src"/>
-		<property name="java.dir"     value="${src.dir}/java"/>
-		<property name="test.dir"     value="./test"/>
-		<property name="test.src"     value="${test.dir}/java"/>
+ 		<property name="test.dir"     value="./test"/>
+        <property name="main.java.dir"        value="${src.dir}/main/java"/>
+        <property name="main.resources.dir"   value="${src.dir}/main/resources"/>
+        <property name="test.java.dir"        value="${src.dir}/test/java"/>
+        <property name="test.resources.dir"   value="${src.dir}/test/resources"/>
 		<property name="work.dir"     value="./work"/>
 		<property name="lib.dir"      value="./lib"/>
 		<property name="bin.dir"      value="./bin"/>
@@ -139,20 +141,10 @@
 		<mkdir dir="${build.src}"/>
 		<mkdir dir="${build.classes}"/>
 		<copy todir="${build.src}" filtering="on">
-			<fileset dir="${java.dir}">
-				<exclude name="**/*.gif"/>
-				<exclude name="**/*.properties"/>
-				<exclude name="**/*.xml"/>
-				<exclude name="**/*.xsl"/>
-			</fileset>
+			<fileset dir="${main.java.dir}"/>
 		</copy>
 		<copy todir="${build.src}" filtering="off">
-			<fileset dir="${java.dir}">
-				<include name="**/*.gif"/>
-				<include name="**/*.properties"/>
-				<include name="**/*.xml"/>
-				<include name="**/*.xsl"/>
-			</fileset>
+			<fileset dir="${main.resources.dir}"/>
 		</copy>
 		
 		<java classname="org.antlr.v4.Tool" classpathref="antlr-classpath" fork="true">
@@ -167,7 +159,7 @@
             <fileset dir="${generated.src.dir}"/>
         </copy>
 
-</target>
+	</target>
 
 	<target name="jar-sources" depends="prepare-src-main">
 	    <jar destfile="${build.dir}/${sources.jar.name}"
@@ -182,14 +174,10 @@
 	<target name="compile" depends="prepare-src-main"
           description="Compiles the source code">
 
-		<copy todir="${build.classes}">
-			<fileset dir="${build.src}">
-				<include name="**/*.gif"/>
-				<include name="**/*.properties"/>
-				<include name="**/*.xml"/>
-			</fileset>
-		</copy>
-		
+        <copy todir="${build.classes}">
+            <fileset dir="${main.resources.dir}"/>
+        </copy>
+
 		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
 
 		<javac srcdir="${build.src}"
@@ -413,19 +401,13 @@
 		<mkdir dir="${build.test}"/>
 
 		<copy todir="${build.test.classes}" filtering="off">
-			<fileset dir="${test.src}">
-				<include name="**/*.properties"/>
-				<include name="**/*.sql"/>
-				<include name="**/*.txt"/>
-				<include name="**/*.xml"/>
-				<include name="**/*.xsl"/>
-			</fileset>
+			<fileset dir="${test.resources.dir}"/>
 		</copy>
 		
         <echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
 
 		<!-- Compile tests -->
-		<javac source="1.8" target="1.8" srcdir="${test.src}"
+		<javac source="1.8" target="1.8" srcdir="${test.java.dir}"
             destdir="${build.test.classes}"
             debug="${debug}"
             optimize="${optimize}"

@@ -1,0 +1,21 @@
+<bean class="org.oddjob.jmx.server.HandlerFactoryBean">
+	<handlerFactories>
+		<list>
+			<values>
+				<bean class="org.oddjob.jmx.handlers.IconicHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.ResetableHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.RunnableHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.StatefulHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.StoppableHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.StructuralHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.ComponentOwnerHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.BeanDirectoryHandlerFactory"/>
+				<bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
+					className="org.oddjob.Loadable"/>
+                <bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
+                    className="org.oddjob.Forceable"/>
+                <bean class="org.oddjob.jmx.handlers.TaskExecutorHandlerFactory"/>
+			</values>
+		</list>
+	</handlerFactories>
+</bean>

@@ -1,0 +1,14 @@
+<oddjob xmlns:jmx="http://rgordon.co.uk/oddjob/jmx">
+  <job>
+    <sequential>
+      <jobs>
+        <jmx:server root="${task-executor}"/>
+        <task-service id="task-executor" response="$${echo.text}">
+          <job>
+            <echo id="echo">Hello ${name}</echo>
+          </job>
+        </task-service>
+      </jobs>
+    </sequential>
+  </job>
+</oddjob>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="favourite.colour" value="red"/>
+                    </values>
+                </properties>
+                <task-service id='parameterised-job'>
+                    <job>
+                        <echo id='echo'>Favourite Fruit: ${favourite.fruit}, Favourite Colour: ${favourite.colour}</echo>
+                    </job>
+                    <requests>
+                        <input-message><![CDATA[Enter Your Favourite Things]]></input-message>
+                        <input-text default="${favourite.colour}" prompt="Favourite Colour" property="favourite.colour"/>
+                        <input-text prompt="Favourite Fruit" property="favourite.fruit"/>
+                        <input-confirm default="false" prompt="Confirm you are of sound mind" property="sound.mind"/>
+                    </requests>
+                </task-service>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
