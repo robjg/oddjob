@@ -3,22 +3,22 @@
  */
 package org.oddjob.io;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Test;
 import org.oddjob.ConverterHelper;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
@@ -48,6 +48,8 @@ import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -55,13 +57,20 @@ import org.oddjob.tools.OurDirs;
  */
 public class FilesTypeTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(FilesTypeTest.class);
+
+	private String getJavaLibDir() {
+		String javaHome = System.getProperty("java.home");
+		Path libDir = Paths.get(javaHome).resolve("lib");
+		assertThat("Exists " + libDir, java.nio.file.Files.exists(libDir), 
+				is(true));
+		return libDir.toString();
+	}
 	
     @Test
     public void testPattern() throws Exception {
-    	OurDirs dirs = new OurDirs();
     	
         FilesType test = new FilesType();
-        test.setFiles(dirs.base() + "/lib/*.jar");
+        test.setFiles(getJavaLibDir() + "/*.jar");
         
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();
@@ -85,10 +94,9 @@ public class FilesTypeTest extends OjTestCase {
         
     @Test
     public void testNestedFileList() throws Exception {
-    	OurDirs dirs = new OurDirs();
     	
         FilesType f = new FilesType();
-        f.setFiles(dirs.base() + "/lib/*.jar");
+        f.setFiles(getJavaLibDir() + "/*.jar");
 
 		ArooaConverter converter = 
 			new ConverterHelper().getConverter();
@@ -182,14 +190,12 @@ public class FilesTypeTest extends OjTestCase {
     @Test
     public void testInOddjob() {
     	
-    	OurDirs dirs = new OurDirs();
-    	
     	String xml = 
     		"<oddjob>" +
     		" <job>" +
     		"  <bean id='mine' class='" + MyFiles.class.getName() + "'>" +
     		"   <files>" +
-    		"    <files files='" + dirs.base() + "/lib/*.jar'/>" +
+    		"    <files files='${java.home}/lib/*.jar'/>" +
     		"   </files>" +
     		"  </bean>" +
 			" </job>" +

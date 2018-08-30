@@ -21,7 +21,7 @@ public class ContextClassLoadersTest extends OjTestCase {
 		
 		File check = dirs.relative("test/classloader/AJob.class");
 		if (!check.exists()) {
-			URLClassLoaderTypeTest.compileSample(dirs);
+			URLClassLoaderTypeTest.compileSample(dirs.base());
 		}
 		
 		URLClassLoader classLoader = new URLClassLoader(new URL[] {

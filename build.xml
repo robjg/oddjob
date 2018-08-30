@@ -75,7 +75,7 @@
 		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
 		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
 		
-        <property name="antlr.src.dir"              value="${src.dir}/antlr4"/>
+        <property name="antlr.src.dir"              value="${src.dir}/main/antlr4"/>
 		<property name="generated.src.dir"			value="${build.dir}/generated"/>
 
 		
@@ -96,6 +96,8 @@
 	<!-- Prepare for the build                                               -->
 	<!-- =================================================================== -->
 	<target name="prepare" depends="init">
+
+        <ivy:settings file="../oj-assembly/ivysettings.xml"/>
 
 		<ivy:resolve/> 
 		

@@ -1,34 +1,30 @@
 package org.oddjob.oddballs;
 
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
 
-import org.oddjob.tools.OurDirs;
-
+import org.junit.Test;
 import org.oddjob.OjTestCase;
 
 public class DirectoryOddball2Test extends OjTestCase {
 
 	
-   @Test
+    @Test
 	public void testURLs() throws IOException {
 		
 		DirectoryOddball test = new DirectoryOddball();
 		
-		OurDirs dirs = new OurDirs();
-		
-		URL[] urls = test.classpathURLs(dirs.base());
+		File javaHome = new File(System.getProperty("java.home"));
+				
+		URL[] urls = test.classpathURLs(javaHome);
 		
 		HashSet<URL> set = new HashSet<URL>();
 		set.addAll(Arrays.asList(urls));
 		
 		assertTrue(set.contains(
-				new File(dirs.base(), 
-						"lib/commons-logging-1.1.1.jar").getCanonicalFile().toURI().toURL()));
+				new File(javaHome, "lib/rt.jar").getCanonicalFile().toURI().toURL()));
 	}
 }

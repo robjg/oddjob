@@ -1,28 +1,22 @@
 package org.oddjob.util;
-import org.junit.Before;
-
-import org.junit.Test;
-
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FilesType;
 import org.oddjob.tools.CompileJob;
-import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OurDirs;
-
-import org.oddjob.OjTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class URLClassLoaderTypeTest extends OjTestCase {
 
@@ -55,7 +49,7 @@ public class URLClassLoaderTypeTest extends OjTestCase {
 		
 		File check = dirs.relative("test/classloader/AJob.class");
 		if (!check.exists()) {
-			compileSample(dirs);
+			compileSample(dirs.base());
 		}
 		
 		URLClassLoaderType test = new URLClassLoaderType();
@@ -101,20 +95,27 @@ public class URLClassLoaderTypeTest extends OjTestCase {
 				Thread.currentThread().getContextClassLoader());
 	}
 	
-	static public void compileSample(final OurDirs dirs) throws IOException {
+	static public void compileSample(File oddjobDir) throws IOException {
+		
+		File dir = new File(oddjobDir, "test/classloader");
+		File classFile = new File(dir, "AJob.class");
 
-		File dir = dirs.relative("test/classloader");
-		if (new File(dir, "AJob.class").exists()) {
+		if (classFile.exists()) {
+			logger.info("{} exist, not compiling." + classFile);
 			return;
 		}
 		
 		FilesType sources = new FilesType();
-		sources.setFiles(dirs.relative(
-				"test/classloader").getPath() +
+		
+		sources.setFiles(dir.getPath() +
 				File.separator + "*.java"); 
 
-		CompileJob compile = new CompileJob();		
-		compile.setFiles(sources.toFiles());
+		File[] srcFiles = sources.toFiles();
+		
+		logger.info( "Compiling {}", Arrays.toString(srcFiles));
+		
+		CompileJob compile = new CompileJob();
+		compile.setFiles(srcFiles);
 		
 		compile.run();
 		
@@ -129,7 +130,7 @@ public class URLClassLoaderTypeTest extends OjTestCase {
 	
 		OurDirs dirs = new OurDirs();
 		
-		compileSample(dirs);
+		compileSample(dirs.base());
 		
     	URL url = getClass().getClassLoader().getResource("org/oddjob/util/URLClassLoader.xml");
     	
@@ -162,44 +163,4 @@ public class URLClassLoaderTypeTest extends OjTestCase {
 		
 	}
 	
-   @Test
-	public void testFromLaunchJar() throws SecurityException, NoSuchMethodException, ClassNotFoundException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, IOException {
-		
-		OurDirs dirs = new OurDirs();
-		
-		File check = dirs.relative("test/classloader/AJob.class");
-		if (!check.exists()) {
-			compileSample(dirs);
-		}
-		
-		
-		File oddjobFile = dirs.relative("test/classloader/classloader-test.xml");
-		
-		URLClassLoaderType first = new URLClassLoaderType();
-		first.setFiles(new File[] { dirs.relative("run-oddjob.jar")});
-		first.setNoInherit(true);
-		
-		first.configured();
-		
-		ClassLoader loader = first.toValue();
-		
-		Class<?> launcher = loader.loadClass("org.oddjob.launch.Launcher");
-		
-		Method m = launcher.getMethod("main", String[].class);
-		
-		String[] args = new String[] { "-f", oddjobFile.getCanonicalPath() };
-				
-		ConsoleCapture console = new ConsoleCapture();
-		try (ConsoleCapture.Close close = console.captureConsole()) {
-			
-			m.invoke(null, (Object) args);
-		}
-		
-		console.dump(logger);
-		
-		String[] lines = console.getLines();
-		
-		assertEquals("Worked.", lines[1].trim());
-		
-	}	
 }
