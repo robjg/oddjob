@@ -23,8 +23,9 @@ public class BatchingConsumer<T> implements FlushableConsumer<T> {
 
     @Override
     public void accept(T data) {
-        Collection<T> batch = new ArrayList<>();
-        if (counter.incrementAndGet() == batchSize) {
+        queue.add(data);
+        if (counter.incrementAndGet() % batchSize == 0) {
+            Collection<T> batch = new ArrayList<>();
             for (int i = 0; i < batchSize; ++i) {
                 batch.add(queue.remove());
             }
@@ -35,5 +36,6 @@ public class BatchingConsumer<T> implements FlushableConsumer<T> {
     @Override
     public void flush() {
         next.accept(queue.stream().collect(Collectors.toList()));
+        next.flush();
     }
 }
