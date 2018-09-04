@@ -1,12 +1,27 @@
 package org.oddjob.beanbus.pipeline;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
+/**
+ *  Provides methods to create a pipeline of {@link FlushableConsumer} components.
+ *  <p>
+ *  It is up to client code how the pipeline is constructed but components created using this class provide the
+ *  following advantages.
+ *  <ul>
+ *      <li>Access to the {@link FlushableConsumer#accept(Object)} method of the {@link FlushableConsumer} provided
+ *      by the {@link #openWith(FlushableConsumer)} will block if a component further down the pipeline
+ *      dictates that there is too much work for it.</li>
+ *      <li>The {@link FlushableConsumer#accept(Object)} method will be executed asynchronously on the provided
+ *      Exectutor.</li>
+ *      <li>A call to {@link FlushableConsumer#flush()} will block until all work created by
+ *      {@link FlushableConsumer#accept(Object)} has completed.</li>
+ *  </ul>
+ *
+ * @param <T> The type data a the start of the pipeline.
+ */
 public class AsyncPipeline<T> {
 
     private final Blocker block;
@@ -17,6 +32,11 @@ public class AsyncPipeline<T> {
 
     private final long timeout;
 
+    /**
+     * Create a pipeline with the given {@link Executor}.
+     *
+     * @param executor
+     */
     public AsyncPipeline(Executor executor) {
         this(executor, 0);
     }
@@ -27,8 +47,14 @@ public class AsyncPipeline<T> {
         block = new Blocker(timeout);
     }
 
-
-    public FlushableConsumer<T> openWith(FlushableConsumer<T> start) {
+    /**
+     * Decorate an {@link FlushableConsumer} to be the start of a pipeline.
+     *
+     * @param start
+     *
+     * @return
+     */
+    public FlushableConsumer<T> openWith(FlushableConsumer<? super T> start) {
 
         return new FlushableConsumer<T>() {
 
@@ -47,26 +73,51 @@ public class AsyncPipeline<T> {
         };
     }
 
-    <X> FlushableConsumer<X> createSection(FlushableConsumer<X> delegate) {
+    /**
+     * Decorate the provided {@link FlushableConsumer} to provide one that performs an asynchronous processing of
+     * data accepted via {@link FlushableConsumer#accept(Object)} which will synchronise with the
+     * {@link FlushableConsumer#flush()} method.
+     *
+     * @param delegate
+     * @param <X>
+     *
+     * @return
+     */
+    <X> FlushableConsumer<X> createSection(FlushableConsumer<? super X> delegate) {
 
         return new InternalSection<>(delegate, Integer.MAX_VALUE);
     }
 
-    <X> FlushableConsumer<X> createBlockSection(FlushableConsumer<X> delegate, int maxWork) {
+    /**
+     * Decorate the provided {@link FlushableConsumer} as per the {@link #createSection(FlushableConsumer)} method
+     * but additionally, the created component will block the start of the pipeline if the work in progress is
+     * greater than that specified by the {@code maxWork} parameter.
+     *
+     * @param delegate
+     * @param maxWork
+     * @param <X>
+     * @return
+     */
+    <X> FlushableConsumer<X> createBlockSection(FlushableConsumer<? super X> delegate, int maxWork) {
 
         return new InternalSection<>(delegate, maxWork);
     }
 
 
+    /**
+     * Internal
+     *
+     * @param <T>
+     */
     class InternalSection<T> implements FlushableConsumer<T> {
 
-        private final FlushableConsumer<T> delegate;
+        private final FlushableConsumer<? super T> delegate;
 
         private final Blocker work = new Blocker(timeout);
 
         private final int maxWork;
 
-        InternalSection(FlushableConsumer<T> delegate, int maxWork) {
+        InternalSection(FlushableConsumer<? super T> delegate, int maxWork) {
             this.delegate = delegate;
             this.maxWork = maxWork;
         }
@@ -110,6 +161,9 @@ public class AsyncPipeline<T> {
         }
     }
 
+    /**
+     * A locking object that can be locked by any thread and release by any other.
+     */
     static class Blocker {
 
         private final Set<CountDownLatch> blockers = ConcurrentHashMap.newKeySet();

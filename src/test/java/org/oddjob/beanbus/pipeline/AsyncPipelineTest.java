@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +18,7 @@ public class AsyncPipelineTest {
 
         AsyncPipeline test = new AsyncPipeline(Runnable::run);
 
-        CollectionConsumer<String> results = new CollectionConsumer<>();
+        WireTap<String> results = new WireTap<>();
 
         FlushableConsumer<String> start = test.createSection(results);
 
@@ -53,7 +52,7 @@ public class AsyncPipelineTest {
 
         AsyncPipeline test = new AsyncPipeline(Runnable::run);
 
-        CollectionConsumer<String> results = new CollectionConsumer<>();
+        WireTap<String> results = new WireTap<>();
 
         FlushableConsumer<String> section = test.createSection(new IdentitySection<>(results));
 
@@ -72,7 +71,7 @@ public class AsyncPipelineTest {
 
         AsyncPipeline test = new AsyncPipeline(work::add, 1);
 
-        CollectionConsumer<String> results = new CollectionConsumer<>();
+        WireTap<String> results = new WireTap<>();
 
         FlushableConsumer<String> section = test.createSection(new IdentitySection<>(results));
 
@@ -103,7 +102,7 @@ public class AsyncPipelineTest {
 
         AsyncPipeline test = new AsyncPipeline(work::add, 1);
 
-        CollectionConsumer<String> results = new CollectionConsumer<>();
+        WireTap<String> results = new WireTap<>();
 
         FlushableConsumer<String> section = test.createBlockSection(results, 0);
 

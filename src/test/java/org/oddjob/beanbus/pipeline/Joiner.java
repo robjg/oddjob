@@ -4,19 +4,19 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class JoinConsumer<T>{
+public class Joiner<T>{
 
     private final AtomicInteger counter = new AtomicInteger();
 
-    private final FlushableConsumer<T> next;
+    private final FlushableConsumer<? super T> next;
 
     private final Queue<T> saved = new ConcurrentLinkedQueue<>();
 
-    public JoinConsumer(FlushableConsumer<T> next) {
+    public Joiner(FlushableConsumer<? super T> next) {
         this.next = next;
     }
 
-    public FlushableConsumer<T> useNext() {
+    public FlushableConsumer<T> newJoinPont() {
 
         counter.incrementAndGet();
 
