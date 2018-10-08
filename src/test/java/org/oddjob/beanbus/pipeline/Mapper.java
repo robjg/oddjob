@@ -1,5 +1,6 @@
 package org.oddjob.beanbus.pipeline;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
@@ -8,24 +9,34 @@ import java.util.function.Function;
  * @param <T> The type of incoming data.
  * @param <U> The type of outgoing data.
  */
-public class Mapper<T, U> implements FlushableConsumer<T> {
+public class Mapper<T, U> implements Section<T, U> {
 
-    private final FlushableConsumer<U> next;
+    private final Function<? super T, ? extends U> mapping;
 
-    private final Function<T, U> mapping;
-
-    public Mapper(FlushableConsumer<U> next, Function<T, U> mapping) {
-        this.next = next;
+    public Mapper(Function<? super T, ? extends U> mapping) {
         this.mapping = mapping;
     }
 
-    @Override
-    public void accept(T data) {
-        next.accept(mapping.apply(data));
+    public static <T, U> Section<T, U> with(Function<? super T, ? extends  U> mapping) {
+        return new Mapper<>(mapping);
     }
 
     @Override
-    public void flush() {
-        next.flush();
+    public Pipe<T> linkTo(Consumer<? super U> next) {
+        return new Pipe<T>() {
+
+            @Override
+            public void accept(T data) {
+                next.accept(mapping.apply(data));
+            }
+
+            @Override
+            public void flush() {
+            }
+        };
+    }
+
+    public static <X> Section<X, X> identity() {
+        return new Mapper<>(Function.identity());
     }
 }

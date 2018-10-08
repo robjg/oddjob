@@ -32,22 +32,21 @@ public class AsyncPipelineTest {
         assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
-    private static class IdentitySection<T> implements FlushableConsumer<T> {
-
-        private final FlushableConsumer<T> next;
-
-        IdentitySection(FlushableConsumer<T> next) {
-            this.next = next;
-        }
+    private static class IdentitySection<T> implements Section<T, T> {
 
         @Override
-        public void accept(T data) {
-            next.accept(data);
-        }
+        public Pipe<T> linkTo(Consumer<? super T> next) {
+            return new Pipe<T>() {
+                @Override
+                public void accept(T data) {
+                    next.accept(data);
+                }
 
-        @Override
-        public void flush() {
-            next.flush();
+                @Override
+                public void flush() {
+
+                }
+            };
         }
     }
 
@@ -56,15 +55,21 @@ public class AsyncPipelineTest {
 
         Pipeline<String> test = AsyncPipeline2.start(Runnable::run);
 
-        WireTap<String> results = new WireTap<>();
+        Pipeline.Stage<String, String> begin = test
+                .to(new IdentitySection<>());
 
-        FlushableConsumer<String> section = test.createSection(new IdentitySection<>(results));
+        Pipeline.Join<String, String> join = test.join();
+        join.join(begin);
 
-        FlushableConsumer<String> start = test.createSection(section);
+        Processor<String, List<String>> processor =
+                join.to(Captures.toList())
+                        .create();
 
-        start.accept("Apple");
+        processor.accept("Apple");
 
-        assertThat(results.toCollection(), is( Arrays.asList("Apple").stream().collect(Collectors.toList())));
+        List<String> results = processor.complete();
+
+        assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
     @Test
@@ -75,11 +80,10 @@ public class AsyncPipelineTest {
 
         Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
 
-        WireTap<String> results = new WireTap<>();
-
-        FlushableConsumer<String> section = test.createSection(new IdentitySection<>(results));
-
-        FlushableConsumer<String> start = test.openWith(section);
+        Processor<String, List<String>> start =
+                test.to(new IdentitySection<>())
+                        .to(Captures.toList())
+                        .create();
 
         start.accept("Apple");
 
@@ -96,7 +100,7 @@ public class AsyncPipelineTest {
 
         List<String> results = start.complete();
 
-        assertThat(results.toCollection(), is( Arrays.asList("Apple").stream().collect(Collectors.toList())));
+        assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
     @Ignore
@@ -107,11 +111,9 @@ public class AsyncPipelineTest {
 
         Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
 
-        WireTap<String> results = new WireTap<>();
-
-        FlushableConsumer<String> section = test.createBlockSection(results, 0);
-
-        FlushableConsumer<String> start = test.openWith(section);
+        Processor<String, List<String>> processor =
+                test.to(Captures.toList())
+                .create();
 
         processor.accept("Apple");
 

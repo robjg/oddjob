@@ -6,18 +6,18 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- *  Provides methods to create a pipeline of {@link FlushableConsumer} components.
+ *  Provides methods to create a pipeline of {@link Pipe} components.
  *  <p>
  *  It is up to client code how the pipeline is constructed but components created using this class provide the
  *  following advantages.
  *  <ul>
- *      <li>Access to the {@link FlushableConsumer#accept(Object)} method of the {@link FlushableConsumer} provided
- *      by the {@link #openWith(FlushableConsumer)} will block if a component further down the pipeline
+ *      <li>Access to the {@link Pipe#accept(Object)} method of the {@link Pipe} provided
+ *      by the {@link #openWith(Pipe)} will block if a component further down the pipeline
  *      dictates that there is too much work for it.</li>
- *      <li>The {@link FlushableConsumer#accept(Object)} method will be executed asynchronously on the provided
+ *      <li>The {@link Pipe#accept(Object)} method will be executed asynchronously on the provided
  *      Exectutor.</li>
- *      <li>A call to {@link FlushableConsumer#flush()} will block until all work created by
- *      {@link FlushableConsumer#accept(Object)} has completed.</li>
+ *      <li>A call to {@link Pipe#flush()} will block until all work created by
+ *      {@link Pipe#accept(Object)} has completed.</li>
  *  </ul>
  *
  * @param <T> The type data a the start of the pipeline.
@@ -48,15 +48,15 @@ public class AsyncPipeline<T> {
     }
 
     /**
-     * Decorate an {@link FlushableConsumer} to be the start of a pipeline.
+     * Decorate an {@link Pipe} to be the start of a pipeline.
      *
      * @param start
      *
      * @return
      */
-    public FlushableConsumer<T> openWith(FlushableConsumer<? super T> start) {
+    public Pipe<T> openWith(Pipe<? super T> start) {
 
-        return new FlushableConsumer<T>() {
+        return new Pipe<T>() {
 
             @Override
             public void accept(T data) {
@@ -74,22 +74,22 @@ public class AsyncPipeline<T> {
     }
 
     /**
-     * Decorate the provided {@link FlushableConsumer} to provide one that performs an asynchronous processing of
-     * data accepted via {@link FlushableConsumer#accept(Object)} which will synchronise with the
-     * {@link FlushableConsumer#flush()} method.
+     * Decorate the provided {@link Pipe} to provide one that performs an asynchronous processing of
+     * data accepted via {@link Pipe#accept(Object)} which will synchronise with the
+     * {@link Pipe#flush()} method.
      *
      * @param delegate
      * @param <X>
      *
      * @return
      */
-    <X> FlushableConsumer<X> createSection(FlushableConsumer<? super X> delegate) {
+    <X> Pipe<X> createSection(Pipe<? super X> delegate) {
 
         return new InternalSection<>(delegate, Integer.MAX_VALUE);
     }
 
     /**
-     * Decorate the provided {@link FlushableConsumer} as per the {@link #createSection(FlushableConsumer)} method
+     * Decorate the provided {@link Pipe} as per the {@link #createSection(Pipe)} method
      * but additionally, the created component will block the start of the pipeline if the work in progress is
      * greater than that specified by the {@code maxWork} parameter.
      *
@@ -98,7 +98,7 @@ public class AsyncPipeline<T> {
      * @param <X>
      * @return
      */
-    <X> FlushableConsumer<X> createBlockSection(FlushableConsumer<? super X> delegate, int maxWork) {
+    <X> Pipe<X> createBlockSection(Pipe<? super X> delegate, int maxWork) {
 
         return new InternalSection<>(delegate, maxWork);
     }
@@ -109,15 +109,15 @@ public class AsyncPipeline<T> {
      *
      * @param <T>
      */
-    class InternalSection<T> implements FlushableConsumer<T> {
+    class InternalSection<T> implements Pipe<T> {
 
-        private final FlushableConsumer<? super T> delegate;
+        private final Pipe<? super T> delegate;
 
         private final Blocker work = new Blocker(timeout);
 
         private final int maxWork;
 
-        InternalSection(FlushableConsumer<? super T> delegate, int maxWork) {
+        InternalSection(Pipe<? super T> delegate, int maxWork) {
             this.delegate = delegate;
             this.maxWork = maxWork;
         }
