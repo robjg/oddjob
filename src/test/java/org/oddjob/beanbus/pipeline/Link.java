@@ -1,6 +1,6 @@
 package org.oddjob.beanbus.pipeline;
 
-interface Link<I, T> {
+public interface Link<I, T> {
 
     <U> Pipeline.Stage<I, U> to(Section<? super T, U> section);
 

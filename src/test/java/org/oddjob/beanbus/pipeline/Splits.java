@@ -6,14 +6,14 @@ import java.util.function.Function;
 
 public class Splits {
 
-    public static <T, U> Section<T, U> byName(Function<T, Collection<String>> mapping) {
+    public static <T> Section<T, T> byName(Function<T, Collection<String>> mapping) {
 
-        return new Section<T, U>() {
+        return new Section<T, T>() {
 
-            Map<String, Consumer<? super U>> splits = new HashMap<>();
+            Map<String, Consumer<? super T>> splits = new HashMap<>();
 
             @Override
-            public Pipe<T> linkTo(Consumer<? super U> next) {
+            public Pipe<T> linkTo(Consumer<? super T> next) {
 
                 Pipe<T> p = new Pipe<T>() {
 
@@ -21,7 +21,8 @@ public class Splits {
                     public void accept(T data) {
 
                         Collection<String > sendTo = mapping.apply(data);
-                        sendTo.forEach(name -> Optional.of( splits.get(name) ) );
+                        sendTo.forEach(name -> Optional.ofNullable(
+                                splits.get(name) ).ifPresent(c -> c.accept(data)) );
                     }
 
                     @Override

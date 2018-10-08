@@ -1,9 +1,6 @@
 package org.oddjob.beanbus.pipeline;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
@@ -16,7 +13,7 @@ public class Captures {
 
         private final Queue<T> results = new ConcurrentLinkedQueue<>();
 
-        protected ResultsBase(Consumer<? super X> next) {
+        ResultsBase(Consumer<? super X> next) {
             this.next = next;
         }
 
@@ -44,6 +41,17 @@ public class Captures {
             @Override
             protected List<T> collection() {
                 return new ArrayList<>();
+            }
+        };
+    }
+
+    public static <T> Section<T, Set<T>> toSet() {
+
+        return next -> new ResultsBase<T, Set<T>>(next) {
+
+            @Override
+            protected Set<T> collection() {
+                return new HashSet<>();
             }
         };
     }

@@ -58,6 +58,10 @@ public class JoinerTest {
         assertThat(r, is(Arrays.asList(1, 1)));
     }
 
+
+
+
+
     static class Reduce implements Section<Collection<? extends Number>, Integer> {
 
         @Override

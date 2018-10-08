@@ -4,7 +4,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
 
 public class SyncPipeline<I> implements Pipeline<I> {
 
@@ -14,15 +13,19 @@ public class SyncPipeline<I> implements Pipeline<I> {
         return new SyncPipeline<>();
     }
 
+    public static SyncOptions withOptions() {
+        return new SyncOptions();
+    }
+
     @Override
     public <U> Stage<I, U> to(Section<? super I, U> section) {
 
-        return root.to(section);
+        return to(section, withOptions());
     }
 
     @Override
     public <U> Stage<I, U> to(Section<? super I, U> section, Options options) {
-        throw new UnsupportedOperationException();
+        return root.to(section, options);
     }
 
     @Override
@@ -60,17 +63,32 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
     protected abstract static class DispatchBase<P, T> implements Dispatch<P> {
 
+        private final String name;
+
         protected final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
 
         protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
+
+        protected DispatchBase(String name) {
+            this.name = name;
+        }
 
         protected void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
             tos.add(to);
             nexts.add(next);
         }
+
+        @Override
+        public String toString() {
+            return name;
+        }
     }
 
     protected static class SyncDispatch<P, T> extends DispatchBase<P, T> {
+
+        protected SyncDispatch(String name) {
+            super(name);
+        }
 
         @Override
         public void accept(P data) {
@@ -91,12 +109,12 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section) {
-            return new SyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section, Options options) {
-            throw new UnsupportedOperationException();
+            return new SyncStage<>(this, section, (SyncOptions) options);
         }
 
         @Override
@@ -104,7 +122,6 @@ public class SyncPipeline<I> implements Pipeline<I> {
             rootPipe.addNext(next);
             return rootPipe;
         }
-
     }
 
     protected static class SyncStage<I, P, T> implements Stage<I, T>, Previous<I, T> {
@@ -113,21 +130,23 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         private final Section<? super P, T> section;
 
-        private final SyncDispatch<P, T> dispatch = new SyncDispatch<>();
+        private final SyncDispatch<P, T> dispatch;
 
-        public SyncStage(Previous<I, P> previous, Section<? super P, T> section) {
+        public SyncStage(Previous<I, P> previous, Section<? super P, T> section, SyncOptions options) {
             this.previous = previous;
             this.section = section;
+            String name = options.name == null ? section.toString(): options.name;
+            this.dispatch = new SyncDispatch<>(name);
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return new SyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
-            return to(section);
+            return new SyncStage<>(this, section, (SyncOptions) options);
         }
 
         @Override
@@ -190,7 +209,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
     protected static class SyncJoin<I, T> implements Join<I, T>, Previous<I, T> {
 
-        private final Set<Stage<I, T>> joins = new LinkedHashSet<>();
+        private final Set<Link<I, T>> joins = new LinkedHashSet<>();
 
         @Override
         public Dispatch<I> linkForward(Dispatch<? super T> next) {
@@ -213,7 +232,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
             Dispatch<I> previous = null;
 
-            for (Stage<I, T> join : joins) {
+            for (Link<I, T> join : joins) {
 
                 Previous<I, T> prev = (Previous<I, T>) join;
                 previous = prev.linkForward(new Dispatch<T>() {
@@ -238,20 +257,36 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return new SyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
-            throw new UnsupportedOperationException();
+            return new SyncStage<>(this, section, (SyncOptions) options);
         }
 
         @Override
-        public void join(Stage<I, T> from) {
+        public void join(Link<I, T> from) {
 
             joins.add(from);
         }
     }
 
+    public static class SyncOptions implements Pipeline.Options {
 
+        private final String name;
+
+        SyncOptions() {
+            this(null);
+        }
+
+        SyncOptions(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public Options named(String name) {
+            return new SyncOptions(name);
+        }
+    }
 }

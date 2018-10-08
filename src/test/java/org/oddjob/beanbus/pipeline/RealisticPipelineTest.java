@@ -97,7 +97,8 @@ public class RealisticPipelineTest {
 
             join.join(
                     splits.to(Batcher.ofSize(1000))
-                            .to(new Count()));
+                            .to(new Count(),
+                                    AsyncPipeline2.withOptions().async()));
         }
 
         Processor<Integer, List<Long>> start =

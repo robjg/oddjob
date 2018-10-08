@@ -13,12 +13,13 @@ public interface Pipeline<I> extends Link<I, I> {
 
     interface Join<I, T> extends Link<I, T> {
 
-        void join(Stage<I, T> from);
+        void join(Link<I, T> from);
 
     }
 
     interface Options {
 
+        Options named(String name);
     }
 
 }

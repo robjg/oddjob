@@ -3,7 +3,6 @@ package org.oddjob.beanbus.pipeline;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -23,6 +22,10 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
         return new AsyncPipeline2<>(executor);
     }
 
+    public static AsyncOptions withOptions() {
+        return new AsyncOptions();
+    }
+
     @Override
     public <U> Stage<F, U> to(Section<? super F, U> section) {
         return root.to(section);
@@ -30,7 +33,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
     @Override
     public <U> Stage<F, U> to(Section<? super F, U> section, Options options) {
-        throw new UnsupportedOperationException();
+        return root.to(section, options);
     }
 
     @Override
@@ -68,19 +71,37 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
         }
     }
 
-    protected class AsyncDispatch<P, T> implements Dispatch<P> {
+    protected abstract class BaseDispatch<P, T> implements Dispatch<P> {
 
-        private final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
+        private final String name;
 
-        private final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
+        protected final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
+
+        protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
+
+        protected BaseDispatch(String name) {
+            this.name = name;
+        }
+
+        void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
+            tos.add(to);
+            nexts.add(next);
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    protected class AsyncDispatch<P, T> extends BaseDispatch<P, T> {
 
         private final PhasedWork work = new PhasedWork(
                 () -> tos.forEach(Pipe::flush),
                 executor);
 
-        void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
-            tos.add(to);
-            nexts.add(next);
+        protected AsyncDispatch(String name) {
+            super(name);
         }
 
         @Override
@@ -95,18 +116,37 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
         }
     }
 
+    protected class SyncDispatch<P, T> extends BaseDispatch<P, T> {
+
+        protected SyncDispatch(String name) {
+            super(name);
+        }
+
+        @Override
+        public void accept(P data) {
+            tos.forEach(c -> c.accept(data));
+        }
+
+        @Override
+        public CompletableFuture<?> complete() {
+            tos.forEach(Pipe::flush);
+            return CompletableFuture.allOf(
+                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+        }
+    }
+
     protected class RootStage<I> implements Link<I, I>, Previous<I, I> {
 
         private final RootPipe<I> rootPipe = new RootPipe<>();
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section) {
-            return new AsyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section, Options options) {
-            throw new UnsupportedOperationException();
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
         }
 
         @Override
@@ -124,11 +164,20 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
         private final Section<? super P, T> section;
 
-        private final AsyncDispatch<P, T> dispatch = new AsyncDispatch<>();
+        private final BaseDispatch<P, T> dispatch;
 
-        public AsyncStage(Previous<I, P> previous, Section<? super P, T> section) {
+        public AsyncStage(Previous<I, P> previous,
+                          Section<? super P, T> section,
+                          AsyncOptions options) {
             this.previous = previous;
             this.section = section;
+            String name = options.name == null ? section.toString(): options.name;
+            if (options.async) {
+                this.dispatch = new AsyncDispatch<>(name);
+            }
+            else {
+                this.dispatch = new SyncDispatch<>(name);
+            }
         }
 
         @Override
@@ -171,12 +220,12 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return new AsyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
-            throw new UnsupportedOperationException();
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
         }
 
         @Override
@@ -199,7 +248,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
             nexts.add(next);
         }
 
-        protected Dispatch<I> maybeInitialise(Set<Stage<I, T>> joins ) {
+        protected Dispatch<I> maybeInitialise(Set<Link<I, T>> joins ) {
 
             if (previous != null) {
                 return previous;
@@ -207,7 +256,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
             count.set(joins.size());
 
-            for (Stage<I, T> join : joins) {
+            for (Link<I, T> join : joins) {
 
                 Previous<I, T> prev = (Previous<I, T>) join;
                 previous = prev.linkForward(this);
@@ -239,7 +288,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
     protected class AsyncJoin<I, T> implements Join<I, T>, Previous<I, T> {
 
-        private final Set<Stage<I, T>> joins = new LinkedHashSet<>();
+        private final Set<Link<I, T>> joins = new LinkedHashSet<>();
 
         private final JoinDispatch<I, T> dispatch = new JoinDispatch<>();
 
@@ -252,16 +301,16 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return new AsyncStage<>(this, section);
+            return to(section, withOptions());
         }
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
-            throw new UnsupportedOperationException();
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
         }
 
         @Override
-        public void join(Stage<I, T> from) {
+        public void join(Link<I, T> from) {
 
             joins.add(from);
         }
@@ -269,11 +318,26 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
     public static class AsyncOptions implements Pipeline.Options {
 
-        private boolean async;
+        private final String name;
+
+        private final boolean async;
+
+        AsyncOptions() {
+            this(null, false);
+        }
+
+        AsyncOptions(String name, boolean async) {
+            this.name = name;
+            this.async = async;
+        }
 
         public AsyncOptions async() {
-            async = true;
-            return this;
+            return new AsyncOptions(this.name, true);
+        }
+
+        @Override
+        public Options named(String name) {
+            return new AsyncOptions(name, this.async);
         }
     }
 }

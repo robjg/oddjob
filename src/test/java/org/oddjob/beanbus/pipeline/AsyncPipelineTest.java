@@ -6,6 +6,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -19,17 +21,22 @@ public class AsyncPipelineTest {
     @Test
     public void whenStartJustConnectedToEndThenWorks() {
 
-        Pipeline<String> test = new AsyncPipeline2(Runnable::run);
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Pipeline<String> test = AsyncPipeline2.start(executor);
 
         Processor<String, List<String>> start =
-                test.to(Captures.toList())
+                test.to(Captures.toList(),
+                        AsyncPipeline2.withOptions().async())
                         .create();
 
         start.accept("Apple");
 
         List<String> results = start.complete();
 
-        assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
+        assertThat(results, is(Arrays.asList("Apple")));
+
+        executor.shutdown();
     }
 
     private static class IdentitySection<T> implements Section<T, T> {
@@ -113,7 +120,7 @@ public class AsyncPipelineTest {
 
         Processor<String, List<String>> processor =
                 test.to(Captures.toList())
-                .create();
+                        .create();
 
         processor.accept("Apple");
 
