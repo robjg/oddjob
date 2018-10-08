@@ -58,6 +58,48 @@ public class JoinerTest {
         assertThat(r, is(Arrays.asList(1, 1)));
     }
 
+    @Test
+    public void testMultipleJoinSync() {
+
+        testMultipleJoin(SyncPipeline.start(), SyncPipeline.withOptions());
+    }
+
+    @Test
+    public void testMultipleJoinAsync() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        testMultipleJoin(AsyncPipeline2.start(executor), AsyncPipeline2.withOptions().async());
+
+        executor.shutdown();
+    }
+
+    private void testMultipleJoin(Pipeline<Integer> pipeline, Pipeline.Options options) {
+
+
+        Pipeline.Join<Integer, Integer> join1 = pipeline.join();
+        Pipeline.Join<Integer, Integer> join2 = pipeline.join();
+        Pipeline.Join<Integer, Integer> join3 = pipeline.join();
+
+        join1.join(pipeline.to(Mapper.identity(), options));
+        join1.join(pipeline.to(Mapper.identity()));
+
+        join2.join(pipeline.to(Mapper.identity(), options));
+        join2.join(pipeline.to(Mapper.identity()));
+
+        join3.join(join1);
+        join3.join(join2);
+
+        Processor<Integer, List<Integer>> processor = join3.to(Captures.toList(), options)
+                .create();
+
+        processor.accept(1);
+
+        List<Integer> results = processor.complete();
+
+        assertThat(results, is( Arrays.asList(1,1,1,1)));
+    }
+
 
 
 
