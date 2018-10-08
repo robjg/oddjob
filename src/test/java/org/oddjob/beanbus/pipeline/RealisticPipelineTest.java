@@ -91,7 +91,7 @@ public class RealisticPipelineTest {
         Pipeline.Stage<Integer, Integer> splits =
                 pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)));
 
-        Pipeline.Join<Integer, Long> join = pipeline.join();
+        Join<Integer, Long> join = pipeline.join();
 
         for (int i = 0; i < 10; ++i) {
 

@@ -42,7 +42,7 @@ public class JoinerTest {
 
         Pipeline<Integer> pipeline = SyncPipeline.start();
 
-        Pipeline.Join<Integer, Integer> join = pipeline.join();
+        Join<Integer, Integer> join = pipeline.join();
 
         join.join(pipeline.to(Mapper.identity()));
         join.join(pipeline.to(Mapper.identity()));
@@ -77,9 +77,9 @@ public class JoinerTest {
     private void testMultipleJoin(Pipeline<Integer> pipeline, Pipeline.Options options) {
 
 
-        Pipeline.Join<Integer, Integer> join1 = pipeline.join();
-        Pipeline.Join<Integer, Integer> join2 = pipeline.join();
-        Pipeline.Join<Integer, Integer> join3 = pipeline.join();
+        Join<Integer, Integer> join1 = pipeline.join();
+        Join<Integer, Integer> join2 = pipeline.join();
+        Join<Integer, Integer> join3 = pipeline.join();
 
         join1.join(pipeline.to(Mapper.identity(), options));
         join1.join(pipeline.to(Mapper.identity()));
@@ -137,7 +137,7 @@ public class JoinerTest {
         Pipeline.Stage<Integer, Integer> from =
                 pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)));
 
-        Pipeline.Join<Integer, Integer> join = pipeline.join();
+        Join<Integer, Integer> join = pipeline.join();
 
         for (int i = 0; i < 10; ++i) {
 

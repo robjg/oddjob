@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -38,7 +37,7 @@ public class SplitsTest {
                 pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 2)),
                         options);
 
-        Pipeline.Join<Integer, Integer> join = pipeline.join();
+        Join<Integer, Integer> join = pipeline.join();
 
         join.join(split.to(Mapper.identity()));
         join.join(split.to(Mapper.identity()));
@@ -79,7 +78,7 @@ public class SplitsTest {
                 pipeline.to(Splits.byName(name -> Collections.singleton(name)),
                         options);
 
-        Pipeline.Join<String, String> join = pipeline.join();
+        Join<String, String> join = pipeline.join();
 
         join.join(split.to(Mapper.with(s -> s + " banana"), options.named("yellow")));
         join.join(split.to(Mapper.with(s -> s + " apple"), options.named("green")));

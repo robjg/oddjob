@@ -65,7 +65,7 @@ public class AsyncPipelineTest {
         Pipeline.Stage<String, String> begin = test
                 .to(new IdentitySection<>());
 
-        Pipeline.Join<String, String> join = test.join();
+        Join<String, String> join = test.join();
         join.join(begin);
 
         Processor<String, List<String>> processor =
