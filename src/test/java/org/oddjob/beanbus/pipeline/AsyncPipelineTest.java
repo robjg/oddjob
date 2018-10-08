@@ -1,30 +1,35 @@
 package org.oddjob.beanbus.pipeline;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+@Ignore
 public class AsyncPipelineTest {
 
     @Test
     public void whenStartJustConnectedToEndThenWorks() {
 
-        AsyncPipeline test = new AsyncPipeline(Runnable::run);
+        Pipeline<String> test = new AsyncPipeline2(Runnable::run);
 
-        WireTap<String> results = new WireTap<>();
-
-        FlushableConsumer<String> start = test.createSection(results);
+        Processor<String, List<String>> start =
+                test.to(Captures.toList())
+                        .create();
 
         start.accept("Apple");
 
-        assertThat(results.toCollection(), is( Arrays.asList("Apple").stream().collect(Collectors.toList())));
+        List<String> results = start.complete();
+
+        assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
     private static class IdentitySection<T> implements FlushableConsumer<T> {
@@ -44,13 +49,12 @@ public class AsyncPipelineTest {
         public void flush() {
             next.flush();
         }
-
     }
 
     @Test
     public void registeredComponentWorks() {
 
-        AsyncPipeline test = new AsyncPipeline(Runnable::run);
+        Pipeline<String> test = AsyncPipeline2.start(Runnable::run);
 
         WireTap<String> results = new WireTap<>();
 
@@ -63,13 +67,13 @@ public class AsyncPipelineTest {
         assertThat(results.toCollection(), is( Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
-
     @Test
+    @Ignore
     public void flushBlocks() {
 
         List<Runnable> work = new ArrayList<>();
 
-        AsyncPipeline test = new AsyncPipeline(work::add, 1);
+        Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
 
         WireTap<String> results = new WireTap<>();
 
@@ -80,27 +84,28 @@ public class AsyncPipelineTest {
         start.accept("Apple");
 
         try {
-            start.flush();
+            start.complete();
             fail("Should timeout");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             // expected.
         }
 
-        assertThat(work.size(), is( 1 ));
+        assertThat(work.size(), is(1));
 
-        work.forEach( Runnable::run );
+        work.forEach(Runnable::run);
 
+        List<String> results = start.complete();
 
         assertThat(results.toCollection(), is( Arrays.asList("Apple").stream().collect(Collectors.toList())));
     }
 
+    @Ignore
     @Test
     public void workBlocks() {
 
         List<Runnable> work = new ArrayList<>();
 
-        AsyncPipeline test = new AsyncPipeline(work::add, 1);
+        Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
 
         WireTap<String> results = new WireTap<>();
 
@@ -108,25 +113,25 @@ public class AsyncPipelineTest {
 
         FlushableConsumer<String> start = test.openWith(section);
 
-        start.accept("Apple");
+        processor.accept("Apple");
 
         try {
-            start.accept( "Pear");
+            processor.accept("Pear");
             fail("Should timeout");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             // expected.
         }
 
-        assertThat(work.size(), is( 1 ));
+        assertThat(work.size(), is(1));
 
-        work.forEach( Runnable::run );
+        work.forEach(Runnable::run);
 
-        start.accept( "Pear");
+        processor.accept("Pear");
 
-        work.forEach( Runnable::run );
+        work.forEach(Runnable::run);
 
-        assertThat(results.toCollection(), is( Arrays.asList("Apple", "Pear").stream().collect(Collectors.toList())));
+        List<String> results = processor.complete();
 
+        assertThat(results, is(Arrays.asList("Apple", "Pear").stream().collect(Collectors.toList())));
     }
 }

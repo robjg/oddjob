@@ -2,76 +2,81 @@ package org.oddjob.beanbus.pipeline;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class JoinerTest {
 
-    private static class IdentitySection<T> implements FlushableConsumer<T> {
+    AtomicInteger flushCount = new AtomicInteger();
 
-        private final FlushableConsumer<T> next;
+    class Tester<T> implements Section<T, T> {
 
-        IdentitySection(FlushableConsumer<T> next) {
-            this.next = next;
-        }
+        int flush;
 
         @Override
-        public void accept(T data) {
-            next.accept(data);
-        }
+        public Pipe<T> linkTo(Consumer<? super T> next) {
+            return new Pipe<T>() {
+                @Override
+                public void accept(T data) {
+                    next.accept(data);
+                }
 
-        @Override
-        public void flush() {
-            next.flush();
+                @Override
+                public void flush() {
+                    flush = flushCount.getAndIncrement();
+                }
+            };
         }
-
     }
 
+
     @Test
-    public void testStandalone() {
+    public void testSimpleSplitJoin() {
 
-        WireTap<Integer> results = new WireTap<>();
+        Pipeline<Integer> pipeline = SyncPipeline.start();
 
-        Joiner<Integer> test = new Joiner<>(results);
+        Pipeline.Join<Integer, Integer> join = pipeline.join();
 
-        FlushableConsumer<Integer> c1 = new IdentitySection<>(test.newJoinPont());
-        FlushableConsumer<Integer> c2 = new IdentitySection<>(test.newJoinPont());
-        FlushableConsumer<Integer> c3 = new IdentitySection<>(test.newJoinPont());
+        join.join(pipeline.to(Mapper.identity()));
+        join.join(pipeline.to(Mapper.identity()));
 
-        c1.accept(1);
-        c2.accept(2);
-        c3.accept(3);
+        Processor<Integer, List<Integer>> processor =
+                join.to(Captures.toList())
+                        .create();
 
-        List<Integer> resultLists;
+        processor.accept(1);
 
-        resultLists = results.toCollection().stream().collect(Collectors.toList());
-        assertThat( resultLists.size(), is(0));
+        List<Integer> r = processor.complete();
 
-        c1.flush();
+        assertThat(r, is(Arrays.asList(1, 1)));
+    }
 
-        resultLists = results.toCollection().stream().collect(Collectors.toList());
-        assertThat( resultLists.size(), is(0));
+    static class Reduce implements Section<Collection<? extends Number>, Integer> {
 
-        c2.flush();
+        @Override
+        public Pipe<Collection<? extends Number>> linkTo(Consumer<? super Integer> next) {
+            return new Pipe<Collection<? extends Number>>() {
+                @Override
+                public void accept(Collection<? extends Number> data) {
+                    next.accept(data.stream()
+                            .mapToInt(Number::intValue)
+                            .max()
+                            .orElse(0));
+                }
 
-        resultLists = results.toCollection().stream().collect(Collectors.toList());
-        assertThat( resultLists.size(), is(0));
+                @Override
+                public void flush() {
 
-        c2.flush();
-
-        resultLists = results.toCollection().stream().collect(Collectors.toList());
-        assertThat( resultLists.size(), is(3));
-
-        assertThat(resultLists.get(0), is(1));
-        assertThat( resultLists.get(1), is(2));
-        assertThat( resultLists.get(2), is(3));
+                }
+            };
+        }
     }
 
     @Test
@@ -81,51 +86,48 @@ public class JoinerTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        AsyncPipeline<Integer> pipeline = new AsyncPipeline<Integer>(executor);
+        Pipeline<Integer> pipeline = SyncPipeline.start();
 
-        WireTap<Integer> results = new WireTap<>();
+        Pipeline.Stage<Integer, Integer> from =
+                pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)));
 
-        Joiner<Integer> test = new Joiner<>(results);
-
-        List<FlushableConsumer<Integer>> joins = new ArrayList<>();
+        Pipeline.Join<Integer, Integer> join = pipeline.join();
 
         for (int i = 0; i < 10; ++i) {
-            joins.add(pipeline.createSection(
-                    new Batcher<Integer>(
-                            new Flattener<Integer>(test.newJoinPont()),
-                            Integer.MAX_VALUE)));
+
+            join.join(from.to(Folds.maxInt()));
         }
 
-        FlushableConsumer<Integer> split = new FlushableConsumer<Integer>() {
-            @Override
-            public void accept(Integer data) {
-                joins.get(data % 10).accept(data);
-            }
-
-            @Override
-            public void flush() {
-                joins.forEach(FlushableConsumer::flush);
-            }
-        };
-
-        FlushableConsumer<Integer> start = pipeline.openWith(split);
+        Processor<Integer, List<Integer>> start =
+                join.to(Captures.toList())
+                        .create();
 
         for (int i = 0; i < sampleSize; ++i) {
             start.accept(i);
         }
 
-        start.flush();
+        List<Integer> resultLists = start.complete();
 
-        List<Integer> resultLists = results.toCollection()
-                .stream()
-                .collect(Collectors.toList());
+        assertThat(resultLists.size(), is(10));
 
-        assertThat( resultLists.size(), is(sampleSize));
+        Set<Integer> resultSet = resultLists.stream()
+                .collect(Collectors.toSet());
 
-        List<Integer> firstFew = resultLists.stream().limit(5).collect(Collectors.toList());
-
-        assertThat( firstFew, is(Arrays.asList(0, 10, 20, 30, 40)));
+        assertThat(resultSet, is(new HashSet<>(
+                Arrays.asList(
+                        9_999,
+                        9_998,
+                        9_997,
+                        9_996,
+                        9_995,
+                        9_994,
+                        9_993,
+                        9_992,
+                        9_991,
+                        9_990
+                ))));
 
         executor.shutdown();
     }
+
 }

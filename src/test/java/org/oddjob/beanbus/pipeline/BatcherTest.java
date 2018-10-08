@@ -2,12 +2,12 @@ package org.oddjob.beanbus.pipeline;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -17,9 +17,10 @@ public class BatcherTest {
     @Test
     public void testStandalone() {
 
-        WireTap<Collection<? extends Integer>> results = new WireTap<>();
 
-        Batcher<Integer> test = new Batcher<>(results, 2);
+        List<List<Integer>> results = new ArrayList<>();
+
+        Pipe<Integer> test = Batcher.<Integer>ofSize(2).linkTo(results::add);
 
         test.accept(1);
         test.accept(2);
@@ -29,25 +30,38 @@ public class BatcherTest {
 
         test.flush();
 
-        List<List<? extends Integer>> resultLists = results.toCollection()
-                .stream()
-                .map( c -> c.stream()
-                        .collect(Collectors.toList()))
-                .collect(Collectors.toList());
-
-        assertThat( resultLists.size(), is(3));
-        assertThat( resultLists.get(0), is(Arrays.asList(1,2)));
-        assertThat( resultLists.get(1), is(Arrays.asList(3,4)));
-        assertThat( resultLists.get(2), is(Arrays.asList(5)));
+        assertThat(results.size(), is(3));
+        assertThat(results.get(0), is(Arrays.asList(1, 2)));
+        assertThat(results.get(1), is(Arrays.asList(3, 4)));
+        assertThat(results.get(2), is(Arrays.asList(5)));
     }
 
+    @Test
+    public void testExactBatchSizeStandalone() {
+
+        List<List<Integer>> results = new ArrayList<>();
+
+        Pipe<Integer> test = Batcher.<Integer>ofSize(2).linkTo(results::add);
+
+        test.accept(1);
+        test.accept(2);
+
+        test.flush();
+
+        assertThat(results.size(), is(1));
+        assertThat(results.get(0), is(Arrays.asList(1, 2)));
+    }
+
+    // Check compile warnings only.
     public void testBatchingToSuperType() {
 
-        WireTap<Collection<? extends Number>> numbers = new WireTap<>();
+        List<Collection<Integer>> ints = new ArrayList<>();
 
-        WireTap<Collection<Integer>> integers = new WireTap<>();
+        Pipe<Integer> intsToInts = Batcher.<Integer>ofSize(2).linkTo(ints::add);
 
-        Batcher<Integer> batcher = new Batcher<Integer>(integers, 2);
+        List<Collection<? extends Number>> numbers = new ArrayList<>();
+
+        Pipe<Integer> intsToNumbers = Batcher.<Integer>ofSize(2).linkTo(numbers::add);
     }
 
 
@@ -55,43 +69,40 @@ public class BatcherTest {
     public void testBatchingInPipeline() {
 
         int sampleSize = 10_001;
-        int batchSize = 10;
-        int expectedBatches = 1_001;
+        int batchSize = 100;
+        int expectedBatches = sampleSize / batchSize + 1;
+
+        assertThat(expectedBatches, is(101));
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        AsyncPipeline<Integer> pipeline = new AsyncPipeline<Integer>(executor);
+        Pipeline<Integer> pipeline = AsyncPipeline2.start(executor);
 
-        WireTap<Collection<Integer>> results = new WireTap<>();
-
-        FlushableConsumer<Collection<Integer>> resultSection = pipeline.createSection(results);
-
-        Batcher<Integer> test = new Batcher<>(resultSection, batchSize);
-
-        FlushableConsumer<Integer> start = pipeline.openWith(test);
+        Processor<Integer, List<List<Integer>>> start =
+                pipeline.to(Batcher.ofSize(batchSize))
+                        .to(Captures.toList())
+                        .create();
 
         for (int i = 0; i < sampleSize; ++i) {
             start.accept(i);
         }
 
-        start.flush();
+        List<List<Integer>> resultLists = start.complete();
 
-        List<List<? extends Integer>> resultLists = results.toCollection()
-                .stream()
-                .map( c -> c.stream()
-                        .collect(Collectors.toList()))
-                .collect(Collectors.toList());
-
-        assertThat( resultLists.size(), is(expectedBatches));
+        assertThat(resultLists.size(), is(expectedBatches));
 
         int fullBatches = 0;
         int partialBatches = 0;
 
-        for ( List<? extends Integer> batch : resultLists) {
-
+        for (List<? extends Integer> batch : resultLists) {
+            if (batch.size() == batchSize) {
+                ++fullBatches;
+            } else {
+                ++partialBatches;
+            }
         }
-        assertThat( resultLists.get(0).size(), is(batchSize));
-        assertThat( resultLists.get(expectedBatches-1).size(), is(1));
+        assertThat(fullBatches, is(expectedBatches - 1));
+        assertThat(partialBatches, is(1));
 
         executor.shutdown();
     }
