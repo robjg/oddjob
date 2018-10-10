@@ -1,5 +1,6 @@
 package org.oddjob.beanbus.pipeline;
 
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.AbstractQueuedSynchronizer;
 
 public class MultiBlockGate {
@@ -11,17 +12,17 @@ public class MultiBlockGate {
             return getState() == 0 ? 1 : -1;
         }
 
-        protected boolean tryReleaseShared(int ignore) { ;
+        protected boolean tryReleaseShared(int ignore) {
             return getState() == 0;
         }
 
         protected void block() {
-            for (int now = getState(); compareAndSetState( now, now + 1); now = getState());
+            for (int now = getState(); !compareAndSetState( now, now + 1); now = getState());
         }
 
         protected void unblock() {
-            for (int now = getState(); compareAndSetState( now, now - 1); now = getState());
-            tryReleaseShared(1);
+            for (int now = getState(); !compareAndSetState( now, now - 1); now = getState());
+            releaseShared(1);
         }
 
         int getBlockers() {
@@ -46,9 +47,10 @@ public class MultiBlockGate {
         sync.acquireSharedInterruptibly(1);
     }
 
-    public void await(long millis) throws InterruptedException {
+    public void await(long millis) throws InterruptedException, TimeoutException {
 
-        sync.tryAcquireSharedNanos( 1,millis * 1000L);
+        if (!sync.tryAcquireSharedNanos( 1,millis * 1000L))
+            throw new TimeoutException();
     }
 
     public int getBlockers() {

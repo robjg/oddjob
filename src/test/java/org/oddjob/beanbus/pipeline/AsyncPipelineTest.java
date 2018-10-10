@@ -1,6 +1,5 @@
 package org.oddjob.beanbus.pipeline;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -8,14 +7,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
-@Ignore
 public class AsyncPipelineTest {
 
     @Test
@@ -80,43 +78,41 @@ public class AsyncPipelineTest {
     }
 
     @Test
-    @Ignore
-    public void flushBlocks() {
+    public void completeBlocks() {
 
         List<Runnable> work = new ArrayList<>();
 
-        Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
+        Pipeline<String> test = AsyncPipeline2.start(work::add);
 
         Processor<String, List<String>> start =
-                test.to(new IdentitySection<>())
-                        .to(Captures.toList())
+                test.to(Captures.toList(), AsyncPipeline2.withOptions().async())
                         .create();
 
         start.accept("Apple");
 
-        try {
-            start.complete();
-            fail("Should timeout");
-        } catch (IllegalStateException e) {
-            // expected.
-        }
+        AtomicBoolean isBlocked = new AtomicBoolean(true);
 
-        assertThat(work.size(), is(1));
-
-        work.forEach(Runnable::run);
+        new Thread(() -> {
+            isBlocked.set(false);
+            work.get(0).run();
+        }).start();
 
         List<String> results = start.complete();
+        assertThat(isBlocked.get(), is(false));
 
-        assertThat(results, is(Arrays.asList("Apple").stream().collect(Collectors.toList())));
+        assertThat(results, is(Arrays.asList("Apple")));
     }
 
-    @Ignore
     @Test
     public void workBlocks() {
 
         List<Runnable> work = new ArrayList<>();
 
-        Pipeline<String> test = null; // new AsyncPipeline(work::add, 1);
+        AsyncPipeline2<String> test = AsyncPipeline2.start(work::add);
+
+        Processor<String, List<String>> start =
+                test.to(Captures.toList(), AsyncPipeline2.withOptions().async().maxWork(1))
+                        .create();
 
         Processor<String, List<String>> processor =
                 test.to(Captures.toList())
@@ -124,23 +120,21 @@ public class AsyncPipelineTest {
 
         processor.accept("Apple");
 
-        try {
-            processor.accept("Pear");
-            fail("Should timeout");
-        } catch (IllegalStateException e) {
-            // expected.
-        }
-
-        assertThat(work.size(), is(1));
-
-        work.forEach(Runnable::run);
+        new Thread(() -> {
+            while(!test.isBlocked()) {
+                Thread.yield();
+            }
+            work.get(0).run();
+        }).start();
 
         processor.accept("Pear");
 
-        work.forEach(Runnable::run);
+        assertThat(work.size(), is(2));
+
+        work.get(1).run();
 
         List<String> results = processor.complete();
 
-        assertThat(results, is(Arrays.asList("Apple", "Pear").stream().collect(Collectors.toList())));
+        assertThat(results, is(Arrays.asList("Apple", "Pear")));
     }
 }

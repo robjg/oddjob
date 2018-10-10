@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
@@ -52,16 +53,39 @@ public class BatcherTest {
         assertThat(results.get(0), is(Arrays.asList(1, 2)));
     }
 
-    // Check compile warnings only.
+    static private class SomeSection implements Section<Collection<Number>, String> {
+
+        @Override
+        public Pipe<Collection<Number>> linkTo(Consumer<? super String> next) {
+            return new Pipe<Collection<Number>>() {
+                @Override
+                public void accept(Collection<Number> data) {
+                    next.accept(data.toString());
+                }
+
+                @Override
+                public void flush() {
+                }
+            };
+        }
+    }
+
+    @Test
     public void testBatchingToSuperType() {
 
-        List<Collection<Integer>> ints = new ArrayList<>();
+        Pipeline<Integer> pipeline = SyncPipeline.start();
 
-        Pipe<Integer> intsToInts = Batcher.<Integer>ofSize(2).linkTo(ints::add);
+        Processor<Integer, String> processor = pipeline.to(Batcher.<Number>ofSize(2))
+            .to(new SomeSection())
+                .to(Captures.single())
+                .create();
 
-        List<Collection<? extends Number>> numbers = new ArrayList<>();
+        processor.accept(1);
+        processor.accept(2);
 
-        Pipe<Integer> intsToNumbers = Batcher.<Integer>ofSize(2).linkTo(numbers::add);
+        String result = processor.complete();
+
+        assertThat(result, is("[1, 2]"));
     }
 
 

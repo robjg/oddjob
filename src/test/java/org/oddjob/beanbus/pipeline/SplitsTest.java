@@ -75,7 +75,7 @@ public class SplitsTest {
     private void testSplitByName(Pipeline<String> pipeline, Pipeline.Options options ) {
 
         Link<String, String> split =
-                pipeline.to(Splits.byName(name -> Collections.singleton(name)),
+                pipeline.to(Splits.byName(data -> Collections.singleton(data)),
                         options);
 
         Join<String, String> join = pipeline.join();

@@ -6,8 +6,9 @@ import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
-public class PhasedWork {
+public class PhasedWork implements Executor {
 
     private final Executor executor;
 
@@ -20,6 +21,7 @@ public class PhasedWork {
         this.executor = executor;
     }
 
+    @Override
     public void execute(Runnable work) {
         queue.add(CompletableFuture.runAsync(work, executor));
     }

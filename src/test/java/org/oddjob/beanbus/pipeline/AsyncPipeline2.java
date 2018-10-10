@@ -10,9 +10,11 @@ import java.util.function.Consumer;
 
 public class AsyncPipeline2<F> implements Pipeline<F> {
 
-    private volatile Link<F, F> root = new RootStage<>();
+    private final RootStage<F> root = new RootStage<>();
 
     private final Executor executor;
+
+    private final MultiBlockGate gate = new MultiBlockGate();
 
     public AsyncPipeline2(Executor executor) {
         this.executor = executor;
@@ -41,6 +43,10 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
         return new AsyncJoin<>();
     }
 
+    public boolean isBlocked() {
+        return gate.getBlockers() > 0;
+    }
+
     protected interface Dispatch<P> extends Consumer<P> {
 
         CompletableFuture<?> complete();
@@ -51,7 +57,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
         Dispatch<I> linkForward(Dispatch<? super P> next);
     }
 
-    protected static class RootPipe<I> implements Dispatch<I> {
+    protected class RootPipe<I> implements Dispatch<I> {
 
         protected final Set<Dispatch<? super I>> nexts = new LinkedHashSet<>();
 
@@ -59,9 +65,25 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
             nexts.add(next);
         }
 
+        private final Consumer<I> defaultConsumer = data -> nexts.forEach(c -> c.accept(data));
+
+        private Consumer<I> consumer = defaultConsumer;
+
+        void useBlocking() {
+            consumer = data -> {
+                try {
+                    gate.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                defaultConsumer.accept(data);
+            };
+        }
+
         @Override
         public void accept(I data) {
-            nexts.forEach(c -> c.accept(data));
+            consumer.accept(data);
         }
 
         @Override
@@ -96,12 +118,26 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
     protected class AsyncDispatch<P, T> extends BaseDispatch<P, T> {
 
-        private final PhasedWork work = new PhasedWork(
-                () -> tos.forEach(Pipe::flush),
-                executor);
+        private final PhasedWork work;
 
-        protected AsyncDispatch(String name) {
+        protected AsyncDispatch(String name, int maxWork) {
             super(name);
+
+            Executor useExecutor;
+            if (maxWork > 0) {
+                root.rootPipe.useBlocking();
+                useExecutor = new MaxWork(executor,
+                        maxWork,
+                        () -> gate.block(),
+                        () -> gate.unblock());
+            }
+            else {
+                useExecutor = executor;
+            }
+
+            work = new PhasedWork(
+                    () -> tos.forEach(Pipe::flush),
+                    useExecutor);
         }
 
         @Override
@@ -173,7 +209,7 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
             this.section = section;
             String name = options.name == null ? section.toString(): options.name;
             if (options.async) {
-                this.dispatch = new AsyncDispatch<>(name);
+                this.dispatch = new AsyncDispatch<>(name, options.maxWork);
             }
             else {
                 this.dispatch = new SyncDispatch<>(name);
@@ -322,22 +358,29 @@ public class AsyncPipeline2<F> implements Pipeline<F> {
 
         private final boolean async;
 
+        private final int maxWork;
+
         AsyncOptions() {
-            this(null, false);
+            this(null, false, -1);
         }
 
-        AsyncOptions(String name, boolean async) {
+        AsyncOptions(String name, boolean async, int maxWork) {
             this.name = name;
             this.async = async;
+            this.maxWork = maxWork;
         }
 
         public AsyncOptions async() {
-            return new AsyncOptions(this.name, true);
+            return new AsyncOptions(this.name, true, this.maxWork);
         }
 
         @Override
         public Options named(String name) {
-            return new AsyncOptions(name, this.async);
+            return new AsyncOptions(name, this.async, this.maxWork);
+        }
+
+        public AsyncOptions maxWork(int maxWork) {
+            return new AsyncOptions(this.name, this.async, maxWork);
         }
     }
 }
