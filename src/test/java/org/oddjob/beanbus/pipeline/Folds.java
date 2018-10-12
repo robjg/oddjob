@@ -29,7 +29,7 @@ public class Folds {
         return new Fold<>(Double.MIN_VALUE, (a, x) -> Math.max(a, x));
     }
 
-    public static Section<?, Long> count() {
+    public static Section<Object, Long> count() {
 
         return new Fold<>(0L, (a, x) -> ++a);
     }

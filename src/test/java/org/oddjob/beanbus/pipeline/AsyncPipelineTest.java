@@ -2,9 +2,9 @@ package org.oddjob.beanbus.pipeline;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -21,11 +21,11 @@ public class AsyncPipelineTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        Pipeline<String> test = AsyncPipeline2.start(executor);
+        Pipeline<String> test = AsyncPipeline.begin(executor);
 
         Processor<String, List<String>> start =
                 test.to(Captures.toList(),
-                        AsyncPipeline2.withOptions().async())
+                        AsyncPipeline.withOptions().async())
                         .create();
 
         start.accept("Apple");
@@ -58,7 +58,7 @@ public class AsyncPipelineTest {
     @Test
     public void registeredComponentWorks() {
 
-        Pipeline<String> test = AsyncPipeline2.start(Runnable::run);
+        Pipeline<String> test = AsyncPipeline.begin(Runnable::run);
 
         Pipeline.Stage<String, String> begin = test
                 .to(new IdentitySection<>());
@@ -82,10 +82,10 @@ public class AsyncPipelineTest {
 
         List<Runnable> work = new ArrayList<>();
 
-        Pipeline<String> test = AsyncPipeline2.start(work::add);
+        Pipeline<String> test = AsyncPipeline.begin(work::add);
 
         Processor<String, List<String>> start =
-                test.to(Captures.toList(), AsyncPipeline2.withOptions().async())
+                test.to(Captures.toList(), AsyncPipeline.withOptions().async())
                         .create();
 
         start.accept("Apple");
@@ -108,10 +108,10 @@ public class AsyncPipelineTest {
 
         List<Runnable> work = new ArrayList<>();
 
-        AsyncPipeline2<String> test = AsyncPipeline2.start(work::add);
+        AsyncPipeline<String> test = AsyncPipeline.begin(work::add);
 
         Processor<String, List<String>> start =
-                test.to(Captures.toList(), AsyncPipeline2.withOptions().async().maxWork(1))
+                test.to(Captures.toList(), AsyncPipeline.withOptions().async().maxWork(1))
                         .create();
 
         Processor<String, List<String>> processor =
@@ -136,5 +136,73 @@ public class AsyncPipelineTest {
         List<String> results = processor.complete();
 
         assertThat(results, is(Arrays.asList("Apple", "Pear")));
+    }
+
+    @Test
+    public void canCreateSection() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        AsyncPipeline<String> test = AsyncPipeline.begin(executor);
+
+        Section<String, Set<String>> section =
+                test.to(Mapper.with(s -> "Hello " + s))
+                        .to(Captures.toSet(), AsyncPipeline.withOptions().async())
+                        .asSection();
+
+        Pipeline<String> outer = new SyncPipeline<>();
+
+        Processor<String, Set<String>> processor = outer.to(section).create();
+
+        processor.accept("Rod");
+        processor.accept("Jane");
+        processor.accept("Freddy");
+
+        Set<String> results = processor.complete();
+
+        executor.shutdown();
+
+        assertThat(results.size(), is(3));
+
+        assertThat(results.contains("Hello Rod"), is(true));
+        assertThat(results.contains("Hello Jane"), is(true));
+        assertThat(results.contains("Hello Freddy"), is(true));
+
+    }
+
+    @Test
+    public void testAllThreadUsed() {
+
+        CountDownLatch latch = new CountDownLatch(3);
+        Set<Thread> threads = ConcurrentHashMap.newKeySet();
+        Section<String, ? super String> blockingWork =
+                n -> data -> {
+                threads.add(Thread.currentThread());
+                latch.countDown();
+                    try {
+                        latch.await();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                    n.accept(data);
+            };
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Processor<String, Long> processor = AsyncPipeline.<String>begin(executor)
+                .to(blockingWork, AsyncPipeline.withOptions().async())
+                .to(Folds.count())
+                .create();
+
+        processor.accept("a");
+        processor.accept("b");
+        processor.accept("c");
+
+        Long result =  processor.complete();
+
+        assertThat(result, is(3L));
+
+        assertThat(threads.size(), is(3));
     }
 }

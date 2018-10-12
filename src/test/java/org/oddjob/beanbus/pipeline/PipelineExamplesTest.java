@@ -13,12 +13,12 @@ import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class RealisticPipelineTest {
+public class PipelineExamplesTest {
 
     @Test
     public void testReallySimple() {
 
-        Pipeline<Integer> pipeline = SyncPipeline.start();
+        Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Processor<Integer, List<Integer>> processor =
                 pipeline.to(Captures.toList())
@@ -34,9 +34,9 @@ public class RealisticPipelineTest {
     }
 
     @Test
-    public void testSimple() {
+    public void testMappingsAndFolds() {
 
-        Pipeline<Integer> pipeline = SyncPipeline.start();
+        Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Processor<Integer, String> processor = pipeline
                 .to(new Mapper<>(i -> i + 1))
@@ -54,15 +54,15 @@ public class RealisticPipelineTest {
         assertThat(result, is("9"));
     }
 
-    static class Count implements Section<Collection<? extends Object>, Long> {
+    static class Count implements Section<Collection<?>, Long> {
 
         @Override
-        public Pipe<Collection<? extends Object>> linkTo(Consumer<? super Long> next) {
+        public Pipe<Collection<?>> linkTo(Consumer<? super Long> next) {
 
-            return new Pipe<Collection<? extends Object>>() {
+            return new Pipe<Collection<?>>() {
 
                 @Override
-                public void accept(Collection<? extends Object> data) {
+                public void accept(Collection<?> data) {
                     if (data.size() > 0) {
                         next.accept(data.stream()
                                 .mapToInt(ignored -> 1)
@@ -79,16 +79,16 @@ public class RealisticPipelineTest {
     }
 
     @Test
-    public void testSomethingRealistic() {
+    public void testHighVolumeAsyncSplitsAndJoins() {
 
         int sampleSize = 100_000;
         int batchSize = 1000;
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        Pipeline<Integer> pipeline = AsyncPipeline2.start(executor);
+        Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
-        Pipeline.Stage<Integer, Integer> splits =
+        Connector<Integer, Integer> splits =
                 pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)));
 
         Join<Integer, Long> join = pipeline.join();
@@ -96,9 +96,9 @@ public class RealisticPipelineTest {
         for (int i = 0; i < 10; ++i) {
 
             join.join(
-                    splits.to(Batcher.ofSize(1000))
+                    splits.to(Batcher.ofSize(batchSize))
                             .to(new Count(),
-                                    AsyncPipeline2.withOptions().async()));
+                                    AsyncPipeline.withOptions().async()));
         }
 
         Processor<Integer, List<Long>> start =
@@ -111,7 +111,7 @@ public class RealisticPipelineTest {
         List<Long> resultLists = start.complete();
 
         assertThat(resultLists.size(), is(sampleSize / batchSize));
-
+        resultLists.forEach(c -> assertThat(c, is((long) batchSize)));
         executor.shutdown();
     }
 

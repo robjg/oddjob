@@ -40,7 +40,7 @@ public class JoinerTest {
     @Test
     public void testSimpleSplitJoin() {
 
-        Pipeline<Integer> pipeline = SyncPipeline.start();
+        Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Join<Integer, Integer> join = pipeline.join();
 
@@ -61,7 +61,7 @@ public class JoinerTest {
     @Test
     public void testMultipleJoinSync() {
 
-        testMultipleJoin(SyncPipeline.start(), SyncPipeline.withOptions());
+        testMultipleJoin(SyncPipeline.begin(), SyncPipeline.withOptions());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class JoinerTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testMultipleJoin(AsyncPipeline2.start(executor), AsyncPipeline2.withOptions().async());
+        testMultipleJoin(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
 
         executor.shutdown();
     }
@@ -132,7 +132,7 @@ public class JoinerTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        Pipeline<Integer> pipeline = SyncPipeline.start();
+        Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Pipeline.Stage<Integer, Integer> from =
                 pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)));

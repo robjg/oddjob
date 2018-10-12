@@ -1,213 +1,437 @@
 package org.oddjob.beanbus.pipeline;
 
-import java.util.Optional;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
- *  Provides methods to create a pipeline of {@link Pipe} components.
- *  <p>
- *  It is up to client code how the pipeline is constructed but components created using this class provide the
- *  following advantages.
- *  <ul>
- *      <li>Access to the {@link Pipe#accept(Object)} method of the {@link Pipe} provided
- *      by the {@link #openWith(Pipe)} will block if a component further down the pipeline
- *      dictates that there is too much work for it.</li>
- *      <li>The {@link Pipe#accept(Object)} method will be executed asynchronously on the provided
- *      Exectutor.</li>
- *      <li>A call to {@link Pipe#flush()} will block until all work created by
- *      {@link Pipe#accept(Object)} has completed.</li>
- *  </ul>
+ *  A pipeline that supports asynchronous execution of the stages in the pipeline.
+ *  <p/>
+ *  To create an asynchronous stage a section must be added with {@link AsyncOptions#async()}. The pipeline
+ *  guarantees that all work in a stage has completed before {@code flush} is called on the pipe.
+ *  <p/>
+ *  A stage can also block the start of a pipeline if its work exceeds that specified with
+ *  {@link AsyncOptions#maxWork(int)}. If this option is used then the same executor should not be used for
+ *  the pipeline and the process feeding it otherwise all threads could be blocked writing to the pipe with
+ *  none being left to do pipeline work.
  *
- * @param <T> The type data a the start of the pipeline.
+ *
+ * @param <F> The type data a the start of the pipeline.
  */
-public class AsyncPipeline<T> {
+public class AsyncPipeline<F> implements Pipeline<F> {
 
-    private final Blocker block;
+    private final RootStage<F> root = new RootStage<>();
 
     private final Executor executor;
 
-    private final AtomicReference<RuntimeException> pipelineException = new AtomicReference<>();
+    private final MultiBlockGate gate = new MultiBlockGate();
 
-    private final long timeout;
-
-    /**
-     * Create a pipeline with the given {@link Executor}.
-     *
-     * @param executor
-     */
-    public AsyncPipeline(Executor executor) {
-        this(executor, 0);
-    }
-
-    public AsyncPipeline(Executor executor, long timeout) {
+    private AsyncPipeline(Executor executor) {
         this.executor = executor;
-        this.timeout = timeout;
-        block = new Blocker(timeout);
     }
 
     /**
-     * Decorate an {@link Pipe} to be the start of a pipeline.
+     * Begin building an asynchronous pipeline.
      *
-     * @param start
+     * @param executor The executor to use for performing asynchronous work.
+     * @param <S> The start type of pipeline.
      *
-     * @return
+     * @return A pipeline supporting asynchronous processing.
      */
-    public Pipe<T> openWith(Pipe<? super T> start) {
+    public static <S> AsyncPipeline<S> begin(Executor executor) {
+        return new AsyncPipeline<>(executor);
+    }
 
-        return new Pipe<T>() {
+    public static AsyncOptions withOptions() {
+        return new AsyncOptions();
+    }
 
-            @Override
-            public void accept(T data) {
-                Optional.ofNullable(pipelineException.get()).ifPresent( e -> { throw e; });
-                block.await();
-                start.accept(data);
+    @Override
+    public <U> Stage<F, U> to(Section<? super F, U> section) {
+        return root.to(section);
+    }
+
+    @Override
+    public <U> Stage<F, U> to(Section<? super F, U> section, Options options) {
+        return root.to(section, options);
+    }
+
+    @Override
+    public <T> Join<F, T> join() {
+        return new AsyncJoin<>();
+    }
+
+    public boolean isBlocked() {
+        return gate.getBlockers() > 0;
+    }
+
+    protected interface Dispatch<P> extends Consumer<P> {
+
+        CompletableFuture<?> complete();
+    }
+
+    protected interface Previous<I, P> {
+
+        Dispatch<I> linkForward(Dispatch<? super P> next);
+    }
+
+    protected class RootPipe<I> implements Dispatch<I> {
+
+        protected final Set<Dispatch<? super I>> nexts = new LinkedHashSet<>();
+
+        protected void addNext(Dispatch<? super I> next) {
+            nexts.add(next);
+        }
+
+        private final Consumer<I> defaultConsumer = data -> nexts.forEach(c -> c.accept(data));
+
+        private Consumer<I> consumer = defaultConsumer;
+
+        void useBlocking() {
+            consumer = data -> {
+                try {
+                    gate.await();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+                defaultConsumer.accept(data);
+            };
+        }
+
+        @Override
+        public void accept(I data) {
+            consumer.accept(data);
+        }
+
+        @Override
+        public CompletableFuture<?> complete() {
+            return CompletableFuture.allOf(
+                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+        }
+    }
+
+    protected abstract class BaseDispatch<P, T> implements Dispatch<P> {
+
+        private final String name;
+
+        protected final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
+
+        protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
+
+        protected BaseDispatch(String name) {
+            this.name = name;
+        }
+
+        void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
+            tos.add(to);
+            nexts.add(next);
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    protected class AsyncDispatch<P, T> extends BaseDispatch<P, T> {
+
+        private final PhasedWork work;
+
+        protected AsyncDispatch(String name, int maxWork) {
+            super(name);
+
+            Executor useExecutor;
+            if (maxWork > 0) {
+                root.rootPipe.useBlocking();
+                useExecutor = new MaxWork(executor,
+                        maxWork,
+                        () -> gate.block(),
+                        () -> gate.unblock());
+            }
+            else {
+                useExecutor = executor;
             }
 
-            @Override
-            public void flush() {
-                Optional.ofNullable(pipelineException.get()).ifPresent( e -> { throw e; });
-                start.flush();
+            work = new PhasedWork(
+                    () -> tos.forEach(Pipe::flush),
+                    useExecutor);
+        }
+
+        @Override
+        public void accept(P data) {
+            tos.forEach(c -> work.execute(() -> c.accept(data)));
+        }
+
+        @Override
+        public CompletableFuture<?> complete() {
+            return work.complete().thenCompose(ignored -> CompletableFuture.allOf(
+                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new)));
+        }
+    }
+
+    protected class SyncDispatch<P, T> extends BaseDispatch<P, T> {
+
+        protected SyncDispatch(String name) {
+            super(name);
+        }
+
+        @Override
+        public void accept(P data) {
+            tos.forEach(c -> c.accept(data));
+        }
+
+        @Override
+        public CompletableFuture<?> complete() {
+            tos.forEach(Pipe::flush);
+            return CompletableFuture.allOf(
+                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+        }
+    }
+
+    protected class RootStage<I> implements Connector<I, I>, Previous<I, I> {
+
+        private final RootPipe<I> rootPipe = new RootPipe<>();
+
+        @Override
+        public <U> Stage<I, U> to(Section<? super I, U> section) {
+            return to(section, withOptions());
+        }
+
+        @Override
+        public <U> Stage<I, U> to(Section<? super I, U> section, Options options) {
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
+        }
+
+        @Override
+        public Dispatch<I> linkForward(Dispatch<? super I> next) {
+
+            rootPipe.addNext(next);
+            return rootPipe;
+        }
+
+    }
+
+    class AsyncStage<I, P, T> implements Stage<I, T>, Previous<I, T> {
+
+        private final Previous<I, P> previous;
+
+        private final Section<? super P, T> section;
+
+        private final BaseDispatch<P, T> dispatch;
+
+        public AsyncStage(Previous<I, P> previous,
+                          Section<? super P, T> section,
+                          AsyncOptions options) {
+            this.previous = previous;
+            this.section = section;
+            String name = options.name == null ? section.toString(): options.name;
+            if (options.async) {
+                this.dispatch = new AsyncDispatch<>(name, options.maxWork);
             }
-        };
+            else {
+                this.dispatch = new SyncDispatch<>(name);
+            }
+        }
+
+        @Override
+        public Section<I, T> asSection() {
+
+            return next -> {
+
+                Dispatch<T> onwards = new Dispatch<T>() {
+                    @Override
+                    public void accept(T t) {
+                        next.accept(t);
+                    }
+
+                    @Override
+                    public CompletableFuture<?> complete() {
+                        return CompletableFuture.completedFuture(null);
+                    }
+                };
+
+                Dispatch<I> start = linkForward(onwards);
+
+                return new Pipe<I>() {
+                    @Override
+                    public void accept(I data) {
+                        start.accept(data);
+                    }
+
+                    @Override
+                    public void flush() {
+                        CompletableFuture<?> cf = start.complete();
+                        cf.join();
+                    }
+                };
+            };
+        }
+
+        @Override
+        public Processor<I, T> create() {
+            final AtomicReference<T> result = new AtomicReference<>();
+
+            Dispatch<T> pipe = new Dispatch<T>() {
+                @Override
+                public void accept(T data) {
+                    result.set(data);
+                }
+
+                @Override
+                public CompletableFuture<?> complete() {
+                    return CompletableFuture.completedFuture(null);
+                }
+            };
+
+            Dispatch<I> start = linkForward(pipe);
+
+            return new Processor<I, T>() {
+                @Override
+                public T complete() {
+                    CompletableFuture<?> cf = start.complete();
+                    cf.join();
+                    return result.get();
+                }
+
+                @Override
+                public void accept(I data) {
+                    start.accept(data);
+                }
+            };
+        }
+
+        @Override
+        public <U> Stage<I, U> to(Section<? super T, U> section) {
+            return to(section, withOptions());
+        }
+
+        @Override
+        public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
+        }
+
+        @Override
+        public Dispatch<I> linkForward(Dispatch<? super T> next) {
+            dispatch.addToAndNext(section.linkTo(next), next);
+
+            return previous.linkForward(dispatch);
+        }
     }
 
-    /**
-     * Decorate the provided {@link Pipe} to provide one that performs an asynchronous processing of
-     * data accepted via {@link Pipe#accept(Object)} which will synchronise with the
-     * {@link Pipe#flush()} method.
-     *
-     * @param delegate
-     * @param <X>
-     *
-     * @return
-     */
-    <X> Pipe<X> createSection(Pipe<? super X> delegate) {
+    protected static class JoinDispatch<I, T> implements Dispatch<T> {
 
-        return new InternalSection<>(delegate, Integer.MAX_VALUE);
-    }
+        protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
 
-    /**
-     * Decorate the provided {@link Pipe} as per the {@link #createSection(Pipe)} method
-     * but additionally, the created component will block the start of the pipeline if the work in progress is
-     * greater than that specified by the {@code maxWork} parameter.
-     *
-     * @param delegate
-     * @param maxWork
-     * @param <X>
-     * @return
-     */
-    <X> Pipe<X> createBlockSection(Pipe<? super X> delegate, int maxWork) {
+        private final AtomicInteger count = new AtomicInteger();
 
-        return new InternalSection<>(delegate, maxWork);
-    }
+        private Dispatch<I> previous = null;
 
+        protected void addNext(Dispatch<? super T> next) {
+            nexts.add(next);
+        }
 
-    /**
-     * Internal
-     *
-     * @param <T>
-     */
-    class InternalSection<T> implements Pipe<T> {
+        protected Dispatch<I> maybeInitialise(Set<Connector<I, T>> joins ) {
 
-        private final Pipe<? super T> delegate;
+            if (previous != null) {
+                return previous;
+            }
 
-        private final Blocker work = new Blocker(timeout);
+            count.set(joins.size());
 
-        private final int maxWork;
+            for (Connector<I, T> join : joins) {
 
-        InternalSection(Pipe<? super T> delegate, int maxWork) {
-            this.delegate = delegate;
-            this.maxWork = maxWork;
+                Previous<I, T> prev = (Previous<I, T>) join;
+                previous = prev.linkForward(this);
+            }
+
+            if (previous == null) {
+                throw new IllegalStateException("Nothing being joined.");
+            }
+
+            return previous;
         }
 
         @Override
         public void accept(T data) {
-            Runnable job;
-            if (work.size() >= maxWork) {
-                Runnable unblock = block.block();
-                job = () -> {
-                    try {
-                        delegate.accept(data);
-                    }
-                    finally {
-                        unblock.run();
-                    }
-                };
-            }
-            else {
-                job = () -> delegate.accept(data);
-            }
-
-            Runnable unlock = work.block();
-            CompletableFuture.runAsync(() -> {
-                try {
-                    job.run();
-                }
-                catch (RuntimeException e) {
-                    pipelineException.set(e);
-                }
-                finally {
-                    unlock.run();
-                }
-            }, executor);
+            nexts.forEach(c -> c.accept(data));
         }
 
         @Override
-        public void flush() {
-            work.await();
-            delegate.flush();
+        public CompletableFuture<?> complete() {
+            if (count.decrementAndGet() == 0) {
+                return CompletableFuture.allOf(
+                        nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+            }
+            else {
+                return CompletableFuture.completedFuture(null);
+            }
         }
     }
 
-    /**
-     * A locking object that can be locked by any thread and release by any other.
-     */
-    static class Blocker {
+    protected class AsyncJoin<I, T> implements Join<I, T>, Previous<I, T> {
 
-        private final Set<CountDownLatch> blockers = ConcurrentHashMap.newKeySet();
+        private final Set<Connector<I, T>> joins = new LinkedHashSet<>();
 
-        private final long timeout;
+        private final JoinDispatch<I, T> dispatch = new JoinDispatch<>();
 
-        Blocker() {
-            this(0);
+        @Override
+        public Dispatch<I> linkForward(Dispatch<? super T> next) {
+
+            dispatch.addNext(next);
+            return dispatch.maybeInitialise(joins);
         }
 
-        Blocker(long timeout) {
-            this.timeout = timeout;
+        @Override
+        public <U> Stage<I, U> to(Section<? super T, U> section) {
+            return to(section, withOptions());
         }
 
-        Runnable block() {
-
-            CountDownLatch latch = new CountDownLatch(1);
-            blockers.add(latch);
-            return () -> {
-                blockers.remove(latch);
-                latch.countDown();
-            };
+        @Override
+        public <U> Stage<I, U> to(Section<? super T, U> section, Options options) {
+            return new AsyncStage<>(this, section, (AsyncOptions) options);
         }
 
-        void await() {
+        @Override
+        public void join(Connector<I, T> from) {
 
-            blockers.forEach( latch -> {
-                try {
-                    if (timeout == 0) {
-                        latch.await();
-                    }
-                    else {
-                        if (!latch.await(timeout, TimeUnit.MILLISECONDS)) {
-                            throw new IllegalStateException("TimeOut");
-                        };
-                    }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
+            joins.add(from);
+        }
+    }
+
+    public static class AsyncOptions implements Pipeline.Options {
+
+        private final String name;
+
+        private final boolean async;
+
+        private final int maxWork;
+
+        AsyncOptions() {
+            this(null, false, -1);
         }
 
-        int size() {
-            return blockers.size();
+        AsyncOptions(String name, boolean async, int maxWork) {
+            this.name = name;
+            this.async = async;
+            this.maxWork = maxWork;
+        }
+
+        public AsyncOptions async() {
+            return new AsyncOptions(this.name, true, this.maxWork);
+        }
+
+        @Override
+        public Options named(String name) {
+            return new AsyncOptions(name, this.async, this.maxWork);
+        }
+
+        public AsyncOptions maxWork(int maxWork) {
+            return new AsyncOptions(this.name, this.async, maxWork);
         }
     }
 }

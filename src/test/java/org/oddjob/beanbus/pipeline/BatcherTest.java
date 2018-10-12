@@ -73,7 +73,7 @@ public class BatcherTest {
     @Test
     public void testBatchingToSuperType() {
 
-        Pipeline<Integer> pipeline = SyncPipeline.start();
+        Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Processor<Integer, String> processor = pipeline.to(Batcher.<Number>ofSize(2))
             .to(new SomeSection())
@@ -100,7 +100,7 @@ public class BatcherTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        Pipeline<Integer> pipeline = AsyncPipeline2.start(executor);
+        Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Processor<Integer, List<List<Integer>>> start =
                 pipeline.to(Batcher.ofSize(batchSize))

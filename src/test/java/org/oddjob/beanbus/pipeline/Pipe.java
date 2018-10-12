@@ -8,11 +8,12 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
+@FunctionalInterface
 public interface Pipe<T> extends Consumer<T>, Flushable {
 
     @Override
     void accept(T data);
 
     @Override
-    void flush();
+    default void flush() {}
 }

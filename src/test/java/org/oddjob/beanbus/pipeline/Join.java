@@ -1,7 +1,7 @@
 package org.oddjob.beanbus.pipeline;
 
-public interface Join<I, T> extends Link<I, T> {
+public interface Join<I, T> extends Connector<I, T> {
 
-    void join(Link<I, T> from);
+    void join(Connector<I, T> from);
 
 }

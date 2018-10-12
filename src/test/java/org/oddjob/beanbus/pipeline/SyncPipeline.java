@@ -7,9 +7,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class SyncPipeline<I> implements Pipeline<I> {
 
-    private volatile Link<I, I> root = new RootStage<>();
+    private volatile Connector<I, I> root = new RootStage<>();
 
-    public static <P> Pipeline<P> start() {
+    public static <P> Pipeline<P> begin() {
         return new SyncPipeline<>();
     }
 
@@ -103,7 +103,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
         }
     }
 
-    protected static class RootStage<I> implements Link<I, I>, Previous<I, I> {
+    protected static class RootStage<I> implements Connector<I, I>, Previous<I, I> {
 
         private final RootPipe<I> rootPipe = new RootPipe<>();
 
@@ -209,7 +209,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
     protected static class SyncJoin<I, T> implements Join<I, T>, Previous<I, T> {
 
-        private final Set<Link<I, T>> joins = new LinkedHashSet<>();
+        private final Set<Connector<I, T>> joins = new LinkedHashSet<>();
 
         @Override
         public Dispatch<I> linkForward(Dispatch<? super T> next) {
@@ -232,7 +232,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
             Dispatch<I> previous = null;
 
-            for (Link<I, T> join : joins) {
+            for (Connector<I, T> join : joins) {
 
                 Previous<I, T> prev = (Previous<I, T>) join;
                 previous = prev.linkForward(new Dispatch<T>() {
@@ -266,7 +266,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
         }
 
         @Override
-        public void join(Link<I, T> from) {
+        public void join(Connector<I, T> from) {
 
             joins.add(from);
         }

@@ -17,7 +17,7 @@ public class SplitsTest {
     @Test
     public void testSimpleSplitSync() {
 
-        testSimpleSplit(SyncPipeline.start(), SyncPipeline.withOptions());
+        testSimpleSplit(SyncPipeline.begin(), SyncPipeline.withOptions());
 
     }
 
@@ -26,14 +26,14 @@ public class SplitsTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testSimpleSplit(AsyncPipeline2.start(executor), AsyncPipeline2.withOptions().async());
+        testSimpleSplit(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
 
         executor.shutdown();
     }
 
     private void testSimpleSplit(Pipeline<Integer> pipeline, Pipeline.Options options ) {
 
-        Link<Integer, Integer> split =
+        Connector<Integer, Integer> split =
                 pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 2)),
                         options);
 
@@ -58,7 +58,7 @@ public class SplitsTest {
     @Test
     public void testSplitByNameSync() {
 
-        testSplitByName(SyncPipeline.start(), SyncPipeline.withOptions());
+        testSplitByName(SyncPipeline.begin(), SyncPipeline.withOptions());
 
     }
 
@@ -67,14 +67,14 @@ public class SplitsTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testSplitByName(AsyncPipeline2.start(executor), AsyncPipeline2.withOptions().async());
+        testSplitByName(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
 
         executor.shutdown();
     }
 
     private void testSplitByName(Pipeline<String> pipeline, Pipeline.Options options ) {
 
-        Link<String, String> split =
+        Connector<String, String> split =
                 pipeline.to(Splits.byName(data -> Collections.singleton(data)),
                         options);
 
