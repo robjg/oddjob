@@ -146,7 +146,7 @@ public class AsyncPipelineTest {
         AsyncPipeline<String> test = AsyncPipeline.begin(executor);
 
         Section<String, Set<String>> section =
-                test.to(Mapper.with(s -> "Hello " + s))
+                test.to(Pipes.map(s -> "Hello " + s))
                         .to(Captures.toSet(), AsyncPipeline.withOptions().async())
                         .asSection();
 

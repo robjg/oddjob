@@ -8,7 +8,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -39,9 +41,9 @@ public class PipelineExamplesTest {
         Pipeline<Integer> pipeline = SyncPipeline.begin();
 
         Processor<Integer, String> processor = pipeline
-                .to(new Mapper<>(i -> i + 1))
-                .to(Folds.with(0, (i, r) -> r + i))
-                .to(new Mapper<>(i -> i.toString()))
+                .to(Pipes.map((i -> i + 1)))
+                .to(Folds.with(0, ((i, r) -> r + i)))
+                .to(Pipes.map(i -> i.toString()))
                 .to(Captures.single())
                 .create();
 
@@ -89,7 +91,7 @@ public class PipelineExamplesTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Connector<Integer, Integer> splits =
-                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)));
+                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)), AsyncPipeline.withOptions().split());
 
         Join<Integer, Long> join = pipeline.join();
 

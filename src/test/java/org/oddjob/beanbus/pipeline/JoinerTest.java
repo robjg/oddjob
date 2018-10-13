@@ -44,8 +44,8 @@ public class JoinerTest {
 
         Join<Integer, Integer> join = pipeline.join();
 
-        join.join(pipeline.to(Mapper.identity()));
-        join.join(pipeline.to(Mapper.identity()));
+        join.join(pipeline.to(Pipes.identity()));
+        join.join(pipeline.to(Pipes.identity()));
 
         Processor<Integer, List<Integer>> processor =
                 join.to(Captures.toList())
@@ -81,11 +81,11 @@ public class JoinerTest {
         Join<Integer, Integer> join2 = pipeline.join();
         Join<Integer, Integer> join3 = pipeline.join();
 
-        join1.join(pipeline.to(Mapper.identity(), options));
-        join1.join(pipeline.to(Mapper.identity()));
+        join1.join(pipeline.to(Pipes.identity(), options));
+        join1.join(pipeline.to(Pipes.identity()));
 
-        join2.join(pipeline.to(Mapper.identity(), options));
-        join2.join(pipeline.to(Mapper.identity()));
+        join2.join(pipeline.to(Pipes.identity(), options));
+        join2.join(pipeline.to(Pipes.identity()));
 
         join3.join(join1);
         join3.join(join2);
@@ -100,7 +100,44 @@ public class JoinerTest {
         assertThat(results, is( Arrays.asList(1,1,1,1)));
     }
 
+    @Test
+    public void testJoinSeparatePathsSync() {
 
+        testJoinSeparatePath(SyncPipeline.begin(), SyncPipeline.withOptions());
+    }
+
+    private void testJoinSeparatePath(Pipeline<Integer> pipeline, Pipeline.Options options) {
+
+        Join<Integer, Integer> join1 = pipeline.join();
+        Join<Integer, Integer> join2 = pipeline.join();
+        Join<Integer, Integer> join3 = pipeline.join();
+        Join<Integer, Integer> join4 = pipeline.join();
+
+        Connector<Integer, Integer> start = pipeline.to(Pipes.identity());
+
+        join1.join(start.to(Pipes.identity()));
+        join1.join(start.to(Pipes.identity()));
+
+        join2.join(start.to(Pipes.identity()));
+        join2.join(start.to(Pipes.identity()));
+
+        join3.join(join1);
+        join3.join(join2);
+
+        join4.join(join3);
+        join4.join(join1.to(Pipes.test(data -> false)));
+        join4.join(join2.to(Pipes.test(data -> false)));
+
+        Processor<Integer, Integer> processor =
+                join4.to(Folds.with(0, (a, t) -> a += t ))
+                .create();
+
+        processor.accept(1);
+
+        Integer result = processor.complete();
+
+        assertThat(result, is(4));
+    }
 
 
 
@@ -132,10 +169,11 @@ public class JoinerTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        Pipeline<Integer> pipeline = SyncPipeline.begin();
+        Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Pipeline.Stage<Integer, Integer> from =
-                pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)));
+                pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)),
+                        AsyncPipeline.withOptions().split().async());
 
         Join<Integer, Integer> join = pipeline.join();
 

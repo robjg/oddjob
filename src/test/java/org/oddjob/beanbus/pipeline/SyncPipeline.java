@@ -4,6 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 public class SyncPipeline<I> implements Pipeline<I> {
 
@@ -33,8 +34,9 @@ public class SyncPipeline<I> implements Pipeline<I> {
         return new SyncJoin<>();
     }
 
-    protected interface Dispatch<P> extends Pipe<P> {
+    protected interface Dispatch<P> extends Consumer<P> {
 
+        void complete();
     }
 
     protected interface Previous<I, P> {
@@ -42,7 +44,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
         Dispatch<I> linkForward(Dispatch<? super P> next);
     }
 
-    protected static class RootPipe<I> implements Dispatch<I> {
+    protected static class RootDispatch<I> implements Dispatch<I> {
 
         protected final Set<Dispatch<? super I>> nexts = new LinkedHashSet<>();
 
@@ -56,8 +58,8 @@ public class SyncPipeline<I> implements Pipeline<I> {
         }
 
         @Override
-        public void flush() {
-            nexts.forEach(Dispatch::flush);
+        public void complete() {
+            nexts.forEach(Dispatch::complete);
         }
     }
 
@@ -65,17 +67,28 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         private final String name;
 
-        protected final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
-
         protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
 
         protected DispatchBase(String name) {
             this.name = name;
         }
 
-        protected void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
-            tos.add(to);
+        abstract Pipe<? super P> to();
+
+        protected void addNext(Dispatch<? super T> next) {
             nexts.add(next);
+        }
+
+        @Override
+        public void accept(P data) {
+            to().accept(data);
+        }
+
+        @Override
+        public void complete() {
+
+            to().flush();
+            nexts.forEach(Dispatch::complete);
         }
 
         @Override
@@ -86,26 +99,45 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
     protected static class SyncDispatch<P, T> extends DispatchBase<P, T> {
 
-        protected SyncDispatch(String name) {
+        private final Pipe<? super P> to;
+
+        protected SyncDispatch(Section<? super P, T> section, String name) {
             super(name);
+            to = section.linkTo(data -> nexts.forEach(c -> c.accept(data)));
         }
 
         @Override
-        public void accept(P data) {
-            tos.forEach(c -> c.accept(data));
+        Pipe<? super P> to() {
+            return to;
+        }
+    }
+
+    protected static class SyncSplitDispatch<P, T> extends DispatchBase<P, T> {
+
+        private final Section<? super P, T> section;
+
+        private Pipe<? super P> to;
+
+        protected SyncSplitDispatch(Section<? super P, T> section, String name) {
+            super(name);
+            this.section = section;
         }
 
         @Override
-        public void flush() {
+        protected void addNext(Dispatch<? super T> next) {
+            to = section.linkTo(next);
+            super.addNext(next);
+        }
 
-            tos.forEach(Pipe::flush);
-            nexts.forEach(Dispatch::flush);
+        @Override
+        Pipe<? super P> to() {
+            return to;
         }
     }
 
     protected static class RootStage<I> implements Connector<I, I>, Previous<I, I> {
 
-        private final RootPipe<I> rootPipe = new RootPipe<>();
+        private final RootDispatch<I> rootDispatch = new RootDispatch<>();
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section) {
@@ -119,24 +151,24 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public Dispatch<I> linkForward(Dispatch<? super I> next) {
-            rootPipe.addNext(next);
-            return rootPipe;
+            rootDispatch.addNext(next);
+            return rootDispatch;
         }
     }
+
 
     protected static class SyncStage<I, P, T> implements Stage<I, T>, Previous<I, T> {
 
         private final Previous<I, P> previous;
 
-        private final Section<? super P, T> section;
-
-        private final SyncDispatch<P, T> dispatch;
+        private final DispatchBase<P, T> dispatch;
 
         public SyncStage(Previous<I, P> previous, Section<? super P, T> section, SyncOptions options) {
             this.previous = previous;
-            this.section = section;
             String name = options.name == null ? section.toString(): options.name;
-            this.dispatch = new SyncDispatch<>(name);
+            this.dispatch = options.split ?
+                    new SyncSplitDispatch<>(section, name) :
+                    new SyncDispatch<>(section, name);
         }
 
         @Override
@@ -152,7 +184,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
         @Override
         public Dispatch<I> linkForward(Dispatch<? super T> next) {
 
-            dispatch.addToAndNext(section.linkTo(next), next);
+            dispatch.addNext(next);
 
             return previous.linkForward(dispatch);
         }
@@ -160,17 +192,31 @@ public class SyncPipeline<I> implements Pipeline<I> {
         @Override
         public Section<I, T> asSection() {
 
-            return next -> linkForward(new Dispatch<T>() {
-                @Override
-                public void accept(T data) {
-                    next.accept(data);
-                }
+            return next -> {
+                Dispatch<I> start = linkForward(new Dispatch<T>() {
+                    @Override
+                    public void accept(T data) {
+                        next.accept(data);
+                    }
 
-                @Override
-                public void flush() {
+                    @Override
+                    public void complete() {
 
-                }
-            });
+                    }
+                });
+
+                return new Pipe<I>() {
+                    @Override
+                    public void accept(I data) {
+                        start.accept(data);
+                    }
+
+                    @Override
+                    public void flush() {
+                        start.complete();
+                    }
+                };
+            };
         }
 
         @Override
@@ -178,24 +224,24 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
             final AtomicReference<T> result = new AtomicReference<>();
 
-            Dispatch<T> pipe = new Dispatch<T>() {
+            Dispatch<T> dispatch = new Dispatch<T>() {
                 @Override
                 public void accept(T data) {
                     result.set(data);
                 }
 
                 @Override
-                public void flush() {
+                public void complete() {
 
                 }
             };
 
-            Pipe<I> start = linkForward(pipe);
+            Dispatch<I> start = linkForward(dispatch);
 
             return new Processor<I, T>() {
                 @Override
                 public T complete() {
-                    start.flush();
+                    start.complete();
                     return result.get();
                 }
 
@@ -225,7 +271,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
                 @Override
                 public void flush() {
                     if (count.decrementAndGet() == 0) {
-                        next.flush();
+                        next.complete();
                     }
                 }
             };
@@ -242,7 +288,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
                     }
 
                     @Override
-                    public void flush() {
+                    public void complete() {
                         theJoin.flush();
                     }
                 });
@@ -276,17 +322,25 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         private final String name;
 
+        private final boolean split;
+
         SyncOptions() {
-            this(null);
+            this(null, false);
         }
 
-        SyncOptions(String name) {
+        SyncOptions(String name, boolean split) {
             this.name = name;
+            this.split = split;
         }
 
         @Override
         public Options named(String name) {
-            return new SyncOptions(name);
+            return new SyncOptions(name, this.split);
+        }
+
+        @Override
+        public Options split() {
+            return new SyncOptions(this.name, true);
         }
     }
 }

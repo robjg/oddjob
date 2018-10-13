@@ -119,16 +119,17 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         private final String name;
 
-        protected final Set<Pipe<? super P>> tos = new LinkedHashSet<>();
+        protected final Internal.Onwards<P, T> tos;
 
         protected final Set<Dispatch<? super T>> nexts = new LinkedHashSet<>();
 
-        protected BaseDispatch(String name) {
+        protected BaseDispatch(Internal.Onwards<P, T> tos, String name) {
+            this.tos = tos;
             this.name = name;
         }
 
-        void addToAndNext(Pipe<? super P> to, Dispatch<? super T> next) {
-            tos.add(to);
+        void addToAndNext(Dispatch<? super T> next) {
+            tos.addNext(next);
             nexts.add(next);
         }
 
@@ -142,8 +143,8 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         private final PhasedWork work;
 
-        protected AsyncDispatch(String name, int maxWork) {
-            super(name);
+        protected AsyncDispatch(Internal.Onwards<P, T> tos, String name, int maxWork) {
+            super(tos, name);
 
             Executor useExecutor;
             if (maxWork > 0) {
@@ -158,13 +159,13 @@ public class AsyncPipeline<F> implements Pipeline<F> {
             }
 
             work = new PhasedWork(
-                    () -> tos.forEach(Pipe::flush),
+                    () -> tos.flush(),
                     useExecutor);
         }
 
         @Override
         public void accept(P data) {
-            tos.forEach(c -> work.execute(() -> c.accept(data)));
+            work.execute(() -> tos.accept(data));
         }
 
         @Override
@@ -176,18 +177,18 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
     protected class SyncDispatch<P, T> extends BaseDispatch<P, T> {
 
-        protected SyncDispatch(String name) {
-            super(name);
+        protected SyncDispatch(Internal.Onwards<P, T> tos, String name) {
+            super(tos, name);
         }
 
         @Override
         public void accept(P data) {
-            tos.forEach(c -> c.accept(data));
+            tos.accept(data);
         }
 
         @Override
         public CompletableFuture<?> complete() {
-            tos.forEach(Pipe::flush);
+            tos.flush();
             return CompletableFuture.allOf(
                     nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
         }
@@ -220,21 +221,21 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         private final Previous<I, P> previous;
 
-        private final Section<? super P, T> section;
-
         private final BaseDispatch<P, T> dispatch;
 
         public AsyncStage(Previous<I, P> previous,
                           Section<? super P, T> section,
                           AsyncOptions options) {
             this.previous = previous;
-            this.section = section;
             String name = options.name == null ? section.toString(): options.name;
+            Internal.Onwards<P, T> onwards = options.split ?
+                    new Internal.SplitOnwards<>(section) :
+                    new Internal.MultiOnwards<>(section);
             if (options.async) {
-                this.dispatch = new AsyncDispatch<>(name, options.maxWork);
+                this.dispatch = new AsyncDispatch<>(onwards, name, options.maxWork);
             }
             else {
-                this.dispatch = new SyncDispatch<>(name);
+                this.dispatch = new SyncDispatch<>(onwards, name);
             }
         }
 
@@ -317,7 +318,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         @Override
         public Dispatch<I> linkForward(Dispatch<? super T> next) {
-            dispatch.addToAndNext(section.linkTo(next), next);
+            dispatch.addToAndNext(next);
 
             return previous.linkForward(dispatch);
         }
@@ -411,27 +412,35 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         private final int maxWork;
 
+        private final boolean split;
+
         AsyncOptions() {
-            this(null, false, -1);
+            this(null, false, -1, false);
         }
 
-        AsyncOptions(String name, boolean async, int maxWork) {
+        AsyncOptions(String name, boolean async, int maxWork, boolean split) {
             this.name = name;
             this.async = async;
             this.maxWork = maxWork;
+            this.split = split;
         }
 
         public AsyncOptions async() {
-            return new AsyncOptions(this.name, true, this.maxWork);
+            return new AsyncOptions(this.name, true, this.maxWork, this.split);
         }
 
         @Override
-        public Options named(String name) {
-            return new AsyncOptions(name, this.async, this.maxWork);
+        public AsyncOptions named(String name) {
+            return new AsyncOptions(name, this.async, this.maxWork, this.split);
         }
 
         public AsyncOptions maxWork(int maxWork) {
-            return new AsyncOptions(this.name, this.async, maxWork);
+            return new AsyncOptions(this.name, this.async, maxWork, this.split);
+        }
+
+        @Override
+        public AsyncOptions split() {
+            return new AsyncOptions(this.name, this.async, this.maxWork, true);
         }
     }
 }

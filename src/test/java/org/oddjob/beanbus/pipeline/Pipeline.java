@@ -55,6 +55,8 @@ public interface Pipeline<I> extends Connector<I, I> {
          * @return The options.
          */
         Options named(String name);
+
+        Options split();
     }
 
 }

@@ -35,12 +35,12 @@ public class SplitsTest {
 
         Connector<Integer, Integer> split =
                 pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 2)),
-                        options);
+                        options.split());
 
         Join<Integer, Integer> join = pipeline.join();
 
-        join.join(split.to(Mapper.identity()));
-        join.join(split.to(Mapper.identity()));
+        join.join(split.to(Pipes.identity()));
+        join.join(split.to(Pipes.identity()));
 
         Processor<Integer, Set<Integer>> processor =
                 join.to(Captures.toSet(), options)
@@ -76,12 +76,12 @@ public class SplitsTest {
 
         Connector<String, String> split =
                 pipeline.to(Splits.byName(data -> Collections.singleton(data)),
-                        options);
+                        options.split());
 
         Join<String, String> join = pipeline.join();
 
-        join.join(split.to(Mapper.with(s -> s + " banana"), options.named("yellow")));
-        join.join(split.to(Mapper.with(s -> s + " apple"), options.named("green")));
+        join.join(split.to(Pipes.map(s -> s + " banana"), options.named("yellow")));
+        join.join(split.to(Pipes.map(s -> s + " apple"), options.named("green")));
 
         Processor<String, Set<String>> processor = join.to(Captures.toSet()).create();
 
