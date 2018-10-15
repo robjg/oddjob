@@ -43,7 +43,7 @@ public class PhasedWorkTest {
         es.shutdown();
     }
 
-    void testWithExecutor(Executor executor) {
+    private void testWithExecutor(Executor executor) {
 
         Work complete = new Work();
 
@@ -62,5 +62,29 @@ public class PhasedWorkTest {
         assertThat(work1.isComplete(), is(true));
         assertThat(work2.isComplete(), is(true));
         assertThat(complete.isComplete(), is(true));
+    }
+
+    @Test
+    public void doLotsOfWork() {
+
+        ExecutorService es = Executors.newFixedThreadPool(2);
+
+        AtomicInteger count = new AtomicInteger();
+
+        AtomicBoolean done = new AtomicBoolean();
+
+        PhasedWork test = new PhasedWork(() -> done.set(true),
+                es);
+
+        for (int i = 0; i < 1_000_000; ++i) {
+            test.execute(() -> count.incrementAndGet());
+        }
+
+        test.complete().join();
+
+        assertThat(done.get(), is(true));
+        assertThat(count.get(), is(1_000_000));
+
+        es.shutdown();
     }
 }

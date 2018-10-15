@@ -8,9 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -91,7 +89,7 @@ public class PipelineExamplesTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Connector<Integer, Integer> splits =
-                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)), AsyncPipeline.withOptions().split());
+                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)), AsyncPipeline.options().split());
 
         Join<Integer, Long> join = pipeline.join();
 
@@ -100,7 +98,7 @@ public class PipelineExamplesTest {
             join.join(
                     splits.to(Batcher.ofSize(batchSize))
                             .to(new Count(),
-                                    AsyncPipeline.withOptions().async()));
+                                    AsyncPipeline.options().async()));
         }
 
         Processor<Integer, List<Long>> start =

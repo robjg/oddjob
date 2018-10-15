@@ -17,7 +17,7 @@ public class SplitsTest {
     @Test
     public void testSimpleSplitSync() {
 
-        testSimpleSplit(SyncPipeline.begin(), SyncPipeline.withOptions());
+        testSimpleSplit(SyncPipeline.begin(), SyncPipeline.options());
 
     }
 
@@ -26,7 +26,7 @@ public class SplitsTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testSimpleSplit(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
+        testSimpleSplit(AsyncPipeline.begin(executor), AsyncPipeline.options().async());
 
         executor.shutdown();
     }
@@ -58,7 +58,7 @@ public class SplitsTest {
     @Test
     public void testSplitByNameSync() {
 
-        testSplitByName(SyncPipeline.begin(), SyncPipeline.withOptions());
+        testSplitByName(SyncPipeline.begin(), SyncPipeline.options());
 
     }
 
@@ -67,7 +67,7 @@ public class SplitsTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testSplitByName(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
+        testSplitByName(AsyncPipeline.begin(executor), AsyncPipeline.options().async());
 
         executor.shutdown();
     }

@@ -8,6 +8,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -25,7 +26,7 @@ public class AsyncPipelineTest {
 
         Processor<String, List<String>> start =
                 test.to(Captures.toList(),
-                        AsyncPipeline.withOptions().async())
+                        AsyncPipeline.options().async())
                         .create();
 
         start.accept("Apple");
@@ -80,12 +81,12 @@ public class AsyncPipelineTest {
     @Test
     public void completeBlocks() {
 
-        List<Runnable> work = new ArrayList<>();
+        List<Runnable> work = Collections.synchronizedList(new ArrayList<>());
 
         Pipeline<String> test = AsyncPipeline.begin(work::add);
 
         Processor<String, List<String>> start =
-                test.to(Captures.toList(), AsyncPipeline.withOptions().async())
+                test.to(Captures.toList(), AsyncPipeline.options().async())
                         .create();
 
         start.accept("Apple");
@@ -93,8 +94,15 @@ public class AsyncPipelineTest {
         AtomicBoolean isBlocked = new AtomicBoolean(true);
 
         new Thread(() -> {
+            // Testing by chance...
+            Thread.yield();
+            assertThat(work.size(), is( 1));
             isBlocked.set(false);
             work.get(0).run();
+            while (work.size() < 2) {
+                Thread.yield();
+            }
+            work.get(1).run();
         }).start();
 
         List<String> results = start.complete();
@@ -106,16 +114,12 @@ public class AsyncPipelineTest {
     @Test
     public void workBlocks() {
 
-        List<Runnable> work = new ArrayList<>();
+        List<Runnable> work = Collections.synchronizedList(new ArrayList<>());
 
         AsyncPipeline<String> test = AsyncPipeline.begin(work::add);
 
-        Processor<String, List<String>> start =
-                test.to(Captures.toList(), AsyncPipeline.withOptions().async().maxWork(1))
-                        .create();
-
         Processor<String, List<String>> processor =
-                test.to(Captures.toList())
+                test.to(Captures.toList(), AsyncPipeline.options().async().maxWork(1))
                         .create();
 
         processor.accept("Apple");
@@ -133,6 +137,13 @@ public class AsyncPipelineTest {
 
         work.get(1).run();
 
+        new Thread(() -> {
+            while(work.size() < 3) {
+                Thread.yield();
+            }
+            work.get(2).run();
+        }).start();
+
         List<String> results = processor.complete();
 
         assertThat(results, is(Arrays.asList("Apple", "Pear")));
@@ -147,7 +158,7 @@ public class AsyncPipelineTest {
 
         Section<String, Set<String>> section =
                 test.to(Pipes.map(s -> "Hello " + s))
-                        .to(Captures.toSet(), AsyncPipeline.withOptions().async())
+                        .to(Captures.toSet(), AsyncPipeline.options().async())
                         .asSection();
 
         Pipeline<String> outer = new SyncPipeline<>();
@@ -191,7 +202,7 @@ public class AsyncPipelineTest {
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
         Processor<String, Long> processor = AsyncPipeline.<String>begin(executor)
-                .to(blockingWork, AsyncPipeline.withOptions().async())
+                .to(blockingWork, AsyncPipeline.options().async())
                 .to(Folds.count())
                 .create();
 
@@ -205,4 +216,37 @@ public class AsyncPipelineTest {
 
         assertThat(threads.size(), is(3));
     }
+
+    @Test
+    public void doALotOfWork() {
+
+        AtomicReference<Consumer<Integer>> start = new AtomicReference<>();
+
+        Section<Integer, Object> section = next -> data -> {
+            if (data > 0) {
+                for (int i = 0; i < 10; ++i) {
+                    start.get().accept(data - 1);
+                }
+            }
+            else {
+                next.accept(Boolean.TRUE);
+            }
+        };
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        Processor<Integer, Long> processor = AsyncPipeline.<Integer>begin(executor)
+                .to(section, AsyncPipeline.options().async())
+                .to(Folds.count())
+                .create();
+
+        start.set(processor);
+
+        processor.accept(5);
+
+        Long result = processor.complete();
+
+        assertThat(result, is(100_000L));
+    }
+
 }

@@ -14,14 +14,14 @@ public class SyncPipeline<I> implements Pipeline<I> {
         return new SyncPipeline<>();
     }
 
-    public static SyncOptions withOptions() {
+    public static SyncOptions options() {
         return new SyncOptions();
     }
 
     @Override
     public <U> Stage<I, U> to(Section<? super I, U> section) {
 
-        return to(section, withOptions());
+        return to(section, options());
     }
 
     @Override
@@ -141,7 +141,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override
@@ -173,7 +173,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override
@@ -303,7 +303,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override

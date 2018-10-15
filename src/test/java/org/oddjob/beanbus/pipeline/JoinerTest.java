@@ -61,7 +61,7 @@ public class JoinerTest {
     @Test
     public void testMultipleJoinSync() {
 
-        testMultipleJoin(SyncPipeline.begin(), SyncPipeline.withOptions());
+        testMultipleJoin(SyncPipeline.begin(), SyncPipeline.options());
     }
 
     @Test
@@ -69,7 +69,7 @@ public class JoinerTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(3);
 
-        testMultipleJoin(AsyncPipeline.begin(executor), AsyncPipeline.withOptions().async());
+        testMultipleJoin(AsyncPipeline.begin(executor), AsyncPipeline.options().async());
 
         executor.shutdown();
     }
@@ -103,7 +103,7 @@ public class JoinerTest {
     @Test
     public void testJoinSeparatePathsSync() {
 
-        testJoinSeparatePath(SyncPipeline.begin(), SyncPipeline.withOptions());
+        testJoinSeparatePath(SyncPipeline.begin(), SyncPipeline.options());
     }
 
     private void testJoinSeparatePath(Pipeline<Integer> pipeline, Pipeline.Options options) {
@@ -173,7 +173,7 @@ public class JoinerTest {
 
         Pipeline.Stage<Integer, Integer> from =
                 pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)),
-                        AsyncPipeline.withOptions().split().async());
+                        AsyncPipeline.options().split().async());
 
         Join<Integer, Integer> join = pipeline.join();
 

@@ -46,7 +46,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         return new AsyncPipeline<>(executor);
     }
 
-    public static AsyncOptions withOptions() {
+    public static AsyncOptions options() {
         return new AsyncOptions();
     }
 
@@ -200,7 +200,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super I, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override
@@ -308,7 +308,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override
@@ -389,7 +389,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         @Override
         public <U> Stage<I, U> to(Section<? super T, U> section) {
-            return to(section, withOptions());
+            return to(section, options());
         }
 
         @Override
