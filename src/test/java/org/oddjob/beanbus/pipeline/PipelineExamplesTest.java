@@ -4,7 +4,6 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,9 +39,8 @@ public class PipelineExamplesTest {
 
         Processor<Integer, String> processor = pipeline
                 .to(Pipes.map((i -> i + 1)))
-                .to(Folds.with(0, ((i, r) -> r + i)))
-                .to(Pipes.map(i -> i.toString()))
-                .to(Captures.single())
+                .to(Pipes.fold(0, ((i, r) -> r + i)))
+                .to(Pipes.map(Object::toString))
                 .create();
 
         processor.accept(1);
@@ -89,14 +87,14 @@ public class PipelineExamplesTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Connector<Integer, Integer> splits =
-                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 10)), AsyncPipeline.options().split());
+                pipeline.to(Splits.roundRobin());
 
         Join<Integer, Long> join = pipeline.join();
 
         for (int i = 0; i < 10; ++i) {
 
             join.join(
-                    splits.to(Batcher.ofSize(batchSize))
+                    splits.to(Pipes.batcher(batchSize))
                             .to(new Count(),
                                     AsyncPipeline.options().async()));
         }

@@ -34,8 +34,7 @@ public class SplitsTest {
     private void testSimpleSplit(Pipeline<Integer> pipeline, Pipeline.Options options ) {
 
         Connector<Integer, Integer> split =
-                pipeline.to(Splits.byIndex(i -> Collections.singleton(i % 2)),
-                        options.split());
+                pipeline.to(Splits.roundRobin());
 
         Join<Integer, Integer> join = pipeline.join();
 
@@ -75,8 +74,7 @@ public class SplitsTest {
     private void testSplitByName(Pipeline<String> pipeline, Pipeline.Options options ) {
 
         Connector<String, String> split =
-                pipeline.to(Splits.byName(data -> Collections.singleton(data)),
-                        options.split());
+                pipeline.to(Splits.byName(Collections::singleton));
 
         Join<String, String> join = pipeline.join();
 

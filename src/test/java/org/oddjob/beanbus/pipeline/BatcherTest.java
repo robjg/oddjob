@@ -21,7 +21,7 @@ public class BatcherTest {
 
         List<List<Integer>> results = new ArrayList<>();
 
-        Pipe<Integer> test = Batcher.<Integer>ofSize(2).linkTo(results::add);
+        Pipe<Integer> test = Pipes.<Integer>batcher(2).linkTo(results::add);
 
         test.accept(1);
         test.accept(2);
@@ -42,7 +42,7 @@ public class BatcherTest {
 
         List<List<Integer>> results = new ArrayList<>();
 
-        Pipe<Integer> test = Batcher.<Integer>ofSize(2).linkTo(results::add);
+        Pipe<Integer> test = Pipes.<Integer>batcher(2).linkTo(results::add);
 
         test.accept(1);
         test.accept(2);
@@ -75,9 +75,8 @@ public class BatcherTest {
 
         Pipeline<Integer> pipeline = SyncPipeline.begin();
 
-        Processor<Integer, String> processor = pipeline.to(Batcher.<Number>ofSize(2))
+        Processor<Integer, String> processor = pipeline.to(Pipes.<Number>batcher(2))
             .to(new SomeSection())
-                .to(Captures.single())
                 .create();
 
         processor.accept(1);
@@ -103,7 +102,7 @@ public class BatcherTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Processor<Integer, List<List<Integer>>> start =
-                pipeline.to(Batcher.ofSize(batchSize))
+                pipeline.to(Pipes.batcher(batchSize))
                         .to(Captures.toList())
                         .create();
 

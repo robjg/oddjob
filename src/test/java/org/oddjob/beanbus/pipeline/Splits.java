@@ -1,14 +1,31 @@
 package org.oddjob.beanbus.pipeline;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+/**
+ * Provides strategies for splitting data.
+ */
 public class Splits {
 
+    private Splits() {}
+
+    /**
+     * Split by the name of the section being joined to. The name of the section is that given with the
+     * {@link Pipeline.Options#named(String)} option.
+     *
+     * @param mapping The function mapping data to the name of the section.
+     *
+     * @param <T> The type of data being split.
+     *
+     * @return A Section that will do the splitting.
+     */
     public static <T> Section<T, T> byName(Function<T, Collection<String>> mapping) {
 
-        return new Section<T, T>() {
+        return new Splitter<T, T>() {
 
             Map<String, Consumer<? super T>> splits = new HashMap<>();
 
@@ -24,11 +41,6 @@ public class Splits {
                         sendTo.forEach(name -> Optional.ofNullable(
                                 splits.get(name) ).ifPresent(c -> c.accept(data)) );
                     }
-
-                    @Override
-                    public void flush() {
-
-                    }
                 };
 
                 splits.put(next.toString(), next);
@@ -38,9 +50,18 @@ public class Splits {
         };
     }
 
-    public static <T> Section<T, T> byIndex(Function<? super T, ? extends Collection<Integer>> mapping) {
+    /**
+     * Split by the index of the section being joined to.
+     *
+     * @param mapping The function mapping data to the name of the section.
+     *
+     * @param <T> The type of data being split.
+     *
+     * @return A Section that will do the splitting.
+     */
+    public static <T> Section<T, T> byIndex(BiFunction<? super T, Integer, ? extends Collection<Integer>> mapping) {
 
-        return new Section<T, T>() {
+        return new Splitter<T, T>() {
 
             final List<Consumer<? super T>> splits = new ArrayList<>();
 
@@ -49,13 +70,8 @@ public class Splits {
                 @Override
                 public void accept(T data) {
 
-                    Collection<Integer> sendTo = mapping.apply(data);
-                    sendTo.forEach(index-> Optional.of( splits.get(index))
-                            .ifPresent(c -> c.accept(data)) );
-                }
-
-                @Override
-                public void flush() {
+                    Collection<Integer> sendTo = mapping.apply(data, splits.size());
+                    sendTo.forEach(index-> splits.get(index).accept(data));
                 }
             };
 
@@ -70,32 +86,19 @@ public class Splits {
         };
     }
 
-    public static <T> Section<T, T> toAll() {
+    /**
+     * Send data to each consumer one after another.
+     *
+     * @param <T> The type of data.
+     *
+     * @return A new splitting section.
+     */
+    public static <T> Section<T, T> roundRobin() {
 
-        return new Section<T, T>() {
+        AtomicInteger count = new AtomicInteger();
 
-            List<Consumer<? super T>> splits = new ArrayList<>();
-
-            @Override
-            public Pipe<T> linkTo(Consumer<? super T> next) {
-
-                Pipe<T> p = new Pipe<T>() {
-
-                    @Override
-                    public void accept(T data) {
-
-                        splits.forEach( s -> s.accept(data) );
-                    }
-
-                    @Override
-                    public void flush() {
-                    }
-                };
-
-                splits.add(next);
-
-                return p;
-            }
-        };
+        return byIndex((ignored, size) ->
+                size > 0 ? Collections.singleton(count.getAndIncrement() % size)
+                        : Collections.emptyList());
     }
 }

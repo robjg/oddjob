@@ -7,14 +7,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 public class JoinerTest {
 
-    AtomicInteger flushCount = new AtomicInteger();
+    private AtomicInteger flushCount = new AtomicInteger();
 
     class Tester<T> implements Section<T, T> {
 
@@ -103,10 +102,20 @@ public class JoinerTest {
     @Test
     public void testJoinSeparatePathsSync() {
 
-        testJoinSeparatePath(SyncPipeline.begin(), SyncPipeline.options());
+        testJoinSeparatePath(SyncPipeline.begin());
     }
 
-    private void testJoinSeparatePath(Pipeline<Integer> pipeline, Pipeline.Options options) {
+    @Test
+    public void testJoinSeparatePathsAsync() {
+
+        ExecutorService executor = Executors.newFixedThreadPool(3);
+
+        testJoinSeparatePath(AsyncPipeline.begin(executor));
+
+        executor.shutdown();
+    }
+
+    private void testJoinSeparatePath(Pipeline<Integer> pipeline) {
 
         Join<Integer, Integer> join1 = pipeline.join();
         Join<Integer, Integer> join2 = pipeline.join();
@@ -129,7 +138,7 @@ public class JoinerTest {
         join4.join(join2.to(Pipes.test(data -> false)));
 
         Processor<Integer, Integer> processor =
-                join4.to(Folds.with(0, (a, t) -> a += t ))
+                join4.to(Pipes.fold(0, (a, t) -> a += t ))
                 .create();
 
         processor.accept(1);
@@ -172,8 +181,8 @@ public class JoinerTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Pipeline.Stage<Integer, Integer> from =
-                pipeline.to(Splits.byIndex(data -> Collections.singleton(data % 10)),
-                        AsyncPipeline.options().split().async());
+                pipeline.to(Splits.roundRobin(),
+                        AsyncPipeline.options().async());
 
         Join<Integer, Integer> join = pipeline.join();
 
@@ -194,8 +203,7 @@ public class JoinerTest {
 
         assertThat(resultLists.size(), is(10));
 
-        Set<Integer> resultSet = resultLists.stream()
-                .collect(Collectors.toSet());
+        Set<Integer> resultSet = new HashSet<>(resultLists);
 
         assertThat(resultSet, is(new HashSet<>(
                 Arrays.asList(

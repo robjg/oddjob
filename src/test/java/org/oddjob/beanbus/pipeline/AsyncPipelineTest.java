@@ -203,7 +203,7 @@ public class AsyncPipelineTest {
 
         Processor<String, Long> processor = AsyncPipeline.<String>begin(executor)
                 .to(blockingWork, AsyncPipeline.options().async())
-                .to(Folds.count())
+                .to(Pipes.count())
                 .create();
 
         processor.accept("a");
@@ -237,7 +237,7 @@ public class AsyncPipelineTest {
 
         Processor<Integer, Long> processor = AsyncPipeline.<Integer>begin(executor)
                 .to(section, AsyncPipeline.options().async())
-                .to(Folds.count())
+                .to(Pipes.count())
                 .create();
 
         start.set(processor);

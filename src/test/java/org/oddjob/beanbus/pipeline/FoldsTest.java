@@ -11,7 +11,7 @@ public class FoldsTest {
     public void testCount() {
 
         Processor<String, Long> processor = SyncPipeline.<String>begin()
-                .to(Folds.count())
+                .to(Pipes.count())
                 .create();
 
         processor.accept("a");

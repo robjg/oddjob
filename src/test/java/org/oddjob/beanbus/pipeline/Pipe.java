@@ -6,13 +6,10 @@ import java.util.function.Consumer;
 /**
  * A Consumer of data that can be flushed.
  *
- * @param <T>
+ * @param <T> The type of data.
  */
 @FunctionalInterface
 public interface Pipe<T> extends Consumer<T>, Flushable {
-
-    @Override
-    void accept(T data);
 
     @Override
     default void flush() {}

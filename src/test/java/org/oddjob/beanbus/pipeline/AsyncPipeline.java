@@ -228,7 +228,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
                           AsyncOptions options) {
             this.previous = previous;
             String name = options.name == null ? section.toString(): options.name;
-            Internal.Onwards<P, T> onwards = options.split ?
+            Internal.Onwards<P, T> onwards = section instanceof Splitter ?
                     new Internal.SplitOnwards<>(section) :
                     new Internal.MultiOnwards<>(section);
             if (options.async) {
@@ -412,35 +412,27 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
         private final int maxWork;
 
-        private final boolean split;
-
         AsyncOptions() {
-            this(null, false, -1, false);
+            this(null, false, -1);
         }
 
-        AsyncOptions(String name, boolean async, int maxWork, boolean split) {
+        AsyncOptions(String name, boolean async, int maxWork) {
             this.name = name;
             this.async = async;
             this.maxWork = maxWork;
-            this.split = split;
         }
 
         public AsyncOptions async() {
-            return new AsyncOptions(this.name, true, this.maxWork, this.split);
+            return new AsyncOptions(this.name, true, this.maxWork);
         }
 
         @Override
         public AsyncOptions named(String name) {
-            return new AsyncOptions(name, this.async, this.maxWork, this.split);
+            return new AsyncOptions(name, this.async, this.maxWork);
         }
 
         public AsyncOptions maxWork(int maxWork) {
-            return new AsyncOptions(this.name, this.async, maxWork, this.split);
-        }
-
-        @Override
-        public AsyncOptions split() {
-            return new AsyncOptions(this.name, this.async, this.maxWork, true);
+            return new AsyncOptions(this.name, this.async, maxWork);
         }
     }
 }

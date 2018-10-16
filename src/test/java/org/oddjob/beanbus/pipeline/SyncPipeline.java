@@ -166,7 +166,7 @@ public class SyncPipeline<I> implements Pipeline<I> {
         public SyncStage(Previous<I, P> previous, Section<? super P, T> section, SyncOptions options) {
             this.previous = previous;
             String name = options.name == null ? section.toString(): options.name;
-            this.dispatch = options.split ?
+            this.dispatch = section instanceof Splitter ?
                     new SyncSplitDispatch<>(section, name) :
                     new SyncDispatch<>(section, name);
         }
@@ -322,25 +322,18 @@ public class SyncPipeline<I> implements Pipeline<I> {
 
         private final String name;
 
-        private final boolean split;
-
         SyncOptions() {
-            this(null, false);
+            this(null);
         }
 
-        SyncOptions(String name, boolean split) {
+        SyncOptions(String name) {
             this.name = name;
-            this.split = split;
         }
 
         @Override
         public Options named(String name) {
-            return new SyncOptions(name, this.split);
+            return new SyncOptions(name);
         }
 
-        @Override
-        public Options split() {
-            return new SyncOptions(this.name, true);
-        }
     }
 }
