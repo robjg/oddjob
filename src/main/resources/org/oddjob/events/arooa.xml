@@ -1,0 +1,18 @@
+<arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+    prefix="rules" namespace="oddjob:events">
+    <values>
+        <arooa:bean-def element='all'
+                        className='org.oddjob.events.AllEvents'/>
+    </values>
+	<components>
+        <arooa:bean-def element='list'
+                        className='org.oddjob.events.ListSource'/>
+        <arooa:bean-def element='for'
+                        className='org.oddjob.events.ForEvents'/>
+        <arooa:bean-def element='trigger'
+                        className='org.oddjob.events.Trigger'/>
+        <arooa:bean-def element='when'
+                        className='org.oddjob.events.When'/>
+	</components>
+
+</arooa:descriptor>

@@ -8,11 +8,11 @@ import java.util.function.Consumer;
 
 import org.oddjob.util.Restore;
 
-public class AllEvents<T> {
 
-	
-	@SuppressWarnings("unchecked")
-	public Restore start( List<T> previous, 
+public class AllEvents<T> implements EventOperator<T>{
+
+    @Override
+	public Restore start( List<T> previous,
 			List<? extends EventSource<? extends T>> nodes, 
 			Consumer<? super List<T>> results) throws Exception {
 	
@@ -25,7 +25,8 @@ public class AllEvents<T> {
 		if (previous != null) {
 			values = previous.toArray();
 			if (values.length != number) {
-				throw new IllegalStateException("Config changed - delete state!");
+				throw new IllegalStateException(
+				        "Previous event size different to current event size - has config changed? - then delete state!");
 			}
 		}
 		else {
@@ -37,7 +38,7 @@ public class AllEvents<T> {
 		for (int i = 0; i < number; ++i) {
 			closes.add(
 					nodes.get(i).start(
-							new InputConsumer<T>(i,  
+							new InputConsumer<>(i,
 									(T[]) values, 
 									fired, 
 									results)));

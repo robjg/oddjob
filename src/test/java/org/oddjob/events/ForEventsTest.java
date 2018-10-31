@@ -23,7 +23,7 @@ public class ForEventsTest {
 
 		@Override
 		protected Restore doStart(Consumer<? super Integer> consumer) throws Exception {
-			IntStream.of(1, 2, 3).forEach(consumer::accept);;
+			IntStream.of(1, 2, 3).forEach(consumer::accept);
 			return () -> {};
 		}		
 	}

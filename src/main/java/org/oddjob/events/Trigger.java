@@ -5,6 +5,19 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * @oddjob.description An Experimental Trigger that fires on evaluating a State
+ * Expression to True.
+ *
+ * @oddjob.example
+ *
+ * A trigger expression based on the state of some jobs.
+ *
+ * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExpressionExample.xml}
+ *
+ *
+ * @author Rob Gordon.
+ */
 public class Trigger<T> extends EventJobBase<T> {
 
 	private static final long serialVersionUID = 2018071300L; 

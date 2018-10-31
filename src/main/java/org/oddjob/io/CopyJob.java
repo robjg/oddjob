@@ -217,8 +217,8 @@ public class CopyJob implements Runnable, Serializable {
 	    	throw new RuntimeException("Nothing to copy from!");
 	    }
 
-		File[] possiblyMany = Files.expand(from);
-	    Files.verifyReadable(possiblyMany);
+		File[] possiblyMany = FilesUtil.expand(from);
+	    FilesUtil.verifyReadable(possiblyMany);
 		File singleFrom = null;
 		
 	    if (possiblyMany.length == 0) {

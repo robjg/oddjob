@@ -246,7 +246,7 @@ public class DeleteJobTest extends OjTestCase {
 		
 		test.reset();
 		
-		File[] rootFiles = Files.expand(new File("/*"));
+		File[] rootFiles = FilesUtil.expand(new File("/*"));
 		
 		file = rootFiles[0];
 		test.setFiles(new File[] { file });

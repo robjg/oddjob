@@ -4,13 +4,6 @@
 package org.oddjob;
 
 import org.junit.Test;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -24,16 +17,17 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
-import org.oddjob.state.JobState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
+import org.oddjob.state.*;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderType;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Mainly the same tests as OddjobTest but only for load(), not run().
@@ -249,13 +243,11 @@ public class OddjobLoadTest extends OjTestCase {
     }
 
    @Test
-    public void testLoadNoFile() {
+    public void testLoadNoFile() throws IOException {
     	
-		OurDirs ourDirs = new OurDirs();
-		
-    	File file = ourDirs.relative("work/oddjob-test.xml");
-    	file.delete();
-    	
+        Path work = OurDirs.workPathDir("OddjobLoadTest", true);
+    	File file = work.resolve("oddjob-test.xml").toFile();
+
     	Oddjob test = new Oddjob();
     	test.setFile(file);
     	

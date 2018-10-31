@@ -4,16 +4,6 @@
 package org.oddjob;
 
 import org.junit.Test;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.util.Properties;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -33,8 +23,14 @@ import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.ConsoleCapture;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 /**
  *

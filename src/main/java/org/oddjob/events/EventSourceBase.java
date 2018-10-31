@@ -1,10 +1,6 @@
 package org.oddjob.events;
 
-import java.util.Objects;
-import java.util.concurrent.Semaphore;
-import java.util.function.Consumer;
-
-import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.Resetable;
 import org.oddjob.events.state.EventState;
 import org.oddjob.events.state.EventStateChanger;
 import org.oddjob.events.state.EventStateHandler;
@@ -12,16 +8,15 @@ import org.oddjob.framework.extend.BasePrimary;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.State;
-import org.oddjob.state.StateChanger;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
+import java.util.Objects;
+import java.util.concurrent.Semaphore;
+import java.util.function.Consumer;
+
 abstract public class EventSourceBase<T> extends BasePrimary
-implements EventSource<T> {
+implements EventSource<T>, Resetable {
 
 	/** Handle state. */
 	private transient volatile EventStateHandler stateHandler;
@@ -42,13 +37,7 @@ implements EventSource<T> {
 		stateHandler = new EventStateHandler(this);		
 		iconHelper = new IconHelper(this, 
 				StateIcons.iconFor(stateHandler.getState()));
-		stateChanger = new EventStateChanger(stateHandler, iconHelper, 
-				new Persistable() {					
-					@Override
-					public void persist() throws ComponentPersistException {
-						save();
-					}
-				});
+		stateChanger = new EventStateChanger(stateHandler, iconHelper, this::save);
 	}
 
 	@Override
@@ -76,7 +65,7 @@ implements EventSource<T> {
 
 		final Semaphore barrier = new Semaphore(1);
 		Consumer<T> consumerWrapper = value ->  {
-			try (Restore boundary2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
+			try (Restore ignored = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 				barrier.acquire();
 				stateHandler().waitToWhen(s -> true, 
 						() -> getStateChanger().setState(EventState.FIRING));
@@ -92,7 +81,7 @@ implements EventSource<T> {
 			}
 		};
 
-		try (Restore boundary = ComponentBoundary.push(loggerName(), this)) {
+		try (Restore ignored = ComponentBoundary.push(loggerName(), this)) {
 
 			logger().info("Starting");
 			
@@ -106,7 +95,7 @@ implements EventSource<T> {
 						() -> getStateChanger().setState(EventState.WAITING));
 				
 				return () -> {
-					try (Restore boundary2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
+					try (Restore ignored2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 						restore.close();
 						logger().info("Stopped");
 					}
@@ -142,18 +131,59 @@ implements EventSource<T> {
 	}
 	
 	protected abstract Restore doStart(Consumer<? super T> consumer) throws Exception;
-	
+
+    @Override
+    public boolean softReset() {
+        try (Restore ignored = ComponentBoundary.push(loggerName(), this)) {
+            return stateHandler.waitToWhen(new IsSoftResetable(), () -> {
+                onSoftReset();
+                getStateChanger().setState(EventState.READY);
+                logger().info("Soft Reset complete.");
+            });
+        }
+    }
+
+    @Override
+    public boolean hardReset() {
+        try (Restore ignored = ComponentBoundary.push(loggerName(), this)) {
+            return stateHandler.waitToWhen(new IsHardResetable(), () -> {
+                onHardReset();
+                getStateChanger().setState(EventState.READY);
+                logger().info("Hard Reset complete.");
+            });
+        }
+    }
+
 	/**
+	 * Allow sub classes to do something on a soft reset. Defaults to {@link #onReset()}
+	 */
+	protected void onSoftReset() {
+		onReset();
+	}
+
+	/**
+	 * Allow sub classes to do something on a hard reset. Defaults to {@link #onReset()}
+	 */
+	protected void onHardReset() {
+		onReset();
+    }
+
+    /**
+     * Allow sub classes to do something on reset.
+     */
+    protected void onReset() {
+
+    }
+
+    /**
 	 * Internal method to fire state.
 	 */
 	protected void fireDestroyedState() {
 		
-		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stateHandler().setState(EventState.DESTROYED);
-				stateHandler().fireEvent();
-			}
-		})) {
+		if (!stateHandler().waitToWhen(new IsAnyState(), () -> {
+            stateHandler().setState(EventState.DESTROYED);
+            stateHandler().fireEvent();
+        })) {
 			throw new IllegalStateException("[" + this + "] Failed set state DESTROYED");
 		}
 		logger().debug("[" + this + "] Destroyed.");				

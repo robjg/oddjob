@@ -179,7 +179,7 @@ public class FilesTypeTest extends OjTestCase {
     			this.files = null;
     		}
     		else {
-    			this.files = Files.expand(files);
+    			this.files = FilesUtil.expand(files);
     		}
     	}
     	public int execute() {

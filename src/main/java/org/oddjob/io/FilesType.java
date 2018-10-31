@@ -118,7 +118,7 @@ public class FilesType implements ArooaValue, Serializable {
     	List<File> all = new ArrayList<File>();
     	
     	if (files != null) {
-    		addFileArray(all, Files.expand(new File(files)));
+    		addFileArray(all, FilesUtil.expand(new File(files)));
     	}
     	
     	for (File[] files : list) {
