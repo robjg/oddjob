@@ -1,0 +1,157 @@
+package org.oddjob.io;
+
+import org.oddjob.events.Trigger;
+import org.oddjob.util.Restore;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+
+/**
+ * Provide a service for subscribers to watch a file system for Files existing, being created or being modified.
+ * <p/>
+ * If the file is created during subscription the consumer may receive a notification for the same file twice. Once
+ * the subscription has succeeded a consumer should receive every creation and modification happening to the file.
+ * <p/>
+ * If this service is stopped no notification is sent to consumers. Consumers must use the state of this service
+ * to know that it has stopped.
+ * <p/>
+ * Consumers will receive creation and modification events on a different thread to the initial event if the
+ * file exists.
+ *
+ *
+ * @author rob
+ *
+ * @see FileWatchEventSource
+ *
+ */
+public class FileWatchService implements FileWatch {
+
+    /**
+     * @oddjob.property
+     * @oddjob.description The full path of the file to be watched.
+     * @oddjob.required Yes.
+     */
+    private volatile String name;
+
+    /**
+     * The map of subscribers.
+     */
+    private volatile Map<Path, FileSystemSubscriber> subscribers;
+
+    public void start() {
+        if (subscribers != null) {
+            throw new IllegalStateException("Already Started");
+        }
+
+        subscribers = new ConcurrentHashMap<>();
+    }
+
+    public void stop() {
+
+        Map<Path, FileSystemSubscriber> subsribers = Optional.ofNullable(this.subscribers)
+                .orElseThrow(() -> new IllegalStateException("Not Started"));
+
+        subsribers.values().forEach(FileSystemSubscriber::close);
+
+        this.subscribers = null;
+    }
+
+    @Override
+    public Restore subscribe(Path path, Consumer<? super Path> consumer) {
+
+        Map<Path, FileSystemSubscriber> subsribers = Optional.ofNullable(this.subscribers)
+                .orElseThrow(() -> new IllegalStateException("Not Started"));
+
+        Path dir = path.getParent();
+        subscribers.computeIfAbsent(dir,
+                d -> new FileSystemSubscriber(d)).subscribe(path, consumer);
+        return () -> unsubscribe(path, consumer);
+    }
+
+    void unsubscribe(Path path, Consumer<? super Path> consumer) {
+        Path dir = path.getParent();
+        subscribers.computeIfPresent(dir,
+                (key, sub) -> {
+                    sub.unsubscribe(path, consumer);
+                    if (sub.consumers.isEmpty()) {
+                        sub.restore.close();
+                        return null;
+                    }
+                    else {
+                        return sub;
+                    }
+                });
+    }
+
+    static class FileSystemSubscriber {
+
+        private final Map<Path, List<Consumer<? super Path>>> consumers = new ConcurrentHashMap<>();
+
+        private final Restore restore;
+
+        FileSystemSubscriber(Path dir) {
+
+            PathWatchEvents watch = new PathWatchEvents();
+            watch.setDir(dir);
+            try {
+                restore = watch.doStart( path -> {
+                    Optional.ofNullable(consumers.get(path))
+                            .ifPresent( list -> list.forEach(c -> c.accept( path )));
+                });
+            } catch (IOException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
+        void subscribe(Path path, Consumer<? super Path> consumer) {
+
+            consumers.computeIfAbsent(path,
+                    key -> new CopyOnWriteArrayList<>()).add(consumer);
+
+            if (Files.exists(path)) {
+                consumer.accept(path);
+            }
+        }
+
+        void unsubscribe(Path path ,Consumer<? super Path> consumer) {
+
+            Optional.ofNullable(consumers.get(path)).ifPresent(list -> list.remove(consumer));
+            consumers.computeIfPresent(path,
+                    (p, list) -> list.size() == 0 ? null : list);
+        }
+
+        void close() {
+            restore.close();
+        }
+
+        int getNumberOfConsumers() {
+            return consumers.values().stream().mapToInt(List::size).sum();
+        }
+    }
+
+    public int getNumberOfConsumers() {
+        return Optional.ofNullable(subscribers)
+                .map( s -> s.values().stream().mapToInt(FileSystemSubscriber::getNumberOfConsumers).sum())
+                .orElse(0);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return Optional.ofNullable(name).orElseGet(() -> getClass().getSimpleName());
+    }
+}

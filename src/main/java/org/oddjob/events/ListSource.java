@@ -2,6 +2,7 @@ package org.oddjob.events;
 
 
 import org.oddjob.Structural;
+import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.state.StateEvent;
 import org.oddjob.structural.ChildHelper;
@@ -97,8 +98,9 @@ implements Serializable, Structural {
 		this.previous = null;
 	}
 
+	@ArooaComponent
 	public void setChild(int index, EventSource< E > child) {
-	    childHelper.insertChild(index, child);
+	    childHelper.insertOrRemoveChild(index, child);
     }
 
     public EventOperator<E> getEventOperator() {

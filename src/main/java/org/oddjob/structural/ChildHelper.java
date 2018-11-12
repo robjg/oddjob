@@ -127,8 +127,23 @@ implements Structural, Iterable<E>, ChildList<E> {
 		notifyChildRemoved(event);
 		return child;
 	}
-	
-	/**
+
+    /**
+     * Insert or remove a child depending on if the child is null.
+     *
+     * @param index The index.
+     * @param child The child.
+     */
+    public void insertOrRemoveChild(int index, E child) {
+        if (child == null) {
+            removeChildAt(index);
+        }
+        else {
+            insertChild(index, child);
+        }
+    }
+
+    /**
 	 * Remove a child.
 	 * 
 	 * @param child The child to be removed.
