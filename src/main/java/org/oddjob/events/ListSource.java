@@ -31,9 +31,9 @@ implements Serializable, Structural {
 	/** Track changes to children an notify listeners. */
 	protected transient volatile ChildHelper<EventSource< E > > childHelper;
 
-	private EventOperator<E> eventOperator;
+	private volatile EventOperator<E> eventOperator;
 
-    private List<E> previous;
+    private volatile List<E> last;
 
 	/**
 	 * Constructor.
@@ -56,9 +56,9 @@ implements Serializable, Structural {
             children.add(child);
         }
 
-        return eventOperator.start(previous, children,
+        return eventOperator.start(last, children,
                 list -> {
-                    previous = list;
+                    last = list;
                     try {
                         save();
                     } catch (ComponentPersistException e) {
@@ -95,7 +95,7 @@ implements Serializable, Structural {
 	@Override
 	protected void onHardReset() {
 		childHelper.hardResetChildren();
-		this.previous = null;
+		this.last = null;
 	}
 
 	@ArooaComponent
@@ -109,6 +109,10 @@ implements Serializable, Structural {
 
     public void setEventOperator(EventOperator<E> eventOperator) {
         this.eventOperator = eventOperator;
+    }
+
+    public List<E> getLast() {
+	    return last;
     }
 
     /**

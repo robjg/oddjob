@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this" xmlns:events="oddjob:events">
+    <job>
+        <sequential>
+            <jobs>
+                <bean class="org.oddjob.events.example.FileFactStore" id="factStore" rootDir="${this.dir}/data"/>
+                <events:when id="booklist">
+                    <jobs>
+                        <bean class="org.oddjob.events.example.FactSubscriber"  factStore="${factStore}" query="BookList:GREENGROCERS"/>
+                        <foreach>
+                            <values>
+                                <value value="${booklist.current.books}"/>
+                            </values>
+                            <configuration>
+                                <xml>
+                                    <foreach id="bookName">
+                                        <job>
+                                            <events:when id="book">
+                                                <jobs>
+                                                    <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" query="Book:${bookName.current}"/>
+                                                    <events:when id="priceMatch">
+                                                        <jobs>
+                                                            <events:for>
+                                                                <configuration>
+                                                                    <xml>
+                                                                        <events id="trade">
+                                                                            <job>
+                                                                                <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" query="Price:${trade.current.product}"/>
+                                                                            </job>
+                                                                        </events>
+                                                                    </xml>
+                                                                </configuration>
+                                                                <values>
+                                                                    <value value="${book.current.trades}"/>
+                                                                </values>
+                                                            </events:for>
+                                                            <sequential>
+                                                                <jobs>
+                                                                    <bean id="calculate" class="org.oddjob.events.example.ValueCalculator">
+                                                                        <prices>
+                                                                                <value value="${priceMatch.current}"/>
+                                                                        </prices>
+                                                                        <trades>
+                                                                        <value value="${book.current.trades}"/>
+                                                                        </trades>
+                                                                    </bean>
+                                                                    <echo><![CDATA[Value of ${bookName.current} is ${calculate.value}]]></echo>
+                                                                </jobs>
+                                                            </sequential>
+                                                        </jobs>
+                                                    </events:when>
+                                                </jobs>
+                                            </events:when>
+                                        </job>
+                                    </foreach>
+                                </xml>
+                            </configuration>
+                        </foreach>
+                    </jobs>
+                </events:when>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

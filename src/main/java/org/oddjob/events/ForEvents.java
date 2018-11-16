@@ -4,12 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -25,6 +20,7 @@ import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.arooa.parsing.ArooaElement;
@@ -78,9 +74,13 @@ implements Structural, ConfigurationOwner {
     		
 	/** The current iterator. */
 	private transient Iterator<? extends Object> iterator;
-	
-	
-    /**
+
+	private volatile EventOperator<T> eventOperator;
+
+	private volatile List<T> last;
+
+
+	/**
      * @oddjob.property 
      * @oddjob.description The number of completed jobs to keep. Oddjob configurations
      * can be quite memory intensive, mainly due to logging, purging complete jobs
@@ -139,9 +139,9 @@ implements Structural, ConfigurationOwner {
 	 * Add a type. This will be called during parsing by the
 	 * handler to add a type for each element.
  	 * 
-	 * @param type The type.
+	 * @param values The type.
 	 */
-	public void setValues(Stream<? extends Object> values) {
+	public void setValues(Stream<?> values) {
 		this.values = values;
 	}
 
@@ -328,6 +328,8 @@ implements Structural, ConfigurationOwner {
 	@Override
 	public Restore doStart(Consumer<? super List<T>> consumer) throws Exception {
 
+        EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
+
 		try {
 			preLoad();
 		} catch (ArooaParseException e) {
@@ -342,14 +344,17 @@ implements Structural, ConfigurationOwner {
 				susbscribeNodes.add((EventSource<T>) child);
 			}
 		}
-		
 
-		Restore close = new AllEvents<T>().start(null, susbscribeNodes,  consumer);
-		
-		return () -> {
-			close.close();
-			reset();
-		};
+		return eventOperator.start(null, susbscribeNodes,
+				list -> {
+                    last = list;
+                    try {
+                        save();
+                    } catch (ComponentPersistException e) {
+                        throw new RuntimeException(e);
+                    }
+                    consumer.accept(list);
+                });
 	}
 			
     /**
@@ -358,7 +363,19 @@ implements Structural, ConfigurationOwner {
     public int getIndex() {
         return index;
     }
-        
+
+    public EventOperator<T> getEventOperator() {
+        return eventOperator;
+    }
+
+    public void setEventOperator(EventOperator<T> eventOperator) {
+        this.eventOperator = eventOperator;
+    }
+
+    public List<T> getLast() {
+        return last;
+    }
+
     /**
      * This provides a bean for current properties.
      */
@@ -521,8 +538,9 @@ implements Structural, ConfigurationOwner {
 			return results;
     	}
     }
-    
-	private void reset() {
+
+    @Override
+	protected void onReset() {
 		
 	    if (configurationHandles == null) {
 			return;
@@ -537,14 +555,15 @@ implements Structural, ConfigurationOwner {
 		}
 		
 	    this.configurationHandles = null;
-		this.index = 0;		
+		this.index = 0;
+        this.last = null;
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 				
-		reset();
+		onReset();
 	}
 	
 	/**

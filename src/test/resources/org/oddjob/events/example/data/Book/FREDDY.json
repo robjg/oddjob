@@ -1,0 +1,10 @@
+{
+    "bookName": "FREDDY",
+    "trades": [
+        {
+            "product": "APPLES",
+            "quantity": "1",
+            "price": 46.0
+        }        
+    ]
+}

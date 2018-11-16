@@ -1,0 +1,15 @@
+{
+    "bookName": "JANE",
+    "trades": [
+        {
+            "product": "ORANGES",
+            "quantity": "1",
+            "price": 92.3
+        },
+        {
+            "product": "PEARS",
+            "quantity": "2",
+            "price": 35.3
+        }        
+    ]
+}

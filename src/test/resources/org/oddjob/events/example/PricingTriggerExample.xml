@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <cascade cascadeOn="COMPLETE">
+            <jobs>
+                <bean class="org.oddjob.events.example.FileFactStore" id="factStore" rootDir="${this.dir}/data"/>
+                <events:trigger id="booklist" name="Trigger on BookList" xmlns:events="oddjob:events">
+                    <jobs>
+                        <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe To BookList" query="BookList:GREENGROCERS"/>
+                        <foreach>
+                            <values>
+                                <value value="${booklist.current.books}"/>
+                            </values>
+                            <configuration>
+                                <xml>
+                                    <foreach id="bookName">
+                                        <job>
+                                            <events:trigger id="book" name="Trigger on ${bookName.current}">
+                                                <jobs>
+                                                    <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe to the Book" query="Book:${bookName.current}"/>
+                                                    <events:trigger id="priceMatch" name="Trigger on All Prices Available">
+                                                        <jobs>
+                                                            <events:for>
+                                                                <configuration>
+                                                                    <xml>
+                                                                        <events id="trade">
+                                                                            <job>
+                                                                                <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe to Price ${trade.current.product}" query="Price:${trade.current.product}"/>
+                                                                            </job>
+                                                                        </events>
+                                                                    </xml>
+                                                                </configuration>
+                                                                <values>
+                                                                    <value value="${book.current.trades}"/>
+                                                                </values>
+                                                            </events:for>
+                                                            <sequential>
+                                                                <jobs>
+                                                                    <bean class="org.oddjob.events.example.ValueCalculator" id="calculate">
+                                                                        <prices>
+                                                                            <value value="${priceMatch.current}"/>
+                                                                        </prices>
+                                                                        <trades>
+                                                                            <value value="${book.current.trades}"/>
+                                                                        </trades>
+                                                                    </bean>
+                                                                    <echo><![CDATA[Value of ${bookName.current} is ${calculate.value}]]></echo>
+                                                                </jobs>
+                                                            </sequential>
+                                                        </jobs>
+                                                    </events:trigger>
+                                                </jobs>
+                                            </events:trigger>
+                                        </job>
+                                    </foreach>
+                                </xml>
+                            </configuration>
+                        </foreach>
+                    </jobs>
+                </events:trigger>
+                <stop job="${factStore}"/>
+            </jobs>
+        </cascade>
+    </job>
+</oddjob>
