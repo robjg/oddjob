@@ -2,164 +2,167 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.File;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
+
+import java.io.File;
+import java.util.Properties;
 
 public class CopyJobTest extends OjTestCase {
 
-	File reference;
-	File dir;
+    private File baseDir;
+    private File workDir;
 
-   @Before
-   public void setUp() throws Exception {
-		OurDirs dirs = new OurDirs();
-		
-		reference = new File(dirs.base(), "test/io/reference");
-		dir = new File(dirs.base(), "work/io/copy");
-		
-		if (dir.exists()) {
-			FileUtils.forceDelete(dir);
-		}
-	}
+    @Before
+    public void setUp() throws Exception {
 
-   @Test
-	public void testCopyFile() throws Exception {
-		FileUtils.forceMkdir(dir);
-		
-		OurDirs dirs = new OurDirs();
-		
-		Oddjob oj = new Oddjob();
-		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration(
-				"org/oddjob/io/CopyFileExample.xml",
-				getClass().getClassLoader()));
-		oj.run();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+        baseDir = OurDirs.basePath()
+                .toFile();
+        workDir = OurDirs.workPathDir(getClass().getSimpleName(), false)
+                .toFile();
 
-		assertTrue(new File(dir, "test1.txt").exists());
-	}
+        if (workDir.exists()) {
+            FileUtils.forceDelete(workDir);
+        }
+    }
 
-   @Test
-	public void testCopyFiles() throws Exception {
-		FileUtils.forceMkdir(dir);
-		
-		String xml = 
-			"<oddjob id='this'>" +
-			" <job>" +
-			"  <copy to='${this.args[0]}/work/io/copy'>" +
-			"   <from>" +
-			"    <files files='${this.args[0]}/test/io/reference/*.txt'/>" +
-			"   </from>" +
-			"  </copy>" +
-			" </job>" +
-			"</oddjob>";
+    @Test
+    public void testCopyFile() throws Exception {
+        FileUtils.forceMkdir(workDir);
 
-		OurDirs dirs = new OurDirs();
-		
-		Oddjob oj = new Oddjob();
-		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		oj.run();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+        Properties props = new Properties();
+        props.setProperty("base.dir", baseDir.toString());
+        props.setProperty("work.dir", workDir.toString());
 
-		assertEquals(3, new WildcardSpec(
-				new File(dir, "*.txt")).findFiles().length);
-	}
+        Oddjob oj = new Oddjob();
+        oj.setProperties(props);
+        oj.setConfiguration(new XMLConfiguration(
+                "org/oddjob/io/CopyFileExample.xml",
+                getClass().getClassLoader()));
+        oj.run();
 
-   @Test
-	public void testCopyDirectory() throws Exception {
-		FileUtils.forceMkdir(dir);
-		
-		OurDirs dirs = new OurDirs();
-		
-		Oddjob oj = new Oddjob();
-		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration(
-				"org/oddjob/io/CopyDirectory.xml", 
-				getClass().getClassLoader()));
-		
-		oj.run();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
-		assertTrue(new File(dir, "a/x/test3.txt").exists());
-	}
+        assertTrue(new File(workDir, "test1.txt").exists());
+    }
 
-   @Test
-	public void testCopyDirectory2() throws Exception {
-		// directory doesn't exist this time.
-		// dir.mkdir();
-		
+    @Test
+    public void testCopyFiles() throws Exception {
+        FileUtils.forceMkdir(workDir);
 
-		OurDirs dirs = new OurDirs();
-		
-		Oddjob oj = new Oddjob();
-		oj.setArgs(new String[] { dirs.base().toString() });
-		oj.setConfiguration(new XMLConfiguration(
-				"org/oddjob/io/CopyDirectory.xml", 
-				getClass().getClassLoader()));
-		oj.run();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+        String xml =
+                "<oddjob id='this'>" +
+                        " <job>" +
+                        "  <copy to='${work.dir}'>" +
+                        "   <from>" +
+                        "    <files files='${base.dir}/test/io/reference/*.txt'/>" +
+                        "   </from>" +
+                        "  </copy>" +
+                        " </job>" +
+                        "</oddjob>";
 
-		assertTrue(new File(dir, "x/test3.txt").exists());
-	}
-	
-   @Test
-	public void testSerialize() throws Exception {
-		dir.mkdir();
+        Properties props = new Properties();
+        props.setProperty("base.dir", baseDir.toString());
+        props.setProperty("work.dir", workDir.toString());
 
-		OurDirs dirs = new OurDirs();
-		
-		CopyJob test = new CopyJob();
-		test.setFrom(new File[] {
-				new File(dirs.base(), "test/io/reference/test1.txt") });
-		test.setTo(new File(dirs.base(), "work/io/copy"));
+        Oddjob oj = new Oddjob();
+        oj.setProperties(props);
+        oj.setConfiguration(new XMLConfiguration("TEST", xml));
+        oj.run();
 
-		Runnable copy = (Runnable) OddjobTestHelper.copy(test);
-		copy.run();
-		
-		assertTrue(new File(dir, "test1.txt").exists());
-	}
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
-   @Test
-	public void testCopyBuffer() throws ArooaPropertyException, ArooaConversionException {
-		
-		OurDirs dirs = new OurDirs();
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration(
-				"org/oddjob/io/CopyFileToBuffer.xml",
-				getClass().getClassLoader()));
-		
-		oddjob.setArgs(new String[] { dirs.base().toString() });
-		
-		oddjob.run();
-		
-		assertEquals(ParentState.COMPLETE, 
-				oddjob.lastStateEvent().getState());
-				
-		String result = new OddjobLookup(oddjob).lookup("e.text", String.class);
-		
-		assertEquals("Test 1", result.trim());
-		
-		oddjob.destroy();
-	}
+        assertEquals(3, new WildcardSpec(
+                new File(workDir, "*.txt")).findFiles().length);
+    }
+
+    @Test
+    public void testCopyDirectory() throws Exception {
+        FileUtils.forceMkdir(workDir);
+
+        Properties props = new Properties();
+        props.setProperty("base.dir", baseDir.toString());
+        props.setProperty("work.dir", workDir.toString());
+
+        Oddjob oj = new Oddjob();
+        oj.setProperties(props);
+        oj.setConfiguration(new XMLConfiguration(
+                "org/oddjob/io/CopyDirectory.xml",
+                getClass().getClassLoader()));
+
+        oj.run();
+
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+
+        assertTrue(new File(workDir, "a/x/test3.txt").exists());
+    }
+
+    @Test
+    public void testCopyDirectory2() throws Exception {
+        // directory doesn't exist this time.
+        // dir.mkdir();
+
+        Properties props = new Properties();
+        props.setProperty("base.dir", baseDir.toString());
+        props.setProperty("work.dir", workDir.toString());
+
+        Oddjob oj = new Oddjob();
+        oj.setProperties(props);
+        oj.setConfiguration(new XMLConfiguration(
+                "org/oddjob/io/CopyDirectory.xml",
+                getClass().getClassLoader()));
+        oj.run();
+
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+
+        assertTrue(new File(workDir, "x/test3.txt").exists());
+    }
+
+    @Test
+    public void testSerialize() throws Exception {
+        workDir.mkdir();
+
+        CopyJob test = new CopyJob();
+        test.setFrom(new File[]{
+                new File(baseDir, "test/io/reference/test1.txt")});
+        test.setTo(workDir);
+
+        Runnable copy = OddjobTestHelper.copy(test);
+        copy.run();
+
+        assertTrue(new File(workDir, "test1.txt").exists());
+    }
+
+    @Test
+    public void testCopyBuffer() throws ArooaPropertyException, ArooaConversionException {
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration(
+                "org/oddjob/io/CopyFileToBuffer.xml",
+                getClass().getClassLoader()));
+
+        oddjob.setArgs(new String[] { baseDir.toString() } );
+
+        oddjob.run();
+
+        assertEquals(ParentState.COMPLETE,
+                oddjob.lastStateEvent().getState());
+
+        String result = new OddjobLookup(oddjob).lookup("e.text", String.class);
+
+        assertEquals("Test 1", result.trim());
+
+        oddjob.destroy();
+    }
 }

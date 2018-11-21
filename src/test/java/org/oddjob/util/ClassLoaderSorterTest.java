@@ -1,7 +1,14 @@
 package org.oddjob.util;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.Structural;
+import org.oddjob.oddballs.BuildOddballs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.lang.reflect.InvocationHandler;
@@ -11,15 +18,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.mockito.Mockito;
-import org.oddjob.Structural;
-import org.oddjob.oddballs.BuildOddballs;
-import org.oddjob.tools.OurDirs;
 
 public class ClassLoaderSorterTest extends OjTestCase {
 

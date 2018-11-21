@@ -2,23 +2,10 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jobs;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.oddjob.ConverterHelper;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.utils.ArooaTokenizer;
@@ -32,7 +19,16 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * test for exec job.

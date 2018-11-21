@@ -2,23 +2,10 @@
  * (c) Rob Gordon 2006
  */
 package org.oddjob.values.properties;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Describeable;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -26,7 +13,12 @@ import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
-import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Test for PropertiesType.

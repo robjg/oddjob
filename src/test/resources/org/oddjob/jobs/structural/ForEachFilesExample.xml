@@ -2,7 +2,7 @@
     <job>
         <foreach>
             <values>
-                <files files="${this.args[0]}/test/io/reference/test?.txt"/>
+                <files files="${base.dir}/test/io/reference/test?.txt"/>
             </values>
             <configuration>
                 <arooa:configuration>
@@ -10,7 +10,7 @@
                         <xml>
                             <foreach id="copy-files">
                                 <job>
-                                    <copy to="${this.args[0]}/work/foreach">
+                                    <copy to="${some.dir}">
                                         <from>
                                             <value
                                                 value="${copy-files.current}"/>

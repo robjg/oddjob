@@ -1,7 +1,11 @@
 package org.oddjob.persist;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.io.BufferType;
+import org.oddjob.oddballs.BuildOddballs;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +17,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import org.oddjob.OjTestCase;
-
-import org.oddjob.io.BufferType;
-import org.oddjob.oddballs.BuildOddballs;
-import org.oddjob.tools.OurDirs;
 
 public class OddjobObjectInputStreamTest extends OjTestCase {
 

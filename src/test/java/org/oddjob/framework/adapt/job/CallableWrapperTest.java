@@ -1,22 +1,22 @@
 package org.oddjob.framework.adapt.job;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.util.URLClassLoaderTypeTest;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.Callable;
 
 public class CallableWrapperTest extends OjTestCase {
 

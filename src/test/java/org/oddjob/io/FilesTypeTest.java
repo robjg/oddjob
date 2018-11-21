@@ -3,27 +3,9 @@
  */
 package org.oddjob.io;
 
-import static org.hamcrest.CoreMatchers.is;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.junit.Test;
-import org.oddjob.ConverterHelper;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OddjobSessionFactory;
-import org.oddjob.OjTestCase;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.ElementMappings;
+import org.oddjob.*;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.ConversionPath;
@@ -47,9 +29,18 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  *

@@ -1,14 +1,14 @@
 package org.oddjob.oddballs;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.oddjob.OurDirs;
 import org.oddjob.io.CopyJob;
 import org.oddjob.io.FilesType;
 import org.oddjob.tools.CompileJob;
-import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 public class BuildOddballs implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(BuildOddballs.class);

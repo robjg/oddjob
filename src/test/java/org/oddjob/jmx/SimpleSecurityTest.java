@@ -1,24 +1,9 @@
 package org.oddjob.jmx;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.File;
-
-import javax.security.auth.DestroyFailedException;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Iconic;
-import org.oddjob.OddjobComponentResolver;
-import org.oddjob.OddjobConsole;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.client.UsernamePassword;
@@ -28,8 +13,12 @@ import org.oddjob.rmi.RMIRegistryJob;
 import org.oddjob.state.ServiceState;
 import org.oddjob.tools.FragmentHelper;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.security.auth.DestroyFailedException;
+import java.io.File;
 
 /**
  * For these tests to work you need to download  

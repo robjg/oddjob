@@ -2,9 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.io.WildcardSpec.DirectorySplit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,13 +17,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.io.WildcardSpec.DirectorySplit;
-import org.oddjob.tools.OurDirs;
 
 public class WildcardSpecTest extends OjTestCase {
 

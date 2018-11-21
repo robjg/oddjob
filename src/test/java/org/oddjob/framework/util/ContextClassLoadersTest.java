@@ -1,14 +1,14 @@
 package org.oddjob.framework.util;
 
+import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.util.URLClassLoaderTypeTest;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-
-import org.junit.Test;
-import org.oddjob.OjTestCase;
-import org.oddjob.tools.OurDirs;
-import org.oddjob.util.URLClassLoaderTypeTest;
 
 public class ContextClassLoadersTest extends OjTestCase {
 

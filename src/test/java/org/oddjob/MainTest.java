@@ -2,15 +2,6 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob;
-import static org.hamcrest.CoreMatchers.is;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,10 +12,19 @@ import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.utils.Try;
 import org.oddjob.oddballs.OddballsDirDescriptorFactory;
 import org.oddjob.state.ParentState;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
+
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  * 

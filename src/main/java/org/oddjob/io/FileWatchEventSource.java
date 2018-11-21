@@ -7,8 +7,10 @@ import org.oddjob.util.Restore;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.FileTime;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -25,6 +27,13 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
 
     /**
      * @oddjob.property
+     * @oddjob.description The service that provides the file watching ability.
+     * @oddjob.required Yes.
+     */
+    private volatile FileWatch fileWatch;
+
+    /**
+     * @oddjob.property
      * @oddjob.description The full path of the file to be watched.
      * @oddjob.required Yes.
      */
@@ -32,10 +41,11 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
 
     /**
      * @oddjob.property
-     * @oddjob.description The service that provides the file to be watched.
-     * @oddjob.required Yes.
+     * @oddjob.description The last modified time of the file. Event where the file has the same
+     * last modified time will be ignored.
+     * @oddjob.required R/O.
      */
-    private volatile FileWatch fileWatch;
+    private volatile AtomicReference<FileTime> lastModified = new AtomicReference<>();
 
     @Override
     protected Restore doStart(Consumer<? super Path> consumer) throws IOException {
@@ -47,7 +57,17 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
         FileWatch fileWatch = Optional.ofNullable(this.fileWatch)
                 .orElseThrow(() -> new IllegalArgumentException("No file watch"));
 
-        return fileWatch.subscribe(file, consumer);
+        return fileWatch.subscribe(file, path -> {
+            FileTime lastModified;
+            try {
+                lastModified = Files.getLastModifiedTime( path );
+            } catch (IOException e) {
+                throw new IllegalStateException( "Failed getting last modified time", e );
+            }
+            if (!lastModified.equals(this.lastModified.getAndSet(lastModified))) {
+                consumer.accept(path);
+            }
+        });
     }
 
 
@@ -65,5 +85,9 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
 
     public void setFileWatch(FileWatch fileWatch) {
         this.fileWatch = fileWatch;
+    }
+
+    public FileTime getLastModified() {
+        return this.lastModified.get();
     }
 }

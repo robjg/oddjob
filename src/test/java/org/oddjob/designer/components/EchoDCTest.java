@@ -2,19 +2,15 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
+
+import org.apache.commons.beanutils.DynaBean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
-import java.io.File;
-
-import org.oddjob.OjTestCase;
-
-import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaType;
@@ -24,7 +20,11 @@ import org.oddjob.arooa.design.view.ViewMainHelper;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  *
@@ -46,11 +46,10 @@ public class EchoDCTest extends OjTestCase {
 	DesignInstance design;
 	
    @Test
-	public void testCreate() throws ArooaParseException {
+	public void testCreate() throws ArooaParseException, IOException {
 		
-		OurDirs dirs = new OurDirs();
-		
-		File testFile = dirs.relative("work/test.txt");
+		File testFile = OurDirs.workPathDir(getClass().getSimpleName(), true)
+				.resolve("test.txt").toFile();
 		
 		String xml =  
 				"<echo name='Test' ><![CDATA[Hello]]>" +
@@ -80,7 +79,7 @@ public class EchoDCTest extends OjTestCase {
 		assertEquals("Hello", test.get("text"));
 	}
 
-	public static void main(String args[]) throws ArooaParseException {
+	public static void main(String args[]) throws ArooaParseException, IOException {
 
 		EchoDCTest test = new EchoDCTest();
 		test.testCreate();

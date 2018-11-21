@@ -1,27 +1,25 @@
 package org.oddjob.io;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.Properties;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Oddjob;
-import org.oddjob.state.ParentState;
-import org.oddjob.tools.ConsoleCapture;
-import org.oddjob.tools.OurDirs;
 
 public class TeeTypeTest extends OjTestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(TeeTypeTest.class);
 	
-	File workDir;
+	private File workDir;
 
-	File testFile;
+	private File testFile;
 	
    @Before
    public void setUp() throws Exception {
@@ -29,13 +27,7 @@ public class TeeTypeTest extends OjTestCase {
 		logger.info("----------------------  " + getName() + 
 				"  ----------------------");
 		
-		OurDirs dirs = new OurDirs();
-		
-		workDir = new File(dirs.base(), "work/io");
-		
-		if (!workDir.exists()) {
-			workDir.mkdirs();
-		}
+		workDir = OurDirs.workPathDir(getClass().getName(), true).toFile();
 		
 		testFile = new File(workDir, "TeeTypeTest.txt");
 		testFile.delete();
@@ -55,7 +47,7 @@ public class TeeTypeTest extends OjTestCase {
 		oddjob.setProperties(properties);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		try (ConsoleCapture.Close close = console.captureConsole()) {
+		try (ConsoleCapture.Close ignored = console.captureConsole()) {
 			
 			oddjob.run();
 		}
@@ -64,8 +56,8 @@ public class TeeTypeTest extends OjTestCase {
 				oddjob.lastStateEvent().getState());
 		
 		assertEquals("Duplicate This!", console.getLines()[0].trim());
-		
-		assertEquals(true, testFile.exists());
+
+	   assertTrue(testFile.exists());
 		
 		oddjob.destroy();
 	}
@@ -80,7 +72,7 @@ public class TeeTypeTest extends OjTestCase {
 		oddjob.setFile(config);
 		
 		ConsoleCapture console = new ConsoleCapture();
-		try (ConsoleCapture.Close close = console.captureConsole()) {
+		try (ConsoleCapture.Close ignored = console.captureConsole()) {
 			
 			oddjob.run();
 		}

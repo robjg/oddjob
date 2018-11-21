@@ -2,23 +2,21 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs;
-import org.junit.Before;
-
-import org.junit.Test;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
-
-import org.oddjob.OjTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EchoJobTest extends OjTestCase {
 

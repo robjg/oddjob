@@ -1,8 +1,8 @@
 <oddjob id='this'>
     <job>
-        <copy to='${this.args[0]}/work/io/copy'>
+        <copy to='${work.dir}'>
             <from>
-                <file file='${this.args[0]}/test/io/reference/test1.txt'/>
+                <file file='${base.dir}/test/io/reference/test1.txt'/>
             </from>
         </copy>
     </job>

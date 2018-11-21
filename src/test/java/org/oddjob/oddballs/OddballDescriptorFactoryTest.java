@@ -1,21 +1,19 @@
 package org.oddjob.oddballs;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.oddjob.OjTestCase;
-
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.reflect.ArooaClass;
-import org.oddjob.tools.OurDirs;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class OddballDescriptorFactoryTest extends OjTestCase {
 

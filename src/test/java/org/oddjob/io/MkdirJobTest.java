@@ -2,20 +2,18 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.File;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
+
+import java.io.File;
 
 public class MkdirJobTest extends OjTestCase {
 
@@ -23,9 +21,7 @@ public class MkdirJobTest extends OjTestCase {
 	
    @Before
    public void setUp() throws Exception {
-		OurDirs dirs = new OurDirs();
-		
-		dir = dirs.relative("work/io/mkdir");
+		dir = OurDirs.workPathDir(getClass().getSimpleName(), true).toFile();
 		
 		if (dir.exists()) {
 			FileUtils.forceDelete(dir);

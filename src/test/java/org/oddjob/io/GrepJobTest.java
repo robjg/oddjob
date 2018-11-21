@@ -1,22 +1,20 @@
 package org.oddjob.io;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
+import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.state.ParentState;
+import org.oddjob.tools.ConsoleCapture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Oddjob;
-import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.state.ParentState;
-import org.oddjob.tools.ConsoleCapture;
-import org.oddjob.tools.OurDirs;
 
 public class GrepJobTest extends OjTestCase {
 

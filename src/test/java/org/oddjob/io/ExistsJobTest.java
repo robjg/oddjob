@@ -2,21 +2,14 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.io;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -24,8 +17,13 @@ import org.oddjob.jobs.structural.SequentialJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 public class ExistsJobTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(ExistsJobTest.class);
@@ -155,13 +153,10 @@ public class ExistsJobTest extends OjTestCase {
 	
    @Test
 	public void testExistsFilePollingExample() throws IOException, ArooaPropertyException, ArooaConversionException, InterruptedException {
-		
-		OurDirs dirs = new OurDirs();
-		
-		File workDir = dirs.relative("work/io");
-		
-		workDir.mkdir();
-		
+
+		File workDir = OurDirs.workPathDir(getClass().getSimpleName(), true)
+                .toFile();
+
 		File flagFile = new File(workDir, "done.flag");
 		
 		if (flagFile.exists()) {

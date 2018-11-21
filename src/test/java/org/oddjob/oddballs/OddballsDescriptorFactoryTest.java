@@ -1,23 +1,21 @@
 package org.oddjob.oddballs;
 
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URL;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.deploy.LinkedDescriptor;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
-import org.oddjob.tools.OurDirs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URL;
 
 public class OddballsDescriptorFactoryTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(

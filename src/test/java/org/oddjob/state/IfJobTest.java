@@ -2,28 +2,26 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 
 public class IfJobTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(IfJobTest.class);

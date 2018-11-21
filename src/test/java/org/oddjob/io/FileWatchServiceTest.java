@@ -30,39 +30,44 @@ public class FileWatchServiceTest {
                 getClass().getResource("FileWatchTwoFilesExample.xml").getFile()));
         oddjob.setProperties(properties);
 
+        StateSteps oddjobState = new StateSteps(oddjob);
+        oddjobState.startCheck(ParentState.READY);
+
         oddjob.load();
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
+        oddjobState.checkNow();
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         Stateful task = lookup.lookup("task", Stateful.class);
 
-        StateSteps taskSteps = new StateSteps(task);
-        taskSteps.startCheck(JobState.READY);
+        oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING,
+                ParentState.ACTIVE, ParentState.STARTED);
+        StateSteps taskState = new StateSteps(task);
+        taskState.startCheck(JobState.READY);
 
         oddjob.run();
 
-        taskSteps.checkNow();
+        taskState.checkNow();
 
         assertThat(oddjob.lastStateEvent().getState(), is(ParentState.ACTIVE));
 
         Runnable createFile1 = lookup.lookup("createFile1", Runnable.class);
 
-        taskSteps.startCheck(JobState.READY);
+        taskState.startCheck(JobState.READY);
 
         createFile1.run();
 
-        taskSteps.checkNow();
+        taskState.checkNow();
         Runnable createFile2 = lookup.lookup("createFile2", Runnable.class);
 
-        taskSteps.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+        taskState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
 
         createFile2.run();
 
-        taskSteps.checkWait();
+        taskState.checkWait();
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.STARTED));
+        oddjobState.checkWait();
 
         oddjob.stop();
 

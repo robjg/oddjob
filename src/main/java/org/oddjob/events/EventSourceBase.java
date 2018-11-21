@@ -15,6 +15,11 @@ import java.util.Objects;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
+/**
+ * Base class for sources of events.
+ *
+ * @param <T>
+ */
 abstract public class EventSourceBase<T> extends BasePrimary
 implements EventSource<T>, Resetable {
 
@@ -24,6 +29,7 @@ implements EventSource<T>, Resetable {
 	/** Used to notify clients of an icon change. */
 	private transient volatile IconHelper iconHelper;
 	
+    /** Changes state */
 	private transient volatile EventStateChanger stateChanger;
 
     /**

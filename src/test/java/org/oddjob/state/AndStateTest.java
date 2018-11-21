@@ -1,21 +1,18 @@
 package org.oddjob.state;
 
 import org.junit.Test;
-
-
-import java.io.File;
-import java.util.Properties;
-
 import org.oddjob.OjTestCase;
-
+import org.oddjob.OurDirs;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.framework.ServicesJob;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.tools.FragmentHelper;
-import org.oddjob.tools.OurDirs;
 import org.oddjob.tools.StateSteps;
+
+import java.io.File;
+import java.util.Properties;
 
 public class AndStateTest extends OjTestCase {
 

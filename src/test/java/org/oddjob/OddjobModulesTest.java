@@ -1,7 +1,17 @@
 package org.oddjob;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
+import org.oddjob.arooa.life.SimpleArooaClass;
+import org.oddjob.arooa.reflect.ArooaNoPropertyException;
+import org.oddjob.arooa.reflect.BeanOverview;
+import org.oddjob.arooa.types.XMLConfigurationType;
+import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.oddballs.BuildOddballs;
+import org.oddjob.state.ParentState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,20 +21,6 @@ import java.net.URLClassLoader;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
-import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.reflect.ArooaNoPropertyException;
-import org.oddjob.arooa.reflect.BeanOverview;
-import org.oddjob.arooa.types.XMLConfigurationType;
-import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.oddballs.BuildOddballs;
-import org.oddjob.state.ParentState;
-import org.oddjob.tools.OurDirs;
 
 public class OddjobModulesTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobModulesTest.class);
