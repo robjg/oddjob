@@ -2,6 +2,7 @@ package org.oddjob.state;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
@@ -81,18 +82,13 @@ implements Stateful, StateLock {
 	 */
 	@Override
 	public StateEvent lastStateEvent() {
-		return callLocked(new Callable<StateEvent>() {
-			@Override
-			public StateEvent call() {
-				return lastEvent;
-			}
-		});
+		return callLocked(() -> lastEvent);
 	}
 	
 	/**
 	 * Typically only called after restoring a jobstate handler after deserialisation.
 	 * 
-	 * @param source
+	 * @param savedEvent The last serialised event.
 	 */
 	public void restoreLastJobStateEvent(StateEvent.SerializableNoSource savedEvent) {
 		
@@ -128,6 +124,10 @@ implements Stateful, StateLock {
 	 * @see org.oddjob.state.StateChanger#setJobStateException(java.lang.Throwable, java.util.Date)
 	 */
 	public void setStateException(S state, Throwable t, Date date) throws JobDestroyedException {
+		Objects.requireNonNull(state);
+		Objects.requireNonNull(t);
+		Objects.requireNonNull(date);
+
 		setLastJobStateEvent(
 				new StateEvent(source, state, date, t));
 	}
@@ -158,12 +158,7 @@ implements Stateful, StateLock {
 	 * @return The current state.
 	 */
 	public State getState() {
-		return callLocked(new Callable<State>() {
-			@Override
-			public State call() throws Exception {
-				return lastEvent.getState();
-			}
-		});
+		return callLocked(() -> lastEvent.getState());
 	}
 
 	/**
@@ -219,8 +214,8 @@ implements Stateful, StateLock {
 	 * Do the work that will be executed when this thread holds
 	 * the lock.
 	 * 
-	 * @param when
-	 * @param runnable
+	 * @param when Only do something if this condition is met.
+	 * @param runnable The thing to do while holding the lock.
 	 * 
 	 * @return true if the test is true and the work is done, false 
 	 * otherwise.
@@ -260,8 +255,9 @@ implements Stateful, StateLock {
 	/**
 	 * Sleep.
 	 * 
-	 * @param time
-	 * @throws InterruptedException
+	 * @param time The milliseconds to sleep for.
+	 *
+	 * @throws InterruptedException If the sleep is interrupted.
 	 */
 	public void sleep(long time) throws InterruptedException {
 		assertLockHeld();
@@ -291,24 +287,21 @@ implements Stateful, StateLock {
 	 * 
 	 * @param listener The listener.
 	 * 
-	 * @throws JobDestroyedException 
+	 * @throws JobDestroyedException If trying to listen to a destroyed job.
 	 */			
 	public void addStateListener(final StateListener listener) 
 	throws JobDestroyedException {
 		assertAlive();
 		
-		waitToWhen(new IsAnyState(), new Runnable() {
-			@Override
-			public void run() {
-				// setting pending event stops the listener chaining state.
-				listeners.add(listener);
-				fireing = true;
-				try {
-					listener.jobStateChange(lastEvent);
-				}
-				finally {
-					fireing = false;
-				}
+		waitToWhen(new IsAnyState(), () -> {
+			// setting pending event stops the listener chaining state.
+			listeners.add(listener);
+			fireing = true;
+			try {
+				listener.jobStateChange(lastEvent);
+			}
+			finally {
+				fireing = false;
 			}
 		});
 	}
@@ -320,12 +313,7 @@ implements Stateful, StateLock {
 	 * @param listener The listener.
 	 */
 	public void removeStateListener(final StateListener listener) {
-		waitToWhen(new IsAnyState(), new Runnable() {
-			@Override
-			public void run() {
-				listeners.remove(listener);
-			}
-		});
+		waitToWhen(new IsAnyState(), () -> listeners.remove(listener));
 	}
 
 	/**
@@ -334,12 +322,7 @@ implements Stateful, StateLock {
 	 * @return The number of listeners.
 	 */
 	public int listenerCount() {
-		return callLocked(new Callable<Integer>() {
-			@Override
-			public Integer call() throws Exception {
-				return listeners.size();
-			}
-		}).intValue();
+		return callLocked(() -> listeners.size());
 	}
 	
 	/**
@@ -351,8 +334,6 @@ implements Stateful, StateLock {
 
 	/**
 	 * Fire the event, update last event.
-	 * 
-	 * @param event The event.
 	 */
 	public void fireEvent() {
 		assertLockHeld();

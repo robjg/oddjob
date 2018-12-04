@@ -90,15 +90,10 @@ implements
 				getInitialStateOp());
 		iconHelper = new IconHelper(this, 
 				StateIcons.iconFor(stateHandler.getState()));
-		stateChanger = new ParentStateChanger(stateHandler, iconHelper, 
-				new Persistable() {					
-					@Override
-					public void persist() throws ComponentPersistException {
-						save();
-					}
-				});
-		childStateReflector = new StateExchange<ParentState>(structuralState, 
-				new OrderedStateChanger<ParentState>(stateChanger, stateHandler));
+		stateChanger = new ParentStateChanger(stateHandler, iconHelper,
+				this::save);
+		childStateReflector = new StateExchange<>(structuralState,
+				new OrderedStateChanger<>(stateChanger, stateHandler));
 	}
 		
 	@Override

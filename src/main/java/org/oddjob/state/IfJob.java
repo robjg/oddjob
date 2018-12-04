@@ -125,28 +125,28 @@ public class IfJob extends StructuralJob<Object>
 	@Override
 	protected StateOperator getInitialStateOp() {
 		return new StateOperator() {
-			public ParentState evaluate(State... states) {
+			public StateEvent evaluate(StateEvent... states) {
 
-				if (states.length < 1) {
-					return ParentState.READY;
+				if (states.length == 0) {
+					return null;
 				}
 				
-				boolean then = state.test(states[0]);
+				boolean then = state.test(states[0].getState());
 				
 				if (then) {
 					if (states.length > 1) {
-						return new StandardParentStateConverter(
-								).toStructuralState(states[1]);
+						return StateOperator.toParentEvent(states[1],
+								new StandardParentStateConverter());
 					}
 				}
 				else {
 					if (states.length > 2) {
-						return new StandardParentStateConverter(
-								).toStructuralState(states[2]);
+						return StateOperator.toParentEvent(states[2],
+								new StandardParentStateConverter());
 					}
 				}
 				
-				return ParentState.COMPLETE;
+				return new StateEvent(IfJob.this, ParentState.COMPLETE);
 			}
 		};
 

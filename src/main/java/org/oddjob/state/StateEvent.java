@@ -2,6 +2,7 @@ package org.oddjob.state;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 
 import org.oddjob.Stateful;
 import org.oddjob.util.IO;
@@ -13,7 +14,7 @@ import org.oddjob.util.IO;
  * 
  * @author Rob Gordon
  */
-public class StateEvent {
+public final class StateEvent {
 
 	public static final String REPLACEMENT_EXCEPTION_TEXT = "Exception is not serializable, message is: ";
 	
@@ -40,9 +41,14 @@ public class StateEvent {
 	 * @param exception The exception if applicable, or null otherwise.
 	 */	
 	public StateEvent(Stateful source, State state, Date time, Throwable exception) {
-	    if (state == null) {
-	    	throw new NullPointerException("JobState can not be null!");
-	    }
+		Objects.requireNonNull(source, "No source");
+		Objects.requireNonNull(state ,"JobState can not be null!");
+		Objects.requireNonNull(time, "No time");
+
+		if (state.isException()) {
+			Objects.requireNonNull(exception, "Exception required if state is exception.");
+		}
+
 	    this.source = source;
 		this.state = state;
 		this.time = time;
@@ -103,16 +109,32 @@ public class StateEvent {
 	
 	/**
 	 * Provide something that can be serialised. Note the we do not use
-	 * {@code writeReplace} because there the corresponding 
+	 * {@code writeReplace} because there would need to be the corresponding
 	 * {@code readResolve}
 	 * 
-	 * @return
+	 * @return A serializable version of the event without the source.
 	 */
 	public SerializableNoSource serializable() {
 		return new SerializableNoSource(getState(), 
 				getTime(), getException());
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		StateEvent that = (StateEvent) o;
+		return source.equals(that.source) &&
+				state.equals(that.state) &&
+				time.equals(that.time) &&
+				Objects.equals(exception, that.exception);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(source, state, time, exception);
+	}
+
 	/**
 	 * Override toString.
 	 */
@@ -127,7 +149,7 @@ public class StateEvent {
 	static class ExceptionReplacement extends Exception {
 		private static final long serialVersionUID = 20051217;
 		
-		public ExceptionReplacement(Throwable replacing) {
+		ExceptionReplacement(Throwable replacing) {
 			super(REPLACEMENT_EXCEPTION_TEXT + replacing.getMessage());
 			super.setStackTrace(replacing.getStackTrace());
 		}

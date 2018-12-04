@@ -8,31 +8,62 @@ package org.oddjob.state;
  *
  */
 public class OrStateOp implements StateOperator {
-	
+
+	private final ParentStateConverter parentStateConverter;
+
+	public OrStateOp(ParentStateConverter parentStateConverter) {
+		this.parentStateConverter = parentStateConverter;
+	}
+
+	public OrStateOp() {
+		this(new StandardParentStateConverter());
+	}
+
 	@Override
-	public ParentState evaluate(State... states) {
+	public StateEvent evaluate(StateEvent... states) {
+
 		new AssertNonDestroyed().evaluate(states);
+
+		if (states.length == 0) {
+			return null;
+
+		}
+
+		StateEvent state = states[0];
 		
-		ParentState state = ParentState.READY;
-		
-		for (int i = 0; i < states.length; ++i) {
-			State next = states[i];
+		for (int i = 1; i < states.length; ++i) {
+			StateEvent next = states[i];
 			
-			if (state.isStoppable() || next.isStoppable()){
-				state = ParentState.ACTIVE;
+			if (state.getState().isStoppable()) {
+				continue;
 			}
-			else if (state.isException() || next.isException()) {
-				state = ParentState.EXCEPTION;
+
+			if (next.getState().isStoppable()) {
+				state = next;
 			}
-			else if (state.isComplete() || next.isComplete()){
-				state = ParentState.COMPLETE;
+			else if (state.getState().isException()) {
+				continue;
 			}
-			else if (state.isIncomplete() || next.isIncomplete()){
-				state = ParentState.INCOMPLETE;
+
+			if (next.getState().isException()) {
+				state = next;
+			}
+			else if (state.getState().isComplete()) {
+				continue;
+			}
+
+			if (next.getState().isComplete()){
+				state = next;
+			}
+			else if (state.getState().isIncomplete()) {
+				continue;
+			}
+
+			if (next.getState().isIncomplete()) {
+				state = next;
 			}
 		}
 		
-		return state;
+		return StateOperator.toParentEvent(state, parentStateConverter);
 	}
-	
 }

@@ -22,8 +22,8 @@ import org.oddjob.Structural;
  *
  */
 public class ServiceManagerStateOp implements StateOperator {
-	
-	private static class ServiceManagerParentStateConverter 
+
+	private static class ServiceManagerParentStateConverter
 	implements ParentStateConverter {
 		
 		@Override
@@ -55,15 +55,13 @@ public class ServiceManagerStateOp implements StateOperator {
 			}
 		}
 	}
-	
+
 	@Override
-	public ParentState evaluate(State... states) {
-		
+	public StateEvent evaluate(StateEvent... states) {
 		return new WorstStateOp(new ServiceManagerParentStateConverter()
-				).evaluate(states);
-		
+		).evaluate(states);
 	}
-	
+
 	public String toString() {
 		
 		return getClass().getSimpleName();

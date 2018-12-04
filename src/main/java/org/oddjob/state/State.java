@@ -19,7 +19,7 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isReady();
+	boolean isReady();
 	
 	/**
 	 * Is the job executing. This is normally when the thread of
@@ -27,7 +27,7 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isExecuting();
+	boolean isExecuting();
 	
 	/**
 	 * Can a job be stopped? This is a catch all for jobs
@@ -35,14 +35,14 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isStoppable();
+	boolean isStoppable();
 		
 	/**
 	 * Is a job or service complete?
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isComplete();
+	boolean isComplete();
  	
 	/**
 	 * Is a job or service incomplete. The implication of incomplete is
@@ -50,7 +50,7 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isIncomplete();
+	boolean isIncomplete();
 	
 	/**
 	 * Is a job in an exception state. This is generally due to an 
@@ -59,7 +59,7 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isException();
+	boolean isException();
 	
 	
 	/**
@@ -67,5 +67,5 @@ public interface State extends Serializable {
 	 * 
 	 * @return true/false.
 	 */
-	public boolean isDestroyed();
+	boolean isDestroyed();
 }

@@ -16,8 +16,6 @@ import org.oddjob.OddjobException;
 public class OddjobChildException extends OddjobException {
 	private static final long serialVersionUID = 20070424;
 	
-	private final Throwable childException;
-	
 	private final String childName;
 	
 
@@ -28,16 +26,9 @@ public class OddjobChildException extends OddjobException {
 	 * @param childName The childs name.
 	 */
 	public OddjobChildException(Throwable childException, String childName) {
-		super("Exception in Child Job [" + childName + "]");
-		this.childException = childException;
+		super("Exception in Child Job [" + childName + "]", childException);
 		this.childName = childName;
 	}
-
-
-	public Throwable getChildException() {
-		return childException;
-	}
-
 
 	public String getChildName() {
 		return childName;

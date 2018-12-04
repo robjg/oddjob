@@ -1,10 +1,12 @@
 package org.oddjob.state;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.oddjob.framework.JobDestroyedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
@@ -35,12 +37,12 @@ public class StructuralStateHelper implements Stateful {
 	 * can move. The state listener uses a reference instead
 	 * of an index to insert state.
 	 */
-	private final List<AtomicReference<State>> states = 
-		new ArrayList<AtomicReference<State>>();
+	private final List<AtomicReference<StateEvent>> childStateEvents =
+		new ArrayList<>();
 	
 	/** The listeners listening to the children. */
 	private final List<StateListener> listeners = 
-		new ArrayList<StateListener>();
+		new ArrayList<>();
 
 	/** The {@link StateOperator}. */
 	private volatile StateOperator stateOperator;
@@ -50,31 +52,27 @@ public class StructuralStateHelper implements Stateful {
 	 */
 	class ChildStateListener implements StateListener {
 
-		private final AtomicReference<State> holder;
+		private final AtomicReference<StateEvent> holder;
 		
-		public ChildStateListener(AtomicReference<State> holder) {
+		public ChildStateListener(AtomicReference<StateEvent> holder) {
 			this.holder = holder;
 		}
 		
 		@Override
 		public void jobStateChange(final StateEvent event) {
 			
-			stateHandler.callLocked(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					State previous = holder.getAndSet(event.getState());
-					
-					// Don't check when listener initially added as this happens
-					// in when child added.
-					if (previous != null) {
-						checkStates();
-					}
-					
-					return null;
+			stateHandler.callLocked((Callable<Void>) () -> {
+				StateEvent previous = holder.getAndSet(event);
+
+				// Don't check when listener initially added as this happens
+				// in when child added.
+				if (previous != null) {
+					checkStates();
 				}
+
+				return null;
 			});
-			
-		};
+		}
 		
 		@Override
 		public String toString() {
@@ -115,8 +113,8 @@ public class StructuralStateHelper implements Stateful {
 						int index = event.getIndex();
 						Object child = event.getChild();
 		
-						AtomicReference<State> stateHolder = 
-								new AtomicReference<State>();
+						AtomicReference<StateEvent> stateHolder =
+								new AtomicReference<>();
 		
 						ChildStateListener listener = 
 								new ChildStateListener(stateHolder);
@@ -125,11 +123,11 @@ public class StructuralStateHelper implements Stateful {
 							((Stateful) child).addStateListener(listener);
 						}
 						else {
-							stateHolder.set(ParentState.COMPLETE);
+							stateHolder.set(new ConstStateful(JobState.COMPLETE).lastStateEvent());
 						}
 						
 						listeners.add(index, listener);
-						states.add(index, stateHolder);
+						childStateEvents.add(index, stateHolder);
 						
 						checkStates();
 					}
@@ -151,7 +149,7 @@ public class StructuralStateHelper implements Stateful {
 							((Stateful) child).removeStateListener(listener);
 						}
 
-						states.remove(index);
+						childStateEvents.remove(index);
 
 						checkStates();
 					}
@@ -172,20 +170,32 @@ public class StructuralStateHelper implements Stateful {
 		
 		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
 			public void run() {
-				State[] stateArgs = new State[states.size()];
-				int i = 0;
-				for (AtomicReference<State> holder : states) {
-					stateArgs[i++] = holder.get(); 
+				StateEvent[] stateArgs = childStateEvents.stream()
+						.map(AtomicReference::get)
+						.toArray(StateEvent[]::new);
+
+				StateEvent stateEvent = stateOperator.evaluate(stateArgs);
+
+				if (stateEvent == null) {
+					if (stateHandler.getState() == ParentState.READY) {
+						return;
+					}
+					stateHandler.setState(ParentState.READY);
 				}
-				
-				ParentState state = stateOperator.evaluate(stateArgs);
-						
-				// don't fire a new state if it is the same as the last.
-				if (state == stateHandler.getState()) {
-					return;
+				else {
+					// don't fire a new state if it is the same as the last.
+					if (stateEvent.getState().equals(stateHandler.lastStateEvent())) {
+						return;
+					}
+
+					if (stateEvent.getState().isException()) {
+						stateHandler.setStateException((ParentState) stateEvent.getState(),
+								stateEvent.getException(), stateEvent.getTime());
+					}
+					else {
+						stateHandler.setState((ParentState) stateEvent.getState(), stateEvent.getTime());
+					}
 				}
-				
-				stateHandler.setState(state);
 				stateHandler.fireEvent();
 			}
 		});
@@ -196,19 +206,11 @@ public class StructuralStateHelper implements Stateful {
 		return stateHandler.lastStateEvent();
 	}
 	
-	public State[] getChildStates() {
+	public StateEvent[] getChildStates() {
 		
-		return stateHandler.callLocked(new Callable<State[]>() {
-			@Override
-			public State[] call() throws Exception {
-				State[] array = new State[states.size()];
-				int i = 0;
-				for (AtomicReference<State> holder : states) {
-					array[i++] = holder.get();
-				}
-				return array;
-			}
-		});
+		return stateHandler.callLocked(() -> childStateEvents.stream()
+				.map(AtomicReference::get)
+				.toArray(StateEvent[]::new));
 	}
 
 	public StateOperator getStateOperator() {
@@ -238,4 +240,5 @@ public class StructuralStateHelper implements Stateful {
 		this.stateOperator = stateOperator;
 		checkStates();
 	}
+
 }

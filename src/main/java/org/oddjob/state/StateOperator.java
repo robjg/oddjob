@@ -1,6 +1,9 @@
 package org.oddjob.state;
 
 import org.oddjob.Structural;
+import org.oddjob.structural.OddjobChildException;
+
+import java.util.Date;
 
 /**
  * An operation that provides the result of evaluating many states. These
@@ -20,6 +23,28 @@ public interface StateOperator {
 	 * @param states The states.
 	 * @return The result state.
  	 */
-	public ParentState evaluate(State... states);
-	
+	StateEvent evaluate(StateEvent... states);
+
+	static StateEvent toParentEvent(StateEvent childEvent, ParentStateConverter parentStateConverter) {
+		Throwable childException = childEvent.getException();
+		OddjobChildException exception;
+
+		if (childException == null) {
+			exception = null;
+		}
+		else if (childException instanceof OddjobChildException) {
+			exception = (OddjobChildException) childException;
+		}
+		else {
+			exception = new OddjobChildException(childException,
+					childEvent.getSource().toString());
+		}
+
+		return new StateEvent(
+				childEvent.getSource(),
+				parentStateConverter.toStructuralState(childEvent.getState()),
+				new Date(),
+				exception);
+	}
+
 }

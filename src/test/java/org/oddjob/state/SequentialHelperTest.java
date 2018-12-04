@@ -18,7 +18,12 @@ public class SequentialHelperTest extends OjTestCase {
 		
 		@Override
 		public StateEvent lastStateEvent() {
-			return new StateEvent(this, jobState);
+			if (jobState.isException()) {
+				return new StateEvent(this, jobState, new RuntimeException());
+			}
+			else {
+				return new StateEvent(this, jobState);
+			}
 		}		
 	}
 	

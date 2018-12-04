@@ -1,7 +1,5 @@
 package org.oddjob.state;
 
-import static org.oddjob.state.ParentState.*;
-
 import org.oddjob.Structural;
 
 /**
@@ -21,19 +19,20 @@ import org.oddjob.Structural;
  * @author rob
  *
  */
-public class WorstStateOp implements StateOperator {
-	
-	private static final ParentState[][] STATE_MATRIX = {
-		{ READY,      null, ACTIVE,     STARTED,    INCOMPLETE, READY,      EXCEPTION, null },
-		{ null,       null, null,       null,       null,       null,       null,      null },
-		{ ACTIVE,     null, ACTIVE,     ACTIVE,     INCOMPLETE, ACTIVE,     EXCEPTION, null },
-		{ STARTED,    null, ACTIVE,     STARTED,    INCOMPLETE, STARTED,    EXCEPTION, null },
-		{ INCOMPLETE, null, INCOMPLETE, INCOMPLETE, INCOMPLETE, INCOMPLETE, EXCEPTION, null },
-		{ READY,      null, ACTIVE,     STARTED,    INCOMPLETE, COMPLETE,   EXCEPTION, null },
-		{ EXCEPTION,  null, EXCEPTION,  EXCEPTION,  EXCEPTION, EXCEPTION,   EXCEPTION, null },
-		{ null,       null, null,       null,       null,      null,        null,      null },
-	};
-	
+public class WorstStateOp extends ScoringStateOperator {
+
+	private static final int[] order =
+			{
+					1, 	// READY
+					-1, // EXECUTING
+					3, 	// ACTIVE
+					2, 	// STARTED
+					4, 	// INCOMPLETE
+					0, 	// COMPLETE
+					5, 	// EXCEPTION
+					-1, // DESTROYED
+			};
+
 	private final ParentStateConverter parentStateConverter;
 	
 	public WorstStateOp() {
@@ -43,31 +42,18 @@ public class WorstStateOp implements StateOperator {
 	public WorstStateOp(ParentStateConverter parentStateConverter) {
 		this.parentStateConverter = parentStateConverter;
 	}
-	
-	@Override
-	public ParentState evaluate(State... states) {
-		
-		new AssertNonDestroyed().evaluate(states);
-		
-		ParentState state = ParentState.READY;
-		
-		if (states.length > 0) {
-			
-			state = parentStateConverter.toStructuralState(states[0]);
-			
-			for (int i = 1; i < states.length; ++i) {
-				ParentState next = parentStateConverter.toStructuralState(
-						states[i]);
 
-				state = STATE_MATRIX[state.ordinal()][next.ordinal()];
-			}
-		}
-		
-		return state;
+	@Override
+	protected int score(ParentState state) {
+		return order[state.ordinal()];
 	}
-	
+
+	@Override
+	protected ParentStateConverter getParentStateConverter() {
+		return parentStateConverter;
+	}
+
 	public String toString() {
-		
 		return getClass().getSimpleName();
 	}
 }

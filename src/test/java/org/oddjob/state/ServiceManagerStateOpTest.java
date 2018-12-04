@@ -6,317 +6,347 @@ import org.oddjob.OjTestCase;
 
 public class ServiceManagerStateOpTest extends OjTestCase {
 
-   @Test
-	public void testEvaluateSingleJobOp() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.EXECUTING));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION));
-				
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.INCOMPLETE));
-				
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(JobState.COMPLETE));
-	}
-	
-   @Test
-	public void testEvaluateSingleServiceOp() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STARTED));
-				
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION));
-				
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STOPPED));
-	}
-	
-   @Test
-	public void testAssociative() {
+    static class JobEvents {
 
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		ParentState[] values = ParentState.values();
-		
-		for (int i = 0; i < values.length - 1; ++i) {
-			for (int j = 0; j < values.length - 1; ++j) {
-				ParentState oneWay = test.evaluate(values[i], values[j]);
-				ParentState otherWay = test.evaluate(values[j], values[i]);
-				
-				assertSame("Failed on i=" + i + ", j = " + j,
-						oneWay, otherWay);
-			}
-		}
-	}
+        static StateEvent READY = ConstStateful.event(JobState.READY);
 
-	
-   @Test
-	public void testEvaluateTwoJobStates() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(JobState.READY, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.READY, JobState.EXECUTING));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(JobState.READY, JobState.COMPLETE));
+        static StateEvent EXECUTING = ConstStateful.event(JobState.EXECUTING);
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.READY, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.READY, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.EXECUTING, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.EXECUTING, JobState.EXECUTING));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.EXECUTING, JobState.COMPLETE));
+        static StateEvent EXCEPTION = ConstStateful.exception(JobState.EXCEPTION, new RuntimeException());
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.EXECUTING, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXECUTING, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.INCOMPLETE, JobState.READY));
-		
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.INCOMPLETE, JobState.EXECUTING));
-		
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.INCOMPLETE, JobState.COMPLETE));
+        static StateEvent INCOMPLETE = ConstStateful.event(JobState.INCOMPLETE);
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.INCOMPLETE, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.INCOMPLETE, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(JobState.COMPLETE, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(JobState.COMPLETE, JobState.EXECUTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(JobState.COMPLETE, JobState.COMPLETE));
+        static StateEvent COMPLETE = ConstStateful.event(JobState.COMPLETE);
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(JobState.COMPLETE, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.COMPLETE, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION, JobState.READY));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION, JobState.EXECUTING));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION, JobState.COMPLETE));
+        static StateEvent DESTROYED = ConstStateful.event(JobState.DESTROYED);
+    }
 
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(JobState.EXCEPTION, JobState.EXCEPTION));
-	}
-	
-   @Test
-	public void testEvaluateTwoServiceStates() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTING));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTABLE, ServiceState.STARTED));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STARTABLE, ServiceState.EXCEPTION));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, ServiceState.STARTING));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, ServiceState.STARTED));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, ServiceState.STOPPED));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTED, ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTED, ServiceState.STARTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STARTED, ServiceState.STARTED));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STARTED, ServiceState.EXCEPTION));
-				
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STARTED, ServiceState.STOPPED));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTING));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.STARTED));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.EXCEPTION));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, ServiceState.STOPPED));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.STARTABLE));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.STARTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.STARTED));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.EXCEPTION));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STOPPED, ServiceState.STOPPED));
-		
-	}
-	
-   @Test
-	public void testEvaluateServiceStateAndJobState() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTABLE, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTABLE, JobState.EXECUTING));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTABLE, JobState.COMPLETE));
+    static class ServiceEvents {
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(ServiceState.STARTABLE, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STARTABLE, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, JobState.EXECUTING));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTING, JobState.COMPLETE));
+        static StateEvent STARTABLE = ConstStateful.event(ServiceState.STARTABLE);
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(ServiceState.STARTING, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STARTING, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STARTED, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STARTED, JobState.EXECUTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STARTED, JobState.COMPLETE));
+        static StateEvent STARTING = ConstStateful.event(ServiceState.STARTING);
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(ServiceState.STARTED, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STARTED, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, JobState.READY));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, JobState.EXECUTING));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, JobState.COMPLETE));
+        static StateEvent STARTED = ConstStateful.event(ServiceState.STARTED);
 
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.EXCEPTION, JobState.EXCEPTION));
-		
-		assertEquals(ParentState.READY, 
-				test.evaluate(ServiceState.STOPPED, JobState.READY));
-		
-		assertEquals(ParentState.ACTIVE, 
-				test.evaluate(ServiceState.STOPPED, JobState.EXECUTING));
-		
-		assertEquals(ParentState.COMPLETE, 
-				test.evaluate(ServiceState.STOPPED, JobState.COMPLETE));
+        static StateEvent EXCEPTION = ConstStateful.exception(ServiceState.EXCEPTION, new RuntimeException());
 
-		assertEquals(ParentState.INCOMPLETE, 
-				test.evaluate(ServiceState.STOPPED, JobState.INCOMPLETE));
-		
-		assertEquals(ParentState.EXCEPTION, 
-				test.evaluate(ServiceState.STOPPED, JobState.EXCEPTION));
-		
-	}
-	
-   @Test
-	public void testDestroyed() {
-		
-		ServiceManagerStateOp test = new ServiceManagerStateOp();
-		
-		try {
-			assertEquals(JobState.DESTROYED, 
-					test.evaluate(JobState.DESTROYED, JobState.DESTROYED));
-			fail("Should fail");
-		} catch (IllegalStateException e) {
-			// expected.
-		}
-	}
+        static StateEvent STOPPED = ConstStateful.event(ServiceState.STOPPED);
+    }
+
+    @Test
+    public void testEvaluateSingleJobOp() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        assertEquals(ParentState.READY,
+                test.evaluate(JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(JobEvents.COMPLETE).getState());
+    }
+
+    @Test
+    public void testEvaluateSingleServiceOp() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STOPPED).getState());
+    }
+
+    @Test
+    public void testAssociative() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        StateEvent[] values =  new StateEvent[] {
+                JobEvents.READY, JobEvents.EXECUTING,
+                JobEvents.COMPLETE, JobEvents.INCOMPLETE, JobEvents.EXCEPTION };
+
+        for (int i = 0; i < values.length - 1; ++i) {
+            for (int j = 0; j < values.length - 1; ++j) {
+                StateEvent oneWay = test.evaluate(values[i], values[j]);
+                StateEvent otherWay = test.evaluate(values[j], values[i]);
+
+                assertSame("Failed on i=" + i + ", j = " + j,
+                        oneWay.getState(), otherWay.getState());
+            }
+        }
+    }
+
+
+    @Test
+    public void testEvaluateTwoJobStates() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        assertEquals(ParentState.READY,
+                test.evaluate(JobEvents.READY, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.READY, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(JobEvents.READY, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.READY, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.READY, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.EXECUTING, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.EXECUTING, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.EXECUTING, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.EXECUTING, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXECUTING, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.INCOMPLETE, JobEvents.READY).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.INCOMPLETE, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.INCOMPLETE, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.INCOMPLETE, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.INCOMPLETE, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(JobEvents.COMPLETE, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(JobEvents.COMPLETE, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(JobEvents.COMPLETE, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(JobEvents.COMPLETE, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.COMPLETE, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION, JobEvents.READY).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(JobEvents.EXCEPTION, JobEvents.EXCEPTION).getState());
+    }
+
+    @Test
+    public void testEvaluateTwoServiceStates() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTABLE, ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTABLE, ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTABLE, ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STARTABLE, ServiceEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, ServiceEvents.STOPPED).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTED, ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTED, ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STARTED, ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STARTED, ServiceEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STARTED, ServiceEvents.STOPPED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, ServiceEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, ServiceEvents.STOPPED).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STOPPED, ServiceEvents.STARTABLE).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STOPPED, ServiceEvents.STARTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STOPPED, ServiceEvents.STARTED).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STOPPED, ServiceEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STOPPED, ServiceEvents.STOPPED).getState());
+
+    }
+
+    @Test
+    public void testEvaluateServiceStateAndJobState() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTABLE, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTABLE, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTABLE, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(ServiceEvents.STARTABLE, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STARTABLE, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTING, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(ServiceEvents.STARTING, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STARTING, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STARTED, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STARTED, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STARTED, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(ServiceEvents.STARTED, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STARTED, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, JobEvents.READY).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.EXCEPTION, JobEvents.EXCEPTION).getState());
+
+        assertEquals(ParentState.READY,
+                test.evaluate(ServiceEvents.STOPPED, JobEvents.READY).getState());
+
+        assertEquals(ParentState.ACTIVE,
+                test.evaluate(ServiceEvents.STOPPED, JobEvents.EXECUTING).getState());
+
+        assertEquals(ParentState.COMPLETE,
+                test.evaluate(ServiceEvents.STOPPED, JobEvents.COMPLETE).getState());
+
+        assertEquals(ParentState.INCOMPLETE,
+                test.evaluate(ServiceEvents.STOPPED, JobEvents.INCOMPLETE).getState());
+
+        assertEquals(ParentState.EXCEPTION,
+                test.evaluate(ServiceEvents.STOPPED, JobEvents.EXCEPTION).getState());
+
+    }
+
+    @Test
+    public void testDestroyed() {
+
+        ServiceManagerStateOp test = new ServiceManagerStateOp();
+
+        try {
+            assertEquals(JobEvents.DESTROYED,
+                    test.evaluate(JobEvents.DESTROYED, JobEvents.DESTROYED));
+            fail("Should fail");
+        } catch (IllegalStateException e) {
+            // expected.
+        }
+    }
 }

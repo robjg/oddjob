@@ -151,16 +151,11 @@ public class StructuralStateHelperTest extends OjTestCase {
 		ChildHelper<Object> childHelper = new ChildHelper<Object>(new DummyStructural());
 	
 		StructuralStateHelper test = new StructuralStateHelper(
-				childHelper, new StateOperator() {
-					@Override
-					public ParentState evaluate(State... states) {
-						return ParentState.COMPLETE;
-					}
-				});
+				childHelper, states -> null);
 		
 		test.addStateListener(new OurStateListener());
 		
-		assertEquals(ParentState.COMPLETE, state);
+		assertEquals(ParentState.READY, state);
 	}
 	
 	private class OurStateful extends MockStateful {

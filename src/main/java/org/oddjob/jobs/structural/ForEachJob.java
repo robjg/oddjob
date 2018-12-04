@@ -270,7 +270,7 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	 * be automatically set by Oddjob.
 	 * @oddjob.required No.
 	 * 
-	 * @param child A child
+	 * @param executorService The Executor Service.
 	 */
 	@Inject
 	public void setExecutorService(ExecutorService executorService) {
@@ -291,12 +291,11 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	}
 	
 	/**
-	 * Add a type. This will be called during parsing by the
-	 * handler to add a type for each element.
+	 * Set the values to iterate over.
  	 * 
-	 * @param type The type.
+	 * @param values The values.
 	 */
-	public void setValues(Iterable<? extends Object> values) {
+	public void setValues(Iterable<?> values) {
 		this.values = values;
 	}
 
@@ -305,9 +304,10 @@ implements Stoppable, Loadable, ConfigurationOwner {
 		return new StateOperator() {
 			final StateOperator anyStateOp = new AnyActiveStateOp();
 			@Override
-			public ParentState evaluate(State... states) {
+			public StateEvent evaluate(StateEvent... states) {
 				if (states.length == 0) {
-					return ParentState.COMPLETE;
+					return new StateEvent(ForEachJob.this,
+							ParentState.COMPLETE);
 				}
 				else {
 					return anyStateOp.evaluate(states);
@@ -357,8 +357,8 @@ implements Stoppable, Loadable, ConfigurationOwner {
 	/**
 	 * Load a configuration for a single value.
 	 * 
-	 * @param value
-	 * @throws ArooaParseException
+	 * @param value The value
+	 * @throws ArooaParseException If the config can't be parsed.
 	 */
 	protected Object loadConfigFor(Object value) throws ArooaParseException {
 		

@@ -21,10 +21,10 @@ public class DestroyHandlingStateOp implements StateOperator {
 	}
 	
 	@Override
-	public ParentState evaluate(State... states) {
+	public StateEvent evaluate(StateEvent... states) {
 
 		for (int i = 0; i < states.length; ++i) {
-			if (states[i].isDestroyed()) {
+			if (states[i].getState().isDestroyed()) {
 				return onDestroyed(i);
 			}
 		}
@@ -33,7 +33,7 @@ public class DestroyHandlingStateOp implements StateOperator {
 		
 	}
 	
-	protected ParentState onDestroyed(int index) {
-		return ParentState.EXCEPTION;
+	protected StateEvent onDestroyed(int index) {
+		return new ConstStateful(ParentState.EXCEPTION).lastStateEvent();
 	}
 }

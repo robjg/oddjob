@@ -94,7 +94,7 @@ public class TimerStateAdapterTest extends OjTestCase {
 		parentStateful.callLocked(new Callable<Void>() {
 			@Override
 			public Void call() throws Exception {
-				parentStateful.setState(ParentState.EXCEPTION);
+				parentStateful.setStateException(ParentState.EXCEPTION, new RuntimeException());
 				parentStateful.fireEvent();
 				return null;
 			}

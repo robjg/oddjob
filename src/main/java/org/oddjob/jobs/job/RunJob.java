@@ -9,18 +9,12 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.ComponentBoundary;
-import org.oddjob.state.AnyActiveStateOp;
-import org.oddjob.state.AsynchJobWait;
-import org.oddjob.state.DestroyHandlingStateOp;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateOperator;
+import org.oddjob.state.*;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.Restore;
+
+import java.util.Date;
 
 /**
  * @oddjob.description A job which runs another job. The other job can be
@@ -94,8 +88,8 @@ implements Structural, Stoppable {
 		}
 		
 		@Override
-		protected ParentState onDestroyed(int index) {
-			try (Restore restore = ComponentBoundary.push(loggerName(), RunJob.this)) {
+		protected StateEvent onDestroyed(int index) {
+			try (Restore ignored = ComponentBoundary.push(loggerName(), RunJob.this)) {
 				stopChildStateReflector();
 				childHelper.removeAllChildren();
 				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
@@ -112,10 +106,11 @@ implements Structural, Stoppable {
 					}
 				});
 			}
-			// This will be unsed as we've stopped the child state reflector.
-			return ParentState.EXCEPTION;
+			// This will be unused as we've stopped the child state reflector.
+			return new StateEvent(RunJob.this, ParentState.EXCEPTION, new Date(),
+					new RuntimeException("Child Destroyed"));
 		}
-	};
+	}
 	
 	/**
 	 * Set the stop node directly.
