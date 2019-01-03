@@ -11,12 +11,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.attribute.FileTime;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
+/**
+ * Fact store backed by the file system.
+ */
 public class FileFactStore implements FactStore {
 
     private static final Logger logger = LoggerFactory.getLogger(FileFactStore.class);
@@ -67,6 +71,7 @@ public class FileFactStore implements FactStore {
             this.rootDir = rootDir;
 
             this.fileWatchService = new FileWatchService();
+            this.fileWatchService.setKinds(StandardWatchEventKinds.ENTRY_CREATE.name());
             this.fileWatchService.start();
         }
 
@@ -82,8 +87,10 @@ public class FileFactStore implements FactStore {
             Restore fileWatchRestore = fileWatchService.subscribe(fullPath, p -> {
                 try {
                     FileTime lastModified = Files.getLastModifiedTime(p);
+                    logger.debug("Received path {} with time {}", p, lastModified);
                     if (lastModified.equals(this.lastModified.put(
                             consumer, lastModified))) {
+                        logger.debug("Last modified the same. Ignoring");
                         return;
                     }
                 }

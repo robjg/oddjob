@@ -37,14 +37,14 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
     private volatile boolean newOnly;
 
-    public void start() throws IOException {
-        close = doStart(consumer);
-    }
-
-    public void stop() {
-        close.close();
-    }
-
+//    public void start() throws IOException {
+//        close = doStart(consumer);
+//    }
+//
+//    public void stop() {
+//        close.close();
+//    }
+//
     @Override
     protected Restore doStart(Consumer<? super Path> consumer) throws IOException {
 

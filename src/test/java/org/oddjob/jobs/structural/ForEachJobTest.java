@@ -47,6 +47,8 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.Executor;
 
+import static org.hamcrest.CoreMatchers.is;
+
 /**
  * @author Rob Gordon.
  */
@@ -769,6 +771,22 @@ public class ForEachJobTest extends OjTestCase {
 
     }
 
+    @Test
+    public void testStopWhenNotStarted() throws FailedToStopException {
+
+        final ForEachJob test = new ForEachJob();
+
+        StateSteps testStates = new StateSteps(test);
+        testStates.startCheck(ParentState.READY);
+        IconSteps iconSteps = new IconSteps(test);
+        iconSteps.startCheck(IconHelper.READY);
+
+        test.stop();
+
+        testStates.checkNow();
+        iconSteps.checkNow();
+    }
+
     /**
      * Tracking down a bug where execution services weren't getting passed in to the
      * internal configuration.
@@ -1134,5 +1152,34 @@ public class ForEachJobTest extends OjTestCase {
         assertEquals("10", lines[2].trim());
 
         test.destroy();
+    }
+
+    @Test
+    public void testRegistryLookup() throws ArooaConversionException {
+
+        String xml =
+                "<foreach id='colour'>" +
+                        " <job>" +
+                        "  <echo id='echo'>Colour ${colour.current}</echo>" +
+                        " </job>" +
+                        "</foreach>";
+
+        ForEachJob test = new ForEachJob();
+        test.setArooaSession(new OddjobSessionFactory().createSession());
+        test.setConfiguration(new XMLConfiguration("XML", xml));
+        test.setValues(Arrays.asList("RED", "BLUE", "GREEN"));
+
+        test.run();
+
+        assertThat(test.lastStateEvent().getState(), is(ParentState.COMPLETE));
+
+        OddjobLookup lookup = new OddjobLookup(test);
+
+        assertThat(lookup.lookup("RED.index", Integer.class), is(0));
+        assertThat(lookup.lookup("RED/echo.text"), is("Colour RED"));
+        assertThat(lookup.lookup("BLUE.index", Integer.class), is(1));
+        assertThat(lookup.lookup("BLUE/echo.text"), is("Colour BLUE"));
+        assertThat(lookup.lookup("GREEN.index", Integer.class), is(2));
+        assertThat(lookup.lookup("GREEN/echo.text"), is("Colour GREEN"));
     }
 }

@@ -1,6 +1,5 @@
 package org.oddjob.io;
 
-import org.oddjob.events.Trigger;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
@@ -35,10 +34,17 @@ public class FileWatchService implements FileWatch {
 
     /**
      * @oddjob.property
-     * @oddjob.description The full path of the file to be watched.
-     * @oddjob.required Yes.
+     * @oddjob.description The name of this service.
+     * @oddjob.required No.
      */
     private volatile String name;
+
+    /**
+     * @oddjob.property
+     * @oddjob.description Kinds of events to watch.
+     * @oddjob.required No.
+     */
+    private volatile String kinds;
 
     /**
      * The map of subscribers.
@@ -55,10 +61,10 @@ public class FileWatchService implements FileWatch {
 
     public void stop() {
 
-        Map<Path, FileSystemSubscriber> subsribers = Optional.ofNullable(this.subscribers)
+        Map<Path, FileSystemSubscriber> subscribers = Optional.ofNullable(this.subscribers)
                 .orElseThrow(() -> new IllegalStateException("Not Started"));
 
-        subsribers.values().forEach(FileSystemSubscriber::close);
+        subscribers.values().forEach(FileSystemSubscriber::close);
 
         this.subscribers = null;
     }
@@ -66,7 +72,7 @@ public class FileWatchService implements FileWatch {
     @Override
     public Restore subscribe(Path path, Consumer<? super Path> consumer) {
 
-        Map<Path, FileSystemSubscriber> subsribers = Optional.ofNullable(this.subscribers)
+        Map<Path, FileSystemSubscriber> subscribers = Optional.ofNullable(this.subscribers)
                 .orElseThrow(() -> new IllegalStateException("Not Started"));
 
         Path dir = path.getParent();
@@ -90,7 +96,7 @@ public class FileWatchService implements FileWatch {
                 });
     }
 
-    static class FileSystemSubscriber {
+    class FileSystemSubscriber {
 
         private final Map<Path, List<Consumer<? super Path>>> consumers = new ConcurrentHashMap<>();
 
@@ -100,6 +106,7 @@ public class FileWatchService implements FileWatch {
 
             PathWatchEvents watch = new PathWatchEvents();
             watch.setDir(dir);
+            watch.setKinds(kinds);
             try {
                 restore = watch.doStart( path -> {
                     Optional.ofNullable(consumers.get(path))
@@ -148,6 +155,14 @@ public class FileWatchService implements FileWatch {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getKinds() {
+        return kinds;
+    }
+
+    public void setKinds(String kinds) {
+        this.kinds = kinds;
     }
 
     @Override

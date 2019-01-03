@@ -1,13 +1,16 @@
 package org.oddjob.tools;
 
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
+import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
-import org.oddjob.state.State;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Test Utility class to track state changes.
@@ -20,7 +23,7 @@ public class StateSteps {
 	
 	private final Stateful stateful;
 	
-	private volatile Listener listener;
+	private volatile Check listener;
 	
 	private volatile long timeout = 5000L;
 	
@@ -30,8 +33,190 @@ public class StateSteps {
 		}
 		this.stateful = stateful;
 	}
-	
-	class Listener implements StateListener {
+
+	public static CheckConstruct definitely(State ready) {
+		return new DefinitelyCheck(ready);
+	}
+
+	public static CheckConstruct maybe(State ready) {
+		return new MaybeCheck(ready);
+	}
+
+	interface Check extends StateListener {
+
+		boolean isDone();
+
+		String getFailureMessage();
+
+		boolean isFailure();
+
+		void failNow();
+	}
+
+
+	public interface CheckConstruct {
+		void addTo(ComplexCheck builder);
+	}
+
+	static class DefinitelyCheck implements CheckConstruct {
+
+		private final State state;
+
+		DefinitelyCheck(State state) {
+
+			this.state = state;
+		}
+
+		@Override
+		public void addTo(ComplexCheck builder) {
+			builder.addDefinately(state);
+		}
+	}
+
+	static class MaybeCheck implements CheckConstruct {
+
+		private final State state;
+
+		MaybeCheck(State state) {
+
+			this.state = state;
+		}
+
+		@Override
+		public void addTo(ComplexCheck builder) {
+			builder.addMaybe(state);
+		}
+	}
+
+	class ComplexCheck implements Check {
+
+		private volatile int index;
+
+		private volatile String failureMessage;
+
+		private volatile boolean done;
+
+		private final List< Predicate< State > > predicates = new ArrayList<>();
+
+		private List< State> received = new ArrayList<>();
+
+		public void addMaybe( State state ) {
+			final int us = predicates.size();
+			predicates.add(new Predicate<State>() {
+				@Override
+				public boolean test(State now) {
+					if (now == state) {
+						return true;
+					}
+					if (us == predicates.size() - 1) {
+						return true;
+					}
+					return predicates.get(us + 1).test(now);
+				}
+
+				@Override
+				public String toString() {
+					return "Maybe " + state;
+				}
+			});
+		}
+
+		public void addDefinately( State state ) {
+			final int us = predicates.size();
+			predicates.add(new Predicate<State>() {
+							   @Override
+							   public boolean test(State now) {
+								   if (now == state) {
+									   index = us + 1;
+									   return true;
+								   } else {
+									   failureMessage =
+											   "Expected " + state +
+													   ", but was " + now +
+													   " (index " + us + ")";
+									   return false;
+								   }
+							   }
+
+							   @Override
+							   public String toString() {
+									return "Definitely " + state;
+							   }
+						   });
+
+		}
+
+		@Override
+		public boolean isDone() {
+			return done;
+		}
+
+		@Override
+		public String getFailureMessage() {
+			return failureMessage;
+		}
+
+		@Override
+		public boolean isFailure() {
+			return failureMessage != null;
+		}
+
+		@Override
+		public void failNow() {
+			throw new IllegalStateException(
+					"Not enough states for [" + stateful + "]: expected " +
+							predicates +
+							", but was only " + received + ".");
+		}
+
+		@Override
+		public void jobStateChange(StateEvent event) {
+			String position;
+			if (failureMessage != null) {
+				position = "(failure pending)";
+			}
+			else {
+				position = "for index [" + index + "]";
+			}
+
+			logger.info("Received [" + event.getState() +
+					"] " + position + " from [" + event.getSource() + "]");
+
+			if (failureMessage != null) {
+				return;
+			}
+
+			if (index >= predicates.size()) {
+				failureMessage =
+						"More states than expected: " + event.getState() +
+								" (index " + index + ")";
+			}
+			else {
+				synchronized (StateSteps.this) {
+					received.add(event.getState());
+
+					if (predicates.get(index).test(event.getState())) {
+						if (index == predicates.size()) {
+							done = true;
+							StateSteps.this.notifyAll();
+						}
+					}
+					else {
+						done = true;
+						StateSteps.this.notifyAll();
+					}
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "State Check [" + stateful + "] to have states " +
+					predicates;
+		}
+	}
+
+	class Listener implements Check {
 		
 		private final State[] steps;
 		
@@ -90,20 +275,60 @@ public class StateSteps {
 		public synchronized boolean isDone() {
 			return done;
 		}
-	};	
-	
-	public synchronized void startCheck(final State... steps) {
-		if (listener != null) {
-			throw new IllegalStateException("Check in progress!");
+
+		@Override
+		public String getFailureMessage() {
+			return failureMessage;
 		}
+
+		@Override
+		public boolean isFailure() {
+			return failureMessage != null;
+		}
+
+		@Override
+		public void failNow() {
+			throw new IllegalStateException(
+					"Not enough states for [" + stateful + "]: expected " +
+							steps.length + " " +
+							Arrays.toString(steps) +
+							", was only first " + index + ".");
+		}
+
+		@Override
+		public String toString() {
+			return "State Check [" + stateful + "] to have states " +
+			Arrays.toString(steps);
+		}
+	}
+
+	public synchronized void startCheck(CheckConstruct... constructs) {
+
+		ComplexCheck complexCheck = new ComplexCheck();
+		for (CheckConstruct construct : constructs) {
+			construct.addTo(complexCheck);
+		}
+		startCheck(complexCheck);
+	}
+
+	public void startCheck(State... steps) {
+
 		if (steps == null || steps.length == 0) {
 			throw new IllegalStateException("No steps!");
 		}
-		
-		logger.info("Starting check on [" + stateful + "] to have states " + 
-				Arrays.toString(steps));
-		
-		this.listener = new Listener(steps);
+
+		startCheck(new Listener(steps));
+	}
+
+	public synchronized  void startCheck(Check check) {
+
+		if (listener != null) {
+			throw new IllegalStateException("Check in progress!");
+		}
+
+		logger.info("Starting check on " + check);
+
+		this.listener = check;
 		
 		stateful.addStateListener(listener);
 	}
@@ -112,16 +337,12 @@ public class StateSteps {
 		
 		try {
 			if (listener.isDone()) {
-				if (listener.failureMessage != null) {
-					throw new IllegalStateException(listener.failureMessage);
+				if (listener.isFailure()) {
+					throw new IllegalStateException(listener.getFailureMessage());
 				}
 			}
 			else {
-				throw new IllegalStateException(
-						"Not enough states for [" + stateful + "]: expected " + 
-						listener.steps.length + " " + 
-						Arrays.toString(listener.steps) + 
-						", was only first " + listener.index + ".");
+				listener.failNow();
 			}
 		}
 		catch (IllegalStateException e) {
@@ -140,8 +361,7 @@ public class StateSteps {
 		}
 		
 		logger.info("Waiting" +
-				" on [" + stateful + "] to have states " + 
-				Arrays.toString(listener.steps));
+				" on " + listener);
 
 		if (!listener.isDone()) {
 
@@ -150,8 +370,7 @@ public class StateSteps {
 			}
 			
 			logger.info("Woken or Timedout " +
-					" on [" + stateful + "] to have states " + 
-					Arrays.toString(listener.steps));
+					" on " + listener);
 		}
 
 		checkNow();

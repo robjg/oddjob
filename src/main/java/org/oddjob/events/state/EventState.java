@@ -4,6 +4,11 @@ import org.oddjob.events.EventSource;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.State;
+import org.oddjob.state.StateFlag;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * Encapsulate the allowed states for a {@link EventSource}.
@@ -15,315 +20,53 @@ public enum EventState implements State {
 	/**
 	 * The Node is ready to be started. 
 	 */	
-	READY() {
-		@Override
-		public boolean isReady() {
-			return true;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	READY(EnumSet.of(StateFlag.READY)),
 
 	/**
 	 * The node is connecting to it's event source.
 	 */	
-	CONNECTING() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return true;
-		}
-		@Override
-		public boolean isStoppable() {
-			return true;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	CONNECTING(EnumSet.of(StateFlag.EXECUTING, StateFlag.STOPPABLE)),
 
 	/**
 	 * A node is waiting for its first event.
 	 */	
-	WAITING() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return true;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	WAITING(EnumSet.of(StateFlag.STOPPABLE)),
 	
 	/**
 	 * A node is receiving an event.
 	 */	
-	FIRING() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return true;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	FIRING(EnumSet.of(StateFlag.STOPPABLE)),
 	
 	/**
 	 * An event has arrived but we are still waiting for more.
 	 */	
-	TRIGGERED() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return true;
-		}
-		@Override
-		public boolean isComplete() {
-			return true;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	TRIGGERED(EnumSet.of(StateFlag.STOPPABLE, StateFlag.COMPLETE)),
 	
 	/**
 	 * The node has stopped subscribing but didn't receive an event.
 	 */
-	INCOMPLETE() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return true;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	INCOMPLETE(EnumSet.of(StateFlag.INCOMPLETE)),
 	
 	/**
-	 * The node has stopped subscribing but didn receive an event.
+	 * The node has stopped subscribing but did receive an event.
 	 */	
-	COMPLETE() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return true;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	COMPLETE(EnumSet.of(StateFlag.COMPLETE)),
 	
 	/**
 	 * Indicates an exception has occurred. 
 	 */	
-	EXCEPTION() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return true;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return false;
-		}
-	},
+	EXCEPTION(EnumSet.of(StateFlag.EXCEPTION)),
 	
 	/**
 	 * The job has been destroyed. It can no longer be used.
 	 */	
-	DESTROYED() {
-		@Override
-		public boolean isReady() {
-			return false;
-		}
-		@Override
-		public boolean isExecuting() {
-			return false;
-		}
-		@Override
-		public boolean isStoppable() {
-			return false;
-		}
-		@Override
-		public boolean isComplete() {
-			return false;
-		}
-		@Override
-		public boolean isIncomplete() {
-			return false;
-		}
-		@Override
-		public boolean isException() {
-			return false;
-		}
-		@Override
-		public boolean isDestroyed() {
-			return true;
-		}
-	},
+	DESTROYED(EnumSet.of(StateFlag.DESTROYED)),
 	;
-	
-	/**
+
+	/*
 	 * Register Icons for these states.
 	 */
 	static {
-		
 		StateIcons.register(EventState.READY, IconHelper.STARTABLE);
 		StateIcons.register(EventState.CONNECTING, IconHelper.EXECUTING);
 		StateIcons.register(EventState.WAITING, IconHelper.WAITING);
@@ -333,8 +76,47 @@ public enum EventState implements State {
 		StateIcons.register(EventState.COMPLETE, IconHelper.COMPLETE);
 		StateIcons.register(EventState.EXCEPTION, IconHelper.EXCEPTION);
 		StateIcons.register(EventState.DESTROYED, IconHelper.INVALID);
-		
 	}
-	
+
+	private final Set<StateFlag> flags;
+
+	EventState(EnumSet<StateFlag> flags) {
+		this.flags = Collections.unmodifiableSet(flags);
+	}
+
+	@Override
+	public boolean isReady() {
+		return flags.contains(StateFlag.READY);
+	}
+
+	@Override
+	public boolean isExecuting() {
+		return flags.contains(StateFlag.EXECUTING);
+	}
+
+	@Override
+	public boolean isStoppable() {
+		return flags.contains(StateFlag.STOPPABLE);
+	}
+
+	@Override
+	public boolean isComplete() {
+		return flags.contains(StateFlag.COMPLETE);
+	}
+
+	@Override
+	public boolean isIncomplete() {
+		return flags.contains(StateFlag.INCOMPLETE);
+	}
+
+	@Override
+	public boolean isException() {
+		return flags.contains(StateFlag.EXCEPTION);
+	}
+
+	@Override
+	public boolean isDestroyed() {
+		return flags.contains(StateFlag.DESTROYED);
+	}
 }
 

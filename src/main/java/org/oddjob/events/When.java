@@ -54,7 +54,8 @@ public class When<T> extends EventJobBase<T> {
 				try {
 					((Stoppable) job).stop();
 				} catch (FailedToStopException e) {
-					throw new RuntimeException(e);
+					throw new RuntimeException("[" + this.toString() + "] failed to stop child [" +
+							job + "] for event " + event, e);
 				}
 			}
 		

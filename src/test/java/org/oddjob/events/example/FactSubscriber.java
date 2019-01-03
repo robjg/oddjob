@@ -3,12 +3,21 @@ package org.oddjob.events.example;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.events.EventSourceBase;
 import org.oddjob.util.Restore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+/**
+ * Subscribes to an {@link FactStore}.
+ *
+ * @param <T>
+ */
 public class FactSubscriber<T> extends EventSourceBase<T> {
+
+    private static final Logger logger = LoggerFactory.getLogger(FactSubscriber.class);
 
     private volatile String name;
 
@@ -23,13 +32,26 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
 
         FactStore factStore = Optional.ofNullable(this.factStore)
                 .orElseThrow(() -> new IllegalArgumentException("No Fact Store"));
+
         String query = Optional.ofNullable(this.query)
                 .orElseThrow(() -> new IllegalArgumentException("No Query"));
 
-        return factStore.<T>subscribe(query, t -> {
-            last = t;
-            consumer.accept(t);
-        });
+        class FactStoreConsumer implements Consumer<T> {
+
+            @Override
+            public void accept(T t) {
+                last = t;
+                logger.info("Received: {}", t);
+                consumer.accept(t);
+            }
+
+            @Override
+            public String toString() {
+                return "Consumer for " + FactSubscriber.this.toString();
+            }
+        }
+
+        return factStore.subscribe(query, new FactStoreConsumer());
     }
 
     public String getQuery() {

@@ -119,7 +119,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		}
 		
 		Executor executor = j -> {
-			try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+			try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
 				asyncSupport.submitJob(executorService, j);
 				asyncSupport.startWatchingJobs();
 				logger().info("Submitted [" + j + "]");				
@@ -129,7 +129,8 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
 		consumer.set(
 				event -> {
-					try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+						logger().debug("Received immediate event [{}]", event);
 						onImmediateEvent(event);
 					}
 				});
@@ -146,7 +147,8 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 
 		consumer.set(
 				event -> {
-					try (Restore restore = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+						logger().debug("Received event [{}]", event);
 						stopChildStateReflector();
 						onLaterEvent(event, job, executor);
 						if (job == null) {
