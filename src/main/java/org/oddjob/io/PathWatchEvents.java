@@ -37,14 +37,6 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
     private volatile boolean newOnly;
 
-//    public void start() throws IOException {
-//        close = doStart(consumer);
-//    }
-//
-//    public void stop() {
-//        close.close();
-//    }
-//
     @Override
     protected Restore doStart(Consumer<? super Path> consumer) throws IOException {
 
@@ -53,7 +45,12 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
         final WatchEvent.Kind<?>[] kindArray = Optional.ofNullable(this.kinds)
                 .map(this::toKinds)
-                .orElseGet(() -> new WatchEvent.Kind<?>[] { ENTRY_CREATE, ENTRY_MODIFY });
+                .orElseGet(() -> new WatchEvent.Kind<?>[] {
+                        ENTRY_CREATE, ENTRY_MODIFY });
+
+        logger.info("Starting watch on {} for events {}",
+                    path,
+                    Arrays.toString(kindArray));
 
         final Predicate<String> filter = Optional.ofNullable(this.filter)
                 .map(Pattern::compile)

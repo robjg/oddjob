@@ -675,11 +675,11 @@ implements Structural, ConfigurationOwner {
 							}
 							
 							@Override
-							public void sessionModifed(ConfigSessionEvent event) {
+							public void sessionModified(ConfigSessionEvent event) {
 								lastModifiedChildSession = event.getSource();
 								Iterable<SessionStateListener> listeners = copy();
 								for (SessionStateListener listener : listeners) {
-									listener.sessionModifed(event);
+									listener.sessionModified(event);
 								}
 							}
 						});

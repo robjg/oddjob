@@ -9,10 +9,11 @@
                             <values>
                                 <file file="${some.dir}" key="work.dir"/>
                                 <file file="${this.dir}/data" key="data.dir"/>
-                                <file file="1" key="replay.delay"/>
                                 <file file="${work.dir}/BookList" key="booklist.dir"/>
                                 <file file="${work.dir}/Book" key="book.dir"/>
                                 <file file="${work.dir}/Price" key="price.dir"/>
+                                <file file="${this.dir}/data2" key="data2.dir"/>
+                                <file file="1" key="replay.delay"/>
                             </values>
                         </properties>
                         <delete force="true" name="Delete Work Dir">
@@ -27,39 +28,63 @@
                 </sequential>
                 <folder>
                     <jobs>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyBookList" name="Copy BookList" to="${booklist.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyBookList" name="Copy BookList" to="${booklist.dir}">
                             <from>
                                 <file file="${data.dir}/BookList/GREENGROCERS.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyROD" name="Copy ROD" to="${book.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyROD" name="Copy ROD" to="${book.dir}">
                             <from>
                                 <file file="${data.dir}/Book/ROD.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyJANE" name="Copy JANE" to="${book.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyJANE" name="Copy JANE" to="${book.dir}">
                             <from>
                                 <file file="${data.dir}/Book/JANE.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyFREDDY" name="Copy FREDDY" to="${book.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyFREDDY" name="Copy FREDDY" to="${book.dir}">
                             <from>
                                 <file file="${data.dir}/Book/FREDDY.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyAPPLES" name="Copy APPLES" to="${price.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyAPPLES" name="Copy APPLES" to="${price.dir}">
                             <from>
                                 <file file="${data.dir}/Price/APPLES.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyPEARS" name="Copy PEARS" to="${price.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyPEARS" name="Copy PEARS" to="${price.dir}">
                             <from>
                                 <file file="${data.dir}/Price/PEARS.json"/>
                             </from>
                         </bean>
-                        <bean class="org.oddjob.events.example.AtomicCopy"  id="copyORANGES" name="Copy ORANGES" to="${price.dir}">
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyORANGES" name="Copy ORANGES" to="${price.dir}">
                             <from>
                                 <file file="${data.dir}/Price/ORANGES.json"/>
+                            </from>
+                        </bean>
+                    </jobs>
+                </folder>
+                <folder name="Data 2">
+                    <jobs>
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyBookList2" name="Copy BookList" to="${booklist.dir}">
+                            <from>
+                                <file file="${data2.dir}/BookList/GREENGROCERS.json"/>
+                            </from>
+                        </bean>
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyROD2" name="Copy ROD" to="${book.dir}">
+                            <from>
+                                <file file="${data2.dir}/Book/ROD.json"/>
+                            </from>
+                        </bean>
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyAPPLES2" name="Copy APPLES" to="${price.dir}">
+                            <from>
+                                <file file="${data2.dir}/Price/APPLES.json"/>
+                            </from>
+                        </bean>
+                        <bean class="org.oddjob.events.example.AtomicCopy" id="copyBUNGLE2" name="Copy BUNGLE" to="${book.dir}">
+                            <from>
+                                <file file="${data2.dir}/Book/BUNGLE.json"/>
                             </from>
                         </bean>
                     </jobs>

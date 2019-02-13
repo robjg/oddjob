@@ -177,14 +177,14 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		}
 		
 		public ConfigurationOwner createClientHandler(ConfigurationOwner proxy, ClientSideToolkit toolkit) {
-			return new ClientCompontOwnerHandler(proxy, toolkit);
+			return new ClientComponentOwnerHandler(proxy, toolkit);
 		}
 	}
 	
 	/**
 	 *  The Client {@link ConfigurationOwner}
 	 */
-	static class ClientCompontOwnerHandler implements ConfigurationOwner {
+	static class ClientComponentOwnerHandler implements ConfigurationOwner {
 
 		private final ClientSideToolkit clientToolkit;
 		
@@ -203,7 +203,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			};
 		};
 		
-		ClientCompontOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
+		ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
 			this.clientToolkit = toolkit;
 			
 			ownerSupport = new ConfigurationOwnerSupport(proxy);
@@ -512,7 +512,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final SessionStateListener modifiedListener = new SessionStateListener() {
 
-			public void sessionModifed(ConfigSessionEvent event) {
+			public void sessionModified(ConfigSessionEvent event) {
 				send(true);
 			}
 			

@@ -575,7 +575,7 @@ implements Stoppable {
 			writeTitle();
 		}
 
-		public void sessionModifed(ConfigSessionEvent event) {
+		public void sessionModified(ConfigSessionEvent event) {
 			modified = true; 
 			writeTitle();
 		}

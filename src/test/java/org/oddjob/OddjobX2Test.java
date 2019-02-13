@@ -1,9 +1,5 @@
 package org.oddjob;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +29,10 @@ import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.junit.Assert.*;
 
 /**
  * Tests for Cut And Paste.
@@ -42,8 +42,11 @@ import org.oddjob.structural.StructuralListener;
  */
 public class OddjobX2Test {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(OddjobX2Test.class);
+
 	class OurStructuralListener implements StructuralListener {
-		List<Object> children = new ArrayList<Object>();
+		List<Object> children = new ArrayList<>();
 		
 		public void childAdded(StructuralEvent event) {
 			children.add(event.getChild());
@@ -55,13 +58,13 @@ public class OddjobX2Test {
 		
 	}
 	
-	
+	@Test
 	public void testBadSave() throws ArooaParseException, ArooaConversionException {
 
 		OurStructuralListener structure = new OurStructuralListener();
 		
 		String xml = 
-			"<oddjob>" +
+			"<oddjob id='this'>" +
 			" <job>" +
 			"  <sequence id='sequence' from='1'/>" +
 			" </job>" +
@@ -74,48 +77,68 @@ public class OddjobX2Test {
 		
 		oddjob.run();
 
-		Integer i = new OddjobLookup(
-				oddjob).lookup("sequence.current", Integer.class);
-		
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+		Integer i = lookup.lookup("sequence.current", Integer.class);
+
+		// Configuration loaded and all is good.
 		assertEquals(new Integer(1), i);
-		
-		Object sequence = new OddjobLookup(oddjob).lookup("sequence");
-		
+
+		// Parse sequence to XML.
+		Object sequence = lookup.lookup("sequence");
 		
 		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
 				sequence);
-		
+
 		XMLArooaParser xmlParser = new XMLArooaParser();
 		
 		ConfigurationHandle handle = xmlParser.parse(
 				point);
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
-		
+
+		// And replace the XML with rubbish
 		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
 				new XMLConfiguration("Replace", "<rubbish/>"));		
-		
+
+		Object root = lookup.lookup("this");
+        logger.info("Before save:\n{}",
+                    oddjob.provideConfigurationSession().dragPointFor(
+                            root).copy());
+
 		try {
 			handle.save();
 			fail("Should fail.");
 		} catch (Exception e) {
 			// expected.
 		}
-		
-		OddjobLookup lookup = new OddjobLookup(oddjob);
-		
+
+        logger.info("After save:\n{}",
+                    oddjob.provideConfigurationSession().dragPointFor(
+                            root).copy());
+
 		Object sequence2 = lookup.lookup("sequence");
 		Integer i2 = lookup.lookup("sequence.current", Integer.class);
-		assertEquals(null, i2);
-		
-		assertEquals(structure.children.size(), 3);
-		assertEquals(sequence, structure.children.get(0));
-		assertEquals(null, structure.children.get(1));
-		assertEquals(sequence2, structure.children.get(2));
+
+		// Sequence has been reset because it has been replace with a new on
+        // during save rollback.
+        assertNull("i2", i2);
+
+
+		assertEquals("3 events expected",
+                     structure.children.size(), 3);
+		assertEquals("First event",
+                     sequence, structure.children.get(0));
+        assertNull("Second event",
+                   structure.children.get(1));
+		assertEquals("Third event",
+                     sequence2, structure.children.get(2));
 		
 		oddjob.run();
 				
 		Integer i3 = lookup.lookup("sequence.current", Integer.class);
+
+		// Sequence starts at 0 again and is now 1.
 		assertEquals(new Integer(1), i3);
 		
 		oddjob.destroy();
@@ -124,25 +147,38 @@ public class OddjobX2Test {
 	class OurComponentPool extends MockComponentPool {
 		
 		Map<String, ArooaContext> contexts =
-			new HashMap<String, ArooaContext>();
+                new HashMap<>();
 		
-		List<Object> components = 
-			new ArrayList<Object>();
+		List<Object> components =
+                new ArrayList<>();
 		
-		List<String> actions = 
-			new ArrayList<String>();
+		List<String> actions =
+                new ArrayList<>();
 		
 		@Override
-		public void registerComponent(ComponentTrinity trinity, String id) {
+		public String registerComponent(ComponentTrinity trinity, String id) {
+            logger.info("[{}] Registering component id={}, {}",
+                        components.size(),
+                        id,
+                        trinity.getTheComponent());
+
 			components.add(trinity.getTheProxy());
 			contexts.put(id, trinity.getTheContext());
 			actions.add("A");
+
+			return id;
 		}
 				
 		@Override
-		public void remove(Object component) {
+		public boolean remove(Object component) {
+            logger.info("[{}] Removing component, {}",
+                        components.size(),
+                        component);
+
 			components.add(component);
 			actions.add("R");
+
+			return true;
 		}
 		
 		@Override
@@ -216,6 +252,7 @@ public class OddjobX2Test {
 		Oddjob.OddjobRoot root = new Oddjob().new OddjobRoot(
 				services);
 
+		logger.info("** Parsing into components");
 		StandardArooaParser parser = new StandardArooaParser(root, session);
 		parser.parse(new XMLConfiguration("TEST", xml));
 		
@@ -223,25 +260,35 @@ public class OddjobX2Test {
 		ArooaContext context = session.pool.contexts.get("sequence");
 		
 		XMLArooaParser xmlParser = new XMLArooaParser();
-		
+
+        logger.info("** Copy to XML");
+
 		ConfigurationHandle handle = xmlParser.parse(
 				context.getConfigurationNode());
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
-		
-		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
-				new XMLConfiguration("Replace", "<rubbish/>"));		
-		
+
+        logger.info("** Changing XML to rubbish");
+
+		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
+				new XMLConfiguration("Replace", "<rubbish/>"));
+
+        logger.info("** Saving XML");
+
 		try {
 			handle.save();
 			fail("Should fail.");
 		} catch (Exception e) {
 			// expected.
 		}
-		
+
+        logger.info("** Destroying");
+
 		session.pool.contexts.get("oj").getRuntime().destroy();
 
-		assertEquals(6, session.pool.actions.size());
+        logger.info("** Asserting");
+
+        assertEquals(6, session.pool.actions.size());
 		
 		assertEquals("A", session.pool.actions.get(0));
 		assertEquals("A", session.pool.actions.get(1));
@@ -249,15 +296,18 @@ public class OddjobX2Test {
 		assertEquals("A", session.pool.actions.get(3));
 		assertEquals("R", session.pool.actions.get(4));
 		assertEquals("R", session.pool.actions.get(5));
-		
-		assertEquals(session.pool.components.get(0), 
+
+		// Component removed is the same sequence that was added.
+		assertEquals(session.pool.components.get(1),
 			session.pool.components.get(2) );
-		
+
+		// Component removed is the again the same that was added back after
+        // rollback.
 		assertEquals(session.pool.components.get(3),
 			session.pool.components.get(4) );
-		
-		assertTrue(session.pool.components.get(1) != 
-			session.pool.components.get(3) );
+
+        assertNotSame(session.pool.components.get(1),
+                      session.pool.components.get(3));
 	}
 	
 }

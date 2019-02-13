@@ -493,7 +493,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 		
 		void modified() {
-			this.listener.sessionModifed(new ConfigSessionEvent(this));
+			this.listener.sessionModified(new ConfigSessionEvent(this));
 		}
 		
 		void saved() {
@@ -535,7 +535,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		
 		boolean modified;
 
-		public void sessionModifed(ConfigSessionEvent event) {
+		public void sessionModified(ConfigSessionEvent event) {
 			this.event = event; 
 			modified = true;
 		}

@@ -72,6 +72,6 @@ public class AtomicCopy implements Runnable {
     }
 
     public String toString() {
-        return getClass().getSimpleName();
+        return Optional.ofNullable(name).orElseGet(() -> getClass().getSimpleName());
     }
 }

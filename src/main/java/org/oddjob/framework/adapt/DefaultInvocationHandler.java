@@ -1,5 +1,8 @@
 package org.oddjob.framework.adapt;
 
+import org.oddjob.framework.util.ComponentBoundary;
+import org.oddjob.util.Restore;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -55,34 +58,34 @@ implements WrapperInvocationHandler, Serializable {
 	
 	private void initialiseMethods() {
 		
-		this.methods = new HashMap<Method, Object>();
+		this.methods = new HashMap<>();
 		
 		 {
 			 Class<?>[] interfaces = wrappedInterfaces;
-			 for (int i = 0; i < interfaces.length; ++i) {
-				 addMethods(interfaces[i], wrapped);
-			 }
+             for (Class<?> anInterface : interfaces) {
+                 addMethods(anInterface, wrapped);
+             }
 		 }
 		 
 		 {
 			 Class<?>[] interfaces = wrappingInterfaces;
-			 for (int i = 0; i < interfaces.length; ++i) {
-				 addMethods(interfaces[i], wrapper);
-			 }
+             for (Class<?> anInterface : interfaces) {
+                 addMethods(anInterface, wrapper);
+             }
 		 }
 	}
 	
 	/**
 	 * Add a method and the object that is going to implement it.
 	 * 
-	 * @param from
-	 * @param destination
+	 * @param from The interface the method is from
+	 * @param destination The object or wrapper to direct the method to.
 	 */
 	private void addMethods(Class<?> from, Object destination) {
 		Method[] ms = from.getMethods();
-		for (int i = 0; i < ms.length; ++i) {
-			methods.put(ms[i], destination);
-		}
+        for (Method m : ms) {
+            methods.put(m, destination);
+        }
 	}	
 	
 	@Override
@@ -93,14 +96,18 @@ implements WrapperInvocationHandler, Serializable {
 	@Override
 	public Object invoke(Object proxy, Method method, Object[] args)
 			throws Throwable {
-		
+
 		Object destination = methods.get(method);
 		if (destination == null) {
 			throw new IllegalStateException("Unknown method " + method +
 					" for [" + wrapped + "].");
 		}
-		
-		return method.invoke(destination, args);
+
+		try (Restore ignored = ComponentBoundary.push(
+				wrapper.loggerName(), wrapped)) {
+
+            return method.invoke(destination, args);
+        }
 	}
 	
 	/**

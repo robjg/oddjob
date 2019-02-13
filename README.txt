@@ -12,11 +12,14 @@ Changes in 1.6.0
 - Upgraded oj-ant to Ant 1.10.1
 - Migrated Logging to SLF4J
 - Migrated from Log4j to Logback as the default logging framework. (Log4j is still supported)
-- Add experimental feature of a state expression using ANTLR. See 
+- Add experimental feature of a state expression using ANTLR.
+- Added pre-configuration of 'name' attribute. This now means components are registered
+  once attributes are known and before their children are parsed.
 
 Still Todo
 ----------
-- Support State Expressions for triggering Jobs.
+- Need the idea of a 'session transaction' for registering components and beans in case parsing
+  fails. (See test CutAndPasteSupport3Test#whenPasteComponentWithIdFailsThenComponentNotRegistered())
 - Add SSL to the web client/server.
 - Support all Methods in the Web client.
 - Add Security to the WebApp (with a Read Only role).

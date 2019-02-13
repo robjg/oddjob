@@ -24,7 +24,6 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ArooaSessionAware;
@@ -41,7 +40,6 @@ import org.oddjob.arooa.parsing.HandleConfigurationSession;
 import org.oddjob.arooa.parsing.OwnerStateListener;
 import org.oddjob.arooa.parsing.SerializableDesignFactory;
 import org.oddjob.arooa.parsing.SessionStateListener;
-import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.*;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.StandardArooaParser;
@@ -401,10 +399,6 @@ public class ForEachJob extends StructuralJob<Object>
         }
 
         childTracking.add(root, seed, handle);
-
-        // Configure the root so we can see the name if it
-        // uses the current value.
-        seed.session.getComponentPool().configure(root);
 
         // Must happen after configure so we see the correct value
         // in the job tree.
@@ -1027,11 +1021,11 @@ public class ForEachJob extends StructuralJob<Object>
                             }
 
                             @Override
-                            public void sessionModifed(ConfigSessionEvent event) {
+                            public void sessionModified(ConfigSessionEvent event) {
                                 lastModifiedChildSession = event.getSource();
                                 Iterable<SessionStateListener> listeners = copy();
                                 for (SessionStateListener listener : listeners) {
-                                    listener.sessionModifed(event);
+                                    listener.sessionModified(event);
                                 }
                             }
                         });

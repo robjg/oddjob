@@ -108,12 +108,16 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	/*
 	 *  (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
+	 *
+	 * Note we don't override hashCode on proxy because it would call back
+	 * to this wrapper so just let the native hash code provide the contract
+	 * as there is one to one between this wrapper and its proxy.
 	 */
 	public boolean equals(Object other) {
 		return other == getProxy();
 	}
-	
-	/*
+
+    /*
 	 *  (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -160,16 +164,14 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
-		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			final AtomicReference<String> icon = new AtomicReference<String>();
+		try (Restore ignored = ComponentBoundary.push(loggerName(), this)) {
+			final AtomicReference<String> icon = new AtomicReference<>();
 			
-	    	if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-	    		public void run() {    			
-	    			logger().info("Stop requested.");	    			
-	    			icon.set(iconHelper().currentId());
-	    			iconHelper().changeIcon(IconHelper.STOPPING);
-	    		}
-	    	})) {
+	    	if (!stateHandler().waitToWhen(new IsStoppable(), () -> {
+                logger().info("Stop requested.");
+                icon.set(iconHelper().currentId());
+                iconHelper().changeIcon(IconHelper.STOPPING);
+            })) {
 	    		return;
 	    	}
 	    	
@@ -191,11 +193,9 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 			
 			if (failedToStopException != null) {
 				
-				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {    			
-						iconHelper().changeIcon(icon.get());
-					}
-				});
+				stateHandler().waitToWhen(
+				        new IsStoppable(),
+                                          () -> iconHelper().changeIcon(icon.get()));
 				throw failedToStopException;
 			}
 		} 
@@ -206,11 +206,14 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 	/**
 	 * Get the result. Use either the return value from the Callable or
 	 * the result property if there is one.
-	 * @return
-	 * @throws ArooaConversionException 
-	 * @throws ArooaPropertyException 
+	 *
+     * @return The result.
+     *
+	 * @throws ArooaConversionException If the result can't be converted to int.
+	 * @throws ArooaPropertyException If the result property can't be read.
 	 */
-	protected int getResult(Object callableResult) throws ArooaPropertyException, ArooaConversionException {
+	protected int getResult(Object callableResult)
+            throws ArooaPropertyException, ArooaConversionException {
 
 		ArooaSession session = getArooaSession();
 		if (session == null) {
@@ -244,7 +247,7 @@ implements Runnable, Stateful, Resetable, DynaBean, Stoppable,
 			return 0;
 		}
 		
-		return result.intValue();
+		return result;
 	}
 	
 	/*

@@ -22,8 +22,8 @@
                                         <job>
                                             <events:when id="whenBook" name="When ${bookName.current}">
                                                 <jobs>
-                                                    <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" query="Book:${bookName.current}"/>
-                                                    <events:when id="priceMatch" name="When Prices">
+                                                    <bean name="Subscribe to Book ${bookName.current}" class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" query="Book:${bookName.current}"/>
+                                                    <events:when id="priceMatch" name="When Prices for ${bookName.current}">
                                                         <jobs>
                                                             <events:for name="For Each Trade">
                                                                 <configuration>

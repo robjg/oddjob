@@ -215,7 +215,7 @@ public class OddjobExplorerTest extends OjTestCase {
 		OurConfigOwner owner = (OurConfigOwner) new OddjobLookup(
 				oddjob).lookup("x");
 
-		owner.listener.sessionModifed(
+		owner.listener.sessionModified(
 				new ConfigSessionEvent(
 						new MockConfigurationSession()));
 

@@ -408,9 +408,9 @@ class VariablesDesignContext implements ArooaContext {
 			public ArooaContext onStartElement(ArooaElement element,
 					ArooaContext parentContext) throws ArooaException {
 
-				if (element.getAttributes().getAttributNames().length > 0) {
+				if (element.getAttributes().getAttributeNames().length > 0) {
 					throw new ArooaException("Property can't contain attributes: " + 
-							element.getAttributes().getAttributNames()[0]);
+							element.getAttributes().getAttributeNames()[0]);
 				}
 				
 				VariablesDesignProperty property = new VariablesDesignProperty(

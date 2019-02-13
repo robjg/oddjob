@@ -112,7 +112,7 @@ public class FileFactStore implements FactStore {
         }
 
         int getNumberOfConsumers() {
-            return this.lastModified.size();
+            return this.fileWatchService.getNumberOfConsumers();
         }
     }
 

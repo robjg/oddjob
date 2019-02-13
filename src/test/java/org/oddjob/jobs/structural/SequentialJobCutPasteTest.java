@@ -1,5 +1,6 @@
 package org.oddjob.jobs.structural;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.arooa.life.ArooaElementException;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.parsing.CutAndPasteSupport.ReplaceResult;
@@ -23,20 +25,37 @@ import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.isA;
 
 /**
  * Cut and Paste Tests.
  */
 public class SequentialJobCutPasteTest extends OjTestCase {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(SequentialJobCutPasteTest.class);
+
 	public static class ResultsJob implements Runnable {
+
+	    private String name;
+
+		private String value;
 		
-		public String value;
-		
-		public List<String> results;
-		
+		private List<String> results;
+
 		public void run() {
-			results.add(value);
+		    if (results == null) {
+		        throw new IllegalStateException("Result for " + name +
+                                                        " results not set!");
+            }
+            else {
+                results.add(value);
+            }
 		}
 		
 		@ArooaAttribute
@@ -47,10 +66,14 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		public void setValue(String value) {
 			this.value = value;
 		}
-		
+
+		public void setName(String name) {
+		    this.name = name;
+        }
+
 		@Override
 		public String toString() {
-			return "Results: " + value;
+			return "Results " + name + ": " + value;
 		}
 	}
 	
@@ -65,24 +88,27 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		}
 	}
 	
-	String xml =
+	private static final String xml =
 		"<oddjob id='this'>" +
 		" <job>" +
 		"  <sequential id='seq'/>" +
 		" </job>" +
 		"</oddjob>";
 
-	String red = 
-		"<bean class='" + ResultsJob.class.getName() + "'" +
+	private static final String red =
+		"<bean class='" + ResultsJob.class.getName() +
+                "' name='Red' " +
 				" results='${results}' value='red'/>";
 	
-	String amber = 
-		"<bean class='" + ResultsJob.class.getName() + "'" +
+	private static final String amber =
+		"<bean class='" + ResultsJob.class.getName() +
+                "' name='Amber' " +
 				" results='${results}' value='amber'" +
 				" id='amber'/>";
 	
-	String green = 
-		"<bean class='" + ResultsJob.class.getName() + "'" +
+	private static final String green =
+		"<bean class='" + ResultsJob.class.getName() +
+                "' name='Green' " +
 				" results='${results}' value='green'/>";
 	
    @Test
@@ -311,43 +337,51 @@ public class SequentialJobCutPasteTest extends OjTestCase {
    @Test
 	public void testBadSave3() throws ArooaParseException {
 
-		List<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<>();
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		oddjob.setExport("results", new ArooaObject(results));
 		oddjob.run();
 
+       assertThat(results.size(), is(0));
+
 		SequentialJob test = (SequentialJob) new OddjobLookup(
 				oddjob).lookup("seq"); 
 		
 		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
 				test);
-		
+
+       logger.info("** Pasting Green.");
+
 		DragTransaction trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(-1, green);
 		trn.commit();
-		
+
+       logger.info("** Pasting Red.");
+
 		trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(0, red);
 		trn.commit();
-		
+
+       logger.info("** Pasting Amber.");
+
 		trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(1, amber);
 		trn.commit();
 				
 		DragPoint sequential = oddjob.provideConfigurationSession().dragPointFor(
 				new OddjobLookup(oddjob).lookup("seq"));
-		
 
 		XMLArooaParser xmlParser = new XMLArooaParser();
 		
 		ConfigurationHandle handle = xmlParser.parse(
 				sequential);
 
+       logger.info("** Parsed 'seq' to XML:\n" + xmlParser.getXml());
+
 		ArooaContext xmlDoc = handle.getDocumentContext();
-		
-		
+
 		String badXml = 
 			    "<sequential id='seq'>" +
 				" <jobs>" +
@@ -361,9 +395,11 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 				"  <rubbish/>" +
 				" </jobs>" +
 				"</sequential>";
- 
-		
-		ReplaceResult result = CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
+
+
+       logger.info("** Replacing in XML with bad XML.");
+
+		ReplaceResult result = CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
 				new XMLConfiguration("Replace", badXml));		
 		
 		if (result.getException() != null) {
@@ -372,16 +408,31 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		
 		Object amber = new OddjobLookup(oddjob).lookup("amber");
 		assertNotNull(amber);
-				
+
+       logger.info("** Saving XML back to Oddjob (should fail).");
+
 		try {
 			handle.save();
 			fail("Should fail.");
 		} catch (Exception e) {
-			// expected.
+            assertThat(e,
+                       is(instanceOf(ArooaParseException.class)));
+            assertThat(e.getMessage().contains("Replace Failed"),
+                       is(true));
+            assertThat((e.getCause()),
+                       is(instanceOf(ArooaElementException.class)));
+            assertThat(e.getCause().getMessage(),
+                       is("Element [rubbish] No class definition."));
 		}
-		
+
+       logger.info("'seq' now is:\n" +
+                           oddjob.provideConfigurationSession().dragPointFor(
+                                   new OddjobLookup(oddjob).lookup("seq"))
+                                 .copy());
+
 		Object red = new OddjobLookup(oddjob).lookup("red");
-		assertNotNull(red);
+		// red isn't registered - it was rolled back.
+		assertNull(red);
 		
 		test = (SequentialJob) new OddjobLookup(
 				oddjob).lookup("seq");

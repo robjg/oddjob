@@ -151,10 +151,9 @@ implements Iconic, Stateful,
 	}
 	
 	/**
-	 * Configure the runtime. If there is no runtime for this
-	 * component then true is returned.
-	 * 
-	 * @return true if successful. False if not.
+	 * Configure the runtime for the given component. The given component is normally this component or proxy.
+	 *
+     * @param component The component to configure.
 	 */
 	protected void configure(Object component) 
 	throws ArooaConfigurationException {

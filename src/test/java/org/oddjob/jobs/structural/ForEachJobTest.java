@@ -19,6 +19,7 @@ import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.arooa.standard.StandardPropertyLookup;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -64,9 +65,9 @@ public class ForEachJobTest extends OjTestCase {
 
     public static class OurJob extends SimpleJob {
 
-        Object stuff;
-        int index;
-        boolean ran;
+        private Object stuff;
+        private int index;
+        private boolean ran;
 
         @Override
         protected int execute() throws Throwable {
@@ -81,11 +82,6 @@ public class ForEachJobTest extends OjTestCase {
 
         public void setIndex(int index) {
             this.index = index;
-        }
-
-        @Override
-        public String toString() {
-            return getClass().getSimpleName() + " index " + index;
         }
     }
 
@@ -103,18 +99,19 @@ public class ForEachJobTest extends OjTestCase {
     }
 
     @Test
-    public void testOneJobTwoValues() throws ArooaParseException {
+    public void testOneJobTwoValues() {
 
         String xml =
                 "<foreach id='foreach'>" +
                         " <job>" +
                         "  <bean class='" + OurJob.class.getName() +
-                        "' stuff='${foreach.current}' index='${foreach.index}'/>" +
+                        "' name='Our Job ${foreach.index}' stuff='${foreach.current}' index='${foreach.index}'/>" +
                         " </job>" +
                         "</foreach>";
 
         ForEachJob test = new ForEachJob();
-        test.setArooaSession(new OddjobSessionFactory().createSession());
+        ArooaSession session = new OddjobSessionFactory().createSession();
+        test.setArooaSession(session);
         test.setConfiguration(new XMLConfiguration("XML", xml));
         test.setValues(Arrays.asList("apple", "orange"));
 
@@ -131,14 +128,15 @@ public class ForEachJobTest extends OjTestCase {
         OurJob job1 = (OurJob) children.children.get(0);
         OurJob job2 = (OurJob) children.children.get(1);
 
+        assertEquals("Our Job 0", job1.toString());
         assertEquals("apple", job1.stuff);
         assertEquals(0, job1.index);
         assertTrue(job1.ran);
 
+        assertEquals("Our Job 1", job2.toString());
         assertEquals("orange", job2.stuff);
         assertEquals(1, job2.index);
         assertTrue(job2.ran);
-
     }
 
     @Test
@@ -162,13 +160,13 @@ public class ForEachJobTest extends OjTestCase {
     }
 
     @Test
-    public void testLoadOnJobTwoValues() throws ArooaParseException {
+    public void testLoadOnJobTwoValues() {
 
         String xml =
                 "<foreach id='foreach'>" +
                         " <job>" +
                         "<bean class='" + OurJob.class.getName() +
-                        "' stuff='${foreach.current}' index='${foreach.index}'/>" +
+                        "' name='Our Job ${foreach.current}' stuff='${foreach.current}' index='${foreach.index}'/>" +
                         " </job>" +
                         "</foreach>";
 
@@ -192,14 +190,22 @@ public class ForEachJobTest extends OjTestCase {
         OurJob job1 = (OurJob) children.children.get(0);
         OurJob job2 = (OurJob) children.children.get(1);
 
-        assertEquals("apple", job1.stuff);
+        assertEquals("Our Job apple", job1.toString());
+        assertEquals(null, job1.stuff);
         assertEquals(0, job1.index);
         assertFalse(job1.ran);
 
-        assertEquals("orange", job2.stuff);
-        assertEquals(1, job2.index);
+        assertEquals("Our Job orange", job2.toString());
+        assertEquals(null, job2.stuff);
+        assertEquals(0, job2.index);
         assertFalse(job2.ran);
 
+        job2.run();
+
+        assertEquals("Our Job orange", job2.toString());
+        assertEquals("orange", job2.stuff);
+        assertEquals(1, job2.index);
+        assertTrue(job2.ran);
     }
 
 
@@ -227,6 +233,10 @@ public class ForEachJobTest extends OjTestCase {
 
     }
 
+    /**
+     * Tests what happens with same name. This needs a rethink when
+     * the Psudo registry gets re-written.
+     */
     @Test
     public void testPseudoRegistry() {
 
@@ -276,9 +286,15 @@ public class ForEachJobTest extends OjTestCase {
 
         Object bean = crRecovered.lookup("test");
         assertNotNull(bean);
-        assertEquals(ForEachJob.LocalBean.class, bean.getClass());
 
-        ForEachJob.LocalBean lb = (ForEachJob.LocalBean) bean;
+        assertEquals(ForEachJob.class, bean.getClass());
+
+        Object bean2 = crRecovered.lookup("test2");
+        assertNotNull(bean2);
+
+        assertEquals(ForEachJob.LocalBean.class, bean2.getClass());
+
+        ForEachJob.LocalBean lb = (ForEachJob.LocalBean) bean2;
 
         int index = lb.getIndex();
         assertEquals(0, index);

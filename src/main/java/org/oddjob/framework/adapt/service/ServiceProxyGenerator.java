@@ -42,7 +42,7 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 			@Override
 			public Class<?>[] wrappingInterfacesFor(ServiceAdaptor wrapped) {
 					
-				Set<Class<?>> interfaces = new HashSet<Class<?>>();
+				Set<Class<?>> interfaces = new HashSet<>();
 				interfaces.add(Object.class);
 				interfaces.add(ArooaSessionAware.class);
 				interfaces.add(ArooaContextAware.class);

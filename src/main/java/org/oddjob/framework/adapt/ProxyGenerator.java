@@ -47,7 +47,7 @@ public class ProxyGenerator<T> {
 		Class<?>[] wrappingInterfaces = 
 				wrapperFactory.wrappingInterfacesFor(wrapped);
 		
-    	Set<Class<?>> proxyInterfaces = new HashSet<Class<?>>();
+    	Set<Class<?>> proxyInterfaces = new HashSet<>();
     	proxyInterfaces.addAll(Arrays.asList(wrappedInterfaces));
     	proxyInterfaces.addAll(Arrays.asList(wrappingInterfaces));
     	proxyInterfaces.remove(Object.class);

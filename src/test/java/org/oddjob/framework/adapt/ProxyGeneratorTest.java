@@ -31,8 +31,13 @@ public class ProxyGeneratorTest extends OjTestCase {
 
 		int eaten;
 		String type;
-		
-		public FruitWrapper(Fruit fruit) {
+
+        @Override
+        public String loggerName() {
+            return "SomeLogger";
+        }
+
+        public FruitWrapper(Fruit fruit) {
 			this.fruit = fruit;
 		}
 		

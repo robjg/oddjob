@@ -1,11 +1,17 @@
 package org.oddjob.events.example;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 public class ValueCalculator implements Runnable {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(ValueCalculator.class);
 
     private volatile String name;
 
@@ -30,6 +36,10 @@ public class ValueCalculator implements Runnable {
         value = trades.stream()
                 .mapToDouble(t -> priceLookup.get( t.getProduct()) * t.getQuantity())
                 .sum();
+
+        logger.info("Value of {} trades is {}",
+                    trades.size(),
+                    value);
     }
 
     public String getName() {

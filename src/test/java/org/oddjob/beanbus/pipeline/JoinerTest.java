@@ -181,14 +181,14 @@ public class JoinerTest {
         Pipeline<Integer> pipeline = AsyncPipeline.begin(executor);
 
         Pipeline.Stage<Integer, Integer> from =
-                pipeline.to(Splits.roundRobin(),
-                        AsyncPipeline.options().async());
+                pipeline.to(Splits.roundRobin());
 
         Join<Integer, Integer> join = pipeline.join();
 
         for (int i = 0; i < 10; ++i) {
 
-            join.join(from.to(Folds.maxInt()));
+            join.join(from.to(Folds.maxInt(),
+                              AsyncPipeline.options().async()));
         }
 
         Processor<Integer, List<Integer>> start =

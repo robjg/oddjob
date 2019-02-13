@@ -14,9 +14,9 @@ public interface WrapperFactory<T> {
 	 * 
 	 * @param wrapped The component to be wrapped.
 	 * 
-	 * @return
+	 * @return The interfaces to add.
 	 */
-	public Class<?>[] wrappingInterfacesFor(T wrapped);
+	Class<?>[] wrappingInterfacesFor(T wrapped);
 	
 	/**
 	 * Create a wrapper.
@@ -26,6 +26,6 @@ public interface WrapperFactory<T> {
 	 * 
 	 * @return The Wrapper.
 	 */
-	public ComponentWrapper wrapperFor(T wrapped, Object proxy);
+	ComponentWrapper wrapperFor(T wrapped, Object proxy);
 	
 }
