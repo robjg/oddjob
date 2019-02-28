@@ -23,5 +23,9 @@
 			className='org.oddjob.state.CascadeJobDepricated'/>
 		<is element='join' 
 			className='org.oddjob.state.JoinJob'/>
+		<is element='watch'
+			className='org.oddjob.state.expr.StateExpressionNode'/>
+		<is element='evaluate'
+			className='org.oddjob.state.expr.StateExpressionJob'/>
 	</components>
 </arooa:descriptor>

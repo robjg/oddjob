@@ -5,10 +5,16 @@ import org.oddjob.util.Restore;
 import java.util.List;
 import java.util.function.Consumer;
 
+/**
+ * Subscribe to a list of event sources and applies some logic to their event
+ * to possibly propagate a new event.
+ *
+ * @param <T> The type of the event.
+ */
 public interface EventOperator<T> {
 
-    Restore start(List<T> previous,
-                         List<? extends EventSource<? extends T>> nodes,
-                         Consumer<? super List<T>> results) throws Exception;
+    Restore start(List<? extends EventSource<? extends T>> nodes,
+                  Consumer<? super CompositeEvent<T>> results)
+            throws Exception;
 
 }

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <events:when id="when" xmlns:events="oddjob:events">
+                    <jobs>
+                        <state:watch name="Are Jobs 1 and 2 Complete" xmlns:state="http://rgordon.co.uk/oddjob/state"><![CDATA[job1 is COMPLETE
+AND
+job2 is COMPLETE]]></state:watch>
+                        <state:if xmlns:state="http://rgordon.co.uk/oddjob/state">
+                            <jobs>
+                                <sequential>
+                                    <jobs>
+                                        <state:evaluate id="check-job3" name="Is Job 3 Complete"><![CDATA[job3 is complete]]></state:evaluate>
+                                        <check gt="${check-job3.evaluation.time}" value="${when.current.time}"/>
+                                    </jobs>
+                                </sequential>
+                                <state:flag/>
+                                <run job="${job3}" name="Run Job 3"/>
+                            </jobs>
+                        </state:if>
+                    </jobs>
+                </events:when>
+                <folder>
+                    <jobs>
+                        <echo id="job1" name="Job 1"><![CDATA[Hello]]></echo>
+                        <echo id="job2" name="Job 2"><![CDATA[World]]></echo>
+                        <echo id="job3" name="Job 3"><![CDATA[It's Done!]]></echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

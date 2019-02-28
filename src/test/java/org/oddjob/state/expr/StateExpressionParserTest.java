@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.utils.Try;
+import org.oddjob.events.EventOf;
 import org.oddjob.state.FlagState;
 import org.oddjob.util.Restore;
 
@@ -30,19 +31,23 @@ public class StateExpressionParserTest {
 		
 		StateExpression expression = test.parse("job1 is success");
 		
-		AtomicReference<Try<Boolean>> result = new AtomicReference<>();
+		AtomicReference<Try<EventOf<Boolean>>> result =
+				new AtomicReference<>();
 		
 		try (Restore restore = expression.evaluate(session, result::set)) {
 			
-			assertThat(result.get().orElseThrow(), is(false));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(false));
 
 			job1.run();
 			
-			assertThat(result.get().orElseThrow(), is(true));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(true));
 
 			job1.hardReset();
 			
-			assertThat(result.get().orElseThrow(), is(false));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(false));
 		}	
 	}
 
@@ -62,21 +67,26 @@ public class StateExpressionParserTest {
 		StateExpressionParser<StateExpression> test = new StateExpressionParser<>(
 				() -> new CaptureToExpression());
 		
-		StateExpression expression = test.parse("job1 is success or ( job2 is success and job3 is success)");
+		StateExpression expression = test.parse(
+		        "job1 is success or ( job2 is success and job3 is success)");
 		
-		AtomicReference<Try<Boolean>> result = new AtomicReference<>();
+		AtomicReference<Try<EventOf<Boolean>>> result =
+                new AtomicReference<>();
 		
 		try (Restore restore = expression.evaluate(session, result::set)) {
 			
-			assertThat(result.get().orElseThrow(), is(false));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(false));
 
 			job2.run();
 			
-			assertThat(result.get().orElseThrow(), is(false));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(false));
 			
 			job3.run();
 			
-			assertThat(result.get().orElseThrow(), is(true));
+			assertThat(result.get().orElseThrow().getOf(),
+                       is(true));
 		}		
 	}
 

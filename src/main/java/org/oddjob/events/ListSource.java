@@ -23,7 +23,7 @@ import java.util.function.Consumer;
  * 
  * @author Rob Gordon
  */
-public class ListSource<E> extends EventSourceBase<List<E>>
+public class ListSource<E> extends EventSourceBase<CompositeEvent<E>>
 implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
@@ -33,7 +33,7 @@ implements Serializable, Structural {
 
 	private volatile EventOperator<E> eventOperator;
 
-    private volatile List<E> last;
+    private volatile CompositeEvent<E> last;
 
 	/**
 	 * Constructor.
@@ -47,7 +47,7 @@ implements Serializable, Structural {
 	}
 
     @Override
-    protected Restore doStart(Consumer<? super List<E>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super CompositeEvent<E>> consumer) throws Exception {
 
         EventOperator<E> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
@@ -56,7 +56,7 @@ implements Serializable, Structural {
             children.add(child);
         }
 
-        return eventOperator.start(last, children,
+        return eventOperator.start(children,
                 list -> {
                     last = list;
                     try {
@@ -111,7 +111,7 @@ implements Serializable, Structural {
         this.eventOperator = eventOperator;
     }
 
-    public List<E> getLast() {
+    public CompositeEvent<E> getLast() {
 	    return last;
     }
 

@@ -14,5 +14,5 @@ public interface StateCondition {
 	 * @param state The state.
 	 * @return true if the state matches the condition, false otherwise.
 	 */
-	public boolean test(State state);
+	boolean test(State state);
 }

@@ -12,14 +12,13 @@ import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
 
 /**
- * @oddjob.description An Experimental Trigger that fires on evaluating a State 
- * Expression to True.
+ * @oddjob.description Runs a job when triggered by the arrival of an event.
  * 
  * @oddjob.example
  * 
- * A trigger expression based on the state of some jobs.
+ * Evaluating greengrocer portfolios of fruit when data arrives.
  * 
- * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExpressionExample.xml}
+ * {@oddjob.xml.resource org/oddjob/events/example/PricingWhenExample.xml}
  * 
  * 
  * @author Rob Gordon.

@@ -9,6 +9,7 @@ import java.util.List;
 import org.junit.Test;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.events.EventOf;
 import org.oddjob.state.FlagState;
 import org.oddjob.util.Restore;
 
@@ -26,7 +27,7 @@ public class StateExpressionNodeTest {
 		test.setArooaSession(session);
 		test.setExpression("flag is success");
 		
-		List<Boolean> results = new ArrayList<>();
+		List<EventOf<Boolean>> results = new ArrayList<>();
 		
 		Restore restore = test.start(results::add);
 
@@ -35,7 +36,7 @@ public class StateExpressionNodeTest {
 		job.run();
 		
 		assertThat(results.size(), is(1));		
-		assertThat(results.get(0), is(Boolean.TRUE));
+		assertThat(results.get(0).getOf(), is(Boolean.TRUE));
 
 		restore.close();
 		

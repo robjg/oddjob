@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,11 +41,21 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerEventArrivesLater() throws Exception {
 
-        Predicate<List<String>> predicate = list -> list.contains("red") && list.contains("blue");
+        Predicate<EventsArray<String>> predicate =
+                array -> {
+                    List<String> list =
+                            array.toStream()
+                                 .filter(Optional::isPresent)
+                                 .map(Optional::get)
+                                 .map(EventOf::getOf)
+                                 .collect(Collectors.toList());
+
+                    return list.contains("red") && list.contains("blue");
+                };
 
         EventOperatorBase<String> test = new EventOperatorBase<>(predicate);
 
-        List<List<String>> results = new ArrayList<>();
+        List<CompositeEvent<String>> results = new ArrayList<>();
 
         OurSource source = new OurSource();
         List<EventSource<String>> sources = Arrays.asList(
@@ -53,7 +64,7 @@ public class EventOperatorBaseTest {
                 new OurSource("green", "white")
         );
 
-        test.start(null, sources, results::add);
+        test.start(sources, results::add);
 
         assertThat(results.size(), is(0));
 
@@ -69,18 +80,27 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerArrivesBeforeSwitch() throws Exception {
 
-        Predicate<List<String>> predicate = list -> list.contains("red") && list.contains("blue");
+        Predicate<EventsArray<String>> predicate =
+                array -> {
+                    List<String> list =
+                            array.toStream()
+                                 .filter(Optional::isPresent)
+                                 .map(Optional::get)
+                                 .map(EventOf::getOf)
+                                 .collect(Collectors.toList());
+                    return list.contains("red") && list.contains("blue");
+                };
 
         EventOperatorBase<String> test = new EventOperatorBase<>(predicate);
 
-        List<List<String>> results = new ArrayList<>();
+        List<CompositeEvent<String>> results = new ArrayList<>();
 
         List<EventSource<String>> sources = Arrays.asList(
                 new OurSource("yellow", "blue"),
                 new OurSource("red")
         );
 
-        test.start(null, sources, results::add);
+        test.start(sources, results::add);
 
         assertThat(results.size(), is(1));
     }
@@ -90,19 +110,21 @@ public class EventOperatorBaseTest {
 
         EventOperatorBase<String> test = new EventOperatorBase<>(ignored -> true);
 
-        List<List<String>> results = new ArrayList<>();
+        List<CompositeEvent<String>> results = new ArrayList<>();
 
         OurSource source1 = new OurSource("yellow", "blue");
         OurSource source2 = new OurSource("green", "pink");
 
-        List<EventSource<String>> sources = Arrays.asList(source1, source2 );
+        List<EventSource<String>> sources = Arrays.asList(source1, source2);
 
-        test.start(null, sources, results::add);
+        test.start(sources, results::add);
 
         assertThat(results.size(), is(3));
-        assertThat(results.get(0), is(Arrays.asList("yellow", "green")));
-        assertThat(results.get(1), is(Arrays.asList("blue", "green")));
-        assertThat(results.get(2), is(Arrays.asList("blue", "pink")));
+        assertThat(toList(results.get(0)),
+                   is(Arrays.asList("yellow", "green")));
+        assertThat(toList(results.get(1)),
+                   is(Arrays.asList("blue", "green")));
+        assertThat(toList(results.get(2)), is(Arrays.asList("blue", "pink")));
     }
 
     @Test
@@ -114,19 +136,19 @@ public class EventOperatorBaseTest {
         Thread[] threads = new Thread[10];
         OurSource[] sources = new OurSource[threads.length];
 
-        for(int i = 0; i < threads.length; ++i) {
+        for (int i = 0; i < threads.length; ++i) {
             sources[i] = new OurSource(many);
         }
 
         EventOperatorBase<String> test = new EventOperatorBase<>(ignored -> true);
 
-        Queue<List<String>> results = new ConcurrentLinkedQueue<>();
+        Queue<CompositeEvent<String>> results = new ConcurrentLinkedQueue<>();
 
-        test.start(null, Arrays.asList(sources), results::add);
+        test.start(Arrays.asList(sources), results::add);
 
         assertThat(results.size(), is(threads.length * many.length - 9));
 
-        for(int i = 0; i < threads.length; ++i) {
+        for (int i = 0; i < threads.length; ++i) {
             final int fi = i;
             threads[i] = new Thread(() -> {
                 for (int j = 0; j < many.length; ++j) {
@@ -140,6 +162,13 @@ public class EventOperatorBaseTest {
             threads[i].join();
         }
 
-        assertThat(results.size(), is(threads.length * many.length * 2 - 9 ));
+        assertThat(results.size(), is(threads.length * many.length * 2 - 9));
+    }
+
+    static <T> List<T> toList(CompositeEvent<T> compositeEvent) {
+        return compositeEvent
+                .stream()
+                .map(EventOf::getOf)
+                .collect(Collectors.toList());
     }
 }

@@ -27,7 +27,7 @@ public class SubscribeNodeBaseTest {
 			this.consumer = consumer;
 			return () -> this.consumer = null;
 		}
-	};
+	}
 
 	
 	@Test

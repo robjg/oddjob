@@ -1,15 +1,16 @@
 package org.oddjob.events;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.oddjob.util.Restore;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.junit.Test;
-import org.oddjob.util.Restore;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class AllEventsTest {
 
@@ -41,21 +42,20 @@ public class AllEventsTest {
 			this.consumer = consumer;
 			return () -> {};
 		}
-
 	}
 
 	@Test
-	public void testEverythingWorks() throws Exception {
+	public void givenTwoSourcesWhenOnlyBothPublishThenEventFired()
+            throws Exception {
 	
 		IntEvents ie = new IntEvents();
 		DoubleEvents de = new DoubleEvents();
 		
-		List<List<Number>> results = new ArrayList<>();
+		List<CompositeEvent<Number>> results = new ArrayList<>();
 		
 		AllEvents<Number> test = new AllEvents<>();
 		
-		test.start(null, 
-				Arrays.asList(ie, de), 
+		test.start(Arrays.asList(ie, de),
 				results::add);
 
 		assertThat(results.size(), is(0));		
@@ -67,11 +67,49 @@ public class AllEventsTest {
 		de.publish(4.2);
 		
 		assertThat(results.size(), is(1));		
-		assertThat(results.get(0), is(Arrays.asList(1, 4.2)));		
+		assertThat(EventConversions.toList(results.get(0)),
+                          is(Arrays.asList(1, 4.2)));
 		
 		de.publish(2.6);
 
 		assertThat(results.size(), is(2));		
-		assertThat(results.get(1), is(Arrays.asList(1, 2.6)));		
+		assertThat(EventConversions.toList(results.get(1)),
+                   is(Arrays.asList(1, 2.6)));
 	}
+
+	private class TwoInitialEvents implements EventSource<Integer> {
+
+        @Override
+        public Restore start(Consumer<? super Integer> consumer) {
+            consumer.accept(1);
+            consumer.accept(2);
+            return () -> {};
+        }
+    }
+
+    @Test
+	public void givenTwoSourcesWhenTwoInitialEventsThenFiresOnlyTwice() throws Exception {
+
+        List<CompositeEvent<Number>> results = new ArrayList<>();
+
+        AllEvents<Number> test = new AllEvents<>();
+        test.setEventOfFactory(
+                e -> new WrapperOf<>(e,
+                                        Instant.parse("2019-02-25T10:00:00Z")));
+
+        test.start(Arrays.asList(new TwoInitialEvents(),
+                                 new TwoInitialEvents()),
+                   results::add);
+
+        assertThat("Results should be 3 but were: " + results,
+                   results.size(), is(3));
+        assertThat(EventConversions.toList(results.get(0)),
+                   is(Arrays.asList(1, 1)));
+        assertThat(EventConversions.toList(results.get(1)),
+                   is(Arrays.asList(2, 1)));
+        assertThat(EventConversions.toList(results.get(2)),
+                   is(Arrays.asList(2, 2)));
+
+    }
+
 }

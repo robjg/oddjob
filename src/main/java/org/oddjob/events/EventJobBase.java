@@ -29,16 +29,10 @@ import org.oddjob.state.StateOperator;
 import org.oddjob.util.Restore;
 
 /**
- * @oddjob.description An Experimental Trigger that fires on evaluating a State 
- * Expression to True.
- * 
- * @oddjob.example
- * 
- * A trigger expression based on the state of some jobs.
- * 
- * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExpressionExample.xml}
- * 
- * 
+ * Base class for Jobs that react to events.
+ *
+ * @param <T> The type of the event or trigger.
+ *
  * @author Rob Gordon.
  */
 abstract public class EventJobBase<T> extends StructuralJob<Object> {

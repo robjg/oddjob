@@ -15,11 +15,12 @@ Changes in 1.6.0
 - Add experimental feature of a state expression using ANTLR.
 - Added pre-configuration of 'name' attribute. This now means components are registered
   once attributes are known and before their children are parsed.
+- Improved component registration so duplicate ids are renamed and these are reflected in
+  their xml. For example copying something with an id of 'foo' will result in a new component
+  with an id of 'foo2'.
 
 Still Todo
 ----------
-- Need the idea of a 'session transaction' for registering components and beans in case parsing
-  fails. (See test CutAndPasteSupport3Test#whenPasteComponentWithIdFailsThenComponentNotRegistered())
 - Add SSL to the web client/server.
 - Support all Methods in the Web client.
 - Add Security to the WebApp (with a Read Only role).

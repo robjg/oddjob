@@ -55,7 +55,7 @@ import org.oddjob.util.Restore;
  * @oddjob.description 
  * 
  */
-public class ForEvents<T> extends EventSourceBase<List<T>>
+public class ForEvents<T> extends EventSourceBase<CompositeEvent<T>>
 implements Structural, ConfigurationOwner {
 
     /** Root element for configuration. */
@@ -77,7 +77,7 @@ implements Structural, ConfigurationOwner {
 
 	private volatile EventOperator<T> eventOperator;
 
-	private volatile List<T> last;
+	private volatile CompositeEvent<T> last;
 
 
 	/**
@@ -326,7 +326,7 @@ implements Structural, ConfigurationOwner {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Restore doStart(Consumer<? super List<T>> consumer) throws Exception {
+	public Restore doStart(Consumer<? super CompositeEvent<T>> consumer) throws Exception {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
@@ -345,7 +345,7 @@ implements Structural, ConfigurationOwner {
 			}
 		}
 
-		return eventOperator.start(null, susbscribeNodes,
+		return eventOperator.start(susbscribeNodes,
 				list -> {
                     last = list;
                     try {
@@ -372,7 +372,7 @@ implements Structural, ConfigurationOwner {
         this.eventOperator = eventOperator;
     }
 
-    public List<T> getLast() {
+    public CompositeEvent<T> getLast() {
         return last;
     }
 
