@@ -1,12 +1,15 @@
 package org.oddjob.io;
 
+import org.oddjob.events.EventOf;
 import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.WrapperOf;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -31,14 +34,12 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
     private volatile String filter;
 
-    private volatile Restore close;
-
     private volatile Consumer<Path> consumer;
 
     private volatile boolean newOnly;
 
     @Override
-    protected Restore doStart(Consumer<? super Path> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super EventOf<Path>> consumer) throws IOException {
 
         final Path path = Optional.ofNullable(this.dir)
                 .orElse(Paths.get("."));
@@ -57,8 +58,8 @@ public class PathWatchEvents extends EventSourceBase<Path> {
                 .map(Pattern::asPredicate)
                 .orElse(ignore -> true);
 
-        final Consumer<Path> filterConsumer = p -> {
-            if (filter.test(p.getFileName().toString())) {
+        final Consumer<EventOf<Path>> filterConsumer = p -> {
+            if (filter.test(p.getOf().getFileName().toString())) {
                 consumer.accept(p);
             }
         };
@@ -97,7 +98,9 @@ public class PathWatchEvents extends EventSourceBase<Path> {
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     logger.debug("WatchEvent: {}, Path={} (count {})",
                             event.kind(), event.context(), event.count());
-                    filterConsumer.accept(path.resolve(ev.context()));
+                    Path found = path.resolve(ev.context());
+                    filterConsumer.accept(
+                            EventOf.of(found, lastModifiedOf(found)));
                 }
 
                 // Reset the key -- this step is critical if you want to
@@ -116,6 +119,8 @@ public class PathWatchEvents extends EventSourceBase<Path> {
             try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
 
                 StreamSupport.stream(directoryStream.spliterator(), false)
+                        .map( p -> new WrapperOf<>(
+                                p, lastModifiedOf(p)))
                         .forEach(filterConsumer);
             }
         }
@@ -190,5 +195,13 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
     public void setNewOnly(boolean newOnly) {
         this.newOnly = newOnly;
+    }
+
+    static Instant lastModifiedOf(Path path) {
+        try {
+            return Files.getLastModifiedTime( path ).toInstant();
+        } catch (IOException e) {
+            throw new IllegalStateException( "Failed getting last modified time", e );
+        }
     }
 }

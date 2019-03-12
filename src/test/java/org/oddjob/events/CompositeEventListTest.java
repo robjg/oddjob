@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.oddjob.arooa.utils.DateHelper;
 
 import java.text.ParseException;
+import java.time.Instant;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -59,4 +60,23 @@ public class CompositeEventListTest {
                            .getEvents(0), is(event2));
     }
 
+    @Test
+    public void createCompositeOfGenericHell() {
+
+        EventOf<Integer> event1 = EventOf.of(1,
+                Instant.parse("2019-02-15T07:00:00Z"));
+
+        EventOf<Double> event2 = EventOf.of(
+                3.421,
+                Instant.parse("2019-02-15T06:30:00Z"));
+
+        CompositeEventList<Number> test =
+                new CompositeEventList<>(event1, event2);
+
+        assertThat(test.getOf(), is(1));
+        assertThat(test.getTime(),
+                is(Instant.parse("2019-02-15T07:00:00Z")));
+        assertThat(test.getEvents(0), is(event1));
+        assertThat(test.getEvents(1), is(event2));
+    }
 }

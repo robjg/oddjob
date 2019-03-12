@@ -50,7 +50,7 @@ public class UnaryEvaluation<T> implements CompositeEvent<T> {
     }
 
     @Override
-    public Stream<EventOf<T>> stream() {
+    public Stream<EventOf<? extends T>> stream() {
         return Stream.of(operand);
     }
 

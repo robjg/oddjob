@@ -1,13 +1,12 @@
 package org.oddjob.io;
 
-import org.oddjob.events.EventSourceBase;
-import org.oddjob.events.Trigger;
-import org.oddjob.events.When;
+import org.oddjob.events.*;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -45,10 +44,10 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
      * last modified time will be ignored.
      * @oddjob.required R/O.
      */
-    private volatile AtomicReference<FileTime> lastModified = new AtomicReference<>();
+    private volatile AtomicReference<Instant> lastModified = new AtomicReference<>();
 
     @Override
-    protected Restore doStart(Consumer<? super Path> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super EventOf<Path>> consumer) throws IOException {
         Objects.requireNonNull(consumer, "No Consumer");
 
         Path file = Optional.ofNullable(this.file)
@@ -57,15 +56,10 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
         FileWatch fileWatch = Optional.ofNullable(this.fileWatch)
                 .orElseThrow(() -> new IllegalArgumentException("No file watch"));
 
-        return fileWatch.subscribe(file, path -> {
-            FileTime lastModified;
-            try {
-                lastModified = Files.getLastModifiedTime( path );
-            } catch (IOException e) {
-                throw new IllegalStateException( "Failed getting last modified time", e );
-            }
+        return fileWatch.subscribe(file, pathEvent -> {
+            Instant lastModified = pathEvent.getTime();
             if (!lastModified.equals(this.lastModified.getAndSet(lastModified))) {
-                consumer.accept(path);
+                consumer.accept(pathEvent);
             }
         });
     }
@@ -87,7 +81,7 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
         this.fileWatch = fileWatch;
     }
 
-    public FileTime getLastModified() {
+    public Instant getLastModified() {
         return this.lastModified.get();
     }
 }

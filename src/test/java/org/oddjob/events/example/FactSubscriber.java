@@ -1,6 +1,7 @@
 package org.oddjob.events.example;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.events.EventOf;
 import org.oddjob.events.EventSourceBase;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
@@ -25,10 +26,10 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
 
     private volatile FactStore factStore;
 
-    private volatile T last;
+    private volatile EventOf<T> last;
 
     @Override
-    public Restore doStart(Consumer<? super T> consumer) throws Exception {
+    public Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception {
 
         FactStore factStore = Optional.ofNullable(this.factStore)
                 .orElseThrow(() -> new IllegalArgumentException("No Fact Store"));
@@ -36,10 +37,10 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
         String query = Optional.ofNullable(this.query)
                 .orElseThrow(() -> new IllegalArgumentException("No Query"));
 
-        class FactStoreConsumer implements Consumer<T> {
+        class FactStoreConsumer implements Consumer<EventOf<T>> {
 
             @Override
-            public void accept(T t) {
+            public void accept(EventOf<T> t) {
                 last = t;
                 logger.info("Received: {}", t);
                 consumer.accept(t);
@@ -62,7 +63,7 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
         this.query = query;
     }
 
-    public T getLast() {
+    public EventOf<T> getLast() {
         return last;
     }
 

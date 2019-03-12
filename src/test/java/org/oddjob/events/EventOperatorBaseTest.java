@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.oddjob.util.Restore;
 
@@ -18,22 +19,22 @@ public class EventOperatorBaseTest {
 
         private final List<String> initial;
 
-        private Consumer<? super String> consumer;
+        private Consumer<? super EventOf<String>> consumer;
 
         OurSource(String... initial) {
             this.initial = Arrays.asList(initial);
         }
 
         @Override
-        public Restore start(Consumer<? super String> consumer) throws Exception {
-            initial.forEach(consumer);
+        public Restore start(Consumer<? super EventOf<String>> consumer) {
+            initial.forEach(s -> consumer.accept(EventOf.of(s)));
             this.consumer = consumer;
             return () -> {
             };
         }
 
         void send(String s) {
-            consumer.accept(s);
+            consumer.accept(EventOf.of(s));
         }
     }
 
@@ -41,14 +42,14 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerEventArrivesLater() throws Exception {
 
-        Predicate<EventsArray<String>> predicate =
+        Predicate<EventsArray<? extends String>> predicate =
                 array -> {
                     List<String> list =
                             array.toStream()
-                                 .filter(Optional::isPresent)
-                                 .map(Optional::get)
-                                 .map(EventOf::getOf)
-                                 .collect(Collectors.toList());
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .map(EventOf::getOf)
+                                    .collect(Collectors.toList());
 
                     return list.contains("red") && list.contains("blue");
                 };
@@ -80,14 +81,14 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerArrivesBeforeSwitch() throws Exception {
 
-        Predicate<EventsArray<String>> predicate =
+        Predicate<EventsArray<? extends String>> predicate =
                 array -> {
                     List<String> list =
                             array.toStream()
-                                 .filter(Optional::isPresent)
-                                 .map(Optional::get)
-                                 .map(EventOf::getOf)
-                                 .collect(Collectors.toList());
+                                    .filter(Optional::isPresent)
+                                    .map(Optional::get)
+                                    .map(EventOf::getOf)
+                                    .collect(Collectors.toList());
                     return list.contains("red") && list.contains("blue");
                 };
 
@@ -120,11 +121,12 @@ public class EventOperatorBaseTest {
         test.start(sources, results::add);
 
         assertThat(results.size(), is(3));
-        assertThat(toList(results.get(0)),
-                   is(Arrays.asList("yellow", "green")));
-        assertThat(toList(results.get(1)),
-                   is(Arrays.asList("blue", "green")));
-        assertThat(toList(results.get(2)), is(Arrays.asList("blue", "pink")));
+        assertThat(EventConversions.toList(results.get(0)),
+                is(Arrays.asList("yellow", "green")));
+        assertThat(EventConversions.toList(results.get(1)),
+                is(Arrays.asList("blue", "green")));
+        assertThat(EventConversions.toList(results.get(2)),
+                is(Arrays.asList("blue", "pink")));
     }
 
     @Test
@@ -151,24 +153,38 @@ public class EventOperatorBaseTest {
         for (int i = 0; i < threads.length; ++i) {
             final int fi = i;
             threads[i] = new Thread(() -> {
-                for (int j = 0; j < many.length; ++j) {
-                    sources[fi].send(many[j]);
+                for (String s : many) {
+                    sources[fi].send(s);
                 }
             });
             threads[i].start();
         }
 
-        for (int i = 0; i < threads.length; ++i) {
-            threads[i].join();
+        for (Thread thread : threads) {
+            thread.join();
         }
 
         assertThat(results.size(), is(threads.length * many.length * 2 - 9));
     }
 
-    static <T> List<T> toList(CompositeEvent<T> compositeEvent) {
-        return compositeEvent
-                .stream()
-                .map(EventOf::getOf)
-                .collect(Collectors.toList());
+    @Test
+    public void testGenericHeadache() {
+
+        EventOperatorBase.EventsArrayImpl<Number> test = new EventOperatorBase.EventsArrayImpl<>(3);
+
+        test.set(1, EventOf.of(1));
+
+        List<Number> results = new ArrayList<>();
+
+        for (Optional<EventOf<? extends Number>> e :
+                test) {
+
+            results.add(e.map(EventOf::getOf).orElse(null));
+        }
+
+        assertThat(results.get(0), CoreMatchers.nullValue());
+        assertThat(results.get(1), CoreMatchers.is(1));
+        assertThat(results.get(2), CoreMatchers.nullValue());
     }
+
 }

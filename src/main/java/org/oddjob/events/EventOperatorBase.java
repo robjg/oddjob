@@ -18,11 +18,9 @@ import java.util.stream.Stream;
  */
 public class EventOperatorBase<T> implements EventOperator<T> {
 
-    private final Predicate<EventsArray<T>> predicate;
+    private final Predicate<EventsArray<? extends T>> predicate;
 
-    private volatile EventOfFactory<T> eventOfFactory;
-
-    public EventOperatorBase(Predicate<EventsArray<T>> predicate) {
+    public EventOperatorBase(Predicate<EventsArray<? extends T>> predicate) {
         this.predicate = predicate;
     }
 
@@ -30,10 +28,6 @@ public class EventOperatorBase<T> implements EventOperator<T> {
     public Restore start(List<? extends EventSource<? extends T>> nodes,
                          Consumer<? super CompositeEvent<T>> results)
             throws Exception {
-
-        EventOfFactory<T> eventOfFactory =
-                Optional.ofNullable(this.eventOfFactory)
-                        .orElse(new WrapperOfFactory<T>().toValue());
 
         int number = nodes.size();
 
@@ -43,10 +37,9 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         for (int i = 0; i < number; ++i) {
             closes.add(nodes.get(i)
-                            .start(new InputConsumer<>(
-                                    eventOfFactory,
-                                    i,
-                                    theSwitch)));
+                    .start(new InputConsumer<>(
+                            i,
+                            theSwitch)));
         }
 
         theSwitch.doSwitch();
@@ -54,21 +47,13 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         return () -> closes.forEach(Restore::close);
     }
 
-    public EventOfFactory<T> getEventOfFactory() {
-        return eventOfFactory;
-    }
-
-    public void setEventOfFactory(EventOfFactory<T> eventOfFactory) {
-        this.eventOfFactory = eventOfFactory;
-    }
-
     static class ValueByIndex<T> {
 
-        private final EventOf<T> value;
+        private final EventOf<? extends T> value;
 
         private final int index;
 
-        ValueByIndex(EventOf<T> value, int index) {
+        ValueByIndex(EventOf<? extends T> value, int index) {
             this.value = value;
             this.index = index;
         }
@@ -79,7 +64,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         private final Queue<ValueByIndex<T>> queue = new ConcurrentLinkedQueue<>();
 
-        private final Predicate<EventsArray<T>> predicate;
+        private final Predicate<EventsArray<? extends T>> predicate;
 
         private volatile boolean switched;
 
@@ -92,7 +77,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         private final int size;
 
-        Switch(Predicate<EventsArray<T>> predicate,
+        Switch(Predicate<EventsArray<? extends T>> predicate,
                Consumer<? super CompositeEvent<T>> resultConsumer, int size) {
             this.predicate = predicate;
             this.resultConsumer = resultConsumer;
@@ -110,7 +95,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         void process() {
             ref.updateAndGet(cf ->
-                                     cf.thenApply(this::processQueue));
+                    cf.thenApply(this::processQueue));
         }
 
         EventsArrayImpl<T> processQueue(EventsArrayImpl<T> sofar) {
@@ -157,38 +142,27 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
     }
 
-    static class InputConsumer<T> implements Consumer<T> {
-
-        private final EventOfFactory<T> eventOfFactory;
+    static class InputConsumer<T> implements Consumer<EventOf<? extends T>> {
 
         private final Consumer<? super ValueByIndex<T>> results;
 
         private final int index;
 
-        InputConsumer(EventOfFactory<T> eventOfFactory,
-                      int index,
+        InputConsumer(int index,
                       Consumer<? super ValueByIndex<T>> results) {
-            this.eventOfFactory = eventOfFactory;
             this.index = index;
             this.results = results;
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public void accept(T t) {
-            if (t instanceof EventOf) {
-                results.accept(new ValueByIndex<>((EventOf<T>) t,
-                                                  index));
-            } else {
-                results.accept(new ValueByIndex<>(eventOfFactory.create(t),
-                                                  index));
-            }
+        public void accept(EventOf<? extends T> t) {
+            results.accept(new ValueByIndex<>(t, index));
         }
     }
 
     static class EventsArrayImpl<T> implements EventsArray<T> {
 
-        private final List<Optional<EventOf<T>>> elements;
+        private final List<Optional<EventOf<? extends T>>> elements;
 
         EventsArrayImpl(int size) {
 
@@ -204,25 +178,27 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
 
         @Override
-        public Optional<EventOf<T>> getEventAt(int index) {
+        public Optional<EventOf<? extends T>> getEventAt(int index) {
             return elements.get(index);
         }
 
         @Override
-        public Stream<Optional<EventOf<T>>> toStream() {
+        public Stream<Optional<EventOf<? extends T>>> toStream() {
             return elements.stream();
         }
 
-        public void set(int index, EventOf<T> value) {
+        public void set(int index, EventOf<? extends T> value) {
             elements.set(index, Optional.of(value));
         }
 
         public CompositeEvent<T> toCompositeEvent() {
-            return new CompositeEventList<>(
-                    elements.stream()
-                            .filter(Optional::isPresent)
-                            .map(Optional::get)
-                            .collect(Collectors.toList()));
+
+            List<EventOf<? extends T>> eventList = elements.stream()
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .collect(Collectors.toList());
+
+            return new CompositeEventList<>(eventList);
         }
     }
 }

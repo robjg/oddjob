@@ -10,6 +10,7 @@ import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,9 +24,9 @@ public class ListSourceTest {
     private static class IntSource implements EventSource<Integer> {
 
         @Override
-        public Restore start(Consumer<? super Integer> consumer) {
-            consumer.accept(1);
-            consumer.accept(2);
+        public Restore start(Consumer<? super EventOf<Integer>> consumer) {
+            consumer.accept(new WrapperOf<>(1, Instant.now()));
+            consumer.accept(new WrapperOf<>(2, Instant.now()));
             return () -> {
             };
         }
@@ -40,7 +41,7 @@ public class ListSourceTest {
         test.setChild(0, new IntSource());
         test.setChild(1, new IntSource());
 
-        List<CompositeEvent<Integer>> results = new ArrayList<>();
+        List<EventOf<Integer>> results = new ArrayList<>();
 
         StateSteps stateSteps = new StateSteps(test);
         stateSteps.startCheck(EventState.READY, EventState.CONNECTING,
@@ -59,11 +60,11 @@ public class ListSourceTest {
         stateSteps.checkNow();
 
         assertThat(results.size(), is(3));
-        assertThat(EventConversions.toList(results.get(0)),
+        assertThat(EventConversions.toList((CompositeEvent) results.get(0)),
                    is(Arrays.asList(1, 1)));
-        assertThat(EventConversions.toList(results.get(1)),
+        assertThat(EventConversions.toList((CompositeEvent) results.get(1)),
                    is(Arrays.asList(2, 1)));
-        assertThat(EventConversions.toList(results.get(2))
+        assertThat(EventConversions.toList((CompositeEvent) results.get(2))
                 , is(Arrays.asList(2, 2)));
 
         stateSteps.startCheck(EventState.COMPLETE, EventState.READY);
@@ -90,11 +91,11 @@ public class ListSourceTest {
         stateSteps.checkNow();
 
         assertThat(results.size(), is(3));
-        assertThat(EventConversions.toList(results.get(0)),
+        assertThat(EventConversions.toList((CompositeEvent) results.get(0)),
                    is(Arrays.asList(1, 1)));
-        assertThat(EventConversions.toList(results.get(1)),
+        assertThat(EventConversions.toList((CompositeEvent) results.get(1)),
                    is(Arrays.asList(2, 1)));
-        assertThat(EventConversions.toList(results.get(2)),
+        assertThat(EventConversions.toList((CompositeEvent) results.get(2)),
                    is(Arrays.asList(2, 2)));
     }
 

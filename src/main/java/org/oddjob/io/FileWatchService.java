@@ -1,5 +1,6 @@
 package org.oddjob.io;
 
+import org.oddjob.events.EventOf;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
@@ -24,11 +25,8 @@ import java.util.function.Consumer;
  * Consumers will receive creation and modification events on a different thread to the initial event if the
  * file exists.
  *
- *
  * @author rob
- *
  * @see FileWatchEventSource
- *
  */
 public class FileWatchService implements FileWatch {
 
@@ -70,18 +68,18 @@ public class FileWatchService implements FileWatch {
     }
 
     @Override
-    public Restore subscribe(Path path, Consumer<? super Path> consumer) {
+    public Restore subscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
 
         Map<Path, FileSystemSubscriber> subscribers = Optional.ofNullable(this.subscribers)
                 .orElseThrow(() -> new IllegalStateException("Not Started"));
 
         Path dir = path.getParent();
         subscribers.computeIfAbsent(dir,
-                d -> new FileSystemSubscriber(d)).subscribe(path, consumer);
+                FileSystemSubscriber::new).subscribe(path, consumer);
         return () -> unsubscribe(path, consumer);
     }
 
-    void unsubscribe(Path path, Consumer<? super Path> consumer) {
+    void unsubscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
         Path dir = path.getParent();
         subscribers.computeIfPresent(dir,
                 (key, sub) -> {
@@ -89,8 +87,7 @@ public class FileWatchService implements FileWatch {
                     if (sub.consumers.isEmpty()) {
                         sub.restore.close();
                         return null;
-                    }
-                    else {
+                    } else {
                         return sub;
                     }
                 });
@@ -98,7 +95,8 @@ public class FileWatchService implements FileWatch {
 
     class FileSystemSubscriber {
 
-        private final Map<Path, List<Consumer<? super Path>>> consumers = new ConcurrentHashMap<>();
+        private final Map<Path, List<Consumer<? super EventOf<Path>>>> consumers =
+                new ConcurrentHashMap<>();
 
         private final Restore restore;
 
@@ -107,27 +105,27 @@ public class FileWatchService implements FileWatch {
             PathWatchEvents watch = new PathWatchEvents();
             watch.setDir(dir);
             watch.setKinds(kinds);
+
             try {
-                restore = watch.doStart( path -> {
-                    Optional.ofNullable(consumers.get(path))
-                            .ifPresent( list -> list.forEach(c -> c.accept( path )));
-                });
+                restore = watch.doStart(eventOf ->
+                        Optional.ofNullable(consumers.get(eventOf.getOf()))
+                                .ifPresent(list -> list.forEach(c -> c.accept(eventOf))));
             } catch (IOException e) {
                 throw new IllegalArgumentException(e);
             }
         }
 
-        void subscribe(Path path, Consumer<? super Path> consumer) {
+        void subscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
 
             consumers.computeIfAbsent(path,
                     key -> new CopyOnWriteArrayList<>()).add(consumer);
 
             if (Files.exists(path)) {
-                consumer.accept(path);
+                consumer.accept(EventOf.of(path, PathWatchEvents.lastModifiedOf(path)));
             }
         }
 
-        void unsubscribe(Path path ,Consumer<? super Path> consumer) {
+        void unsubscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
 
             Optional.ofNullable(consumers.get(path)).ifPresent(list -> list.remove(consumer));
             consumers.computeIfPresent(path,
@@ -145,7 +143,7 @@ public class FileWatchService implements FileWatch {
 
     public int getNumberOfConsumers() {
         return Optional.ofNullable(subscribers)
-                .map( s -> s.values().stream().mapToInt(FileSystemSubscriber::getNumberOfConsumers).sum())
+                .map(s -> s.values().stream().mapToInt(FileSystemSubscriber::getNumberOfConsumers).sum())
                 .orElse(0);
     }
 

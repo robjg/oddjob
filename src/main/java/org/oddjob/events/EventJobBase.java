@@ -46,7 +46,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	/** The scheduler to schedule on. */
 	private volatile transient ExecutorService executorService;
 
-	private volatile Object current;
+	private volatile EventOf<T> current;
 
 	private volatile transient Restore restore;
 	
@@ -120,7 +120,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 			}
 		};
 		
-		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
+		final AtomicReference<Consumer<? super EventOf<T>>> consumer = new AtomicReference<>();
 		consumer.set(
 				event -> {
 					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
@@ -157,14 +157,14 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 			
 		};
 		
-		onSubscriptonStarted(job, executor);		
+		onSubscriptionStarted(job, executor);
 	}
 
-	abstract void onImmediateEvent(T event);
+	abstract void onImmediateEvent(EventOf<T> event);
 
-	abstract void onSubscriptonStarted(Object job, Executor executor);
+	abstract void onSubscriptionStarted(Object job, Executor executor);
 	
-	abstract void onLaterEvent(T event, Object job, Executor executor);
+	abstract void onLaterEvent(EventOf<T> event, Object job, Executor executor);
 
 	
 	@Override
@@ -179,11 +179,11 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		super.startChildStateReflector();
 	}
 					
-	protected void setCurrent(Object current) {
+	protected void setCurrent(EventOf<T> current) {
 		this.current = current;
 	}
 	
-	public Object getCurrent() {
+	public EventOf<T> getCurrent() {
 		return current;
 	}
 	

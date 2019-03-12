@@ -17,7 +17,7 @@ public interface CompositeEvent<T> extends EventOf<T> {
      *
      * @return The event.
      */
-    EventOf<T> getEvents(int index);
+    EventOf<? extends T> getEvents(int index);
 
     /**
      * Get the number of events that have been combined.
@@ -30,7 +30,7 @@ public interface CompositeEvent<T> extends EventOf<T> {
      * Return the combined events as a stream.
      * @return
      */
-    Stream<EventOf<T>> stream();
+    Stream<EventOf<? extends T>> stream();
 
     /**
      * Create a new instance from these events.

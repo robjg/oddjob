@@ -55,7 +55,7 @@ import org.oddjob.util.Restore;
  * @oddjob.description 
  * 
  */
-public class ForEvents<T> extends EventSourceBase<CompositeEvent<T>>
+public class ForEvents<T> extends EventSourceBase<T>
 implements Structural, ConfigurationOwner {
 
     /** Root element for configuration. */
@@ -326,7 +326,7 @@ implements Structural, ConfigurationOwner {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Restore doStart(Consumer<? super CompositeEvent<T>> consumer) throws Exception {
+	public Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 

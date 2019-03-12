@@ -23,17 +23,17 @@ import java.util.function.Consumer;
  * 
  * @author Rob Gordon
  */
-public class ListSource<E> extends EventSourceBase<CompositeEvent<E>>
+public class ListSource<T> extends EventSourceBase<T>
 implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
 
 	/** Track changes to children an notify listeners. */
-	protected transient volatile ChildHelper<EventSource< E > > childHelper;
+	protected transient volatile ChildHelper<EventSource< T > > childHelper;
 
-	private volatile EventOperator<E> eventOperator;
+	private volatile EventOperator<T> eventOperator;
 
-    private volatile CompositeEvent<E> last;
+    private volatile CompositeEvent<T> last;
 
 	/**
 	 * Constructor.
@@ -47,12 +47,12 @@ implements Serializable, Structural {
 	}
 
     @Override
-    protected Restore doStart(Consumer<? super CompositeEvent<E>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception {
 
-        EventOperator<E> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
+        EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
-        List<EventSource<E>> children = new ArrayList<>();
-        for (EventSource<E> child : this.childHelper) {
+        List<EventSource<T>> children = new ArrayList<>();
+        for (EventSource<T> child : this.childHelper) {
             children.add(child);
         }
 
@@ -99,19 +99,19 @@ implements Serializable, Structural {
 	}
 
 	@ArooaComponent
-	public void setChild(int index, EventSource< E > child) {
+	public void setChild(int index, EventSource<T> child) {
 	    childHelper.insertOrRemoveChild(index, child);
     }
 
-    public EventOperator<E> getEventOperator() {
+    public EventOperator<T> getEventOperator() {
         return eventOperator;
     }
 
-    public void setEventOperator(EventOperator<E> eventOperator) {
+    public void setEventOperator(EventOperator<T> eventOperator) {
         this.eventOperator = eventOperator;
     }
 
-    public CompositeEvent<E> getLast() {
+    public CompositeEvent<T> getLast() {
 	    return last;
     }
 

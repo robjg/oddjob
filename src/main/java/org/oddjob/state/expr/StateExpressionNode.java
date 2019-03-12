@@ -18,7 +18,7 @@ import org.oddjob.util.Restore;
  * @author rob
  *
  */
-public class StateExpressionNode extends EventSourceBase<EventOf<Boolean>> {
+public class StateExpressionNode extends EventSourceBase<Boolean> {
 
 	private String expression;
 

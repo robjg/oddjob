@@ -12,20 +12,20 @@ import java.util.stream.Stream;
  */
 public class CompositeEventList<T> implements CompositeEvent<T> {
 
-    private final List<EventOf<T>> events;
+    private final List<EventOf<? extends T>> events;
 
-    private final EventOf<T> last;
+    private final EventOf<? extends T> last;
 
-    public CompositeEventList(EventOf<T>... events) {
+    public CompositeEventList(EventOf<? extends T>... events) {
         this(Arrays.asList(events));
     }
 
-    CompositeEventList(List<EventOf<T>> events) {
+    CompositeEventList(List<EventOf<? extends T>> events) {
         this.events = events;
         this.last = findLast(events);
     }
 
-    private static <T> EventOf<T> findLast(Collection<EventOf<T>> events) {
+    private static <T> EventOf<? extends T> findLast(Collection<EventOf<? extends T>> events) {
         return events.stream()
                      .max(Comparator.comparing(e -> e.getTime()))
                      .orElse(null);
@@ -42,7 +42,7 @@ public class CompositeEventList<T> implements CompositeEvent<T> {
     }
 
     @Override
-    public EventOf<T> getEvents(int index) {
+    public EventOf<? extends T> getEvents(int index) {
         return events.get(index);
     }
 
@@ -62,7 +62,7 @@ public class CompositeEventList<T> implements CompositeEvent<T> {
     }
 
     @Override
-    public Stream<EventOf<T>> stream() {
+    public Stream<EventOf<? extends T>> stream() {
         return events.stream();
     }
 

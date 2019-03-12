@@ -34,14 +34,15 @@ public class WhenTest {
 	
 	private static class OurSubscribeable extends EventSourceBase<Integer> {
 
-		final List<Integer> ints = Arrays.asList(1, 2, 3);
+		final List<EventOf<Integer>> ints = Arrays.asList(
+				EventOf.of(1), EventOf.of(2), EventOf.of(3));
 		
 		final AtomicInteger index = new AtomicInteger();
 		
-		volatile Consumer<? super Integer> consumer;
+		volatile Consumer<? super EventOf<Integer>> consumer;
 		
 		@Override
-		protected Restore doStart(Consumer<? super Integer> consumer) {
+		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
 			this.consumer = consumer;
 			return () -> this.consumer = null;
 		}
@@ -49,8 +50,8 @@ public class WhenTest {
 		void next() {
 			consumer.accept(ints.get(index.getAndIncrement()));
 		}
-	}; 
-	
+	}
+
 	@Test
 	public void testStartedThenEventThenJobExecutedThenStop() throws FailedToStopException {
 		
@@ -65,13 +66,13 @@ public class WhenTest {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		When<Number> test = new When<Number>(); 
+		When<Number> test = new When<>();
 
-		List<Object> results = new ArrayList<>();
+		List<EventOf<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
-			protected int execute() throws Throwable {
+			protected int execute() {
 				results.add(test.getCurrent());
 				return 0;
 			}
@@ -123,9 +124,9 @@ public class WhenTest {
 		
 		states.checkNow();
 
-		assertThat(results.get(0), is(1));
-		assertThat(results.get(1), is(2));
-		assertThat(results.get(2), is(3));
+		assertThat(results.get(0).getOf(), is(1));
+		assertThat(results.get(1).getOf(), is(2));
+		assertThat(results.get(2).getOf(), is(3));
 		
 		verify(future, times(0)).cancel(true);
 	}
@@ -137,11 +138,11 @@ public class WhenTest {
 		
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		When<Number> test = new When<Number>(); 
+		When<Number> test = new When<>();
 
 		SimpleJob job = new SimpleJob() {
 
-			protected int execute() throws Throwable {
+			protected int execute() {
 				throw new RuntimeException("Unexpected");
 			}
 		};
@@ -173,7 +174,7 @@ public class WhenTest {
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		When<Number> test = new When<Number>(); 
+		When<Number> test = new When<>();
 
 		test.setJobs(0, subscribe);
 		test.setExecutorService(executorService);
@@ -192,7 +193,7 @@ public class WhenTest {
 		subscribeStates.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 		subscribe.next();
 		
-		assertThat(test.getCurrent(), is(1));
+		assertThat(test.getCurrent().getOf(), is(1));
 		
 		subscribeStates.checkNow();
 		testStates.checkNow();
@@ -201,14 +202,14 @@ public class WhenTest {
 
 		subscribe.next();
 
-		assertThat(test.getCurrent(), is(2));
+		assertThat(test.getCurrent().getOf(), is(2));
 
 		testStates.checkNow();
 		testStates.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
 
 		subscribe.next();
 
-		assertThat(test.getCurrent(), is(3));
+		assertThat(test.getCurrent().getOf(), is(3));
 
 		testStates.checkNow();
 

@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+import java.awt.*;
 import java.time.Instant;
 
 /**
@@ -23,4 +24,14 @@ public interface EventOf<T> {
      * @return The time.
      */
     Instant getTime();
+
+
+    static <T> EventOf<T> of(T item, Instant time) {
+        return new WrapperOf<>(item, time);
+    }
+
+    static <T> EventOf<T> of(T item) {
+        return new WrapperOf<>(item, Instant.now());
+    }
+
 }

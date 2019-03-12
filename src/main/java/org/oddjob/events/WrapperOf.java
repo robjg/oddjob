@@ -15,11 +15,11 @@ public class WrapperOf<T> implements EventOf<T> {
 
     private final Instant time;
 
-    WrapperOf(T event, Date date) {
+    public WrapperOf(T event, Date date) {
         this(event, date.toInstant());
     }
 
-    WrapperOf(T event, Instant time) {
+    public WrapperOf(T event, Instant time) {
         this.event = event;
         this.time = time;
     }

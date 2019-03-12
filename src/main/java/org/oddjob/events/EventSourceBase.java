@@ -61,7 +61,7 @@ implements EventSource<T>, Resetable {
 	}
 	
 	@Override
-	public final Restore start(Consumer<? super T> consumer) throws Exception {
+	public final Restore start(Consumer<? super EventOf<T>> consumer) throws Exception {
 		Objects.requireNonNull(consumer);
 				
 		if (!stateHandler().waitToWhen(new IsExecutable(), 
@@ -70,7 +70,7 @@ implements EventSource<T>, Resetable {
 		}
 
 		final Semaphore barrier = new Semaphore(1);
-		Consumer<T> consumerWrapper = value ->  {
+		Consumer<EventOf<T>> consumerWrapper = value ->  {
 			try (Restore ignored = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 				barrier.acquire();
 				stateHandler().waitToWhen(s -> true, 
@@ -136,7 +136,7 @@ implements EventSource<T>, Resetable {
 				() -> getStateChanger().setStateException(e));					
 	}
 	
-	protected abstract Restore doStart(Consumer<? super T> consumer) throws Exception;
+	protected abstract Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception;
 
     @Override
     public boolean softReset() {

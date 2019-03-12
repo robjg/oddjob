@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -57,22 +58,23 @@ public class TriggerTest extends OjTestCase {
 		
 		final AtomicInteger index = new AtomicInteger();
 		
-		volatile Consumer<? super Integer> consumer;
+		volatile Consumer<? super EventOf<Integer>> consumer;
 		
 		@Override
-		protected Restore doStart(Consumer<? super Integer> consumer) {
+		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
 			this.consumer = consumer;
 			return () -> this.consumer = null;
 		}
 		
 		void next() {
 			Objects.requireNonNull(consumer);
-			consumer.accept(ints.get(index.getAndIncrement()));
+			consumer.accept(new WrapperOf<>(ints.get(index.getAndIncrement()),
+					Instant.now()));
 		}
-	}; 
-	
+	}
+
 	@Test
-	public void testStartJobExecutedStop() throws FailedToStopException {
+	public void testStartJobExecutedStop() {
 		
 		OurSubscribeable subscribe = new OurSubscribeable();
 				
@@ -85,13 +87,13 @@ public class TriggerTest extends OjTestCase {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		Trigger<Number> test = new Trigger<Number>(); 
+		Trigger<Number> test = new Trigger<>();
 
-		List<Object> results = new ArrayList<>();
+		List<EventOf<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
-			protected int execute() throws Throwable {
+			protected int execute() {
 				results.add(test.getCurrent());
 				return 0;
 			}
@@ -123,7 +125,7 @@ public class TriggerTest extends OjTestCase {
 
 		assertThat(subscribe.consumer, nullValue());
 
-		assertThat(results.get(0), is(1));
+		assertThat(results.get(0).getOf(), is(1));
 		assertThat(results.size(), is(1));
 		
 		verify(future, times(0)).cancel(true);
@@ -136,11 +138,11 @@ public class TriggerTest extends OjTestCase {
 		
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		Trigger<Number> test = new Trigger<Number>(); 
+		Trigger<Number> test = new Trigger<>();
 
 		SimpleJob job = new SimpleJob() {
 
-			protected int execute() throws Throwable {
+			protected int execute() {
 				throw new RuntimeException("Unexpected");
 			}
 		};
@@ -173,7 +175,7 @@ public class TriggerTest extends OjTestCase {
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		Trigger<Number> test = new Trigger<Number>(); 
+		Trigger<Number> test = new Trigger<>();
 
 		test.setJobs(0, subscribe);
 		test.setExecutorService(executorService);
@@ -194,7 +196,7 @@ public class TriggerTest extends OjTestCase {
 		
 		subscribe.next();
 		
-		assertThat(test.getCurrent(), is(1));
+		assertThat(test.getCurrent().getOf(), is(1));
 		
 		subscribeStates.checkNow();
 		testStates.checkNow();
@@ -213,16 +215,15 @@ public class TriggerTest extends OjTestCase {
 	private static class SendWhenConnecting extends EventSourceBase<Integer> {
 		
 		@Override
-		protected Restore doStart(Consumer<? super Integer> consumer) {
-			consumer.accept(42);;
+		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+			consumer.accept(new WrapperOf<>(42, Instant.now()));
 			return () -> {};
 		}
 		
-	}; 
-	
+	}
 
 	@Test
-	public void testJobExecutedQuickly() throws FailedToStopException {
+	public void testJobExecutedQuickly() {
 		
 		ExecutorService executorService = mock(ExecutorService.class);
 		
@@ -232,13 +233,13 @@ public class TriggerTest extends OjTestCase {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		Trigger<Number> test = new Trigger<Number>(); 
+		Trigger<Number> test = new Trigger<>();
 
-		List<Object> results = new ArrayList<>();
+		List<EventOf<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
-			protected int execute() throws Throwable {
+			protected int execute() {
 				results.add(test.getCurrent());
 				return 0;
 			}
@@ -264,7 +265,7 @@ public class TriggerTest extends OjTestCase {
 
 		states.checkNow();
 
-		assertThat(results.get(0), is(42));
+		assertThat(results.get(0).getOf(), is(42));
 		assertThat(results.size(), is(1));
 		
 		verify(future, times(0)).cancel(true);

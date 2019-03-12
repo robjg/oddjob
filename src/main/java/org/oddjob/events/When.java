@@ -27,25 +27,25 @@ public class When<T> extends EventJobBase<T> {
 	
 	private static final long serialVersionUID = 2018060600L; 
 
-	private final AtomicReference<T> eventRef = new AtomicReference<>();
+	private final AtomicReference<EventOf<T>> eventRef = new AtomicReference<>();
 
 	@Override
-	void onImmediateEvent(T event) {
+	void onImmediateEvent(EventOf<T> event) {
 		eventRef.set(event);
 	}
 	
 	@Override
-	synchronized void onSubscriptonStarted(Object job, Executor executor) {
+	synchronized void onSubscriptionStarted(Object job, Executor executor) {
 		Optional.ofNullable(eventRef.getAndSet(null)).ifPresent(
 				e -> trigger(e, job, executor));
 	}
 	
 	@Override
-	synchronized void onLaterEvent(T event, Object job, Executor executor) {
+	synchronized void onLaterEvent(EventOf<T> event, Object job, Executor executor) {
 		trigger(event, job, executor);
 	}
 	
-	void trigger(T event, Object job, Executor executor) {
+	void trigger(EventOf<T> event, Object job, Executor executor) {
 
 		if (job != null) {
 			if (job instanceof Stoppable) {

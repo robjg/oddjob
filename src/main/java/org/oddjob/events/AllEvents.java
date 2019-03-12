@@ -16,7 +16,7 @@ public class AllEvents<T> extends EventOperatorBase<T>{
 	public AllEvents() {
 
 	    super(eventsArray -> {
-            for (Optional<EventOf<T>> value : eventsArray) {
+            for (Optional<? extends EventOf<? extends T>> value : eventsArray) {
                 if (!value.isPresent()) {
                     return false;
                 }

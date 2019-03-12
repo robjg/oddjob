@@ -15,14 +15,14 @@ public class SubscribeNodeBaseTest {
 
 	private class OurSubscriber extends EventSourceBase<Integer> {
 		
-		private Consumer<? super Integer> consumer;
+		private Consumer<? super EventOf<Integer>> consumer;
 		
 		void publish(Integer i) {
-			consumer.accept(i);
+			consumer.accept(EventOf.of(i));
 		}
 		
 		@Override
-		protected Restore doStart(Consumer<? super Integer> consumer) {
+		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
 
 			this.consumer = consumer;
 			return () -> this.consumer = null;
@@ -34,7 +34,7 @@ public class SubscribeNodeBaseTest {
 	public void testStatesStartPublishStop() throws Exception {
 		
 		
-		Consumer<Number> consumer = v -> {};
+		Consumer<EventOf<Integer>> consumer = v -> {};
 		
 		OurSubscriber test = new OurSubscriber();
 		
@@ -69,13 +69,13 @@ public class SubscribeNodeBaseTest {
 	public void testStatesPublishStop() throws Exception {
 		
 		
-		Consumer<Number> consumer = v -> {};
+		Consumer<EventOf<Integer>> consumer = v -> {};
 		
 		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super Integer> consumer) {
-				consumer.accept(2);
+			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+				consumer.accept(EventOf.of(2));
 				return () -> {};
 			}
 		};
@@ -98,12 +98,12 @@ public class SubscribeNodeBaseTest {
 	public void testStatesStop() throws Exception {
 		
 		
-		Consumer<Number> consumer = v -> {};
+		Consumer<EventOf<Integer>> consumer = v -> {};
 		
 		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super Integer> consumer) {
+			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
 				return () -> {};
 			}
 		};
@@ -125,12 +125,12 @@ public class SubscribeNodeBaseTest {
 	@Test
 	public void testStatesStartException() throws Exception {
 				
-		Consumer<Number> consumer = v -> {};
+		Consumer<EventOf<Integer>> consumer = v -> {};
 		
 		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super Integer> consumer) {
+			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
 				throw new RuntimeException("Doh!");
 			}
 		};

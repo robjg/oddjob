@@ -2,6 +2,7 @@ package org.oddjob.events.example;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.events.EventOf;
 import org.oddjob.io.FileWatch;
 import org.oddjob.io.FileWatchService;
 import org.oddjob.util.Restore;
@@ -13,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.attribute.FileTime;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +56,7 @@ public class FileFactStore implements FactStore {
 
 
     @Override
-    public <T> Restore subscribe(String query, Consumer<? super T> consumer) throws ClassNotFoundException {
+    public <T> Restore subscribe(String query, Consumer<? super EventOf<T>> consumer) throws ClassNotFoundException {
         return Optional.ofNullable(service).orElseThrow(() -> new IllegalStateException("Not Started"))
                 .subscribe(query, consumer);
     }
@@ -65,7 +67,7 @@ public class FileFactStore implements FactStore {
 
         private final FileWatchService fileWatchService;
 
-        private Map<Consumer<?>, FileTime> lastModified = new ConcurrentHashMap<>();
+        private Map<Consumer<?>, Instant> lastModified = new ConcurrentHashMap<>();
 
         Service(Path rootDir) {
             this.rootDir = rootDir;
@@ -76,29 +78,23 @@ public class FileFactStore implements FactStore {
         }
 
         @Override
-        public <T> Restore subscribe(String query, Consumer<? super T> consumer) throws ClassNotFoundException {
+        public <T> Restore subscribe(String query, Consumer<? super EventOf<T>> consumer) throws ClassNotFoundException {
 
             Query parsedQuery = parseQuery(query);
 
             Path fullPath = buildFullPath(rootDir, parsedQuery);
 
-            logger.debug("Consumer " + consumer + " subscribing to " + fullPath);
+            logger.debug("Consumer [" + consumer + "] subscribing to " + fullPath);
 
             Restore fileWatchRestore = fileWatchService.subscribe(fullPath, p -> {
-                try {
-                    FileTime lastModified = Files.getLastModifiedTime(p);
-                    logger.debug("Received path {} with time {}", p, lastModified);
-                    if (lastModified.equals(this.lastModified.put(
-                            consumer, lastModified))) {
-                        logger.debug("Last modified the same. Ignoring");
-                        return;
-                    }
+                logger.debug("Received path {} with time {}", p.getOf(), p.getTime());
+                if (p.getTime().equals(this.lastModified.put(
+                        consumer, p.getTime()))) {
+                    logger.debug("Last modified the same. Ignoring");
+                    return;
                 }
-                catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                T t = (T) readFact(p, parsedQuery.type);
-                consumer.accept(t);
+                T t = (T) readFact(p.getOf(), parsedQuery.type);
+                consumer.accept(EventOf.of(t, p.getTime()));
             });
 
             return () -> {
@@ -123,8 +119,7 @@ public class FileFactStore implements FactStore {
         try {
             return mapper.readValue(path.toFile(),
                     clazz);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -175,7 +170,7 @@ public class FileFactStore implements FactStore {
 
     public int getNumberOfConsumers() {
         return Optional.ofNullable(service)
-                .map( Service::getNumberOfConsumers)
+                .map(Service::getNumberOfConsumers)
                 .orElse(0);
     }
 
