@@ -1,8 +1,5 @@
 <arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
     prefix="events" namespace="oddjob:events">
-    <conversions>
-        <value value='org.oddjob.events.EventConversions'/>
-    </conversions>
     <values>
         <arooa:bean-def element='all'
                         className='org.oddjob.events.AllEvents'/>

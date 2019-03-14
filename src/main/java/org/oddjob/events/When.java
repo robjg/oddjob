@@ -63,7 +63,7 @@ public class When<T> extends EventJobBase<T> {
 			}
 		}
 
-		setCurrent(event);
+		setTrigger(event);
 		
 		if (job != null) {
 			if (job != null && job instanceof Runnable) {

@@ -1,7 +1,6 @@
 package org.oddjob.events;
 
 import org.junit.Test;
-import org.oddjob.events.example.BookList;
 import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
@@ -12,7 +11,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 
 public class EventSourceBaseTest {
 
@@ -25,7 +24,7 @@ public class EventSourceBaseTest {
         private Consumer<? super EventOf<String>> consumer;
 
         @Override
-        protected Restore doStart(Consumer<? super EventOf<String>> consumer) throws Exception {
+        protected Restore doStart(Consumer<? super EventOf<String>> consumer) {
 
             Optional.ofNullable(initial).ifPresent(consumer);
             this.consumer = consumer;

@@ -28,6 +28,8 @@ public class EventConversionsTest {
         List<Integer> results = EventConversions.toList(compositeEvent);
 
         assertThat(results, is(Arrays.asList(1, 2, 3)));
+
+        assertThat(compositeEvent.getOfs(), is(results));
     }
 
     static class Instants {

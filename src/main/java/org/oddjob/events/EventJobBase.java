@@ -6,7 +6,6 @@ package org.oddjob.events;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -46,7 +45,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	/** The scheduler to schedule on. */
 	private volatile transient ExecutorService executorService;
 
-	private volatile EventOf<T> current;
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The trigger event.
+	 * @oddjob.required Read only.
+	 */
+	private volatile EventOf<T> trigger;
 
 	private volatile transient Restore restore;
 	
@@ -179,12 +183,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		super.startChildStateReflector();
 	}
 					
-	protected void setCurrent(EventOf<T> current) {
-		this.current = current;
+	protected void setTrigger(EventOf<T> trigger) {
+		this.trigger = trigger;
 	}
 	
-	public EventOf<T> getCurrent() {
-		return current;
+	public EventOf<T> getTrigger() {
+		return trigger;
 	}
 	
 	/**
@@ -209,40 +213,6 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		else {
 			childHelper.insertChild(index, child);
 		}
-	}
-	
-	protected static class ExecutionContext<T> {
-		
-		private final EventSource<T> eventSource;
-		
-		private final Optional<Object> job;
-		
-		private final ExecutorService executorService;
-		
-		protected ExecutionContext(EventSource<T> eventSource,
-									Object job,
-									ExecutorService executorService) {
-			Objects.requireNonNull(eventSource, "Ann Event Source must be provided.");
-			Objects.requireNonNull(executorService, "An Executor Service must be provided.");
-			
-			this.eventSource = eventSource;
-			this.job = Optional.ofNullable(job);
-			this.executorService = executorService;
-		}
-
-		public EventSource<T> getEventSource() {
-			return eventSource;
-		}
-
-		public Optional<Object> getJob() {
-			return job;
-		}
-
-		public ExecutorService getExecutorService() {
-			return executorService;
-		}
-
-		
 	}
 	
 	/*

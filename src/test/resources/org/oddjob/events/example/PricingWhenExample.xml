@@ -14,7 +14,7 @@
                         <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe to BookList" query="BookList:GREENGROCERS"/>
                         <foreach id="forEachBook" name="For Each Book">
                             <values>
-                                <value value="${whenBookList.current.of.books}"/>
+                                <value value="${whenBookList.trigger.of.books}"/>
                             </values>
                             <configuration>
                                 <xml>
@@ -36,17 +36,17 @@
                                                                     </xml>
                                                                 </configuration>
                                                                 <values>
-                                                                    <value value="${whenBook.current.of.trades}"/>
+                                                                    <value value="${whenBook.trigger.of.trades}"/>
                                                                 </values>
                                                             </events:for>
                                                             <sequential name="Run Calculation">
                                                                 <jobs>
                                                                     <bean class="org.oddjob.events.example.ValueCalculator" id="calculate">
                                                                         <trades>
-                                                                            <value value="${whenBook.current.of.trades}"/>
+                                                                            <value value="${whenBook.trigger.of.trades}"/>
                                                                         </trades>
                                                                         <prices>
-                                                                            <value value="${priceMatch.current}"/>
+                                                                            <value value="${priceMatch.trigger.ofs}"/>
                                                                         </prices>
                                                                     </bean>
                                                                     <echo><![CDATA[Value of ${bookName.current} is ${calculate.value}]]></echo>

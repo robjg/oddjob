@@ -1,6 +1,7 @@
 package org.oddjob.events;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -47,6 +48,10 @@ public class UnaryEvaluation<T> implements CompositeEvent<T> {
     @Override
     public int getCount() {
         return 1;
+    }
+
+    public List<T> getOfs() {
+        return EventConversions.toList(this);
     }
 
     @Override

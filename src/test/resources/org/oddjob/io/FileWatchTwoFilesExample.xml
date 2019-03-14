@@ -30,7 +30,7 @@
                                 </events:file-watch>
                             </child>
                         </events:list>
-                        <echo id="task"><![CDATA[${both-files.current}]]></echo>
+                        <echo id="task"><![CDATA[${both-files.trigger.ofs}]]></echo>
                     </jobs>
                 </events:when>
                 <folder>

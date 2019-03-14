@@ -94,7 +94,7 @@ public class TriggerTest extends OjTestCase {
 		SimpleJob job = new SimpleJob() {
 
 			protected int execute() {
-				results.add(test.getCurrent());
+				results.add(test.getTrigger());
 				return 0;
 			}
 			
@@ -196,7 +196,7 @@ public class TriggerTest extends OjTestCase {
 		
 		subscribe.next();
 		
-		assertThat(test.getCurrent().getOf(), is(1));
+		assertThat(test.getTrigger().getOf(), is(1));
 		
 		subscribeStates.checkNow();
 		testStates.checkNow();
@@ -240,7 +240,7 @@ public class TriggerTest extends OjTestCase {
 		SimpleJob job = new SimpleJob() {
 
 			protected int execute() {
-				results.add(test.getCurrent());
+				results.add(test.getTrigger());
 				return 0;
 			}
 			

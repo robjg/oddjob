@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -25,6 +26,14 @@ public interface CompositeEvent<T> extends EventOf<T> {
      * @return The number of events.
      */
     int getCount();
+
+    /**
+     * Get all the ofs from all the events in this composite and
+     * it's children.
+     *
+     * @return A list of all the ofs.
+     */
+    List<T> getOfs();
 
     /**
      * Return the combined events as a stream.

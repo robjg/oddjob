@@ -61,6 +61,10 @@ public class CompositeEventList<T> implements CompositeEvent<T> {
         return events.size();
     }
 
+    public List<T> getOfs() {
+        return EventConversions.toList(this);
+    }
+
     @Override
     public Stream<EventOf<? extends T>> stream() {
         return events.stream();

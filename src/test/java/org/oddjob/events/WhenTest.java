@@ -73,7 +73,7 @@ public class WhenTest {
 		SimpleJob job = new SimpleJob() {
 
 			protected int execute() {
-				results.add(test.getCurrent());
+				results.add(test.getTrigger());
 				return 0;
 			}
 			
@@ -193,7 +193,7 @@ public class WhenTest {
 		subscribeStates.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 		subscribe.next();
 		
-		assertThat(test.getCurrent().getOf(), is(1));
+		assertThat(test.getTrigger().getOf(), is(1));
 		
 		subscribeStates.checkNow();
 		testStates.checkNow();
@@ -202,14 +202,14 @@ public class WhenTest {
 
 		subscribe.next();
 
-		assertThat(test.getCurrent().getOf(), is(2));
+		assertThat(test.getTrigger().getOf(), is(2));
 
 		testStates.checkNow();
 		testStates.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
 
 		subscribe.next();
 
-		assertThat(test.getCurrent().getOf(), is(3));
+		assertThat(test.getTrigger().getOf(), is(3));
 
 		testStates.checkNow();
 

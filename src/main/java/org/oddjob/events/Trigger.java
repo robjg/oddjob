@@ -59,7 +59,7 @@ public class Trigger<T> extends EventJobBase<T> {
 	private void trigger(EventOf<T> event, Object job, Executor executor) {
 		
 		onStop();
-		setCurrent(event);
+		setTrigger(event);
 		if (job != null) {
 			if (job instanceof Runnable) {
 				executor.execute((Runnable) job);

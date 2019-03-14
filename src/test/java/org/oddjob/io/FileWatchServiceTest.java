@@ -71,6 +71,11 @@ public class FileWatchServiceTest {
 
         oddjob.stop();
 
+        String text = lookup.lookup("task.text", String.class);
+
+        assertThat(text.contains("file1"), is(true));
+        assertThat(text.contains("file2"), is(true));
+
         assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
     }
 }
