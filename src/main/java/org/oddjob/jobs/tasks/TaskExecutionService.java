@@ -26,7 +26,7 @@ import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
-import org.oddjob.values.properties.PropertiesConfigurationSession;
+import org.oddjob.arooa.utils.PropertiesOverrideSession;
 
 /**
  * @oddjob.description Provide a very simple task execution service.
@@ -72,10 +72,10 @@ implements TaskExecutor, Structural {
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		super.setArooaSession(session);
-		if (! (session instanceof PropertiesConfigurationSession)) {
+		if (! (session instanceof PropertiesOverrideSession)) {
 			throw new IllegalStateException();
 		}
-		((PropertiesConfigurationSession) session).getPropertyManager(
+		((PropertiesOverrideSession) session).getPropertyManager(
 				).addPropertyOverride(new TaskPropertyLookup());
 	}
 	

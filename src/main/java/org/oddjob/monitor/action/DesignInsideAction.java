@@ -91,7 +91,7 @@ public class DesignInsideAction extends JobFormAction implements FormAction {
 						
 						parser = new DesignParser(session, configOwner.rootDesignFactory());
 						
-						parser.setExpectedDoucmentElement(configOwner.rootElement());
+						parser.setExpectedDocumentElement(configOwner.rootElement());
 						parser.setArooaType(ArooaType.COMPONENT);
 								
 						

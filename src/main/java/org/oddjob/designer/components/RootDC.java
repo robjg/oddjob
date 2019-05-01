@@ -1,10 +1,7 @@
 package org.oddjob.designer.components;
 
 import org.oddjob.Oddjob;
-import org.oddjob.arooa.design.DesignComponentBase;
-import org.oddjob.arooa.design.DesignInstance;
-import org.oddjob.arooa.design.DesignProperty;
-import org.oddjob.arooa.design.SimpleDesignProperty;
+import org.oddjob.arooa.design.*;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;

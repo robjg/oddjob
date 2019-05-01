@@ -17,7 +17,7 @@
                                 <value value="${whenBookList.trigger.of.books}"/>
                             </values>
                             <configuration>
-                                <xml>
+                                <inline>
                                     <foreach id="bookName">
                                         <job>
                                             <events:when id="whenBook" name="When ${bookName.current}">
@@ -27,13 +27,13 @@
                                                         <jobs>
                                                             <events:for name="For Each Trade">
                                                                 <configuration>
-                                                                    <xml>
+                                                                    <inline>
                                                                         <events id="trade">
                                                                             <job>
-                                                                                <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe to ${trade.current.product}" query="Price:${trade.current.product}"/>
+                                                                                <bean class="org.oddjob.events.example.FactSubscriber" factStore="${factStore}" name="Subscribe to Price for ${trade.current.product}" query="Price:${trade.current.product}"/>
                                                                             </job>
                                                                         </events>
-                                                                    </xml>
+                                                                    </inline>
                                                                 </configuration>
                                                                 <values>
                                                                     <value value="${whenBook.trigger.of.trades}"/>
@@ -58,7 +58,7 @@
                                             </events:when>
                                         </job>
                                     </foreach>
-                                </xml>
+                                </inline>
                             </configuration>
                         </foreach>
                     </jobs>

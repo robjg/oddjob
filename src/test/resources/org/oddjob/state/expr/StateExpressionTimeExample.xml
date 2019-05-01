@@ -13,7 +13,7 @@ job2 is COMPLETE]]></state:watch>
                                 <sequential>
                                     <jobs>
                                         <state:evaluate id="check-job3" name="Is Job 3 Complete"><![CDATA[job3 is complete]]></state:evaluate>
-                                        <check gt="${check-job3.evaluation.time}" value="${when.current.time}"/>
+                                        <check gt="${check-job3.evaluation.time}" value="${when.trigger.time}"/>
                                     </jobs>
                                 </sequential>
                                 <state:flag/>

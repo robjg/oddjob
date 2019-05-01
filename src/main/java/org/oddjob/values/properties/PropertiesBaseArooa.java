@@ -6,12 +6,13 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ConfiguredHow;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.deploy.NoAnnotations;
+import org.oddjob.arooa.utils.PropertiesOverrideSession;
 
 /**
  * Base class for the Arooa descriptor classes for {@link PropertiesJob}
  * and {@link PropertiesType}. These provide a {@link ParsingInterceptor}
  * that replaces the {@link ArooaSession} for the parsing of child elements
- * with a {@link PropertiesConfigurationSession}.
+ * with a {@link PropertiesOverrideSession}.
  * 
  * @see PropertiesJobArooa
  * @see PropertiesTypeArooa

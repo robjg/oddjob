@@ -4,6 +4,7 @@ import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.SessionOverrideContext;
+import org.oddjob.arooa.utils.PropertiesOverrideSession;
 
 /**
  * Provide a new property manager so that a component that uses this
@@ -19,7 +20,7 @@ public class PropertiesInterceptor implements ParsingInterceptor {
 			throws ArooaConfigurationException {
 		
 		return new SessionOverrideContext(suggestedContext, 
-				new PropertiesConfigurationSession(
+				new PropertiesOverrideSession(
 						suggestedContext.getSession()));
 	}
 }

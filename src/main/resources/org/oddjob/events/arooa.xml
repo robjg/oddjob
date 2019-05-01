@@ -14,7 +14,8 @@
         <arooa:bean-def element='list'
                         className='org.oddjob.events.ListSource'/>
         <arooa:bean-def element='for'
-                        className='org.oddjob.events.ForEvents'/>
+                        className='org.oddjob.events.ForEvents'
+                        designFactory='org.oddjob.events.ForEventsDesignFactory'/>
         <arooa:bean-def element='trigger'
                         className='org.oddjob.events.Trigger'/>
         <arooa:bean-def element='when'

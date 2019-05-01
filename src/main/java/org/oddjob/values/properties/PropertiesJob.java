@@ -16,6 +16,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertySource;
+import org.oddjob.arooa.utils.PropertiesOverrideSession;
 
 /**
  * @oddjob.description Creates properties that can used to configure 
@@ -143,7 +144,7 @@ implements Describeable {
 
 		delegate.setArooaContext(context);
 		
-		session = ((PropertiesConfigurationSession) 
+		session = ((PropertiesOverrideSession)
 				context.getSession()).getOriginal(); 
 	}
 
