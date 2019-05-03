@@ -18,6 +18,8 @@ Changes in 1.6.0
 - Improved component registration so duplicate ids are renamed and these are reflected in
   their xml. For example copying something with an id of 'foo' will result in a new component
   with an id of 'foo2'.
+- Added a new Inline type that allows configuration to be added inline with a Designer Form. Useful
+  for foreach jobs.
 
 Still Todo
 ----------
@@ -32,8 +34,6 @@ Still Todo
 Deferred to A Later Version
 ---------------------------
 - Add Parent Started State to User Guide. Document thread, and services.
-- Find cut and paste bug where the old version of a job with an id is left 
-  in the ComponentPool.
 - PropertiesJob after deserialisation is wrong. The properties recovered
   from the stream are override properties and aren't removed on reset. Also
   describeable doesn't work.
