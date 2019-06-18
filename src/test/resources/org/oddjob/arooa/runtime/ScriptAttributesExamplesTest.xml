@@ -1,0 +1,8 @@
+<oddjob>
+    <job>
+        <bean id="aBean"
+              class="org.oddjob.arooa.runtime.ScriptAttributeExamplesTest$SomeBean"
+              out="#{aBean.get('list').stream().limit(3).collect(java.util.stream.Collectors.toList())}">
+        </bean>
+    </job>
+</oddjob>
