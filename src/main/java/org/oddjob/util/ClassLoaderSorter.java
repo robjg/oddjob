@@ -25,12 +25,15 @@ public class ClassLoaderSorter {
 	 */
 	public ClassLoader getTopLoader(Class<?>[] forClasses) {
 		
-		ClassLoader topLoader = ClassLoader.getSystemClassLoader();
+		ClassLoader topLoader = null;
 		for (Class<?> cl : forClasses) {
 			for (ClassLoader checkLoader = cl.getClassLoader();
-				checkLoader != null; checkLoader = checkLoader.getParent()) {
+				true; checkLoader = checkLoader.getParent()) {
 				if (checkLoader == topLoader) {
 					topLoader = cl.getClassLoader();
+					break;
+				}
+				if (checkLoader == null) {
 					break;
 				}
 			}
