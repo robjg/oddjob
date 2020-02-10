@@ -1,5 +1,5 @@
 /*
- * Copyright © 2004, Rob Gordon.
+ * Copyright (c) 2004, Rob Gordon.
  */
 package org.oddjob.persist;
 
