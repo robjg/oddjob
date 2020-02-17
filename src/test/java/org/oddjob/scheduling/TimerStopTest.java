@@ -5,10 +5,12 @@ import org.junit.Test;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.oddjob.OjTestCase;
 
@@ -94,9 +96,12 @@ public class TimerStopTest extends OjTestCase {
 	implements Stoppable {
 		
 		final Exchanger<Void> running = new Exchanger<Void>();
-		
+
+		final AtomicReference<Thread> threadRef = new AtomicReference<>();
+
 		@Override
 		protected int execute() throws Throwable {
+			threadRef.set(Thread.currentThread());
 			running.exchange(null);
 			synchronized (this) {
 				try {
@@ -112,9 +117,10 @@ public class TimerStopTest extends OjTestCase {
 
 		@Override
 		protected void onStop() {
-			synchronized (this) {
-				notifyAll();
-			}
+			Optional.ofNullable(threadRef.get())
+					.orElseThrow(() -> new IllegalStateException(
+							"Should be impossible for thread not to have been set."))
+					.interrupt();
 		}
 	}	
 	

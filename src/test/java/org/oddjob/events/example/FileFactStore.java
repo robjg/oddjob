@@ -93,8 +93,9 @@ public class FileFactStore implements FactStore {
                     logger.debug("Last modified the same. Ignoring");
                     return;
                 }
-                T t = (T) readFact(p.getOf(), parsedQuery.type);
-                consumer.accept(EventOf.of(t, p.getTime()));
+                T fact = (T) readFact(p.getOf(), parsedQuery.type);
+                Optional.ofNullable(fact)
+                        .ifPresent(f -> consumer.accept(EventOf.of(f, p.getTime())));
             });
 
             return () -> {
@@ -116,11 +117,26 @@ public class FileFactStore implements FactStore {
 
         ObjectMapper mapper = new ObjectMapper();
 
-        try {
-            return mapper.readValue(path.toFile(),
-                    clazz);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        while (true) {
+            try {
+                return mapper.readValue(path.toFile(),
+                        clazz);
+            } catch (IOException e) {
+                if (e.getMessage().contains(
+                        "cannot access the file because it is being used by another process")) {
+                    logger.warn("{} being used by another process, retrying...", path);
+                    try {
+                        Thread.sleep(100L);
+                    }
+                    catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                else {
+                    logger.error("Failed reading " + path, e);
+                }
+                throw new RuntimeException(e);
+            }
         }
     }
 
