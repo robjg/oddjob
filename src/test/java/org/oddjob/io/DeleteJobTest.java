@@ -20,6 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+
 public class DeleteJobTest extends OjTestCase {
     private static final Logger logger = LoggerFactory.getLogger(DeleteJobTest.class);
 
@@ -60,7 +63,7 @@ public class DeleteJobTest extends OjTestCase {
 
         assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
 
-        assertEquals(false, found[0].exists());
+        assertFalse(found[0].exists());
     }
 
     @Test
@@ -80,7 +83,7 @@ public class DeleteJobTest extends OjTestCase {
                 "org/oddjob/io/DeleteFilesExample.xml",
                 getClass().getClassLoader()));
 
-        oddjob.setArgs(new String[]{workDir.getPath().toString()});
+        oddjob.setArgs(new String[]{workDir.getPath()});
         oddjob.run();
 
         assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
@@ -201,7 +204,7 @@ public class DeleteJobTest extends OjTestCase {
         test.setFiles(new File[]{workDir});
 
         Callable<Integer> copy =
-                (Callable<Integer>) OddjobTestHelper.copy(test);
+                OddjobTestHelper.copy(test);
         copy.call();
 
         assertFalse(workDir.exists());
@@ -210,12 +213,12 @@ public class DeleteJobTest extends OjTestCase {
     @Test
     public void testReallyRoot() throws IOException, InterruptedException {
 
-        File file = new File("/");
+        final File file = new File("/");
 
         // This is a really dangerous test so lets make sure wherever it's
         // being run File behaves as expected.
-        assertEquals(true, file.getCanonicalFile().isAbsolute());
-        assertEquals(null, file.getCanonicalFile().getParentFile());
+        assertTrue(file.getCanonicalFile().isAbsolute());
+        assertNull(file.getCanonicalFile().getParentFile());
 
         DeleteJob test = new DeleteJob();
         test.setFiles(new File[]{file});
@@ -234,10 +237,10 @@ public class DeleteJobTest extends OjTestCase {
 
         File[] rootFiles = FilesUtil.expand(new File("/*"));
 
-        file = rootFiles[0];
-        test.setFiles(new File[]{file});
+        final File aRootFile = rootFiles[0];
+        test.setFiles(new File[]{aRootFile});
 
-        assertEquals(null, file.getParentFile().getParentFile());
+        assertNull(aRootFile.getParentFile().getParentFile());
 
         try {
             test.call();
@@ -251,8 +254,12 @@ public class DeleteJobTest extends OjTestCase {
 
         test.reset();
 
-        file = new File("/a/../" + file.getName());
-        test.setFiles(new File[]{file});
+        File aRootPath = new File("/a/../" + aRootFile.getName());
+        test.setFiles(new File[] { aRootPath });
+
+        assertThat(aRootPath.getCanonicalFile(), is(aRootFile));
+        assertThat(aRootPath.getCanonicalFile().getParentFile().getParentFile(),
+                nullValue());
 
         try {
             test.call();

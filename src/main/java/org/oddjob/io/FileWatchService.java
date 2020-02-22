@@ -49,6 +49,11 @@ public class FileWatchService implements FileWatch {
      */
     private volatile Map<Path, FileSystemSubscriber> subscribers;
 
+    /**
+     * Provide a filter on the directory to simplify event.
+     */
+    private String filter;
+
     public void start() {
         if (subscribers != null) {
             throw new IllegalStateException("Already Started");
@@ -93,6 +98,14 @@ public class FileWatchService implements FileWatch {
                 });
     }
 
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public String getFilter() {
+        return filter;
+    }
+
     class FileSystemSubscriber {
 
         private final Map<Path, List<Consumer<? super EventOf<Path>>>> consumers =
@@ -105,6 +118,7 @@ public class FileWatchService implements FileWatch {
             PathWatchEvents watch = new PathWatchEvents();
             watch.setDir(dir);
             watch.setKinds(kinds);
+            watch.setFilter(filter);
 
             try {
                 restore = watch.doStart(eventOf ->

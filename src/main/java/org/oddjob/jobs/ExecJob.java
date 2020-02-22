@@ -15,6 +15,7 @@ import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.types.MapType;
 import org.oddjob.arooa.utils.ArooaTokenizer;
 import org.oddjob.arooa.utils.QuoteTokenizerFactory;
 import org.oddjob.framework.extend.SerializableJob;
@@ -25,8 +26,6 @@ import org.oddjob.logging.LoggingOutputStream;
 import org.oddjob.logging.cache.LogArchiveImpl;
 import org.oddjob.util.IO;
 import org.oddjob.util.OddjobConfigException;
-
-import com.sun.prism.PhongMaterial.MapType;
 
 /**
  * @oddjob.description Execute an external program. This job will
@@ -104,7 +103,7 @@ implements Stoppable, ConsoleOwner {
 	private void completeConstruction() {
 		consoleArchive = new LogArchiveImpl(
 				uniqueConsoleId(), LogArchiver.MAX_HISTORY);
-		this.environment = new HashMap<String, String>();
+		this.environment = new HashMap<>();
 	}
 	
     /**
@@ -139,7 +138,7 @@ implements Stoppable, ConsoleOwner {
 	 * @oddjob.property environment
 	 * @oddjob.description An environment variable to be
 	 * set before the program is executed. This is a 
-	 * {@link MapType} like property. 
+	 * {@link MapType} like property.
 	 * @oddjob.required No.
 	 */
 	private Map<String, String> environment;
@@ -190,7 +189,7 @@ implements Stoppable, ConsoleOwner {
 	/**
 	 * Add an argument.
 	 * 
-	 * @param arg The argument.
+	 * @param args The arguments.
 	 */
 	public void setArgs(String[] args) {
 		this.args = args;	
@@ -240,8 +239,9 @@ implements Stoppable, ConsoleOwner {
 	
 	/**
 	 * Add an environment variable.
-	 * 
-	 * @param nvp The name/value pair variable.
+	 *
+	 * @param name The of the environment variable.
+	 * @param value The value of the environment variable.
 	 */
 	public void setEnvironment(String name, String value) {
 		if (value == null) {

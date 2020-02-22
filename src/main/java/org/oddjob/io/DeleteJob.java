@@ -125,49 +125,48 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 		File[] toDelete = files;
 		
 		try {
-			for (int i = 0; i < toDelete.length; ++i) {
-				
+			for (File file : toDelete) {
+
 				if (Thread.interrupted()) {
 					throw new InterruptedException("Delete interrupted.");
 				}
-				
-				File fileToDelete = toDelete[i];
-				
-				if (!fileToDelete.exists()) {
-					
-					logger.debug("Ignoring " + fileToDelete + 
-							", it does not exist.");
-					continue;
-				}
-				
-				deleteFile(fileToDelete);
+
+				deleteFile(file);
 			}
 		}
 		finally {
 			logCounts();
 		}
 		
-		return new Integer(0);
+		return 0;
 	}
 	
 
 	protected void deleteFile(File fileToDelete) throws IOException {
-		
+
+		File canonicalFile = fileToDelete.getCanonicalFile();
 		try {
-			if (isRoot(fileToDelete) && !reallyRoot) {
+			if (isRoot(canonicalFile) && !reallyRoot) {
 				throw new IllegalStateException(
 						"You can not delete root (/*) files " +
 						"without setting the reallyRoot property to true.");
 			}
-			
-			boolean isDirectory = fileToDelete.isDirectory();
+
+			if (!fileToDelete.exists()) {
+
+				logger.debug("Ignoring " + fileToDelete +
+						", it does not exist.");
+				return;
+			}
+
+			boolean isDirectory = canonicalFile.isDirectory();
 			
 			if (force) {
-				FileUtils.forceDelete(fileToDelete);
+				FileUtils.forceDelete(canonicalFile);
 			}
 			else {
-				if (!fileToDelete.delete()) {
-					throw new IOException("Failed to delete " + fileToDelete);
+				if (!canonicalFile.delete()) {
+					throw new IOException("Failed to delete " + canonicalFile);
 				}
 			}
 			
@@ -179,7 +178,7 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 			}
 			
 			if (logEvery == 1) {
-				logger.info("Deleted " + fileToDelete);
+				logger.info("Deleted " + canonicalFile);
 			}
 			else {
 				if (logEvery > 0 && 
@@ -188,7 +187,7 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 				}
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("Deleted " + fileToDelete);
+					logger.debug("Deleted " + canonicalFile);
 				}
 			}
 		} 
@@ -206,10 +205,9 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 		}
 	}
 				
-	protected boolean isRoot(File fileToDelete) throws IOException {
-		File canonicalFile = fileToDelete.getCanonicalFile();
-		return canonicalFile.getParentFile() == null || 
-				canonicalFile.getParentFile().getParentFile() == null;
+	protected boolean isRoot(File fileToDelete) {
+		return fileToDelete.getParentFile() == null ||
+				fileToDelete.getParentFile().getParentFile() == null;
 	}
 	
 	/**
@@ -247,7 +245,9 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 			message.append("nothing");
 		}
 		if (errorCount > 0) {
-			message.append(" (" + errorCount + " error");
+			message.append(" (")
+					.append(errorCount)
+					.append(" error");
 			if (errorCount > 1) {
 				message.append("s");
 			}
@@ -296,7 +296,7 @@ public class DeleteJob implements Callable<Integer>, Serializable {
 	/**
 	 * Set the files.
 	 * 
-	 * @param The files.
+	 * @param files The files.
 	 */
 	public void setFiles(File[] files) {
 		this.files = files;

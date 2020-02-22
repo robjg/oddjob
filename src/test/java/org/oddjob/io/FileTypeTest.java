@@ -262,7 +262,7 @@ public class FileTypeTest extends OjTestCase {
 
         FileType test = new FileType();
 
-        test.setFile(new File("*"));
+        test.setFile(new File("\0"));
 
         try {
             test.toCanonicalFile();
