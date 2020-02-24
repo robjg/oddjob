@@ -42,7 +42,7 @@ public class FileTypeDFTest extends OjTestCase {
 	public void testCreate() throws ArooaParseException {
 		
 		String xml =  
-				"<file file='test/myFile.txt'/>";
+				"<file file='test/MyFile.txt'/>";
 	
     	ArooaDescriptor descriptor = 
     		new OddjobDescriptorFactory().createDescriptor(

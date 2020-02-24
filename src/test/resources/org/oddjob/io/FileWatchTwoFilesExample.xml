@@ -4,7 +4,7 @@
         <sequential>
             <jobs>
                 <mkdir dir="${some.dir}/etc" name="Create Test Dir"/>
-                <events:file-watch-service id="file-watch" xmlns:events="oddjob:events"/>
+                <events:file-watch-service id="file-watch" kinds="ENTRY_CREATE" xmlns:events="oddjob:events"/>
                 <events:when id="both-files" name="When Both Files" xmlns:events="oddjob:events">
                     <jobs>
                         <events:list>

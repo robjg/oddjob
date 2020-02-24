@@ -2,7 +2,6 @@ package org.oddjob.io;
 
 import org.oddjob.events.EventOf;
 import org.oddjob.events.EventSourceBase;
-import org.oddjob.events.WrapperOf;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,9 +57,9 @@ public class PathWatchEvents extends EventSourceBase<Path> {
                 .map(Pattern::asPredicate)
                 .orElse(ignore -> true);
 
-        final Consumer<EventOf<Path>> filterConsumer = p -> {
-            if (filter.test(p.getOf().getFileName().toString())) {
-                consumer.accept(p);
+        final Consumer<Path> filterConsumer = p -> {
+            if (filter.test(p.getFileName().toString())) {
+                consumer.accept(EventOf.of(p, lastModifiedOf(p)));
             }
         };
 
@@ -99,8 +98,7 @@ public class PathWatchEvents extends EventSourceBase<Path> {
                     logger.debug("WatchEvent: {}, Path={} (count {})",
                             event.kind(), event.context(), event.count());
                     Path found = path.resolve(ev.context());
-                    filterConsumer.accept(
-                            EventOf.of(found, lastModifiedOf(found)));
+                    filterConsumer.accept(found);
                 }
 
                 // Reset the key -- this step is critical if you want to
@@ -119,8 +117,6 @@ public class PathWatchEvents extends EventSourceBase<Path> {
             try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(dir)) {
 
                 StreamSupport.stream(directoryStream.spliterator(), false)
-                        .map( p -> new WrapperOf<>(
-                                p, lastModifiedOf(p)))
                         .forEach(filterConsumer);
             }
         }
