@@ -57,10 +57,18 @@ public class ProxyGenerator<T> {
     	
     	DefaultInvocationHandler handler = new DefaultInvocationHandler();
     	
-    	Object proxy = 
-        		Proxy.newProxyInstance(classLoader,
-        			interfaceArray,
-        			handler);
+    	Object proxy;
+		try {
+			// Very difficult to debug errors when this fails
+			proxy = Proxy.newProxyInstance(classLoader,
+					interfaceArray,
+					handler);
+		}
+		catch (RuntimeException e) {
+			throw new IllegalArgumentException("Failed creating proxy for [" +
+					wrapped + "] for interfaces " + Arrays.toString(interfaceArray) +
+					" with classloader " + classLoader, e);
+		}
 
     	ComponentWrapper wrapper = wrapperFactory.wrapperFor(wrapped, proxy);
     	
