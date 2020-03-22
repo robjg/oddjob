@@ -3,8 +3,7 @@
 
 	<configurations>
         <conf name="default" visibility="public"></conf>
-        <conf name="launch" visibility="public"></conf>
-        <conf name="provided" extends="launch" visibility="public"></conf>
+        <conf name="provided" extends="default" visibility="public"></conf>
         <conf name="test" extends="default,provided" visibility="public"></conf>
         <conf name="antlr" visibility="public"></conf>
 	</configurations>  
@@ -16,9 +15,6 @@
 	<dependencies>
 	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
 	    	conf="default->default" />
-
-        <dependency org="uk.co.rgordon" name="run-oddjob" rev="latest.integration"
-            conf="launch->default"/>
 
 		<dependency org="commons-io" name="commons-io" rev="${commons-io.version}"
 			conf="default->default" />
@@ -37,6 +33,10 @@
             
         <dependency org="org.antlr" name="antlr4-runtime" rev="${antlr.version}"
             conf="default->default"/>
+            
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind" rev="${jackson.version}"
+			conf="test->default"/>           
+            
 	</dependencies>
   
 </ivy-module>

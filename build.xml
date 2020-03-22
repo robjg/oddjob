@@ -47,19 +47,15 @@
 		<property name="nowarn"         value="on"/>
 		<!-- <property name="build.compiler" value="classic"/> -->
 
-		<property name="oddjob.package"  value="org/oddjob"/>
-		<property name="src.dir"      value="./src"/>
- 		<property name="test.dir"     value="./test"/>
-        <property name="main.java.dir"        value="${src.dir}/main/java"/>
-        <property name="main.resources.dir"   value="${src.dir}/main/resources"/>
-        <property name="test.java.dir"        value="${src.dir}/test/java"/>
-        <property name="test.resources.dir"   value="${src.dir}/test/resources"/>
-		<property name="work.dir"     value="./work"/>
-		<property name="lib.dir"      value="./lib"/>
-		<property name="bin.dir"      value="./bin"/>
-		<property name="opt.dir"      value="./opt"/>
-		<property name="opt.lib"      value="${opt.dir}/lib"/>
-		<property name="packages"     value="org.oddjob"/>
+		<property name="oddjob.package"  		value="org/oddjob"/>
+		<property name="src.dir"      			value="./src"/>
+ 		<property name="test.dir"     			value="./test"/>
+        <property name="main.java.dir"        	value="${src.dir}/main/java"/>
+        <property name="main.resources.dir"   	value="${src.dir}/main/resources"/>
+        <property name="test.java.dir"        	value="${src.dir}/test/java"/>
+        <property name="test.resources.dir"   	value="${src.dir}/test/resources"/>
+		<property name="bin.dir"      			value="${src.dir}/main/bin"/>
+		<property name="packages"     			value="org.oddjob"/>
 		
 		<property name="build.dir"      		value="./build"/>
 		<property name="build.src"      		value="${build.dir}/src"/>
@@ -67,6 +63,11 @@
 		<property name="build.test"      		value="${build.dir}/test"/>
 		<property name="build.test.classes"     value="${build.test}/classes"/>
 		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
+
+		<property name="work.dir"     value="${build.dir}/work"/>
+		<property name="lib.dir"      value="${build.dir}"/>
+		<property name="opt.dir"      value="${build.dir}/opt"/>
+		<property name="opt.lib"      value="${opt.dir}/lib"/>
 
 		<property name="test.reports" value="${build.test}/reports"/>
 			
@@ -97,13 +98,11 @@
 	<!-- =================================================================== -->
 	<target name="prepare" depends="init">
 
+		<mkdir dir="${build.dir}"/>
+
         <ivy:settings file="../oj-assembly/ivysettings.xml"/>
 
 		<ivy:resolve/> 
-		
-		<ivy:retrieve conf="default"/>
-		        
-		<ivy:retrieve pattern="[artifact].[ext]" conf="launch"/>
 		
 		<ivy:resolve conf="test"/>
 		
@@ -114,13 +113,6 @@
         <ivy:cachepath pathid="antlr-classpath" conf="antlr" />
 
 		<path id="classpath">
-			<fileset dir="${lib.dir}">
-				<include name="*.jar"/>
-				<exclude name="${name}*.jar"/>
-			</fileset>
-			<fileset dir="${opt.lib}">
-				<include name="*.jar"/>
-			</fileset>
             <path refid="provided-cachepath"/>
 		</path>
 		
@@ -128,9 +120,6 @@
 			<path refid="test-cachepath"/>
 			<pathelement path="${build.classes}" />
 		</path>
-		
-		
-		<mkdir dir="${build.dir}"/>
 
 	</target>
 
@@ -141,7 +130,9 @@
 	<target name="prepare-src-main" depends="prepare">
 
 		<mkdir dir="${build.src}"/>
+		<mkdir dir="${generated.src.dir}"/>
 		<mkdir dir="${build.classes}"/>
+		
 		<copy todir="${build.src}" filtering="on">
 			<fileset dir="${main.java.dir}"/>
 		</copy>
@@ -154,7 +145,7 @@
 			<arg value="${generated.src.dir}/org/oddjob/state/antlr"/>
 			<arg value="-package"/>
 			<arg value="org.oddjob.state.antlr"/>
-			<arg value="${antlr.src.dir}/StateCondition.g4"/>
+			<arg value="${antlr.src.dir}/org/oddjob/state/antlr/StateCondition.g4"/>
 		</java>
 		
         <copy todir="${build.src}">

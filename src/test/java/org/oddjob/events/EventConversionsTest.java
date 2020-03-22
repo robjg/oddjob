@@ -18,7 +18,7 @@ public class EventConversionsTest {
         Instants instants = new Instants();
 
         CompositeEvent<Integer> compositeEvent =
-                new CompositeEventList<>(
+                new CompositeEventList<Integer>(
                         new WrapperOf<>(1, instants.next()),
                         new CompositeEventList<>(
                                 new WrapperOf<>(2, instants.next()),
