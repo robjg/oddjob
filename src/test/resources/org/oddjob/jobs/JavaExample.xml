@@ -1,0 +1,17 @@
+<oddjob>
+    <job>
+        <java id="javaExample"
+              name="Java Example"
+              className="org.oddjob.jobs.HelloMain"
+              programArgs="Alice Bob"
+              vmArgs="-Dour.greeting=Hello">
+          <classPath>
+              <list>
+                  <values>
+                      <value value="${classPath}"/>
+                  </values>
+              </list>
+          </classPath>
+        </java>
+    </job>
+</oddjob>
