@@ -581,12 +581,12 @@ public class PropertiesJobTest extends OjTestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		Describeable test= lookup.lookup("set-system-properties", Describeable.class);
+		Describable test= lookup.lookup("set-system-properties", Describable.class);
 		Map<String, String> testDescription = test.describe();
 		
 		assertEquals("apple", testDescription.get("oddjob.test.favourite.snack"));
 		
-		Describeable allProps = lookup.lookup("all-properties", Describeable.class);
+		Describable allProps = lookup.lookup("all-properties", Describable.class);
 		Map<String, String> description = allProps.describe();
 		
 		assertEquals("apple [SYSTEM]", description.get("oddjob.test.favourite.snack"));

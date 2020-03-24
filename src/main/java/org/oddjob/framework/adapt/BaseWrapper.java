@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Reserved;
 import org.oddjob.Resetable;
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract public class BaseWrapper extends BaseComponent 
 implements Runnable, Stateful, Resetable, DynaBean, Stoppable, 
-		LogEnabled, Describeable {
+		LogEnabled, Describable {
     
     private transient Logger theLogger;
     

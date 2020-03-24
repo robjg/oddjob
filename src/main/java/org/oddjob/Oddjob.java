@@ -7,20 +7,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import javax.inject.Inject;
 
-import org.oddjob.arooa.ArooaAnnotations;
-import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.ConfiguredHow;
-import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.ArooaDescriptorBean;
@@ -51,6 +43,9 @@ import org.oddjob.arooa.types.ValueType;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.describe.Describer;
+import org.oddjob.describe.NoDescribe;
+import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.designer.components.RootDC;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.ComponentBoundary;
@@ -224,7 +219,8 @@ import org.oddjob.values.properties.PropertiesType;
 public class Oddjob extends StructuralJob<Object>
 implements Loadable, 
 		ConfigurationOwner,
-		BeanDirectoryOwner {
+		BeanDirectoryOwner,
+		Describer {
 	
     private static final long serialVersionUID = 2010051200L;
 	
@@ -888,12 +884,18 @@ implements Loadable,
 	 */
 	@Override
 	public BeanDirectory provideBeanDirectory() {
-		if (ourSession == null) {
-			return null;
-		}
-		return ourSession.getBeanRegistry();
+		return Optional.ofNullable(ourSession)
+				.map(ArooaSession::getBeanRegistry)
+				.orElse(null);
 	}
-	
+
+	@Override
+	public Map<String, String> describe(Object bean) {
+		return Optional.ofNullable(ourSession)
+				.map(s -> new UniversalDescriber(ourSession).describe(bean))
+				.orElse(null);
+	}
+
 	/**
 	 * Getter for last reset.
 	 * 

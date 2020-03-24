@@ -8,7 +8,7 @@ import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.ReflectionException;
 
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.describe.Describer;
 import org.oddjob.describe.UniversalDescriber;
@@ -29,12 +29,12 @@ import org.oddjob.jmx.server.ServerSideToolkit;
  * @author Rob Gordon.
  */
 public class DescribeableHandlerFactory 
-implements ServerInterfaceHandlerFactory<Object, Describeable> {
+implements ServerInterfaceHandlerFactory<Object, Describable> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
 	private static final JMXOperation<Map<String, String>> DESCRIBE = 
-		new JMXOperationFactory(Describeable.class
+		new JMXOperationFactory(Describable.class
 				).operationFor("describe", 
 			"Describe properties.",
 			MBeanOperationInfo.INFO);
@@ -63,9 +63,9 @@ implements ServerInterfaceHandlerFactory<Object, Describeable> {
 				ojmb.getServerSession().getArooaSession());
 	}
 
-	public ClientHandlerResolver<Describeable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<Describeable>(
-				Describeable.class.getName());
+	public ClientHandlerResolver<Describable> clientHandlerFactory() {
+		return new VanillaHandlerResolver<Describable>(
+				Describable.class.getName());
 	}
 	
 	class ServerDescribeableHandler implements ServerInterfaceHandler {

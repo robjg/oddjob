@@ -13,7 +13,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -52,7 +52,7 @@ public class SilhouetteFactory {
 				
 		List<Class<?>> interfaces = new ArrayList<Class<?>>();
 		
-		interfaces.add(Describeable.class);
+		interfaces.add(Describable.class);
 		
 		StateEvent lastJobStateEvent = null;
 		
@@ -126,7 +126,7 @@ public class SilhouetteFactory {
  *
  */
 class Silhouette implements InvocationHandler, Serializable,
-		Describeable, Structural, Stateful, Iconic {
+        Describable, Structural, Stateful, Iconic {
 	private static final long serialVersionUID = 201004092014050800L;
 	
 	private final Map<String, String> description;

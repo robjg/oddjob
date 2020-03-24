@@ -25,7 +25,7 @@ import javax.swing.ImageIcon;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class SimpleMBeanNode implements 
-		MBeanNode, Describeable, LogEnabled, Iconic {
+		MBeanNode, Describable, LogEnabled, Iconic {
 
 	/** For logger names. */
 	private static final AtomicInteger instanceCount = new AtomicInteger();

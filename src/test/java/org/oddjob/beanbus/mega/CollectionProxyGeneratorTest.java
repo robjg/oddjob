@@ -10,7 +10,7 @@ import java.util.Map;
 import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
@@ -102,9 +102,9 @@ public class CollectionProxyGeneratorTest extends OjTestCase {
    @Test
 	public void testDescribeable() {
 				
-		assertTrue(proxy instanceof Describeable);
+		assertTrue(proxy instanceof Describable);
 		
-		Map<String, String> description = ((Describeable) proxy).describe();
+		Map<String, String> description = ((Describable) proxy).describe();
 		
 		assertNotNull(description);
 

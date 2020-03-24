@@ -10,7 +10,7 @@ import org.oddjob.OjTestCase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
@@ -82,7 +82,7 @@ public class SilhouetteFactoryTest extends OjTestCase {
 		Object silhouette = OddjobTestHelper.copy(
 				new SilhouetteFactory().create(echo, session));
 		
-		assertTrue(silhouette instanceof Describeable);
+		assertTrue(silhouette instanceof Describable);
 		assertFalse(silhouette instanceof Stateful);
 		assertFalse(silhouette instanceof Structural);
 		assertFalse(silhouette instanceof Iconic);

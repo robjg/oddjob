@@ -12,7 +12,7 @@ import org.oddjob.OjTestCase;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resetable;
@@ -66,7 +66,7 @@ public class PropertiesEnvironmentTest extends OjTestCase {
 		Object test = lookup.lookup("props");
 		
 		Map<String, String> description = 
-				((Describeable) test).describe();
+				((Describable) test).describe();
 		
 		assertTrue(description.size() > 0);
 		

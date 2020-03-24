@@ -8,7 +8,7 @@ import java.util.Map;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OjTestCase;
@@ -190,7 +190,7 @@ public class ServiceWrapperTest extends OjTestCase {
     	assertEquals(new Boolean(true), 
     			PropertyUtils.getProperty(test, "stopped"));
 
-    	Map<String, String> description = ((Describeable) test).describe();
+    	Map<String, String> description = ((Describable) test).describe();
     	assertEquals("true", description.get("started"));
     	assertEquals("true", description.get("stopped"));
     	

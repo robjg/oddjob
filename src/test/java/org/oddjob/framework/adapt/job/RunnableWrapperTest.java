@@ -11,7 +11,7 @@ import java.util.concurrent.CountDownLatch;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Test;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
 import org.oddjob.Oddjob;
@@ -352,7 +352,7 @@ public class RunnableWrapperTest extends OjTestCase {
     	assertEquals(Boolean.class, ran.getClass());
     	assertEquals(new Boolean(true), ran);
     	
-    	Map<String, String> description = ((Describeable) r).describe();
+    	Map<String, String> description = ((Describable) r).describe();
     	assertEquals("true", description.get("ran"));
     	
     	oddjob.destroy();

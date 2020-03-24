@@ -12,7 +12,7 @@ import javax.swing.ImageIcon;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Iconic;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ArooaLifeAware;
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CollectionWrapper<E>
 implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart, 
-		LogEnabled, Describeable, Iconic, ArooaLifeAware, Collection<E> {
+		LogEnabled, Describable, Iconic, ArooaLifeAware, Collection<E> {
 	
 	public static final String INACTIVE = "inactive";
 	

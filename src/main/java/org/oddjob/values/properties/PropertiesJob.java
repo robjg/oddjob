@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -102,7 +102,7 @@ import org.oddjob.arooa.utils.PropertiesOverrideSession;
  * {@oddjob.xml.resource org/oddjob/values/properties/PropertiesJobEnvironment.xml}
  */
 public class PropertiesJob extends PropertiesJobBase
-implements Describeable {
+implements Describable {
 	private static final long serialVersionUID = 2014092400L;
 		
 	/** Delegate to properties base for implementation. (Because we

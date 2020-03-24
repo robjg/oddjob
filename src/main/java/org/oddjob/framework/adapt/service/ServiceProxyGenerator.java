@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.Describeable;
+import org.oddjob.Describable;
 import org.oddjob.Forceable;
 import org.oddjob.Iconic;
 import org.oddjob.Resetable;
@@ -55,7 +55,7 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 				interfaces.add(Runnable.class);
 				interfaces.add(LogEnabled.class);
 				interfaces.add(Transient.class);
-				interfaces.add(Describeable.class);
+				interfaces.add(Describable.class);
 				
 				return (Class[]) interfaces.toArray(
 						new Class[interfaces.size()]);		
