@@ -1,11 +1,8 @@
 /build
 /classes
 /explorer
-/work
-/run-oddjob.jar
-/.settings
-/target/
+/target
 *.iml
 /.classpath
 /.project
-/.settings/
+/.settings

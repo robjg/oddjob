@@ -15,7 +15,7 @@
 	
 	<taskdef resource="org/apache/ivy/ant/antlib.xml"
 	                 uri="antlib:org.apache.ivy.ant" 
-		classpath="../oj-assembly/antlibs/ivy-2.4.0.jar"/>
+		classpath="../oj-assembly/antlibs/ivy-2.5.0.jar"/>
 	
 	<!-- =================================================================== -->
 	<!-- Initialization target                                               -->
@@ -50,18 +50,17 @@
 		<property name="oddjob.package"  		value="org/oddjob"/>
 		<property name="src.dir"      			value="./src"/>
  		<property name="test.dir"     			value="./test"/>
-        <property name="main.java.dir"        	value="${src.dir}/main/java"/>
-        <property name="main.resources.dir"   	value="${src.dir}/main/resources"/>
-        <property name="test.java.dir"        	value="${src.dir}/test/java"/>
-        <property name="test.resources.dir"   	value="${src.dir}/test/resources"/>
-		<property name="bin.dir"      			value="${src.dir}/main/bin"/>
+        <property name="main.java"        		value="${src.dir}/main/java"/>
+        <property name="main.resource"   		value="${src.dir}/main/resources"/>
+        <property name="test.java"        		value="${src.dir}/test/java"/>
+        <property name="test.resources"   		value="${src.dir}/test/resources"/>
 		<property name="packages"     			value="org.oddjob"/>
 		
 		<property name="build.dir"      		value="./build"/>
 		<property name="build.src"      		value="${build.dir}/src"/>
 		<property name="build.classes"     		value="${build.dir}/classes"/>
 		<property name="build.test"      		value="${build.dir}/test"/>
-		<property name="build.test.classes"     value="${build.test}/classes"/>
+		<property name="build.tests"     value="${build.dir}/test-classes"/>
 		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
 
 		<property name="work.dir"     value="${build.dir}/work"/>
@@ -69,10 +68,9 @@
 		<property name="opt.dir"      value="${build.dir}/opt"/>
 		<property name="opt.lib"      value="${opt.dir}/lib"/>
 
-		<property name="test.reports" value="${build.test}/reports"/>
+		<property name="test.reports" value="${build.dir}/test-reports"/>
 			
 		<property name="jar.name"       	value="${name}-${build.version}.jar"/>
-		<property name="launch.jar.name"    value="run-${name}.jar"/>
 		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
 		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
 		
@@ -102,10 +100,6 @@
 
         <ivy:settings file="../oj-assembly/ivysettings.xml"/>
 
-		<ivy:resolve/> 
-		
-		<ivy:resolve conf="test"/>
-		
         <ivy:cachepath pathid="provided-cachepath" conf="provided" />
 
 		<ivy:cachepath pathid="test-cachepath" conf="test" />
@@ -134,12 +128,9 @@
 		<mkdir dir="${build.classes}"/>
 		
 		<copy todir="${build.src}" filtering="on">
-			<fileset dir="${main.java.dir}"/>
+			<fileset dir="${main.java}"/>
 		</copy>
-		<copy todir="${build.src}" filtering="off">
-			<fileset dir="${main.resources.dir}"/>
-		</copy>
-		
+
 		<java classname="org.antlr.v4.Tool" classpathref="antlr-classpath" fork="true">
 			<arg value="-o"/>
 			<arg value="${generated.src.dir}/org/oddjob/state/antlr"/>
@@ -168,7 +159,7 @@
           description="Compiles the source code">
 
         <copy todir="${build.classes}">
-            <fileset dir="${main.resources.dir}"/>
+            <fileset dir="${main.resource}"/>
         </copy>
 
 		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
@@ -191,7 +182,10 @@
 
 	    <jar destfile="${lib.dir}/${jar.name}"
 	         basedir="${build.classes}">
-	      <metainf dir="${build.dir}" includes="LICENSE.txt"/>
+			<metainf dir=".">
+				<include name="LICENSE.txt"/>
+				<include name="NOTICE.txt"/>
+			</metainf>
 	    </jar>
 		
 	</target>
@@ -285,35 +279,13 @@
 
 		<property name="to.dir" value="${dist.src.dir}/${name}"/>
 		
-		<mkdir dir="${to.dir}/bin"/>
-		<mkdir dir="${to.dir}/lib"/>
-		<mkdir dir="${to.dir}/opt"/>
 		<mkdir dir="${to.dir}/src"/>
 		<mkdir dir="${to.dir}/test"/>
 
-		<copy todir="${to.dir}/bin">
-			<fileset dir="${bin.dir}"/>
-		</copy>
-			
-        <copy todir="${to.dir}/lib">
-            <fileset dir="${lib.dir}">
-                <exclude name="*.jar" />
-            </fileset>
-        </copy>
-		
 		<copy todir="${to.dir}/test">
-			<fileset dir="${test.dir}">
-				<exclude name="persist/**"/>
-				<exclude name="**/lib/arooa-test.jar"/>
-				<exclude name="**/lib/junit.jar"/>
-				<exclude name="**/lib/xmlunit-*.jar"/>
-			</fileset>
+			<fileset dir="${test.dir}"/>
 		</copy>
 
-		<copy todir="${to.dir}/opt">
-			<fileset dir="${opt.dir}"/>
-		</copy>
-				
 		<copy todir="${to.dir}/src" filtering="off">
 			<fileset dir="${src.dir}"/>
 		</copy>
@@ -327,9 +299,10 @@
 				<include name="client.xml"/>
                 <include name="build.xml"/>
                 <include name="ivy.xml"/>
-                <include name="ivysettings.xml"/>
 				<include name="LICENSE.txt"/>
-				<include name="README.txt"/>
+				<include name="NOTICE.txt"/>
+				<include name="README.md"/>
+				<include name="pom.xml"/>
 			</fileset>
 		</copy>
 
@@ -341,48 +314,10 @@
 	<target name="dist-bin" depends="jar"
 			if="dist.bin.dir">
 
-        <property name="to.dir" value="${dist.bin.dir}"/>
-		
-		<mkdir dir="${to.dir}"/>
-		<mkdir dir="${to.dir}/bin"/>
-		<mkdir dir="${to.dir}/docs"/>
-		<mkdir dir="${to.dir}/docs/api"/>
-		<mkdir dir="${to.dir}/oddballs"/>
+		<!-- run-oddjob retrieves oddjob as its dependencies and copies it
+		     to the distribution dir. -->
 
-		<copy todir="${to.dir}/bin">
-			<fileset dir="${bin.dir}"/>
-		</copy>			
-
-		<copy todir="${to.dir}/lib">
-			<fileset dir="${lib.dir}"/>
-		</copy>
-
-		<copy todir="${to.dir}/opt/lib">
-			<fileset dir="${opt.lib}">
-				<include name="*.license" />
-				<include name="*.jar"/>
-			</fileset>
-		</copy>
-		
-		<copy toDir="${to.dir}/opt/classes">
-			<fileset dir="${opt.dir}/classes">
-			</fileset>
-		</copy>
-
-		<copy file="${launch.jar.name}"
-	    	tofile="${to.dir}/${launch.jar.name}"/>
-		
-		<copy todir="${to.dir}">
-			<fileset dir=".">
-				<include name="oddjob.xml"/>
-				<include name="explorer.xml"/>
-				<include name="server.xml"/>
-				<include name="server-jobs.xml"/>
-				<include name="client.xml"/>
-				<include name="LICENSE.txt"/>
-				<include name="README.txt"/>
-			</fileset>
-		</copy>
+		<echo message="Nothing to do."/>
 
 	</target>
 
@@ -391,17 +326,16 @@
 	<!-- =================================================================== -->
 	
 	<target name="compile-tests" depends="compile" description="Compile jUnit tests">
-		<mkdir dir="${build.test}"/>
 
-		<copy todir="${build.test.classes}" filtering="off">
-			<fileset dir="${test.resources.dir}"/>
+		<copy todir="${build.tests}" filtering="off">
+			<fileset dir="${test.resources}"/>
 		</copy>
 		
         <echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
 
 		<!-- Compile tests -->
-		<javac source="1.8" target="1.8" srcdir="${test.java.dir}"
-            destdir="${build.test.classes}"
+		<javac source="1.8" target="1.8" srcdir="${test.java}"
+            destdir="${build.tests}"
             debug="${debug}"
             optimize="${optimize}"
             deprecation="${deprecation}">
@@ -422,11 +356,11 @@
 				failureproperty="junit.failure"
 				fork="yes" forkmode="once" maxmemory="2G">
 			<classpath>
-				<pathelement location="${build.test.classes}" />
+				<pathelement location="${build.tests}" />
 			</classpath>
 			<classpath refid="test-classpath"/>
 			<batchtest todir="${test.reports}">
-				<fileset dir="${build.test.classes}">
+				<fileset dir="${build.tests}">
 					<include name="**/test/*TestCase.class"/>
 					<include name="**/*Test.class" />
 					<exclude name="**/AllTest.class" />
@@ -454,7 +388,7 @@
 			
 		<junit printsummary="yes" haltonfailure="yes" fork="yes">
 			<classpath>
-				<pathelement location="${build.test.classes}" />
+				<pathelement location="${build.tests}" />
 			</classpath>
             <classpath>
                 <pathelement location="${java.home}/../lib/tools.jar"/>
@@ -559,12 +493,6 @@
 	<!-- =================================================================== -->
 	
 	<target name="clean" depends="init" description="Cleans the build directories">
-		<delete file="${launch.jar.name}"/>
-		<delete>
-			<fileset dir="${lib.dir}">
-				<include name="*.jar"/>
-			</fileset>
-		</delete>
 		<delete dir="${build.dir}"/>
 		<delete file="${test.dir}/classloader/AJob.class"/>
 		<delete dir="${test.dir}/oddballs/apple/classes"/>
