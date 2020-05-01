@@ -14,13 +14,13 @@ public interface OddballFactory {
 	/**
 	 * Create an Oddball.
 	 * 
-	 * @param file A File that a paticular factory may or
+	 * @param file A File that a particular factory may or
 	 * may not be able to use.
 	 * @param parentLoader
 	 * 
 	 * @return An Oddball or null if the file can't be used by 
 	 * the implementing factory.
 	 */
-	public Oddball createFrom(File file, ClassLoader parentLoader);
+	Oddball createFrom(File file, ClassLoader parentLoader);
 	
 }

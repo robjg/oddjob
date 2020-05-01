@@ -11,20 +11,20 @@ import org.oddjob.arooa.ArooaDescriptor;
 public interface Oddball {
 
 	/**
-	 * The ClasLoader created to load classes in the
+	 * The Class Loader created to load classes in the
 	 * Oddball.
 	 * <p>
 	 * This isn't currently used by anything but it
 	 * seems like a nice to have.
 	 * 
-	 * @return
+	 * @return The class loader.
 	 */
-	public ClassLoader getClassLoader();
+	ClassLoader getClassLoader();
 
 	/**
 	 * The {@link ArooaDescriptor}.
 	 * 
-	 * @return The ArooaDescripor. Must not be null.
+	 * @return The ArooaDescriptor. Must not be null.
 	 */
-	public ArooaDescriptor getArooaDescriptor();
+	ArooaDescriptor getArooaDescriptor();
 }

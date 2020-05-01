@@ -255,18 +255,9 @@
 	<!-- Publish the jars in local ivy                                       -->
 	<!-- =================================================================== -->
 	<target name="install" depends="jar">
-		
-		<ivy:deliver pubrevision="${build.version}" 
-				deliverpattern="${build.dir}/ivy.xml"/>
-		
-		<ivy:publish resolver="local"
-			pubrevision="${build.version}" overwrite="true">
-			   <artifacts pattern="${build.dir}/ivy.xml" />
-		</ivy:publish>
-		
-		<ivy:publish resolver="local" conf="default" publishivy="false" 
-			pubrevision="${build.version}" overwrite="true">
-		   <artifacts pattern="${lib.dir}/[artifact]-[revision].[ext]" />
+
+		<ivy:publish resolver="local" pubrevision="${build.version}" overwrite="true">
+			<artifacts pattern="${build.dir}/[artifact]-[revision].[ext]" />
 		</ivy:publish>
 
 	</target>

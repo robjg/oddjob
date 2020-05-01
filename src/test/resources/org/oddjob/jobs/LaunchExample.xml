@@ -15,10 +15,10 @@
             <classLoader>
                 <url-class-loader noInherit="true">
                     <files>
-                        <files files="${this.args[0]}/lib/*.jar">
+                        <files files="${this.args[3]}/lib/*.jar">
                             <list>
-                                <file file="${this.args[0]}/classes"/>
-                                <file file="${this.args[0]}/opt/classes"/>
+                                <file file="${this.args[3]}/classes"/>
+                                <file file="${this.args[3]}/opt/classes"/>
                             </list>
                         </files>
                     </files>

@@ -48,6 +48,7 @@
                 <is element='invoke' className='org.oddjob.script.InvokeJob'
                     designFactory='org.oddjob.script.InvokeEitherDF'/>
                 <is element='java' className='org.oddjob.jobs.JavaJob'/>
+                <is element='launch' className='org.oddjob.jobs.LaunchJob'/>
                 <is element='oddjob' className='org.oddjob.Oddjob'
                     designFactory='org.oddjob.designer.components.OddjobDC'/>
                 <is element='parallel' className='org.oddjob.jobs.structural.ParallelJob'

@@ -1,14 +1,16 @@
 package org.oddjob.oddballs;
 
-import java.io.File;
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.deploy.ArooaDescriptorBean;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @oddjob.description Create Oddjob job definition descriptors from any 
@@ -119,15 +121,13 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 
 	public ArooaDescriptor createDescriptor(ClassLoader classLoader) {
 
-		if (files == null) {
-			throw new NullPointerException("No Oddball directories given.");
-		}
-		
-		OddballFactory oddballFactory = this.oddballFactory;
-		if (oddballFactory == null) {
-			oddballFactory = new DirectoryOddball();
-		}
-		
+		File[] files = Objects.requireNonNull(this.files,
+				"No Oddball directories given.");
+
+		OddballFactory oddballFactory =
+				Optional.ofNullable(this.oddballFactory)
+						.orElseGet(() -> new DirectoryOddball());
+
 		ListDescriptor descriptor = new ListDescriptor();
 		
 		for (File file : files) {

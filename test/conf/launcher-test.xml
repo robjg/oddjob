@@ -2,7 +2,7 @@
 	<job>
 		<echo><![CDATA[Launcher Worked]]>
 			<output>
-				<file file="${this.args[0]}/work/launcher.result"/>
+				<file file="${this.args[0]}/launcher.result"/>
 			</output>
 		</echo>
 	</job>

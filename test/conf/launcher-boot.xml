@@ -9,7 +9,7 @@
 					<values>
 						<value value='-f' />
 						<value value='${this.dir}/launcher-test.xml' />
-						<value value='${this.dir}/../..' />
+						<value value='${this.args[0]}' />
 					</values>
 				</list>
 			</args>

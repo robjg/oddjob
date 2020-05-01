@@ -13,13 +13,13 @@
 	</publications>  
 
 	<dependencies>
-	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
+	    <dependency org="uk.co.rgordon" name="arooa" rev="${project.version}"
 	    	conf="default->default" />
 
 		<dependency org="commons-io" name="commons-io" rev="${commons-io.version}"
 			conf="default->default" />
 			
-	    <dependency org="uk.co.rgordon" name="arooa" rev="latest.integration"
+	    <dependency org="uk.co.rgordon" name="arooa" rev="${project.version}"
 	    	conf="test->test" />
 	    	
 		<dependency org="org.hsqldb" name="hsqldb" rev="${hsql.version}"
