@@ -1,4 +1,5 @@
-<arooa:descriptors xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+<arooa:descriptors xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+                   xmlns:design="arooa:design">
     <descriptors>
         <bean class="org.oddjob.arooa.deploy.ArooaDescriptorDescriptorFactory"/>
         <arooa:descriptor>
@@ -78,7 +79,17 @@
                     designFactory='org.oddjob.designer.components.SequentialDC'/>
                 <is element='services' 
                     className='org.oddjob.framework.ServicesJob'/>
-                <is element='set' className='org.oddjob.values.SetJob'/>
+                <is element='set'
+                    className='org.oddjob.values.SetJob'>
+                    <design>
+                        <design:form>
+                            <formItems>
+                                <design:text property="name" title="Name"/>
+                                <design:indexed property="values" title="Values"/>
+                            </formItems>
+                        </design:form>
+                    </design>
+                </is>
                 <is element='sql' className='org.oddjob.sql.SQLJob'
                     designFactory='org.oddjob.designer.components.SqlDC'/>
                 <is element='sql-keeper-service' 

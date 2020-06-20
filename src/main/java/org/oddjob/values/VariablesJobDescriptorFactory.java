@@ -1,12 +1,6 @@
 package org.oddjob.values;
 
-import java.net.URI;
-
-import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ClassResolver;
-import org.oddjob.arooa.ElementMappings;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.beandocs.MappingsContents;
 import org.oddjob.arooa.beanutils.DynaArooaClass;
 import org.oddjob.arooa.convert.ConversionProvider;
@@ -15,12 +9,10 @@ import org.oddjob.arooa.deploy.MappingsSwitch;
 import org.oddjob.arooa.design.DesignFactory;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.reflect.ArooaClass;
-import org.oddjob.arooa.reflect.ArooaClassFactory;
-import org.oddjob.arooa.reflect.ArooaClasses;
-import org.oddjob.arooa.reflect.ArooaInstantiationException;
-import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.arooa.reflect.*;
 import org.oddjob.designer.components.VariablesDC;
+
+import java.net.URI;
 
 /**
  * A {@link ArooaDescriptorFactory} for {@link VariablesJob}. This is 
@@ -60,7 +52,17 @@ public class VariablesJobDescriptorFactory implements ArooaDescriptorFactory {
 			public String getPrefixFor(URI namespace) {
 				return null;
 			}
-			
+
+			@Override
+			public String[] getPrefixes() {
+				return new String[0];
+			}
+
+			@Override
+			public URI getUriFor(String prefix) {
+				return null;
+			}
+
 			@Override
 			public ElementMappings getElementMappings() {
 				return new MappingsSwitch( 
