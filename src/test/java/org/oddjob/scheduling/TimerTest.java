@@ -371,7 +371,7 @@ public class TimerTest extends OjTestCase {
         TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
 
         DateSchedule schedule = new DateSchedule();
-        schedule.setOn("2020-06-21");
+        schedule.setOn("2030-06-21");
         DailySchedule daily = new DailySchedule();
         daily.setAt("10:00");
         schedule.setRefinement(daily);
@@ -389,7 +389,7 @@ public class TimerTest extends OjTestCase {
 
         test.run();
 
-        assertEquals(DateHelper.parseDateTime("2020-06-21 02:00"),
+        assertEquals(DateHelper.parseDateTime("2030-06-21 02:00"),
                 test.getNextDue());
 
         TimeZone.setDefault(null);
