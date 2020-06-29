@@ -3,9 +3,9 @@
  */
 package org.oddjob.framework;
 
-import java.io.Serializable;
-
 import org.oddjob.jmx.ObjectNames;
+
+import java.io.Serializable;
 
 /**
  * A Transportable object is one which can be sent across the network and
@@ -23,5 +23,5 @@ public interface Transportable extends Serializable {
 	 * 
 	 * @return An object which is valid in the local environment.
 	 */
-	public Object importResolve(ObjectNames names);
+	Object importResolve(ObjectNames names);
 }

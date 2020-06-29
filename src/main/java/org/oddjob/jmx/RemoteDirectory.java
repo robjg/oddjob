@@ -17,6 +17,6 @@ public interface RemoteDirectory extends BeanDirectory {
 	 * 
 	 * @return The serverId.
 	 */
-	public ServerId getServerId();
+	ServerId getServerId();
 	
 }

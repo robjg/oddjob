@@ -1,21 +1,17 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.Utils;
+import org.oddjob.jmx.general.RemoteBridge;
+import org.oddjob.remote.NotificationListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.*;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanException;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.Utils;
+import java.util.Objects;
 
 /**
  * Implementation of {@link ClientSideToolkit}.
@@ -34,10 +30,10 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 
 	private final ClientSessionImpl clientSession;
 	
-	private ObjectName objectName;
+	private final ObjectName objectName;
 	
 	private final Map<String, NotificationListener> notifications 
-	= new LinkedHashMap<String, NotificationListener>();
+	= new LinkedHashMap<>();
 
 	/** The listener that listens for all JMX notifications. */
 	private final ClientListener clientListener;
@@ -45,8 +41,9 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 		
 	public ClientSideToolkitImpl(ObjectName objectName, 
 			ClientSessionImpl clientSession) throws InstanceNotFoundException, IOException {
-		this.clientSession = clientSession;
-		this.objectName = objectName;
+
+		this.clientSession = Objects.requireNonNull(clientSession);
+		this.objectName = Objects.requireNonNull(objectName);
 
 		clientListener = new ClientListener();
 		
@@ -56,9 +53,11 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	
 	@SuppressWarnings("unchecked")
 	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws Throwable {
+		Objects.requireNonNull(remote);
+
 		Object[] exported = Utils.export(args);
 
-		Object result = null;
+		Object result;
 		try {
 			result = clientSession.getServerConnection().invoke(
 					objectName, 
@@ -117,11 +116,11 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	 * across the network.
 	 *
 	 */
-	class ClientListener implements NotificationListener {
+	class ClientListener implements javax.management.NotificationListener {
 		
 		// do notifications always come on one thread? should we synchronze just in case they don't?
 		public void handleNotification(
-				final Notification notification, 
+				final javax.management.Notification notification,
 				final Object object) {
 			
 			String type = notification.getType();
@@ -136,17 +135,15 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 			}
 			
 			final NotificationListener listener = 
-				(NotificationListener) notifications.get(type);
+				 notifications.get(type);
 			
 			if (listener != null) {
-				Runnable r = new Runnable() {
-					public void run() {
-						try {
-							listener.handleNotification(notification, object);
-						} catch (Exception e) {
-							// this will happen when the remote node disappears
-							logger.debug("Handle notification.", e);
-						}
+				Runnable r = () -> {
+					try {
+						listener.handleNotification(RemoteBridge.fromJmxNotification(notification));
+					} catch (Exception e) {
+						// this will happen when the remote node disappears
+						logger.debug("Handle notification.", e);
 					}
 				};
 				clientSession.getNotificationProcessor().submit(r);

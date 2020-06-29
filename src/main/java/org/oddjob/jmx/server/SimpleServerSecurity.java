@@ -1,15 +1,14 @@
 package org.oddjob.jmx.server;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import org.oddjob.arooa.types.ValueFactory;
+import org.oddjob.jmx.JMXServerJob;
 
 import javax.management.remote.rmi.RMIConnectorServer;
 import javax.rmi.ssl.SslRMIClientSocketFactory;
 import javax.rmi.ssl.SslRMIServerSocketFactory;
-
-import org.oddjob.arooa.types.ValueFactory;
-import org.oddjob.jmx.JMXServerJob;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @oddjob.description Provide a JMX simple security environment for a
@@ -48,7 +47,7 @@ public class SimpleServerSecurity implements ValueFactory<Map<String,?>>{
 	
 	public Map<String, ?> toValue() {
 		
-		Map<String, Object> env = new HashMap<String, Object>();
+		Map<String, Object> env = new HashMap<>();
 
 		if (useSSL) {
 			SslRMIClientSocketFactory csf =  

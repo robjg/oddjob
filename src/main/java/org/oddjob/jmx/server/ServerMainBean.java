@@ -19,8 +19,8 @@ implements BeanDirectoryOwner, Structural {
 
 	private final Object root;
 	
-	private final ChildHelper<Object> childHelper = 
-		new ChildHelper<Object>(this);
+	private final ChildHelper<Object> childHelper =
+			new ChildHelper<>(this);
 	
 	private final BeanDirectory beanDirectory;
 	

@@ -1,23 +1,14 @@
 package org.oddjob.jmx.server;
 
-import java.io.NotSerializableException;
-import java.rmi.RemoteException;
-
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.DynamicMBean;
-import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.MBeanNotificationInfo;
-import javax.management.Notification;
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
+import org.oddjob.jmx.general.RemoteBridge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.*;
+import java.io.NotSerializableException;
+import java.rmi.RemoteException;
 
 /**
  * A MBean which wraps an object providing an Oddjob management interface to the
@@ -54,7 +45,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	/** The interface manager. */
 	private final ServerInterfaceManager serverInterfaceManager;
 		
-	/** Used to ensure that no fresh notificatons are sent during a resync. */
+	/** Used to ensure that no fresh notifications are sent during a resync. */
 	private final Object resyncLock = new Object();
 
 	/**
@@ -124,8 +115,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 */
 	public AttributeList getAttributes(String[] attributes) {
 		AttributeList al = new AttributeList();
-		for (int i = 0; i < attributes.length; ++i) {
-			String attribute = attributes[i];
+		for (String attribute : attributes) {
 			Attribute attr;
 			try {
 				attr = new Attribute(attribute, getAttribute(attribute));
@@ -160,8 +150,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 * @return A String method description.
 	 */
 	static String methodDescription(final String actionName, String[] signature) {
-		// build an incredibly converluted debug message.
-		StringBuffer buf = new StringBuffer();
+		// build an incredibly convoluted debug message.
+		StringBuilder buf = new StringBuilder();
 		buf.append(actionName);
 		buf.append('(');
 		for (int j = 0; j < signature.length; ++j) {
@@ -243,19 +233,21 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		
 	class Toolkit implements ServerSideToolkit {
 	
-		
-		public void sendNotification(Notification notification) {
-			OddjobMBean.this.sendNotification(notification);
+		@Override
+		public void sendNotification(org.oddjob.remote.Notification notification) {
+			OddjobMBean.this.sendNotification(
+					RemoteBridge.toJmxNotification(objectName, notification));
 		}
-		
-		public Notification createNotification(String type) {
+
+		@Override
+		public org.oddjob.remote.Notification createNotification(String type, Object userData) {
 			synchronized(resyncLock) {
-				return new Notification(type, objectName, sequenceNumber++);
+				return new org.oddjob.remote.Notification(type, sequenceNumber++, userData);
 			}
 		}
 		
 		/**
-		 * Used by handlers to execute functionallity while
+		 * Used by handlers to execute functionality while
 		 * holding the resync lock.
 		 * 
 		 * @param runnable The functionality to run.

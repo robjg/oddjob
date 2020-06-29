@@ -1,35 +1,23 @@
 package org.oddjob.jmx.handlers;
 
-import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ReflectionException;
-import javax.swing.ImageIcon;
-
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.client.Synchronizer;
+import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.Notification;
+
+import javax.management.*;
+import javax.swing.*;
+import java.io.Serializable;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A MBean which wraps an object providing an Oddjob management interface to the
@@ -43,19 +31,19 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	
 	public static final String ICON_CHANGED_NOTIF_TYPE = "org.oddjob.iconchanged";
 
-	static final JMXOperationPlus<Notification[]> SYNCHRONIZE = 
-		new JMXOperationPlus<Notification[]>(
-				"iconicSynchronize", 
-				"Sychronize Notifications.", 
-				Notification[].class, 
-				MBeanOperationInfo.INFO);
+	static final JMXOperationPlus<Notification[]> SYNCHRONIZE =
+			new JMXOperationPlus<>(
+					"iconicSynchronize",
+					"Sychronize Notifications.",
+					Notification[].class,
+					MBeanOperationInfo.INFO);
 		
-	static final JMXOperationPlus<ImageIcon> ICON_FOR = 
-		new JMXOperationPlus<ImageIcon>(
-				"Iconic.iconForId",
-				"Retrieve an Icon and ToolTip.",
-				ImageIcon.class, 
-				MBeanOperationInfo.INFO)
+	static final JMXOperationPlus<ImageIcon> ICON_FOR =
+			new JMXOperationPlus<>(
+					"Iconic.iconForId",
+					"Retrieve an Icon and ToolTip.",
+					ImageIcon.class,
+					MBeanOperationInfo.INFO)
 			.addParam("iconId", String.class, "The icon id.");
 	
 	/*
@@ -103,7 +91,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	}
 
 	public ClientHandlerResolver<Iconic> clientHandlerFactory() {
-		return new SimpleHandlerResolver<Iconic>(
+		return new SimpleHandlerResolver<>(
 				ClientIconicHandlerFactory.class.getName(), VERSION);
 	}
 	
@@ -128,8 +116,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		private IconEvent lastEvent;
 
 		/** listeners */
-		private final List<IconListener> listeners = 
-			new ArrayList<IconListener>();
+		private final List<IconListener> listeners =
+				new ArrayList<>();
 
 		/** The owner, to be used as the source of the event. */
 		private final Iconic owner;
@@ -149,7 +137,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			try {
 				return toolkit.invoke(
 						ICON_FOR,
-						new Object[] { id } );
+						id);
 			}
 			catch (Throwable e) {
 				throw new UndeclaredThrowableException(e);
@@ -164,8 +152,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			lastEvent = iconEvent;
 			
 			synchronized (listeners) {
-				for (Iterator<IconListener> it = listeners.iterator(); it.hasNext();) {
-					it.next().iconEvent(iconEvent);	
+				for (IconListener listener : listeners) {
+					listener.iconEvent(iconEvent);
 				}
 			}
 		}
@@ -175,17 +163,14 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 				if (synchronizer == null) {
 					
 					synchronizer = new Synchronizer(
-						new NotificationListener() {
-							public void handleNotification(Notification notification, Object arg1) {
+							notification -> {
 								IconData ie = (IconData) notification.getUserData();
 								iconEvent(ie);
-							}
-
-						});
+							});
 					toolkit.registerNotificationListener(
 							ICON_CHANGED_NOTIF_TYPE, synchronizer);
 					
-					Notification[] lastNotifications = null;
+					Notification[] lastNotifications;
 					try {
 						lastNotifications = toolkit.invoke(SYNCHRONIZE);
 					} catch (Throwable e) {
@@ -223,7 +208,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	 *
 	 *
 	 */
-	class ServerIconicHelper implements IconListener, ServerInterfaceHandler  {
+	static class ServerIconicHelper implements IconListener, ServerInterfaceHandler  {
 
 		private final Iconic iconic;
 		private final ServerSideToolkit toolkit;
@@ -237,16 +222,13 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		}
 		
 		public void iconEvent(final IconEvent event) {
-			toolkit.runSynchronized(new Runnable() {
-				public void run() {
-					// send a dummy source accross the wire
-					IconData newEvent = new IconData(event.getIconId());
-					Notification notification = 
-						toolkit.createNotification(ICON_CHANGED_NOTIF_TYPE);
-					notification.setUserData(newEvent);
-					toolkit.sendNotification(notification);
-					lastNotification = notification;
-				}
+			toolkit.runSynchronized(() -> {
+				// send a dummy source accross the wire
+				IconData newEvent = new IconData(event.getIconId());
+				Notification notification =
+					toolkit.createNotification(ICON_CHANGED_NOTIF_TYPE, newEvent);
+				toolkit.sendNotification(notification);
+				lastNotification = notification;
 			});
 		}
 		
@@ -285,8 +267,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		/**
 		 * Event constructor.
 		 * 
-		 * @param source The source of the event.
-		 * @param id The icon id.
+		 * @param iconId The icon id.
 		 */
 		public IconData(String iconId) {
 

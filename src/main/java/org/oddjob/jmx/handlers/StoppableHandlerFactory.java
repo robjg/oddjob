@@ -1,10 +1,5 @@
 package org.oddjob.jmx.handlers;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-
 import org.oddjob.Stoppable;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
@@ -13,6 +8,11 @@ import org.oddjob.jmx.server.ServerAllOperationsHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 
 /**
  * 
@@ -45,12 +45,12 @@ implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 	public ServerInterfaceHandler createServerHandler(
 			Stoppable target, ServerSideToolkit ojmb) {
 		
-		return new ServerAllOperationsHandler<Stoppable>(
+		return new ServerAllOperationsHandler<>(
 				Stoppable.class, target);
 	}
 
 	public ClientHandlerResolver<Stoppable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<Stoppable>(
+		return new VanillaHandlerResolver<>(
 				Stoppable.class.getName());
 	}
 	

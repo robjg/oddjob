@@ -1,9 +1,9 @@
 package org.oddjob.jmx.client;
 
-import java.util.LinkedList;
+import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationListener;
 
-import javax.management.Notification;
-import javax.management.NotificationListener;
+import java.util.LinkedList;
 
 /**
  * Synchronises asynchronous notifications with a synchronous class to
@@ -20,20 +20,20 @@ public class Synchronizer implements NotificationListener {
 
 	private final NotificationListener listener;
 	
-	private LinkedList<Notification> pending = new LinkedList<Notification>();
+	private LinkedList<Notification> pending = new LinkedList<>();
 	
 	public Synchronizer(NotificationListener listener) {
 		this.listener = listener;
 	}
 	
-	public void handleNotification(Notification notification, Object handback) {
+	public void handleNotification(Notification notification) {
 		synchronized(this) {
 			if (pending != null) {
 				pending.addLast(notification);
 				return;
 			}
 		}
-		listener.handleNotification(notification, null);
+		listener.handleNotification(notification);
 	}
 
 	/**
@@ -44,12 +44,12 @@ public class Synchronizer implements NotificationListener {
 	public void synchronize(Notification[] last) {
 		long seq = 0;
 		for (Notification notification : last) {
-			listener.handleNotification(notification, null);
+			listener.handleNotification(notification);
 			seq = notification.getSequenceNumber();
 		}
 		
 		while (true) {
-			Notification notification = null;
+			Notification notification;
 			synchronized (this) {
 				if (pending.isEmpty()) {
 					pending = null;
@@ -60,7 +60,7 @@ public class Synchronizer implements NotificationListener {
 					continue;
 				}
 			}
-			listener.handleNotification(notification, null);
+			listener.handleNotification(notification);
 		}
 	}	
 }

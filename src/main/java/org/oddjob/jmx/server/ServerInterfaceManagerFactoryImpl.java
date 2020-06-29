@@ -3,17 +3,11 @@
  */
 package org.oddjob.jmx.server;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.oddjob.jmx.JMXServerJob;
 import org.oddjob.jmx.SharedConstants;
+
+import java.io.IOException;
+import java.util.*;
 
 /**
  * Simple implementation of a {@link ServerInterfaceManagerFactory}
@@ -109,12 +103,11 @@ implements ServerInterfaceManagerFactory {
 	 * @see org.oddjob.jmx.server.ServerInterfaceManagerFactory#create(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)
 	 */
 	public ServerInterfaceManager create(Object target, ServerSideToolkit serverSideToolkit) {
-		List<ServerInterfaceHandlerFactory<?, ?>> handlers = 
-			new ArrayList<ServerInterfaceHandlerFactory<?, ?>>();
+		List<ServerInterfaceHandlerFactory<?, ?>> handlers =
+				new ArrayList<>();
 
 		// build up a list of supported interfaces
-		for (Iterator<ServerInterfaceHandlerFactory<?, ?>> it = serverHandlerFactories.iterator(); it.hasNext(); ) {
-			ServerInterfaceHandlerFactory<?, ?> interfaceHandler = it.next();
+		for (ServerInterfaceHandlerFactory<?, ?> interfaceHandler : serverHandlerFactories) {
 			Class<?> handles = interfaceHandler.interfaceClass();
 			if (handles.isInstance(target)) {
 				handlers.add(interfaceHandler);
@@ -122,11 +115,10 @@ implements ServerInterfaceManagerFactory {
 		}
 					
 		// create the implementation
-		ServerInterfaceManagerImpl imImpl = new ServerInterfaceManagerImpl(
-				target, 
-				serverSideToolkit, 
+		return new ServerInterfaceManagerImpl(
+				target,
+				serverSideToolkit,
 				(ServerInterfaceHandlerFactory[]) handlers.toArray(new ServerInterfaceHandlerFactory[0]),
 				accessController);
-		return imImpl;
 	}
 }

@@ -1,17 +1,12 @@
 package org.oddjob.jmx.general;
 
+import org.oddjob.arooa.ClassResolver;
+
+import javax.management.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-import org.oddjob.arooa.ClassResolver;
 
 /**
  * A Simple Map based implementation of a {@link MBeanCache}.
@@ -23,15 +18,15 @@ public class MBeanCacheMap implements MBeanCache {
 
 	private final MBeanServerConnection mBeanServer;
 	
-	private final ClassResolver classRresolver;
+	private final ClassResolver classResolver;
 	
-	private final Map<ObjectName, MBeanNode> beans = 
-			new HashMap<ObjectName, MBeanNode>();
+	private final Map<ObjectName, MBeanNode> beans =
+			new HashMap<>();
 
 	public MBeanCacheMap(MBeanServerConnection mBeanServer,
 			ClassResolver classResolver) {
 		this.mBeanServer = mBeanServer;
-		this.classRresolver = classResolver;
+		this.classResolver = classResolver;
 	}
 	
 	public MBeanNode findBean(ObjectName objectName) 
@@ -78,7 +73,7 @@ public class MBeanCacheMap implements MBeanCache {
 			if (wrapper == null) {
 				
 				wrapper = new SimpleMBeanNode(name, 
-						mBeanServer, classRresolver);
+						mBeanServer, classResolver);
 				beans.put(name, wrapper);
 			}
 			

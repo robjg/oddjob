@@ -3,11 +3,11 @@
  */
 package org.oddjob.jmx;
 
-import java.io.NotSerializableException;
-import java.io.Serializable;
-
 import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
+
+import java.io.NotSerializableException;
+import java.io.Serializable;
 
 /**
  * Utilities mainly for method argument manipulation during
@@ -76,9 +76,10 @@ public class Utils {
 	/**
 	 * Import an array of objects that have come accross the wire.
 	 * 
-	 * @param objects
-	 * @param componentRegistry
-	 * @return
+	 * @param objects Objects to resolve.
+	 * @param names The object to id mappings
+	 *
+	 * @return Resolved objects.
 	 */
 	public static Object[] importResolve(Object[] objects, ObjectNames names) {
 		if (objects == null) {
@@ -94,9 +95,10 @@ public class Utils {
 	/**
 	 * Import an object that has come across the wire.
 	 * 
-	 * @param object
-	 * @param componentRegistry
-	 * @return
+	 * @param object Object to resolve.
+	 * @param names The object to id mappings.
+	 *
+	 * @return Resolved object.
 	 */
 	public static Object importResolve(Object object, ObjectNames names) {
 		if (object == null) {

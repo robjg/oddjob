@@ -1,12 +1,5 @@
 package org.oddjob.jmx.general;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.management.ObjectName;
-import javax.swing.ImageIcon;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
@@ -15,6 +8,12 @@ import org.oddjob.images.ImageIconStable;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.ObjectName;
+import javax.swing.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A simple implementation of a {@link DomainNode}.
@@ -43,8 +42,8 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	private final MBeanSession mBeanSession;
 
 	/** For structural. */
-	private final ChildHelper<MBeanNode> childHelper = 
-			new ChildHelper<MBeanNode>(this);
+	private final ChildHelper<MBeanNode> childHelper =
+			new ChildHelper<>(this);
 
 	/**
 	 * Constructor.

@@ -5,12 +5,7 @@ package org.oddjob.jmx.client;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Client side utility class for creating {@link ClientInterfaceManager}s.
@@ -19,10 +14,10 @@ import java.util.Set;
  */
 class ClientInterfaceManagerFactory {
 
-	private final Set<Class<?>> interfaces = new HashSet<Class<?>>();
+	private final Set<Class<?>> interfaces = new HashSet<>();
 
-	private final Set<ClientInterfaceHandlerFactory<?>> clientHandlerFactories = 
-		new HashSet<ClientInterfaceHandlerFactory<?>>();
+	private final Set<ClientInterfaceHandlerFactory<?>> clientHandlerFactories =
+			new HashSet<>();
 	
 	public ClientInterfaceManagerFactory(
 			ClientInterfaceHandlerFactory<?>[] clientHandlerFactories) {
@@ -64,14 +59,14 @@ class ClientInterfaceManagerFactory {
 			Object source, 
 			ClientSideToolkit csToolkit) {
 
-		/** Map of methods of the InterfaceHandlers. Not sure if the order
+		/* Map of methods of the InterfaceHandlers. Not sure if the order
 		 * interface might be important but we are using a LinkedHashMap just
 		 * in case it is. */
-		final Map<Method, Operation<?>> operations = 
-			new LinkedHashMap<Method, Operation<?>>();
+		final Map<Method, Operation<?>> operations =
+				new LinkedHashMap<>();
 
-		final List<Destroyable> destroyables = 
-				new ArrayList<Destroyable>();
+		final List<Destroyable> destroyables =
+				new ArrayList<>();
 				
 		// Loop over all definitions.
 		for (ClientInterfaceHandlerFactory<?> clientHandlerFactory : 
@@ -86,7 +81,7 @@ class ClientInterfaceManagerFactory {
 		return new ClientInterfaceManager() {
 			public Object invoke(Method method, Object[] args)
 			throws Throwable {
-				Operation<?> op = (Operation<?>) operations.get(method);
+				Operation<?> op = operations.get(method);
 				
 				if (op == null) {
 					throw new IllegalArgumentException("No interface supports method [" + method + "]");
@@ -134,22 +129,20 @@ class ClientInterfaceManagerFactory {
 
 		// map operations to handler
 		Method[] methods = cl.getMethods();
-		
-		for (int j = 0; j < methods.length; ++j) {
-			Method m = methods[j];
-			
+
+		for (Method m : methods) {
 			Operation<?> op = operations.get(m);
-			
+
 			if (op != null) {
-				throw new IllegalArgumentException("Failed adding methods for Interface Hander [" + 
-						interfaceHandler + "], method [" + 
+				throw new IllegalArgumentException("Failed adding methods for Interface Hander [" +
+						interfaceHandler + "], method [" +
 						m + "] already registered by factory for " +
 						op.getFactory().interfaceClass().getName());
 			}
-			
+
 			operations.put(
-					m, 
-					new Operation<T>(interfaceHandler,
+					m,
+					new Operation<>(interfaceHandler,
 							factory));
 		}
 		
@@ -166,7 +159,7 @@ class ClientInterfaceManagerFactory {
 	 * @author rob
 	 *
 	 */
-	class Operation<T> {
+	static class Operation<T> {
 		
 		private final T handler;
 		private final ClientInterfaceHandlerFactory<T> factory;

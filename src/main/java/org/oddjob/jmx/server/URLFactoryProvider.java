@@ -1,12 +1,12 @@
 package org.oddjob.jmx.server;
 
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
+
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * An {@link HandlerFactoryProvider} that loads {@link HandlerFactoryProvider}s
@@ -79,7 +79,7 @@ public class URLFactoryProvider implements HandlerFactoryProvider {
 			throw new RuntimeException(e);
 		}
 
-		return allFactories.keySet().toArray(new ServerInterfaceHandlerFactory<?, ?>[allFactories.size()]);
+		return allFactories.keySet().toArray(new ServerInterfaceHandlerFactory<?, ?>[0]);
 	}
 	
 }

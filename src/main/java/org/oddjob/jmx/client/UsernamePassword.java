@@ -1,10 +1,10 @@
 package org.oddjob.jmx.client;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.oddjob.arooa.types.ValueFactory;
 import org.oddjob.jmx.JMXClientJob;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 
@@ -33,7 +33,7 @@ public class UsernamePassword implements ValueFactory<Map<String,?>>{
 	
 	public Map<String, ?> toValue() {
 		
-		Map<String, Object> env = new HashMap<String, Object>();
+		Map<String, Object> env = new HashMap<>();
 		
 	    String[] credentials = new String[] { username , password }; 
 	    env.put("jmx.remote.credentials", credentials); 

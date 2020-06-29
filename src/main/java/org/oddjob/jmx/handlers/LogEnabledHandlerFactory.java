@@ -1,26 +1,13 @@
 package org.oddjob.jmx.handlers;
 
-import java.lang.reflect.UndeclaredThrowableException;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
-
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.server.JMXOperation;
-import org.oddjob.jmx.server.JMXOperationFactory;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
+
+import javax.management.*;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  */
@@ -55,7 +42,7 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 	}
 
 	public ClientHandlerResolver<LogEnabled> clientHandlerFactory() {
-		return new SimpleHandlerResolver<LogEnabled>(
+		return new SimpleHandlerResolver<>(
 				ClientLogPollableHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -96,7 +83,7 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 	
 
 	
-	class LogEnabledServerHandler implements ServerInterfaceHandler {
+	static class LogEnabledServerHandler implements ServerInterfaceHandler {
 	
 		private final String loggerName;
 		

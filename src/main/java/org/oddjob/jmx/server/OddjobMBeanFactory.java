@@ -3,20 +3,20 @@
  */
 package org.oddjob.jmx.server;
 
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.oddjob.arooa.ArooaSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.ArooaSession;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * A factory for producing OddjobMBeans. The MBean names are just sequential formatted numbers.
@@ -32,15 +32,13 @@ public class OddjobMBeanFactory implements ServerSession {
 	private final ArooaSession session;
 	
 	/** Give each bean a serial number. */
-	private final AtomicInteger serial = new AtomicInteger();
+	private final AtomicLong serial = new AtomicLong();
 
 	/** Keep track of MBeans by ObjectName so that we can destroy them 
 	 * when they're finished. */
-	private final Map<ObjectName, OddjobMBean> mBeans = 
-		new HashMap<ObjectName, OddjobMBean>();
+	private final Map<Long, OddjobMBean> mBeans = new HashMap<>();
 	
-	private final Map<Object, ObjectName> names = 
-		new HashMap<Object, ObjectName>();
+	private final Map<Object, Long> names = new HashMap<>();
 	
 	/**
 	 * Constructor.
@@ -60,49 +58,50 @@ public class OddjobMBeanFactory implements ServerSession {
 	 * 
 	 * @throws JMException If the MBean fails to register.
 	 */
-	public ObjectName createMBeanFor(Object object, ServerContext context)
+	@Override
+	public long createMBeanFor(Object object, ServerContext context)
 	throws JMException {
-		
-		ObjectName objName = objectName(serial.getAndIncrement());
+
+		long objectId = serial.getAndIncrement();
+		ObjectName objName = objectName(objectId);
 		
 		OddjobMBean ojmb = new OddjobMBean(object, objName, this, context);
 		
 		server.registerMBean(ojmb, objName);
 		
 		synchronized (this) {
-			names.put(object, objName);
-			mBeans.put(objName, ojmb);
+			names.put(object, objectId);
+			mBeans.put(objectId, ojmb);
 		}
 		
 		logger.debug("Created and registered [" + object + "] as OddjobMBean [" + objName.toString() + "]");
-		return objName;
+
+		return objectId;
 	}
 	
 	/**
 	 * Remove a bean from the server.
 	 * 
-	 * @param objName The bean.
+	 * @param objectId The bean.
 	 * @throws JMException
 	 */
-	public void destroy(ObjectName objName) throws JMException {
+	@Override
+	public void destroy(long objectId) throws JMException {
 
-		if (objName == null) {
-			throw new NullPointerException("No Object Name.");
-		}
-		
-		OddjobMBean ojmb = null;
-		
+		OddjobMBean ojmb;
+
 		synchronized (this) {
-			ojmb = mBeans.remove(objName);
+			ojmb = mBeans.remove(objectId);
 			if (ojmb == null) {
-				throw new IllegalStateException("No MBean named " + objName);
+				throw new IllegalStateException("No MBean named " + objectId);
 			}
 			names.remove(ojmb.getNode());
 		}
 		
 		ojmb.destroy();
-		
-		server.unregisterMBean(objName);
+
+		ObjectName objectName = objectName(objectId);
+		server.unregisterMBean(objectName);
 		
 		logger.debug("Unregistered and destroyed [" + ojmb + "]");
 	}
@@ -113,7 +112,7 @@ public class OddjobMBeanFactory implements ServerSession {
 	 * @param sequence The object sequence number.
 	 * @return A JMX object name.
 	 */
-	public static ObjectName objectName(int sequence) {
+	public static ObjectName objectName(long sequence) {
 		try {
 			NumberFormat f = new DecimalFormat("00000000");
 			String uid = f.format(sequence);
@@ -123,15 +122,17 @@ public class OddjobMBeanFactory implements ServerSession {
 			throw new RuntimeException(ex);
 		}
 	}
-	
-	public ObjectName nameFor(Object object) {
+
+	@Override
+	public long nameFor(Object object) {
 		synchronized (this) {
-			return names.get(object);
+			return Optional.ofNullable(names.get(object)).orElse(-1L);
 		}
 	}
-	
-	public Object objectFor(ObjectName objectName) {
-		OddjobMBean mBean = null;
+
+	@Override
+	public Object objectFor(long objectName) {
+		OddjobMBean mBean;
 		synchronized (this) {
 			mBean = mBeans.get(objectName);
 			if (mBean == null) {

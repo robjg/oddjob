@@ -3,41 +3,24 @@
  */
 package org.oddjob.jmx.handlers;
 
+import org.oddjob.Structural;
+import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.server.*;
+import org.oddjob.remote.Notification;
+import org.oddjob.structural.ChildHelper;
+import org.oddjob.structural.ChildMatch;
+import org.oddjob.structural.StructuralEvent;
+import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Structural;
-import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.client.Synchronizer;
-import org.oddjob.jmx.server.JMXOperationPlus;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerLoopBackException;
-import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.structural.ChildHelper;
-import org.oddjob.structural.ChildMatch;
-import org.oddjob.structural.StructuralEvent;
-import org.oddjob.structural.StructuralListener;
 
 public class StructuralHandlerFactory 
 implements ServerInterfaceHandlerFactory<Structural, Structural> {
@@ -48,12 +31,12 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	
 	public static final String STRUCTURAL_NOTIF_TYPE = "org.oddjob.structural";
 
-	static final JMXOperationPlus<Notification[]>  SYNCHRONIZE = 
-		new JMXOperationPlus<Notification[]>(
-				"structuralSynchronize",
-				"Synchronize Notifications.",
-				Notification[].class,
-				MBeanOperationInfo.INFO);
+	static final JMXOperationPlus<Notification[]>  SYNCHRONIZE =
+			new JMXOperationPlus<>(
+					"structuralSynchronize",
+					"Synchronize Notifications.",
+					Notification[].class,
+					MBeanOperationInfo.INFO);
 	
 	public Class<Structural> interfaceClass() {
 		return Structural.class;
@@ -71,25 +54,21 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
-		MBeanNotificationInfo[] nInfo = new MBeanNotificationInfo[] {
+		return new MBeanNotificationInfo[] {
 				new MBeanNotificationInfo(new String[] {
 						STRUCTURAL_NOTIF_TYPE },
 						Notification.class.getName(), "Structural notification.")};
-		return nInfo;
 	}
 
 	public ServerInterfaceHandler createServerHandler(
 			Structural structural, 
 			ServerSideToolkit ojmb) {
-		
-		ServerStructuralHelper structuralHelper = 
-			new ServerStructuralHelper (structural, ojmb);
-		
-		return structuralHelper;
+
+		return new ServerStructuralHelper(structural, ojmb);
 	}
 	
 	public ClientHandlerResolver<Structural> clientHandlerFactory() {
-		return new SimpleHandlerResolver<Structural>(
+		return new SimpleHandlerResolver<>(
 				ClientStructuralHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -122,7 +101,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 
 		private Synchronizer synchronizer;
 		
-		private List<ObjectName> childNames;
+		private List<Long> childNames;
 		
 		ClientStructuralHandler(Structural proxy, ClientSideToolkit toolkit) {
 			this.proxy = proxy;
@@ -135,35 +114,33 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		public void addStructuralListener(StructuralListener listener) {
 			synchronized (this) {
 				if (structuralHelper == null) {
-					this.structuralHelper = new ChildHelper<Object>(proxy);			
-					this.childNames = new ArrayList<ObjectName>();
+					this.structuralHelper = new ChildHelper<>(proxy);
+					this.childNames = new ArrayList<>();
 					
 					synchronizer = new Synchronizer(
-						new NotificationListener() {
-							public void handleNotification(Notification notification, Object arg1) {
+							notification -> {
 								ChildData childData = (ChildData) notification.getUserData();
-								
-								new ChildMatch<ObjectName>(childNames) {
-									protected void insertChild(int index, ObjectName childName) {
+
+								new ChildMatch<Long>(childNames) {
+									protected void insertChild(int index, Long childName) {
 										Object childProxy = toolkit.getClientSession().create(childName);
 										// child proxy will be null if the toolkit can't create it.
 										if (childProxy != null) {
 											structuralHelper.insertChild(index, childProxy);
 										}
-									};
+									}
+
 									@Override
 									protected void removeChildAt(int index) {
 										Object child = structuralHelper.removeChildAt(index);
 										toolkit.getClientSession().destroy(child);
 									}
 								}.match(childData.getChildObjectNames());
-							}
-
-						});
+							});
 					toolkit.registerNotificationListener(
 							STRUCTURAL_NOTIF_TYPE, synchronizer);
 					
-					Notification[] lastNotifications = null;
+					Notification[] lastNotifications;
 					try {
 						lastNotifications = toolkit.invoke(SYNCHRONIZE);
 					} catch (Throwable e) {
@@ -195,7 +172,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		}		
 	}	
 	
-	class ServerStructuralHelper implements ServerInterfaceHandler  {
+	static class ServerStructuralHelper implements ServerInterfaceHandler  {
 
 		private final Structural structural;
 		private final ServerSideToolkit toolkit;
@@ -204,7 +181,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		private boolean duplicate;
 
 		/** Child remote job nodes. */
-		private final LinkedList<ObjectName> children = new LinkedList<ObjectName>();
+		private final LinkedList<Long> children = new LinkedList<>();
 
 		private final StructuralListener listener = new StructuralListener() {
 			
@@ -215,7 +192,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 			 */
 			public void childAdded(final StructuralEvent e) {
 				// stop events overlapping.
-				final ObjectName child;
+				final long child;
 				Object childComponent = e.getChild();
 				try {
 					child = toolkit.getServerSession().createMBeanFor(
@@ -230,23 +207,18 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 				}
 				final int index = e.getIndex();
 				
-				ChildData newEvent = null;
+				ChildData newEvent;
 				
 				synchronized (children) {
 					children.add(index, child);
 					newEvent = new ChildData(
-						children.toArray(new ObjectName[children.size()]));
+						children.toArray(new Long[0]));
 				}
 				
 				final Notification notification = 
-					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE);
-				notification.setUserData(newEvent);
+					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE, newEvent);
 				
-				toolkit.runSynchronized(new Runnable() {
-					public void run() {
-						toolkit.sendNotification(notification);					
-					}
-				});
+				toolkit.runSynchronized(() -> toolkit.sendNotification(notification));
 				
 				logger.debug("Child added [" + e.getChild().toString() + "], index [" + e.getIndex() + "]");
 			}
@@ -263,26 +235,21 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 				}
 				final int index = e.getIndex();
 				
-				ObjectName child = null;
-				ChildData newEvent = null;
+				long child;
+				ChildData newEvent;
 				
 				synchronized(children) {
 					
 					child = children.get(index);
 					children.remove(index);
 					newEvent = new ChildData(
-							children.toArray(new ObjectName[children.size()]));
+							children.toArray(new Long[0]));
 				}
 				
 				final Notification notification = 
-					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE);
-				notification.setUserData(newEvent);
+					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE, newEvent);
 
-				toolkit.runSynchronized(new Runnable() {
-					public void run() {
-						toolkit.sendNotification(notification);
-					}
-				});
+				toolkit.runSynchronized(() -> toolkit.sendNotification(notification));
 				
 				try {
 					toolkit.getServerSession().destroy(child);
@@ -302,15 +269,12 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 
 		private Notification[] lastNotifications() {
 			final Notification[] lastNotifications = new Notification[1];
-			toolkit.runSynchronized(new Runnable() {
-				public void run() {
-					ChildData newEvent = new ChildData(
-							children.toArray(new ObjectName[children.size()]));
-					Notification notification = 
-						toolkit.createNotification(STRUCTURAL_NOTIF_TYPE);
-					notification.setUserData(newEvent);
-					lastNotifications[0] = notification;
-				}
+			toolkit.runSynchronized(() -> {
+				ChildData newEvent = new ChildData(
+						children.toArray(new Long[0]));
+				Notification notification =
+					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE, newEvent);
+				lastNotifications[0] = notification;
 			});
 			
 			return lastNotifications;
@@ -355,13 +319,13 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	static class ChildData implements Serializable {
 		private static final long serialVersionUID = 2010062500L;
 		
-		private final ObjectName[] objectNames;
+		private final Long[] objectNames;
 		
-		public ChildData(ObjectName[] objectName) {
+		public ChildData(Long[] objectName) {
 			this.objectNames = objectName;
 		}
 		
-		public ObjectName[] getChildObjectNames() {
+		public Long[] getChildObjectNames() {
 			return objectNames;
 		}
 	}

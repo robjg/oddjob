@@ -1,10 +1,9 @@
 package org.oddjob.jmx.server;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JMXOperationPlus<T> extends JMXOperation<T> {
 
@@ -16,7 +15,7 @@ public class JMXOperationPlus<T> extends JMXOperation<T> {
 	
 	private final int impact;
 	
-	private final List<Param> params = new ArrayList<Param>();
+	private final List<Param> params = new ArrayList<>();
 	
 	public JMXOperationPlus(String actionName, 
 			String description,
@@ -62,7 +61,7 @@ public class JMXOperationPlus<T> extends JMXOperation<T> {
 		return this;
 	}
 
-	class Param {
+	static class Param {
 		final String name;
 		final Class<?> type;
 		final String description;

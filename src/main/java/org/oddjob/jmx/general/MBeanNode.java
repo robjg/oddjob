@@ -15,6 +15,6 @@ public interface MBeanNode extends DynaBean, Invoker, Destroyable {
 	/**
 	 * Called from the {@link DomainNode} to initialise this node.
 	 */
-	public void initialise();
+	void initialise();
 }
  

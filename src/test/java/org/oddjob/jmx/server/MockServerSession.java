@@ -1,24 +1,26 @@
 package org.oddjob.jmx.server;
 
-import javax.management.ObjectName;
-
 import org.oddjob.arooa.ArooaSession;
 
 public class MockServerSession implements ServerSession {
 
-	public ObjectName nameFor(Object object) {
+	@Override
+	public long nameFor(Object object) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
-	
-	public Object objectFor(ObjectName objectName) {
+
+	@Override
+	public Object objectFor(long objectName) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
-	
-	public ObjectName createMBeanFor(Object child, ServerContext childContext) {
+
+	@Override
+	public long createMBeanFor(Object child, ServerContext childContext) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
-	
-	public void destroy(ObjectName childName) {
+
+	@Override
+	public void destroy(long childName) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	

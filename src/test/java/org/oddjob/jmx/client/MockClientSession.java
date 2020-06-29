@@ -1,14 +1,12 @@
 package org.oddjob.jmx.client;
 
-import javax.management.ObjectName;
-
 import org.oddjob.arooa.ArooaSession;
 import org.slf4j.Logger;
 
 public class MockClientSession implements ClientSession {
 
 	@Override
-	public Object create(ObjectName objectName) {
+	public Object create(long objectName) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 
@@ -23,12 +21,12 @@ public class MockClientSession implements ClientSession {
 	}
 
 	@Override
-	public ObjectName nameFor(Object object) {
+	public long nameFor(Object object) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 
 	@Override
-	public Object objectFor(ObjectName objectName) {
+	public Object objectFor(long objectName) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	

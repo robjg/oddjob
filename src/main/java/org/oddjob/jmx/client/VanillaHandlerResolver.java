@@ -1,8 +1,8 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.ClassResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.ClassResolver;
 
 public class VanillaHandlerResolver<T> implements ClientHandlerResolver<T> {
 	private static final long serialVersionUID = 2009090500L;
@@ -38,6 +38,6 @@ public class VanillaHandlerResolver<T> implements ClientHandlerResolver<T> {
 			return null;
 		}
 		
-		return new DirectInvocationClientFactory<T>(cl);
+		return new DirectInvocationClientFactory<>(cl);
 	}
 }

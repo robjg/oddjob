@@ -3,19 +3,6 @@
  */
 package org.oddjob.jmx.handlers;
 
-import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.BeanDirectory;
@@ -24,57 +11,60 @@ import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
+import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.Notification;
+
+import javax.management.*;
+import java.io.Serializable;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BeanDirectoryHandlerFactory implements
 		ServerInterfaceHandlerFactory<BeanDirectoryOwner, RemoteDirectoryOwner> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
-	private static final JMXOperationPlus<ServerId> SERVER_ID = 
-		new JMXOperationPlus<ServerId>(
-				"serverId", 
-				"Get ServerId.",
-				ServerId.class,
-				MBeanOperationInfo.INFO);
+	private static final JMXOperationPlus<ServerId> SERVER_ID =
+			new JMXOperationPlus<>(
+					"serverId",
+					"Get ServerId.",
+					ServerId.class,
+					MBeanOperationInfo.INFO);
 
-	private static final JMXOperationPlus<ObjectName[]> LIST = 
-		new JMXOperationPlus<ObjectName[]>(
+	private static final JMXOperationPlus<Long[]> LIST =
+		new JMXOperationPlus<>(
 				"beansList", 
 				"List Beans.",
-				ObjectName[].class,
+				Long[].class,
 				MBeanOperationInfo.INFO);
 
-	private static final JMXOperationPlus<String> ID_FOR = 
-		new JMXOperationPlus<String>(
-				"beansIdFor", 
-				"Id For ObjectName.",
-				String.class,
-				MBeanOperationInfo.INFO)
+	private static final JMXOperationPlus<String> ID_FOR =
+			new JMXOperationPlus<>(
+					"beansIdFor",
+					"Id For ObjectName.",
+					String.class,
+					MBeanOperationInfo.INFO)
 			.addParam("objectName", ObjectName.class, "The object name.");
 
-	private static final JMXOperationPlus<Object> LOOKUP = 
-		new JMXOperationPlus<Object>(
-				"beansLookup", 
-				"Object lookup.",
-				Object.class, 
-				MBeanOperationInfo.INFO)
+	private static final JMXOperationPlus<Object> LOOKUP =
+			new JMXOperationPlus<>(
+					"beansLookup",
+					"Object lookup.",
+					Object.class,
+					MBeanOperationInfo.INFO)
 			.addParam("id", String.class, "The id.");
 
-	private static final JMXOperationPlus<Object> LOOKUP_TYPE = 
-		new JMXOperationPlus<Object>(
-				"beansLookupType",
-				"Object lookup.", 
-				Object.class, 
-				MBeanOperationInfo.INFO)
+	private static final JMXOperationPlus<Object> LOOKUP_TYPE =
+			new JMXOperationPlus<>(
+					"beansLookupType",
+					"Object lookup.",
+					Object.class,
+					MBeanOperationInfo.INFO)
 			.addParam("id", String.class, "The id.")
 			.addParam("type", Class.class, "The type.");
 
@@ -98,7 +88,7 @@ public class BeanDirectoryHandlerFactory implements
 	}
 
 	public ClientHandlerResolver<RemoteDirectoryOwner> clientHandlerFactory() {
-		return new SimpleHandlerResolver<RemoteDirectoryOwner>(
+		return new SimpleHandlerResolver<>(
 				ClientBeanDirectoryHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -135,7 +125,7 @@ public class BeanDirectoryHandlerFactory implements
 
 				public Object lookup(String path) {
 					try {
-						Object result = toolkit.invoke(LOOKUP, new Object[] { path });
+						Object result = toolkit.invoke(LOOKUP, path);
 						if (result instanceof Carrier) {
 							return toolkit.getClientSession().create(
 									((Carrier) result).getObjectName());
@@ -147,11 +137,9 @@ public class BeanDirectoryHandlerFactory implements
 					}
 				}
 
-				public <T> T lookup(String path, Class<T> required)
-						throws ArooaConversionException {
+				public <T> T lookup(String path, Class<T> required) {
 					try {
-						Object result = toolkit.invoke(LOOKUP_TYPE, new Object[] {
-								path, required });
+						Object result = toolkit.invoke(LOOKUP_TYPE, path, required);
 						if (result instanceof Carrier) {
 							result = toolkit.getClientSession().create(
 									((Carrier) result).getObjectName());
@@ -163,15 +151,15 @@ public class BeanDirectoryHandlerFactory implements
 				}
 		
 				public String getIdFor(Object bean) {
-					ObjectName objectName = toolkit.getClientSession().nameFor(bean);
+					long objectName = toolkit.getClientSession().nameFor(bean);
 		
-					if (objectName == null) {
+					if (objectName < 0) {
 						return null;
 					}
 		
 					try {
 						return toolkit.invoke(ID_FOR,
-								new Object[] { objectName });
+								objectName);
 					} catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
@@ -180,16 +168,16 @@ public class BeanDirectoryHandlerFactory implements
 		
 				public <T> Iterable<T> getAllByType(Class<T> type) {
 					try {
-						ObjectName[] names = toolkit.invoke(LIST,
-								new Object[] { type });
+						Long[] names = toolkit.invoke(LIST,
+								type);
 						
 						if (names == null) {
-							return new ArrayList<T>();
+							return new ArrayList<>();
 						}
-						
-						List<T> results = new ArrayList<T>();
+
+						List<T> results = new ArrayList<>();
 		
-						for (ObjectName objectName : names) {
+						for (long objectName : names) {
 							Object object = toolkit.getClientSession().create(
 									objectName);
 							if (object == null) {
@@ -206,8 +194,7 @@ public class BeanDirectoryHandlerFactory implements
 				public ServerId getServerId() {
 					if (serverId == null) {
 						try {
-							this.serverId = toolkit.invoke(SERVER_ID,
-									new Object[] {});
+							this.serverId = toolkit.invoke(SERVER_ID);
 						} catch (Throwable e) {
 							throw new UndeclaredThrowableException(e);
 						}
@@ -220,12 +207,11 @@ public class BeanDirectoryHandlerFactory implements
 
 	public ServerInterfaceHandler createServerHandler(BeanDirectoryOwner directory,
 			ServerSideToolkit serverToolkit) {
-		ServerBeanDirectoryHandler handler = new ServerBeanDirectoryHandler(
+		return new ServerBeanDirectoryHandler(
 				directory, serverToolkit);
-		return handler;
 	}
 
-	class ServerBeanDirectoryHandler implements ServerInterfaceHandler {
+	static class ServerBeanDirectoryHandler implements ServerInterfaceHandler {
 
 		private final BeanDirectoryOwner directoryOwner;
 		private final ServerSideToolkit serverToolkit;
@@ -257,20 +243,20 @@ public class BeanDirectoryHandlerFactory implements
 				Class<?> type = (Class<?>) params[0];
 				Iterable<?> all = directory.getAllByType(type);
 
-				List<ObjectName> names = new ArrayList<ObjectName>();
+				List<Long> names = new ArrayList<>();
 
 				for (Object object : all) {
-					ObjectName name = serverToolkit.getServerSession().nameFor(object);
-					if (name != null) {
+					long name = serverToolkit.getServerSession().nameFor(object);
+					if (name >= 0) {
 						names.add(name);
 					}
 				}
 
-				return names.toArray(new ObjectName[0]);
+				return names.toArray(new Long[0]);
 			}
 
 			if (ID_FOR.equals(operation)) {
-				ObjectName objectName = (ObjectName) params[0];
+				long objectName = (long) params[0];
 
 				Object object = serverToolkit.getServerSession().objectFor(objectName);
 				
@@ -280,9 +266,7 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				else {
-					String id = directory.getIdFor(object);
-
-					return id;
+					return directory.getIdFor(object);
 				}
 			}
 
@@ -296,9 +280,9 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				
-				ObjectName objectName = serverToolkit.getServerSession().nameFor(object);
+				long objectName = serverToolkit.getServerSession().nameFor(object);
 
-				if (objectName != null) {
+				if (objectName >= 0) {
 					return new Carrier(objectName);
 				} else {
 					return object;
@@ -310,7 +294,7 @@ public class BeanDirectoryHandlerFactory implements
 				String path = (String) params[0];
 				Class<?> type = (Class<?>) params[1];
 
-				Object object = null;
+				Object object;
 				try {
 					object = directory.lookup(path, type);
 				} catch (ArooaConversionException e) {
@@ -321,9 +305,9 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				
-				ObjectName objectName = serverToolkit.getServerSession().nameFor(object);
+				long objectName = serverToolkit.getServerSession().nameFor(object);
 				
-				if (objectName != null) {
+				if (objectName >= 0) {
 					return new Carrier(objectName);
 				} else {
 					return object;
@@ -340,15 +324,15 @@ public class BeanDirectoryHandlerFactory implements
 	}
 
 	static class Carrier implements Serializable {
-		private static final long serialVersionUID = 2009061500L;
+		private static final long serialVersionUID = 2020062900L;
 
-		private final ObjectName objectName;
+		private final long objectName;
 
-		Carrier(ObjectName objectName) {
+		Carrier(long objectName) {
 			this.objectName = objectName;
 		}
 
-		ObjectName getObjectName() {
+		long getObjectName() {
 			return objectName;
 		}
 	}

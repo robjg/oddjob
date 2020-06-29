@@ -1,27 +1,5 @@
 package org.oddjob.jmx.general;
 
-import java.awt.Image;
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.management.Attribute;
-import javax.management.InstanceNotFoundException;
-import javax.management.IntrospectionException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.openmbean.CompositeData;
-import javax.swing.ImageIcon;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
@@ -36,6 +14,18 @@ import org.oddjob.logging.LogEnabled;
 import org.oddjob.script.InvokerArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.*;
+import javax.management.openmbean.CompositeData;
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Simple implementation of an {@link MBeanNode}.
@@ -292,8 +282,8 @@ public class SimpleMBeanNode implements
 	@Override
 	public Map<String, String> describe() {
 		
-		Map<String, String> description = 
-				new LinkedHashMap<String, String>();
+		Map<String, String> description =
+				new LinkedHashMap<>();
 		
 		DynaProperty[] props = dynaClass.getDynaProperties();
 
@@ -324,8 +314,8 @@ public class SimpleMBeanNode implements
 		
 		private final AttributeDynaProperty[] properties;
 		
-		private final Map<String, AttributeDynaProperty> map = 
-			new HashMap<String, AttributeDynaProperty>();
+		private final Map<String, AttributeDynaProperty> map =
+				new HashMap<>();
 		
 		public ThisDynaClass(MBeanAttributeInfo[] attributes) {
 
@@ -359,7 +349,7 @@ public class SimpleMBeanNode implements
 		}
 		
 		@Override
-		public DynaBean newInstance() throws IllegalAccessException,
+		public DynaBean newInstance() throws
 				InstantiationException {
 			throw new InstantiationException(
 					"Can't create new " + getName());

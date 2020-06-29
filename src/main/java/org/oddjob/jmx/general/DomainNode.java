@@ -14,6 +14,6 @@ public interface DomainNode extends Structural, Destroyable {
 	/**
 	 * Called from the service to initialise the node.
 	 */
-	public void initialise();
+	void initialise();
 	
 }

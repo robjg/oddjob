@@ -1,14 +1,8 @@
 package org.oddjob.jmx.handlers;
 
 import org.junit.Test;
-
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.swing.ImageIcon;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Iconic;
+import org.oddjob.OjTestCase;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
@@ -16,10 +10,14 @@ import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationListener;
+
+import javax.swing.*;
 
 public class IconicHandlerFactoryTest extends OjTestCase {
 
-	class OurIconic implements Iconic {
+	static class OurIconic implements Iconic {
 		
 		IconHelper helper = new IconHelper(this, IconHelper.READY);
 
@@ -40,7 +38,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-	class OurClientToolkit extends MockClientSideToolkit {
+	static class OurClientToolkit extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 
 		@SuppressWarnings("unchecked")
@@ -51,7 +49,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 		}
 	}
 
-	class OurServerToolkit extends MockServerSideToolkit {
+	static class OurServerToolkit extends MockServerSideToolkit {
 		long seq = 0;
 		
 		@Override
@@ -60,8 +58,8 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 		}
 		
 		@Override
-		public Notification createNotification(String type) {
-			return new Notification(type, this, seq++);
+		public Notification createNotification(String type, Object userData) {
+			return new Notification(type, seq++, userData);
 		}
 		
 		@Override
@@ -93,7 +91,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 	}
 	
 	
-	class OurClientToolkit2 extends MockClientSideToolkit {
+	static class OurClientToolkit2 extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 		NotificationListener listener;
 		
@@ -128,7 +126,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 		}
 	}
 
-	class OurServerToolkit2 extends MockServerSideToolkit {
+	static class OurServerToolkit2 extends MockServerSideToolkit {
 		long seq = 0;
 		
 		NotificationListener listener;
@@ -139,19 +137,19 @@ public class IconicHandlerFactoryTest extends OjTestCase {
 		}
 		
 		@Override
-		public Notification createNotification(String type) {
-			return new Notification(type, this, seq++);
+		public Notification createNotification(String type, Object userData) {
+			return new Notification(type, seq++, userData);
 		}
 		
 		@Override
 		public void sendNotification(Notification notification) {
 			if (listener != null) {
-				listener.handleNotification(notification, null);
+				listener.handleNotification(notification);
 			}
 		}
 	}
 
-	class Result implements IconListener {
+	static class Result implements IconListener {
 		
 		IconEvent event;
 		

@@ -1,11 +1,10 @@
 package org.oddjob.jmx.general;
 
-import java.io.IOException;
-
 import javax.management.InstanceNotFoundException;
 import javax.management.IntrospectionException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import java.io.IOException;
 
 /**
  * Something capable of creating and caching {@link MBeanNode}s.
@@ -28,7 +27,7 @@ public interface MBeanCache {
 	 * @throws ReflectionException
 	 * @throws IOException
 	 */
-	public MBeanNode findBean(ObjectName objectName) 
+	MBeanNode findBean(ObjectName objectName)
 	throws IntrospectionException, InstanceNotFoundException, ReflectionException, IOException;
 	
 	/**
@@ -43,6 +42,6 @@ public interface MBeanCache {
 	 * @throws ReflectionException
 	 * @throws IOException
 	 */
-	public MBeanNode[] findBeans(ObjectName objectName) 
+	MBeanNode[] findBeans(ObjectName objectName)
 	throws IntrospectionException, InstanceNotFoundException, ReflectionException, IOException;
 }

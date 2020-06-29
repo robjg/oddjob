@@ -1,12 +1,8 @@
 package org.oddjob.jmx.handlers;
 
 import org.junit.Test;
-
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Describable;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -18,6 +14,8 @@ import org.oddjob.jmx.server.MockServerSession;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerSession;
+
+import java.util.Map;
 
 public class DescribableHandlerFactoryTest extends OjTestCase {
 
@@ -62,7 +60,7 @@ public class DescribableHandlerFactoryTest extends OjTestCase {
    @Test
 	public void testAllOperations() {
 
-		DescribeableHandlerFactory test = new DescribeableHandlerFactory();
+		DescribableHandlerFactory test = new DescribableHandlerFactory();
 		
 		ClientHandlerResolver<Describable> resolver = test.clientHandlerFactory();
 		ClientInterfaceHandlerFactory<Describable> clientFactory =

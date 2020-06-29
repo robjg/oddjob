@@ -35,7 +35,7 @@ public class ServerContextMain implements ServerContext {
 
 	}
 
-	public ServerContext addChild(Object child) throws ServerLoopBackException {
+	public ServerContext addChild(Object child) {
 		return new ServerContextImpl(child, model, beanDirectory);
 	}
 

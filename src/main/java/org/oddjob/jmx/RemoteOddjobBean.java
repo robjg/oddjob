@@ -17,11 +17,11 @@ public interface RemoteOddjobBean {
 	 * 
 	 * @return ServerInfo for the component.
 	 */
-	public ServerInfo serverInfo();
+	ServerInfo serverInfo();
 	
 
 	/**
 	 * For heart beats.
 	 */
-	public void noop();
+	void noop();
 }

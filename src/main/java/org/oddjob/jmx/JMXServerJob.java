@@ -1,16 +1,5 @@
 package org.oddjob.jmx;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Map;
-
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnectorServer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
@@ -18,18 +7,17 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
-import org.oddjob.jmx.server.HandlerFactoryProvider;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
-import org.oddjob.jmx.server.ResourceFactoryProvider;
-import org.oddjob.jmx.server.ServerContextMain;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
-import org.oddjob.jmx.server.ServerLoopBackException;
-import org.oddjob.jmx.server.ServerMainBean;
-import org.oddjob.jmx.server.ServerModelImpl;
-import org.oddjob.jmx.server.SimpleServerSecurity;
+import org.oddjob.jmx.server.*;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.remote.JMXConnectorServer;
+import java.io.IOException;
+import java.util.Map;
 
 /**
  * @oddjob.description A service which allows a job hierarchy to
@@ -174,9 +162,6 @@ public class JMXServerJob implements ArooaSessionAware {
 	/** Bean Factory */
 	private OddjobMBeanFactory factory;
 	
-	/** Main Server MBean name */
-	private ObjectName mainName;
-	
 	/** Connector server */
 	private JMXConnectorServer cntorServer; 
 
@@ -240,8 +225,8 @@ public class JMXServerJob implements ArooaSessionAware {
 	 * 
 	 * @param url The name for the naming service.
 	 */
-	public void setUrl(String bindAs) {
-		this.url = bindAs;
+	public void setUrl(String url) {
+		this.url = url;
 	}
 	
 	/**
@@ -254,7 +239,7 @@ public class JMXServerJob implements ArooaSessionAware {
 	}
 	
 	public void start() 
-	throws JMException, MalformedURLException, IOException, ServerLoopBackException {
+	throws JMException, IOException, ServerLoopBackException {
 		if (root == null) {			
 			throw new OddjobException("No root node.");
 		}
@@ -295,8 +280,12 @@ public class JMXServerJob implements ArooaSessionAware {
 				root,
 				registry);
 		
-		mainName = factory.createMBeanFor(serverBean, 
+		long mainName = factory.createMBeanFor(serverBean,
 				new ServerContextMain(model, registry));
+		if (mainName != 0L) {
+			throw new IllegalStateException("Main bean id should be 0 not " + mainName);
+		}
+
 			
 		this.cntorServer = serverStrategy.startConnector(environment);
 		this.address = serverStrategy.getAddress();
@@ -312,7 +301,7 @@ public class JMXServerJob implements ArooaSessionAware {
 		
 		logger.debug("Desroying MBeans.");
 		try {
-			factory.destroy(mainName);
+			factory.destroy(0L);
 		}
 		catch (JMException e) {
 			// This can happen when the RMI registry is shut before the 

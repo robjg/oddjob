@@ -11,7 +11,7 @@ public class MethodInvocationException extends Exception {
 	}
 	
 	static String args(Object[] args) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		
 		buf.append('(');
 		for (int i = 0; i < args.length; ++i) {

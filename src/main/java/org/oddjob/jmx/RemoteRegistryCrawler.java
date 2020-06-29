@@ -1,11 +1,7 @@
 package org.oddjob.jmx;
 
 import org.oddjob.arooa.reflect.ArooaPropertyException;
-import org.oddjob.arooa.registry.Address;
-import org.oddjob.arooa.registry.BeanDirectory;
-import org.oddjob.arooa.registry.BeanDirectoryOwner;
-import org.oddjob.arooa.registry.Path;
-import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.arooa.registry.*;
 
 public class RemoteRegistryCrawler {
 
@@ -19,7 +15,6 @@ public class RemoteRegistryCrawler {
 	 * Helper function to convert a path for a different server into the
 	 * path to that servers client from this registery.
 	 * 
-	 * @param selected The current path being built up in this recursive call.
 	 * @param serverId The server id for this current path.
 	 * 
 	 * @return The path relative to the other server or null if the other server
@@ -28,7 +23,7 @@ public class RemoteRegistryCrawler {
 	public BeanDirectory registryForServer(ServerId serverId) {
 		if (registry instanceof RemoteDirectory) {
 			if (((RemoteDirectory) registry).getServerId().equals(serverId)) {
-				return (RemoteDirectory) registry;
+				return registry;
 			}
 			if (ServerId.local().equals(serverId)) {
 				return null;
@@ -65,7 +60,7 @@ public class RemoteRegistryCrawler {
 	 * is accessible via several servers), the object with the shortest path is
 	 * returned.
 	 * 
-	 * @param addresses The possible addresses of the component.
+	 * @param address The possible addresses of the component.
 	 * @return The component or null if none of the addresses are accessible.
 	 * 
 	 * @throws ArooaPropertyException 

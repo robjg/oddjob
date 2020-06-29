@@ -16,5 +16,5 @@ public interface HandlerFactoryProvider {
 	 * 
 	 * @return Array of factories. Never null;
 	 */
-	public ServerInterfaceHandlerFactory<?, ?>[] getHandlerFactories();
+	ServerInterfaceHandlerFactory<?, ?>[] getHandlerFactories();
 }

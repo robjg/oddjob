@@ -1,10 +1,9 @@
 package org.oddjob.jmx;
 
+import javax.management.remote.JMXServiceURL;
 import java.net.MalformedURLException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.management.remote.JMXServiceURL;
 
 /**
  * Parses a JMX Service URL to see if it is a full URL or just the
@@ -18,7 +17,7 @@ public class JMXServiceURLHelper {
 	private static final String URL_START = "service:jmx";
 	
 	private static final Pattern URL_END = Pattern.compile(
-			"(.+?)(\\:\\d+)?(/.+)?");
+			"(.+?)(:\\d+)?(/.+)?");
 	
 	public JMXServiceURL parse(String url) throws MalformedURLException {
 		

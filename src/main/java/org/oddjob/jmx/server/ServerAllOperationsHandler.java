@@ -3,16 +3,15 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.MethodOperation;
+
+import javax.management.MBeanException;
+import javax.management.ReflectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-
-import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.MethodOperation;
 
 /**
  * Handle invoking operation on a target object. Essentially
@@ -28,7 +27,7 @@ public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 	private final Object target;
 	
 	private final Map<RemoteOperation<?>, Method> methods =
-		new HashMap<RemoteOperation<?>, Method>();
+			new HashMap<>();
 	
 	/**
 	 * Constructor.
@@ -57,11 +56,7 @@ public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 		
 		try {
 			return m.invoke(target, params);
-		} catch (IllegalArgumentException e1) {
-			throw new ReflectionException(e1, operation.toString());
-		} catch (IllegalAccessException e1) {
-			throw new ReflectionException(e1, operation.toString());
-		} catch (InvocationTargetException e1) {
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e1) {
 			throw new ReflectionException(e1, operation.toString());
 		}
 	}

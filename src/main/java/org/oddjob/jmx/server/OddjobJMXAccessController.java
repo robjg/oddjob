@@ -4,6 +4,6 @@ import javax.management.MBeanOperationInfo;
 
 public interface OddjobJMXAccessController {
 
-	public boolean isAccessable(MBeanOperationInfo opInfo);
+	boolean isAccessible(MBeanOperationInfo opInfo);
 	
 }

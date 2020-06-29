@@ -3,17 +3,11 @@
  */
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.logging.*;
+import org.oddjob.logging.cache.PollingLogArchiver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.logging.LogLevel;
-import org.oddjob.logging.ArchiveNameResolver;
-import org.oddjob.logging.ConsoleArchiver;
-import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogListener;
-import org.oddjob.logging.cache.LogEventSource;
-import org.oddjob.logging.cache.PollingLogArchiver;
 
 /**
  * A LogArchiver which maintains it's log archives by polling a JMX MBean for
@@ -53,46 +47,36 @@ implements Runnable, LogArchiver, ConsoleArchiver {
 			throw new IllegalArgumentException("Log history lines must be greater than zero.");
 		}
 		
-		consoleArchiver = new PollingLogArchiver(consoleHistoryLines, 				
-				new ArchiveNameResolver() {
-					public String resolveName(Object component) {
-						if (component instanceof LogPollable) {
-							return consoleArchiveFor((LogPollable) component);
-						}
-						else {
-							return null;
-						}
+		consoleArchiver = new PollingLogArchiver(consoleHistoryLines,
+				component -> {
+					if (component instanceof LogPollable) {
+						return consoleArchiveFor((LogPollable) component);
+					}
+					else {
+						return null;
 					}
 				},
-				new LogEventSource() {
-					public LogEvent[] retrieveEvents(Object component, long last,
-							int max) {
-						logger.debug("Retrieving console events for [" + component + "]");
-						LogPollable pollable = (LogPollable) component;
-						return pollable.retrieveConsoleEvents(last, max);
-					}
+				(component, last, max) -> {
+					logger.debug("Retrieving console events for [" + component + "]");
+					LogPollable pollable = (LogPollable) component;
+					return pollable.retrieveConsoleEvents(last, max);
 				}
 		);
 		
 		loggerArchiver = new PollingLogArchiver(logHistoryLines,
-				new ArchiveNameResolver() {
-					public String resolveName(Object component) {
-						if (component instanceof LogPollable) {
-							return logArchiveFor((LogPollable) component);
-						}
-						else {
-							return null;
-						}
+				component -> {
+					if (component instanceof LogPollable) {
+						return logArchiveFor((LogPollable) component);
+					}
+					else {
+						return null;
 					}
 				},
-				new LogEventSource() {
-					public LogEvent[] retrieveEvents(Object component, long last,
-							int max) {
-						LogPollable pollable = (LogPollable) component;
-						LogEvent[] results = pollable.retrieveLogEvents(last, max); 
-						logger.debug("Retrieved [" + results.length + "] log events for [" + component + "]");
-						return results;
-					}
+				(component, last, max) -> {
+					LogPollable pollable = (LogPollable) component;
+					LogEvent[] results = pollable.retrieveLogEvents(last, max);
+					logger.debug("Retrieved [" + results.length + "] log events for [" + component + "]");
+					return results;
 				}
 		);
 		

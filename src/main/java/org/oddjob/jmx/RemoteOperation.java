@@ -54,7 +54,7 @@ public abstract class RemoteOperation<T> {
 	
 	public String toString() {
 		
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String[] sig = getSignature();
 		buf.append('(');
 		for (int i = 0; i < sig.length; ++i) {

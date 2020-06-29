@@ -13,5 +13,5 @@ public interface RemoteDirectoryOwner extends BeanDirectoryOwner {
 	/**
 	 * Provide a remote directory.
 	 */
-	public RemoteDirectory provideBeanDirectory();
+	RemoteDirectory provideBeanDirectory();
 }

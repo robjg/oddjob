@@ -1,7 +1,5 @@
 package org.oddjob.jmx.client;
 
-import javax.management.ObjectName;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.jmx.ObjectNames;
 import org.slf4j.Logger;
@@ -18,11 +16,11 @@ public interface ClientSession extends ObjectNames {
 	 * Create or find a previously created proxy for
 	 * the JMX object name.
 	 * 
-	 * @param objectName The JMX object name.
+	 * @param objectId The JMX object name.
 	 * 
 	 * @return The proxy. Never null.
 	 */
-	public Object create(ObjectName objectName);
+	Object create(long objectId);
 	
 	/**
 	 * Destroy a client side proxy. Allows handlers to 
@@ -30,7 +28,7 @@ public interface ClientSession extends ObjectNames {
 	 * 
 	 * @param proxy
 	 */
-	public void destroy(Object proxy);
+	void destroy(Object proxy);
 	
 	
 	/**
@@ -39,18 +37,18 @@ public interface ClientSession extends ObjectNames {
 	 * 
 	 * @return
 	 */
-	public ArooaSession getArooaSession();
+	ArooaSession getArooaSession();
 	
 	/**
 	 * The Client JOb Logger, visible in explorer.
 	 * 
 	 * @return
 	 */
-	public Logger logger();
+	Logger logger();
 	
 	/**
 	 * Destroy all proxies on the client side.
 	 */
-	public void destroyAll();
+	void destroyAll();
 	
 }

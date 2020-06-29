@@ -21,7 +21,7 @@ public interface ClientInterfaceHandlerFactory<T> {
 	 * 
 	 * @return
 	 */
-	public HandlerVersion getVersion();
+	HandlerVersion getVersion();
 	
 	/**
 	 * Provide the interface class this is the information
@@ -29,7 +29,7 @@ public interface ClientInterfaceHandlerFactory<T> {
 	 * 
 	 * @return The class.
 	 */
-	public Class<T> interfaceClass();
+	Class<T> interfaceClass();
 		
 	
 	/**
@@ -39,11 +39,11 @@ public interface ClientInterfaceHandlerFactory<T> {
 	 * @param proxy The client side proxy the invocations are coming from. Most of the
 	 * time this will be ignored but it's useful as the source for events.
 	 * 
-	 * @param clientToolkit Tools to help the handler do it's job.
+	 * @param toolkit Tools to help the handler do it's job.
 	 * 
 	 * @return An Handler object. Never null.
 	 */
-	public T createClientHandler(T proxy, ClientSideToolkit toolkit);
+	T createClientHandler(T proxy, ClientSideToolkit toolkit);
 
 	
 }

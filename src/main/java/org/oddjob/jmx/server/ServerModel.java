@@ -16,18 +16,18 @@ public interface ServerModel {
 	/**
 	 * @return Returns the uniqueId.
 	 */
-	public ServerId getServerId();
+	ServerId getServerId();
 			
 	/**
 	 * @return Returns the threadManager.
 	 */
-	public ThreadManager getThreadManager();
+	ThreadManager getThreadManager();
 	
 	/**
 	 * 
 	 * @return Returns the interfaceManagerFactory.
 	 */
-	public ServerInterfaceManagerFactory getInterfaceManagerFactory();
+	ServerInterfaceManagerFactory getInterfaceManagerFactory();
 	
 
 	/**
@@ -35,5 +35,5 @@ public interface ServerModel {
 	 * 
 	 * @return The log format.
 	 */
-	public String getLogFormat();
+	String getLogFormat();
 }

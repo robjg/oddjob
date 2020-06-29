@@ -1,16 +1,13 @@
 package org.oddjob.jmx.client;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.jmx.server.OddjobMBeanFactory;
+import org.slf4j.Logger;
 
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
-
-import org.oddjob.arooa.ArooaSession;
-import org.slf4j.Logger;
+import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Simple implementation of a {@link ClientSession}
@@ -22,14 +19,12 @@ public class ClientSessionImpl implements ClientSession {
 
 	private final Logger logger;
 	
-	private final Map<Object, ObjectName> names
-		= new HashMap<Object, ObjectName>();
+	private final Map<Object, Long> names = new HashMap<>();
 	
-	private final Map<ObjectName, Object> proxies
-	= new HashMap<ObjectName, Object>();
+	private final Map<Long, Object> proxies = new HashMap<>();
 
 	private final Map<Object, Destroyable> destroyers =
-			new HashMap<Object, Destroyable>();
+			new HashMap<>();
 	
 	private final ArooaSession arooaSession;
 	
@@ -55,21 +50,23 @@ public class ClientSessionImpl implements ClientSession {
 		this.arooaSession = arooaSession;
 		this.logger = logger;
 	}
-	
-	public Object create(ObjectName objectName) {
 
-		Object childProxy = proxies.get(objectName);
+	@Override
+	public Object create(long objectId) {
+
+		Object childProxy = proxies.get(objectId);
 		
 		if (childProxy != null) {
 			return childProxy;
 		}
-	
+
+		ObjectName objectName = OddjobMBeanFactory.objectName(objectId);
 		try {
 			ClientSideToolkitImpl toolkit = new ClientSideToolkitImpl(objectName, this);
 			
-			ClientNode.Handle handle = ClientNode.createProxyFor(objectName,
+			ClientNode.Handle handle = ClientNode.createProxyFor(objectId,
 					toolkit);
-			childProxy = handle.getproxy();
+			childProxy = handle.getProxy();
 			destroyers.put(childProxy, handle.getDestroyer());
 		} 
 		catch (Exception e) {
@@ -80,27 +77,27 @@ public class ClientSessionImpl implements ClientSession {
 			return new NodeCreationFailed(e);
 		}
 		
-		names.put(childProxy, objectName);
-		proxies.put(objectName, childProxy);
+		names.put(childProxy, objectId);
+		proxies.put(objectId, childProxy);
 		
 		return childProxy;
 	}
 
 	@Override
-	public ObjectName nameFor(Object proxy) {
-		return names.get(proxy);
+	public long nameFor(Object proxy) {
+		return Optional.ofNullable(names.get(proxy)).orElse(-1L);
 	}
 	
 	@Override
-	public Object objectFor(ObjectName name) {
-		return proxies.get(name);
+	public Object objectFor(long objectId) {
+		return proxies.get(objectId);
 	}
 	
 	@Override
 	public void destroy(Object proxy) {
 		Destroyable destroyer = destroyers.get(proxy);
 		destroyer.destroy();
-		ObjectName name = names.remove(proxy);
+		long name = names.remove(proxy);
 		proxies.remove(name);
 	}
 	
@@ -124,7 +121,7 @@ public class ClientSessionImpl implements ClientSession {
 		
 	@Override
 	public void destroyAll() {
-		List<Object> proxies = new ArrayList<Object>(names.keySet());
+		List<Object> proxies = new ArrayList<>(names.keySet());
 		for (Object proxy : proxies) {
 			destroy(proxy);
 		}

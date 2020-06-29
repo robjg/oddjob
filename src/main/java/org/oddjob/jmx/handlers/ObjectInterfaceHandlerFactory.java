@@ -1,25 +1,15 @@
 package org.oddjob.jmx.handlers;
 
-import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.ReflectionException;
-
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
+import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+
+import javax.management.*;
+import java.lang.reflect.Proxy;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  */
@@ -28,12 +18,12 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
-	private static final JMXOperationPlus<String> TO_STRING = 
-		new JMXOperationPlus<String>(
-				"toString", 
-				"toString.",
-				String.class,
-				MBeanOperationInfo.INFO);
+	private static final JMXOperationPlus<String> TO_STRING =
+			new JMXOperationPlus<>(
+					"toString",
+					"toString.",
+					String.class,
+					MBeanOperationInfo.INFO);
 	
 	public Class<Object> interfaceClass() {
 		return Object.class;
@@ -58,7 +48,7 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 	}
 
 	public ClientHandlerResolver<Object> clientHandlerFactory() {
-		return new SimpleHandlerResolver<Object>(
+		return new SimpleHandlerResolver<>(
 				ClientObjectHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -71,8 +61,8 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		
 		public HandlerVersion getVersion() {
 			return VERSION;
-		};
-		
+		}
+
 		public Object createClientHandler(Object proxy, ClientSideToolkit toolkit) {
 			return new ClientObjectHandler(proxy, toolkit);
 		}
@@ -116,7 +106,7 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		}
 	}
 	
-	class ServerObjectHandler implements ServerInterfaceHandler {
+	static class ServerObjectHandler implements ServerInterfaceHandler {
 	
 		private final Object object;
 		

@@ -26,7 +26,7 @@ public interface LogPollable {
 	 * 
 	 * @return
 	 */
-	public String url();
+	String url();
 	
 	/**
 	 * Get the consoleId. The consoleId identifies the console on 
@@ -36,7 +36,7 @@ public interface LogPollable {
 	 *  
 	 * @return The consoleId.
 	 */
-	public String consoleId();
+	String consoleId();
 	
 	/**
 	 * Poll for LogEvents.
@@ -45,7 +45,7 @@ public interface LogPollable {
 	 * @param max
 	 * @return
 	 */
-	public LogEvent[] retrieveLogEvents(long from, int max);
+	LogEvent[] retrieveLogEvents(long from, int max);
 	
 	/**
 	 * Poll for console events.
@@ -54,6 +54,6 @@ public interface LogPollable {
 	 * @param max
 	 * @return
 	 */
-	public LogEvent[] retrieveConsoleEvents(long from, int max);
+	LogEvent[] retrieveConsoleEvents(long from, int max);
 
 }

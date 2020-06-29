@@ -1,20 +1,14 @@
 package org.oddjob.jmx.handlers;
 
-import java.lang.reflect.Method;
-import java.util.Objects;
+import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.jmx.client.VanillaHandlerResolver;
+import org.oddjob.jmx.server.*;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
-
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
-import org.oddjob.jmx.server.JMXOperation;
-import org.oddjob.jmx.server.JMXOperationFactory;
-import org.oddjob.jmx.server.ServerAllOperationsHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerSideToolkit;
+import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
  * Factory that provides handlers for an interface where 
@@ -96,11 +90,11 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#createServerHandler(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)
 	 */
 	public ServerInterfaceHandler createServerHandler(T target, ServerSideToolkit ojmb) {
-		return new ServerAllOperationsHandler<T>(cl, target);
+		return new ServerAllOperationsHandler<>(cl, target);
 	}
 
 	public ClientHandlerResolver<T> clientHandlerFactory() {
-		return new VanillaHandlerResolver<T>(cl.getName());
+		return new VanillaHandlerResolver<>(cl.getName());
 	}
 	
 	@Override

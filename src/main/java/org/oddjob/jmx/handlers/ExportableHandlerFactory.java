@@ -1,15 +1,15 @@
 package org.oddjob.jmx.handlers;
 
-import java.lang.reflect.Proxy;
-
 import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.HandlerVersion;
 
+import java.lang.reflect.Proxy;
+
 /**
- * Provide Handlers for the {@link org.oddjob.framework.Exportable} interface.
+ * Provide Handlers for the {@link Exportable} interface.
  * <p>
  * This is a special handler because Exportable is a
  * fake client side interface.
@@ -37,7 +37,7 @@ implements ClientInterfaceHandlerFactory<Exportable> {
 		return new ClientExportableHandler(proxy);
 	}
 	
-	class ClientExportableHandler implements Exportable {
+	static class ClientExportableHandler implements Exportable {
 
 		private final Exportable invocationHandler;
 		

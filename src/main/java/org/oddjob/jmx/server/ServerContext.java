@@ -27,28 +27,28 @@ public interface ServerContext {
 	 * @throws ServerLoopBackException When the child has already been
 	 * exported by a previous server in the hierarchy.
 	 */
-	public ServerContext addChild(Object child) throws ServerLoopBackException;
+	ServerContext addChild(Object child) throws ServerLoopBackException;
 	
 	/**
 	 * Get the model.
 	 * 
 	 * @return The model.
 	 */
-	public ServerModel getModel();
+	ServerModel getModel();
 	
 	/**
 	 * Get the log archiver for the component this is the context for.
 	 * 
 	 * @return A log archiver.
 	 */
-	public LogArchiver getLogArchiver();
+	LogArchiver getLogArchiver();
 		
 	/**
 	 * Get the console archiver for the component this is the context for.
 	 * 
 	 * @return A console archiver.
 	 */
-	public ConsoleArchiver getConsoleArchiver();
+	ConsoleArchiver getConsoleArchiver();
 
 	/**
 	 * Get the bean directory that the component this is the context for 
@@ -56,19 +56,19 @@ public interface ServerContext {
 	 * 
 	 * @return The bean directory.
 	 */
-	public BeanDirectory getBeanDirectory();
+	BeanDirectory getBeanDirectory();
 
 	/**
 	 * The address.
 	 * 
 	 * @return The address of this component.
 	 */
-	public Address getAddress();
+	Address getAddress();
 	
 	/**
 	 * The server id.
 	 * 
 	 * @return The server id of this component.
 	 */
-	public ServerId getServerId();
+	ServerId getServerId();
 }

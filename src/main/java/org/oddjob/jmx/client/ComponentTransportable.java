@@ -3,12 +3,10 @@
  */
 package org.oddjob.jmx.client;
 
-import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.framework.Transportable;
 import org.oddjob.jmx.ObjectNames;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This object represents a component as it travels across the network between
@@ -17,14 +15,14 @@ import org.oddjob.jmx.ObjectNames;
  * @author Rob Gordon.
  */
 public class ComponentTransportable implements Transportable {
-	private static final long serialVersionUID=20051116;
+	private static final long serialVersionUID=2020062900L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(ComponentTransportable.class);
 	
 	/** The address which identify this component. */
-	private ObjectName name;
+	private final long name;
 	
-	public ComponentTransportable(ObjectName name) {
+	public ComponentTransportable(long name) {
 		this.name = name;
 	}
 		

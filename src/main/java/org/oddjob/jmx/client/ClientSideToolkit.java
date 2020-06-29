@@ -1,8 +1,7 @@
 package org.oddjob.jmx.client;
 
-import javax.management.NotificationListener;
-
 import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.remote.NotificationListener;
 
 /**
  * Provide tools to {@link ClientInterfaceHandlerFactory} to allow
@@ -18,7 +17,7 @@ public interface ClientSideToolkit {
 	 * 
 	 * @return
 	 */
-	public ClientSession getClientSession();
+	ClientSession getClientSession();
 	
 	/**
 	 * Invoke a remote operation.
@@ -31,7 +30,7 @@ public interface ClientSideToolkit {
 	 * 
 	 * @throws Throwable
 	 */
-	public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
+	<T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
 	throws Throwable;
 	
 	/**
@@ -40,7 +39,7 @@ public interface ClientSideToolkit {
 	 * @param eventType
 	 * @param notificationListener
 	 */
-	public void registerNotificationListener(String eventType, 
+	void registerNotificationListener(String eventType,
 			NotificationListener notificationListener);
 	
 	/**
@@ -49,7 +48,7 @@ public interface ClientSideToolkit {
 	 * @param eventType
 	 * @param notificationListener
 	 */
-	public void removeNotificationListener(String eventType, 
+	void removeNotificationListener(String eventType,
 			NotificationListener notificationListener);
 	
 }

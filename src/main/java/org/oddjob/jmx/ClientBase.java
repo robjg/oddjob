@@ -1,11 +1,8 @@
 package org.oddjob.jmx;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import org.oddjob.framework.extend.SimpleService;
+import org.oddjob.state.IsAnyState;
+import org.oddjob.state.ServiceState;
 
 import javax.management.MBeanServerConnection;
 import javax.management.Notification;
@@ -14,11 +11,12 @@ import javax.management.remote.JMXConnectionNotification;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.framework.extend.SimpleService;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.ServiceState;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Shared implementation for JMX clients.
@@ -112,7 +110,7 @@ abstract public class ClientBase extends SimpleService {
 	throws Exception;
 		
 	@Override
-	protected void onStop() throws FailedToStopException {
+	protected void onStop() {
 		doStop(WhyStop.STOP_REQUEST, null);
 	}
 	
@@ -141,25 +139,23 @@ abstract public class ClientBase extends SimpleService {
 		}
 		cntor = null;
 		
-		stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				switch (why) {
-				case HEARTBEAT_FAILURE:
-					getStateChanger().setStateException(cause);
-					logger().error(
-							"Client stopped because of heartbeat Failure.", 
-							cause);
-					break;
-				case SERVER_STOPPED:
-					getStateChanger().setStateException(
-							new Exception("Server Stopped."));
-					logger().info("Client stopped because server Stopped.");
-					break;
-				default:
-					getStateChanger().setState(ServiceState.STOPPED);
-					logger().debug(
-							"Client stopped because stop was requested.");
-				}
+		stateHandler().waitToWhen(new IsAnyState(), () -> {
+			switch (why) {
+			case HEARTBEAT_FAILURE:
+				getStateChanger().setStateException(cause);
+				logger().error(
+						"Client stopped because of heartbeat Failure.",
+						cause);
+				break;
+			case SERVER_STOPPED:
+				getStateChanger().setStateException(
+						new Exception("Server Stopped."));
+				logger().info("Client stopped because server Stopped.");
+				break;
+			default:
+				getStateChanger().setState(ServiceState.STOPPED);
+				logger().debug(
+						"Client stopped because stop was requested.");
 			}
 		});
 	}
@@ -171,8 +167,8 @@ abstract public class ClientBase extends SimpleService {
 	 * 
 	 * @param connection The name of the remote node in the naming service.
 	 */
-	public void setConnection(String lookup) {		
-		this.connection = lookup;
+	public void setConnection(String connection) {
+		this.connection = connection;
 	}
 	
 	/**

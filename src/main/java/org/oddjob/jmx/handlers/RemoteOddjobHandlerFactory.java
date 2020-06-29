@@ -1,23 +1,13 @@
 package org.oddjob.jmx.handlers;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.ReflectionException;
-
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.client.VanillaHandlerResolver;
-import org.oddjob.jmx.server.JMXOperation;
-import org.oddjob.jmx.server.ServerInfo;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.jmx.server.JMXOperationFactory;
+import org.oddjob.jmx.server.*;
+
+import javax.management.*;
 
 /**
  */
@@ -61,11 +51,11 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 	}
 
 	public ClientHandlerResolver<RemoteOddjobBean> clientHandlerFactory() {
-		return new VanillaHandlerResolver<RemoteOddjobBean>(
+		return new VanillaHandlerResolver<>(
 				RemoteOddjobBean.class.getName());
 	}
 	
-	class RemoteOddjobServerHandler implements ServerInterfaceHandler {
+	static class RemoteOddjobServerHandler implements ServerInterfaceHandler {
 	
 		private final RemoteOddjobBean ojmb;
 		

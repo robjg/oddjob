@@ -1,18 +1,7 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.Notification;
-import javax.management.ObjectName;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
@@ -24,11 +13,17 @@ import org.oddjob.jmx.MockRemoteOddjobBean;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.remote.Notification;
 import org.oddjob.tools.OddjobTestHelper;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class ServerMainBeanTest extends OjTestCase {
 
-	private class OurModel extends MockServerModel {
+	private static class OurModel extends MockServerModel {
 		
 		ServerInterfaceManagerFactory simf;
 		
@@ -48,22 +43,15 @@ public class ServerMainBeanTest extends OjTestCase {
 		}
 	}
 
-	ObjectName childName;
-	{
-		try {
-			childName = new ObjectName("oddjob", "name", "whatever");
-		} catch (MalformedObjectNameException e) {
-			throw new RuntimeException(e);
-		}
-	}
-	
+	long childName = 2L;
+
 	private class OurServerToolkit extends MockServerSideToolkit {
 
 		ArooaSession session = new StandardArooaSession();
 		
 		Object child;
 		
-		List<Notification> sent = new ArrayList<Notification>();
+		List<Notification> sent = new ArrayList<>();
 		
 		ServerContext context;
 		
@@ -83,8 +71,8 @@ public class ServerMainBeanTest extends OjTestCase {
 		}
 		
 		@Override
-		public Notification createNotification(String type) {
-			return new Notification("X", this, 0);
+		public Notification createNotification(String type, Object userData) {
+			return new Notification("X", 0, userData);
 		}
 
 		@Override
@@ -96,14 +84,14 @@ public class ServerMainBeanTest extends OjTestCase {
 		public ServerSession getServerSession() {
 			return new MockServerSession() {
 				@Override
-				public ObjectName createMBeanFor(Object theChild,
+				public long createMBeanFor(Object theChild,
 						ServerContext childContext) {
 					child = theChild;
 					return childName;
 				}
 				
 				@Override
-				public void destroy(ObjectName childName) {
+				public void destroy(long childName) {
 					assertEquals(ServerMainBeanTest.this.childName, childName);
 					child = null;
 				}
@@ -117,7 +105,7 @@ public class ServerMainBeanTest extends OjTestCase {
 		
 	}
 	
-	private class OurClassResolver extends MockClassResolver {
+	private static class OurClassResolver extends MockClassResolver {
 		
 		@Override
 		public Class<?> findClass(String className) {
@@ -144,7 +132,7 @@ public class ServerMainBeanTest extends OjTestCase {
 				child,
 				beanDirectory);
 		
-		ServerInterfaceManagerFactoryImpl simf = 
+		ServerInterfaceManagerFactoryImpl simf =
 			new ServerInterfaceManagerFactoryImpl();
 		simf.addServerHandlerFactories(
 				new ResourceFactoryProvider(
@@ -169,7 +157,7 @@ public class ServerMainBeanTest extends OjTestCase {
 		ClientHandlerResolver<?>[] clientFactories = 
 			serverInterfaceManager.allClientInfo();
 		
-		Set<Class<?>> interfaces = new HashSet<Class<?>>();
+		Set<Class<?>> interfaces = new HashSet<>();
 
 		for (ClientHandlerResolver<?> clientFactory : clientFactories) {
 			interfaces.add(clientFactory.resolve(

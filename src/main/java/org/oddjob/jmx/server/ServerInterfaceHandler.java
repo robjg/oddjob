@@ -3,10 +3,10 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.jmx.RemoteOperation;
+
 import javax.management.MBeanException;
 import javax.management.ReflectionException;
-
-import org.oddjob.jmx.RemoteOperation;
 
 /**
  * Handle communication between an instance of an interface and
@@ -35,7 +35,7 @@ public interface ServerInterfaceHandler {
 	 * from the methods were cast to the parameter which would
 	 * be a lot of code for no advantage.
 	 * 
-	 * @param actionName The action (method) name.
+	 * @param operation The action (method) name.
 	 * @param params The parameter object array.
 	 * 
 	 * @return The result if any.
@@ -43,11 +43,11 @@ public interface ServerInterfaceHandler {
 	 * @throws MBeanException
 	 * @throws ReflectionException
 	 */
-	public Object invoke(RemoteOperation<?> operation, final Object[] params)
+	Object invoke(RemoteOperation<?> operation, final Object[] params)
 	throws MBeanException, ReflectionException;
 		
 	/**
 	 * Clear up any resource this handler might have created.
 	 */
-	public void destroy();
+	void destroy();
 }

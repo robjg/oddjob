@@ -1,23 +1,21 @@
 package org.oddjob.jmx;
 
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.management.MBeanServerConnection;
-
 import org.oddjob.Structural;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.jmx.client.ClientSession;
 import org.oddjob.jmx.client.ClientSessionImpl;
 import org.oddjob.jmx.client.RemoteLogPoller;
 import org.oddjob.jmx.client.ServerView;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.jobs.job.StopJob;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+
+import javax.management.MBeanServerConnection;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @oddjob.description Connect to an Oddjob {@link org.oddjob.jmx.JMXServerJob}.
@@ -44,7 +42,8 @@ import org.oddjob.structural.StructuralListener;
  * 
  * Note that the {@link StopJob} is required otherwise Oddjob wouldn't exit. An 
  * Alternative to using stop, would be to make the client a child of a
- * {@link ServiceManager} job.
+ * {@link org.oddjob.jobs.structural.SequentialJob} with an
+ * {@link org.oddjob.state.ServiceManagerStateOp} operator.
  * <p>
  * Here's an example of the command used to launch it:
  * <pre>
@@ -94,7 +93,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	private RemoteLogPoller logPoller;
 	
 	/** Child helper */
-	private ChildHelper<Object> childHelper = new ChildHelper<Object>(this);
+	private ChildHelper<Object> childHelper = new ChildHelper<>(this);
 	
 	/** The client session */
 	private ClientSession clientSession;
@@ -220,13 +219,11 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 	}
 	
 	/**
-	 * 
-	 * @throws Exception
+	 *
 	 */
 	@Override
 	protected void doStart(MBeanServerConnection mbsc,
-			ScheduledExecutorService notificationProcessor)
-	throws Exception {
+			ScheduledExecutorService notificationProcessor) {
 			
 		clientSession = new ClientSessionImpl(
 				mbsc,
@@ -234,8 +231,7 @@ implements Structural, LogArchiver, ConsoleArchiver, RemoteDirectoryOwner {
 				getArooaSession(),
 				logger());
 		
-		Object serverMain = clientSession.create(
-				OddjobMBeanFactory.objectName(0));
+		Object serverMain = clientSession.create(0L);
 		
 		if (serverMain == null) {
 			throw new NullPointerException("No Oddjob MBean found.");

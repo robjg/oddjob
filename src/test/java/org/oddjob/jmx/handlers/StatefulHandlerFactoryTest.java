@@ -4,25 +4,22 @@
 package org.oddjob.jmx.handlers;
 
 import org.junit.Test;
-
-import javax.management.Notification;
-import javax.management.NotificationListener;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.MockStateful;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationListener;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactoryTest extends OjTestCase {
 
-	private class OurStateful extends MockStateful {
+	private static class OurStateful extends MockStateful {
 		StateListener l;
 		public void addStateListener(StateListener listener) {
 			assertNull(l);
@@ -35,7 +32,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 		}		
 	}
 	
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 
 		NotificationListener listener;
@@ -70,7 +67,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 		}
 	}
 
-	private class OurServerSideToolkit extends MockServerSideToolkit {
+	private static class OurServerSideToolkit extends MockServerSideToolkit {
 
 		long seq = 0;
 		
@@ -81,19 +78,19 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 		}
 		
 		@Override
-		public Notification createNotification(String type) {
-			return new Notification(type, this, seq++);
+		public Notification createNotification(String type, Object userData) {
+			return new Notification(type, seq++, userData);
 		}
 		
 		public void sendNotification(Notification notification) {
 			if (listener != null) {
-				listener.handleNotification(notification, null);
+				listener.handleNotification(notification);
 			}
 		}
 				
 	}
 	
-	private class Result implements StateListener {
+	private static class Result implements StateListener {
 		StateEvent event;
 		
 		public void jobStateChange(StateEvent event) {
@@ -102,13 +99,13 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 	}
 	
    @Test
-	public void testAddRemoveListener() throws Exception {
+	public void testAddRemoveListener() {
 		
 		StatefulHandlerFactory test = new StatefulHandlerFactory();
 		
 		assertEquals(1, test.getMBeanNotificationInfo().length);
 		
-		OurStateful stateful = new OurStateful(); 
+		OurStateful stateful = new OurStateful();
 		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
 
 		// create the handler
@@ -159,7 +156,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 		
 	}
 		
-	private class OurClientToolkit2 extends MockClientSideToolkit {
+	private static class OurClientToolkit2 extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 
 		@SuppressWarnings("unchecked")
@@ -171,13 +168,13 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 	}
 	
    @Test
-	public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() throws Exception {
+	public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() {
 		
 		StatefulHandlerFactory test = new StatefulHandlerFactory();
 		
 //		assertEquals(1, test.getMBeanOperationInfo().length);
 		
-		OurStateful stateful = new OurStateful(); 
+		OurStateful stateful = new OurStateful();
 		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
 
 		// create the handler

@@ -21,6 +21,6 @@ public interface ServerInterfaceManagerFactory {
 	 * 
 	 * @return
 	 */
-	public ServerInterfaceManager create(
+	ServerInterfaceManager create(
 			Object target, ServerSideToolkit serverSideToolkit);
 }

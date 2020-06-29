@@ -3,14 +3,14 @@
  */
 package org.oddjob.jmx.server;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Helper class for return log and console messages from an
@@ -23,7 +23,7 @@ public class LogArchiverHelper {
 	 *
 	 */
 	static class LL implements LogListener {
-		final List<LogEvent> events = new ArrayList<LogEvent>();
+		final List<LogEvent> events = new ArrayList<>();
 		public void logEvent(LogEvent logEvent) {
 			events.add(logEvent);
 		}
@@ -45,11 +45,11 @@ public class LogArchiverHelper {
 			throw new NullPointerException("No LogArchiver availble on server.");
 		}
 		LL ll = new LL();
-		archiver.addLogListener(ll, component, LogLevel.DEBUG, 
-				last.longValue(), max.intValue());
+		archiver.addLogListener(ll, component, LogLevel.DEBUG,
+				last, max);
 		archiver.removeLogListener(ll, component);
 		
-		return (LogEvent[]) ll.events.toArray(new LogEvent[0]);
+		return ll.events.toArray(new LogEvent[0]);
 	}
 	
 	/**
@@ -86,10 +86,10 @@ public class LogArchiverHelper {
 			throw new NullPointerException("No ConsoleArchiver availble on server.");
 		}
 		archiver.addConsoleListener(ll, component,
-				last.longValue(), max.intValue());
+				last, max);
 		archiver.removeConsoleListener(ll, component);
 		
-		return (LogEvent[]) ll.events.toArray(new LogEvent[0]);
+		return ll.events.toArray(new LogEvent[0]);
 	}
 	
 }

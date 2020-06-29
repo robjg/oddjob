@@ -1,17 +1,16 @@
 package org.oddjob.jmx.general;
 
+import org.apache.commons.beanutils.DynaBean;
+import org.apache.commons.beanutils.DynaClass;
+import org.apache.commons.beanutils.DynaProperty;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.CompositeType;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.CompositeType;
-
-import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.beanutils.DynaClass;
-import org.apache.commons.beanutils.DynaProperty;
 
 /**
  * Wrapper for {@link CompositeData} so it can be accessed with
@@ -100,8 +99,8 @@ public class CompositeDataDynaBean implements DynaBean {
 		
 		private final DynaProperty[] properties;
 		
-		private final Map<String, DynaProperty> map = 
-				new HashMap<String, DynaProperty>();
+		private final Map<String, DynaProperty> map =
+				new HashMap<>();
 			
 		public ThisDynaClass(CompositeType type) {
 
@@ -140,7 +139,7 @@ public class CompositeDataDynaBean implements DynaBean {
 		}
 		
 		@Override
-		public DynaBean newInstance() throws IllegalAccessException,
+		public DynaBean newInstance() throws
 				InstantiationException {
 			throw new InstantiationException(
 					"Can't create new " + getName());

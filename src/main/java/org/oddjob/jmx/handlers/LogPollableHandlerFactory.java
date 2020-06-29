@@ -1,28 +1,13 @@
 package org.oddjob.jmx.handlers;
 
-import java.lang.reflect.UndeclaredThrowableException;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
-
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.SharedConstants;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.LogPollable;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.server.JMXOperationPlus;
-import org.oddjob.jmx.server.LogArchiverHelper;
-import org.oddjob.jmx.server.ServerContext;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEvent;
+
+import javax.management.*;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * Provide Handlers for the {@link LogPollable} interface.
@@ -38,34 +23,34 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
 	private static final JMXOperationPlus<String> CONSOLE_ID =
-		new JMXOperationPlus<String>(
-				"consoleId",
-				"Console ID", 
-				String.class,
-				MBeanOperationInfo.INFO);
+			new JMXOperationPlus<>(
+					"consoleId",
+					"Console ID",
+					String.class,
+					MBeanOperationInfo.INFO);
 	
-	private static final JMXOperationPlus<String> URL = 
-		new JMXOperationPlus<String>(
-				"url",
-				"Remote URL", 
-				String.class,
-				MBeanOperationInfo.INFO);
+	private static final JMXOperationPlus<String> URL =
+			new JMXOperationPlus<>(
+					"url",
+					"Remote URL",
+					String.class,
+					MBeanOperationInfo.INFO);
 	
-	private static final JMXOperationPlus<LogEvent[]> RETRIEVE_CONSOLE_EVENTS = 
-		new JMXOperationPlus<LogEvent[]>(
-				SharedConstants.RETRIEVE_CONSOLE_EVENTS_METHOD,
-				"Retrieve Console Events",
-				LogEvent[].class,
-				MBeanOperationInfo.INFO)
+	private static final JMXOperationPlus<LogEvent[]> RETRIEVE_CONSOLE_EVENTS =
+			new JMXOperationPlus<>(
+					SharedConstants.RETRIEVE_CONSOLE_EVENTS_METHOD,
+					"Retrieve Console Events",
+					LogEvent[].class,
+					MBeanOperationInfo.INFO)
 			.addParam("seqNum", Long.TYPE, "Sequence Number")
 			.addParam("history", Integer.TYPE, "History");
 	
 	private static final JMXOperationPlus<LogEvent[]> RETRIEVE_LOG_EVENTS =
-		new JMXOperationPlus<LogEvent[]>(
-				SharedConstants.RETRIEVE_LOG_EVENTS_METHOD,
-				"Retrieve Log Events",
-				LogEvent[].class,
-				MBeanOperationInfo.INFO)
+			new JMXOperationPlus<>(
+					SharedConstants.RETRIEVE_LOG_EVENTS_METHOD,
+					"Retrieve Log Events",
+					LogEvent[].class,
+					MBeanOperationInfo.INFO)
 			.addParam("seqNum", Long.TYPE, "Sequence Number")
 			.addParam("history", Integer.TYPE, "History");
 
@@ -100,7 +85,7 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	}
 
 	public ClientHandlerResolver<LogPollable> clientHandlerFactory() {
-		return new SimpleHandlerResolver<LogPollable>(
+		return new SimpleHandlerResolver<>(
 				ClientLogPollableHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -133,9 +118,9 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 			this.toolkit = toolkit;
 			
 			try {
-				consoleId = (String) toolkit.invoke(
+				consoleId = toolkit.invoke(
 						CONSOLE_ID); 
-				url = (String) toolkit.invoke(
+				url = toolkit.invoke(
 						URL);
 			} catch (Throwable t) {
 				throw new UndeclaredThrowableException(t);
@@ -162,7 +147,7 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 			try {
 				return toolkit.invoke(
 						RETRIEVE_CONSOLE_EVENTS,
-						new Object[] { new Long(from), new Integer(max) });
+						from, max);
 			} catch (Throwable t) {
 				throw new UndeclaredThrowableException(t);
 			}
@@ -172,14 +157,14 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 			try {
 				return toolkit.invoke(
 						RETRIEVE_LOG_EVENTS,
-						new Object[] { new Long(from), new Integer(max) });
+						from, max);
 			} catch (Throwable t) {
 				throw new UndeclaredThrowableException(t);
 			}
 		}
 	}
 	
-	class ServerLogPollableHandler implements ServerInterfaceHandler {
+	static class ServerLogPollableHandler implements ServerInterfaceHandler {
 	
 		private final Object node;
 		

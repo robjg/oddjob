@@ -2,41 +2,26 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx.client;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.OddjobConsole;
-import org.oddjob.Structural;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ClassResolver;
-import org.oddjob.arooa.MockArooaDescriptor;
-import org.oddjob.arooa.MockArooaSession;
-import org.oddjob.arooa.MockClassResolver;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
-import org.oddjob.jmx.server.ServerContext;
-import org.oddjob.jmx.server.ServerContextImpl;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
-import org.oddjob.jmx.server.ServerModel;
-import org.oddjob.jmx.server.ServerModelImpl;
+import org.oddjob.jmx.server.*;
 import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.util.MockThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
 
 /**
  *
@@ -59,12 +44,12 @@ public class TransportableComponentTest extends OjTestCase {
 		public MyComponent getAnother() {
 			return another;
 		}
-		public Object getAnotherReally() throws MalformedObjectNameException, NullPointerException {
-			return new ComponentTransportable(OddjobMBeanFactory.objectName(2));
+		public Object getAnotherReally() throws NullPointerException {
+			return new ComponentTransportable(2L);
 		}
 	}
 	
-	private class OurArooaSession extends MockArooaSession {
+	private static class OurArooaSession extends MockArooaSession {
 		@Override
 		public ArooaDescriptor getArooaDescriptor() {
 			return new MockArooaDescriptor() {
@@ -127,7 +112,8 @@ public class TransportableComponentTest extends OjTestCase {
 				
 			OddjobMBeanFactory factory = new OddjobMBeanFactory(mbs, 
 					new StandardArooaSession());
-			ObjectName on = factory.createMBeanFor(folder, serverContext); 
+
+			long on = factory.createMBeanFor(folder, serverContext);
 			
 			// client side.
 			ClientSession clientSession = new ClientSessionImpl(				
@@ -140,7 +126,7 @@ public class TransportableComponentTest extends OjTestCase {
 			
 			assertNotNull(folderProxy);
 			
-			Object[] children = OddjobTestHelper.getChildren((Structural) folderProxy);
+			Object[] children = OddjobTestHelper.getChildren(folderProxy);
 			
 			Object c1Proxy = children[0];
 			assertNotNull(c1Proxy);

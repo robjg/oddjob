@@ -3,19 +3,12 @@
  */
 package org.oddjob.jmx.handlers;
 
-import org.junit.Test;
-
-import java.util.Properties;
-
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
+import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.MockStateful;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.input.InputRequest;
@@ -23,26 +16,17 @@ import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientSession;
 import org.oddjob.jmx.client.MockClientSession;
 import org.oddjob.jmx.client.MockClientSideToolkit;
-import org.oddjob.jmx.server.MockServerContext;
-import org.oddjob.jmx.server.MockServerSession;
-import org.oddjob.jmx.server.MockServerSideToolkit;
-import org.oddjob.jmx.server.ServerContext;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerLoopBackException;
-import org.oddjob.jmx.server.ServerSession;
-import org.oddjob.jobs.tasks.BasicTask;
-import org.oddjob.jobs.tasks.Task;
-import org.oddjob.jobs.tasks.TaskException;
-import org.oddjob.jobs.tasks.TaskExecutor;
-import org.oddjob.jobs.tasks.TaskState;
-import org.oddjob.jobs.tasks.TaskView;
+import org.oddjob.jmx.server.*;
+import org.oddjob.jobs.tasks.*;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
+import java.util.Properties;
+
 public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 
-	private class OurTaskView extends MockStateful 
+	private static class OurTaskView extends MockStateful
 	implements TaskView {
 		StateListener l;
 		public void addStateListener(StateListener listener) {
@@ -60,7 +44,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-	private class OurTaskExecutor implements TaskExecutor {
+	private static class OurTaskExecutor implements TaskExecutor {
 		
 		@Override
 		public InputRequest[] getParameterInfo() {
@@ -73,7 +57,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		}
 	}
 
-	private class MockTaskViewProxy implements Stateful, DynaBean {
+	private static class MockTaskViewProxy implements Stateful, DynaBean {
 
 		private StateListener stateListener;
 		
@@ -141,7 +125,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		
 	}
 	
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 		ServerInterfaceHandler server;
 
 		MockTaskViewProxy mockTaskViewProxy = new MockTaskViewProxy();
@@ -157,26 +141,22 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		public ClientSession getClientSession() {
 			return new MockClientSession() {
 				@Override
-				public Object create(ObjectName objectName) {
+				public Object create(long objectName) {
 					return mockTaskViewProxy;
 				}
 			};
 		}
 	}
 
-	private class OurServerSideToolkit extends MockServerSideToolkit {
+	private static class OurServerSideToolkit extends MockServerSideToolkit {
 
 		@Override
 		public ServerSession getServerSession() {
 			return new MockServerSession() {
 				@Override
-				public ObjectName createMBeanFor(Object child,
+				public long createMBeanFor(Object child,
 						ServerContext childContext) {
-					try {
-						return new ObjectName("Foo:name=Foo");
-					} catch (MalformedObjectNameException e) {
-						throw new RuntimeException(e);
-					}
+					return 2L;
 				}
 			};
 		}
@@ -185,8 +165,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		public ServerContext getContext() {
 			return new MockServerContext() {
 				@Override
-				public ServerContext addChild(Object child)
-						throws ServerLoopBackException {
+				public ServerContext addChild(Object child) {
 					return this;
 				}
 			};
@@ -198,7 +177,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 
 		TaskExecutorHandlerFactory test = new TaskExecutorHandlerFactory();
 		
-		OurTaskExecutor taskExecutor = new OurTaskExecutor(); 
+		OurTaskExecutor taskExecutor = new OurTaskExecutor();
 		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
 
 		// create the handler

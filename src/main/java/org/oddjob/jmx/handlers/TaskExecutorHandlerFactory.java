@@ -3,41 +3,26 @@
  */
 package org.oddjob.jmx.handlers;
 
-import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.LinkedList;
-
-import javax.management.JMException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-
 import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.server.JMXOperationPlus;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerLoopBackException;
-import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.server.*;
 import org.oddjob.jobs.tasks.Task;
 import org.oddjob.jobs.tasks.TaskException;
 import org.oddjob.jobs.tasks.TaskExecutor;
 import org.oddjob.jobs.tasks.TaskView;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.*;
+import java.io.Serializable;
+import java.lang.reflect.UndeclaredThrowableException;
+import java.util.LinkedList;
 
 public class TaskExecutorHandlerFactory 
 implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
@@ -78,22 +63,18 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
-		MBeanNotificationInfo[] nInfo = new MBeanNotificationInfo[] {};
-		return nInfo;
+		return new MBeanNotificationInfo[] {};
 	}
 
 	public ServerInterfaceHandler createServerHandler(
 			TaskExecutor taskExecutor, 
 			ServerSideToolkit ojmb) {
-		
-		ServerTaskExecutorHelper structuralHelper = 
-			new ServerTaskExecutorHelper (taskExecutor, ojmb);
-		
-		return structuralHelper;
+
+		return new ServerTaskExecutorHelper(taskExecutor, ojmb);
 	}
 	
 	public ClientHandlerResolver<TaskExecutor> clientHandlerFactory() {
-		return new SimpleHandlerResolver<TaskExecutor>(
+		return new SimpleHandlerResolver<>(
 				ClientTaskExecutorHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -127,8 +108,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		public InputRequest[] getParameterInfo() {
 			try {
 				return toolkit.invoke(
-						GET_PARAMETER_INFO,
-						new Object[] { } );
+						GET_PARAMETER_INFO);
 			}
 			catch (Throwable e) {
 				throw new UndeclaredThrowableException(e);
@@ -140,7 +120,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 			try {
 				TaskViewData taskViewData = toolkit.invoke(
 						EXECUTE,
-						new Object[] { task } );
+						task);
 				
 				Object taskViewProxy = toolkit.getClientSession().create(
 						taskViewData.objectName);
@@ -186,13 +166,13 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		}
 	}
 	
-	class ServerTaskExecutorHelper implements ServerInterfaceHandler  {
+	static class ServerTaskExecutorHelper implements ServerInterfaceHandler  {
 
 		private final TaskExecutor taskExecutor;
 		private final ServerSideToolkit toolkit;
 		
 		/** Child remote job nodes. */
-		private final LinkedList<ObjectName> taskViews = new LinkedList<>();
+		private final LinkedList<Long> taskViews = new LinkedList<>();
 
 		
 		ServerTaskExecutorHelper(TaskExecutor taskExecutor, 
@@ -223,7 +203,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		}
 		
 		protected TaskViewData createTaskViewMBean(TaskView taskView) {
-			final ObjectName objectName;
+			final long objectName;
 			try {
 				objectName = toolkit.getServerSession().createMBeanFor(
 						taskView, toolkit.getContext().addChild(taskView));
@@ -233,13 +213,10 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 			
 			taskViews.add(objectName);
 			
-			taskView.addStateListener(new StateListener() {
-				@Override
-				public void jobStateChange(StateEvent event) {
-					if (event.getState().isDestroyed()) {
-						taskViews.remove(objectName);
-						destroyTaskViewMBean(objectName);
-					}
+			taskView.addStateListener(event -> {
+				if (event.getState().isDestroyed()) {
+					taskViews.remove(objectName);
+					destroyTaskViewMBean(objectName);
 				}
 			});
 			
@@ -251,12 +228,12 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 			
 			// destroy the task view MBeans.
 			while (!taskViews.isEmpty()) {
-				ObjectName taskViewObjectName = taskViews.remove();
+				long taskViewObjectName = taskViews.remove();
 				destroyTaskViewMBean(taskViewObjectName);
 			}
 		}
 
-		protected void destroyTaskViewMBean(ObjectName taskViewObjectName) {
+		protected void destroyTaskViewMBean(long taskViewObjectName) {
 			try {
 				toolkit.getServerSession().destroy(taskViewObjectName);
 			} catch (JMException e1) {
@@ -270,13 +247,13 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	static class TaskViewData implements Serializable {
 		private static final long serialVersionUID = 2015051200L;
 		
-		private final ObjectName objectName;
+		private final long objectName;
 		
-		public TaskViewData(ObjectName objectName) {
+		public TaskViewData(long objectName) {
 			this.objectName = objectName;
 		}
 		
-		public ObjectName getTaskViewObjectName() {
+		public long getTaskViewObjectName() {
 			return objectName;
 		}
 	}

@@ -1,14 +1,5 @@
 package org.oddjob.jmx.client;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.rmi.RemoteException;
-
-import javax.management.ObjectName;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
@@ -16,6 +7,13 @@ import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.handlers.ExportableHandlerFactory;
 import org.oddjob.jmx.server.ServerInfo;
 import org.oddjob.util.ClassLoaderSorter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.rmi.RemoteException;
 
 /**
  * The client side representation of a remote node. A proxy is used to implement
@@ -37,7 +35,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 	private static final Logger logger = LoggerFactory.getLogger(ClientNode.class);
 	
 	/** The name of the mbean this node represents. */
-	private final ObjectName objectName;
+	private final long objectName;
 
 	/** Save the proxy object created to shadow the remote node. */
 	private final Object proxy;
@@ -49,20 +47,20 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 * 
 	 * @param objectName
 	 *            The name of the mbean were monitoring.
-	 * @param serverConnection
+	 * @param toolkit
 	 *            The connection to the remote server.
 	 * 
 	 * @throws Exception
 	 *             if anything goes wrong.
 	 */
-	private ClientNode(ObjectName objectName,
+	private ClientNode(long objectName,
 			ClientSideToolkit toolkit) {
 
 		this.objectName = objectName;
 
-		RemoteOddjobBean remote = 
-			new DirectInvocationClientFactory<RemoteOddjobBean>(
-					RemoteOddjobBean.class).createClientHandler(
+		RemoteOddjobBean remote =
+				new DirectInvocationClientFactory<>(
+						RemoteOddjobBean.class).createClientHandler(
 							null, toolkit);
 		
 		ServerInfo serverInfo = remote.serverInfo();
@@ -100,17 +98,17 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 * 
 	 * @param objectName
 	 *            The remote node.
-	 * @param serverConnection
+	 * @param toolkit
 	 *            The server connection.
-	 * @return A proxy oject that implements it's interfaces.
+	 * @return A proxy object that implements it's interfaces.
 	 * 
 	 * @throws RemoteException
 	 */
-	public static Handle createProxyFor(ObjectName objectName,
+	public static Handle createProxyFor(long objectName,
 			ClientSideToolkit toolkit) {
 		
 		ClientNode client = new ClientNode(
-				objectName, 
+				objectName,
 				toolkit);
 				
 		return client.new Handle();
@@ -137,12 +135,11 @@ public class ClientNode implements InvocationHandler, Exportable {
 	public Transportable exportTransportable() {
 		
 		logger.debug("[" + proxy + "] exported with name [" + objectName + "]");
-		ComponentTransportable transportable = new ComponentTransportable(objectName);
-		return transportable;
+		return new ComponentTransportable(objectName);
 	}
 	
 	public class Handle {
-		public Object getproxy() {
+		public Object getProxy() {
 			return proxy;
 		}
 		public Destroyable getDestroyer() {

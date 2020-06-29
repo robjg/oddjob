@@ -15,12 +15,12 @@ public interface MBeanSession {
 	 * 
 	 * @return The session. Never null.
 	 */
-	public ArooaSession getArooaSession();
+	ArooaSession getArooaSession();
 	
 	/**
 	 * Get the current {@link MBeanCache}.
 	 * 
 	 * @return The cache. Never null.
 	 */
-	public MBeanCache getMBeanCache();
+	MBeanCache getMBeanCache();
 }

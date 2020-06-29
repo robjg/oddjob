@@ -36,6 +36,6 @@ implements ValueFactory<ServerInterfaceHandlerFactory<T, T>>, ArooaSessionAware 
 		if (cl == null) {
 			throw new ArooaConversionException("Failed to find class " + className);
 		}
-		return new VanillaServerHandlerFactory<T>(cl);
+		return new VanillaServerHandlerFactory<>(cl);
 	}
 }

@@ -1,37 +1,12 @@
 package org.oddjob.jmx.handlers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.management.Notification;
-import javax.management.NotificationListener;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.life.ClassLoaderClassResolver;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigOwnerEvent;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.CutAndPasteSupport;
-import org.oddjob.arooa.parsing.DragContext;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.DragTransaction;
-import org.oddjob.arooa.parsing.MockConfigurationOwner;
-import org.oddjob.arooa.parsing.MockConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.standard.StandardArooaParser;
@@ -43,11 +18,17 @@ import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationListener;
 import org.xmlunit.matchers.CompareMatcher;
+
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.Assert.*;
 
 public class ComponentOwnerHandlerFactoryTest {
 
-	private class MySessionLite extends MockConfigurationSession {
+	private static class MySessionLite extends MockConfigurationSession {
 		
 		Object component;
 		
@@ -57,7 +38,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		
 		String pasteText;
 
-		boolean commited;
+		boolean committed;
 		
 		boolean saved;
 
@@ -77,7 +58,7 @@ public class ComponentOwnerHandlerFactoryTest {
 						
 						@Override
 						public void commit() {
-							commited = true;
+							committed = true;
 						}
 					};
 				}
@@ -97,14 +78,12 @@ public class ComponentOwnerHandlerFactoryTest {
 				public void cut() {
 					cut = true;
 				}
-				public ConfigurationHandle parse(ArooaContext parentContext)
-						throws ArooaParseException {
+				public ConfigurationHandle parse(ArooaContext parentContext) {
 					
 					throw new RuntimeException("Unexpected.");
 				}
 				
-				public void paste(int index, String config)
-						throws ArooaParseException {
+				public void paste(int index, String config) {
 					pasteIndex = index;
 					pasteText = config;
 				}
@@ -112,7 +91,7 @@ public class ComponentOwnerHandlerFactoryTest {
 			
 		}
 		
-		public void save() throws ArooaParseException {
+		public void save() {
 			saved = true;
 		}
 		
@@ -125,7 +104,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class OurDesignFactory implements SerializableDesignFactory {
+	private static class OurDesignFactory implements SerializableDesignFactory {
 		private static final long serialVersionUID = 1L;
 		
 		@Override
@@ -135,7 +114,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class MyComponentOwner extends MockConfigurationOwner {
+	private static class MyComponentOwner extends MockConfigurationOwner {
 	
 		MySessionLite sess = new MySessionLite();
 		
@@ -162,12 +141,12 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class OurServerSideToolkit extends MockServerSideToolkit {
+	private static class OurServerSideToolkit extends MockServerSideToolkit {
 		
 		
 	}
 
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 
 		ServerInterfaceHandler handler;
 				
@@ -243,7 +222,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		local.cut();
 		trn.commit();
 		
-		assertTrue(compO.sess.commited);
+		assertTrue(compO.sess.committed);
 		assertTrue(compO.sess.cut);
 		
 		assertEquals("apples", local.copy());
@@ -259,7 +238,7 @@ public class ComponentOwnerHandlerFactoryTest {
 	}
 	
 	
-	private class OurComponentOwner2 extends MockConfigurationOwner {
+	private static class OurComponentOwner2 extends MockConfigurationOwner {
 		
 		DragPoint drag;
 		ConfigurationHandle handle;
@@ -316,13 +295,8 @@ public class ComponentOwnerHandlerFactoryTest {
 		XMLConfiguration config = new XMLConfiguration("TEST", 
 		"<class id='apples'/>");
 
-		final AtomicReference<String > savedXML = new AtomicReference<String>();
-		config.setSaveHandler(new XMLConfiguration.SaveHandler() {
-			@Override
-			public void acceptXML(String xml) {
-				savedXML.set(xml);
-			}
-		});
+		final AtomicReference<String > savedXML = new AtomicReference<>();
+		config.setSaveHandler(savedXML::set);
 		
 		StandardArooaParser parser = new StandardArooaParser(root);
 		
@@ -369,7 +343,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		Assert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
 	}
 	
-	private class NullConfigurationOwner extends MockConfigurationOwner {
+	private static class NullConfigurationOwner extends MockConfigurationOwner {
 		public ConfigurationSession provideConfigurationSession() {
 			return null;
 		}
@@ -413,7 +387,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		assertNull(configurationSession);		
 	}
 	
-	private class NullDropPointOwner extends MockConfigurationOwner {
+	private static class NullDropPointOwner extends MockConfigurationOwner {
 		public ConfigurationSession provideConfigurationSession() {
 			return new MockConfigurationSession() {
 				public DragPoint dragPointFor(Object component) {
@@ -477,7 +451,7 @@ public class ComponentOwnerHandlerFactoryTest {
 	/////////////////////
 	// Modified Stuff
 	
-	private class ModifiedNotifySession extends MockConfigurationSession {
+	private static class ModifiedNotifySession extends MockConfigurationSession {
 		SessionStateListener listener;
 		
 		@Override
@@ -502,7 +476,7 @@ public class ComponentOwnerHandlerFactoryTest {
 	}
 
 	
-	private class ModifiedOwner extends MockConfigurationOwner {
+	private static class ModifiedOwner extends MockConfigurationOwner {
 
 		final ModifiedNotifySession session = new ModifiedNotifySession();
 		
@@ -529,7 +503,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class SessionResultListener implements SessionStateListener {
+	private static class SessionResultListener implements SessionStateListener {
 		
 		ConfigSessionEvent event;
 		
@@ -546,7 +520,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class ModifiedClientToolkit extends OurClientToolkit {
+	private static class ModifiedClientToolkit extends OurClientToolkit {
 		
 		ModifiedServerSideToolkit serverToolkit;
 		
@@ -566,20 +540,20 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class ModifiedServerSideToolkit extends MockServerSideToolkit {
+	private static class ModifiedServerSideToolkit extends MockServerSideToolkit {
 		
 		NotificationListener listener;
 		
 		@Override
-		public Notification createNotification(String type) {
+		public Notification createNotification(String type, Object userData) {
 			assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, type);
-			return new Notification(type, this, 0);
+			return new Notification(type, 0, userData);
 		}
-		
+
 		@Override
 		public void sendNotification(Notification notification) {
 			if (listener != null) {
-				listener.handleNotification(notification, null);
+				listener.handleNotification(notification);
 			}
 		}
 		
@@ -612,18 +586,18 @@ public class ComponentOwnerHandlerFactoryTest {
 		
 		clientHandler.provideConfigurationSession(
 				).addSessionStateListener(results);
-		
-		assertEquals(false, results.modified);
+
+	   assertFalse(results.modified);
 		assertNull(results.event);
 		
 		owner.session.modified();
-		
-		assertEquals(true, results.modified);
+
+	   assertTrue(results.modified);
 		assertNotNull(results.event);
 		
 		owner.session.saved();
-		
-		assertEquals(false, results.modified);
+
+	   assertFalse(results.modified);
 		assertNotNull(results.event);
 		
 		clientHandler.provideConfigurationSession(
@@ -631,12 +605,12 @@ public class ComponentOwnerHandlerFactoryTest {
 		
 		owner.session.modified();
 		assertNotNull(results.event);
-		
-		assertEquals(false, results.modified);
+
+	   assertFalse(results.modified);
 	}
 	
 	
-	private class NotifyingOwner extends MockConfigurationOwner {
+	private static class NotifyingOwner extends MockConfigurationOwner {
 		
 		OwnerStateListener listener;
 
@@ -676,7 +650,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class ResultListener implements OwnerStateListener {
+	private static class ResultListener implements OwnerStateListener {
 		
 		ConfigOwnerEvent event;
 		
@@ -688,7 +662,7 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class NotifyClientToolkit extends OurClientToolkit {
+	private static class NotifyClientToolkit extends OurClientToolkit {
 		
 		NotifyServerSideToolkit serverToolkit;
 		
@@ -708,20 +682,20 @@ public class ComponentOwnerHandlerFactoryTest {
 		}
 	}
 	
-	private class NotifyServerSideToolkit extends MockServerSideToolkit {
+	private static class NotifyServerSideToolkit extends MockServerSideToolkit {
 		
 		NotificationListener listener;
 		
 		@Override
-		public Notification createNotification(String type) {
+		public Notification createNotification(String type, Object userData) {
 			assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, type);
-			return new Notification(type, this, 0);
+			return new Notification(type, 0, userData);
 		}
 		
 		@Override
 		public void sendNotification(Notification notification) {
 			if (listener != null) {
-				listener.handleNotification(notification, null);
+				listener.handleNotification(notification);
 			}
 		}
 		

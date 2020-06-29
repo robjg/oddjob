@@ -3,40 +3,26 @@
  */
 package org.oddjob.jmx.handlers;
 
+import org.oddjob.Stateful;
+import org.oddjob.framework.JobDestroyedException;
+import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.server.JMXOperationPlus;
+import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
+import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.Notification;
+import org.oddjob.state.JobState;
+import org.oddjob.state.State;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+
+import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ReflectionException;
-
-import org.oddjob.Stateful;
-import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientDestroyed;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.Destroyable;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
-import org.oddjob.jmx.client.Synchronizer;
-import org.oddjob.jmx.server.JMXOperationPlus;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.state.JobState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
@@ -45,16 +31,16 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	
 	public static final String STATE_CHANGE_NOTIF_TYPE = "org.oddjob.statechange";
 
-	static final JMXOperationPlus<Notification[]> SYNCHRONIZE = 
-		new JMXOperationPlus<Notification[]>(
-				"statefulSynchronize", 
-				"Sychronize Notifications.", 
-				Notification[].class, 
-				MBeanOperationInfo.INFO);
+	static final JMXOperationPlus<Notification[]> SYNCHRONIZE =
+			new JMXOperationPlus<>(
+					"statefulSynchronize",
+					"Sychronize Notifications.",
+					Notification[].class,
+					MBeanOperationInfo.INFO);
 		
-		private static final JMXOperationPlus<StateData> LAST_STATE_EVENT = 
-				new JMXOperationPlus<StateData>(
-						"lastStateEvent", 
+		private static final JMXOperationPlus<StateData> LAST_STATE_EVENT =
+				new JMXOperationPlus<>(
+						"lastStateEvent",
 						"Get Last State Event.",
 						StateData.class,
 						MBeanOperationInfo.INFO);
@@ -76,12 +62,11 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
-		MBeanNotificationInfo[] nInfo = new MBeanNotificationInfo[] {
+		return new MBeanNotificationInfo[] {
 					new MBeanNotificationInfo(
 							new String[] { STATE_CHANGE_NOTIF_TYPE },
 							Notification.class.getName(),
 							"State change notification.") };
-		return nInfo;
 	}
 
 	public ServerInterfaceHandler createServerHandler(Stateful stateful, 
@@ -96,7 +81,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	}
 
 	public ClientHandlerResolver<Stateful> clientHandlerFactory() {
-		return new SimpleHandlerResolver<Stateful>(
+		return new SimpleHandlerResolver<>(
 				ClientStatefulHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -130,8 +115,8 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		private StateEvent lastEvent;
 
 		/** State listeners */
-		private final List<StateListener> listeners = 
-			new ArrayList<StateListener>();
+		private final List<StateListener> listeners =
+				new ArrayList<>();
 		
 		private final ClientSideToolkit toolkit;
 
@@ -161,9 +146,9 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			StateEvent newEvent = dataToEvent(data);
 
 			lastEvent = newEvent;
-			List<StateListener> copy = null;
+			List<StateListener> copy;
 			synchronized (listeners) {
-				copy = new ArrayList<StateListener>(listeners);
+				copy = new ArrayList<>(listeners);
 			}
 			for (StateListener listener : copy) {				
 				listener.jobStateChange(newEvent);	
@@ -180,19 +165,16 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 				if (synchronizer == null) {
 					
 					synchronizer = new Synchronizer(
-						new NotificationListener() {
-							public void handleNotification(Notification notification, Object arg1) {
+							notification -> {
 								StateData stateData = (StateData) notification.getUserData();
 								jobStateChange(stateData);
-							}
-
-						});
+							});
 					toolkit.registerNotificationListener(
 							STATE_CHANGE_NOTIF_TYPE, synchronizer);
 					
-					Notification[] lastNotifications = null;
+					Notification[] lastNotifications;
 					try {
-						lastNotifications = (Notification[]) toolkit.invoke(SYNCHRONIZE);
+						lastNotifications = toolkit.invoke(SYNCHRONIZE);
 					}
 					catch (InstanceNotFoundException e) {
 						throw new JobDestroyedException(owner);
@@ -252,7 +234,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	}
 
 	
-	class ServerStateHandler implements StateListener, ServerInterfaceHandler  {
+	static class ServerStateHandler implements StateListener, ServerInterfaceHandler  {
 
 		private final Stateful stateful;
 		private final ServerSideToolkit toolkit;
@@ -272,18 +254,15 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		 * @see org.oddjob.state.AbstractJobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 		 */
 		public void jobStateChange(final StateEvent event) {
-			toolkit.runSynchronized(new Runnable() {
-				public void run() {
-					StateData newEvent = new StateData(
-							event.getState(), 
-							event.getTime(), 
-							event.getException());
-					Notification notification = 
-						toolkit.createNotification(STATE_CHANGE_NOTIF_TYPE);
-					notification.setUserData(newEvent);
-					toolkit.sendNotification(notification);
-					lastNotification = notification;					
-				}
+			toolkit.runSynchronized(() -> {
+				StateData newEvent = new StateData(
+						event.getState(),
+						event.getTime(),
+						event.getException());
+				Notification notification =
+					toolkit.createNotification(STATE_CHANGE_NOTIF_TYPE, newEvent);
+				toolkit.sendNotification(notification);
+				lastNotification = notification;
 			});
 		}
 

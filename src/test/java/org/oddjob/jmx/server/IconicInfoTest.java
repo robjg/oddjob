@@ -4,13 +4,8 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
-import javax.management.Notification;
-import javax.swing.ImageIcon;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Iconic;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
@@ -19,7 +14,10 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.jmx.handlers.IconicHandlerFactory;
+import org.oddjob.remote.Notification;
 import org.oddjob.util.MockThreadManager;
+
+import javax.swing.*;
 
 public class IconicInfoTest extends OjTestCase {
 //	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);

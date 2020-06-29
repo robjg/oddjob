@@ -1,10 +1,9 @@
 package org.oddjob.jmx.server;
 
-import java.lang.reflect.Method;
+import org.oddjob.jmx.RemoteOperation;
 
 import javax.management.MBeanOperationInfo;
-
-import org.oddjob.jmx.RemoteOperation;
+import java.lang.reflect.Method;
 
 /**
  * A {@link RemoteOperation} created based on a Method.
@@ -32,15 +31,13 @@ public class JMXOperationFactory  {
 			int impact, 
 			Class<?>... args) {
 		
-		Method method = null;
+		Method method;
 		try {
 			method = cl.getMethod(methodName, args);
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
+		} catch (SecurityException | NoSuchMethodException e) {
 			throw new RuntimeException(e);
 		}
-		
+
 		return operationFor(method, description, impact);
 	}
 	
@@ -62,7 +59,7 @@ public class JMXOperationFactory  {
 		}
 		
 		Class<T> returnType = (Class<T>) method.getReturnType();
-		JMXOperationPlus<T> op = new JMXOperationPlus<T>(
+		JMXOperationPlus<T> op = new JMXOperationPlus<>(
 				method.getName(), description, returnType, impact);
 		int i = 0;
 		for (Class<?> arg : method.getParameterTypes()) {

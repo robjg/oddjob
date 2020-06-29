@@ -16,7 +16,7 @@ public class ServerModelImpl implements ServerModel {
 	/** ThreadManager to use when executing jobs on the server. */
 	private final ThreadManager threadManager;
 	
-	/** InterfaceMananger */
+	/** Interface Manager */
 	private final ServerInterfaceManagerFactory imf;
 	
 	/** Server url */

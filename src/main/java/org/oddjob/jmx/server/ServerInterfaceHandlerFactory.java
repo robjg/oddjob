@@ -3,11 +3,11 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.jmx.client.ClientHandlerResolver;
+
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
-
-import org.oddjob.jmx.client.ClientHandlerResolver;
 
 /**
  * Information for an interface so that it may be exposed via
@@ -27,28 +27,28 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return The class.
 	 */
-	public Class<S> interfaceClass();
+	Class<S> interfaceClass();
 	
 	/**
 	 * Get the MBeanAttributeInfo for the interface.
 	 *  
 	 * @return An MBeanAttributeInfo array.
 	 */
-	public MBeanAttributeInfo[] getMBeanAttributeInfo();
+	MBeanAttributeInfo[] getMBeanAttributeInfo();
 	
 	/**
 	 * Get the MBeanOperationInfo for the interface.
 	 * 
 	 * @return An MBeanOperationInfo array.
 	 */
-	public MBeanOperationInfo[] getMBeanOperationInfo();
+	MBeanOperationInfo[] getMBeanOperationInfo();
 	
 	/**
 	 * Get the MBeanNotificationInfo for the interface.
 	 * 
 	 * @return An MBeanNotificationInfo array.
 	 */
-	public MBeanNotificationInfo[] getMBeanNotificationInfo();
+	MBeanNotificationInfo[] getMBeanNotificationInfo();
 
 	
 	/**
@@ -60,7 +60,7 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return An InterfaceHandler.
 	 */
-	public ServerInterfaceHandler createServerHandler(S target, ServerSideToolkit toolkit);
+	ServerInterfaceHandler createServerHandler(S target, ServerSideToolkit toolkit);
 	
 	/**
 	 * Provide the corresponding {@link org.oddjob.jmx.client.ClientInterfaceHandlerFactory}
@@ -68,5 +68,5 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return The resolver.
 	 */
-	public ClientHandlerResolver<T> clientHandlerFactory();
+	ClientHandlerResolver<T> clientHandlerFactory();
 }

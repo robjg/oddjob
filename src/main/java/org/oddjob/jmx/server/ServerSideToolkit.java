@@ -1,8 +1,7 @@
 package org.oddjob.jmx.server;
 
-import javax.management.Notification;
-
 import org.oddjob.jmx.RemoteOddjobBean;
+import org.oddjob.remote.Notification;
 
 /**
  * An InterfaceHandlersFriend is able to help an interface handler to it's 
@@ -19,9 +18,9 @@ public interface ServerSideToolkit {
 	 *  
 	 * @param notification The notification.
 	 */
-	public void sendNotification(Notification notification);
+	void sendNotification(Notification notification);
 	
-	public Notification createNotification(String type);
+	Notification createNotification(String type, Object userData);
 			
 	/**
 	 * Used by handlers to execute functionality while
@@ -29,27 +28,27 @@ public interface ServerSideToolkit {
 	 * 
 	 * @param runnable The functionality to run.
 	 */
-	public void runSynchronized(Runnable runnable);
+	void runSynchronized(Runnable runnable);
 	
 	/**
 	 * Gives handlers access to the server context.
 	 * 
 	 * @return The server context for this MBean.
 	 */
-	public ServerContext getContext();
+	ServerContext getContext();
 	
 	/**
 	 * Get the remote controller bean.
 	 * 
 	 * @return
 	 */
-	public RemoteOddjobBean getRemoteBean();
+	RemoteOddjobBean getRemoteBean();
 	
 	/**
 	 * Get the server session.
 	 * 
 	 * @return
 	 */
-	public ServerSession getServerSession();
+	ServerSession getServerSession();
 	
 }

@@ -4,18 +4,11 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanParameterInfo;
-import javax.management.ReflectionException;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
+
+import javax.management.*;
 
 public class InterfaceManagerImplTest extends OjTestCase {
 
@@ -97,7 +90,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 				new OddjobJMXAccessController() {
 					
 					@Override
-					public boolean isAccessable(MBeanOperationInfo opInfo) {
+					public boolean isAccessible(MBeanOperationInfo opInfo) {
 						return opInfo.getImpact() == MBeanOperationInfo.INFO;
 					}
 				});
@@ -138,7 +131,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 				new OddjobJMXAccessController() {
 					
 					@Override
-					public boolean isAccessable(MBeanOperationInfo opInfo) {
+					public boolean isAccessible(MBeanOperationInfo opInfo) {
 						return opInfo.getImpact() == MBeanOperationInfo.INFO;
 					}
 				});

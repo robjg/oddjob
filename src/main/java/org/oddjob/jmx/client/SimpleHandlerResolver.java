@@ -1,8 +1,8 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.ClassResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.ClassResolver;
 
 /**
  * A simple {@link ClientHandlerResolver}.
@@ -77,7 +77,7 @@ public class SimpleHandlerResolver<T> implements ClientHandlerResolver<T> {
 			return null;
 		}
 		
-		ClientInterfaceHandlerFactory<T> factory = null;
+		ClientInterfaceHandlerFactory<T> factory;
 		try {
 			factory = cl.newInstance();
 		} catch (Exception e) {

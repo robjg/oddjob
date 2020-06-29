@@ -3,10 +3,10 @@
  */
 package org.oddjob.jmx.server;
 
-import java.io.Serializable;
-
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.jmx.client.ClientHandlerResolver;
+
+import java.io.Serializable;
 
 /**
  * ServerInfo is a collection of information 
@@ -30,10 +30,8 @@ public class ServerInfo implements Serializable {
 	/**
 	 * Constructor.
 	 * 
-	 * @param id The id, can be null.
-	 * @param url The url, must not be null.
-	 * @param consoleId The console id, must not be null.
-	 * @param resolvers Array of suported interfaces. Must not be null.
+	 * @param address The address, can be null?
+	 * @param resolvers Array of supported interfaces. Must not be null.
 	 */
 	public ServerInfo(
 			Address address,

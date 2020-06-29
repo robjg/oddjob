@@ -1,7 +1,5 @@
 package org.oddjob.jmx;
 
-import javax.management.ObjectName;
-
 /**
  * Provide a two way Object to ObjectName mapping.
  * 
@@ -17,14 +15,14 @@ public interface ObjectNames {
 	 * 
 	 * @return The name.
 	 */
-	ObjectName nameFor(Object object);
+	long nameFor(Object object);
 	
 	/**
 	 * Get the client side component for the given object name.
 	 * 
-	 * @param objectName The object name.
+	 * @param objectId The object name.
 	 * 
 	 * @return The proxy. Null if none exsists for the given name.
 	 */
-	Object objectFor(ObjectName objectName);
+	Object objectFor(long objectId);
 }

@@ -12,6 +12,6 @@ public interface Destroyable {
 	/**
 	 * destroy the client side object.
 	 */
-	public void destroy();
+	void destroy();
 	
 }

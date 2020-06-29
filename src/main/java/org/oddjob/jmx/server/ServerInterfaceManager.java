@@ -3,11 +3,11 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.jmx.client.ClientHandlerResolver;
+
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
-
-import org.oddjob.jmx.client.ClientHandlerResolver;
 
 /**
  * An InterfaceManager collects together the interfaces to be exposed by 
@@ -21,14 +21,14 @@ public interface ServerInterfaceManager {
 	 * 
 	 * @return The interfaces.
 	 */
-	public ClientHandlerResolver<?>[] allClientInfo();
+	ClientHandlerResolver<?>[] allClientInfo();
 
 	/**
 	 * Get the MBeanInfo based on all the interfaces.
 	 * 
 	 * @return
 	 */
-	public MBeanInfo getMBeanInfo();
+	MBeanInfo getMBeanInfo();
 
 	/**
 	 * Invoke a method using the arguments as received by an MBean.
@@ -42,14 +42,14 @@ public interface ServerInterfaceManager {
 	 * @throws MBeanException
 	 * @throws ReflectionException
 	 */
-	public Object invoke(String actionName, Object[] params, String[] signature)
+	Object invoke(String actionName, Object[] params, String[] signature)
 	throws MBeanException, ReflectionException;
 
 	/**
 	 * Called when an MBean is being destroyed. Used to InterfaceHandlers
 	 * a chance to remove listeners.
 	 */
-	public void destroy(); 
+	void destroy();
 	
 	
 }

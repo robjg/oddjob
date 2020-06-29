@@ -1,11 +1,5 @@
 package org.oddjob.jmx.handlers;
 
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
-
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
@@ -15,6 +9,8 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 
+import javax.management.*;
+
 /**
  */
 public class RunnableHandlerFactory 
@@ -22,12 +18,12 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 	
-	private static final JMXOperationPlus<Void> RUN = 
-		new JMXOperationPlus<Void>(
-				"run", 
-				"Execute the job.",
-				Void.TYPE,
-				MBeanOperationInfo.ACTION);
+	private static final JMXOperationPlus<Void> RUN =
+			new JMXOperationPlus<>(
+					"run",
+					"Execute the job.",
+					Void.TYPE,
+					MBeanOperationInfo.ACTION);
 
 	
 	public Class<Runnable> interfaceClass() {
@@ -52,11 +48,11 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 	}
 
 	public ClientHandlerResolver<Runnable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<Runnable>(
+		return new VanillaHandlerResolver<>(
 				Runnable.class.getName());
 	}
 	
-	class RunnableServerHandler implements ServerInterfaceHandler {
+	static class RunnableServerHandler implements ServerInterfaceHandler {
 	
 		private final Runnable runnable;
 		private final ServerSideToolkit ojmb;

@@ -1,11 +1,5 @@
 package org.oddjob.jmx;
 
-import java.io.IOException;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.management.MBeanServerConnection;
-
 import org.oddjob.Structural;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
@@ -16,6 +10,11 @@ import org.oddjob.jmx.general.SimpleMBeanSession;
 import org.oddjob.script.InvokeJob;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+
+import javax.management.MBeanServerConnection;
+import java.io.IOException;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @oddjob.description Expose a JMX Server so that Oddjob jobs
@@ -85,8 +84,8 @@ public class JMXServiceJob extends ClientBase
 implements Structural, BeanDirectoryOwner {
 		
 	/** Child helper */
-	private ChildHelper<DomainNode> childHelper = 
-			new ChildHelper<DomainNode>(this);
+	private ChildHelper<DomainNode> childHelper =
+			new ChildHelper<>(this);
 	
 	
 	private BeanDirectory beanDirectory;

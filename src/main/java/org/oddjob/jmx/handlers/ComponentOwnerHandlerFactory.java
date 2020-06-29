@@ -1,47 +1,24 @@
 package org.oddjob.jmx.handlers;
 
-import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ReflectionException;
-
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigOwnerEvent;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.ConfigurationSessionSupport;
-import org.oddjob.arooa.parsing.CutAndPasteSupport;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.DragTransaction;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
-import org.oddjob.jmx.client.ClientSideToolkit;
-import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.SimpleHandlerResolver;
+import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationListener;
+
+import javax.management.*;
+import java.io.Serializable;
+import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  * 
@@ -56,69 +33,69 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 	
 	public static final String CHANGE_NOTIF_TYPE = "oddjob.config.changed";
 	
-	private static final JMXOperationPlus<Integer> SESSION_AVAILABLE = 
-		new JMXOperationPlus<Integer>(
-				"ConfigurationOwner.sessionAvailable",
-				"",
-				Integer.class,
-				MBeanOperationInfo.INFO
+	private static final JMXOperationPlus<Integer> SESSION_AVAILABLE =
+			new JMXOperationPlus<>(
+					"ConfigurationOwner.sessionAvailable",
+					"",
+					Integer.class,
+					MBeanOperationInfo.INFO
 			);
 	
-	private static final JMXOperationPlus<DragPointInfo> DRAG_POINT_INFO = 
-		new JMXOperationPlus<DragPointInfo>(
-				"dragPointInfo",
-				"",
-				DragPointInfo.class,
-				MBeanOperationInfo.INFO
+	private static final JMXOperationPlus<DragPointInfo> DRAG_POINT_INFO =
+			new JMXOperationPlus<>(
+					"dragPointInfo",
+					"",
+					DragPointInfo.class,
+					MBeanOperationInfo.INFO
 			).addParam("component", Object.class, "");
 						
-	private static final JMXOperationPlus<Void> CUT = 
-		new JMXOperationPlus<Void>(
-				"configCut",
-				"",
-				Void.TYPE,
-				MBeanOperationInfo.ACTION_INFO
+	private static final JMXOperationPlus<Void> CUT =
+			new JMXOperationPlus<>(
+					"configCut",
+					"",
+					Void.TYPE,
+					MBeanOperationInfo.ACTION_INFO
 			).addParam("component", Object.class, "");
 			
-	private static final JMXOperationPlus<String> PASTE = 
-		new JMXOperationPlus<String>(
-				"configPaste",
-				"",
-				String.class,
-				MBeanOperationInfo.ACTION
+	private static final JMXOperationPlus<String> PASTE =
+			new JMXOperationPlus<>(
+					"configPaste",
+					"",
+					String.class,
+					MBeanOperationInfo.ACTION
 			).addParam(
 					"component", Object.class, "").addParam( 
 					"index", Integer.TYPE, "").addParam(
 					"config", String.class, "");
 	
-	private static final JMXOperationPlus<Boolean> IS_MODIFIED = 
-		new JMXOperationPlus<Boolean>(
-				"configIsModified",
-				"",
-				Boolean.class,
-				MBeanOperationInfo.INFO);   
+	private static final JMXOperationPlus<Boolean> IS_MODIFIED =
+			new JMXOperationPlus<>(
+					"configIsModified",
+					"",
+					Boolean.class,
+					MBeanOperationInfo.INFO);
 	
-	private static final JMXOperationPlus<String> SAVE = 
-		new JMXOperationPlus<String>(
-				"configSave",
-				"",
-				String.class,
-				MBeanOperationInfo.ACTION);   
+	private static final JMXOperationPlus<String> SAVE =
+			new JMXOperationPlus<>(
+					"configSave",
+					"",
+					String.class,
+					MBeanOperationInfo.ACTION);
 	
-	private static final JMXOperationPlus<Void> REPLACE = 
-		new JMXOperationPlus<Void>(
-				"configReplace",
-				"",
-				Void.TYPE,
-				MBeanOperationInfo.INFO
+	private static final JMXOperationPlus<Void> REPLACE =
+			new JMXOperationPlus<>(
+					"configReplace",
+					"",
+					Void.TYPE,
+					MBeanOperationInfo.INFO
 			).addParam("component", Object.class, "");
 	
-	private static final JMXOperationPlus<ComponentOwnerInfo> INFO = 
-		new JMXOperationPlus<ComponentOwnerInfo>(
-				"componentOwnerInfo",
-				"Basic Info For Component Owner",
-				ComponentOwnerInfo.class,
-				MBeanOperationInfo.INFO
+	private static final JMXOperationPlus<ComponentOwnerInfo> INFO =
+			new JMXOperationPlus<>(
+					"componentOwnerInfo",
+					"Basic Info For Component Owner",
+					ComponentOwnerInfo.class,
+					MBeanOperationInfo.INFO
 			);
 	
 	/*
@@ -147,11 +124,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 	}
 	
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		MBeanNotificationInfo[] nInfo = new MBeanNotificationInfo[] {
+		return new MBeanNotificationInfo[] {
 				new MBeanNotificationInfo(new String[] {
 						MODIFIED_NOTIF_TYPE },
 						Notification.class.getName(), "Modified Notification.")};
-		return nInfo;
 	}	
 
 	public ServerInterfaceHandler createServerHandler(
@@ -160,7 +136,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 	}
 
 	public ClientHandlerResolver<ConfigurationOwner> clientHandlerFactory() {
-		return new SimpleHandlerResolver<ConfigurationOwner>(
+		return new SimpleHandlerResolver<>(
 				ClientConfigurationOwnerHandlerFactory.class.getName(),
 				VERSION);
 	}
@@ -196,12 +172,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private volatile boolean listening;
 		
-		private final NotificationListener listener = new NotificationListener() {
-			public void handleNotification(Notification notification,
-					Object handback) {
-				updateSession((ConfigOwnerEvent.Change) notification.getUserData());
-			};
-		};
+		private final NotificationListener listener =
+				notification -> updateSession((ConfigOwnerEvent.Change) notification.getUserData());
 		
 		ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
 			this.clientToolkit = toolkit;
@@ -209,21 +181,17 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			ownerSupport = new ConfigurationOwnerSupport(proxy);
 			updateSession(null);
 			
-			ownerSupport.setOnFirst(new Runnable() {
-				public void run() {
-					updateSession(null);
-					toolkit.registerNotificationListener(
-							CHANGE_NOTIF_TYPE, listener);
-					listening = true;
-				}
+			ownerSupport.setOnFirst(() -> {
+				updateSession(null);
+				toolkit.registerNotificationListener(
+						CHANGE_NOTIF_TYPE, listener);
+				listening = true;
 			});
 			
-			ownerSupport.setOnEmpty(new Runnable() {
-				public void run() {
-					listening = false;
-					toolkit.removeNotificationListener(
-							CHANGE_NOTIF_TYPE, listener);
-				}
+			ownerSupport.setOnEmpty(() -> {
+				listening = false;
+				toolkit.removeNotificationListener(
+						CHANGE_NOTIF_TYPE, listener);
 			});
 			
 			try {
@@ -254,7 +222,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			if (change == null || 
 					change == ConfigOwnerEvent.Change.SESSION_CREATED) {
 					
-				Integer newId = null;
+				Integer newId;
 				try {						
 					newId = clientToolkit.invoke(SESSION_AVAILABLE);
 				}
@@ -274,11 +242,11 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 						(ClientConfigurationSessionHandler)
 						ownerSupport.provideConfigurationSession();
 					
-					if (existing == null || existing.id != newId.intValue()) {
+					if (existing == null || existing.id != newId) {
 						ownerSupport.setConfigurationSession(null);
 						ownerSupport.setConfigurationSession(
 								new ClientConfigurationSessionHandler(
-										clientToolkit, newId.intValue()));
+										clientToolkit, newId));
 					}
 				}
 			}
@@ -320,7 +288,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final NotificationListener listener =
 			new NotificationListener() {
-				public void handleNotification(Notification notification, Object handback) {
+				public void handleNotification(Notification notification) {
 					Boolean modified = (Boolean) notification.getUserData();
 					if (modified) {
 						sessionSupport.modified();
@@ -337,18 +305,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			this.id = id;
 			this.clientToolkit = clientToolkit;
 			sessionSupport = new ConfigurationSessionSupport(this);
-			sessionSupport.setOnFirst(new Runnable() {
-				public void run() {
-					clientToolkit.registerNotificationListener(MODIFIED_NOTIF_TYPE, 
-							listener);
-				}
-			});
-			sessionSupport.setOnEmpty(new Runnable() {
-				public void run() {
-					clientToolkit.removeNotificationListener(MODIFIED_NOTIF_TYPE, 
-							listener);
-				}
-			});
+			sessionSupport.setOnFirst(() -> clientToolkit.registerNotificationListener(MODIFIED_NOTIF_TYPE,
+					listener));
+			sessionSupport.setOnEmpty(() -> clientToolkit.removeNotificationListener(MODIFIED_NOTIF_TYPE,
+					listener));
 		}
 		
 		public DragPoint dragPointFor(Object component) {
@@ -358,9 +318,9 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 
 			try {
-				final DragPointInfo dragPointInfo = 
-					(DragPointInfo) clientToolkit.invoke(
-						DRAG_POINT_INFO, new Object[] { component });
+				final DragPointInfo dragPointInfo =
+						clientToolkit.invoke(
+							DRAG_POINT_INFO, component);
 				
 				return createDragPoint(component, dragPointInfo);
 				
@@ -369,7 +329,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 		}
 
-		public void save() throws ArooaParseException {
+		public void save() {
 			try {
 				clientToolkit.invoke(
 						SAVE);
@@ -436,14 +396,13 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				public void cut() {
 					try {
 						clientToolkit.invoke(
-								CUT, new Object[] { component });
+								CUT, component);
 					} catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
 				}
 				public ConfigurationHandle parse(
-						ArooaContext parentContext)
-				throws ArooaParseException {
+						ArooaContext parentContext) {
 					try {
 						final XMLConfiguration config = 
 							new XMLConfiguration("Server Config", 
@@ -460,19 +419,16 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 							public void save()
 							throws ArooaParseException {
 								
-								config.setSaveHandler(new XMLConfiguration.SaveHandler() {
-									@Override
-									public void acceptXML(String xml) {
-										try {
-											if (xml.equals(dragPointInfo.copy)) {
-												return;
-											}
-											
-											clientToolkit.invoke(
-													REPLACE, new Object[] { component, xml });
-										} catch (Throwable e) {
-											throw new UndeclaredThrowableException(e);
+								config.setSaveHandler(xml -> {
+									try {
+										if (xml.equals(dragPointInfo.copy)) {
+											return;
 										}
+
+										clientToolkit.invoke(
+												REPLACE, component, xml);
+									} catch (Throwable e) {
+										throw new UndeclaredThrowableException(e);
 									}
 								});
 								
@@ -484,15 +440,13 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 						throw new UndeclaredThrowableException(e);
 					}
 				}
-				public void paste(int index, String config)
-				throws ArooaParseException {
+				public void paste(int index, String config) {
 					try {
 						clientToolkit.invoke(
-								PASTE, 
-								new Object[] { 
-										component,
-										index,
-										config });
+								PASTE,
+								component,
+								index,
+								config);
 					} catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
@@ -502,7 +456,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 	}
 
-	class ServerComponentOwnerHandler implements ServerInterfaceHandler {
+	static class ServerComponentOwnerHandler implements ServerInterfaceHandler {
 	
 		private final ConfigurationOwner configurationOwner;
 
@@ -521,13 +475,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 			
 			void send(final boolean modified) {
-				toolkit.runSynchronized(new Runnable() {
-					public void run() {
-						Notification notification = 
-							toolkit.createNotification(MODIFIED_NOTIF_TYPE);
-						notification.setUserData(new Boolean(modified));
-						toolkit.sendNotification(notification);					
-					}
+				toolkit.runSynchronized(() -> {
+					Notification notification =
+						toolkit.createNotification(MODIFIED_NOTIF_TYPE, modified);
+					toolkit.sendNotification(notification);
 				});
 			}
 		};
@@ -541,13 +492,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					configurationSession.addSessionStateListener(modifiedListener);
 				}
 				
-				toolkit.runSynchronized(new Runnable() {
-					public void run() {
-						Notification notification = 
-							toolkit.createNotification(CHANGE_NOTIF_TYPE);
-						notification.setUserData(event.getChange());
-						toolkit.sendNotification(notification);					
-					}
+				toolkit.runSynchronized(() -> {
+					Notification notification =
+						toolkit.createNotification(CHANGE_NOTIF_TYPE, event.getChange());
+					toolkit.sendNotification(notification);
 				});
 			}
 		};
@@ -574,7 +522,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					return null;
 				}
 				else {
-					return new Integer(System.identityHashCode(configurationSession));
+					return System.identityHashCode(configurationSession);
 				}
 			}
 			

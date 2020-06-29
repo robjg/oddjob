@@ -1,10 +1,9 @@
 package org.oddjob.jmx.server;
 
-import javax.management.JMException;
-import javax.management.ObjectName;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.jmx.ObjectNames;
+
+import javax.management.JMException;
 
 /**
  * Provide useful things to the interface handlers on the server side.
@@ -20,22 +19,22 @@ public interface ServerSession extends ObjectNames {
 	 * @param child The Oddjob component.
 	 * @param childContext The context.
 	 * 
-	 * @return The object name for the created MBean.
+	 * @return The object id for the created MBean.
 	 * 
 	 * @throws JMException
 	 */
-	public ObjectName createMBeanFor(Object child, 
+	long createMBeanFor(Object child,
 			ServerContext childContext)
 	throws JMException;
 
 	/**
 	 * Destroy a server MBean.
 	 * 
-	 * @param childName The child name.
+	 * @param childId The child name.
 	 * 
 	 * @throws JMException
 	 */
-	public void destroy(ObjectName childName)
+	void destroy(long childId)
 	throws JMException;
 
 	/**
@@ -43,5 +42,5 @@ public interface ServerSession extends ObjectNames {
 	 * 
 	 * @return The session.
 	 */
-	public ArooaSession getArooaSession();
+	ArooaSession getArooaSession();
 }

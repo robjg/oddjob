@@ -2,30 +2,12 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.jmx;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.MBeanServerConnection;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobConsole;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Stateful;
-import org.oddjob.Structural;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -33,16 +15,22 @@ import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.WaitJob;
-import org.oddjob.state.IsNot;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ServiceState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateConditions;
+import org.oddjob.state.*;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.tools.WaitForChildren;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServerConnection;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -54,7 +42,7 @@ public class JMXServerJobTest extends OjTestCase {
 	
 	OddjobConsole.Close close;
 	
-	Map<Object, String> ids = new HashMap<Object, String>();
+	Map<Object, String> ids = new HashMap<>();
 	
    @Before
    public void setUp() {
@@ -63,7 +51,7 @@ public class JMXServerJobTest extends OjTestCase {
 	}
 	
    @After
-   public void tearDown() throws Exception {
+   public void tearDown() {
 
 		close.close();
 	}
@@ -156,7 +144,7 @@ public class JMXServerJobTest extends OjTestCase {
 		}
 	}
 	
-	private class OurSession extends StandardArooaSession {
+	private static class OurSession extends StandardArooaSession {
 		SimpleBeanRegistry registry = new SimpleBeanRegistry();
 		
 		@Override
@@ -269,9 +257,7 @@ public class JMXServerJobTest extends OjTestCase {
 				
 		// will takes time to process child added notifications.
 		while (new OddjobLookup(client).lookup("oj/echo") == null) {
-			try {
-				Thread.sleep(10000);
-			} catch (Exception e) {}
+			Thread.sleep(10000);
 			Thread.yield();
 		}
 				
@@ -296,7 +282,7 @@ public class JMXServerJobTest extends OjTestCase {
 			registry.register("x" + unique++, this);
 		}
 		
-		ChildHelper<MyFolder> childHelper = new ChildHelper<MyFolder>(this);
+		ChildHelper<MyFolder> childHelper = new ChildHelper<>(this);
 		
 		public void addStructuralListener(StructuralListener listener) {
 			childHelper.addStructuralListener(listener);

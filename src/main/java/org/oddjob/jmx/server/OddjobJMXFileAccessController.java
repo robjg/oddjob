@@ -1,5 +1,8 @@
 package org.oddjob.jmx.server;
 
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanServer;
+import javax.security.auth.Subject;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.AccessControlContext;
@@ -10,10 +13,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Set;
-
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanServer;
-import javax.security.auth.Subject;
 
 /**
  * This is a big rip off of 
@@ -84,7 +83,7 @@ public class OddjobJMXFileAccessController implements OddjobJMXAccessController 
     }
 
     @Override
-    public boolean isAccessable(MBeanOperationInfo opInfo) {
+    public boolean isAccessible(MBeanOperationInfo opInfo) {
     	if (opInfo.getImpact() == MBeanOperationInfo.INFO) {
             return checkAccessLevel(READONLY);
     	}

@@ -3,12 +3,7 @@
  */
 package org.oddjob.jmx;
 
-import org.oddjob.jmx.handlers.DescribeableHandlerFactory;
-import org.oddjob.jmx.handlers.DynaBeanHandlerFactory;
-import org.oddjob.jmx.handlers.LogEnabledHandlerFactory;
-import org.oddjob.jmx.handlers.LogPollableHandlerFactory;
-import org.oddjob.jmx.handlers.ObjectInterfaceHandlerFactory;
-import org.oddjob.jmx.handlers.RemoteOddjobHandlerFactory;
+import org.oddjob.jmx.handlers.*;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 
 /**
@@ -36,7 +31,7 @@ public class SharedConstants {
 		new LogEnabledHandlerFactory(),
 		new LogPollableHandlerFactory(),
 		new ObjectInterfaceHandlerFactory(),
-		new DescribeableHandlerFactory(),
+		new DescribableHandlerFactory(),
 		new RemoteOddjobHandlerFactory(),
 	};
 }
