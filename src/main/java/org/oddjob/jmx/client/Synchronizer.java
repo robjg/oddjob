@@ -45,7 +45,7 @@ public class Synchronizer implements NotificationListener {
 		long seq = 0;
 		for (Notification notification : last) {
 			listener.handleNotification(notification);
-			seq = notification.getSequenceNumber();
+			seq = notification.getSequence();
 		}
 		
 		while (true) {
@@ -56,7 +56,7 @@ public class Synchronizer implements NotificationListener {
 					return;
 				}
 				notification = pending.removeFirst();
-				if (notification.getSequenceNumber() < seq) {
+				if (notification.getSequence() < seq) {
 					continue;
 				}
 			}

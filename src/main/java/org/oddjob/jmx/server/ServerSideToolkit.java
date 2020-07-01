@@ -19,7 +19,15 @@ public interface ServerSideToolkit {
 	 * @param notification The notification.
 	 */
 	void sendNotification(Notification notification);
-	
+
+	/**
+	 * Create a Notification.
+	 *
+	 * @param type The notification type.
+	 * @param userData Optional user data.
+	 *
+	 * @return A new notification.
+	 */
 	Notification createNotification(String type, Object userData);
 			
 	/**

@@ -452,7 +452,7 @@ public class ClientNodeTest extends OjTestCase {
             ServerContext srvcon = new ServerContextImpl(o, sm,
                     new OurHierarchicalRegistry());
 
-            Object mb = new OddjobMBean(o, OddjobMBeanFactory.objectName(0),
+            Object mb = new OddjobMBean(o, 0L,
                     new OurServerSession(), srvcon);
 
             MBeanServer mbs = MBeanServerFactory.createMBeanServer();

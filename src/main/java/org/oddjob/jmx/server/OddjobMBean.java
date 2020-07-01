@@ -28,6 +28,9 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		DynamicMBean {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobMBean.class);
 
+	/** The remoteId of this node */
+	private final long objectId;
+
 	/** The server node this object represents. */
 	private final Object node;
 
@@ -52,30 +55,28 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 * Constructor.
 	 * 
 	 * @param node The job this is shadowing.
-	 * @param objectName The objectName for this node.
+	 * @param objectId The object Id for this node.
 	 * @param factory The factory for creating child OddjobMBeans. May be null only
 	 * if this MBean will never have children.
 	 * @param srvcon The server context The server context. Must not be null.
 	 * 
 	 * @throws RemoteException
 	 */
-	public OddjobMBean(Object node, ObjectName objectName,
+	public OddjobMBean(Object node, long objectId,
 			ServerSession factory, ServerContext srvcon) {
 		
 		if (node == null) {
 			throw new NullPointerException("Component must not be null");
 		}
-		if (objectName == null) {
-			throw new NullPointerException("Object Name must not be null");
-		}
 		if (srvcon == null) {
 			throw new NullPointerException("Server Context must not be null");
 		}
-		
+
+		this.objectId = objectId;
 		this.node = node;
 		this.factory = factory;
 		this.srvcon = srvcon;
-		this.objectName = objectName;
+		this.objectName = OddjobMBeanFactory.objectName(objectId);
 		
 		ServerInterfaceManagerFactory imf = 
 			srvcon.getModel().getInterfaceManagerFactory();
@@ -86,7 +87,11 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	public Object getNode() {
 		return node;
 	}
-	
+
+	public ObjectName getObjectName() {
+		return objectName;
+	}
+
 	/*
 	 *  (non-Javadoc)
 	 * @see javax.management.DynamicMBean#getAttribute(java.lang.String)
@@ -242,7 +247,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		@Override
 		public org.oddjob.remote.Notification createNotification(String type, Object userData) {
 			synchronized(resyncLock) {
-				return new org.oddjob.remote.Notification(type, sequenceNumber++, userData);
+				return new org.oddjob.remote.Notification(objectId, type, sequenceNumber++, userData);
 			}
 		}
 		

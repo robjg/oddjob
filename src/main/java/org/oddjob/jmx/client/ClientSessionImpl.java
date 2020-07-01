@@ -1,11 +1,9 @@
 package org.oddjob.jmx.client;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.slf4j.Logger;
 
 import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -52,33 +50,32 @@ public class ClientSessionImpl implements ClientSession {
 	}
 
 	@Override
-	public Object create(long objectId) {
+	public Object create(long remoteId) {
 
-		Object childProxy = proxies.get(objectId);
+		Object childProxy = proxies.get(remoteId);
 		
 		if (childProxy != null) {
 			return childProxy;
 		}
 
-		ObjectName objectName = OddjobMBeanFactory.objectName(objectId);
 		try {
-			ClientSideToolkitImpl toolkit = new ClientSideToolkitImpl(objectName, this);
+			ClientSideToolkitImpl toolkit = new ClientSideToolkitImpl(remoteId, this);
 			
-			ClientNode.Handle handle = ClientNode.createProxyFor(objectId,
+			ClientNode.Handle handle = ClientNode.createProxyFor(remoteId,
 					toolkit);
 			childProxy = handle.getProxy();
 			destroyers.put(childProxy, handle.getDestroyer());
 		} 
 		catch (Exception e) {
-			logger.error("Failed creating client node for [" + objectName + 
+			logger.error("Failed creating client node for [" + remoteId +
 					"].", e);
 			
 			// Must return something.
 			return new NodeCreationFailed(e);
 		}
 		
-		names.put(childProxy, objectId);
-		proxies.put(objectId, childProxy);
+		names.put(childProxy, remoteId);
+		proxies.put(remoteId, childProxy);
 		
 		return childProxy;
 	}

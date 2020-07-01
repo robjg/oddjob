@@ -19,183 +19,185 @@ import org.oddjob.state.StateListener;
 
 public class StatefulHandlerFactoryTest extends OjTestCase {
 
-	private static class OurStateful extends MockStateful {
-		StateListener l;
-		public void addStateListener(StateListener listener) {
-			assertNull(l);
-			l = listener;
-			l.jobStateChange(new StateEvent(this, JobState.READY));
-		}
-		public void removeStateListener(StateListener listener) {
-			assertNotNull(l);
-			l = null;
-		}		
-	}
-	
-	private static class OurClientToolkit extends MockClientSideToolkit {
-		ServerInterfaceHandler server;
+    private static class OurStateful extends MockStateful {
+        StateListener l;
 
-		NotificationListener listener;
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-				throws Throwable {
-			return (T) server.invoke(remoteOperation, args);
-		}
-		
-		public void registerNotificationListener(String eventType, NotificationListener notificationListener) {
-			if (listener != null) {
-				throw new RuntimeException("Only one listener expected.");
-			}
-			assertEquals(StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE, eventType);
-			
-			this.listener = notificationListener;
-		}
-		
-		@Override
-		public void removeNotificationListener(String eventType,
-				NotificationListener notificationListener) {
-			if (listener == null) {
-				throw new RuntimeException("Only one listener remove expected.");
-			}
-			
-			assertEquals(StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE, eventType);
-			assertEquals(this.listener, notificationListener);
-			
-			this.listener = null;
-		}
-	}
+        public void addStateListener(StateListener listener) {
+            assertNull(l);
+            l = listener;
+            l.jobStateChange(new StateEvent(this, JobState.READY));
+        }
 
-	private static class OurServerSideToolkit extends MockServerSideToolkit {
+        public void removeStateListener(StateListener listener) {
+            assertNotNull(l);
+            l = null;
+        }
+    }
 
-		long seq = 0;
-		
-		NotificationListener listener;
-		
-		public void runSynchronized(Runnable runnable) {
-			runnable.run();
-		}
-		
-		@Override
-		public Notification createNotification(String type, Object userData) {
-			return new Notification(type, seq++, userData);
-		}
-		
-		public void sendNotification(Notification notification) {
-			if (listener != null) {
-				listener.handleNotification(notification);
-			}
-		}
-				
-	}
-	
-	private static class Result implements StateListener {
-		StateEvent event;
-		
-		public void jobStateChange(StateEvent event) {
-			this.event = event;
-		}
-	}
-	
-   @Test
-	public void testAddRemoveListener() {
-		
-		StatefulHandlerFactory test = new StatefulHandlerFactory();
-		
-		assertEquals(1, test.getMBeanNotificationInfo().length);
-		
-		OurStateful stateful = new OurStateful();
-		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
+    private static class OurClientToolkit extends MockClientSideToolkit {
+        ServerInterfaceHandler server;
 
-		// create the handler
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				stateful, serverToolkit);
+        NotificationListener listener;
 
-		// which should add a listener to our stateful
-		assertNotNull("listener added.", stateful.l);
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
+                throws Throwable {
+            return (T) server.invoke(remoteOperation, args);
+        }
 
-		OurClientToolkit clientToolkit = new OurClientToolkit();
+        public void registerNotificationListener(String eventType, NotificationListener notificationListener) {
+            if (listener != null) {
+                throw new RuntimeException("Only one listener expected.");
+            }
+            assertEquals(StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE, eventType);
 
-		Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
-				).createClientHandler(new MockStateful(), clientToolkit);
-		
-		clientToolkit.server = serverHandler;
+            this.listener = notificationListener;
+        }
 
-		Result result = new Result();
-		
-		local.addStateListener(result);
-		
-		assertEquals("State ready", JobState.READY, 
-				result.event.getState());
+        @Override
+        public void removeNotificationListener(String eventType,
+                                               NotificationListener notificationListener) {
+            if (listener == null) {
+                throw new RuntimeException("Only one listener remove expected.");
+            }
 
-		Result result2 = new Result();
-		
-		local.addStateListener(result2);
-		
-		assertEquals("State ready", JobState.READY, 
-				result2.event.getState());
+            assertEquals(StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE, eventType);
+            assertEquals(this.listener, notificationListener);
 
-		serverToolkit.listener = clientToolkit.listener;
-		
-		stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+            this.listener = null;
+        }
+    }
 
-		// check the notification is sent
-		assertEquals("State complete", JobState.COMPLETE, 
-				result.event.getState());
-		assertEquals("State complete", JobState.COMPLETE, 
-				result2.event.getState());
-		
-		local.removeStateListener(result);
-		
-		assertNotNull(clientToolkit.listener);
-		
-		local.removeStateListener(result2);
-		
-		assertNull(clientToolkit.listener);
-		
-	}
-		
-	private static class OurClientToolkit2 extends MockClientSideToolkit {
-		ServerInterfaceHandler server;
+    private static class OurServerSideToolkit extends MockServerSideToolkit {
 
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-				throws Throwable {
-			return (T) server.invoke(remoteOperation, args);
-		}
-	}
-	
-   @Test
-	public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() {
-		
-		StatefulHandlerFactory test = new StatefulHandlerFactory();
-		
+        long seq = 0;
+
+        NotificationListener listener;
+
+        public void runSynchronized(Runnable runnable) {
+            runnable.run();
+        }
+
+        @Override
+        public Notification createNotification(String type, Object userData) {
+            return new Notification(1L, type, seq++, userData);
+        }
+
+        public void sendNotification(Notification notification) {
+            if (listener != null) {
+                listener.handleNotification(notification);
+            }
+        }
+
+    }
+
+    private static class Result implements StateListener {
+        StateEvent event;
+
+        public void jobStateChange(StateEvent event) {
+            this.event = event;
+        }
+    }
+
+    @Test
+    public void testAddRemoveListener() {
+
+        StatefulHandlerFactory test = new StatefulHandlerFactory();
+
+        assertEquals(1, test.getMBeanNotificationInfo().length);
+
+        OurStateful stateful = new OurStateful();
+        OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
+
+        // create the handler
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                stateful, serverToolkit);
+
+        // which should add a listener to our stateful
+        assertNotNull("listener added.", stateful.l);
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+
+        Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
+        ).createClientHandler(new MockStateful(), clientToolkit);
+
+        clientToolkit.server = serverHandler;
+
+        Result result = new Result();
+
+        local.addStateListener(result);
+
+        assertEquals("State ready", JobState.READY,
+                result.event.getState());
+
+        Result result2 = new Result();
+
+        local.addStateListener(result2);
+
+        assertEquals("State ready", JobState.READY,
+                result2.event.getState());
+
+        serverToolkit.listener = clientToolkit.listener;
+
+        stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+
+        // check the notification is sent
+        assertEquals("State complete", JobState.COMPLETE,
+                result.event.getState());
+        assertEquals("State complete", JobState.COMPLETE,
+                result2.event.getState());
+
+        local.removeStateListener(result);
+
+        assertNotNull(clientToolkit.listener);
+
+        local.removeStateListener(result2);
+
+        assertNull(clientToolkit.listener);
+
+    }
+
+    private static class OurClientToolkit2 extends MockClientSideToolkit {
+        ServerInterfaceHandler server;
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
+                throws Throwable {
+            return (T) server.invoke(remoteOperation, args);
+        }
+    }
+
+    @Test
+    public void testLastStateEventCallsRemoteOpWhenNoListenerAdded() {
+
+        StatefulHandlerFactory test = new StatefulHandlerFactory();
+
 //		assertEquals(1, test.getMBeanOperationInfo().length);
-		
-		OurStateful stateful = new OurStateful();
-		OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
 
-		// create the handler
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				stateful, serverToolkit);
+        OurStateful stateful = new OurStateful();
+        OurServerSideToolkit serverToolkit = new OurServerSideToolkit();
 
-		OurClientToolkit2 clientToolkit = new OurClientToolkit2();
+        // create the handler
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                stateful, serverToolkit);
 
-		Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
-				).createClientHandler(new MockStateful(), clientToolkit);
-		
-		clientToolkit.server = serverHandler;
-		
-		stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
-		
-		StateEvent lastStateEvent = local.lastStateEvent();
-		
-		assertEquals(JobState.COMPLETE, 
-				lastStateEvent.getState());
-		
-	}
-	
-	
+        OurClientToolkit2 clientToolkit = new OurClientToolkit2();
+
+        Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
+        ).createClientHandler(new MockStateful(), clientToolkit);
+
+        clientToolkit.server = serverHandler;
+
+        stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+
+        StateEvent lastStateEvent = local.lastStateEvent();
+
+        assertEquals(JobState.COMPLETE,
+                lastStateEvent.getState());
+
+    }
+
+
 }

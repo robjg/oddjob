@@ -87,9 +87,8 @@ public class OddjobMBeanToolkitTest extends OjTestCase {
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
 
-        ObjectName objectName = OddjobMBeanFactory.objectName(0);
-
-        OddjobMBean oddjobMBean = new OddjobMBean(node, objectName, null, context);
+        OddjobMBean oddjobMBean = new OddjobMBean(node, 0L, null, context);
+        ObjectName objectName = oddjobMBean.getObjectName();
 
         mbs.registerMBean(oddjobMBean, objectName);
 
@@ -106,11 +105,11 @@ public class OddjobMBeanToolkitTest extends OjTestCase {
         assertThat(jmxNotifications.size(), is(1));
         javax.management.Notification n2 = jmxNotifications.get(0);
 
-        assertEquals(0L, n.getSequenceNumber());
+        assertEquals(0L, n.getSequence());
 
         assertThat(n2.getType(), is("X"));
         assertThat(n2.getSequenceNumber(), is(0L));
-        assertThat(n2.getUserData(), is(n.getUserData()));
+        assertThat(n2.getUserData(), is(n.getData()));
 
         // test serializable.
         OddjobTestHelper.copy(n2);

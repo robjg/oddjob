@@ -173,7 +173,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		private volatile boolean listening;
 		
 		private final NotificationListener listener =
-				notification -> updateSession((ConfigOwnerEvent.Change) notification.getUserData());
+				notification -> updateSession((ConfigOwnerEvent.Change) notification.getData());
 		
 		ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
 			this.clientToolkit = toolkit;
@@ -289,7 +289,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		private final NotificationListener listener =
 			new NotificationListener() {
 				public void handleNotification(Notification notification) {
-					Boolean modified = (Boolean) notification.getUserData();
+					Boolean modified = (Boolean) notification.getData();
 					if (modified) {
 						sessionSupport.modified();
 					}

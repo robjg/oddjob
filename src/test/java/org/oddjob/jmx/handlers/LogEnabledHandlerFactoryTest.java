@@ -3,38 +3,28 @@
  */
 package org.oddjob.jmx.handlers;
 
-import static org.hamcrest.CoreMatchers.is;
-
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.jmx.server.MockServerSession;
-import org.oddjob.jmx.server.OddjobMBean;
-import org.oddjob.jmx.server.OddjobMBeanFactory;
-import org.oddjob.jmx.server.ServerContext;
-import org.oddjob.jmx.server.ServerContextImpl;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactory;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
-import org.oddjob.jmx.server.ServerModel;
-import org.oddjob.jmx.server.ServerModelImpl;
+import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.util.MockThreadManager;
+
+import static org.hamcrest.CoreMatchers.is;
 
 public class LogEnabledHandlerFactoryTest extends OjTestCase {
 //	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
 
-	private class MockLogEnabled implements LogEnabled {
+	private static class MockLogEnabled implements LogEnabled {
 		public String loggerName() {
 			return "org.oddjob.TestLogger";
 		}
 	}
 	
-	private class OurHierarchicalRegistry extends MockBeanRegistry {
+	private static class OurHierarchicalRegistry extends MockBeanRegistry {
 		
 		@Override
 		public String getIdFor(Object component) {
@@ -44,7 +34,7 @@ public class LogEnabledHandlerFactoryTest extends OjTestCase {
 		
 	}
 	
-	private class OurServerSession extends MockServerSession {
+	private static class OurServerSession extends MockServerSession {
 		
 		ArooaSession session = new StandardArooaSession();
 		
@@ -72,8 +62,8 @@ public class LogEnabledHandlerFactoryTest extends OjTestCase {
 				target, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				target, OddjobMBeanFactory.objectName(0),
-				new OurServerSession(), 
+				target, 0,
+				new OurServerSession(),
 				serverContext);
 		
 		String loggerName = (String) ojmb.invoke("loggerName",

@@ -9,8 +9,9 @@ import javax.management.ObjectName;
  */
 public class RemoteBridge {
 
-    public static Notification fromJmxNotification(javax.management.Notification notification) {
-        return new Notification(notification.getType(),
+    public static Notification fromJmxNotification(long remoteId,
+                                                   javax.management.Notification notification) {
+        return new Notification(remoteId, notification.getType(),
                 notification.getSequenceNumber(),
                 notification.getUserData());
     }
@@ -20,8 +21,8 @@ public class RemoteBridge {
         javax.management.Notification jmxNotification =
                 new javax.management.Notification(notification.getType(),
                         objectName,
-                        notification.getSequenceNumber());
-        jmxNotification.setUserData(notification.getUserData());
+                        notification.getSequence());
+        jmxNotification.setUserData(notification.getData());
         return jmxNotification;
     }
 }

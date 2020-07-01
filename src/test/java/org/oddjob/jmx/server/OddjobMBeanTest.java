@@ -100,7 +100,7 @@ public class OddjobMBeanTest extends OjTestCase {
                 myJob, sm, new OurHierarchicalRegistry());
 
         OddjobMBean ojmb = new OddjobMBean(
-                myJob, OddjobMBeanFactory.objectName(0),
+                myJob, 0L,
                 new OurServerSession(),
                 serverContext);
 
@@ -144,11 +144,12 @@ public class OddjobMBeanTest extends OjTestCase {
 
         // create and register MBean.
         OddjobMBean ojmb = new OddjobMBean(
-                myJob, OddjobMBeanFactory.objectName(0),
+                myJob,
+                0L,
                 new OurServerSession(),
                 serverContext);
 
-        ObjectName on = OddjobMBeanFactory.objectName(0);
+        ObjectName on = ojmb.getObjectName();
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
         mbs.registerMBean(ojmb, on);
@@ -259,7 +260,7 @@ public class OddjobMBeanTest extends OjTestCase {
                 sampleBean, sm, new OurHierarchicalRegistry());
 
         OddjobMBean test = new OddjobMBean(
-                sampleBean, OddjobMBeanFactory.objectName(0),
+                sampleBean, 0L,
                 new OurServerSession(),
                 serverContext);
 
@@ -290,7 +291,7 @@ public class OddjobMBeanTest extends OjTestCase {
                 bean, sm, new OurHierarchicalRegistry());
 
         OddjobMBean ojmb = new OddjobMBean(
-                bean, OddjobMBeanFactory.objectName(0),
+                bean, 0L,
                 new OurServerSession(),
                 serverContext);
 

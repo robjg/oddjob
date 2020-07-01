@@ -3,6 +3,7 @@ package org.oddjob.jmx.client;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.general.RemoteBridge;
+import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.NotificationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,9 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	private volatile int phase = ACTIVE;
 
 	private final ClientSessionImpl clientSession;
-	
+
+	private final long remoteId;
+
 	private final ObjectName objectName;
 	
 	private final Map<String, NotificationListener> notifications 
@@ -39,11 +42,13 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	private final ClientListener clientListener;
 
 		
-	public ClientSideToolkitImpl(ObjectName objectName, 
+	public ClientSideToolkitImpl(long remoteId,
 			ClientSessionImpl clientSession) throws InstanceNotFoundException, IOException {
 
 		this.clientSession = Objects.requireNonNull(clientSession);
-		this.objectName = Objects.requireNonNull(objectName);
+		this.remoteId = remoteId;
+
+		this.objectName = OddjobMBeanFactory.objectName(remoteId);
 
 		clientListener = new ClientListener();
 		
@@ -140,7 +145,8 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 			if (listener != null) {
 				Runnable r = () -> {
 					try {
-						listener.handleNotification(RemoteBridge.fromJmxNotification(notification));
+						listener.handleNotification(RemoteBridge.fromJmxNotification(
+								remoteId, notification));
 					} catch (Exception e) {
 						// this will happen when the remote node disappears
 						logger.debug("Handle notification.", e);

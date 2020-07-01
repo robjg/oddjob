@@ -28,728 +28,730 @@ import static org.junit.Assert.*;
 
 public class ComponentOwnerHandlerFactoryTest {
 
-	private static class MySessionLite extends MockConfigurationSession {
-		
-		Object component;
-		
-		boolean cut;
+    private static class MySessionLite extends MockConfigurationSession {
 
-		int pasteIndex;
-		
-		String pasteText;
+        Object component;
 
-		boolean committed;
-		
-		boolean saved;
+        boolean cut;
 
-		@Override
-		public DragPoint dragPointFor(Object component) {
-			
-			this.component = component;
-			
-			return new DragPoint() {
+        int pasteIndex;
 
-				public DragTransaction beginChange(ChangeHow how) {
-					return new DragTransaction() {
-						
-						@Override
-						public void rollback() {
-						}
-						
-						@Override
-						public void commit() {
-							committed = true;
-						}
-					};
-				}
-				
-				public boolean supportsCut() {
-					return true;
-				}
-				
-				public boolean supportsPaste() {
-					return true;
-				}
-				
-				public String copy() {
-					return "apples";
-				}
-				
-				public void cut() {
-					cut = true;
-				}
-				public ConfigurationHandle parse(ArooaContext parentContext) {
-					
-					throw new RuntimeException("Unexpected.");
-				}
-				
-				public void paste(int index, String config) {
-					pasteIndex = index;
-					pasteText = config;
-				}
-			};
-			
-		}
-		
-		public void save() {
-			saved = true;
-		}
-		
-		@Override
-		public void addSessionStateListener(SessionStateListener listener) {
-		}
-		
-		@Override
-		public void removeSessionStateListener(SessionStateListener listener) {
-		}
-	}
-	
-	private static class OurDesignFactory implements SerializableDesignFactory {
-		private static final long serialVersionUID = 1L;
-		
-		@Override
-		public DesignInstance createDesign(ArooaElement element,
-				ArooaContext parentContext) throws ArooaPropertyException {
-			throw new RuntimeException("Unexpected!");
-		}
-	}
-	
-	private static class MyComponentOwner extends MockConfigurationOwner {
-	
-		MySessionLite sess = new MySessionLite();
-		
-		public ConfigurationSession provideConfigurationSession() {
-			return sess;
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-	private static class OurServerSideToolkit extends MockServerSideToolkit {
-		
-		
-	}
+        String pasteText;
 
-	private static class OurClientToolkit extends MockClientSideToolkit {
+        boolean committed;
 
-		ServerInterfaceHandler handler;
-				
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-				throws Throwable {
-			return (T) handler.invoke(
-					remoteOperation,
-					args);
-		}
-		
-	}
-	
-   @Test
-	public void testBasicInfo() {
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
-		
-		MyComponentOwner compO = new MyComponentOwner();
-		
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				compO, new OurServerSideToolkit());
-		
-		OurClientToolkit clientToolkit = new OurClientToolkit();
-		clientToolkit.handler = serverHandler;
-		
-		ClientHandlerResolver<ConfigurationOwner> clientResolver =
-			test.clientHandlerFactory();
-		
-		ClientInterfaceHandlerFactory<ConfigurationOwner> cihf =
-			clientResolver.resolve(new ClassLoaderClassResolver(
-					getClass().getClassLoader()));
-			
-		ConfigurationOwner clientHandler = cihf.createClientHandler(
-				new MockConfigurationOwner(), clientToolkit);
-				
-		assertEquals(new ArooaElement("test"), 
-				clientHandler.rootElement());
-		
-		assertEquals(OurDesignFactory.class, 
-				clientHandler.rootDesignFactory().getClass());
-	}
-	
-   @Test
-	public void testDragPointOperations() throws ArooaParseException {
+        boolean saved;
 
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
-	
-		MyComponentOwner compO = new MyComponentOwner();
-		
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				compO, new OurServerSideToolkit());
-		
-		OurClientToolkit clientToolkit = new OurClientToolkit();
-		clientToolkit.handler = serverHandler;
-		
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+        @Override
+        public DragPoint dragPointFor(Object component) {
 
-		Object ourComponent = new Object();
-		
-		DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(
-				ourComponent);
-		
-		assertTrue(local.supportsCut());
-		assertTrue(local.supportsPaste());
-		
-		assertSame(ourComponent, compO.sess.component);
-		
-		DragTransaction trn = local.beginChange(ChangeHow.FRESH);
-		local.cut();
-		trn.commit();
-		
-		assertTrue(compO.sess.committed);
-		assertTrue(compO.sess.cut);
-		
-		assertEquals("apples", local.copy());
-		
-		local.paste(2, "oranges");
-		
-		assertEquals(2, compO.sess.pasteIndex);
-		assertEquals("oranges", compO.sess.pasteText);
-		
-		clientHandler.provideConfigurationSession().save();
-		assertTrue(compO.sess.saved);
-		
-	}
-	
-	
-	private static class OurComponentOwner2 extends MockConfigurationOwner {
-		
-		DragPoint drag;
-		ConfigurationHandle handle;
-		
-		public ConfigurationSession provideConfigurationSession() {
-			return new MockConfigurationSession() {
-				@Override
-				public DragPoint dragPointFor(Object component) {
-					return drag;
-				}
-				
-				@Override
-				public void save() throws ArooaParseException {
-					handle.save();
-				}
-				
-				@Override
-				public void addSessionStateListener(
-						SessionStateListener listener) {
-				}
-				
-				@Override
-				public void removeSessionStateListener(
-						SessionStateListener listener) {
-				}
-			};
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-   @Test
-	public void testEditOperations() throws Exception {
+            this.component = component;
 
-		
-		Object root = new Object();
-		
-		XMLConfiguration config = new XMLConfiguration("TEST", 
-		"<class id='apples'/>");
+            return new DragPoint() {
 
-		final AtomicReference<String > savedXML = new AtomicReference<>();
-		config.setSaveHandler(savedXML::set);
-		
-		StandardArooaParser parser = new StandardArooaParser(root);
-		
-		final ConfigurationHandle handle = parser.parse(config);
-		
-		DragContext drag = new DragContext(handle.getDocumentContext());
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
-		
-		OurComponentOwner2 compO = new OurComponentOwner2();
-		compO.drag = drag;
-		compO.handle = handle;
-		
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				compO, new OurServerSideToolkit());
-		
-		OurClientToolkit clientToolkit = new OurClientToolkit();
-		clientToolkit.handler = serverHandler;
-		
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+                public DragTransaction beginChange(ChangeHow how) {
+                    return new DragTransaction() {
 
-		DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(root);
-		
-		XMLArooaParser parser2 = new XMLArooaParser();
-		
-		ConfigurationHandle handle2 = parser2.parse(local);
-		
-		ArooaContext context = handle2.getDocumentContext();
-		
-		XMLConfiguration replacement = new XMLConfiguration("TEST", 
-		"<class id='oranges'/>");
+                        @Override
+                        public void rollback() {
+                        }
 
-		CutAndPasteSupport.replace(context.getParent(), 
-				context, replacement);
-		handle2.save();
-		
-		clientHandler.provideConfigurationSession().save();
-		
-		String expected = "<class id=\"oranges\"/>" + 
-			System.getProperty("line.separator"); 
-		
-		Assert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
-	}
-	
-	private static class NullConfigurationOwner extends MockConfigurationOwner {
-		public ConfigurationSession provideConfigurationSession() {
-			return null;
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-   @Test
-	public void testNullConfiguration() {
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
-		
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				new NullConfigurationOwner(), new OurServerSideToolkit());
-		
-		OurClientToolkit clientToolkit = new OurClientToolkit();
-		clientToolkit.handler = serverHandler;
-		
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+                        @Override
+                        public void commit() {
+                            committed = true;
+                        }
+                    };
+                }
 
-		ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
-		
-		assertNull(configurationSession);		
-	}
-	
-	private static class NullDropPointOwner extends MockConfigurationOwner {
-		public ConfigurationSession provideConfigurationSession() {
-			return new MockConfigurationSession() {
-				public DragPoint dragPointFor(Object component) {
-					return null;
-				}
-				@Override
-				public void addSessionStateListener(
-						SessionStateListener listener) {
-				}
-				
-				@Override
-				public void removeSessionStateListener(
-						SessionStateListener listener) {
-				}
-			};
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-   @Test
-	public void testNullDropPointConfiguration() {
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
-		
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				new NullDropPointOwner(), new OurServerSideToolkit());
-		
-		OurClientToolkit clientToolkit = new OurClientToolkit();
-		clientToolkit.handler = serverHandler;
-		
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+                public boolean supportsCut() {
+                    return true;
+                }
 
-		ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
-		
-		assertNotNull(configurationSession);		
-		
-		DragPoint dragPoint = configurationSession.dragPointFor(clientHandler);
-		
-		assertNull(dragPoint);
-	}
+                public boolean supportsPaste() {
+                    return true;
+                }
 
-	/////////////////////
-	// Modified Stuff
-	
-	private static class ModifiedNotifySession extends MockConfigurationSession {
-		SessionStateListener listener;
-		
-		@Override
-		public void addSessionStateListener(SessionStateListener listener) {
-			assertNull(this.listener);
-			this.listener = listener;
-		}
-		
-		@Override
-		public void removeSessionStateListener(SessionStateListener listener) {
-			assertEquals(this.listener, listener);
-			this.listener = null;
-		}
-		
-		void modified() {
-			this.listener.sessionModified(new ConfigSessionEvent(this));
-		}
-		
-		void saved() {
-			this.listener.sessionSaved(new ConfigSessionEvent(this));
-		}
-	}
+                public String copy() {
+                    return "apples";
+                }
 
-	
-	private static class ModifiedOwner extends MockConfigurationOwner {
+                public void cut() {
+                    cut = true;
+                }
 
-		final ModifiedNotifySession session = new ModifiedNotifySession();
-		
-		public ConfigurationSession provideConfigurationSession() {
-			return session;
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-	private static class SessionResultListener implements SessionStateListener {
-		
-		ConfigSessionEvent event;
-		
-		boolean modified;
+                public ConfigurationHandle parse(ArooaContext parentContext) {
 
-		public void sessionModified(ConfigSessionEvent event) {
-			this.event = event; 
-			modified = true;
-		}
+                    throw new RuntimeException("Unexpected.");
+                }
 
-		public void sessionSaved(ConfigSessionEvent event) {
-			this.event = event;
-			modified = false;
-		}
-	}
-	
-	private static class ModifiedClientToolkit extends OurClientToolkit {
-		
-		ModifiedServerSideToolkit serverToolkit;
-		
-		@Override
-		public void registerNotificationListener(String eventType,
-				NotificationListener notificationListener) {
-			assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, eventType);
-			assertNull(serverToolkit.listener);
-			serverToolkit.listener = notificationListener;
-		}
+                public void paste(int index, String config) {
+                    pasteIndex = index;
+                    pasteText = config;
+                }
+            };
 
-		@Override
-		public void removeNotificationListener(String eventType,
-				NotificationListener notificationListener) {
-			assertEquals(serverToolkit.listener, notificationListener);
-			serverToolkit.listener = null;
-		}
-	}
-	
-	private static class ModifiedServerSideToolkit extends MockServerSideToolkit {
-		
-		NotificationListener listener;
-		
-		@Override
-		public Notification createNotification(String type, Object userData) {
-			assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, type);
-			return new Notification(type, 0, userData);
-		}
+        }
 
-		@Override
-		public void sendNotification(Notification notification) {
-			if (listener != null) {
-				listener.handleNotification(notification);
-			}
-		}
-		
-		@Override
-		public void runSynchronized(Runnable runnable) {
-			runnable.run();
-		}
-	}
-	
-   @Test
-	public void testSessionStateNotification() {
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+        public void save() {
+            saved = true;
+        }
 
-		ModifiedOwner owner = new ModifiedOwner();
-		
-		ModifiedServerSideToolkit serverToolkit = new ModifiedServerSideToolkit();
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				owner, serverToolkit);
-		
-		ModifiedClientToolkit clientToolkit = new ModifiedClientToolkit();
-		clientToolkit.handler = serverHandler;
-		clientToolkit.serverToolkit = serverToolkit;
-				
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+        @Override
+        public void addSessionStateListener(SessionStateListener listener) {
+        }
 
-		SessionResultListener results = new SessionResultListener();
-		
-		clientHandler.provideConfigurationSession(
-				).addSessionStateListener(results);
+        @Override
+        public void removeSessionStateListener(SessionStateListener listener) {
+        }
+    }
 
-	   assertFalse(results.modified);
-		assertNull(results.event);
-		
-		owner.session.modified();
+    private static class OurDesignFactory implements SerializableDesignFactory {
+        private static final long serialVersionUID = 1L;
 
-	   assertTrue(results.modified);
-		assertNotNull(results.event);
-		
-		owner.session.saved();
+        @Override
+        public DesignInstance createDesign(ArooaElement element,
+                                           ArooaContext parentContext) throws ArooaPropertyException {
+            throw new RuntimeException("Unexpected!");
+        }
+    }
 
-	   assertFalse(results.modified);
-		assertNotNull(results.event);
-		
-		clientHandler.provideConfigurationSession(
-				).removeSessionStateListener(results);
-		
-		owner.session.modified();
-		assertNotNull(results.event);
+    private static class MyComponentOwner extends MockConfigurationOwner {
 
-	   assertFalse(results.modified);
-	}
-	
-	
-	private static class NotifyingOwner extends MockConfigurationOwner {
-		
-		OwnerStateListener listener;
+        MySessionLite sess = new MySessionLite();
 
-		ConfigurationSession session;
-		
-		public ConfigurationSession provideConfigurationSession() {
-			return session;
-		}
-		
-		public void setSession(ConfigurationSession session) {
-			assertNotNull(session);
-			this.session = session;
-			this.listener.sessionChanged(new ConfigOwnerEvent(this, 
-					ConfigOwnerEvent.Change.SESSION_CREATED));
-		}
-		
-		@Override
-		public void addOwnerStateListener(OwnerStateListener listener) {
-			assertNull(this.listener);
-			this.listener = listener;
-		}
-		
-		@Override
-		public void removeOwnerStateListener(OwnerStateListener listener) {
-			assertEquals(this.listener, listener);
-			this.listener = null;
-		}
-		
-		@Override
-		public ArooaElement rootElement() {
-			return new ArooaElement("test");
-		}
-		
-		@Override
-		public SerializableDesignFactory rootDesignFactory() {
-			return new OurDesignFactory();
-		}
-	}
-	
-	private static class ResultListener implements OwnerStateListener {
-		
-		ConfigOwnerEvent event;
-		
-		int count;
-		
-		public void sessionChanged(ConfigOwnerEvent event) {
-			this.event = event; 
-			++count;
-		}
-	}
-	
-	private static class NotifyClientToolkit extends OurClientToolkit {
-		
-		NotifyServerSideToolkit serverToolkit;
-		
-		@Override
-		public void registerNotificationListener(String eventType,
-				NotificationListener notificationListener) {
-			assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, eventType);
-			assertNull(serverToolkit.listener);
-			serverToolkit.listener = notificationListener;
-		}
+        public ConfigurationSession provideConfigurationSession() {
+            return sess;
+        }
 
-		@Override
-		public void removeNotificationListener(String eventType,
-				NotificationListener notificationListener) {
-			assertEquals(serverToolkit.listener, notificationListener);
-			serverToolkit.listener = null;
-		}
-	}
-	
-	private static class NotifyServerSideToolkit extends MockServerSideToolkit {
-		
-		NotificationListener listener;
-		
-		@Override
-		public Notification createNotification(String type, Object userData) {
-			assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, type);
-			return new Notification(type, 0, userData);
-		}
-		
-		@Override
-		public void sendNotification(Notification notification) {
-			if (listener != null) {
-				listener.handleNotification(notification);
-			}
-		}
-		
-		@Override
-		public void runSynchronized(Runnable runnable) {
-			runnable.run();
-		}
-	}
-	
-   @Test
-	public void testSessionChangeNotification() {
-		
-		ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+        }
 
-		NotifyingOwner owner = new NotifyingOwner();
-		
-		NotifyServerSideToolkit serverToolkit = new NotifyServerSideToolkit();
-		ServerInterfaceHandler serverHandler = test.createServerHandler(
-				owner, serverToolkit);
-		
-		NotifyClientToolkit clientToolkit = new NotifyClientToolkit();
-		clientToolkit.handler = serverHandler;
-		clientToolkit.serverToolkit = serverToolkit;
-		
-		ConfigurationOwner clientProxy = new MockConfigurationOwner(); 
-		
-		ConfigurationOwner clientHandler = 
-			new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
-					).createClientHandler(clientProxy, clientToolkit);
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+        }
 
-		ResultListener results = new ResultListener();
-		
-		clientHandler.addOwnerStateListener(results);
-		
-		assertEquals(0, results.count);
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
 
-		ConfigurationSession clientSession = clientHandler.provideConfigurationSession();
-		
-		assertNull(clientSession);
-		
-		owner.setSession(new ModifiedNotifySession());
-		
-		assertEquals(clientProxy, results.event.getSource());
-		
-		assertEquals(1, results.count);
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
 
-		clientSession = clientHandler.provideConfigurationSession();
-		
-		assertNotNull(clientSession);
-		
-		clientHandler.removeOwnerStateListener(results);
-		
-		owner.setSession(new ModifiedNotifySession());
-		
-		assertEquals(1, results.count);
-	}
+    private static class OurServerSideToolkit extends MockServerSideToolkit {
+
+
+    }
+
+    private static class OurClientToolkit extends MockClientSideToolkit {
+
+        ServerInterfaceHandler handler;
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
+                throws Throwable {
+            return (T) handler.invoke(
+                    remoteOperation,
+                    args);
+        }
+
+    }
+
+    @Test
+    public void testBasicInfo() {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        MyComponentOwner compO = new MyComponentOwner();
+
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                compO, new OurServerSideToolkit());
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+        clientToolkit.handler = serverHandler;
+
+        ClientHandlerResolver<ConfigurationOwner> clientResolver =
+                test.clientHandlerFactory();
+
+        ClientInterfaceHandlerFactory<ConfigurationOwner> cihf =
+                clientResolver.resolve(new ClassLoaderClassResolver(
+                        getClass().getClassLoader()));
+
+        ConfigurationOwner clientHandler = cihf.createClientHandler(
+                new MockConfigurationOwner(), clientToolkit);
+
+        assertEquals(new ArooaElement("test"),
+                clientHandler.rootElement());
+
+        assertEquals(OurDesignFactory.class,
+                clientHandler.rootDesignFactory().getClass());
+    }
+
+    @Test
+    public void testDragPointOperations() throws ArooaParseException {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        MyComponentOwner compO = new MyComponentOwner();
+
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                compO, new OurServerSideToolkit());
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+        clientToolkit.handler = serverHandler;
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+
+        Object ourComponent = new Object();
+
+        DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(
+                ourComponent);
+
+        assertTrue(local.supportsCut());
+        assertTrue(local.supportsPaste());
+
+        assertSame(ourComponent, compO.sess.component);
+
+        DragTransaction trn = local.beginChange(ChangeHow.FRESH);
+        local.cut();
+        trn.commit();
+
+        assertTrue(compO.sess.committed);
+        assertTrue(compO.sess.cut);
+
+        assertEquals("apples", local.copy());
+
+        local.paste(2, "oranges");
+
+        assertEquals(2, compO.sess.pasteIndex);
+        assertEquals("oranges", compO.sess.pasteText);
+
+        clientHandler.provideConfigurationSession().save();
+        assertTrue(compO.sess.saved);
+
+    }
+
+
+    private static class OurComponentOwner2 extends MockConfigurationOwner {
+
+        DragPoint drag;
+        ConfigurationHandle handle;
+
+        public ConfigurationSession provideConfigurationSession() {
+            return new MockConfigurationSession() {
+                @Override
+                public DragPoint dragPointFor(Object component) {
+                    return drag;
+                }
+
+                @Override
+                public void save() throws ArooaParseException {
+                    handle.save();
+                }
+
+                @Override
+                public void addSessionStateListener(
+                        SessionStateListener listener) {
+                }
+
+                @Override
+                public void removeSessionStateListener(
+                        SessionStateListener listener) {
+                }
+            };
+        }
+
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
+
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
+
+    @Test
+    public void testEditOperations() throws Exception {
+
+
+        Object root = new Object();
+
+        XMLConfiguration config = new XMLConfiguration("TEST",
+                "<class id='apples'/>");
+
+        final AtomicReference<String> savedXML = new AtomicReference<>();
+        config.setSaveHandler(savedXML::set);
+
+        StandardArooaParser parser = new StandardArooaParser(root);
+
+        final ConfigurationHandle handle = parser.parse(config);
+
+        DragContext drag = new DragContext(handle.getDocumentContext());
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        OurComponentOwner2 compO = new OurComponentOwner2();
+        compO.drag = drag;
+        compO.handle = handle;
+
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                compO, new OurServerSideToolkit());
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+        clientToolkit.handler = serverHandler;
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+
+        DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(root);
+
+        XMLArooaParser parser2 = new XMLArooaParser();
+
+        ConfigurationHandle handle2 = parser2.parse(local);
+
+        ArooaContext context = handle2.getDocumentContext();
+
+        XMLConfiguration replacement = new XMLConfiguration("TEST",
+                "<class id='oranges'/>");
+
+        CutAndPasteSupport.replace(context.getParent(),
+                context, replacement);
+        handle2.save();
+
+        clientHandler.provideConfigurationSession().save();
+
+        String expected = "<class id=\"oranges\"/>" +
+                System.getProperty("line.separator");
+
+        Assert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
+    }
+
+    private static class NullConfigurationOwner extends MockConfigurationOwner {
+        public ConfigurationSession provideConfigurationSession() {
+            return null;
+        }
+
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
+
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
+
+    @Test
+    public void testNullConfiguration() {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                new NullConfigurationOwner(), new OurServerSideToolkit());
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+        clientToolkit.handler = serverHandler;
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+
+        ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
+
+        assertNull(configurationSession);
+    }
+
+    private static class NullDropPointOwner extends MockConfigurationOwner {
+        public ConfigurationSession provideConfigurationSession() {
+            return new MockConfigurationSession() {
+                public DragPoint dragPointFor(Object component) {
+                    return null;
+                }
+
+                @Override
+                public void addSessionStateListener(
+                        SessionStateListener listener) {
+                }
+
+                @Override
+                public void removeSessionStateListener(
+                        SessionStateListener listener) {
+                }
+            };
+        }
+
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
+
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
+
+    @Test
+    public void testNullDropPointConfiguration() {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                new NullDropPointOwner(), new OurServerSideToolkit());
+
+        OurClientToolkit clientToolkit = new OurClientToolkit();
+        clientToolkit.handler = serverHandler;
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+
+        ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
+
+        assertNotNull(configurationSession);
+
+        DragPoint dragPoint = configurationSession.dragPointFor(clientHandler);
+
+        assertNull(dragPoint);
+    }
+
+    /////////////////////
+    // Modified Stuff
+
+    private static class ModifiedNotifySession extends MockConfigurationSession {
+        SessionStateListener listener;
+
+        @Override
+        public void addSessionStateListener(SessionStateListener listener) {
+            assertNull(this.listener);
+            this.listener = listener;
+        }
+
+        @Override
+        public void removeSessionStateListener(SessionStateListener listener) {
+            assertEquals(this.listener, listener);
+            this.listener = null;
+        }
+
+        void modified() {
+            this.listener.sessionModified(new ConfigSessionEvent(this));
+        }
+
+        void saved() {
+            this.listener.sessionSaved(new ConfigSessionEvent(this));
+        }
+    }
+
+
+    private static class ModifiedOwner extends MockConfigurationOwner {
+
+        final ModifiedNotifySession session = new ModifiedNotifySession();
+
+        public ConfigurationSession provideConfigurationSession() {
+            return session;
+        }
+
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+        }
+
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
+
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
+
+    private static class SessionResultListener implements SessionStateListener {
+
+        ConfigSessionEvent event;
+
+        boolean modified;
+
+        public void sessionModified(ConfigSessionEvent event) {
+            this.event = event;
+            modified = true;
+        }
+
+        public void sessionSaved(ConfigSessionEvent event) {
+            this.event = event;
+            modified = false;
+        }
+    }
+
+    private static class ModifiedClientToolkit extends OurClientToolkit {
+
+        ModifiedServerSideToolkit serverToolkit;
+
+        @Override
+        public void registerNotificationListener(String eventType,
+                                                 NotificationListener notificationListener) {
+            assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, eventType);
+            assertNull(serverToolkit.listener);
+            serverToolkit.listener = notificationListener;
+        }
+
+        @Override
+        public void removeNotificationListener(String eventType,
+                                               NotificationListener notificationListener) {
+            assertEquals(serverToolkit.listener, notificationListener);
+            serverToolkit.listener = null;
+        }
+    }
+
+    private static class ModifiedServerSideToolkit extends MockServerSideToolkit {
+
+        NotificationListener listener;
+
+        @Override
+        public Notification createNotification(String type, Object userData) {
+            assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, type);
+            return new Notification(1L, type, 0, userData);
+        }
+
+        @Override
+        public void sendNotification(Notification notification) {
+            if (listener != null) {
+                listener.handleNotification(notification);
+            }
+        }
+
+        @Override
+        public void runSynchronized(Runnable runnable) {
+            runnable.run();
+        }
+    }
+
+    @Test
+    public void testSessionStateNotification() {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        ModifiedOwner owner = new ModifiedOwner();
+
+        ModifiedServerSideToolkit serverToolkit = new ModifiedServerSideToolkit();
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                owner, serverToolkit);
+
+        ModifiedClientToolkit clientToolkit = new ModifiedClientToolkit();
+        clientToolkit.handler = serverHandler;
+        clientToolkit.serverToolkit = serverToolkit;
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
+
+        SessionResultListener results = new SessionResultListener();
+
+        clientHandler.provideConfigurationSession(
+        ).addSessionStateListener(results);
+
+        assertFalse(results.modified);
+        assertNull(results.event);
+
+        owner.session.modified();
+
+        assertTrue(results.modified);
+        assertNotNull(results.event);
+
+        owner.session.saved();
+
+        assertFalse(results.modified);
+        assertNotNull(results.event);
+
+        clientHandler.provideConfigurationSession(
+        ).removeSessionStateListener(results);
+
+        owner.session.modified();
+        assertNotNull(results.event);
+
+        assertFalse(results.modified);
+    }
+
+
+    private static class NotifyingOwner extends MockConfigurationOwner {
+
+        OwnerStateListener listener;
+
+        ConfigurationSession session;
+
+        public ConfigurationSession provideConfigurationSession() {
+            return session;
+        }
+
+        public void setSession(ConfigurationSession session) {
+            assertNotNull(session);
+            this.session = session;
+            this.listener.sessionChanged(new ConfigOwnerEvent(this,
+                    ConfigOwnerEvent.Change.SESSION_CREATED));
+        }
+
+        @Override
+        public void addOwnerStateListener(OwnerStateListener listener) {
+            assertNull(this.listener);
+            this.listener = listener;
+        }
+
+        @Override
+        public void removeOwnerStateListener(OwnerStateListener listener) {
+            assertEquals(this.listener, listener);
+            this.listener = null;
+        }
+
+        @Override
+        public ArooaElement rootElement() {
+            return new ArooaElement("test");
+        }
+
+        @Override
+        public SerializableDesignFactory rootDesignFactory() {
+            return new OurDesignFactory();
+        }
+    }
+
+    private static class ResultListener implements OwnerStateListener {
+
+        ConfigOwnerEvent event;
+
+        int count;
+
+        public void sessionChanged(ConfigOwnerEvent event) {
+            this.event = event;
+            ++count;
+        }
+    }
+
+    private static class NotifyClientToolkit extends OurClientToolkit {
+
+        NotifyServerSideToolkit serverToolkit;
+
+        @Override
+        public void registerNotificationListener(String eventType,
+                                                 NotificationListener notificationListener) {
+            assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, eventType);
+            assertNull(serverToolkit.listener);
+            serverToolkit.listener = notificationListener;
+        }
+
+        @Override
+        public void removeNotificationListener(String eventType,
+                                               NotificationListener notificationListener) {
+            assertEquals(serverToolkit.listener, notificationListener);
+            serverToolkit.listener = null;
+        }
+    }
+
+    private static class NotifyServerSideToolkit extends MockServerSideToolkit {
+
+        NotificationListener listener;
+
+        @Override
+        public Notification createNotification(String type, Object userData) {
+            assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, type);
+            return new Notification(1L, type, 0, userData);
+        }
+
+        @Override
+        public void sendNotification(Notification notification) {
+            if (listener != null) {
+                listener.handleNotification(notification);
+            }
+        }
+
+        @Override
+        public void runSynchronized(Runnable runnable) {
+            runnable.run();
+        }
+    }
+
+    @Test
+    public void testSessionChangeNotification() {
+
+        ComponentOwnerHandlerFactory test = new ComponentOwnerHandlerFactory();
+
+        NotifyingOwner owner = new NotifyingOwner();
+
+        NotifyServerSideToolkit serverToolkit = new NotifyServerSideToolkit();
+        ServerInterfaceHandler serverHandler = test.createServerHandler(
+                owner, serverToolkit);
+
+        NotifyClientToolkit clientToolkit = new NotifyClientToolkit();
+        clientToolkit.handler = serverHandler;
+        clientToolkit.serverToolkit = serverToolkit;
+
+        ConfigurationOwner clientProxy = new MockConfigurationOwner();
+
+        ConfigurationOwner clientHandler =
+                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                ).createClientHandler(clientProxy, clientToolkit);
+
+        ResultListener results = new ResultListener();
+
+        clientHandler.addOwnerStateListener(results);
+
+        assertEquals(0, results.count);
+
+        ConfigurationSession clientSession = clientHandler.provideConfigurationSession();
+
+        assertNull(clientSession);
+
+        owner.setSession(new ModifiedNotifySession());
+
+        assertEquals(clientProxy, results.event.getSource());
+
+        assertEquals(1, results.count);
+
+        clientSession = clientHandler.provideConfigurationSession();
+
+        assertNotNull(clientSession);
+
+        clientHandler.removeOwnerStateListener(results);
+
+        owner.setSession(new ModifiedNotifySession());
+
+        assertEquals(1, results.count);
+    }
 }

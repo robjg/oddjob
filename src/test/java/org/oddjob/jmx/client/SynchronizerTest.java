@@ -26,10 +26,10 @@ public class SynchronizerTest extends OjTestCase {
     @Test
     public void testSync() {
 
-        Notification n0 = new Notification(type, 100, new Object());
-        Notification n1 = new Notification(type, 101, new Object());
-        Notification n2 = new Notification(type, 102, new Object());
-        Notification n3 = new Notification(type, 103, new Object());
+        Notification n0 = new Notification(1L, type, 100, "a");
+        Notification n1 = new Notification(1L, type, 101, "b");
+        Notification n2 = new Notification(1L, type, 102, "c");
+        Notification n3 = new Notification(1L, type, 103, "d");
 
         OurListener results = new OurListener();
 

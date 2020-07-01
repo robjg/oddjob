@@ -119,7 +119,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 					
 					synchronizer = new Synchronizer(
 							notification -> {
-								ChildData childData = (ChildData) notification.getUserData();
+								ChildData childData = (ChildData) notification.getData();
 
 								new ChildMatch<Long>(childNames) {
 									protected void insertChild(int index, Long childName) {

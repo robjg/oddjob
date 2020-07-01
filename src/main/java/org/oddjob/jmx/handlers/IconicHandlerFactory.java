@@ -164,7 +164,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 					
 					synchronizer = new Synchronizer(
 							notification -> {
-								IconData ie = (IconData) notification.getUserData();
+								IconData ie = (IconData) notification.getData();
 								iconEvent(ie);
 							});
 					toolkit.registerNotificationListener(

@@ -1,15 +1,7 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
 import org.oddjob.arooa.registry.MockBeanRegistry;
@@ -21,9 +13,13 @@ import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.handlers.RunnableHandlerFactory;
 import org.oddjob.util.MockThreadManager;
 
+import java.lang.reflect.Proxy;
+import java.util.HashSet;
+import java.util.Set;
+
 public class ObjectMBeanServerInfoTest extends OjTestCase {
 
-	private class OurClassResolver extends MockClassResolver {
+	private static class OurClassResolver extends MockClassResolver {
 		
 		@Override
 		public Class<?> findClass(String className) {
@@ -35,7 +31,7 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 		}
 	}
 	
-	private class OurServerSession extends MockServerSession {
+	private static class OurServerSession extends MockServerSession {
 		
 		ArooaSession session = new StandardArooaSession();
 		
@@ -45,7 +41,7 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 		}
 	}
 	
-	private class OurDirectory extends MockBeanRegistry {
+	private static class OurDirectory extends MockBeanRegistry {
 	
 		@Override
 		public String getIdFor(Object component) {
@@ -57,12 +53,9 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 	 * Test creating and registering an OddjobMBean.
 	 */
    @Test
-	public void testServerInfo() 
-	throws Exception {
-		Runnable myJob = new Runnable() {
-			public void run() {
-				
-			}
+	public void testServerInfo() {
+		Runnable myJob = () -> {
+
 		};
 
 		ServerInterfaceManagerFactoryImpl imf = 
@@ -81,25 +74,21 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 				myJob, sm, new OurDirectory());
 		
 		final OddjobMBean ojmb = new OddjobMBean(
-				myJob, OddjobMBeanFactory.objectName(0),
-				new OurServerSession(), 
+				myJob, 0L,
+				new OurServerSession(),
 				serverContext);
 		
 		RemoteOddjobBean  rob = (RemoteOddjobBean) Proxy.newProxyInstance(
 				getClass().getClassLoader(),
-				new Class[] { RemoteOddjobBean.class }, 
-				new InvocationHandler() {
-					public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-						return ojmb.invoke(method.getName(), args, 
-								Utils.classArray2StringArray(method.getParameterTypes()));
-					}			
-		});
+				new Class[] { RemoteOddjobBean.class },
+				(proxy, method, args) -> ojmb.invoke(method.getName(), args,
+						Utils.classArray2StringArray(method.getParameterTypes())));
 		
 		ServerInfo info = rob.serverInfo();
 		
 		assertEquals("url", "//test:x", info.getAddress().toString());		
 
-		Set<Class<?>> interfaces = new HashSet<Class<?>>();
+		Set<Class<?>> interfaces = new HashSet<>();
 		for (int i = 0; i < info.getClientResolvers().length; ++i) {
 			ClientHandlerResolver<?> resolver = info.getClientResolvers()[i];
 			interfaces.add(resolver.resolve(new OurClassResolver()).interfaceClass());

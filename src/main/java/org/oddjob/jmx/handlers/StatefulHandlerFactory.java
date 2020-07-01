@@ -166,7 +166,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 					
 					synchronizer = new Synchronizer(
 							notification -> {
-								StateData stateData = (StateData) notification.getUserData();
+								StateData stateData = (StateData) notification.getData();
 								jobStateChange(stateData);
 							});
 					toolkit.registerNotificationListener(
@@ -274,7 +274,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			}
 
 			if (LAST_STATE_EVENT.equals(operation)) {
-				return lastNotification.getUserData();
+				return lastNotification.getData();
 			}
 			throw new ReflectionException(
 					new IllegalStateException("invoked for an unknown method."), 

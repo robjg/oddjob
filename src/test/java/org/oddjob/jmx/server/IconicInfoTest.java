@@ -22,7 +22,7 @@ import javax.swing.*;
 public class IconicInfoTest extends OjTestCase {
 //	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
 	
-	private class OurHierarchicalRegistry extends MockBeanRegistry {
+	private static class OurHierarchicalRegistry extends MockBeanRegistry {
 		
 		@Override
 		public String getIdFor(Object component) {
@@ -31,7 +31,7 @@ public class IconicInfoTest extends OjTestCase {
 		}
 	}
 	
-	private class OurServerSession extends MockServerSession {
+	private static class OurServerSession extends MockServerSession {
 		
 		ArooaSession session = new StandardArooaSession();
 		
@@ -41,7 +41,7 @@ public class IconicInfoTest extends OjTestCase {
 		}
 	}
 		
-	private class MyIconic implements Iconic {
+	private static class MyIconic implements Iconic {
 		IconListener l;
 		public void addIconListener(IconListener listener) {
 			l = listener;
@@ -71,11 +71,11 @@ public class IconicInfoTest extends OjTestCase {
 				imf);
 		
 		ServerContext serverContext = new ServerContextImpl(
-				iconic, sm, new OurHierarchicalRegistry()); 
+				iconic, sm, new OurHierarchicalRegistry());
 		
 		OddjobMBean ojmb = new OddjobMBean(
-				iconic, OddjobMBeanFactory.objectName(0),
-				new OurServerSession(), 
+				iconic, 0L,
+				new OurServerSession(),
 				serverContext);
 		
 		iconic.l.iconEvent(new IconEvent(iconic, "test"));

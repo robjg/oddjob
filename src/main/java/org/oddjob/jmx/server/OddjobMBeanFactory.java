@@ -63,10 +63,10 @@ public class OddjobMBeanFactory implements ServerSession {
 	throws JMException {
 
 		long objectId = serial.getAndIncrement();
-		ObjectName objName = objectName(objectId);
-		
-		OddjobMBean ojmb = new OddjobMBean(object, objName, this, context);
-		
+
+		OddjobMBean ojmb = new OddjobMBean(object, objectId, this, context);
+		ObjectName objName = ojmb.getObjectName();
+
 		server.registerMBean(ojmb, objName);
 		
 		synchronized (this) {
