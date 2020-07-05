@@ -1,5 +1,7 @@
 package org.oddjob.remote;
 
+import org.oddjob.arooa.utils.ClassUtils;
+
 import java.util.*;
 
 /**
@@ -57,6 +59,49 @@ public class NotificationInfoBuilder {
             classes.put(type,cl);
             Optional.ofNullable(description).ifPresent(d -> descriptions.put(type, d));
             return NotificationInfoBuilder.this;
+        }
+    }
+
+    public static FromItems fromItems(List<NotificationInfoItem> items) {
+
+        return new NotificationInfoBuilder().new FromItems(items);
+    }
+
+    public class FromItems {
+
+        private final List<NotificationInfoItem> items;
+
+        private ClassLoader classLoader;
+
+
+        public FromItems(List<NotificationInfoItem> items) {
+            this.items = Objects.requireNonNull(items);
+        }
+
+        public FromItems withClassLoader(ClassLoader classLoader) {
+
+            this.classLoader = classLoader;
+            return this;
+        }
+
+        public NotificationInfo build() {
+
+            ClassLoader classLoader = Optional.ofNullable(this.classLoader)
+                    .orElse(getClass().getClassLoader());
+
+            items.forEach(item -> {
+                Class<?> dataType;
+                try {
+                    dataType = ClassUtils.classFor(item.getOfType(), classLoader);
+                }
+                catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+
+                classes.put(item.getType(), dataType);
+            });
+
+            return new Impl(NotificationInfoBuilder.this);
         }
     }
 

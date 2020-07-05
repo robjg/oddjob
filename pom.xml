@@ -38,6 +38,12 @@
     </dependency>
 
     <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
       <groupId>uk.co.rgordon</groupId>
       <artifactId>arooa</artifactId>
       <version>${project.version}</version>
