@@ -61,7 +61,7 @@ public class OperationType<T> {
                 '}';
     }
 
-    public static Builder named(String name) {
+    public static Builder ofName(String name) {
         return new Builder(name);
     }
 

@@ -3,6 +3,7 @@ package org.oddjob.jmx.server;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.general.RemoteBridge;
+import org.oddjob.remote.NotificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -239,15 +240,15 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	class Toolkit implements ServerSideToolkit {
 	
 		@Override
-		public void sendNotification(org.oddjob.remote.Notification notification) {
+		public void sendNotification(org.oddjob.remote.Notification<?> notification) {
 			OddjobMBean.this.sendNotification(
 					RemoteBridge.toJmxNotification(objectName, notification));
 		}
 
 		@Override
-		public org.oddjob.remote.Notification createNotification(String type, Object userData) {
+		public <T> org.oddjob.remote.Notification<T> createNotification(NotificationType<T> type, T userData) {
 			synchronized(resyncLock) {
-				return new org.oddjob.remote.Notification(objectId, type, sequenceNumber++, userData);
+				return new org.oddjob.remote.Notification<>(objectId, type, sequenceNumber++, userData);
 			}
 		}
 		

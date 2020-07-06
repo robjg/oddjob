@@ -15,6 +15,7 @@ import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
 import java.io.Serializable;
@@ -29,9 +30,13 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 	
-	public static final String MODIFIED_NOTIF_TYPE = "oddjob.config.modified";
+	public static final NotificationType<Boolean> MODIFIED_NOTIF_TYPE =
+			NotificationType.ofName("oddjob.config.modified")
+			.andDataType(Boolean.class);
 	
-	public static final String CHANGE_NOTIF_TYPE = "oddjob.config.changed";
+	public static final NotificationType<ConfigOwnerEvent.Change> CHANGE_NOTIF_TYPE =
+			NotificationType.ofName("oddjob.config.changed")
+			.andDataType(ConfigOwnerEvent.Change.class);
 	
 	private static final JMXOperationPlus<Integer> SESSION_AVAILABLE =
 			new JMXOperationPlus<>(
@@ -126,7 +131,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[] {
 				new MBeanNotificationInfo(new String[] {
-						MODIFIED_NOTIF_TYPE },
+						MODIFIED_NOTIF_TYPE.getName() },
 						Notification.class.getName(), "Modified Notification.")};
 	}	
 
@@ -172,8 +177,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private volatile boolean listening;
 		
-		private final NotificationListener listener =
-				notification -> updateSession((ConfigOwnerEvent.Change) notification.getData());
+		private final NotificationListener<ConfigOwnerEvent.Change> listener =
+				notification -> updateSession(notification.getData());
 		
 		ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
 			this.clientToolkit = toolkit;
@@ -286,10 +291,10 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		
 		private final int id;
 		
-		private final NotificationListener listener =
-			new NotificationListener() {
-				public void handleNotification(Notification notification) {
-					Boolean modified = (Boolean) notification.getData();
+		private final NotificationListener<Boolean> listener =
+			new NotificationListener<Boolean>() {
+				public void handleNotification(Notification<Boolean> notification) {
+					Boolean modified = notification.getData();
 					if (modified) {
 						sessionSupport.modified();
 					}
@@ -476,7 +481,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			
 			void send(final boolean modified) {
 				toolkit.runSynchronized(() -> {
-					Notification notification =
+					Notification<Boolean> notification =
 						toolkit.createNotification(MODIFIED_NOTIF_TYPE, modified);
 					toolkit.sendNotification(notification);
 				});
@@ -493,7 +498,7 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				}
 				
 				toolkit.runSynchronized(() -> {
-					Notification notification =
+					Notification<ConfigOwnerEvent.Change> notification =
 						toolkit.createNotification(CHANGE_NOTIF_TYPE, event.getChange());
 					toolkit.sendNotification(notification);
 				});

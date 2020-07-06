@@ -2,6 +2,7 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 
 /**
  * An InterfaceHandlersFriend is able to help an interface handler to it's 
@@ -18,7 +19,7 @@ public interface ServerSideToolkit {
 	 *  
 	 * @param notification The notification.
 	 */
-	void sendNotification(Notification notification);
+	void sendNotification(Notification<?> notification);
 
 	/**
 	 * Create a Notification.
@@ -28,7 +29,7 @@ public interface ServerSideToolkit {
 	 *
 	 * @return A new notification.
 	 */
-	Notification createNotification(String type, Object userData);
+	<T> Notification<T> createNotification(NotificationType<T> type, T userData);
 			
 	/**
 	 * Used by handlers to execute functionality while

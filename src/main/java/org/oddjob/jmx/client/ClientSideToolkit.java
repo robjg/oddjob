@@ -2,6 +2,7 @@ package org.oddjob.jmx.client;
 
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.remote.NotificationListener;
+import org.oddjob.remote.NotificationType;
 
 /**
  * Provide tools to {@link ClientInterfaceHandlerFactory} to allow
@@ -39,8 +40,8 @@ public interface ClientSideToolkit {
 	 * @param eventType
 	 * @param notificationListener
 	 */
-	void registerNotificationListener(String eventType,
-			NotificationListener notificationListener);
+	<T> void registerNotificationListener(NotificationType<T> eventType,
+										  NotificationListener<T> notificationListener);
 	
 	/**
 	 * Remove a NotificationListener.
@@ -48,8 +49,8 @@ public interface ClientSideToolkit {
 	 * @param eventType
 	 * @param notificationListener
 	 */
-	void removeNotificationListener(String eventType,
-			NotificationListener notificationListener);
+	<T> void removeNotificationListener(NotificationType<T> eventType,
+			NotificationListener<T> notificationListener);
 	
 }
 

@@ -20,6 +20,7 @@ import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
+import org.oddjob.remote.NotificationType;
 import org.xmlunit.matchers.CompareMatcher;
 
 import java.util.concurrent.atomic.AtomicReference;
@@ -527,16 +528,16 @@ public class ComponentOwnerHandlerFactoryTest {
         ModifiedServerSideToolkit serverToolkit;
 
         @Override
-        public void registerNotificationListener(String eventType,
-                                                 NotificationListener notificationListener) {
+        public <T> void registerNotificationListener(NotificationType<T> eventType,
+                                                 NotificationListener<T> notificationListener) {
             assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, eventType);
             assertNull(serverToolkit.listener);
             serverToolkit.listener = notificationListener;
         }
 
         @Override
-        public void removeNotificationListener(String eventType,
-                                               NotificationListener notificationListener) {
+        public <T> void removeNotificationListener(NotificationType<T> eventType,
+                                               NotificationListener<T> notificationListener) {
             assertEquals(serverToolkit.listener, notificationListener);
             serverToolkit.listener = null;
         }
@@ -547,9 +548,9 @@ public class ComponentOwnerHandlerFactoryTest {
         NotificationListener listener;
 
         @Override
-        public Notification createNotification(String type, Object userData) {
+        public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
             assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, type);
-            return new Notification(1L, type, 0, userData);
+            return new Notification<>(1L, type, 0, userData);
         }
 
         @Override
@@ -669,16 +670,16 @@ public class ComponentOwnerHandlerFactoryTest {
         NotifyServerSideToolkit serverToolkit;
 
         @Override
-        public void registerNotificationListener(String eventType,
-                                                 NotificationListener notificationListener) {
+        public <T> void registerNotificationListener(NotificationType<T> eventType,
+                                                 NotificationListener<T> notificationListener) {
             assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, eventType);
             assertNull(serverToolkit.listener);
             serverToolkit.listener = notificationListener;
         }
 
         @Override
-        public void removeNotificationListener(String eventType,
-                                               NotificationListener notificationListener) {
+        public <T> void removeNotificationListener(NotificationType<T> eventType,
+                                               NotificationListener<T> notificationListener) {
             assertEquals(serverToolkit.listener, notificationListener);
             serverToolkit.listener = null;
         }
@@ -689,13 +690,13 @@ public class ComponentOwnerHandlerFactoryTest {
         NotificationListener listener;
 
         @Override
-        public Notification createNotification(String type, Object userData) {
+        public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
             assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, type);
-            return new Notification(1L, type, 0, userData);
+            return new Notification<>(1L, type, 0, userData);
         }
 
         @Override
-        public void sendNotification(Notification notification) {
+        public void sendNotification(Notification<?> notification) {
             if (listener != null) {
                 listener.handleNotification(notification);
             }

@@ -14,6 +14,7 @@ import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class ServerMainBeanTest extends OjTestCase {
 
         Object child;
 
-        List<Notification> sent = new ArrayList<>();
+        List<Notification<?>> sent = new ArrayList<>();
 
         ServerContext context;
 
@@ -71,12 +72,12 @@ public class ServerMainBeanTest extends OjTestCase {
         }
 
         @Override
-        public Notification createNotification(String type, Object userData) {
-            return new Notification(1L, "X", 0, userData);
+        public <T> Notification<T> createNotification(NotificationType<T> notificationType, T userData) {
+            return new Notification<>(1L, notificationType, 0, userData);
         }
 
         @Override
-        public void sendNotification(Notification notification) {
+        public void sendNotification(Notification<?> notification) {
             sent.add(notification);
         }
 

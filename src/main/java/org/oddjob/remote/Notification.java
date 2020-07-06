@@ -6,19 +6,19 @@ import java.util.Objects;
 /**
  * A Notification.
  */
-public class Notification implements Serializable {
+public class Notification<T> implements Serializable {
 
     private static final long serialVersionUID = 2020062900L;
 
     private final long remoteId;
 
-    private final String type;
+    private final NotificationType<T> type;
 
     private final long sequence;
 
-    private final Object data;
+    private final T data;
 
-    public Notification(long remoteId, String type, long sequence) {
+    public Notification(long remoteId, NotificationType<T> type, long sequence) {
         this(remoteId, type, sequence, null);
     }
 
@@ -30,7 +30,7 @@ public class Notification implements Serializable {
      * @param sequence The sequence number.
      * @param data Any user data. May be null.
      */
-    public Notification(long remoteId, String type, long sequence, Object data) {
+    public Notification(long remoteId, NotificationType<T> type, long sequence, T data) {
         this.remoteId = remoteId;
         this.type = Objects.requireNonNull(type);
         this.sequence = sequence;
@@ -41,7 +41,7 @@ public class Notification implements Serializable {
         return remoteId;
     }
 
-    public String getType() {
+    public NotificationType<T> getType() {
         return type;
     }
 
@@ -49,7 +49,7 @@ public class Notification implements Serializable {
         return sequence;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 

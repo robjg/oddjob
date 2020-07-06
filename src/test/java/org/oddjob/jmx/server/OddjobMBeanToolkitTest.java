@@ -5,6 +5,7 @@ import org.oddjob.OjTestCase;
 import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.MockClientHandlerResolver;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
 
 import javax.management.*;
@@ -99,7 +100,11 @@ public class OddjobMBeanToolkitTest extends OjTestCase {
                 (notification, handback) -> jmxNotifications.add(notification),
                 null, null);
 
-        Notification n = toolkit.createNotification("X", new SomeData());
+        NotificationType<SomeData> notificationType =
+                NotificationType.ofName("X")
+                        .andDataType(SomeData.class);
+
+        Notification n = toolkit.createNotification(notificationType, new SomeData());
         toolkit.sendNotification(n);
 
         assertThat(jmxNotifications.size(), is(1));

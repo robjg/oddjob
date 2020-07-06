@@ -11,6 +11,7 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
 import javax.swing.*;
@@ -29,10 +30,13 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 	
-	public static final String ICON_CHANGED_NOTIF_TYPE = "org.oddjob.iconchanged";
+	public static final NotificationType<IconData> ICON_CHANGED_NOTIF_TYPE =
+			NotificationType.ofName("org.oddjob.iconchanged")
+					.andDataType(IconData.class);
 
-	static final JMXOperationPlus<Notification[]> SYNCHRONIZE =
-			new JMXOperationPlus<>(
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	static final JMXOperationPlus<Notification<IconData>[]> SYNCHRONIZE =
+			new JMXOperationPlus(
 					"iconicSynchronize",
 					"Sychronize Notifications.",
 					Notification[].class,
@@ -79,7 +83,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[] {
 				new MBeanNotificationInfo(
-							new String[] { ICON_CHANGED_NOTIF_TYPE },
+							new String[] { ICON_CHANGED_NOTIF_TYPE.getName() },
 							Notification.class.getName(),
 							"Icon changed notification.") };
 	}
@@ -124,7 +128,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 
 		private final ClientSideToolkit toolkit;
 		
-		private Synchronizer synchronizer;
+		private Synchronizer<IconData> synchronizer;
 		
 		ClientIconicHandler(Iconic proxy, ClientSideToolkit toolkit) {
 			this.owner = proxy;
@@ -162,15 +166,15 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			synchronized (this) {
 				if (synchronizer == null) {
 					
-					synchronizer = new Synchronizer(
+					synchronizer = new Synchronizer<>(
 							notification -> {
-								IconData ie = (IconData) notification.getData();
+								IconData ie = notification.getData();
 								iconEvent(ie);
 							});
 					toolkit.registerNotificationListener(
 							ICON_CHANGED_NOTIF_TYPE, synchronizer);
 					
-					Notification[] lastNotifications;
+					Notification<IconData>[] lastNotifications;
 					try {
 						lastNotifications = toolkit.invoke(SYNCHRONIZE);
 					} catch (Throwable e) {
@@ -214,7 +218,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		private final ServerSideToolkit toolkit;
 		
 		/** Remember last event. */
-		private Notification lastNotification;
+		private Notification<IconData> lastNotification;
 
 		ServerIconicHelper(Iconic iconic, ServerSideToolkit ojmb) {
 			this.iconic = iconic;
@@ -225,14 +229,14 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			toolkit.runSynchronized(() -> {
 				// send a dummy source accross the wire
 				IconData newEvent = new IconData(event.getIconId());
-				Notification notification =
+				Notification<IconData> notification =
 					toolkit.createNotification(ICON_CHANGED_NOTIF_TYPE, newEvent);
 				toolkit.sendNotification(notification);
 				lastNotification = notification;
 			});
 		}
 		
-		public Notification[] getLastNotifications() {
+		public Notification<IconData>[] getLastNotifications() {
 			return null;
 		}
 		

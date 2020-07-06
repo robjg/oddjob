@@ -1,6 +1,7 @@
 package org.oddjob.jmx.general;
 
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.ObjectName;
 
@@ -9,17 +10,21 @@ import javax.management.ObjectName;
  */
 public class RemoteBridge {
 
-    public static Notification fromJmxNotification(long remoteId,
+    @SuppressWarnings("unchecked")
+    public static <T> Notification<T> fromJmxNotification(long remoteId,
+                                                          Class<T> dataType,
                                                    javax.management.Notification notification) {
-        return new Notification(remoteId, notification.getType(),
+        return new Notification<>(remoteId,
+                new NotificationType<>(notification.getType(), dataType),
                 notification.getSequenceNumber(),
-                notification.getUserData());
+                (T) notification.getUserData());
     }
 
+
     public static javax.management.Notification toJmxNotification(ObjectName objectName,
-                                                                  Notification notification) {
+                                                                  Notification<?> notification) {
         javax.management.Notification jmxNotification =
-                new javax.management.Notification(notification.getType(),
+                new javax.management.Notification(notification.getType().getName(),
                         objectName,
                         notification.getSequence());
         jmxNotification.setUserData(notification.getData());

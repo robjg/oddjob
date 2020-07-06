@@ -5,6 +5,7 @@ package org.oddjob.jmx.server;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.MockStateful;
@@ -166,7 +167,7 @@ public class OddjobMBeanTest extends OjTestCase {
         //check state
         assertEquals("number", 1, myNotLis.getNum());
         assertEquals("source", on, myNotLis.getNotification(0).getSource());
-        assertEquals("type", StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE,
+        assertEquals("type", StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE.getName(),
                 myNotLis.getNotification(0).getType());
 
         mbs.unregisterMBean(on);
@@ -221,21 +222,21 @@ public class OddjobMBeanTest extends OjTestCase {
         mbs.addNotificationListener(on,
                 myNotLis, null, null);
 
-        Notification[] notifications =
-                (Notification[]) mbs.invoke(on, "structuralSynchronize",
+        Notification lastStructuralNotification =
+                (Notification) mbs.invoke(on, "structuralSynchronize",
                         new Object[0], new String[0]);
-        assertEquals(1, notifications.length);
+        assertThat( lastStructuralNotification, Matchers.notNullValue());
 
         myJob.foo();
         assertEquals("notifications", 1, myNotLis.getNum());
         assertEquals("source", on, myNotLis.getNotification(0).getSource());
-        assertEquals("type", StructuralHandlerFactory.STRUCTURAL_NOTIF_TYPE,
+        assertEquals("type", StructuralHandlerFactory.STRUCTURAL_NOTIF_TYPE.getName(),
                 myNotLis.getNotification(0).getType());
 
         myJob.foo();
         assertEquals("notifications", 2, myNotLis.getNum());
         assertEquals("source", on, myNotLis.getNotification(1).getSource());
-        assertEquals("type", StructuralHandlerFactory.STRUCTURAL_NOTIF_TYPE,
+        assertEquals("type", StructuralHandlerFactory.STRUCTURAL_NOTIF_TYPE.getName(),
                 myNotLis.getNotification(1).getType());
 
         mbs.unregisterMBean(on);

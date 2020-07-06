@@ -5,11 +5,13 @@ import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.general.RemoteBridge;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.NotificationListener;
+import org.oddjob.remote.NotificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,9 +36,12 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	private final long remoteId;
 
 	private final ObjectName objectName;
-	
-	private final Map<String, NotificationListener> notifications 
-	= new LinkedHashMap<>();
+
+	private final Map<String, NotificationType<?>> types
+			= new HashMap<>();
+
+	private final Map<String, NotificationListener<?>> notifications
+		= new LinkedHashMap<>();
 
 	/** The listener that listens for all JMX notifications. */
 	private final ClientListener clientListener;
@@ -56,6 +61,7 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 				clientListener, null, null);
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws Throwable {
 		Objects.requireNonNull(remote);
@@ -77,14 +83,19 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 		return (T) Utils.importResolve(result, clientSession);
 
 	}
-	
-	public void registerNotificationListener(String eventType, NotificationListener notificationListener) {
-		notifications.put(eventType, notificationListener);
+
+	@Override
+	public <T> void registerNotificationListener(NotificationType<T> eventType,
+												 NotificationListener<T> notificationListener) {
+		notifications.put(eventType.getName(), notificationListener);
+		types.put(eventType.getName(), eventType);
 	}
 
-	public void removeNotificationListener(String eventType,
-			NotificationListener notificationListener) {
-		notifications.remove(eventType);
+	@Override
+	public <T> void removeNotificationListener(NotificationType<T> eventType,
+			NotificationListener<T> notificationListener) {
+		notifications.remove(eventType.getName());
+		types.remove(eventType.getName());
 	}
 	
 	public ClientSession getClientSession() {
@@ -128,8 +139,8 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 				final javax.management.Notification notification,
 				final Object object) {
 			
-			String type = notification.getType();
-			logger.debug("Handling notification [" + type + "] sequence [" +
+			String typeName = notification.getType();
+			logger.debug("Handling notification [" + typeName + "] sequence [" +
 					notification.getSequenceNumber() + "] for [" + 
 					ClientSideToolkitImpl.this.toString() + "]");
 
@@ -139,14 +150,14 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 				return;
 			}
 			
-			final NotificationListener listener = 
-				 notifications.get(type);
+			final NotificationListener<?> listener =
+				 notifications.get(typeName);
 			
 			if (listener != null) {
+
 				Runnable r = () -> {
 					try {
-						listener.handleNotification(RemoteBridge.fromJmxNotification(
-								remoteId, notification));
+						fireNotification(notification, listener);
 					} catch (Exception e) {
 						// this will happen when the remote node disappears
 						logger.debug("Handle notification.", e);
@@ -163,4 +174,14 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 		}
 	}
 
+	// Infer parameter types.
+	<T> void fireNotification(Notification notification,
+									 NotificationListener<T> listener) {
+
+		@SuppressWarnings("unchecked")
+		NotificationType<T> notificationType = (NotificationType<T>) types.get(notification.getType());
+
+		listener.handleNotification(RemoteBridge.fromJmxNotification(
+				remoteId, notificationType.getDataType(), notification));
+	}
 }

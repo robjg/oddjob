@@ -13,6 +13,7 @@ import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
+import org.oddjob.remote.NotificationType;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -46,7 +47,9 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
             return (T) server.invoke(remoteOperation, args);
         }
 
-        public void registerNotificationListener(String eventType, NotificationListener notificationListener) {
+        @Override
+        public <T> void registerNotificationListener(NotificationType<T> eventType,
+                                                     NotificationListener<T> notificationListener) {
             if (listener != null) {
                 throw new RuntimeException("Only one listener expected.");
             }
@@ -56,8 +59,8 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
         }
 
         @Override
-        public void removeNotificationListener(String eventType,
-                                               NotificationListener notificationListener) {
+        public <T> void removeNotificationListener(NotificationType<T> eventType,
+                                               NotificationListener<T> notificationListener) {
             if (listener == null) {
                 throw new RuntimeException("Only one listener remove expected.");
             }
@@ -80,11 +83,11 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
         }
 
         @Override
-        public Notification createNotification(String type, Object userData) {
-            return new Notification(1L, type, seq++, userData);
+        public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
+            return new Notification<>(1L, type, seq++, userData);
         }
 
-        public void sendNotification(Notification notification) {
+        public void sendNotification(Notification<?> notification) {
             if (listener != null) {
                 listener.handleNotification(notification);
             }

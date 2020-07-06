@@ -3,16 +3,16 @@ package org.oddjob.remote;
 /**
  * Something capable of providing notifications from a remote location.
  */
-public interface RemoteNotifier extends NotificationInfoProvider {
+public interface RemoteNotifier {
 
-    void addNotificationListener(long remoteId,
-                                 String notificationType,
-                                 NotificationListener notificationListener)
+    <T> void addNotificationListener(long remoteId,
+                                 NotificationType<T> notificationType,
+                                 NotificationListener<T> notificationListener)
             throws RemoteException;
 
-    void removeNotificationListener(long remoteId,
-                                    String notificationType,
-                                    NotificationListener notificationListener)
+    <T> void removeNotificationListener(long remoteId,
+                                    NotificationType<T> notificationType,
+                                    NotificationListener<T> notificationListener)
             throws RemoteException;
 
 

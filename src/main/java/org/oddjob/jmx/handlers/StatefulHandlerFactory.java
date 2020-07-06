@@ -12,6 +12,7 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.NotificationType;
 import org.oddjob.state.JobState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
@@ -29,10 +30,13 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 	
-	public static final String STATE_CHANGE_NOTIF_TYPE = "org.oddjob.statechange";
+	public static final NotificationType<StateData> STATE_CHANGE_NOTIF_TYPE =
+			NotificationType.ofName("org.oddjob.statechange")
+			.andDataType(StateData.class);
 
-	static final JMXOperationPlus<Notification[]> SYNCHRONIZE =
-			new JMXOperationPlus<>(
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	static final JMXOperationPlus<Notification<StateData>[]> SYNCHRONIZE =
+			new JMXOperationPlus(
 					"statefulSynchronize",
 					"Sychronize Notifications.",
 					Notification[].class,
@@ -64,7 +68,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 
 		return new MBeanNotificationInfo[] {
 					new MBeanNotificationInfo(
-							new String[] { STATE_CHANGE_NOTIF_TYPE },
+							new String[] { STATE_CHANGE_NOTIF_TYPE.getName() },
 							Notification.class.getName(),
 							"State change notification.") };
 	}
@@ -123,7 +127,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		/** The owner, to be used as the source of the event. */
 		private final Stateful owner;
 
-		private Synchronizer synchronizer;
+		private Synchronizer<StateData> synchronizer;
 		
 		/**
 		 * Constructor.
@@ -164,15 +168,15 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 			synchronized (this) {
 				if (synchronizer == null) {
 					
-					synchronizer = new Synchronizer(
+					synchronizer = new Synchronizer<>(
 							notification -> {
-								StateData stateData = (StateData) notification.getData();
+								StateData stateData = notification.getData();
 								jobStateChange(stateData);
 							});
 					toolkit.registerNotificationListener(
 							STATE_CHANGE_NOTIF_TYPE, synchronizer);
 					
-					Notification[] lastNotifications;
+					Notification<StateData>[] lastNotifications;
 					try {
 						lastNotifications = toolkit.invoke(SYNCHRONIZE);
 					}
@@ -240,7 +244,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		private final ServerSideToolkit toolkit;
 		
 		/** Remember last event. */
-		private Notification lastNotification;
+		private Notification<StateData> lastNotification;
 
 		ServerStateHandler(Stateful stateful, 
 				ServerSideToolkit ojmb) {
@@ -259,7 +263,7 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 						event.getState(),
 						event.getTime(),
 						event.getException());
-				Notification notification =
+				Notification<StateData> notification =
 					toolkit.createNotification(STATE_CHANGE_NOTIF_TYPE, newEvent);
 				toolkit.sendNotification(notification);
 				lastNotification = notification;
