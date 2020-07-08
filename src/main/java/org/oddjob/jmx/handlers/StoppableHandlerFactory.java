@@ -1,9 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.Stoppable;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.ServerAllOperationsHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -49,9 +47,8 @@ implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 				Stoppable.class, target);
 	}
 
-	public ClientHandlerResolver<Stoppable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(
-				Stoppable.class.getName());
+	public Class<Stoppable> clientClass() {
+		return Stoppable.class;
 	}
 	
 	@Override

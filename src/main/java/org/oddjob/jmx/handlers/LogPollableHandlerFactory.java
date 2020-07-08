@@ -2,7 +2,10 @@ package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.SharedConstants;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
+import org.oddjob.jmx.client.LogPollable;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEvent;
 
@@ -84,13 +87,11 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 		return new ServerLogPollableHandler(target, ojmb);
 	}
 
-	public ClientHandlerResolver<LogPollable> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientLogPollableHandlerFactory.class.getName(),
-				VERSION);
+	public Class<LogPollable> clientClass() {
+		return LogPollable.class;
 	}
 
-	public static class ClientLogPollableHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<LogPollable> {
 		
 		public Class<LogPollable> interfaceClass() {

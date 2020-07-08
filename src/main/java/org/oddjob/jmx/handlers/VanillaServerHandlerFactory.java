@@ -1,7 +1,5 @@
 package org.oddjob.jmx.handlers;
 
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.*;
 
 import javax.management.MBeanAttributeInfo;
@@ -93,8 +91,8 @@ implements ServerInterfaceHandlerFactory<T, T> {
 		return new ServerAllOperationsHandler<>(cl, target);
 	}
 
-	public ClientHandlerResolver<T> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(cl.getName());
+	public Class<T> clientClass() {
+		return cl;
 	}
 	
 	@Override

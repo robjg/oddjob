@@ -3,8 +3,6 @@
  */
 package org.oddjob.jmx.server;
 
-import org.oddjob.jmx.client.ClientHandlerResolver;
-
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
@@ -68,5 +66,5 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return The resolver.
 	 */
-	ClientHandlerResolver<T> clientHandlerFactory();
+	Class<T> clientClass();
 }

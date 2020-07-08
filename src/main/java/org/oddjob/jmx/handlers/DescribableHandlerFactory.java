@@ -5,9 +5,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.describe.Describer;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.*;
 
 import javax.management.*;
@@ -53,9 +51,8 @@ implements ServerInterfaceHandlerFactory<Object, Describable> {
 				ojmb.getServerSession().getArooaSession());
 	}
 
-	public ClientHandlerResolver<Describable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(
-				Describable.class.getName());
+	public Class<Describable> clientClass() {
+		return Describable.class;
 	}
 	
 	static class ServerDescribableHandler implements ServerInterfaceHandler {

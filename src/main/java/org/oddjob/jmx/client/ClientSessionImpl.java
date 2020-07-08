@@ -30,6 +30,8 @@ public class ClientSessionImpl implements ClientSession {
 
 	private final ScheduledExecutorService notificationProcessor;
 
+	private final ClientInterfaceManagerFactory interfaceManagerFactory;
+
 	/**
 	 * Constructor.
 	 * 
@@ -41,12 +43,14 @@ public class ClientSessionImpl implements ClientSession {
 	public ClientSessionImpl(
 			MBeanServerConnection serverConnection,
 			ScheduledExecutorService notificationProcessor,
+			ClientInterfaceManagerFactory interfaceManagerFactory,
 			ArooaSession arooaSession,
 			Logger logger) {
-		this.serverConnection = serverConnection;
-		this.notificationProcessor = notificationProcessor;
-		this.arooaSession = arooaSession;
-		this.logger = logger;
+		this.serverConnection = Objects.requireNonNull(serverConnection);
+		this.notificationProcessor = Objects.requireNonNull(notificationProcessor);
+		this.interfaceManagerFactory = Objects.requireNonNull(interfaceManagerFactory);
+		this.arooaSession = Objects.requireNonNull(arooaSession);
+		this.logger = Objects.requireNonNull(logger);
 	}
 
 	@Override
@@ -115,7 +119,12 @@ public class ClientSessionImpl implements ClientSession {
 	public ScheduledExecutorService getNotificationProcessor() {
 		return notificationProcessor;
 	}
-		
+
+	@Override
+	public ClientInterfaceManagerFactory getInterfaceManagerFactory() {
+		return interfaceManagerFactory;
+	}
+
 	@Override
 	public void destroyAll() {
 		List<Object> proxies = new ArrayList<>(names.keySet());

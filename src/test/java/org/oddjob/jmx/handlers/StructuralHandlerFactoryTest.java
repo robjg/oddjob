@@ -259,7 +259,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
     public void testClientSide() throws NullPointerException {
 
         ClientInterfaceHandlerFactory<Structural> clientFactory =
-                new StructuralHandlerFactory.ClientStructuralHandlerFactory();
+                new StructuralHandlerFactory.ClientFactory();
 
         OurClientToolkit clientToolkit = new OurClientToolkit();
 

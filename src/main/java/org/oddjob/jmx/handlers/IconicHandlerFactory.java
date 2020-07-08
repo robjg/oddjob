@@ -5,7 +5,10 @@ import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
+import org.oddjob.jmx.client.Synchronizer;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -94,12 +97,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		return iconicHelper;
 	}
 
-	public ClientHandlerResolver<Iconic> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientIconicHandlerFactory.class.getName(), VERSION);
+	public Class<Iconic> clientClass() {
+		return Iconic.class;
 	}
 	
-	public static class ClientIconicHandlerFactory implements ClientInterfaceHandlerFactory<Iconic> {
+	public static class ClientFactory implements ClientInterfaceHandlerFactory<Iconic> {
 		
 		public Class<Iconic> interfaceClass() {
 			return Iconic.class;
@@ -114,7 +116,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		}
 	}	
 	
-	static class ClientIconicHandler implements Iconic {
+	public static class ClientIconicHandler implements Iconic {
 				
 		/** Remember the last event so new state listeners can be told it. */
 		private IconEvent lastEvent;

@@ -5,8 +5,6 @@ import javax.management.MBeanInfo;
 import javax.management.Notification;
 import javax.management.ReflectionException;
 
-import org.oddjob.jmx.client.ClientHandlerResolver;
-
 public class MockServerInterfaceManager 
 implements ServerInterfaceManager {
 
@@ -22,7 +20,7 @@ implements ServerInterfaceManager {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 
-	public ClientHandlerResolver<?>[] allClientInfo() {
+	public Class<?>[] allClientInfo() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

@@ -1,9 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.Resetable;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.ServerAllOperationsHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -49,9 +47,8 @@ implements ServerInterfaceHandlerFactory<Resetable, Resetable> {
 				Resetable.class, target);
 	}
 
-	public ClientHandlerResolver<Resetable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(
-				Resetable.class.getName());
+	public Class<Resetable> clientClass() {
+		return Resetable.class;
 	}
 	
 	@Override

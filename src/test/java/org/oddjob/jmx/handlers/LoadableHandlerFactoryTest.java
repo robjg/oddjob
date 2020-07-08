@@ -1,26 +1,19 @@
 package org.oddjob.jmx.handlers;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Loadable;
-import org.oddjob.arooa.life.ClassLoaderClassResolver;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
-import org.oddjob.jmx.server.HandlerFactoryProvider;
-import org.oddjob.jmx.server.MockServerSideToolkit;
-import org.oddjob.jmx.server.ResourceFactoryProvider;
-import org.oddjob.jmx.server.ServerInterfaceManager;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactory;
-import org.oddjob.jmx.server.ServerInterfaceManagerFactoryImpl;
+import org.oddjob.jmx.server.*;
 
 public class LoadableHandlerFactoryTest extends OjTestCase {
 
-	public class MyLoadable implements Loadable {
+	public static class MyLoadable implements Loadable {
 		boolean loaded;
 		
 		@Override
@@ -39,7 +32,7 @@ public class LoadableHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 		
 		ServerInterfaceManager serverManager;
 		
@@ -69,24 +62,23 @@ public class LoadableHandlerFactoryTest extends OjTestCase {
 		ServerInterfaceManager manager =
 			managerFactory.create(loadable, new MockServerSideToolkit());
 		
-		ClientHandlerResolver<?>[] resolvers = manager.allClientInfo();
+		Class<?>[] resolvers = manager.allClientInfo();
 		
-		assertEquals(1, resolvers.length);
-	
-		ClientInterfaceHandlerFactory<?> clientFactory = 
-			resolvers[0].resolve(new ClassLoaderClassResolver(
-				getClass().getClassLoader()));
-		
+		assertThat(resolvers, Matchers.is(new Class<?>[] { Loadable.class }));
+
+	   ClientInterfaceHandlerFactory<?> clientFactory =
+			   new DirectInvocationClientFactory<>(Loadable.class);
+
 		OurClientToolkit clientToolkit = new OurClientToolkit();
 		clientToolkit.serverManager = manager;
 		
 		Loadable proxy = (Loadable) 
 			clientFactory.createClientHandler(null, clientToolkit);
-		
-		assertEquals(true, proxy.isLoadable());
+
+	   assertTrue(proxy.isLoadable());
 		
 		proxy.load();
-		
-		assertEquals(false, proxy.isLoadable());
+
+	   assertFalse(proxy.isLoadable());
 	}
 }

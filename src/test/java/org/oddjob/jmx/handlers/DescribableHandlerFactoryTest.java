@@ -4,11 +4,10 @@ import org.junit.Test;
 import org.oddjob.Describable;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSession;
 import org.oddjob.jmx.server.MockServerSideToolkit;
@@ -19,7 +18,7 @@ import java.util.Map;
 
 public class DescribableHandlerFactoryTest extends OjTestCase {
 
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 		
 		ServerInterfaceHandler serverHandler;
 		
@@ -31,7 +30,7 @@ public class DescribableHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-	private class OurServerToolkit extends MockServerSideToolkit {
+	private static class OurServerToolkit extends MockServerSideToolkit {
 		
 		ArooaSession session = new StandardArooaSession();
 		
@@ -46,7 +45,7 @@ public class DescribableHandlerFactoryTest extends OjTestCase {
 		}		
 	}
 
-	public class Apple {
+	public static class Apple {
 		
 		public String getColour() {
 			return "red";
@@ -62,9 +61,8 @@ public class DescribableHandlerFactoryTest extends OjTestCase {
 
 		DescribableHandlerFactory test = new DescribableHandlerFactory();
 		
-		ClientHandlerResolver<Describable> resolver = test.clientHandlerFactory();
 		ClientInterfaceHandlerFactory<Describable> clientFactory =
-			resolver.resolve(new ClassLoaderClassResolver(getClass().getClassLoader()));
+				new DirectInvocationClientFactory<>(Describable.class);
 		
 		OurClientToolkit clientToolkit = new OurClientToolkit();
 		OurServerToolkit serverToolkit = new OurServerToolkit();

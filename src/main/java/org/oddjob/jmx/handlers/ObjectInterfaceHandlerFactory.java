@@ -1,7 +1,9 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -47,13 +49,11 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		return new ServerObjectHandler(target);
 	}
 
-	public ClientHandlerResolver<Object> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientObjectHandlerFactory.class.getName(),
-				VERSION);
+	public Class<Object> clientClass() {
+		return Object.class;
 	}
 	
-	public static class ClientObjectHandlerFactory implements ClientInterfaceHandlerFactory<Object> {
+	public static class ClientFactory implements ClientInterfaceHandlerFactory<Object> {
 		
 		public Class<Object> interfaceClass() {
 			return Object.class;

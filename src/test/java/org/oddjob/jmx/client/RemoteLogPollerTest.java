@@ -13,6 +13,7 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.jmx.SharedConstants;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.*;
 import org.slf4j.Logger;
@@ -28,6 +29,10 @@ import javax.management.ObjectName;
 public class RemoteLogPollerTest extends OjTestCase {
     private static final Logger logger = LoggerFactory.getLogger(RemoteLogPollerTest.class);
 
+    ClientInterfaceManagerFactory clientInterfaceManagerFactory =
+            new ClientInterfaceManagerFactoryBuilder()
+                    .addFactories(SharedConstants.DEFAULT_CLIENT_HANDLER_FACTORIES)
+                    .build();
 
     @Before
     public void setUp() {
@@ -257,6 +262,7 @@ public class RemoteLogPollerTest extends OjTestCase {
         ClientSession clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                clientInterfaceManagerFactory,
                 new OurArooaSession(),
                 logger);
 
@@ -315,6 +321,7 @@ public class RemoteLogPollerTest extends OjTestCase {
         ClientSession clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                clientInterfaceManagerFactory,
                 new OurArooaSession(),
                 logger);
 

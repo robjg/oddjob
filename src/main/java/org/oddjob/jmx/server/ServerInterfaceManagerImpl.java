@@ -4,7 +4,6 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 
 import javax.management.*;
 import java.util.*;
@@ -20,7 +19,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 	private final MBeanInfo mBeanInfo;
 
 	/** The collective interfaces. */
-	private final Map<ClientHandlerResolver<?>, MBeanOperationInfo[]> clientResolvers =
+	private final Map<Class<?>, MBeanOperationInfo[]> clientResolvers =
 			new LinkedHashMap<>();
 	
 	/** Remember the handlers so they can be destroyed */
@@ -81,7 +80,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 			// collate MBeanOperationInfo.
 			MBeanOperationInfo[] oInfo = serverHandlerFactory.getMBeanOperationInfo();
 			
-			clientResolvers.put(serverHandlerFactory.clientHandlerFactory(), oInfo);
+			clientResolvers.put(serverHandlerFactory.clientClass(), oInfo);
 						
 			for (MBeanOperationInfo opInfo : oInfo) {
 				operationInfo.add(opInfo);
@@ -130,14 +129,15 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 		return factory.createServerHandler(
 				type.cast(target), ojmb);
 	}
-	
-	public ClientHandlerResolver<?>[] allClientInfo() {
+
+	@Override
+	public Class<?>[] allClientInfo() {
 		
-		List<ClientHandlerResolver<?>> resolvers =
+		List<Class<?>> resolvers =
 				new ArrayList<>();
 		
 	resolver:
-		for (Map.Entry<ClientHandlerResolver<?>, MBeanOperationInfo[]> entry 
+		for (Map.Entry<Class<?>, MBeanOperationInfo[]> entry
 				: clientResolvers.entrySet()) {
 			for (MBeanOperationInfo opInfo : entry.getValue()) {
 				if (!accessController.isAccessible(opInfo)) {
@@ -146,9 +146,8 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 			}
 			resolvers.add(entry.getKey());
 		}
-		
-		return resolvers.toArray(
-				new ClientHandlerResolver[0]);
+
+		return resolvers.toArray(new Class[0]);
 	}
 	
 	/*
@@ -163,6 +162,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jmx.server.InterfaceManager#invoke(java.lang.String, java.lang.Object[], java.lang.String[])
 	 */
+	@Override
 	public Object invoke(String actionName, 
 			Object[] params, String[] signature)
 	throws MBeanException, ReflectionException {

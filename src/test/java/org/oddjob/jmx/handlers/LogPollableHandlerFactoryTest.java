@@ -7,16 +7,8 @@ import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.LogPollable;
 import org.oddjob.jmx.client.MockClientSideToolkit;
-import org.oddjob.jmx.server.MockServerContext;
-import org.oddjob.jmx.server.MockServerSideToolkit;
-import org.oddjob.jmx.server.ServerContext;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
-import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
-import org.oddjob.logging.ConsoleArchiver;
-import org.oddjob.logging.LogArchiver;
-import org.oddjob.logging.LogEvent;
-import org.oddjob.logging.LogListener;
-import org.oddjob.logging.MockConsoleArchiver;
+import org.oddjob.jmx.server.*;
+import org.oddjob.logging.*;
 
 public class LogPollableHandlerFactoryTest extends OjTestCase {
 
@@ -72,7 +64,7 @@ public class LogPollableHandlerFactoryTest extends OjTestCase {
 		toolkit.handler = serverHandler;
 				
 		LogPollable client = (LogPollable) 
-			new LogPollableHandlerFactory.ClientLogPollableHandlerFactory(
+			new LogPollableHandlerFactory.ClientFactory(
 					).createClientHandler(null, toolkit); 
 		
 		String consoleId = client.consoleId();
@@ -155,7 +147,7 @@ public class LogPollableHandlerFactoryTest extends OjTestCase {
 		toolkit.handler = serverHandler;
 				
 		LogPollable client = (LogPollable) 
-			new LogPollableHandlerFactory.ClientLogPollableHandlerFactory(
+			new LogPollableHandlerFactory.ClientFactory(
 					).createClientHandler(null, toolkit);
 		
 		LogEvent[] results = client.retrieveLogEvents(0, 3);
@@ -247,7 +239,7 @@ public class LogPollableHandlerFactoryTest extends OjTestCase {
 		toolkit.handler = serverHandler;
 				
 		LogPollable client = (LogPollable) 
-			new LogPollableHandlerFactory.ClientLogPollableHandlerFactory(
+			new LogPollableHandlerFactory.ClientFactory(
 					).createClientHandler(null, toolkit);
 		
 		LogEvent[] results = client.retrieveConsoleEvents(0, 3);

@@ -1,0 +1,24 @@
+<bean class="org.oddjob.jmx.client.HandlerFactoryBean">
+	<handlerFactories>
+		<list>
+			<values>
+				<bean class="org.oddjob.jmx.handlers.IconicHandlerFactory$ClientFactory"/>
+				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
+					  className="org.oddjob.Resetable"/>
+				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
+					  className="java.lang.Runnable"/>
+				<bean class="org.oddjob.jmx.handlers.StatefulHandlerFactory$ClientFactory"/>
+				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
+					  className="org.oddjob.Stoppable"/>
+				<bean class="org.oddjob.jmx.handlers.StructuralHandlerFactory$ClientFactory"/>
+				<bean class="org.oddjob.jmx.handlers.ComponentOwnerHandlerFactory$ClientFactory"/>
+				<bean class="org.oddjob.jmx.handlers.BeanDirectoryHandlerFactory$ClientFactory"/>
+				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
+					className="org.oddjob.Loadable"/>
+                <bean class="org.oddjob.jmx.client.DirectInvocationBean"
+                    className="org.oddjob.Forceable"/>
+                <bean class="org.oddjob.jmx.handlers.TaskExecutorHandlerFactory$ClientFactory"/>
+			</values>
+		</list>
+	</handlerFactories>
+</bean>

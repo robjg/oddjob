@@ -1,9 +1,11 @@
 package org.oddjob.jmx.client;
 
-import java.lang.reflect.Method;
-
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
+import org.oddjob.remote.HasOperationType;
+import org.oddjob.remote.OperationType;
+
+import java.lang.reflect.Method;
 
 /**
  * A {@link RemoteOperation} created based on a Method.
@@ -11,24 +13,37 @@ import org.oddjob.jmx.Utils;
  * @author rob
  *
  */
-public class MethodOperation extends RemoteOperation<Object> {
+public class MethodOperation<T> extends RemoteOperation<T> implements HasOperationType<T> {
 
-	private final String actionName;
-	
 	private final String[] signature;
 
-	public MethodOperation(Method method) {
-		actionName = method.getName();
-		signature = Utils.classArray2StringArray(method.getParameterTypes());
+	private final OperationType<T> operationType;
+
+	private MethodOperation(OperationType<T> operationType) {
+		this.operationType = operationType;
+		signature = Utils.classArray2StringArray(operationType.getSignature());
 	}
-	
+
+	@SuppressWarnings("unchecked")
+	public static <T> MethodOperation<T> from(Method method) {
+
+		return new MethodOperation<>(
+				new OperationType<T>(method.getName(),
+						method.getParameterTypes(),
+						(Class<T>) method.getReturnType()));
+	}
+
+
 	public String getActionName() {
-		return actionName;
+		return operationType.getName();
 	}
 	
 	public String[] getSignature() {
 		return signature;
 	}
-	
-	
+
+	@Override
+	public OperationType<T> getOperationType() {
+		return operationType;
+	}
 }

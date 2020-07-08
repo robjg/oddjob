@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A simple {@link ClientHandlerResolver}.
+ * A simple ClientHandlerResolver.
  * <p>
  * This implementation will use the remote version to decide whether to
  * resolve a client interface handler factory. If only the minor version 
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> The type of the {@link ClientInterfaceHandlerFactory}.
  */
-public class SimpleHandlerResolver<T> implements ClientHandlerResolver<T> {
+public class SimpleHandlerResolver<T>  {
 	private static final long serialVersionUID = 2009090500L;
 	
 	private static final Logger logger = LoggerFactory.getLogger(

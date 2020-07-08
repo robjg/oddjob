@@ -122,7 +122,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         OurClientToolkit clientToolkit = new OurClientToolkit();
 
-        Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
+        Stateful local = new StatefulHandlerFactory.ClientFactory(
         ).createClientHandler(new MockStateful(), clientToolkit);
 
         clientToolkit.server = serverHandler;
@@ -188,7 +188,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         OurClientToolkit2 clientToolkit = new OurClientToolkit2();
 
-        Stateful local = new StatefulHandlerFactory.ClientStatefulHandlerFactory(
+        Stateful local = new StatefulHandlerFactory.ClientFactory(
         ).createClientHandler(new MockStateful(), clientToolkit);
 
         clientToolkit.server = serverHandler;

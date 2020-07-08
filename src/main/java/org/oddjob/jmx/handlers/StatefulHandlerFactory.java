@@ -84,13 +84,11 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 		return stateHelper;
 	}
 
-	public ClientHandlerResolver<Stateful> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientStatefulHandlerFactory.class.getName(),
-				VERSION);
+	public Class<Stateful> clientClass() {
+		return Stateful.class;
 	}
 	
-	public static class ClientStatefulHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<Stateful> {
 		
 		public Class<Stateful> interfaceClass() {

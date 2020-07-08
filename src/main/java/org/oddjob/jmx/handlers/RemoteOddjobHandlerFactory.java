@@ -2,9 +2,7 @@ package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.*;
 
 import javax.management.*;
@@ -50,9 +48,8 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 		return new RemoteOddjobServerHandler(toolkit.getRemoteBean());
 	}
 
-	public ClientHandlerResolver<RemoteOddjobBean> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(
-				RemoteOddjobBean.class.getName());
+	public Class<RemoteOddjobBean> clientClass() {
+		return RemoteOddjobBean.class;
 	}
 	
 	static class RemoteOddjobServerHandler implements ServerInterfaceHandler {

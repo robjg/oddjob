@@ -6,7 +6,6 @@ package org.oddjob.jmx.server;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 
 import javax.management.*;
 
@@ -17,7 +16,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 		
 	}
 	
-	class MockInterfaceInfo implements ServerInterfaceHandlerFactory<MockI, MockI> {
+	static class MockInterfaceInfo implements ServerInterfaceHandlerFactory<MockI, MockI> {
 		boolean destroyed;
 		
 		public ServerInterfaceHandler createServerHandler(MockI target, ServerSideToolkit ojmb) {
@@ -25,8 +24,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 				public void destroy() {
 					destroyed = true;
 				}
-				public Object invoke(RemoteOperation<?> operation, Object[] params) 
-				throws MBeanException, ReflectionException {
+				public Object invoke(RemoteOperation<?> operation, Object[] params) {
 					if ("foo".equals(operation.getActionName())) {
 						return "Apples";
 					}
@@ -64,38 +62,32 @@ public class InterfaceManagerImplTest extends OjTestCase {
 		public Class<MockI> interfaceClass() {
 			return MockI.class;
 		}
-		public ClientHandlerResolver<MockI> clientHandlerFactory() {
+		public Class<MockI> clientClass() {
 			return null;
 		}
 	}
 	
    @Test
-	public void testAllClientInfo() throws MBeanException, ReflectionException {
+	public void testAllClientInfo() {
 		MockI target = new MockI() {};
 		
 		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() });
+				target, null, new ServerInterfaceHandlerFactory[] {new MockInterfaceInfo()});
 
-		ClientHandlerResolver<?>[] result = test.allClientInfo();
+		Class<?>[] result = test.allClientInfo();
 				
 		assertEquals(1, result.length);
 	}
 	
    @Test
-	public void testAllClientInfoReadOnly() throws MBeanException, ReflectionException {
+	public void testAllClientInfoReadOnly() {
 		MockI target = new MockI() {};
 		
 		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() },
-				new OddjobJMXAccessController() {
-					
-					@Override
-					public boolean isAccessible(MBeanOperationInfo opInfo) {
-						return opInfo.getImpact() == MBeanOperationInfo.INFO;
-					}
-				});
+				target, null, new ServerInterfaceHandlerFactory[] {new MockInterfaceInfo()},
+				opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
-		ClientHandlerResolver<?>[] result = test.allClientInfo();
+		Class<?>[] result = test.allClientInfo();
 				
 		assertEquals(0, result.length);
 	}
@@ -105,7 +97,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 		MockI target = new MockI() {};
 		
 		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() });
+				target, null, new ServerInterfaceHandlerFactory[] {new MockInterfaceInfo()});
 
 		Object result = test.invoke(
 				"foo", 
@@ -127,14 +119,8 @@ public class InterfaceManagerImplTest extends OjTestCase {
 		MockI target = new MockI() {};
 		
 		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-				target, null, new ServerInterfaceHandlerFactory[] { new MockInterfaceInfo() },
-				new OddjobJMXAccessController() {
-					
-					@Override
-					public boolean isAccessible(MBeanOperationInfo opInfo) {
-						return opInfo.getImpact() == MBeanOperationInfo.INFO;
-					}
-				});
+				target, null, new ServerInterfaceHandlerFactory[] {new MockInterfaceInfo()},
+				opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
 		Object result = test.invoke(
 				"foo", 
@@ -159,8 +145,8 @@ public class InterfaceManagerImplTest extends OjTestCase {
 	public void testDestory() {
 		MockI target = new MockI() {};
 		
-		MockInterfaceInfo factory = 
-			new MockInterfaceInfo();
+		MockInterfaceInfo factory =
+				new MockInterfaceInfo();
 		
 		ServerInterfaceManager test = new ServerInterfaceManagerImpl(
 				target, null, new ServerInterfaceHandlerFactory[] { factory });

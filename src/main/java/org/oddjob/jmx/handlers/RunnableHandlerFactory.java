@@ -1,9 +1,7 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -47,9 +45,8 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 		return new RunnableServerHandler(target, ojmb);
 	}
 
-	public ClientHandlerResolver<Runnable> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(
-				Runnable.class.getName());
+	public Class<Runnable> clientClass() {
+		return Runnable.class;
 	}
 	
 	static class RunnableServerHandler implements ServerInterfaceHandler {

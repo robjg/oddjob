@@ -1,24 +1,22 @@
 package org.oddjob.jmx.handlers;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
-
-import javax.management.MBeanOperationInfo;
-
 import org.oddjob.OjTestCase;
-
-import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInfo;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 
+import javax.management.MBeanOperationInfo;
+
 public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 
-	private class OurClientToolkit extends MockClientSideToolkit {
+	private static class OurClientToolkit extends MockClientSideToolkit {
 		
 		ServerInterfaceHandler serverHandler;
 		
@@ -30,7 +28,7 @@ public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 		}
 	}
 	
-	private class OurServerToolkit extends MockServerSideToolkit {
+	private static class OurServerToolkit extends MockServerSideToolkit {
 		boolean noop;
 		
 		@Override
@@ -53,10 +51,11 @@ public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 
 		RemoteOddjobHandlerFactory test = new RemoteOddjobHandlerFactory();
 		
-		ClientHandlerResolver<RemoteOddjobBean> resolver = test.clientHandlerFactory();
+		assertThat(test.clientClass(), Matchers.is(RemoteOddjobBean.class));
+
 		ClientInterfaceHandlerFactory<RemoteOddjobBean> clientFactory =
-			resolver.resolve(new ClassLoaderClassResolver(getClass().getClassLoader()));
-		
+				new DirectInvocationClientFactory<>(RemoteOddjobBean.class);
+
 		OurClientToolkit clientToolkit = new OurClientToolkit();
 		OurServerToolkit serverToolkit = new OurServerToolkit();
 		

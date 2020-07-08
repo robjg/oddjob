@@ -8,7 +8,9 @@ import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -140,13 +142,11 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 		return new ServerComponentOwnerHandler(target, ojmb);
 	}
 
-	public ClientHandlerResolver<ConfigurationOwner> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientConfigurationOwnerHandlerFactory.class.getName(),
-				VERSION);
+	public Class<ConfigurationOwner> clientClass() {
+		return ConfigurationOwner.class;
 	}
 
-	public static class ClientConfigurationOwnerHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<ConfigurationOwner> {
 		
 		public Class<ConfigurationOwner> interfaceClass() {

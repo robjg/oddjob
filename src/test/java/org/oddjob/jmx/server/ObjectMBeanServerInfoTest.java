@@ -1,5 +1,6 @@
 package org.oddjob.jmx.server;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
@@ -9,13 +10,11 @@ import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.handlers.RunnableHandlerFactory;
 import org.oddjob.util.MockThreadManager;
 
 import java.lang.reflect.Proxy;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.Arrays;
 
 public class ObjectMBeanServerInfoTest extends OjTestCase {
 
@@ -88,11 +87,7 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 		
 		assertEquals("url", "//test:x", info.getAddress().toString());		
 
-		Set<Class<?>> interfaces = new HashSet<>();
-		for (int i = 0; i < info.getClientResolvers().length; ++i) {
-			ClientHandlerResolver<?> resolver = info.getClientResolvers()[i];
-			interfaces.add(resolver.resolve(new OurClassResolver()).interfaceClass());
-		}
-		assertTrue("runnable", interfaces.contains(Runnable.class));
+		assertThat("runnable", Arrays.asList(info.getInterfaces()),
+				Matchers.hasItem(Runnable.class.getName()));
 	}
 }

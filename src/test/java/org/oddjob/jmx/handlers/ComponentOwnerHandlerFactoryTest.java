@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.design.DesignInstance;
-import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
@@ -13,7 +12,6 @@ import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
@@ -176,12 +174,8 @@ public class ComponentOwnerHandlerFactoryTest {
         OurClientToolkit clientToolkit = new OurClientToolkit();
         clientToolkit.handler = serverHandler;
 
-        ClientHandlerResolver<ConfigurationOwner> clientResolver =
-                test.clientHandlerFactory();
-
         ClientInterfaceHandlerFactory<ConfigurationOwner> cihf =
-                clientResolver.resolve(new ClassLoaderClassResolver(
-                        getClass().getClassLoader()));
+                new ComponentOwnerHandlerFactory.ClientFactory();
 
         ConfigurationOwner clientHandler = cihf.createClientHandler(
                 new MockConfigurationOwner(), clientToolkit);
@@ -207,7 +201,7 @@ public class ComponentOwnerHandlerFactoryTest {
         clientToolkit.handler = serverHandler;
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
         Object ourComponent = new Object();
@@ -319,7 +313,7 @@ public class ComponentOwnerHandlerFactoryTest {
         clientToolkit.handler = serverHandler;
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
         DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(root);
@@ -381,7 +375,7 @@ public class ComponentOwnerHandlerFactoryTest {
         clientToolkit.handler = serverHandler;
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
         ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
@@ -439,7 +433,7 @@ public class ComponentOwnerHandlerFactoryTest {
         clientToolkit.handler = serverHandler;
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
         ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
@@ -582,7 +576,7 @@ public class ComponentOwnerHandlerFactoryTest {
         clientToolkit.serverToolkit = serverToolkit;
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
         SessionResultListener results = new SessionResultListener();
@@ -726,7 +720,7 @@ public class ComponentOwnerHandlerFactoryTest {
         ConfigurationOwner clientProxy = new MockConfigurationOwner();
 
         ConfigurationOwner clientHandler =
-                new ComponentOwnerHandlerFactory.ClientConfigurationOwnerHandlerFactory(
+                new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(clientProxy, clientToolkit);
 
         ResultListener results = new ResultListener();

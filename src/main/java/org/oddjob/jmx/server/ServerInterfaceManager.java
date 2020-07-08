@@ -3,8 +3,6 @@
  */
 package org.oddjob.jmx.server;
 
-import org.oddjob.jmx.client.ClientHandlerResolver;
-
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
@@ -17,11 +15,11 @@ import javax.management.ReflectionException;
 public interface ServerInterfaceManager {
 
 	/**
-	 * Return the interface supported.
+	 * Return the client interfaces supported.
 	 * 
 	 * @return The interfaces.
 	 */
-	ClientHandlerResolver<?>[] allClientInfo();
+	Class<?>[] allClientInfo();
 
 	/**
 	 * Get the MBeanInfo based on all the interfaces.

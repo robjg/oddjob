@@ -1,6 +1,9 @@
 package org.oddjob.jmx.server;
 
+import org.apache.commons.beanutils.DynaBean;
+import org.hamcrest.Matchers;
 import org.junit.Test;
+import org.oddjob.Describable;
 import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
@@ -9,18 +12,19 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.framework.Exportable;
 import org.oddjob.jmx.MockRemoteOddjobBean;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOddjobBean;
-import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.jmx.client.LogPollable;
+import org.oddjob.logging.LogEnabled;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class ServerMainBeanTest extends OjTestCase {
 
@@ -156,20 +160,12 @@ public class ServerMainBeanTest extends OjTestCase {
         assertEquals(child, toolkit.child);
         assertEquals(1, toolkit.sent.size());
 
-        ClientHandlerResolver<?>[] clientFactories =
+        Class<?>[] interfaces =
                 serverInterfaceManager.allClientInfo();
 
-        Set<Class<?>> interfaces = new HashSet<>();
-
-        for (ClientHandlerResolver<?> clientFactory : clientFactories) {
-            interfaces.add(clientFactory.resolve(
-                    new OurClassResolver()).interfaceClass());
-        }
-
-        assertTrue(interfaces.contains(Object.class));
-        assertTrue(interfaces.contains(RemoteOddjobBean.class));
-        assertTrue(interfaces.contains(RemoteDirectoryOwner.class));
-        assertTrue(interfaces.contains(Structural.class));
+        assertThat(Arrays.asList(interfaces), Matchers.containsInAnyOrder(
+                Object.class, RemoteOddjobBean.class, RemoteDirectoryOwner.class, Structural.class,
+                Describable.class, LogPollable.class, LogEnabled.class, DynaBean.class, Exportable.class));
 
         serverInterfaceManager.destroy();
 

@@ -11,7 +11,9 @@ import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -87,13 +89,11 @@ public class BeanDirectoryHandlerFactory implements
 		return new MBeanNotificationInfo[0];
 	}
 
-	public ClientHandlerResolver<RemoteDirectoryOwner> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientBeanDirectoryHandlerFactory.class.getName(),
-				VERSION);
+	public Class<RemoteDirectoryOwner> clientClass() {
+		return RemoteDirectoryOwner.class;
 	}
 
-	public static class ClientBeanDirectoryHandlerFactory implements
+	public static class ClientFactory implements
 			ClientInterfaceHandlerFactory<RemoteDirectoryOwner> {
 
 		public Class<RemoteDirectoryOwner> interfaceClass() {

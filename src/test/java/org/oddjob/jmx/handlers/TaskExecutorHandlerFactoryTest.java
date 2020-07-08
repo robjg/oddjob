@@ -186,7 +186,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 
 		OurClientToolkit clientToolkit = new OurClientToolkit();
 
-		TaskExecutor local = new TaskExecutorHandlerFactory.ClientTaskExecutorHandlerFactory(
+		TaskExecutor local = new TaskExecutorHandlerFactory.ClientFactory(
 				).createClientHandler(null, clientToolkit);
 		
 		clientToolkit.server = serverHandler;

@@ -26,9 +26,9 @@ public class Notification<T> implements Serializable {
      * Create a notification.
      *
      * @param remoteId The remote id of the thing emitting the notification.
-     * @param type The type of notification.
+     * @param type     The type of notification.
      * @param sequence The sequence number.
-     * @param data Any user data. May be null.
+     * @param data     Any user data. May be null.
      */
     public Notification(long remoteId, NotificationType<T> type, long sequence, T data) {
         this.remoteId = remoteId;
@@ -57,7 +57,7 @@ public class Notification<T> implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Notification that = (Notification) o;
+        Notification<?> that = (Notification<?>) o;
         return remoteId == that.remoteId &&
                 sequence == that.sequence &&
                 type.equals(that.type) &&

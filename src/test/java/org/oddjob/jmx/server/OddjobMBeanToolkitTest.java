@@ -2,8 +2,6 @@ package org.oddjob.jmx.server;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.jmx.client.ClientHandlerResolver;
-import org.oddjob.jmx.client.MockClientHandlerResolver;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
@@ -55,8 +53,8 @@ public class OddjobMBeanToolkitTest extends OjTestCase {
         }
 
         @Override
-        public ClientHandlerResolver<Gold> clientHandlerFactory() {
-            return new MockClientHandlerResolver<>();
+        public Class<Gold> clientClass() {
+            return Gold.class;
         }
 
         @Override

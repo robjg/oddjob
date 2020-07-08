@@ -1,5 +1,6 @@
 package org.oddjob.jmx.server;
 
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.general.RemoteBridge;
@@ -229,8 +230,9 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		 */
 		public ServerInfo serverInfo() {
 			return new ServerInfo(
-					srvcon.getAddress(), 
-					serverInterfaceManager.allClientInfo());
+					srvcon.getAddress(),
+					ClassUtils.classesToStrings(
+							serverInterfaceManager.allClientInfo()));
 		}
 		
 		public void noop() {

@@ -1,4 +1,4 @@
-package org.oddjob.jmx.server;
+package org.oddjob.jmx.client;
 
 import org.oddjob.arooa.ArooaSession;
 
@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Objects;
 
 /**
- * An {@link HandlerFactoryProvider} that provides actions from 
+ * An {@link HandlerFactoryProvider} that provides actions from
  * any number of XML Configurations found on the class path.
  * 
  * @author rob
@@ -15,7 +15,7 @@ import java.util.Objects;
 public class ResourceFactoryProvider implements HandlerFactoryProvider {
 
 	/** The resource name. */
-	public static final String ACTION_FILE = "META-INF/oj-jmx.xml";
+	public static final String ACTION_FILE = "META-INF/oj-client.xml";
 	
 	/** The session to use for finding resources and parsing
 	 * the configurations. */
@@ -30,7 +30,7 @@ public class ResourceFactoryProvider implements HandlerFactoryProvider {
 		this.session = Objects.requireNonNull(session);
 	}
 	
-	public ServerInterfaceHandlerFactory<?, ?>[] getHandlerFactories() {
+	public ClientInterfaceHandlerFactory<?>[] getHandlerFactories() {
 		
 		URL[] urls = session.getArooaDescriptor().getClassResolver().getResources(
 				ACTION_FILE);

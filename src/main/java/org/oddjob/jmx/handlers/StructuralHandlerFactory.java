@@ -5,7 +5,10 @@ package org.oddjob.jmx.handlers;
 
 import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
+import org.oddjob.jmx.client.Synchronizer;
 import org.oddjob.jmx.server.*;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
@@ -72,13 +75,11 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		return new ServerStructuralHelper(structural, ojmb);
 	}
 	
-	public ClientHandlerResolver<Structural> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientStructuralHandlerFactory.class.getName(),
-				VERSION);
+	public Class<Structural> clientClass() {
+		return Structural.class;
 	}
 	
-	public static class ClientStructuralHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<Structural> {
 		
 		public Class<Structural> interfaceClass() {
@@ -321,17 +322,17 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	}
 
 	
-	static class ChildData implements Serializable {
+	public static class ChildData implements Serializable {
 		private static final long serialVersionUID = 2010062500L;
 		
-		private final Long[] objectNames;
+		private final Long[] remoteIds;
 		
-		public ChildData(Long[] objectName) {
-			this.objectNames = objectName;
+		public ChildData(Long[] remoteIds) {
+			this.remoteIds = remoteIds;
 		}
 		
 		public Long[] getChildObjectNames() {
-			return objectNames;
+			return remoteIds;
 		}
 	}
 	

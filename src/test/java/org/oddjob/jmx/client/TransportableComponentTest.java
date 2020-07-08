@@ -12,6 +12,7 @@ import org.oddjob.arooa.*;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.jmx.SharedConstants;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.jmx.server.*;
 import org.oddjob.jobs.structural.JobFolder;
@@ -29,7 +30,12 @@ import javax.management.MBeanServerFactory;
 public class TransportableComponentTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(TransportableComponentTest.class);
 
-	
+	ClientInterfaceManagerFactory clientInterfaceManagerFactory =
+			new ClientInterfaceManagerFactoryBuilder()
+					.addFactories(SharedConstants.DEFAULT_CLIENT_HANDLER_FACTORIES)
+					.addFactories(new StructuralHandlerFactory.ClientFactory())
+					.build();
+
    @Before
    public void setUp() {
 		logger.debug("================== Running " + getName() + "================");
@@ -119,6 +125,7 @@ public class TransportableComponentTest extends OjTestCase {
 			ClientSession clientSession = new ClientSessionImpl(				
 					mbs, 
 					new DummyNotificationProcessor(),
+					clientInterfaceManagerFactory,
 					new OurArooaSession(),
 					logger);
 			

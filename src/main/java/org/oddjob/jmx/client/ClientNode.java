@@ -4,7 +4,6 @@ import org.oddjob.arooa.ClassResolver;
 import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
 import org.oddjob.jmx.RemoteOddjobBean;
-import org.oddjob.jmx.handlers.ExportableHandlerFactory;
 import org.oddjob.jmx.server.ServerInfo;
 import org.oddjob.util.ClassLoaderSorter;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 	private static final Logger logger = LoggerFactory.getLogger(ClientNode.class);
 	
 	/** The name of the mbean this node represents. */
-	private final long objectName;
+	private final long remoteId;
 
 	/** Save the proxy object created to shadow the remote node. */
 	private final Object proxy;
@@ -45,7 +44,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 	/**
 	 * Constructor.
 	 * 
-	 * @param objectName
+	 * @param remoteId
 	 *            The name of the mbean were monitoring.
 	 * @param toolkit
 	 *            The connection to the remote server.
@@ -53,10 +52,10 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 * @throws Exception
 	 *             if anything goes wrong.
 	 */
-	private ClientNode(long objectName,
+	private ClientNode(long remoteId,
 			ClientSideToolkit toolkit) {
 
-		this.objectName = objectName;
+		this.remoteId = remoteId;
 
 		RemoteOddjobBean remote =
 				new DirectInvocationClientFactory<>(
@@ -69,15 +68,13 @@ public class ClientNode implements InvocationHandler, Exportable {
 			toolkit.getClientSession().getArooaSession(
 					).getArooaDescriptor().getClassResolver();
 		
-		ClientInterfaceHandlerFactory<?>[] clientHandlerFactories = new ResolverHelper(classResolver
-				).resolveAll(serverInfo.getClientResolvers());
-		
+		Class<?>[] classesRemoteSupports = new ResolverHelper(classResolver
+				).resolve(serverInfo.getInterfaces());
+
 		ClientInterfaceManagerFactory managerFactory =
-			new ClientInterfaceManagerFactory(clientHandlerFactories);
-		
-		// all proxies are exportable.
-		managerFactory.addHandlerFactory(new ExportableHandlerFactory());
-		Class<?>[] interfaces = managerFactory.interfaces();
+				toolkit.getClientSession().getInterfaceManagerFactory();
+
+		Class<?>[] interfaces = managerFactory.filter(classesRemoteSupports);
 		
 		this.proxy = Proxy.newProxyInstance(
 				new ClassLoaderSorter().getTopLoader(interfaces),
@@ -90,7 +87,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 				toolkit);
 		
 		logger.debug("Client Node creation complete [" +
-				proxy.toString() + "], objectName=" + objectName);
+				proxy.toString() + "], objectName=" + remoteId);
 	}
 
 	/**
@@ -123,7 +120,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 	}
 
 	public String toString() {
-		return "ClientNode: " + objectName;
+		return "ClientNode: " + remoteId;
 	}
 	
 	/**
@@ -134,8 +131,8 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 */
 	public Transportable exportTransportable() {
 		
-		logger.debug("[" + proxy + "] exported with name [" + objectName + "]");
-		return new ComponentTransportable(objectName);
+		logger.debug("[" + proxy + "] exported with name [" + remoteId + "]");
+		return new ComponentTransportable(remoteId);
 	}
 	
 	public class Handle {

@@ -1,7 +1,9 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
@@ -41,13 +43,11 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 		return new LogEnabledServerHandler(target, ojmb);
 	}
 
-	public ClientHandlerResolver<LogEnabled> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientLogPollableHandlerFactory.class.getName(),
-				VERSION);
+	public Class<LogEnabled> clientClass() {
+		return LogEnabled.class;
 	}
 	
-	public static class ClientLogPollableHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<LogEnabled> {
 		
 		public LogEnabled createClientHandler(LogEnabled ignored, ClientSideToolkit toolkit) {

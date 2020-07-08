@@ -30,7 +30,7 @@ implements ClientInterfaceHandlerFactory<T> {
 				type.getClassLoader(), 
 				new Class<?>[] { type },
 				(proxy, method, args) -> toolkit.invoke(
-						new MethodOperation(method), args));
+						MethodOperation.from(method), args));
 		
 		return type.cast(delegate);
 	}

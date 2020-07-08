@@ -67,7 +67,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         clientToolkit.handler = serverHandler;
 
         RemoteDirectoryOwner client =
-                new BeanDirectoryHandlerFactory.ClientBeanDirectoryHandlerFactory(
+                new BeanDirectoryHandlerFactory.ClientFactory(
                 ).createClientHandler(null, clientToolkit);
 
         RemoteDirectory remote = client.provideBeanDirectory();
@@ -125,7 +125,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         clientToolkit.handler = serverHandler;
 
         RemoteDirectoryOwner client =
-                new BeanDirectoryHandlerFactory.ClientBeanDirectoryHandlerFactory(
+                new BeanDirectoryHandlerFactory.ClientFactory(
                 ).createClientHandler(null, clientToolkit);
 
         SimpleBeanRegistry registry = new SimpleBeanRegistry();
@@ -216,7 +216,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         clientToolkit.handler = serverHandler;
 
         RemoteDirectoryOwner client =
-                new BeanDirectoryHandlerFactory.ClientBeanDirectoryHandlerFactory(
+                new BeanDirectoryHandlerFactory.ClientFactory(
                 ).createClientHandler(null, clientToolkit);
 
         Iterable<Object> iterable =

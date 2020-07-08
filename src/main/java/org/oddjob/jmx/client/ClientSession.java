@@ -50,5 +50,8 @@ public interface ClientSession extends ObjectNames {
 	 * Destroy all proxies on the client side.
 	 */
 	void destroyAll();
-	
+
+
+	ClientInterfaceManagerFactory getInterfaceManagerFactory();
+
 }

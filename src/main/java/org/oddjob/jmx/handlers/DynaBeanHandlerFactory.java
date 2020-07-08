@@ -5,9 +5,7 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.oddjob.framework.adapt.beanutil.WrapDynaClass;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.ClientHandlerResolver;
 import org.oddjob.jmx.client.HandlerVersion;
-import org.oddjob.jmx.client.VanillaHandlerResolver;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
@@ -136,8 +134,8 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 		return new DynaBeanServerHandler(target);
 	}
 
-	public ClientHandlerResolver<DynaBean> clientHandlerFactory() {
-		return new VanillaHandlerResolver<>(DynaBean.class.getName());
+	public Class<DynaBean> clientClass() {
+		return DynaBean.class;
 	}
 		
 	static class DynaBeanServerHandler implements ServerInterfaceHandler {

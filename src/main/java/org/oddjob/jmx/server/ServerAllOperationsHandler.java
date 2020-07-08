@@ -38,7 +38,7 @@ public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 		this.target = target;
 
 		for (Method m : cl.getMethods()) {
-			methods.put(new MethodOperation(m), m);
+			methods.put(MethodOperation.from(m), m);
 		}
 	}
 	

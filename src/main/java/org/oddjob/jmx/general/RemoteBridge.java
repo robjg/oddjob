@@ -18,7 +18,7 @@ public class RemoteBridge implements RemoteConnection {
     private final MBeanServerConnection mbsc;
 
 
-    RemoteBridge(MBeanServerConnection mbsc) {
+    public RemoteBridge(MBeanServerConnection mbsc) {
         this.mbsc = mbsc;
     }
 

@@ -4,12 +4,10 @@ import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 
-import org.oddjob.jmx.client.ClientHandlerResolver;
-
 public class MockServerInterfaceHandlerFactory <X, Y>
 implements ServerInterfaceHandlerFactory<X, Y> {
 
-	public ClientHandlerResolver<Y> clientHandlerFactory() {
+	public Class<Y> clientClass() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

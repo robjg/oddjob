@@ -39,4 +39,9 @@ public class MockClientSession implements ClientSession {
 	public void destroyAll() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
+
+	@Override
+	public ClientInterfaceManagerFactory getInterfaceManagerFactory() {
+		throw new RuntimeException("Unexpected from " + getClass());
+	}
 }

@@ -2,11 +2,11 @@ package org.oddjob.jmx.client;
 
 import org.oddjob.arooa.ClassResolver;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
- * Helps the client dealing with a lot of {@link ClientHandlerResolver}s.
+ * TODO remove.
  * 
  * @author rob
  *
@@ -18,23 +18,10 @@ public class ResolverHelper {
 	public ResolverHelper(ClassResolver classResolver) {
 		this.classResolver = classResolver;
 	}
-	
-	public ClientInterfaceHandlerFactory<?>[] resolveAll(
-			ClientHandlerResolver<?>[] resolvers) {
-	
-		List<ClientInterfaceHandlerFactory<?>> results =
-				new ArrayList<>();
-		
-		for (ClientHandlerResolver<?> resolver: resolvers) {
-			ClientInterfaceHandlerFactory<?> factory = 
-				resolver.resolve(classResolver);
 
-			if (factory != null) {
-				results.add(factory);
-			}
-		}
-		
-		return results.toArray(
-				new ClientInterfaceHandlerFactory<?>[0]);
+	public Class<?>[] resolve(String[] classNames) {
+		return Arrays.stream(classNames).map(name -> classResolver.findClass(name))
+				.filter(Objects::nonNull)
+				.toArray(Class[]::new);
 	}
 }

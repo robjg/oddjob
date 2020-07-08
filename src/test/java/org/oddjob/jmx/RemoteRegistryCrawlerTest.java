@@ -1,24 +1,13 @@
 package org.oddjob.jmx;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
-import org.oddjob.arooa.registry.Address;
-import org.oddjob.arooa.registry.BeanDirectory;
-import org.oddjob.arooa.registry.BeanDirectoryCrawler;
-import org.oddjob.arooa.registry.BeanRegistry;
-import org.oddjob.arooa.registry.MockBeanDirectoryOwner;
-import org.oddjob.arooa.registry.MockBeanRegistry;
-import org.oddjob.arooa.registry.Path;
-import org.oddjob.arooa.registry.ServerId;
-import org.oddjob.arooa.registry.SimpleBeanRegistry;
-import org.oddjob.jmx.client.ClientHandlerResolver;
+import org.oddjob.arooa.registry.*;
 import org.oddjob.jmx.server.ServerInfo;
 
 public class RemoteRegistryCrawlerTest extends OjTestCase {
 
-	class ServerRegistry extends SimpleBeanRegistry
+	static class ServerRegistry extends SimpleBeanRegistry
 	implements RemoteDirectory {
 		ServerId serverId;
 		
@@ -31,12 +20,12 @@ public class RemoteRegistryCrawlerTest extends OjTestCase {
 		}
 	}
 	
-	class OurRemote extends MockRemoteOddjobBean {
+	static class OurRemote extends MockRemoteOddjobBean {
 		public ServerInfo serverInfo() {
 			return new ServerInfo(
 					new Address(new ServerId("server1"),
 							new Path("a/b")),
-					new ClientHandlerResolver[0]);
+					new String[0]);
 		}
 	}
 
@@ -77,7 +66,7 @@ public class RemoteRegistryCrawlerTest extends OjTestCase {
 						address));
 	}
 
-	class Component extends MockBeanDirectoryOwner {
+	static class Component extends MockBeanDirectoryOwner {
 		final String name;
 		BeanDirectory directory;
 		
@@ -205,10 +194,8 @@ public class RemoteRegistryCrawlerTest extends OjTestCase {
 		
 		cr1.register("a", comp1);
 
-		ServerRegistry cr2 = new ServerRegistry(
-				new ServerId("server1"));
-
-		comp1.directory = cr2;
+	   comp1.directory = new ServerRegistry(
+			   new ServerId("server1"));
 		
 		RemoteRegistryCrawler test = new RemoteRegistryCrawler(cr1);
 		

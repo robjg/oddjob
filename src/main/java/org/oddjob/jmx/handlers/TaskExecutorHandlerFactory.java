@@ -8,7 +8,9 @@ import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jmx.RemoteOperation;
-import org.oddjob.jmx.client.*;
+import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
 import org.oddjob.jobs.tasks.Task;
 import org.oddjob.jobs.tasks.TaskException;
@@ -73,13 +75,11 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		return new ServerTaskExecutorHelper(taskExecutor, ojmb);
 	}
 	
-	public ClientHandlerResolver<TaskExecutor> clientHandlerFactory() {
-		return new SimpleHandlerResolver<>(
-				ClientTaskExecutorHandlerFactory.class.getName(),
-				VERSION);
+	public Class<TaskExecutor> clientClass() {
+		return TaskExecutor.class;
 	}
 	
-	public static class ClientTaskExecutorHandlerFactory 
+	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<TaskExecutor> {
 		
 		public Class<TaskExecutor> interfaceClass() {

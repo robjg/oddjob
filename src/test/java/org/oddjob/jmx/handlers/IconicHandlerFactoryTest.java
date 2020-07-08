@@ -83,7 +83,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
         toolkit.server = serverHandler;
 
         Iconic h =
-                new IconicHandlerFactory.ClientIconicHandlerFactory(
+                new IconicHandlerFactory.ClientFactory(
                 ).createClientHandler(iconic, toolkit);
 
         ImageIcon result = h.iconForId(IconHelper.EXECUTING);
@@ -174,7 +174,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
         OurClientToolkit2 clientToolkit = new OurClientToolkit2();
         clientToolkit.server = serverHandler;
 
-        Iconic local = new IconicHandlerFactory.ClientIconicHandlerFactory(
+        Iconic local = new IconicHandlerFactory.ClientFactory(
         ).createClientHandler(iconic, clientToolkit);
 
         Result result = new Result();

@@ -8,6 +8,7 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.oddjob.OddjobConsole;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.*;
@@ -18,9 +19,14 @@ import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOddjobBean;
-import org.oddjob.jmx.handlers.*;
+import org.oddjob.jmx.SharedConstants;
+import org.oddjob.jmx.handlers.DynaBeanHandlerFactory;
+import org.oddjob.jmx.handlers.LogPollableHandlerFactory;
+import org.oddjob.jmx.handlers.ObjectInterfaceHandlerFactory;
+import org.oddjob.jmx.handlers.RemoteOddjobHandlerFactory;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
@@ -31,9 +37,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Test a ClientNode.
@@ -51,6 +55,14 @@ public class ClientNodeTest extends OjTestCase {
 
     int unique;
 
+    ClientInterfaceManagerFactory clientInterfaceManagerFactory =
+            new ClientInterfaceManagerFactoryBuilder()
+            .addFactories(SharedConstants.DEFAULT_CLIENT_HANDLER_FACTORIES)
+            .addFactories(
+                    new DirectInvocationClientFactory<>(Runnable.class)
+                    )
+            .build();
+
     /**
      * Fixture for the base class of an MBean which provides
      * a minimal implementation of an OddjobMBean.
@@ -60,19 +72,12 @@ public class ClientNodeTest extends OjTestCase {
 
         int instance = unique++;
 
-        protected final Set<ClientHandlerResolver<?>> handlerFactories =
-                new HashSet<>();
-
-        {
-            handlerFactories.add(new RemoteOddjobHandlerFactory().clientHandlerFactory());
-            handlerFactories.add(new ObjectInterfaceHandlerFactory().clientHandlerFactory());
-        }
+        abstract protected Class<?>[] getInterfaces();
 
         public ServerInfo serverInfo() {
             return new ServerInfo(
                     new Address(new ServerId(url()), new Path(id())),
-                    handlerFactories.toArray(
-                            new ClientHandlerResolver[0])
+                    ClassUtils.classesToStrings(getInterfaces())
             );
         }
 
@@ -105,6 +110,11 @@ public class ClientNodeTest extends OjTestCase {
             implements SimpleMBean {
         public String toString() {
             return "test";
+        }
+
+        @Override
+        protected Class<?>[] getInterfaces() {
+            return new Class[] { Object.class };
         }
     }
 
@@ -149,6 +159,7 @@ public class ClientNodeTest extends OjTestCase {
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                clientInterfaceManagerFactory,
                 new OurArooaSession(),
                 logger);
 
@@ -175,6 +186,7 @@ public class ClientNodeTest extends OjTestCase {
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                Mockito.mock(ClientInterfaceManagerFactory.class),
                 new OurArooaSession(),
                 logger);
 
@@ -193,12 +205,13 @@ public class ClientNodeTest extends OjTestCase {
             implements MockRunnableMBean {
         boolean ran;
 
-        public MockRunnable() {
-            handlerFactories.add(new RunnableHandlerFactory().clientHandlerFactory());
-        }
-
         public void run() {
             ran = true;
+        }
+
+        @Override
+        protected Class<?>[] getInterfaces() {
+            return new Class[] { Runnable.class };
         }
     }
 
@@ -227,6 +240,7 @@ public class ClientNodeTest extends OjTestCase {
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                clientInterfaceManagerFactory,
                 new OurArooaSession(),
                 logger);
 
@@ -356,10 +370,10 @@ public class ClientNodeTest extends OjTestCase {
             } else if ("serverInfo".equals(actionName)) {
                 return new ServerInfo(
                         new Address(new ServerId("//foo/"), new Path("whatever")),
-                        new ClientHandlerResolver[]{
-                                new ObjectInterfaceHandlerFactory().clientHandlerFactory(),
-                                new RemoteOddjobHandlerFactory().clientHandlerFactory(),
-                                new DynaBeanHandlerFactory().clientHandlerFactory()}
+                        ClassUtils.classesToStrings(new Class<?>[]{
+                                new ObjectInterfaceHandlerFactory().clientClass(),
+                                new RemoteOddjobHandlerFactory().clientClass(),
+                                new DynaBeanHandlerFactory().clientClass()})
                 );
             } else if ("loggerName".equals(actionName)) {
                 return "org.oddjob.TestLogger";
@@ -394,9 +408,12 @@ public class ClientNodeTest extends OjTestCase {
         ObjectName on = OddjobMBeanFactory.objectName(objectId);
         mbs.registerMBean(firstBean, on);
 
+
+
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                clientInterfaceManagerFactory,
                 new OurArooaSession(),
                 logger);
 
@@ -464,6 +481,7 @@ public class ClientNodeTest extends OjTestCase {
             ClientSessionImpl clientSession = new ClientSessionImpl(
                     mbs,
                     new DummyNotificationProcessor(),
+                    clientInterfaceManagerFactory,
                     new OurArooaSession(),
                     logger);
 
@@ -490,8 +508,10 @@ public class ClientNodeTest extends OjTestCase {
 
     public class MockLogging extends BaseMockOJMBean
             implements MockLoggingMBean {
-        public MockLogging() {
-            handlerFactories.add(new LogPollableHandlerFactory().clientHandlerFactory());
+
+        @Override
+        protected Class<?>[] getInterfaces() {
+            return new Class<?>[] { LogPollable.class };
         }
 
         public LogEvent[] retrieveLogEvents(long from, int max) {
@@ -530,9 +550,17 @@ public class ClientNodeTest extends OjTestCase {
 
         beanDump(mbs, on);
 
+        ClientInterfaceManagerFactory cimf = new ClientInterfaceManagerFactoryBuilder()
+                .addFactories(
+                        new ObjectInterfaceHandlerFactory.ClientFactory(),
+                        new DirectInvocationClientFactory<>(RemoteOddjobBean.class),
+                        new LogPollableHandlerFactory.ClientFactory())
+                .build();
+
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
+                cimf,
                 new OurArooaSession(),
                 logger);
 
