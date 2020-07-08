@@ -23,6 +23,7 @@ import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -141,7 +142,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 										Object child = structuralHelper.removeChildAt(index);
 										toolkit.getClientSession().destroy(child);
 									}
-								}.match(childData.getChildObjectNames());
+								}.match(Arrays.stream(childData.getRemoteIds())
+										.boxed().toArray(Long[]::new));
 							});
 					toolkit.registerNotificationListener(
 							STRUCTURAL_NOTIF_TYPE, synchronizer);
@@ -217,8 +219,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 				
 				synchronized (children) {
 					children.add(index, child);
-					newEvent = new ChildData(
-						children.toArray(new Long[0]));
+					newEvent = new ChildData(children.stream()
+							.mapToLong(Long::longValue).toArray());
 				}
 				
 				final Notification<ChildData> notification =
@@ -248,8 +250,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 					
 					child = children.get(index);
 					children.remove(index);
-					newEvent = new ChildData(
-							children.toArray(new Long[0]));
+					newEvent = new ChildData(children.stream()
+							.mapToLong(Long::longValue).toArray());
 				}
 				
 				final Notification<ChildData> notification =
@@ -276,8 +278,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		private Notification<ChildData> lastNotification() {
 			final AtomicReference<Notification<ChildData>> lastNotifications = new AtomicReference<>();
 			toolkit.runSynchronized(() -> {
-				ChildData newEvent = new ChildData(
-						children.toArray(new Long[0]));
+				ChildData newEvent = new ChildData(children.stream()
+						.mapToLong(Long::longValue).toArray());
 				Notification<ChildData> notification =
 					toolkit.createNotification(STRUCTURAL_NOTIF_TYPE, newEvent);
 				lastNotifications.set(notification);
@@ -325,13 +327,13 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	public static class ChildData implements Serializable {
 		private static final long serialVersionUID = 2010062500L;
 		
-		private final Long[] remoteIds;
+		private final long[] remoteIds;
 		
-		public ChildData(Long[] remoteIds) {
+		public ChildData(long[] remoteIds) {
 			this.remoteIds = remoteIds;
 		}
 		
-		public Long[] getChildObjectNames() {
+		public long[] getRemoteIds() {
 			return remoteIds;
 		}
 	}

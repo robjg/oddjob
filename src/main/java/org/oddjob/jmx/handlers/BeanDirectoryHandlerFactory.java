@@ -128,7 +128,7 @@ public class BeanDirectoryHandlerFactory implements
 						Object result = toolkit.invoke(LOOKUP, path);
 						if (result instanceof Carrier) {
 							return toolkit.getClientSession().create(
-									((Carrier) result).getObjectName());
+									((Carrier) result).getRemoteId());
 						} else {
 							return result;
 						}
@@ -142,7 +142,7 @@ public class BeanDirectoryHandlerFactory implements
 						Object result = toolkit.invoke(LOOKUP_TYPE, path, required);
 						if (result instanceof Carrier) {
 							result = toolkit.getClientSession().create(
-									((Carrier) result).getObjectName());
+									((Carrier) result).getRemoteId());
 						}
 						return required.cast(result);
 					} catch (Throwable e) {
@@ -323,17 +323,17 @@ public class BeanDirectoryHandlerFactory implements
 
 	}
 
-	static class Carrier implements Serializable {
+	public static class Carrier implements Serializable {
 		private static final long serialVersionUID = 2020062900L;
 
-		private final long objectName;
+		private final long remoteId;
 
-		Carrier(long objectName) {
-			this.objectName = objectName;
+		public Carrier(long remoteId) {
+			this.remoteId = remoteId;
 		}
 
-		long getObjectName() {
-			return objectName;
+		long getRemoteId() {
+			return remoteId;
 		}
 	}
 	

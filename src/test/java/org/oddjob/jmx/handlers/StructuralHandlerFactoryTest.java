@@ -27,9 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructuralHandlerFactoryTest extends OjTestCase {
+import static org.hamcrest.Matchers.is;
 
-    int unique;
+public class StructuralHandlerFactoryTest extends OjTestCase {
 
     private static class OurServerSideToolkit extends MockServerSideToolkit {
         List<Notification<ChildData>> notifications = new ArrayList<>();
@@ -39,6 +39,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         long objectId = 2L;
         int seq = 0;
 
+        @SuppressWarnings("unchecked")
         @Override
         public void sendNotification(Notification<?> notification) {
             notifications.add((Notification<ChildData>) notification);
@@ -113,6 +114,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
 
         assertEquals(1, toolkit.notifications.size());
 
+        @SuppressWarnings("unchecked")
         Notification<ChildData> last =
                 (Notification<ChildData>) handler.invoke(
                         StructuralHandlerFactory.SYNCHRONIZE,
@@ -121,8 +123,8 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         ChildData lastData0 = last.getData();
 
 
-        assertEquals(1, lastData0.getChildObjectNames().length);
-        assertEquals(lastData0.getChildObjectNames()[0], new Long(2L));
+        assertEquals(1, lastData0.getRemoteIds().length);
+        assertEquals(lastData0.getRemoteIds()[0], 2L);
 
         Object child = new Object();
 
@@ -131,15 +133,14 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         assertEquals(2, toolkit.notifications.size());
 
         // first notification will be ignored.
-        Notification n0 = toolkit.notifications.get(0);
+        Notification<ChildData> n0 = toolkit.notifications.get(0);
         assertEquals(0, n0.getSequence());
-        ChildData childData0 =
-                (ChildData) n0.getData();
+        ChildData childData0 = n0.getData();
 
-        assertEquals(1, childData0.getChildObjectNames().length);
-        assertEquals(lastData0.getChildObjectNames()[0], new Long(2L));
+        assertEquals(1, childData0.getRemoteIds().length);
+        assertEquals(lastData0.getRemoteIds()[0], 2L);
 
-        Notification n1 = toolkit.notifications.get(1);
+        Notification<ChildData> n1 = toolkit.notifications.get(1);
         assertEquals(2, n1.getSequence());
         assertEquals(StructuralHandlerFactory.STRUCTURAL_NOTIF_TYPE,
                 n1.getType());
@@ -147,29 +148,24 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         structural.helper.insertChild(2, new Object());
 
         assertEquals(3, toolkit.notifications.size());
-        Notification n2 = toolkit.notifications.get(2);
+        Notification<ChildData> n2 = toolkit.notifications.get(2);
         assertEquals(3, n2.getSequence());
 
-        ChildData childData2 =
-                (ChildData) n2.getData();
+        ChildData childData2 = n2.getData();
 
-        assertEquals(3, childData2.getChildObjectNames().length);
-        assertEquals(childData2.getChildObjectNames()[0], new Long(2L));
-        assertEquals(childData2.getChildObjectNames()[1], new Long(3L));
-        assertEquals(childData2.getChildObjectNames()[2], new Long(4L));
+        assertEquals(3, childData2.getRemoteIds().length);
+        assertThat(childData2.getRemoteIds(), is(new long[]{2L, 3L, 4L}));
 
         structural.helper.removeChildAt(1);
 
         assertEquals(4, toolkit.notifications.size());
-        Notification n3 = toolkit.notifications.get(3);
+        Notification<ChildData> n3 = toolkit.notifications.get(3);
         assertEquals(4, n3.getSequence());
 
-        ChildData childData3 =
-                (ChildData) n3.getData();
+        ChildData childData3 = n3.getData();
 
-        assertEquals(2, childData3.getChildObjectNames().length);
-        assertEquals(childData3.getChildObjectNames()[0], new Long(2L));
-        assertEquals(childData3.getChildObjectNames()[1], new Long(4L));
+        assertEquals(2, childData3.getRemoteIds().length);
+        assertThat(childData3.getRemoteIds(), is(new Long[] {2L, 4L }));
 
         handler.destroy();
 
@@ -190,9 +186,11 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
                 throws Throwable {
             if (StructuralHandlerFactory.SYNCHRONIZE.equals(remoteOperation)) {
-                return (T) null;
+                return null;
             }
-            return null;
+            else {
+                throw new RuntimeException("Unexpected" + remoteOperation);
+            }
         }
 
         @Override
@@ -278,7 +276,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
                 NotificationType.ofName("ignored")
                         .andDataType(ChildData.class);
 
-        ChildData data1 = new ChildData(new Long[]{2L});
+        ChildData data1 = new ChildData(new long[]{2L});
 
         Notification<ChildData> n1 = new Notification<>(1L, notificationType, 0, data1);
 
@@ -292,7 +290,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
 
         // Second
 
-        ChildData data2 = new ChildData(new Long[]{2L, 3L});
+        ChildData data2 = new ChildData(new long[]{2L, 3L});
 
         Notification<ChildData> n2 = new Notification<>(1L, notificationType, 0, data2);
 
@@ -306,7 +304,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
 
         // Third
 
-        ChildData data3 = new ChildData(new Long[]{2L, 3L, 4L});
+        ChildData data3 = new ChildData(new long[]{2L, 3L, 4L});
         Notification<ChildData> n3 = new Notification<>(1L, notificationType, 0, data3);
 
         clientToolkit.handler.handleNotification(n3);
@@ -321,7 +319,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         // Fourth
 
         ChildData data4 = new ChildData(
-                        new Long[]{3L, 4L});
+                        new long[]{3L, 4L});
         Notification<ChildData> n4 = new Notification<>(1L, notificationType, 0, data4);
 
         clientToolkit.handler.handleNotification(n4);
