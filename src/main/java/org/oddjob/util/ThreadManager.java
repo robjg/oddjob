@@ -16,7 +16,7 @@ public interface ThreadManager {
 	 * @param runnable The job.
 	 * @param description The description.
 	 */
-	public void run(Runnable runnable, String description);
+	void run(Runnable runnable, String description);
 	
 	/**
 	 * Return a array of the descriptions of all active threads. 
@@ -26,13 +26,13 @@ public interface ThreadManager {
 	 * 
 	 * @return A list of descriptions.
 	 */
-	public String[] activeDescriptions();
+	String[] activeDescriptions();
 		
 	/**
 	 * Close the ThreadManager and free resource. This may
 	 * involve interrupting Threads or similar to ensure nothing is
 	 * still running.
 	 */
-	public void close();
+	void close();
 	
 }

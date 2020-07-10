@@ -3,7 +3,7 @@
  */
 package org.oddjob.framework;
 
-import org.oddjob.jmx.ObjectNames;
+import org.oddjob.jmx.RemoteIdMappings;
 
 import java.io.Serializable;
 
@@ -23,5 +23,5 @@ public interface Transportable extends Serializable {
 	 * 
 	 * @return An object which is valid in the local environment.
 	 */
-	Object importResolve(ObjectNames names);
+	Object importResolve(RemoteIdMappings names);
 }

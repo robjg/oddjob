@@ -1,25 +1,25 @@
 package org.oddjob.jmx;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.remote.rmi.RMIConnectorServer;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobConsole;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.FlagState;
+import org.oddjob.state.GenericState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.remote.rmi.RMIConnectorServer;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
 
 public class NetworkFailureTest extends OjTestCase {
 
@@ -34,12 +34,12 @@ public class NetworkFailureTest extends OjTestCase {
    @Test
 	public void testSimpleExample() throws Exception {
 	
-		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+		try (OddjobConsole.Close ignored = OddjobConsole.initialise()) {
 			
 			FlagState root = new FlagState();
 			root.setName("Our Job");
 			
-			Map<String, Object> env = new HashMap<String, Object>();
+			Map<String, Object> env = new HashMap<>();
 	
 			FailableSocketFactory ssf =  
 				new FailableSocketFactory(); 
@@ -107,8 +107,9 @@ public class NetworkFailureTest extends OjTestCase {
 			assertEquals(1, children.length);
 			
 			child = (Stateful) children[0];
-			
-			assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(child));
+
+			assertThat(GenericState.statesEquivalent(JobState.COMPLETE, OddjobTestHelper.getJobState(child)),
+					is(true));
 			assertEquals("Our Job", child.toString()); 
 			
 			client.stop();

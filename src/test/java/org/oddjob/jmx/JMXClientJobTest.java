@@ -5,6 +5,7 @@ package org.oddjob.jmx;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
@@ -27,6 +28,7 @@ import org.oddjob.logging.LogHelper;
 import org.oddjob.logging.LogListener;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.*;
+import org.oddjob.state.GenericState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ServiceState;
 import org.oddjob.structural.ChildHelper;
@@ -134,7 +136,7 @@ public class JMXClientJobTest extends OjTestCase {
     @Test
     public void testRun() throws Exception {
 
-        try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+        try (OddjobConsole.Close ignored = OddjobConsole.initialise()) {
             JMXServerJob server = createServer();
             server.start();
 
@@ -329,7 +331,7 @@ public class JMXClientJobTest extends OjTestCase {
     @Test
     public void testHostRelative() throws Exception {
 
-        try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+        try (OddjobConsole.Close ignored = OddjobConsole.initialise()) {
             OurSession serverSession = new OurSession();
 
             Echo e = new Echo();
@@ -418,7 +420,7 @@ public class JMXClientJobTest extends OjTestCase {
 
         server.setUrl("service:jmx:rmi://");
 
-        try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+        try (OddjobConsole.Close ignored = OddjobConsole.initialise()) {
             server.start();
 
             OurSession localSession = new OurSession();
@@ -446,10 +448,6 @@ public class JMXClientJobTest extends OjTestCase {
             client.stop();
             server.stop();
         }
-    }
-
-    static class ResultHolder {
-        Object result;
     }
 
     /**
@@ -492,13 +490,16 @@ public class JMXClientJobTest extends OjTestCase {
         Resetable nested = (Resetable) new OddjobLookup(client).lookup("oj/oj");
         assertNotNull(nested);
 
-        assertEquals(ParentState.COMPLETE, OddjobTestHelper.getJobState(nested));
+        assertThat(GenericState.statesEquivalent(ParentState.COMPLETE, OddjobTestHelper.getJobState(nested)),
+                Matchers.is(true));
 
         Object echoJob = new OddjobLookup(client).lookup("oj/oj/fruit");
         assertNotNull(echoJob);
 
         StateSteps steps = new StateSteps((Stateful) nested);
-        steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+        steps.startCheck(
+                GenericState.from(ParentState.COMPLETE),
+                GenericState.from(ParentState.READY));
 
         nested.hardReset();
 
@@ -509,8 +510,10 @@ public class JMXClientJobTest extends OjTestCase {
 
         logger.info("Re-running Once...");
 
-        steps.startCheck(ParentState.READY, ParentState.EXECUTING,
-                ParentState.COMPLETE);
+        steps.startCheck(
+                GenericState.from(ParentState.READY),
+                GenericState.from(ParentState.EXECUTING),
+                GenericState.from(ParentState.COMPLETE));
 
         ((Runnable) nested).run();
 
@@ -524,7 +527,9 @@ public class JMXClientJobTest extends OjTestCase {
             Thread.yield();
         }
 
-        steps.startCheck(ParentState.COMPLETE, ParentState.READY);
+        steps.startCheck(
+                GenericState.from(ParentState.COMPLETE),
+                GenericState.from(ParentState.READY));
 
         nested.hardReset();
 
@@ -534,8 +539,10 @@ public class JMXClientJobTest extends OjTestCase {
 
         logger.info("Re-running Twice...");
 
-        steps.startCheck(ParentState.READY, ParentState.EXECUTING,
-                ParentState.COMPLETE);
+        steps.startCheck(
+                GenericState.from(ParentState.READY),
+                GenericState.from(ParentState.EXECUTING),
+                GenericState.from(ParentState.COMPLETE));
 
         ((Runnable) nested).run();
 

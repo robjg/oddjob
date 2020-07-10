@@ -18,7 +18,6 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.remote.Notification;
 
 import javax.management.*;
 import java.io.Serializable;
@@ -38,12 +37,13 @@ public class BeanDirectoryHandlerFactory implements
 					ServerId.class,
 					MBeanOperationInfo.INFO);
 
-	private static final JMXOperationPlus<Long[]> LIST =
+	private static final JMXOperationPlus<long[]> LIST =
 		new JMXOperationPlus<>(
 				"beansList", 
 				"List Beans.",
-				Long[].class,
-				MBeanOperationInfo.INFO);
+				long[].class,
+				MBeanOperationInfo.INFO)
+			.addParam("type", Class.class, "The type required");
 
 	private static final JMXOperationPlus<String> ID_FOR =
 			new JMXOperationPlus<>(
@@ -51,7 +51,7 @@ public class BeanDirectoryHandlerFactory implements
 					"Id For ObjectName.",
 					String.class,
 					MBeanOperationInfo.INFO)
-			.addParam("objectName", ObjectName.class, "The object name.");
+			.addParam("remoteId", long.class, "The object name.");
 
 	private static final JMXOperationPlus<Object> LOOKUP =
 			new JMXOperationPlus<>(
@@ -168,8 +168,7 @@ public class BeanDirectoryHandlerFactory implements
 		
 				public <T> Iterable<T> getAllByType(Class<T> type) {
 					try {
-						Long[] names = toolkit.invoke(LIST,
-								type);
+						long[] names = toolkit.invoke(LIST, type);
 						
 						if (names == null) {
 							return new ArrayList<>();
@@ -222,10 +221,7 @@ public class BeanDirectoryHandlerFactory implements
 			this.serverToolkit = ojmb;
 		}
 
-		public Notification[] getLastNotifications() {
-			return null;
-		}
-
+		@Override
 		public Object invoke(RemoteOperation<?> operation, Object[] params)
 				throws MBeanException, ReflectionException, ArooaPropertyException {
 			
@@ -252,7 +248,7 @@ public class BeanDirectoryHandlerFactory implements
 					}
 				}
 
-				return names.toArray(new Long[0]);
+				return names.stream().mapToLong(Long::longValue).toArray();
 			}
 
 			if (ID_FOR.equals(operation)) {

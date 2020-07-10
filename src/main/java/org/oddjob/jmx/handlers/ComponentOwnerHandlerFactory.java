@@ -231,11 +231,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				try {						
 					newId = clientToolkit.invoke(SESSION_AVAILABLE);
 				}
-				catch (InstanceNotFoundException e) {
-					// Server Object no longer with us.
-					newId = null;
-				} 
 				catch (Throwable e) {
+					ownerSupport.setConfigurationSession(null);
 					throw new UndeclaredThrowableException(e);
 				}
 					

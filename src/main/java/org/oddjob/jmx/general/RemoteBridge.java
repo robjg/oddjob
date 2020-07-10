@@ -1,6 +1,7 @@
 package org.oddjob.jmx.general;
 
 import org.oddjob.arooa.utils.ClassUtils;
+import org.oddjob.arooa.utils.Pair;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
@@ -8,7 +9,8 @@ import org.oddjob.remote.*;
 
 import javax.management.*;
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Bridge between the Oddjob Generic Remote API and JMX remoting.
@@ -17,6 +19,9 @@ public class RemoteBridge implements RemoteConnection {
 
     private final MBeanServerConnection mbsc;
 
+    private final Map<Pair<Long, Pair<?, ?>>,
+            Pair<NotificationFilter, javax.management.NotificationListener>> listeners =
+            new ConcurrentHashMap<>();
 
     public RemoteBridge(MBeanServerConnection mbsc) {
         this.mbsc = mbsc;
@@ -27,13 +32,24 @@ public class RemoteBridge implements RemoteConnection {
                                             NotificationType<T> notificationType,
                                             NotificationListener<T> notificationListener)
             throws RemoteException {
+
+        javax.management.NotificationListener jmxListener = (notification, handback) ->
+                notificationListener.handleNotification(
+                        fromJmxNotification(remoteId, notificationType.getDataType(), notification));
+
+        NotificationFilter filter = createTypeFilterFor(notificationType);
+
         try {
             mbsc.addNotificationListener(OddjobMBeanFactory.objectName(remoteId),
-                    new ListenerBridge<>(remoteId, notificationType.getDataType(), notificationListener),
-                    createTypeFilterFor(notificationType), null);
+                    jmxListener,
+                    filter,
+                    null);
         } catch (InstanceNotFoundException | IOException e) {
             throw new RemoteIdException(remoteId, e);
         }
+
+        listeners.put(Pair.of(remoteId, Pair.of(notificationType, notificationListener)),
+                Pair.of(filter, jmxListener));
     }
 
     @Override
@@ -42,10 +58,18 @@ public class RemoteBridge implements RemoteConnection {
                                                NotificationListener<T> notificationListener)
             throws RemoteException {
 
+        Pair<NotificationFilter, javax.management.NotificationListener> pair =
+                listeners.remove(Pair.of(remoteId, Pair.of(notificationType, notificationListener)));
+
+        if (pair == null) {
+            throw new RemoteIdException(remoteId, "Listener " + notificationListener +
+                    " not registered for " + notificationType);
+        }
+
         try {
             mbsc.removeNotificationListener(OddjobMBeanFactory.objectName(remoteId),
-                    new ListenerBridge<>(remoteId, notificationType.getDataType(), notificationListener),
-                    createTypeFilterFor(notificationType),
+                    pair.getRight(),
+                    pair.getLeft(),
                     null);
         } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
             throw new RemoteIdException(remoteId, e);
@@ -68,40 +92,6 @@ public class RemoteBridge implements RemoteConnection {
         }
 
         return ClassUtils.cast(operationType.getReturnType(), result);
-    }
-
-    static class ListenerBridge<T> implements javax.management.NotificationListener {
-
-        private final long remoteId;
-
-        private final Class<T> dataType;
-
-        private final NotificationListener<T> remoteListener;
-
-        ListenerBridge(long remoteId,
-                       Class<T> dataType, NotificationListener<T> remoteListener) {
-            this.remoteId = remoteId;
-            this.dataType = dataType;
-            this.remoteListener = remoteListener;
-        }
-
-        @Override
-        public void handleNotification(javax.management.Notification notification, Object handback) {
-            remoteListener.handleNotification(fromJmxNotification(remoteId, dataType, notification));
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ListenerBridge<?> that = (ListenerBridge<?>) o;
-            return remoteListener.equals(that.remoteListener);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(remoteListener);
-        }
     }
 
     public static NotificationFilter createTypeFilterFor(NotificationType<?> type) {

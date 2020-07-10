@@ -1,7 +1,7 @@
 package org.oddjob.jmx.client;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.jmx.ObjectNames;
+import org.oddjob.jmx.RemoteIdMappings;
 import org.slf4j.Logger;
 
 /**
@@ -10,7 +10,7 @@ import org.slf4j.Logger;
  * @author rob
  *
  */
-public interface ClientSession extends ObjectNames {
+public interface ClientSession extends RemoteIdMappings {
 	
 	/**
 	 * Create or find a previously created proxy for

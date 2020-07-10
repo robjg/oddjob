@@ -1,28 +1,24 @@
 package org.oddjob.jmx;
+
+import org.hamcrest.Matchers;
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.Properties;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.jobs.tasks.BasicTask;
-import org.oddjob.jobs.tasks.TaskException;
-import org.oddjob.jobs.tasks.TaskExecutor;
-import org.oddjob.jobs.tasks.TaskState;
-import org.oddjob.jobs.tasks.TaskView;
+import org.oddjob.jobs.tasks.*;
+import org.oddjob.state.GenericState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
 
 public class TaskExecutorTest extends OjTestCase {
 
@@ -62,8 +58,9 @@ public class TaskExecutorTest extends OjTestCase {
 		properties.setProperty("name", "Jane");
 		
 		TaskView taskView = taskExecutor.execute(new BasicTask(properties));
-		
-		assertEquals(TaskState.COMPLETE, taskView.lastStateEvent().getState());
+
+	   assertThat(GenericState.statesEquivalent(TaskState.COMPLETE, taskView.lastStateEvent().getState()),
+			   Matchers.is(true));
 		
 		assertEquals("Hello Jane", taskView.getTaskResponse());
 		

@@ -3,18 +3,16 @@
  */
 package org.oddjob.util;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.Stoppable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Stoppable;
+import java.util.concurrent.*;
 
 /**
  * The thread manager keeps track of active threads. It can be used to
@@ -24,25 +22,35 @@ public class SimpleThreadManager implements ThreadManager {
 	private static final Logger logger = LoggerFactory.getLogger(SimpleThreadManager.class);
 	
 	/** Map of active threads to their description. */
-	private final Map<Runnable, Remember> active = 
-		new HashMap<Runnable, Remember>();
+	private final Map<Runnable, Remember> active =
+			new HashMap<>();
 
-	private final ExecutorService executors;
-	
+	private final Executor executor;
+
+	private final Runnable stop;
+
 	/**
 	 * Default Constructor. Uses a default ExecutorService.
 	 */
 	public SimpleThreadManager() {
-		this(Executors.newCachedThreadPool());
+		this(null);
 	}
 	
 	/**
 	 * Constructor uses provided ExecutorService.
 	 * 
-	 * @param executors
+	 * @param executor
 	 */
-	public SimpleThreadManager(ExecutorService executors) {
-		this.executors = executors;
+	public SimpleThreadManager(Executor executor) {
+		if (executor == null) {
+			ExecutorService executorService = Executors.newCachedThreadPool();
+			this.executor = executorService;
+			this.stop = executorService::shutdownNow;
+		}
+		else {
+			this.executor = executor;
+			this.stop = () -> {};
+		}
 	}
 	
 	/**
@@ -73,7 +81,7 @@ public class SimpleThreadManager implements ThreadManager {
 		};
 		
 		synchronized (active) {
-			Future<?> future = executors.submit(wrapper);
+			CompletableFuture<?> future = CompletableFuture.runAsync(wrapper, executor);
 			active.put(runnable, new Remember(description, future));
 		}
 	}
@@ -87,12 +95,12 @@ public class SimpleThreadManager implements ThreadManager {
 	 * @return A list of descriptions.
 	 */
 	public String[] activeDescriptions() {
-		List<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<>();
 		synchronized (active) {
 			for (Remember remember : active.values() ) {
 				results.add( remember.description );
 			}
-			return (String[]) results.toArray(new String[0]);
+			return results.toArray(new String[0]);
 		}
 	}
 	
@@ -117,10 +125,10 @@ public class SimpleThreadManager implements ThreadManager {
 				}
 			}
 		}
-		executors.shutdownNow();
+		stop.run();
 	}
 	
-	class Remember {
+	static class Remember {
 		private final String description;
 		private final Future<?> future;
 		

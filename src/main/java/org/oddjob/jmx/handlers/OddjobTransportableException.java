@@ -23,7 +23,7 @@ public class OddjobTransportableException extends Exception {
 		}
 	}
 	
-	public String getOriginalExcpetionClassName() {
+	public String getOriginalExceptionClassName() {
 		return originalExcpetionClassName;
 	}
 	

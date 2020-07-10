@@ -81,7 +81,7 @@ public class Utils {
 	 *
 	 * @return Resolved objects.
 	 */
-	public static Object[] importResolve(Object[] objects, ObjectNames names) {
+	public static Object[] importResolve(Object[] objects, RemoteIdMappings names) {
 		if (objects == null) {
 			return null;
 		}
@@ -100,7 +100,7 @@ public class Utils {
 	 *
 	 * @return Resolved object.
 	 */
-	public static Object importResolve(Object object, ObjectNames names) {
+	public static Object importResolve(Object object, RemoteIdMappings names) {
 		if (object == null) {
 			return null;
 		}

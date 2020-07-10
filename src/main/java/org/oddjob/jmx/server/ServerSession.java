@@ -1,7 +1,7 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.jmx.ObjectNames;
+import org.oddjob.jmx.RemoteIdMappings;
 
 import javax.management.JMException;
 
@@ -11,7 +11,7 @@ import javax.management.JMException;
  * @author rob
  *
  */
-public interface ServerSession extends ObjectNames {
+public interface ServerSession extends RemoteIdMappings {
 
 	/**
 	 * Create an MBean.

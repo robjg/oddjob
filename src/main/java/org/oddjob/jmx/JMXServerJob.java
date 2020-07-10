@@ -7,6 +7,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.describe.NoDescribe;
 import org.oddjob.jmx.server.*;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
@@ -15,9 +16,11 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnectorServer;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @oddjob.description A service which allows a job hierarchy to
@@ -237,7 +240,14 @@ public class JMXServerJob implements ArooaSessionAware {
 	public String getUrl() {
 		return url;
 	}
-	
+
+	@NoDescribe
+	public MBeanServerConnection getServerConnection() {
+		return Optional.ofNullable(this.cntorServer)
+				.map(cs -> cs.getMBeanServer())
+				.orElse(null);
+	}
+
 	public void start() 
 	throws JMException, IOException, ServerLoopBackException {
 		if (root == null) {			

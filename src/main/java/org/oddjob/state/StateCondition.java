@@ -1,12 +1,15 @@
 package org.oddjob.state;
 
+import java.util.function.Predicate;
+
 /**
  * Something that is able to test the condition of a {@link State}.
  * 
  * @author rob
  *
  */
-public interface StateCondition {
+@FunctionalInterface
+public interface StateCondition extends Predicate<State> {
 
 	/**
 	 * Tests the condition of the state.
@@ -14,5 +17,6 @@ public interface StateCondition {
 	 * @param state The state.
 	 * @return true if the state matches the condition, false otherwise.
 	 */
+	@Override
 	boolean test(State state);
 }

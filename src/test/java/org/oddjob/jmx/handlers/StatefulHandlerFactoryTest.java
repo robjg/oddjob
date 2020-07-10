@@ -14,9 +14,12 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.state.GenericState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+
+import static org.hamcrest.Matchers.is;
 
 public class StatefulHandlerFactoryTest extends OjTestCase {
 
@@ -131,25 +134,29 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         local.addStateListener(result);
 
-        assertEquals("State ready", JobState.READY,
-                result.event.getState());
+        assertThat("State ready",
+                GenericState.statesEquivalent(JobState.READY, result.event.getState()),
+                is(true));
 
         Result result2 = new Result();
 
         local.addStateListener(result2);
 
-        assertEquals("State ready", JobState.READY,
-                result2.event.getState());
+        assertThat("State ready",
+                GenericState.statesEquivalent(JobState.READY, result2.event.getState()),
+                is(true));
 
         serverToolkit.listener = clientToolkit.listener;
 
         stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
 
         // check the notification is sent
-        assertEquals("State complete", JobState.COMPLETE,
-                result.event.getState());
-        assertEquals("State complete", JobState.COMPLETE,
-                result2.event.getState());
+        assertThat("State complete",
+                GenericState.statesEquivalent(JobState.COMPLETE, result.event.getState()),
+                is(true));
+        assertThat("State complete",
+                GenericState.statesEquivalent(JobState.COMPLETE, result2.event.getState()),
+                is(true));
 
         local.removeStateListener(result);
 
@@ -197,8 +204,8 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         StateEvent lastStateEvent = local.lastStateEvent();
 
-        assertEquals(JobState.COMPLETE,
-                lastStateEvent.getState());
+        assertThat(GenericState.statesEquivalent(JobState.COMPLETE,
+                lastStateEvent.getState()), is(true));
 
     }
 

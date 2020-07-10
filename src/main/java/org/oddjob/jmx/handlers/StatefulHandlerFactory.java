@@ -13,10 +13,7 @@ import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
-import org.oddjob.state.JobState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 
 import javax.management.*;
 import java.io.Serializable;
@@ -291,14 +288,14 @@ implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
 	public static class StateData implements Serializable {
 		private static final long serialVersionUID = 2009063000L;
 
-		private final State jobState;
+		private final GenericState jobState;
 		
 		private final Date date;
 		
 		private final Throwable throwable;
 		
 		public StateData(State state, Date date, Throwable throwable) {
-			this.jobState = state;
+			this.jobState = GenericState.from(state);
 			this.date = date;
 			if (throwable == null) {
 				this.throwable = null;

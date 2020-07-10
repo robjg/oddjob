@@ -4,9 +4,11 @@
 package org.oddjob.jmx.client;
 
 import org.oddjob.framework.Transportable;
-import org.oddjob.jmx.ObjectNames;
+import org.oddjob.jmx.RemoteIdMappings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  * This object represents a component as it travels across the network between
@@ -20,19 +22,32 @@ public class ComponentTransportable implements Transportable {
 	private static final Logger logger = LoggerFactory.getLogger(ComponentTransportable.class);
 	
 	/** The address which identify this component. */
-	private final long name;
+	private final long remoteId;
 	
-	public ComponentTransportable(long name) {
-		this.name = name;
+	public ComponentTransportable(long remoteId) {
+		this.remoteId = remoteId;
 	}
 		
-	public Object importResolve(ObjectNames names) {
-		Object resolved = names.objectFor(name);
-		logger.debug("Resolved [" + resolved + "] from addresses [" + name + "]");
+	public Object importResolve(RemoteIdMappings names) {
+		Object resolved = names.objectFor(remoteId);
+		logger.debug("Resolved [" + resolved + "] from addresses [" + remoteId + "]");
 		return resolved;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		ComponentTransportable that = (ComponentTransportable) o;
+		return remoteId == that.remoteId;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(remoteId);
+	}
+
 	public String toString() {
-		return "ComponentTransportable: " + name;
+		return "ComponentTransportable: " + remoteId;
 	}
 }

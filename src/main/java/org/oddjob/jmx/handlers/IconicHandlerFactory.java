@@ -237,13 +237,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 				lastNotification = notification;
 			});
 		}
-		
-		public Notification<IconData>[] getLastNotifications() {
-			return null;
-		}
-		
-		
-		
+
 		public Object invoke(RemoteOperation<?> operation, Object[] params) 
 		throws MBeanException, ReflectionException {
 

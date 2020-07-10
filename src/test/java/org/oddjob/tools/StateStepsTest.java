@@ -3,10 +3,7 @@ package org.oddjob.tools;
 import org.junit.Test;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.state.JobState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +78,40 @@ public class StateStepsTest {
         stateful.advance();
 
         test.checkNow();
+    }
+
+    @Test
+    public void whenWrongTypeThenMessageMakesSense() {
+
+        SomeStateful stateful = new SomeStateful(JobState.READY);
+
+        StateSteps test = new StateSteps(stateful);
+        test.startCheck(ParentState.READY);
+
+        try {
+            test.checkNow();
+            fail("Should fail");
+        }
+        catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("Expected READY(ParentState), was READY(JobState) (index 0)"));
+        }
+    }
+
+    @Test
+    public void whenWrongStateConditionThenMessageMakesSense() {
+
+        SomeStateful stateful = new SomeStateful(JobState.READY);
+
+        StateSteps test = new StateSteps(stateful);
+        test.startCheck(StateConditions.COMPLETE);
+
+        try {
+            test.checkNow();
+            fail("Should fail");
+        }
+        catch (IllegalStateException e) {
+            assertThat(e.getMessage(), is("Expected Condition COMPLETE, was READY(JobState) (index 0)"));
+        }
     }
 
     @Test

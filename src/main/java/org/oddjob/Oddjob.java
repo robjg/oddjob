@@ -1,17 +1,6 @@
 package org.oddjob;
 
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
-
-import javax.inject.Inject;
-
 import org.oddjob.arooa.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -22,17 +11,7 @@ import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigConfigurationSession;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.HandleConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.registry.ServiceProvider;
@@ -44,7 +23,6 @@ import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.RootConfigurationFileCreator;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.describe.Describer;
-import org.oddjob.describe.NoDescribe;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.designer.components.RootDC;
 import org.oddjob.framework.extend.StructuralJob;
@@ -57,19 +35,21 @@ import org.oddjob.persist.OddjobPersister;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.OddjobServicesBean;
 import org.oddjob.sql.SQLPersisterService;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsNot;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.StateOperator;
-import org.oddjob.state.WorstStateOp;
+import org.oddjob.state.*;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.Restore;
 import org.oddjob.util.URLClassLoaderType;
 import org.oddjob.values.properties.PropertiesType;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Read a configuration, creates child jobs and executes them. 
@@ -626,10 +606,14 @@ implements Loadable,
         }
         catch (Exception e) {
             // This will edit a failed configuration in case of
-            // failure.
-            configurationOwnerSupport.setConfigurationSession(
-            				new ConfigConfigurationSession(
-            						ourSession, configuration));			
+            // failure. TODO: Fails with resources because they are closed already.
+			try {
+				configurationOwnerSupport.setConfigurationSession(
+						new ConfigConfigurationSession(
+								ourSession, configuration));
+			} catch (Exception e2) {
+				// ignore and throw the original.
+			}
 	        // Reset on failure.
         	setOurSession(null);
         	throw e;
