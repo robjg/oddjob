@@ -232,8 +232,9 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					newId = clientToolkit.invoke(SESSION_AVAILABLE);
 				}
 				catch (Throwable e) {
-					ownerSupport.setConfigurationSession(null);
-					throw new UndeclaredThrowableException(e);
+					// need to rethink this. Fails when client has been stopped.
+					// but why is it being being called at all?
+					newId = null;
 				}
 					
 				if (newId == null) {
