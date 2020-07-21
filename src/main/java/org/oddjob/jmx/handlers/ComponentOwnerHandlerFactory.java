@@ -369,14 +369,17 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 			}
 			
 			return new DragPoint() {
+				@Override
 				public boolean supportsCut() {
 					return dragPointInfo.supportsCut;
 				}
-				
+
+				@Override
 				public boolean supportsPaste() {
 					return dragPointInfo.supportsPaste;
 				}
-				
+
+				@Override
 				public DragTransaction beginChange(ChangeHow how) {
 					// Only create a fake client DragTransaction. The server will
 					// create a real one.
@@ -391,11 +394,13 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 						}
 					};
 				}
-				
+
+				@Override
 				public String copy() {
 					return dragPointInfo.copy;
 				}
-				
+
+				@Override
 				public void cut() {
 					try {
 						clientToolkit.invoke(
@@ -404,18 +409,20 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 						throw new UndeclaredThrowableException(e);
 					}
 				}
-				public ConfigurationHandle parse(
-						ArooaContext parentContext) {
+
+				@Override
+				public <P extends ParseContext<P>> ConfigurationHandle<P> parse(
+						P parentContext) {
 					try {
 						final XMLConfiguration config = 
 							new XMLConfiguration("Server Config", 
 									dragPointInfo.copy);
 
-						final ConfigurationHandle handle =
+						final ConfigurationHandle<P> handle =
 							config.parse(parentContext);
 
-						return new ConfigurationHandle() {
-							public ArooaContext getDocumentContext() {
+						return new ConfigurationHandle<P>() {
+							public P getDocumentContext() {
 								return handle.getDocumentContext();
 							}
 
@@ -605,8 +612,8 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				String config = (String) params[1];
 				
 				try {
-					XMLArooaParser parser = new XMLArooaParser();
-					ConfigurationHandle handle = parser.parse(dragPoint);
+					XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+					ConfigurationHandle<ArooaContext> handle = parser.parse(dragPoint);
 					
 					ArooaContext documentContext = handle.getDocumentContext();
 					

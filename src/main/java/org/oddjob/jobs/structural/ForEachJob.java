@@ -1,45 +1,16 @@
 package org.oddjob.jobs.structural;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.stream.Stream;
-
-import javax.inject.Inject;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.Loadable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaTools;
-import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigConfigurationSession;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.HandleConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.*;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.StandardArooaParser;
@@ -53,17 +24,20 @@ import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.io.ExistsJob;
 import org.oddjob.scheduling.ExecutorThrottleType;
-import org.oddjob.state.AnyActiveStateOp;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsNot;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.SequentialHelper;
-import org.oddjob.state.State;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateOperator;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
+
+import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 
 /**
@@ -916,7 +890,8 @@ public class ForEachJob extends StructuralJob<Object>
             configuration = null;
         } else {
             new RootConfigurationFileCreator(
-                    FOREACH_ELEMENT).createIfNone(file);
+                    FOREACH_ELEMENT, NamespaceMappings.empty())
+                    .createIfNone(file);
             this.file = file;
             configuration = new XMLConfiguration(file);
         }
@@ -1122,9 +1097,9 @@ public class ForEachJob extends StructuralJob<Object>
 
         private final LocalBean localBean;
 
-        private final ConfigurationHandle configurationHandle;
+        private final ConfigurationHandle<ArooaContext> configurationHandle;
 
-        ChildInfo(LocalBean localBean, ConfigurationHandle configurationHandle) {
+        ChildInfo(LocalBean localBean, ConfigurationHandle<ArooaContext> configurationHandle) {
             Objects.requireNonNull(localBean);
             Objects.requireNonNull(configurationHandle);
 
@@ -1136,7 +1111,7 @@ public class ForEachJob extends StructuralJob<Object>
             return localBean;
         }
 
-        public ConfigurationHandle getConfigurationHandle() {
+        public ConfigurationHandle<ArooaContext> getConfigurationHandle() {
             return configurationHandle;
         }
     }

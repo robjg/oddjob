@@ -1,24 +1,15 @@
 package org.oddjob.jobs.structural;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ArooaElementException;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.CutAndPasteSupport;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.parsing.CutAndPasteSupport.ReplaceResult;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLArooaParser;
@@ -28,9 +19,11 @@ import org.oddjob.structural.StructuralListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 
 /**
  * Cut and Paste Tests.
@@ -224,14 +217,16 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(1, amber);
 		trn.commit();
-				
-		DragPoint amber = oddjob.provideConfigurationSession().dragPointFor(
+
+	   ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+		DragPoint amber = configurationSession.dragPointFor(
 				new OddjobLookup(oddjob).lookup("amber"));
 		
 
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
-		ConfigurationHandle handle = xmlParser.parse(
+		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
 				amber);
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
@@ -289,14 +284,16 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(1, amber);
 		trn.commit();
-				
-		DragPoint sequential = oddjob.provideConfigurationSession().dragPointFor(
+
+	   ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+		DragPoint sequential = configurationSession.dragPointFor(
 				new OddjobLookup(oddjob).lookup("seq"));
 		
 
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
-		ConfigurationHandle handle = xmlParser.parse(
+		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
 				sequential);
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
@@ -369,13 +366,15 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 		trn = point.beginChange(ChangeHow.FRESH);
 		point.paste(1, amber);
 		trn.commit();
-				
-		DragPoint sequential = oddjob.provideConfigurationSession().dragPointFor(
+
+		ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+		DragPoint sequential = configurationSession.dragPointFor(
 				new OddjobLookup(oddjob).lookup("seq"));
 
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
-		ConfigurationHandle handle = xmlParser.parse(
+		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
 				sequential);
 
        logger.info("** Parsed 'seq' to XML:\n" + xmlParser.getXml());

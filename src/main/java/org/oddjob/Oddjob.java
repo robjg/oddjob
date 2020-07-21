@@ -497,7 +497,7 @@ implements Loadable,
 		// it as Oddjob's configuration.
 		if (file != null) {
 			new RootConfigurationFileCreator(
-					ODDJOB_ELEMENT).createIfNone(file);
+					ODDJOB_ELEMENT, NamespaceMappings.empty()).createIfNone(file);
 			configuration = new XMLConfiguration(file);
 		}		
 		

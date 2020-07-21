@@ -1,24 +1,13 @@
 package org.oddjob;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
-import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.MockConfigurationHandle;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaElement;
 import org.oddjob.arooa.parsing.MockArooaContext;
+import org.oddjob.arooa.parsing.ParseContext;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.SimpleBeanRegistry;
@@ -55,11 +44,12 @@ public class OddjobArooaTest extends OjTestCase {
 		StandardArooaParser parser = new StandardArooaParser(rootOddjob);
 		
 		parser.parse(new ArooaConfiguration() {
-			public ConfigurationHandle parse(ArooaContext parentContext)
+			@Override
+			public <P extends ParseContext<P>> ConfigurationHandle<P> parse(P parentContext)
 					throws ArooaParseException {
 				ArooaElement element = new ArooaElement("watever");
 				element = element.addAttribute("id", "oddjob");
-				parentContext.getArooaHandler().onStartElement(element, parentContext);
+				parentContext.getElementHandler().onStartElement(element, parentContext);
 				
 				return new MockConfigurationHandle();
 			}

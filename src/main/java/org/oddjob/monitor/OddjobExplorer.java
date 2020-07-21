@@ -1,52 +1,6 @@
 package org.oddjob.monitor;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyVetoException;
-import java.beans.VetoableChangeListener;
-import java.beans.VetoableChangeSupport;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.inject.Inject;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JSeparator;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.WindowConstants;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobServices;
-import org.oddjob.OddjobShutdownThread;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaConfiguration;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
@@ -54,30 +8,32 @@ import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.design.view.Standards;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ConfigOwnerEvent;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.ElementConfiguration;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.monitor.context.AncestorSearch;
 import org.oddjob.monitor.control.PropertyPolling;
-import org.oddjob.monitor.model.ConfigContextInialiser;
-import org.oddjob.monitor.model.ExplorerModel;
-import org.oddjob.monitor.model.ExplorerModelImpl;
-import org.oddjob.monitor.model.FileHistory;
-import org.oddjob.monitor.model.JobTreeNode;
+import org.oddjob.monitor.model.*;
 import org.oddjob.monitor.view.ExplorerComponent;
 import org.oddjob.monitor.view.MonitorMenuBar;
 import org.oddjob.state.State;
 import org.oddjob.swing.SwingInputHandler;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import java.awt.event.*;
+import java.beans.*;
+import java.io.*;
+import java.util.*;
 
 /**
  * @oddjob.description Runs Oddjob Explorer.
@@ -922,14 +878,15 @@ implements Stoppable {
 				Oddjob newJob = newOddjob();							
 				
 				ArooaConfiguration saveAsConfig = new ArooaConfiguration() {
-					public ConfigurationHandle parse(ArooaContext parentContext)
+					@Override
+					public <P extends ParseContext<P>> ConfigurationHandle<P> parse(P parentContext)
 							throws ArooaParseException {
 						
-						final ConfigurationHandle handle = new ElementConfiguration(
+						final ConfigurationHandle<P> handle = new ElementConfiguration(
 								Oddjob.ODDJOB_ELEMENT).parse(parentContext);
 						
-						return new ConfigurationHandle() {
-							public ArooaContext getDocumentContext() {
+						return new ConfigurationHandle<P>() {
+							public P getDocumentContext() {
 								return handle.getDocumentContext();
 							};
 							public void save() throws ArooaParseException {
@@ -938,7 +895,6 @@ implements Stoppable {
 						};
 					}
 				};
-				
 				
 				newJob.setConfiguration(saveAsConfig);
 	
@@ -1048,7 +1004,7 @@ implements Stoppable {
 
 			try {
 							
-				XMLArooaParser parser = new XMLArooaParser();
+				XMLArooaParser parser = new XMLArooaParser(config.getArooaDescriptor());
 				
 				ArooaConfiguration oddjobConfiguration = 
 					config.dragPointFor(oddjob);

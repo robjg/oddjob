@@ -2,8 +2,7 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.OddjobDescriptorFactory;
@@ -17,6 +16,8 @@ import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlunit.matchers.CompareMatcher;
 
 /**
@@ -61,7 +62,7 @@ public class VariablesDCTest extends OjTestCase {
 		CutAndPasteSupport.paste(design.getArooaContext(), 1, 
 				new XMLConfiguration("TEST", paste));
 		
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(descriptor);
 
 		xmlParser.parse(design.getArooaContext().getConfigurationNode());
 		
@@ -101,7 +102,7 @@ public class VariablesDCTest extends OjTestCase {
 		
 		design = parser.getDesign();
 
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(descriptor);
 
 		xmlParser.parse(design.getArooaContext().getConfigurationNode());
 		
@@ -138,7 +139,7 @@ public class VariablesDCTest extends OjTestCase {
 
 		assertEquals(VariablesDesign.class, design.getClass());
 		
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(descriptor);
 
 		xmlParser.parse(design.getArooaContext().getConfigurationNode());
 		

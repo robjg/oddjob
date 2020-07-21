@@ -1,22 +1,13 @@
 package org.oddjob;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.Test;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaTools;
-import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.MockArooaSession;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.LinkedDescriptor;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.registry.ComponentPool;
@@ -31,6 +22,11 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -86,13 +82,15 @@ public class OddjobX2Test {
 
 		// Parse sequence to XML.
 		Object sequence = lookup.lookup("sequence");
-		
-		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
+
+		ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+		DragPoint point = configurationSession.dragPointFor(
 				sequence);
 
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
-		ConfigurationHandle handle = xmlParser.parse(
+		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
 				point);
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
@@ -259,11 +257,11 @@ public class OddjobX2Test {
 		
 		ArooaContext context = session.pool.contexts.get("sequence");
 		
-		XMLArooaParser xmlParser = new XMLArooaParser();
+		XMLArooaParser xmlParser = new XMLArooaParser(session.getArooaDescriptor());
 
         logger.info("** Copy to XML");
 
-		ConfigurationHandle handle = xmlParser.parse(
+		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
 				context.getConfigurationNode());
 
 		ArooaContext xmlDoc = handle.getDocumentContext();

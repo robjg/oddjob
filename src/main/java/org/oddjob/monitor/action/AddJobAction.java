@@ -1,34 +1,14 @@
 package org.oddjob.monitor.action;
 
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import javax.swing.JPanel;
-import javax.swing.KeyStroke;
-
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.FormItem;
 import org.oddjob.arooa.design.screem.LabelledComboBox;
-import org.oddjob.arooa.design.view.Looks;
-import org.oddjob.arooa.design.view.SwingFormFactory;
-import org.oddjob.arooa.design.view.SwingFormView;
-import org.oddjob.arooa.design.view.SwingItemFactory;
-import org.oddjob.arooa.design.view.SwingItemView;
-import org.oddjob.arooa.design.view.ViewHelper;
+import org.oddjob.arooa.design.view.*;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.DragTransaction;
-import org.oddjob.arooa.parsing.QTag;
-import org.oddjob.arooa.parsing.QTagConfiguration;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.monitor.Standards;
@@ -36,6 +16,11 @@ import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
 import org.oddjob.monitor.model.JobFormAction;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
  * An action that adds a child job to a job.
@@ -152,7 +137,7 @@ public class AddJobAction extends JobFormAction implements FormAction {
 		
 		QTagConfiguration config = new QTagConfiguration(selected);
 		
-		XMLArooaParser parser = new XMLArooaParser();
+		XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
 		parser.parse(config);
 				

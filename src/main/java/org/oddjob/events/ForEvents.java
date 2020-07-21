@@ -1,39 +1,14 @@
 package org.oddjob.events;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
 import org.oddjob.Structural;
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaTools;
-import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigConfigurationSession;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.HandleConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.LinkedBeanRegistry;
@@ -49,6 +24,15 @@ import org.oddjob.state.IsStoppable;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.Restore;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 
 /**
@@ -262,7 +246,7 @@ implements Structural, ConfigurationOwner {
 	 */
 	private void remove(Object child) {
 		
-		ConfigurationHandle handle = configurationHandles.get(child);
+		ConfigurationHandle<ArooaContext> handle = configurationHandles.get(child);
 		handle.getDocumentContext().getRuntime().destroy();
 	}
 	
@@ -584,7 +568,7 @@ implements Structural, ConfigurationOwner {
 		}
 		else {
 			new RootConfigurationFileCreator(
-					FOREACH_ELEMENT).createIfNone(file);
+					FOREACH_ELEMENT, NamespaceMappings.empty()).createIfNone(file);
 			this.file = file;
 			configuration = new XMLConfiguration(file);
 		} 

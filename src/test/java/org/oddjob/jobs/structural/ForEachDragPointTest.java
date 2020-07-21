@@ -1,11 +1,4 @@
 package org.oddjob.jobs.structural;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.IOException;
-import java.util.Arrays;
 
 import org.junit.Test;
 import org.oddjob.OddjobSessionFactory;
@@ -23,6 +16,11 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 public class ForEachDragPointTest {
 
@@ -50,7 +48,7 @@ public class ForEachDragPointTest {
 		
 		assertFalse(configurationSession.isModified());
 		
-		ConfigurationHandle handle = new XMLArooaParser().parse(
+		ConfigurationHandle<ArooaContext> handle = new XMLArooaParser(session.getArooaDescriptor()).parse(
 				dragPoint);
 
 		ArooaContext xmlDoc = handle.getDocumentContext();
@@ -135,8 +133,8 @@ public class ForEachDragPointTest {
 		
 		assertFalse(configurationSession.isModified());
 		
-		ConfigurationHandle handle = new XMLArooaParser().parse(
-				dragPoint);
+		ConfigurationHandle<ArooaContext> handle = new XMLArooaParser(session.getArooaDescriptor())
+				.parse(dragPoint);
 		
 		ArooaContext xmlDoc = handle.getDocumentContext();
 		

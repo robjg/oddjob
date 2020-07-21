@@ -1,18 +1,10 @@
 package org.oddjob.monitor.action;
 
-import javax.swing.KeyStroke;
-
 import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.design.DesignProperty;
-import org.oddjob.arooa.design.DesignSeedContext;
-import org.oddjob.arooa.design.DesignValueBase;
-import org.oddjob.arooa.design.SimpleDesignProperty;
-import org.oddjob.arooa.design.SimpleTextAttribute;
+import org.oddjob.arooa.design.*;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.StandardForm;
@@ -32,6 +24,10 @@ import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
 import org.oddjob.monitor.model.JobFormAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 
 /**
  * An action that sets a property on a job.
@@ -121,7 +117,7 @@ public class SetPropertyAction extends JobFormAction implements FormAction {
 		ConfigurationNode valueConfiguration = propertyForm.getArooaContext().getConfigurationNode();
 
 		if (logger.isDebugEnabled()) {
-			XMLArooaParser xml = new XMLArooaParser();
+			XMLArooaParser xml = new XMLArooaParser(sessionLite.getArooaDescriptor());
 			xml.parse(valueConfiguration);
 			logger.debug("PropertyForm XML:\n" + xml.getXml());
 		}

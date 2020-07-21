@@ -1,9 +1,5 @@
 package org.oddjob.swing;
 
-import java.awt.Component;
-import java.io.Serializable;
-import java.util.concurrent.Callable;
-
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaType;
@@ -21,6 +17,10 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
+
+import java.awt.*;
+import java.io.Serializable;
+import java.util.concurrent.Callable;
 
 public class ConfigureBeanJob implements Serializable, Runnable, ArooaSessionAware {
 	private static final long serialVersionUID = 2010030100L;
@@ -93,7 +93,7 @@ public class ConfigureBeanJob implements Serializable, Runnable, ArooaSessionAwa
 					throw new RuntimeException(e);
 				}
 				
-				XMLArooaParser xmlParser = new XMLArooaParser();
+				XMLArooaParser xmlParser = new XMLArooaParser(session.getArooaDescriptor());
 				
 				try {
 					xmlParser.parse(finalDesign.getArooaContext().getConfigurationNode());

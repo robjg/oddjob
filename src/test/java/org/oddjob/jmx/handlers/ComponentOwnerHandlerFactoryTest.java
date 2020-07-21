@@ -2,12 +2,14 @@ package org.oddjob.jmx.handlers;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
+import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -48,6 +50,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
             return new DragPoint() {
 
+                @Override
                 public DragTransaction beginChange(ChangeHow how) {
                     return new DragTransaction() {
 
@@ -62,27 +65,33 @@ public class ComponentOwnerHandlerFactoryTest {
                     };
                 }
 
+                @Override
                 public boolean supportsCut() {
                     return true;
                 }
 
+                @Override
                 public boolean supportsPaste() {
                     return true;
                 }
 
+                @Override
                 public String copy() {
                     return "apples";
                 }
 
+                @Override
                 public void cut() {
                     cut = true;
                 }
 
-                public ConfigurationHandle parse(ArooaContext parentContext) {
+                @Override
+                public <P extends ParseContext<P>> ConfigurationHandle<P> parse(P parentContext) {
 
                     throw new RuntimeException("Unexpected.");
                 }
 
+                @Override
                 public void paste(int index, String config) {
                     pasteIndex = index;
                     pasteText = config;
@@ -236,6 +245,8 @@ public class ComponentOwnerHandlerFactoryTest {
 
     private static class OurComponentOwner2 extends MockConfigurationOwner {
 
+        private final ArooaDescriptor descriptor = new StandardArooaDescriptor();
+
         DragPoint drag;
         ConfigurationHandle handle;
 
@@ -259,6 +270,11 @@ public class ComponentOwnerHandlerFactoryTest {
                 @Override
                 public void removeSessionStateListener(
                         SessionStateListener listener) {
+                }
+
+                @Override
+                public ArooaDescriptor getArooaDescriptor() {
+                    return descriptor;
                 }
             };
         }
@@ -296,7 +312,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
         StandardArooaParser parser = new StandardArooaParser(root);
 
-        final ConfigurationHandle handle = parser.parse(config);
+        final ConfigurationHandle<ArooaContext> handle = parser.parse(config);
 
         DragContext drag = new DragContext(handle.getDocumentContext());
 
@@ -316,11 +332,13 @@ public class ComponentOwnerHandlerFactoryTest {
                 new ComponentOwnerHandlerFactory.ClientFactory(
                 ).createClientHandler(new MockConfigurationOwner(), clientToolkit);
 
-        DragPoint local = clientHandler.provideConfigurationSession().dragPointFor(root);
+        ConfigurationSession configurationSession = clientHandler.provideConfigurationSession();
 
-        XMLArooaParser parser2 = new XMLArooaParser();
+        DragPoint local = configurationSession.dragPointFor(root);
 
-        ConfigurationHandle handle2 = parser2.parse(local);
+        XMLArooaParser parser2 = new XMLArooaParser(NamespaceMappings.empty());
+
+        ConfigurationHandle<ArooaContext> handle2 = parser2.parse(local);
 
         ArooaContext context = handle2.getDocumentContext();
 

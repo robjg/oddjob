@@ -3,30 +3,8 @@
  */
 package org.oddjob.designer.components;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeSet;
-
-import org.oddjob.arooa.ArooaConstants;
-import org.oddjob.arooa.ArooaException;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.ElementMappings;
-import org.oddjob.arooa.design.DesignComponent;
-import org.oddjob.arooa.design.DesignElementProperty;
-import org.oddjob.arooa.design.DesignFactory;
-import org.oddjob.arooa.design.DesignInstance;
-import org.oddjob.arooa.design.DesignListener;
-import org.oddjob.arooa.design.DesignStructureEvent;
-import org.oddjob.arooa.design.InstanceSupport;
-import org.oddjob.arooa.design.SimpleDesignProperty;
+import org.oddjob.arooa.*;
+import org.oddjob.arooa.design.*;
 import org.oddjob.arooa.design.screem.BorderedGroup;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.FormItem;
@@ -35,25 +13,20 @@ import org.oddjob.arooa.design.view.DesignViewException;
 import org.oddjob.arooa.design.view.SwingFormFactory;
 import org.oddjob.arooa.design.view.SwingItemFactory;
 import org.oddjob.arooa.design.view.SwingItemView;
-import org.oddjob.arooa.design.view.multitype.AbstractMultiTypeModel;
-import org.oddjob.arooa.design.view.multitype.EditableValue;
-import org.oddjob.arooa.design.view.multitype.MultiTypeRow;
-import org.oddjob.arooa.design.view.multitype.MultiTypeStrategy;
-import org.oddjob.arooa.design.view.multitype.MultiTypeTableWidget;
+import org.oddjob.arooa.design.view.multitype.*;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.parsing.AbstractConfigurationNode;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ArooaHandler;
-import org.oddjob.arooa.parsing.CutAndPasteSupport;
-import org.oddjob.arooa.parsing.PrefixMappings;
-import org.oddjob.arooa.parsing.QTag;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.runtime.AbstractRuntimeConfiguration;
 import org.oddjob.arooa.runtime.ConfigurationNode;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.values.VariablesJob;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
 
 /**
  * A {@link DesignFactory} for {@link VariablesJob}
@@ -246,18 +219,21 @@ class VariablesDesignContext implements ArooaContext {
 	
 	private final ConfigurationNode configurationNode = new AbstractConfigurationNode() {
 
+		@Override
 		public ArooaContext getContext() {
 			return VariablesDesignContext.this;
 		}
-		
+
+		@Override
 		public void addText(String text) {
 			String trimmedText = text.trim(); 
 			if (trimmedText.length() > 0) {
 				throw new ArooaException("No text expected: " + trimmedText);				
 			}
 		}
-		
-		public ConfigurationHandle parse(ArooaContext parentContext)
+
+		@Override
+		public <P extends ParseContext<P>> ConfigurationHandle<P> parse(P parentContext)
 				throws ArooaParseException {
 			
 			ArooaElement element = new ArooaElement(
@@ -270,29 +246,21 @@ class VariablesDesignContext implements ArooaContext {
     					ArooaConstants.ID_PROPERTY, id);
     		}
 
-    		ArooaContext nextContext = parentContext.getArooaHandler().onStartElement(
+    		ParseHandle<P> handle = parentContext.getElementHandler().onStartElement(
     				element, parentContext);
 
-    		for (int i = 0; i < variables.propertyCount(); ++i) {
+			P nextContext = handle.getContext();
+
+			for (int i = 0; i < variables.propertyCount(); ++i) {
     			DesignElementProperty property = variables.propertyAt(i); 
     			property.getArooaContext().getConfigurationNode().parse(nextContext);
     		}
 
-    		int index = parentContext.getConfigurationNode().insertChild(
-    				nextContext.getConfigurationNode());
-    		
-    		try {
-    			nextContext.getRuntime().init();
-    		}
-    		catch (RuntimeException e) {
-    			parentContext.getConfigurationNode().removeChild(index);
-    			throw e;
-    		}
-    		
+			int index = handle.init();
+
     		return new ChainingConfigurationHandle(
     				getContext(), parentContext, index);
 		}
-		
 	};
 
 	private final RuntimeConfiguration runtime = new AbstractRuntimeConfiguration() {
