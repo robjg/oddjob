@@ -6,7 +6,6 @@ import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OddjobSessionFactory;
-import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.ConfigurationHandle;
@@ -33,15 +32,10 @@ public class ServerDragTest {
             "</job>" +
             "</oddjob>");
 
-    final AtomicReference<String> savedXML = new AtomicReference<String>();
+    final AtomicReference<String> savedXML = new AtomicReference<>();
 
     {
-        configuration.setSaveHandler(new XMLConfiguration.SaveHandler() {
-            @Override
-            public void acceptXML(String xml) {
-                savedXML.set(xml);
-            }
-        });
+        configuration.setSaveHandler(savedXML::set);
     }
 
     JMXServerJob server;
@@ -49,7 +43,7 @@ public class ServerDragTest {
 
     ConfigurationOwner remoteOddjob;
 
-    class OurContext extends MockArooaContext {
+    static class OurContext extends MockArooaContext {
 
         ArooaSession session;
 
@@ -166,7 +160,7 @@ public class ServerDragTest {
 
         XMLArooaParser parser = new XMLArooaParser(session.getArooaDescriptor());
 
-        ConfigurationHandle<ArooaContext> handle = parser.parse(dragPoint);
+        ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
 
         String replacement =
                 "<oddjob id=\"oranges\">" + EOL +
@@ -220,7 +214,7 @@ public class ServerDragTest {
     }
 
     @Test
-    public void testFailedPaste() throws ArooaParseException {
+    public void testFailedPaste() {
 
         // No Cut!
 

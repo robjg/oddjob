@@ -613,9 +613,9 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 				
 				try {
 					XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-					ConfigurationHandle<ArooaContext> handle = parser.parse(dragPoint);
+					ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
 					
-					ArooaContext documentContext = handle.getDocumentContext();
+					SimpleParseContext documentContext = handle.getDocumentContext();
 					
 					CutAndPasteSupport.replace(documentContext.getParent(), 
 							documentContext, 

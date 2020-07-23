@@ -6,10 +6,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.LinkedDescriptor;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.ComponentProxyResolver;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.CutAndPasteSupport;
-import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.standard.ExtendedTools;
@@ -41,7 +38,7 @@ public class OddjobX2Test {
     private static final Logger logger =
             LoggerFactory.getLogger(OddjobX2Test.class);
 
-	class OurStructuralListener implements StructuralListener {
+	static class OurStructuralListener implements StructuralListener {
 		List<Object> children = new ArrayList<>();
 		
 		public void childAdded(StructuralEvent event) {
@@ -90,10 +87,10 @@ public class OddjobX2Test {
 
 		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 		
-		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
+		ConfigurationHandle<SimpleParseContext> handle = xmlParser.parse(
 				point);
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
+		SimpleParseContext xmlDoc = handle.getDocumentContext();
 
 		// And replace the XML with rubbish
 		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
@@ -142,7 +139,7 @@ public class OddjobX2Test {
 		oddjob.destroy();
 	}
 
-	class OurComponentPool extends MockComponentPool {
+	static class OurComponentPool extends MockComponentPool {
 		
 		Map<String, ArooaContext> contexts =
                 new HashMap<>();
@@ -184,7 +181,7 @@ public class OddjobX2Test {
 		}
 	}
 
-	class OurSession extends MockArooaSession {
+	static class OurSession extends MockArooaSession {
 		
 		OurComponentPool pool = new OurComponentPool();
 		ArooaDescriptor descriptor;
@@ -230,7 +227,7 @@ public class OddjobX2Test {
     		).createDescriptor(null);
     	
 		OurSession session = new OurSession(
-				new LinkedDescriptor(descriptor, 
+				new LinkedDescriptor(descriptor,
 						new StandardArooaDescriptor()));
 		
 		String xml = 
@@ -261,10 +258,10 @@ public class OddjobX2Test {
 
         logger.info("** Copy to XML");
 
-		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
+		ConfigurationHandle<SimpleParseContext> handle = xmlParser.parse(
 				context.getConfigurationNode());
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
+		SimpleParseContext xmlDoc = handle.getDocumentContext();
 
         logger.info("** Changing XML to rubbish");
 

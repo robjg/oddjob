@@ -338,9 +338,9 @@ public class ComponentOwnerHandlerFactoryTest {
 
         XMLArooaParser parser2 = new XMLArooaParser(NamespaceMappings.empty());
 
-        ConfigurationHandle<ArooaContext> handle2 = parser2.parse(local);
+        ConfigurationHandle<SimpleParseContext> handle2 = parser2.parse(local);
 
-        ArooaContext context = handle2.getDocumentContext();
+        SimpleParseContext context = handle2.getDocumentContext();
 
         XMLConfiguration replacement = new XMLConfiguration("TEST",
                 "<class id='oranges'/>");

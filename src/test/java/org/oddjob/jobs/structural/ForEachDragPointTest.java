@@ -5,15 +5,14 @@ import org.oddjob.OddjobSessionFactory;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ConfigurationHandle;
-import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.parsing.CutAndPasteSupport;
 import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.SimpleParseContext;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
-import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
 
@@ -26,7 +25,7 @@ public class ForEachDragPointTest {
 
 	
     @Test
-	public void testRootDragPoint() throws SAXException, IOException, ArooaParseException {
+	public void testRootDragPoint() throws IOException, ArooaParseException {
 		
 		ArooaSession session = new OddjobSessionFactory().createSession();
 		
@@ -48,10 +47,10 @@ public class ForEachDragPointTest {
 		
 		assertFalse(configurationSession.isModified());
 		
-		ConfigurationHandle<ArooaContext> handle = new XMLArooaParser(session.getArooaDescriptor()).parse(
+		ConfigurationHandle<SimpleParseContext> handle = new XMLArooaParser(session.getArooaDescriptor()).parse(
 				dragPoint);
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
+		SimpleParseContext xmlDoc = handle.getDocumentContext();
 		
 		String replacement = "<foreach>" +
 				" <job>" +
@@ -133,10 +132,10 @@ public class ForEachDragPointTest {
 		
 		assertFalse(configurationSession.isModified());
 		
-		ConfigurationHandle<ArooaContext> handle = new XMLArooaParser(session.getArooaDescriptor())
+		ConfigurationHandle<SimpleParseContext> handle = new XMLArooaParser(session.getArooaDescriptor())
 				.parse(dragPoint);
 		
-		ArooaContext xmlDoc = handle.getDocumentContext();
+		SimpleParseContext xmlDoc = handle.getDocumentContext();
 		
 		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
 				new XMLConfiguration("XML", 

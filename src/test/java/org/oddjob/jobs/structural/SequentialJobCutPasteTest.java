@@ -33,418 +33,418 @@ public class SequentialJobCutPasteTest extends OjTestCase {
     private static final Logger logger =
             LoggerFactory.getLogger(SequentialJobCutPasteTest.class);
 
-	public static class ResultsJob implements Runnable {
+    public static class ResultsJob implements Runnable {
 
-	    private String name;
+        private String name;
 
-		private String value;
-		
-		private List<String> results;
+        private String value;
 
-		public void run() {
-		    if (results == null) {
-		        throw new IllegalStateException("Result for " + name +
-                                                        " results not set!");
-            }
-            else {
+        private List<String> results;
+
+        public void run() {
+            if (results == null) {
+                throw new IllegalStateException("Result for " + name +
+                        " results not set!");
+            } else {
                 results.add(value);
             }
-		}
-		
-		@ArooaAttribute
-		public void setResults(List<String> results) {
-			this.results = results;
-		}
-		
-		public void setValue(String value) {
-			this.value = value;
-		}
-
-		public void setName(String name) {
-		    this.name = name;
         }
 
-		@Override
-		public String toString() {
-			return "Results " + name + ": " + value;
-		}
-	}
-	
-	class ChildCatcher implements StructuralListener {
-		final List<Object> children = new ArrayList<Object>();
-		
-		public void childAdded(StructuralEvent event) {
-			children.add(event.getIndex(), event.getChild());
-		}
-		public void childRemoved(StructuralEvent event) {
-			children.remove(event.getIndex());
-		}
-	}
-	
-	private static final String xml =
-		"<oddjob id='this'>" +
-		" <job>" +
-		"  <sequential id='seq'/>" +
-		" </job>" +
-		"</oddjob>";
+        @ArooaAttribute
+        public void setResults(List<String> results) {
+            this.results = results;
+        }
 
-	private static final String red =
-		"<bean class='" + ResultsJob.class.getName() +
-                "' name='Red' " +
-				" results='${results}' value='red'/>";
-	
-	private static final String amber =
-		"<bean class='" + ResultsJob.class.getName() +
-                "' name='Amber' " +
-				" results='${results}' value='amber'" +
-				" id='amber'/>";
-	
-	private static final String green =
-		"<bean class='" + ResultsJob.class.getName() +
-                "' name='Green' " +
-				" results='${results}' value='green'/>";
-	
-   @Test
-	public void testCutAndPaste() throws ArooaParseException {
+        public void setValue(String value) {
+            this.value = value;
+        }
 
-		List<String> results = new ArrayList<String>();
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.setExport("results", new ArooaObject(results));
-		oddjob.run();
+        public void setName(String name) {
+            this.name = name;
+        }
 
-		SequentialJob test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq"); 
+        @Override
+        public String toString() {
+            return "Results " + name + ": " + value;
+        }
+    }
 
-		ChildCatcher childCatcher = new ChildCatcher();
-		test.addStructuralListener(childCatcher);
+    static class ChildCatcher implements StructuralListener {
+        final List<Object> children = new ArrayList<>();
 
-		assertEquals(0, childCatcher.children.size());
-		
-		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
-				test);
-		
-		DragTransaction trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(-1, green);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(0, red);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(1, amber);
-		trn.commit();
+        public void childAdded(StructuralEvent event) {
+            children.add(event.getIndex(), event.getChild());
+        }
 
-		test.hardReset();
-		test.run();
-		
-		assertEquals(3, results.size());
-		assertEquals("red", results.get(0));
-		assertEquals("amber", results.get(1));
-		assertEquals("green", results.get(2));
-		
-		results.clear();
-		
-		// simulate cut and paste...
-		DragPoint amberPoint = oddjob.provideConfigurationSession().dragPointFor(
-				new OddjobLookup(oddjob).lookup("amber"));
+        public void childRemoved(StructuralEvent event) {
+            children.remove(event.getIndex());
+        }
+    }
 
-		DragTransaction transaction = amberPoint.beginChange(ChangeHow.FRESH);
-		
-		point.paste(0, amberPoint.copy());
-		
-		amberPoint.cut();
-		
-		transaction.commit();
-		
-		test.hardReset();
-		test.run();
-		
-		assertEquals(3, results.size());
-		assertEquals("amber", results.get(0));
-		assertEquals("red", results.get(1));
-		assertEquals("green", results.get(2));
+    private static final String xml =
+            "<oddjob id='this'>" +
+                    " <job>" +
+                    "  <sequential id='seq'/>" +
+                    " </job>" +
+                    "</oddjob>";
 
-		results.clear();
-		
-		// and now cut it out just to make sure it bedded in proper...
-		
-		amberPoint = oddjob.provideConfigurationSession().dragPointFor(
-				new OddjobLookup(oddjob).lookup("amber"));
-		
-		trn = amberPoint.beginChange(ChangeHow.FRESH);
-		amberPoint.cut();
-		trn.commit();
-		
-		test.hardReset();
-		test.run();
-		
-		assertEquals(2, results.size());
-		assertEquals("red", results.get(0));
-		assertEquals("green", results.get(1));
-		
-		assertEquals(2, childCatcher.children.size());
-		
-		oddjob.destroy();
-	}
-	
-   @Test
-	public void testBadSave() throws ArooaParseException {
+    private static final String red =
+            "<bean class='" + ResultsJob.class.getName() +
+                    "' name='Red' " +
+                    " results='${results}' value='red'/>";
 
-		List<String> results = new ArrayList<String>();
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.setExport("results", new ArooaObject(results));
-		oddjob.run();
+    private static final String amber =
+            "<bean class='" + ResultsJob.class.getName() +
+                    "' name='Amber' " +
+                    " results='${results}' value='amber'" +
+                    " id='amber'/>";
 
-		SequentialJob test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq"); 
-		
-		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
-				test);
-		
-		DragTransaction trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(-1, green);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(0, red);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(1, amber);
-		trn.commit();
+    private static final String green =
+            "<bean class='" + ResultsJob.class.getName() +
+                    "' name='Green' " +
+                    " results='${results}' value='green'/>";
 
-	   ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+    @Test
+    public void testCutAndPaste() throws ArooaParseException {
 
-		DragPoint amber = configurationSession.dragPointFor(
-				new OddjobLookup(oddjob).lookup("amber"));
-		
+        List<String> results = new ArrayList<>();
 
-		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-		
-		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
-				amber);
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+        oddjob.setExport("results", new ArooaObject(results));
+        oddjob.run();
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
-		
-		CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
-				new XMLConfiguration("Replace", "<rubbish/>"));		
-		
-		try {
-			handle.save();
-			fail("Should fail.");
-		} catch (Exception e) {
-			// expected.
-		}
-		
-		test.hardReset();
-		test.run();
-		
-		assertEquals(3, results.size());
-		assertEquals("red", results.get(0));
-		assertEquals("amber", results.get(1));
-		assertEquals("green", results.get(2));
-		
-		oddjob.destroy();
-	}
-	
-	/**
-	 * Now try replacing the whole sequntial job.
-	 * 
-	 * @throws ArooaParseException
-	 */
-   @Test
-	public void testBadSave2() throws ArooaParseException {
+        SequentialJob test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
 
-		List<String> results = new ArrayList<String>();
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.setExport("results", new ArooaObject(results));
-		oddjob.run();
+        ChildCatcher childCatcher = new ChildCatcher();
+        test.addStructuralListener(childCatcher);
 
-		SequentialJob test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq"); 
-		
-		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
-				test);
-		
-		DragTransaction trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(-1, green);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(0, red);
-		trn.commit();
-		
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(1, amber);
-		trn.commit();
+        assertEquals(0, childCatcher.children.size());
 
-	   ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+        DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
+                test);
 
-		DragPoint sequential = configurationSession.dragPointFor(
-				new OddjobLookup(oddjob).lookup("seq"));
-		
+        DragTransaction trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(-1, green);
+        trn.commit();
 
-		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-		
-		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
-				sequential);
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(0, red);
+        trn.commit();
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
-		
-		CutAndPasteSupport.ReplaceResult result = 
-			CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc, 
-				new XMLConfiguration("Replace", "<rubbish/>"));		
-		if (result.getException() != null) {
-			throw result.getException();
-		}
-		
-		try {
-			handle.save();
-			fail("Should fail.");
-		} catch (Exception e) {
-			e.printStackTrace(System.out);
-		}
-		
-		test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq");
-		
-		test.hardReset();
-		test.run();
-		
-		assertEquals(3, results.size());
-		assertEquals("red", results.get(0));
-		assertEquals("amber", results.get(1));
-		assertEquals("green", results.get(2));
-		
-		oddjob.destroy();
-	}
-	
-	/**
-	 * Now try replacing a whole sequential job with one bad child.
-	 * 
-	 * @throws ArooaParseException
-	 */
-   @Test
-	public void testBadSave3() throws ArooaParseException {
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(1, amber);
+        trn.commit();
 
-		List<String> results = new ArrayList<>();
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.setExport("results", new ArooaObject(results));
-		oddjob.run();
+        test.hardReset();
+        test.run();
 
-       assertThat(results.size(), is(0));
+        assertEquals(3, results.size());
+        assertEquals("red", results.get(0));
+        assertEquals("amber", results.get(1));
+        assertEquals("green", results.get(2));
 
-		SequentialJob test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq"); 
-		
-		DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
-				test);
+        results.clear();
 
-       logger.info("** Pasting Green.");
+        // simulate cut and paste...
+        DragPoint amberPoint = oddjob.provideConfigurationSession().dragPointFor(
+                new OddjobLookup(oddjob).lookup("amber"));
 
-		DragTransaction trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(-1, green);
-		trn.commit();
+        DragTransaction transaction = amberPoint.beginChange(ChangeHow.FRESH);
 
-       logger.info("** Pasting Red.");
+        point.paste(0, amberPoint.copy());
 
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(0, red);
-		trn.commit();
+        amberPoint.cut();
 
-       logger.info("** Pasting Amber.");
+        transaction.commit();
 
-		trn = point.beginChange(ChangeHow.FRESH);
-		point.paste(1, amber);
-		trn.commit();
+        test.hardReset();
+        test.run();
 
-		ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+        assertEquals(3, results.size());
+        assertEquals("amber", results.get(0));
+        assertEquals("red", results.get(1));
+        assertEquals("green", results.get(2));
 
-		DragPoint sequential = configurationSession.dragPointFor(
-				new OddjobLookup(oddjob).lookup("seq"));
+        results.clear();
 
-		XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-		
-		ConfigurationHandle<ArooaContext> handle = xmlParser.parse(
-				sequential);
+        // and now cut it out just to make sure it bedded in proper...
 
-       logger.info("** Parsed 'seq' to XML:\n" + xmlParser.getXml());
+        amberPoint = oddjob.provideConfigurationSession().dragPointFor(
+                new OddjobLookup(oddjob).lookup("amber"));
 
-		ArooaContext xmlDoc = handle.getDocumentContext();
+        trn = amberPoint.beginChange(ChangeHow.FRESH);
+        amberPoint.cut();
+        trn.commit();
 
-		String badXml = 
-			    "<sequential id='seq'>" +
-				" <jobs>" +
-				"  <bean class='" + ResultsJob.class.getName() + "'" +
-				"         results='${this.args[0]}'" +
-				"         value='red'" +
-				"         id='red'/>" +
-				"  <bean class='" + ResultsJob.class.getName() + "'" +
-				"         results='${this.args[0]}' " +
-				"         value='amber' id='amber'/>" +
-				"  <rubbish/>" +
-				" </jobs>" +
-				"</sequential>";
+        test.hardReset();
+        test.run();
+
+        assertEquals(2, results.size());
+        assertEquals("red", results.get(0));
+        assertEquals("green", results.get(1));
+
+        assertEquals(2, childCatcher.children.size());
+
+        oddjob.destroy();
+    }
+
+    @Test
+    public void testBadSave() throws ArooaParseException {
+
+        List<String> results = new ArrayList<>();
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+        oddjob.setExport("results", new ArooaObject(results));
+        oddjob.run();
+
+        SequentialJob test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
+
+        DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
+                test);
+
+        DragTransaction trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(-1, green);
+        trn.commit();
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(0, red);
+        trn.commit();
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(1, amber);
+        trn.commit();
+
+        ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+        DragPoint amber = configurationSession.dragPointFor(
+                new OddjobLookup(oddjob).lookup("amber"));
 
 
-       logger.info("** Replacing in XML with bad XML.");
+        XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
 
-		ReplaceResult result = CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
-				new XMLConfiguration("Replace", badXml));		
-		
-		if (result.getException() != null) {
-			throw result.getException();
-		}
-		
-		Object amber = new OddjobLookup(oddjob).lookup("amber");
-		assertNotNull(amber);
+        ConfigurationHandle<SimpleParseContext> handle = xmlParser.parse(
+                amber);
 
-       logger.info("** Saving XML back to Oddjob (should fail).");
+        SimpleParseContext xmlDoc = handle.getDocumentContext();
 
-		try {
-			handle.save();
-			fail("Should fail.");
-		} catch (Exception e) {
+        CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
+                new XMLConfiguration("Replace", "<rubbish/>"));
+
+        try {
+            handle.save();
+            fail("Should fail.");
+        } catch (Exception e) {
+            // expected.
+        }
+
+        test.hardReset();
+        test.run();
+
+        assertEquals(3, results.size());
+        assertEquals("red", results.get(0));
+        assertEquals("amber", results.get(1));
+        assertEquals("green", results.get(2));
+
+        oddjob.destroy();
+    }
+
+    /**
+     * Now try replacing the whole sequntial job.
+     *
+     * @throws ArooaParseException
+     */
+    @Test
+    public void testBadSave2() throws ArooaParseException {
+
+        List<String> results = new ArrayList<>();
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+        oddjob.setExport("results", new ArooaObject(results));
+        oddjob.run();
+
+        SequentialJob test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
+
+        DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
+                test);
+
+        DragTransaction trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(-1, green);
+        trn.commit();
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(0, red);
+        trn.commit();
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(1, amber);
+        trn.commit();
+
+        ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+        DragPoint sequential = configurationSession.dragPointFor(
+                new OddjobLookup(oddjob).lookup("seq"));
+
+
+        XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+
+        ConfigurationHandle<SimpleParseContext> handle = xmlParser.parse(
+                sequential);
+
+        SimpleParseContext xmlDoc = handle.getDocumentContext();
+
+        CutAndPasteSupport.ReplaceResult<SimpleParseContext> result =
+                CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
+                        new XMLConfiguration("Replace", "<rubbish/>"));
+        if (result.getException() != null) {
+            throw result.getException();
+        }
+
+        try {
+            handle.save();
+            fail("Should fail.");
+        } catch (Exception e) {
+            e.printStackTrace(System.out);
+        }
+
+        test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
+
+        test.hardReset();
+        test.run();
+
+        assertEquals(3, results.size());
+        assertEquals("red", results.get(0));
+        assertEquals("amber", results.get(1));
+        assertEquals("green", results.get(2));
+
+        oddjob.destroy();
+    }
+
+    /**
+     * Now try replacing a whole sequential job with one bad child.
+     *
+     * @throws ArooaParseException
+     */
+    @Test
+    public void testBadSave3() throws ArooaParseException {
+
+        List<String> results = new ArrayList<>();
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+        oddjob.setExport("results", new ArooaObject(results));
+        oddjob.run();
+
+        assertThat(results.size(), is(0));
+
+        SequentialJob test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
+
+        DragPoint point = oddjob.provideConfigurationSession().dragPointFor(
+                test);
+
+        logger.info("** Pasting Green.");
+
+        DragTransaction trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(-1, green);
+        trn.commit();
+
+        logger.info("** Pasting Red.");
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(0, red);
+        trn.commit();
+
+        logger.info("** Pasting Amber.");
+
+        trn = point.beginChange(ChangeHow.FRESH);
+        point.paste(1, amber);
+        trn.commit();
+
+        ConfigurationSession configurationSession = oddjob.provideConfigurationSession();
+
+        DragPoint sequential = configurationSession.dragPointFor(
+                new OddjobLookup(oddjob).lookup("seq"));
+
+        XMLArooaParser xmlParser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+
+        ConfigurationHandle<SimpleParseContext> handle = xmlParser.parse(
+                sequential);
+
+        logger.info("** Parsed 'seq' to XML:\n" + xmlParser.getXml());
+
+        SimpleParseContext xmlDoc = handle.getDocumentContext();
+
+        String badXml =
+                "<sequential id='seq'>" +
+                        " <jobs>" +
+                        "  <bean class='" + ResultsJob.class.getName() + "'" +
+                        "         results='${this.args[0]}'" +
+                        "         value='red'" +
+                        "         id='red'/>" +
+                        "  <bean class='" + ResultsJob.class.getName() + "'" +
+                        "         results='${this.args[0]}' " +
+                        "         value='amber' id='amber'/>" +
+                        "  <rubbish/>" +
+                        " </jobs>" +
+                        "</sequential>";
+
+
+        logger.info("** Replacing in XML with bad XML.");
+
+        ReplaceResult<SimpleParseContext> result = CutAndPasteSupport.replace(xmlDoc.getParent(), xmlDoc,
+                new XMLConfiguration("Replace", badXml));
+
+        if (result.getException() != null) {
+            throw result.getException();
+        }
+
+        Object amber = new OddjobLookup(oddjob).lookup("amber");
+        assertNotNull(amber);
+
+        logger.info("** Saving XML back to Oddjob (should fail).");
+
+        try {
+            handle.save();
+            fail("Should fail.");
+        } catch (Exception e) {
             assertThat(e,
-                       is(instanceOf(ArooaParseException.class)));
+                    is(instanceOf(ArooaParseException.class)));
             assertThat(e.getMessage().contains("Replace Failed"),
-                       is(true));
+                    is(true));
             assertThat((e.getCause()),
-                       is(instanceOf(ArooaElementException.class)));
+                    is(instanceOf(ArooaElementException.class)));
             assertThat(e.getCause().getMessage(),
-                       is("Element [rubbish] No class definition."));
-		}
+                    is("Element [rubbish] No class definition."));
+        }
 
-       logger.info("'seq' now is:\n" +
-                           oddjob.provideConfigurationSession().dragPointFor(
-                                   new OddjobLookup(oddjob).lookup("seq"))
-                                 .copy());
+        logger.info("'seq' now is:\n" +
+                oddjob.provideConfigurationSession().dragPointFor(
+                        new OddjobLookup(oddjob).lookup("seq"))
+                        .copy());
 
-		Object red = new OddjobLookup(oddjob).lookup("red");
-		// red isn't registered - it was rolled back.
-		assertNull(red);
-		
-		test = (SequentialJob) new OddjobLookup(
-				oddjob).lookup("seq");
-		test.hardReset();
-		test.run();
-		
-		assertEquals(3, results.size());
-		
-		assertEquals(3, results.size());
-		assertEquals("red", results.get(0));
-		assertEquals("amber", results.get(1));
-		assertEquals("green", results.get(2));
-		
-		oddjob.destroy();
-	}
+        Object red = new OddjobLookup(oddjob).lookup("red");
+        // red isn't registered - it was rolled back.
+        assertNull(red);
+
+        test = (SequentialJob) new OddjobLookup(
+                oddjob).lookup("seq");
+        test.hardReset();
+        test.run();
+
+        assertEquals(3, results.size());
+
+        assertEquals(3, results.size());
+        assertEquals("red", results.get(0));
+        assertEquals("amber", results.get(1));
+        assertEquals("green", results.get(2));
+
+        oddjob.destroy();
+    }
 }
