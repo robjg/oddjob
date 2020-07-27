@@ -239,6 +239,11 @@ public class StateSteps {
                         ", was " + incoming + "(" + ClassUtils.getSimpleName(incoming.getClass()) + ")");
             }
         }
+
+        @Override
+        public String toString() {
+            return expected.toString();
+        }
     }
 
     static class SingleConditionCheck implements SingleCheck {
@@ -260,6 +265,11 @@ public class StateSteps {
                                 ", was " + incoming + "(" + ClassUtils.getSimpleName(incoming.getClass()) + ")"
                 );
             }
+        }
+
+        @Override
+        public String toString() {
+            return expected.toString();
         }
     }
 

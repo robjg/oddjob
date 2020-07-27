@@ -16,10 +16,7 @@ import org.oddjob.arooa.design.InstanceSupport;
 import org.oddjob.arooa.design.model.MockDesignElementProperty;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.MockArooaContext;
-import org.oddjob.arooa.parsing.QTag;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
@@ -90,8 +87,8 @@ public class FilesTypeTest extends OjTestCase {
 
         assertTrue(fs.length > 1);
 
-        for (int i = 0; i < fs.length; ++i) {
-            System.out.println(fs[i]);
+        for (File f : fs) {
+            System.out.println(f);
         }
 
         ConversionPath<FilesType, String[]> path = converter.findConversion(
@@ -115,8 +112,8 @@ public class FilesTypeTest extends OjTestCase {
         File[] fs = converter.convert(f, File[].class);
         assertTrue(fs.length > 1);
 
-        for (int i = 0; i < fs.length; ++i) {
-            System.out.println(fs[i]);
+        for (File file : fs) {
+            System.out.println(file);
         }
     }
 
@@ -148,13 +145,13 @@ public class FilesTypeTest extends OjTestCase {
 
         File[] files = converter.convert(listType, File[].class);
 
-        for (int i = 0; i < files.length; ++i) {
-            logger.debug(String.valueOf(files[i]));
+        for (File file : files) {
+            logger.debug(String.valueOf(file));
         }
 
         assertEquals(4, files.length);
 
-        Set<File> set = new HashSet<File>(Arrays.asList(files));
+        Set<File> set = new HashSet<>(Arrays.asList(files));
         assertTrue(set.contains(
                 new File(dirs.base(), "test/io/reference/test1.txt")));
     }
@@ -179,7 +176,7 @@ public class FilesTypeTest extends OjTestCase {
         logger.debug(String.valueOf(files[0]));
         logger.debug(String.valueOf(files[1]));
 
-        Set<File> set = new HashSet<File>(Arrays.asList(files));
+        Set<File> set = new HashSet<>(Arrays.asList(files));
         assertTrue(set.contains(new File(dirs.base(), "test/io/reference/test1.txt")));
     }
 
@@ -262,7 +259,7 @@ public class FilesTypeTest extends OjTestCase {
     }
 
     @Test
-    public void testSupports() throws ArooaParseException {
+    public void testSupports() {
 
         ArooaSession session = new OddjobSessionFactory().createSession();
 
@@ -296,15 +293,19 @@ public class FilesTypeTest extends OjTestCase {
     /**
      * Why doesn't 'files' appear in the designer selection for File[]???
      *
-     * @throws ArooaParseException
      */
     @Test
-    public void testSupports2() throws ArooaParseException {
+    public void testSupports2() {
 
         final ArooaSession session =
                 new OddjobSessionFactory().createSession();
 
         final ArooaContext context = new MockArooaContext() {
+            @Override
+            public PrefixMappings getPrefixMappings() {
+                return new FallbackPrefixMappings(NamespaceMappings.empty());
+            }
+
             @Override
             public ArooaSession getSession() {
                 return session;
@@ -335,21 +336,21 @@ public class FilesTypeTest extends OjTestCase {
 
         InstanceSupport support = new InstanceSupport(property);
 
-        QTag tags[] = support.getTags();
+        QTag[] tags = support.getTags();
 
-        Set<QTag> results = new HashSet<QTag>(Arrays.asList(tags));
+        Set<QTag> results = new HashSet<>(Arrays.asList(tags));
 
         assertTrue(results.contains(new QTag("files")));
     }
 
-    private boolean checkElements(ArooaElement elements[]) {
-        return new HashSet<ArooaElement>(
+    private boolean checkElements(ArooaElement[] elements) {
+        return new HashSet<>(
                 Arrays.asList(elements)).contains(
                 new ArooaElement("file"));
     }
 
     @Test
-    public void testFileListToString() throws NoConversionAvailableException, ConversionFailedException, ArooaParseException {
+    public void testFileListToString() throws NoConversionAvailableException, ConversionFailedException {
 
         OurDirs dirs = new OurDirs();
 
@@ -360,7 +361,6 @@ public class FilesTypeTest extends OjTestCase {
         files2.setFiles(dirs.base() + "/test/io/reference/test*.txt");
 
         ArooaSession session = new OddjobSessionFactory().createSession();
-        ;
         ArooaConverter converter = session.getTools().getArooaConverter();
 
         File[] set1 = converter.convert(files1, File[].class);
