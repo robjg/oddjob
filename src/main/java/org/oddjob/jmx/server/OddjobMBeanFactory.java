@@ -124,17 +124,17 @@ public class OddjobMBeanFactory implements ServerSession {
 	}
 
 	@Override
-	public long nameFor(Object object) {
+	public long idFor(Object object) {
 		synchronized (this) {
 			return Optional.ofNullable(names.get(object)).orElse(-1L);
 		}
 	}
 
 	@Override
-	public Object objectFor(long objectName) {
+	public Object objectFor(long remoteId) {
 		OddjobMBean mBean;
 		synchronized (this) {
-			mBean = mBeans.get(objectName);
+			mBean = mBeans.get(remoteId);
 			if (mBean == null) {
 				return null;
 			}

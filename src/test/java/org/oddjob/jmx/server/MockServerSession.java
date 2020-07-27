@@ -5,7 +5,7 @@ import org.oddjob.arooa.ArooaSession;
 public class MockServerSession implements ServerSession {
 
 	@Override
-	public long nameFor(Object object) {
+	public long idFor(Object object) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

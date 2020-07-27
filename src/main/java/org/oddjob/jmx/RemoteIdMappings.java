@@ -11,18 +11,19 @@ public interface RemoteIdMappings {
 	/**
 	 * Get the remote Id for the give component object.
 	 * 
-	 * @param object The proxy.
+	 * @param object The component.
 	 * 
 	 * @return The remote Id. <0 if the Object isn't found.
 	 */
-	long nameFor(Object object);
+	long idFor(Object object);
 	
 	/**
-	 * Get the client side component for the given remote Id.
+	 * Get the component for the given remote Id. On the server this will be the original component,
+	 * on the client this will ba a proxy.
 	 * 
 	 * @param remoteId The remote Id.
 	 * 
-	 * @return The proxy. Null if none exsists for the given id.
+	 * @return The component. Null if none exists for the given id.
 	 */
 	Object objectFor(long remoteId);
 }

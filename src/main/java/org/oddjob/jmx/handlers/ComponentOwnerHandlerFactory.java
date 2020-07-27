@@ -1,8 +1,9 @@
 package org.oddjob.jmx.handlers;
 
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.*;
+import org.oddjob.arooa.forms.FormsLookup;
+import org.oddjob.arooa.forms.FormsLookupFromDescriptor;
+import org.oddjob.arooa.json.JsonArooaParser;
 import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
@@ -22,6 +23,7 @@ import org.oddjob.remote.NotificationType;
 import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 
@@ -104,7 +106,25 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					ComponentOwnerInfo.class,
 					MBeanOperationInfo.INFO
 			);
-	
+
+	private static final JMXOperationPlus<String> FORM_FOR =
+			new JMXOperationPlus<>(
+					"formFor",
+					"",
+					String.class,
+					MBeanOperationInfo.INFO
+			).addParam("component", Object.class, "");
+
+	private static final JMXOperationPlus<String> BLANK_FORM =
+			new JMXOperationPlus<>(
+					"blankForm",
+					"",
+					String.class,
+					MBeanOperationInfo.INFO
+			).addParam("isComponent", boolean.class, "")
+					.addParam("element", String.class, "")
+					.addParam("propertyClass", String.class, "");
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
@@ -626,6 +646,51 @@ implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner>
 					throw new MBeanException(e);
 				}
 				return null;
+			}
+			else if (FORM_FOR.equals(operation)) {
+
+				Object component = params[0];
+
+				FormsLookup formsLookup = new FormsLookupFromDescriptor(
+						configurationSession.getArooaDescriptor());
+
+				ArooaConfiguration configuration = formsLookup.formFor(component);
+
+				AtomicReference<String> json = new AtomicReference<>();
+				JsonArooaParser parser = new JsonArooaParser(FormsLookup.formsNamespaces(),
+						json::set);
+				try {
+					parser.parse(configuration);
+				} catch (ArooaParseException e) {
+					throw new MBeanException(e);
+				}
+
+				return json.get();
+			}
+			else if (BLANK_FORM.equals(operation)) {
+
+				boolean isComponent = (Boolean) params[0];
+				String element = (String) params[1];
+				String propertyClass = (String) params[2];
+
+				FormsLookup formsLookup = new FormsLookupFromDescriptor(
+						configurationSession.getArooaDescriptor());
+
+				ArooaConfiguration configuration = formsLookup.blankForm(
+						isComponent? ArooaType.COMPONENT : ArooaType.VALUE,
+						element,
+						propertyClass);
+
+				AtomicReference<String> json = new AtomicReference<>();
+				JsonArooaParser parser = new JsonArooaParser(FormsLookup.formsNamespaces(),
+						json::set);
+				try {
+					parser.parse(configuration);
+				} catch (ArooaParseException e) {
+					throw new MBeanException(e);
+				}
+
+				return json.get();
 			}
 			else {
 				throw new ReflectionException(

@@ -151,7 +151,7 @@ public class BeanDirectoryHandlerFactory implements
 				}
 		
 				public String getIdFor(Object bean) {
-					long objectName = toolkit.getClientSession().nameFor(bean);
+					long objectName = toolkit.getClientSession().idFor(bean);
 		
 					if (objectName < 0) {
 						return null;
@@ -242,7 +242,7 @@ public class BeanDirectoryHandlerFactory implements
 				List<Long> names = new ArrayList<>();
 
 				for (Object object : all) {
-					long name = serverToolkit.getServerSession().nameFor(object);
+					long name = serverToolkit.getServerSession().idFor(object);
 					if (name >= 0) {
 						names.add(name);
 					}
@@ -276,7 +276,7 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				
-				long objectName = serverToolkit.getServerSession().nameFor(object);
+				long objectName = serverToolkit.getServerSession().idFor(object);
 
 				if (objectName >= 0) {
 					return new Carrier(objectName);
@@ -301,7 +301,7 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				
-				long objectName = serverToolkit.getServerSession().nameFor(object);
+				long objectName = serverToolkit.getServerSession().idFor(object);
 				
 				if (objectName >= 0) {
 					return new Carrier(objectName);

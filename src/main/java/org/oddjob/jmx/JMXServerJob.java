@@ -241,12 +241,28 @@ public class JMXServerJob implements ArooaSessionAware {
 		return url;
 	}
 
+	/**
+	 * For other services such as the web server that needs to reuse to remote ids.
+	 * @return
+	 */
+	@NoDescribe
+	public RemoteIdMappings getRemoteIdMappings() {
+		return factory;
+	}
+
+	/**
+	 * Used to create an {@link org.oddjob.remote.RemoteConnection}.
+	 *
+	 * @return The MBean Server Connection or null.
+	 */
 	@NoDescribe
 	public MBeanServerConnection getServerConnection() {
 		return Optional.ofNullable(this.cntorServer)
 				.map(cs -> cs.getMBeanServer())
 				.orElse(null);
 	}
+
+
 
 	public void start() 
 	throws JMException, IOException, ServerLoopBackException {

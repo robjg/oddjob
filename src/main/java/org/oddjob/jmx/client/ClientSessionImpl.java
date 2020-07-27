@@ -85,7 +85,7 @@ public class ClientSessionImpl implements ClientSession {
 	}
 
 	@Override
-	public long nameFor(Object proxy) {
+	public long idFor(Object proxy) {
 		return Optional.ofNullable(names.get(proxy)).orElse(-1L);
 	}
 	

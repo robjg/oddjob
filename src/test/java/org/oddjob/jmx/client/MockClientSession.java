@@ -21,7 +21,7 @@ public class MockClientSession implements ClientSession {
 	}
 
 	@Override
-	public long nameFor(Object object) {
+	public long idFor(Object object) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

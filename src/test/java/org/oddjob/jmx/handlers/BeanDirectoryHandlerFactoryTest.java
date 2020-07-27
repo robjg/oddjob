@@ -103,7 +103,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         public ServerSession getServerSession() {
             return new MockServerSession() {
                 @Override
-                public long nameFor(Object object) {
+                public long idFor(Object object) {
                     assertEquals("Fish", object);
                     return -1L;
                 }
@@ -169,7 +169,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         public ServerSession getServerSession() {
             return new MockServerSession() {
                 @Override
-                public long nameFor(Object object) {
+                public long idFor(Object object) {
                     assertEquals("Dog", object);
                     return 2L;
                 }
