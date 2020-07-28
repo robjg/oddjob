@@ -3,6 +3,7 @@ package org.oddjob.jmx.server;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.jmx.RemoteIdMappings;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 import org.slf4j.Logger;
@@ -58,13 +59,7 @@ public class ServerSideBuilder {
         return this;
     }
 
-    public interface Close extends AutoCloseable {
-        @Override
-        void close();
-    }
-
-
-    public Close buildWith(MBeanServer mBeanServer, String serverId, Object root) throws JMException {
+    public ServerSide buildWith(MBeanServer mBeanServer, String serverId, Object root) throws JMException {
         return new Impl(this,
                 Objects.requireNonNull(mBeanServer),
                 Objects.requireNonNull(serverId),
@@ -72,7 +67,7 @@ public class ServerSideBuilder {
     }
 
 
-    static class Impl implements Close {
+    static class Impl implements ServerSide {
 
         /**
          * The ThreadManager. Handlers use this to avoid long running
@@ -124,6 +119,11 @@ public class ServerSideBuilder {
             if (mainName != 0L) {
                 throw new IllegalStateException("Main bean id should be 0 not " + mainName);
             }
+        }
+
+        @Override
+        public RemoteIdMappings getRemoteIdMappings() {
+            return factory;
         }
 
         @Override
