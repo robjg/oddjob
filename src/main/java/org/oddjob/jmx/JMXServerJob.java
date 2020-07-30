@@ -85,7 +85,7 @@ import java.util.Optional;
  * <p>
  * {@oddjob.xml.resource org/oddjob/jmx/SecureServerExample.xml}
  */
-public class JMXServerJob implements ArooaSessionAware {
+public class JMXServerJob implements ArooaSessionAware, JmxServer {
     private static final Logger logger = LoggerFactory.getLogger(JMXServerJob.class);
 
     public static final String ACCESS_FILE_PROPERTY = "oddjob.jmx.remote.x.access.file";
@@ -230,6 +230,7 @@ public class JMXServerJob implements ArooaSessionAware {
      * @return
      */
     @NoDescribe
+    @Override
     public RemoteIdMappings getRemoteIdMappings() {
         return Optional.ofNullable(factory)
                 .map(ServerSide::getRemoteIdMappings)
@@ -242,6 +243,7 @@ public class JMXServerJob implements ArooaSessionAware {
      * @return The MBean Server Connection or null.
      */
     @NoDescribe
+    @Override
     public MBeanServerConnection getServerConnection() {
         return Optional.ofNullable(this.cntorServer)
                 .map(JMXConnectorServer::getMBeanServer)

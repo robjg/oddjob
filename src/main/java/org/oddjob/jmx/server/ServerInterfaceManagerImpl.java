@@ -171,7 +171,8 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 		ServerInterfaceHandler interfaceHandler = operations.get(op);
 		if (interfaceHandler == null) {
 			throw new IllegalArgumentException(
-					"No interface supports method [" + op + "]");
+					"No interface supports method [" + op + "], operations are " +
+					operations.keySet());
 		}
 		MBeanOperationInfo opInfo = this.opInfos.get(op);
 		if (opInfo == null) {

@@ -1,13 +1,9 @@
 package org.oddjob.jmx.server;
 
-import org.oddjob.jmx.RemoteIdMappings;
-
 /**
  * Encapsulate server side management.
  */
-public interface ServerSide extends AutoCloseable {
-
-    RemoteIdMappings getRemoteIdMappings();
+public interface ServerSide extends JmxServer, AutoCloseable {
 
     @Override
     void close();

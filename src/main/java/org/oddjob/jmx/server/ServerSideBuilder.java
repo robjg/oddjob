@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
+import javax.management.MBeanServerConnection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -78,9 +79,12 @@ public class ServerSideBuilder {
         /** Bean Factory */
         private final OddjobMBeanFactory factory;
 
+        private final MBeanServerConnection serverConnection;
 
         Impl(ServerSideBuilder builder, MBeanServer mBeanServer,
              String serverId, Object root) throws JMException {
+
+            this.serverConnection = Objects.requireNonNull(mBeanServer);
 
             threadManager = new SimpleThreadManager(builder.executor);
 
@@ -124,6 +128,11 @@ public class ServerSideBuilder {
         @Override
         public RemoteIdMappings getRemoteIdMappings() {
             return factory;
+        }
+
+        @Override
+        public MBeanServerConnection getServerConnection() {
+            return serverConnection;
         }
 
         @Override
