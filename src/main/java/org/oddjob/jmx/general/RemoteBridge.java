@@ -10,6 +10,7 @@ import org.oddjob.remote.*;
 import javax.management.*;
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -24,7 +25,7 @@ public class RemoteBridge implements RemoteConnection {
             new ConcurrentHashMap<>();
 
     public RemoteBridge(MBeanServerConnection mbsc) {
-        this.mbsc = mbsc;
+        this.mbsc = Objects.requireNonNull(mbsc);
     }
 
     @Override

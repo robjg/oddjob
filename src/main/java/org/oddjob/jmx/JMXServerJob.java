@@ -245,11 +245,10 @@ public class JMXServerJob implements ArooaSessionAware, JmxServer {
     @NoDescribe
     @Override
     public MBeanServerConnection getServerConnection() {
-        return Optional.ofNullable(this.cntorServer)
-                .map(JMXConnectorServer::getMBeanServer)
+        return Optional.ofNullable(this.factory)
+                .map(ServerSide::getServerConnection)
                 .orElse(null);
     }
-
 
     public void start()
             throws JMException, IOException, ServerLoopBackException {
