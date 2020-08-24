@@ -605,9 +605,10 @@ public class ComponentOwnerHandlerFactory
             // Operations below here require a drag point.
 
             DragPoint dragPoint = null;
+            Object component = null;
             if (params != null && params.length > 0) {
 
-                Object component = params[0];
+                component = params[0];
                 dragPoint = configurationSession.dragPointFor(component);
             }
 
@@ -620,7 +621,8 @@ public class ComponentOwnerHandlerFactory
             }
 
             if (dragPoint == null) {
-                throw new MBeanException(new IllegalStateException("Null Drag Point - Method " +
+                throw new MBeanException(new IllegalStateException("Null Drag Point for component [" +
+                        component + "] - Method " +
                         operation + " should not have been called!"));
             }
 
