@@ -5,6 +5,7 @@ import org.oddjob.arooa.forms.FormsLookup;
 import org.oddjob.arooa.forms.FormsLookupFromDescriptor;
 import org.oddjob.arooa.json.JsonArooaParser;
 import org.oddjob.arooa.json.JsonArooaParserBuilder;
+import org.oddjob.arooa.json.JsonConfiguration;
 import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
@@ -125,6 +126,15 @@ public class ComponentOwnerHandlerFactory
                     .addParam("element", String.class, "")
                     .addParam("propertyClass", String.class, "");
 
+    private static final JMXOperationPlus<Void> REPLACE_JSON =
+            new JMXOperationPlus<>(
+                    "configReplaceJson",
+                    "Replace existing configuration with new configuration in JSON format",
+                    Void.TYPE,
+                    MBeanOperationInfo.INFO
+            ).addParam("component", Object.class, "The component who's configuration is being replaced")
+                    .addParam("configuration", String.class, "The new configuration in JSON");
+
     /*
      * (non-Javadoc)
      * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
@@ -148,7 +158,8 @@ public class ComponentOwnerHandlerFactory
                 IS_MODIFIED.getOpInfo(),
                 REPLACE.getOpInfo(),
                 FORM_FOR.getOpInfo(),
-                BLANK_FORM.getOpInfo()
+                BLANK_FORM.getOpInfo(),
+                REPLACE_JSON.getOpInfo()
         };
     }
 
@@ -695,6 +706,25 @@ public class ComponentOwnerHandlerFactory
                     CutAndPasteSupport.replace(documentContext.getParent(),
                             documentContext,
                             new XMLConfiguration("Edited Config", config));
+                    handle.save();
+                } catch (ArooaParseException e) {
+                    throw new MBeanException(e);
+                }
+                return null;
+            } else if (REPLACE_JSON.equals(operation)) {
+
+                String config = (String) params[1];
+
+                try {
+                    XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+                    ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
+
+                    SimpleParseContext documentContext = handle.getDocumentContext();
+
+                    CutAndPasteSupport.replace(documentContext.getParent(),
+                            documentContext,
+                            new JsonConfiguration(config)
+                                    .withNamespaceMappings(configurationSession.getArooaDescriptor()));
                     handle.save();
                 } catch (ArooaParseException e) {
                     throw new MBeanException(e);
