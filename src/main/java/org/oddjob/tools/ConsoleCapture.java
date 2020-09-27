@@ -1,16 +1,16 @@
 package org.oddjob.tools;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 import org.oddjob.OddjobConsole;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogArchive;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
 
 /**
  * Capturing Oddjob.CONSOLE: Because tests append to the console log to 
@@ -36,13 +36,17 @@ public class ConsoleCapture {
 	private boolean leaveLogging;
 	
 	static class Console implements LogListener  {
-		List<String> lines = new ArrayList<String>();
+		private final List<String> lines = new ArrayList<>();
 
 		public synchronized void logEvent(LogEvent logEvent) {
 			String line = logEvent.getMessage();
 			// Trim would remove leading spaces, we only want to remove end new lines.
 			line = line.replaceAll("\r?\n?$", "");
 			lines.add(line);
+		}
+
+		synchronized List<String> getLines() {
+			return lines;
 		}
 	}
 
@@ -53,12 +57,9 @@ public class ConsoleCapture {
 		
 		final Close consoleArchiveClose = capture(OddjobConsole.console());
 		
-		return new Close() {
-			@Override
-			public void close() {
-				consoleArchiveClose.close();
-				oddjobConsoleClose.close();
-			}
+		return () -> {
+			consoleArchiveClose.close();
+			oddjobConsoleClose.close();
 		};
 	}
 	
@@ -66,29 +67,20 @@ public class ConsoleCapture {
 
 		Predicate<String> filter = getFilter();
 		
-		LogListener logListener = new LogListener() {
-		
-				@Override
-				public void logEvent(LogEvent logEvent) {
-					String message = logEvent.getMessage();
-					if (filter.test(message)) {
-						console.logEvent(logEvent);
-					}
-				}
-			};
+		LogListener logListener = logEvent -> {
+			String message = logEvent.getMessage();
+			if (filter.test(message)) {
+				console.logEvent(logEvent);
+			}
+		};
 		
 		archive.addListener(logListener, LogLevel.INFO, -1, 0);
 		
-		return new Close() {
-			@Override
-			public void close() {
-				archive.removeListener(logListener);
-			}
-		};
+		return () -> archive.removeListener(logListener);
 	}
 
 	public String[] getLines() {
-		return console.lines.toArray(new String[console.lines.size()]);
+		return console.getLines().toArray(new String[0]);
 	}
 	
 	public String getAll() {
@@ -100,7 +92,7 @@ public class ConsoleCapture {
 	}
 	
 	public int size() {
-		return console.lines.size();
+		return console.getLines().size();
 	}
 	
 	public boolean isLeaveLogging() {
@@ -113,23 +105,23 @@ public class ConsoleCapture {
 	
 	public void dump() {
 		System.out.println("******************");
-		for (; dumped < console.lines.size(); ++dumped) {
-			System.out.println(console.lines.get(dumped));
+		for (; dumped < console.getLines().size(); ++dumped) {
+			System.out.println(console.getLines().get(dumped));
 		}
 		System.out.println("******************");
 	}
 	
 	public void dump(Logger logger) {
 		logger.info("******************");
-		for (; logged < console.lines.size(); ++logged) {
-			logger.info(console.lines.get(logged));
+		for (; logged < console.getLines().size(); ++logged) {
+			logger.info(console.getLines().get(logged));
 		}
 		logger.info("******************");
 	}
 
-	public static interface Close extends AutoCloseable {
+	public interface Close extends AutoCloseable {
 		
-		public void close();
+		void close();
 	}
 
 	public Predicate<String> getFilter() {

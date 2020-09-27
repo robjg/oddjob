@@ -1,16 +1,16 @@
 package org.oddjob.tools;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-
-import java.util.function.Predicate;
-import java.util.regex.Pattern;
-
 import org.junit.Test;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.logging.LogEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Predicate;
+import java.util.regex.Pattern;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class ConsoleCaptureTest {
 
@@ -64,6 +64,6 @@ public class ConsoleCaptureTest {
 		
 		console.logEvent(event);
 		
-		assertThat(console.lines.get(0), is("  Some\ntext"));
+		assertThat(console.getLines().get(0), is("  Some\ntext"));
 	}
 }
