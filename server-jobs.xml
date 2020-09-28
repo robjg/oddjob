@@ -1,10 +1,11 @@
-<oddjob id="this">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
     <job>
-        <folder name="Jobs">
+        <sequential>
             <jobs>
-				<oddjob name="The Examples"
-				        file="${this.dir}/examples/oddjob.xml"/>
+                <echo name="Echo Hello"><![CDATA[Hello]]></echo>
+                <echo name="Echo World"><![CDATA[World]]></echo>
             </jobs>
-        </folder>
+        </sequential>
     </job>
 </oddjob>
