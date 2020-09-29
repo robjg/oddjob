@@ -1,30 +1,23 @@
 package org.oddjob.script;
 
 import org.junit.Test;
-
-import java.io.IOException;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.state.JobState;
 
 import javax.script.ScriptException;
-
-import org.oddjob.OjTestCase;
-
-import org.oddjob.arooa.convert.DefaultConverter;
-import org.oddjob.io.BufferType;
-import org.oddjob.state.JobState;
+import java.io.IOException;
 
 public class ScriptInvokerTest extends OjTestCase {
 
    @Test
 	public void testInvokeScript() throws IOException, ScriptException, NoSuchMethodException {
 
-		BufferType buffer = new BufferType();
-		buffer.setText("function snack(colour) {" +
-			" return colour + ' apple'}");
-		buffer.configured();
-		
 		ScriptJob scriptJob = new ScriptJob();
 		scriptJob.setLanguage("JavaScript");
-		scriptJob.setInput(buffer.toInputStream());
+		scriptJob.setScript("function snack(colour) {" +
+				" return colour + ' apple'}");
+		scriptJob.setBeans("dummy", "foo");
 		scriptJob.run();
 		
 		assertEquals(JobState.COMPLETE, 

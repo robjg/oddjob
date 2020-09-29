@@ -1,13 +1,13 @@
 package org.oddjob.script;
 
 import org.junit.Test;
-
-import java.io.StringReader;
-
-import javax.script.Invocable;
-import javax.script.ScriptException;
-
 import org.oddjob.OjTestCase;
+
+import javax.script.Bindings;
+import javax.script.Invocable;
+import javax.script.ScriptContext;
+import javax.script.ScriptException;
+import java.io.StringReader;
 
 public class ScriptCompilerTest extends OjTestCase {
 
@@ -17,13 +17,18 @@ public class ScriptCompilerTest extends OjTestCase {
 		ScriptCompiler test = new ScriptCompiler(null, null);
 		
 		Evaluatable evaluatable = test.compileScript(
-				new StringReader("result = 'hello';"));
+				new StringReader("var result = 'hello';"));
 
 		assertEquals(PreCompiled.class, evaluatable.getClass());
-		
-		evaluatable.eval();
-				
-		assertEquals("hello", evaluatable.get("result"));
+
+	   ScriptContext scriptContext = evaluatable.getScriptContext();
+
+		evaluatable.eval(scriptContext);
+
+	   Bindings bindings = scriptContext.getBindings(ScriptContext.ENGINE_SCOPE);
+
+		assertEquals("hello",
+				bindings.get("result"));
 	}
 
    @Test
@@ -36,11 +41,14 @@ public class ScriptCompilerTest extends OjTestCase {
 
 		assertEquals(PreCompiled.class, evaluatable.getClass());
 
-		evaluatable.put("fruit", "apple");
+		ScriptContext scriptContext = evaluatable.getScriptContext();
+
+		scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).put("fruit", "apple");
 		
-		evaluatable.eval();
+		evaluatable.eval(scriptContext);
 				
-		assertEquals("apple", evaluatable.get("result"));
+		assertEquals("apple",
+				scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).get("result"));
 	}
 
 	
@@ -48,7 +56,6 @@ public class ScriptCompilerTest extends OjTestCase {
 	public void testInvocable() throws ScriptException, NoSuchMethodException {
 		
 		ScriptCompiler test = new ScriptCompiler(null, null);
-		
 
 		Evaluatable evaluatable = 
 			test.compileScript(
@@ -65,8 +72,10 @@ public class ScriptCompilerTest extends OjTestCase {
 		} catch (NoSuchMethodException e) {
 			// expected.
 		}
-		
-		evaluatable.eval();
+
+		ScriptContext scriptContext = evaluatable.getScriptContext();
+
+		evaluatable.eval(scriptContext);
 		
 		Object result = invocable.invokeFunction("hello");
 		

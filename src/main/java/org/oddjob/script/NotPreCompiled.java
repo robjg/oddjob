@@ -1,9 +1,10 @@
 package org.oddjob.script;
 
-import java.io.Reader;
-
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import java.io.Reader;
+import java.util.Objects;
 
 /**
  * Provide an {@link Evaluatable} for a not compile {@link ScriptEngine}.
@@ -18,22 +19,17 @@ public class NotPreCompiled implements Evaluatable {
 	private final Reader reader;
 	
 	public NotPreCompiled(ScriptEngine engine, Reader reader) {
-		this.engine = engine;
-		this.reader = reader;
+		this.engine = Objects.requireNonNull(engine);
+		this.reader = Objects.requireNonNull(reader);
 	}
-	
+
 	@Override
-	public Object eval() throws ScriptException {
-		return engine.eval(reader);
+	public ScriptContext getScriptContext() {
+		return engine.getContext();
 	}
-	
+
 	@Override
-	public Object get(String key) {
-		return engine.get(key);
-	}
-	
-	@Override
-	public void put(String key, Object value) {
-		engine.put(key, value);
+	public Object eval(ScriptContext scriptContext) throws ScriptException {
+		return engine.eval(reader, scriptContext);
 	}
 }

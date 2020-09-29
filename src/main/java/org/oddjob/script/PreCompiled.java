@@ -1,8 +1,9 @@
 package org.oddjob.script;
 
 import javax.script.CompiledScript;
-import javax.script.ScriptEngine;
+import javax.script.ScriptContext;
 import javax.script.ScriptException;
+import java.util.Objects;
 
 /**
  * Provide an {@link Evaluatable} for a {@link CompiledScript}.
@@ -12,27 +13,19 @@ import javax.script.ScriptException;
  */
 public class PreCompiled implements Evaluatable {
 
-	private final ScriptEngine engine;
-	
 	private final CompiledScript compiled;
 	
-	public PreCompiled(ScriptEngine engine, CompiledScript compiled) {
-		this.engine = engine;
-		this.compiled = compiled;
+	public PreCompiled(CompiledScript compiled) {
+		this.compiled = Objects.requireNonNull(compiled);
 	}
-	
+
 	@Override
-	public Object eval() throws ScriptException {
-		return compiled.eval();
+	public ScriptContext getScriptContext() {
+		return compiled.getEngine().getContext();
 	}
-	
+
 	@Override
-	public Object get(String key) {
-		return engine.get(key);
-	}
-	
-	@Override
-	public void put(String key, Object value) {
-		engine.put(key, value);
+	public Object eval(ScriptContext scriptContext) throws ScriptException {
+		return compiled.eval(scriptContext);
 	}
 }

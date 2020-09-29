@@ -16,14 +16,11 @@
  */
 package org.oddjob.script;
 
-import java.io.Reader;
+import org.oddjob.util.OddjobWrapperException;
 
-import javax.script.Compilable;
-import javax.script.CompiledScript;
-import javax.script.Invocable;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javax.script.*;
+import java.io.Reader;
+import java.io.StringReader;
 
 /**
  * This class is used to run Compile scripts.
@@ -52,7 +49,11 @@ public class ScriptCompiler {
         }
         this.classLoader = classLoader;
 	}
-    
+
+	public Evaluatable compileScript(String script) {
+        return compileScript(new StringReader(script));
+    }
+
     /**
      * Do the work.
      */
@@ -71,13 +72,13 @@ public class ScriptCompiler {
             if (engine instanceof Compilable) {
             	CompiledScript compiled = ((Compilable) engine).compile(
             			reader);
-            	return new PreCompiled(engine, compiled);
+            	return new PreCompiled(compiled);
             }
             else {
             	return new NotPreCompiled(engine, reader);
             }
         } catch (ScriptException be) {
-            throw new RuntimeException(be);
+            throw new OddjobWrapperException(be);
         }
     }
 
