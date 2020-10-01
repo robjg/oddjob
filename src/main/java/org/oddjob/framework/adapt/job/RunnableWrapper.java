@@ -9,6 +9,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.framework.adapt.BaseWrapper;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.ResetableAdaptorFactory;
+import org.oddjob.framework.adapt.StoppableAdaptorFactory;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -67,9 +68,14 @@ public class RunnableWrapper extends BaseWrapper
     private final Object proxy;
 
     /**
-     * Reset with annotations adaptor.
+     * Reset with Interface or Annotations adaptor.
      */
     private transient volatile Resetable resetableAdaptor;
+
+    /**
+     * Stop with Interface or Annotations adaptor.
+     */
+    private transient volatile  Stoppable stoppableAdaptor;
 
     /**
      * Constructor.
@@ -97,8 +103,35 @@ public class RunnableWrapper extends BaseWrapper
     @Override
     public void setArooaSession(ArooaSession session) {
         super.setArooaSession(session);
-        resetableAdaptor = new ResetableAdaptorFactory().resetableFor(
-                wrapped, session);
+
+        resetableAdaptor = new ResetableAdaptorFactory().adapt(
+                wrapped, session)
+        .orElseGet(() -> new Resetable() {
+            @Override
+            public boolean softReset() {
+                return true;
+            }
+            @Override
+            public boolean hardReset() {
+                return true;
+            }
+        });
+
+        stoppableAdaptor = new StoppableAdaptorFactory().adapt(
+                wrapped, session)
+                .orElseGet(() ->
+                        () -> stateHandler.callLocked((Callable<Void>) () -> {
+                            Thread t = thread;
+                            if (t != null) {
+                                logger().info("Interrupting Thread [" + t.getName() +
+                                        "] to attempt to stop job.");
+                                t.interrupt();
+                            } else {
+                                logger().info("No Thread to interrupt. Hopefully Job has just stopped.");
+                            }
+                            return null;
+                        })
+                );
     }
 
     @Override
@@ -204,21 +237,12 @@ public class RunnableWrapper extends BaseWrapper
 
     @Override
     public void onStop() throws FailedToStopException {
-        if (wrapped instanceof Stoppable) {
-            ((Stoppable) wrapped).stop();
-        } else {
-            stateHandler.callLocked((Callable<Void>) () -> {
-                Thread t = thread;
-                if (t != null) {
-                    logger().info("Interrupting Thread [" + t.getName() +
-                                          "] to attempt to stop job.");
-                    t.interrupt();
-                } else {
-                    logger().info("No Thread to interrupt. Hopefully Job has just stopped.");
-                }
-                return null;
-            });
+        if (stoppableAdaptor == null) {
+            throw new NullPointerException(
+                    "StoppableAdaptor hasn't been set, " +
+                            "setArooaSession() must be called on the proxy.");
         }
+        stoppableAdaptor.stop();
     }
 
     /**

@@ -1,14 +1,13 @@
 package org.oddjob.framework.adapt;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.oddjob.Resetable;
 import org.oddjob.arooa.ArooaAnnotations;
-import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.life.SimpleArooaClass;
-import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.arooa.utils.AnnotationFinder;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * Create an adaptor to a Resetable that adapts a component either
@@ -18,40 +17,37 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
  * @author rob
  *
  */
-public class ResetableAdaptorFactory {
+public class ResetableAdaptorFactory implements AdaptorFactory<Resetable> {
 
 	/**
 	 * Create a resetable.
-	 * 
+	 *
 	 * @param component
 	 * @param session
-	 * 
-	 * @return A Resetable. Always creates the resetable even if all
-	 * methods are no-ops.
+	 *
+	 * @return Possibly a Resetable.
 	 */
-	public Resetable resetableFor(final Object component, 
-			ArooaSession session) {
+	@Override
+	public Optional<Resetable> adapt(Object component, ArooaSession session) {
+
 		if (component instanceof Resetable) {
-			return (Resetable) component;
+			return Optional.of((Resetable) component);
 		}
-		
-		PropertyAccessor accessor = 
-				session.getTools().getPropertyAccessor();
-		
-		ArooaBeanDescriptor beanDescriptor = 
-				session.getArooaDescriptor().getBeanDescriptor(
-						new SimpleArooaClass(component.getClass()), 
-						accessor);
-		
-		ArooaAnnotations annotations = 
-				beanDescriptor.getAnnotations();
-		
+
+		ArooaAnnotations annotations = AnnotationFinder.forSession(session)
+				.findFor(component.getClass());
+
 		final Method softResetMethod = 
 				annotations.methodFor(SoftReset.class.getName());
 		final Method hardResetMethod = 
 				annotations.methodFor(HardReset.class.getName());
-		
-		return new Resetable() {
+
+		if (softResetMethod == null && hardResetMethod == null) {
+			return Optional.empty();
+		}
+
+
+		return Optional.of(new Resetable() {
 			
 			@Override
 			public boolean softReset() {
@@ -64,7 +60,7 @@ public class ResetableAdaptorFactory {
 				invoke(component, hardResetMethod);
 				return true;
 			}
-		};
+		});
 	}
 	
 	private void invoke(Object component, Method m) {
@@ -73,8 +69,6 @@ public class ResetableAdaptorFactory {
 		}
 		try {
 			m.invoke(component);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
 			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {

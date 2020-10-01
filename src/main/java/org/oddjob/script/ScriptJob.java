@@ -80,8 +80,6 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
 
     private transient LogArchiveImpl consoleArchive;
 
-    private boolean redirectStderr;
-
     /**
      * @oddjob.property
      * @oddjob.description The name of the language the script
@@ -116,26 +114,34 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
     /**
      * @oddjob.property
      * @oddjob.description An input stream which will
-     * act as stdin for the process.
-     * @oddjob.required No.
+     * act as stdin for the script.
+     * @oddjob.required No, defaults to none.
      */
     private transient InputStream stdin;
 
     /**
      * @oddjob.property
      * @oddjob.description An output to where stdout
-     * for the process will be written.
-     * @oddjob.required No.
+     * for the script will be written.
+     * @oddjob.required No, defaults to none.
      */
     private transient OutputStream stdout;
 
     /**
      * @oddjob.property
      * @oddjob.description An output to where stderr
-     * of the proces will be written.
-     * @oddjob.required No.
+     * of the script will be written.
+     * @oddjob.required No, defaults to none.
      */
     private transient OutputStream stderr;
+
+    /**
+     * @oddjob.property
+     * @oddjob.description Combine stdin and stderr.
+     * @oddjob.required No.
+     */
+    private boolean redirectStderr;
+
     /**
      * @oddjob.property
      * @oddjob.description The variable in the script that will be used to
