@@ -70,7 +70,18 @@ public class RunnableWrapperStopTest extends OjTestCase {
         assertEquals(JobState.COMPLETE, OddjobTestHelper.getJobState(proxy));
     }
 
-    public static final class AnnotatedWaitingJob implements Runnable {
+    // Annotating works on the base class but can't be overridden so make it final.
+    abstract public static class StopBase {
+
+        abstract void nowStop();
+
+        @Stop
+        final public void wow() {
+            nowStop();
+        }
+    }
+
+    public static class AnnotatedWaitingJob extends StopBase implements Runnable {
 
         CountDownLatch barrier = new CountDownLatch(1);
 
@@ -83,10 +94,11 @@ public class RunnableWrapperStopTest extends OjTestCase {
             }
         }
 
-        @Stop
-        public void wow() {
+        @Override
+        void nowStop() {
             barrier.countDown();
         }
+
     }
 
     @Test
