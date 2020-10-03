@@ -68,7 +68,7 @@ implements Structural, Stoppable {
 	private volatile boolean showJob;
 	
 	/** Helper to ensure consistent states. */
-	private volatile AsynchJobWait jobWait = new AsynchJobWait() {
+	private volatile AsyncJobWait jobWait = new AsyncJobWait() {
 		private static final long serialVersionUID = 2015041600L;
 		protected void childDestroyed() {
 			childHelper.removeAllChildren();

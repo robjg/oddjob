@@ -1,6 +1,8 @@
 package org.oddjob.state;
 
 import org.oddjob.Structural;
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 
 /**
  * Encapsulate the allowed states for a {@link Structural}.
@@ -298,6 +300,19 @@ public enum ParentState implements State {
 		}
 	},
 	;
-	
+
+	static {
+
+		StateIcons.register(ParentState.READY, IconHelper.READY);
+		StateIcons.register(ParentState.EXECUTING, IconHelper.EXECUTING);
+		StateIcons.register(ParentState.ACTIVE, IconHelper.ACTIVE);
+		StateIcons.register(ParentState.STARTED, IconHelper.STARTED);
+		StateIcons.register(ParentState.INCOMPLETE, IconHelper.NOT_COMPLETE);
+		StateIcons.register(ParentState.COMPLETE, IconHelper.COMPLETE);
+		StateIcons.register(ParentState.EXCEPTION, IconHelper.EXCEPTION);
+		StateIcons.register(ParentState.DESTROYED, IconHelper.INVALID);
+
+	}
+
 }
 

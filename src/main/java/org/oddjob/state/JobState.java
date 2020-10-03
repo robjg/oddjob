@@ -1,5 +1,8 @@
 package org.oddjob.state;
 
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
+
 /**
  * Encapsulate the allowed states for a job.
  * 
@@ -53,6 +56,40 @@ public enum JobState implements State {
 		@Override
 		public boolean isExecuting() {
 			return true;
+		}
+		@Override
+		public boolean isStoppable() {
+			return true;
+		}
+		@Override
+		public boolean isComplete() {
+			return false;
+		}
+		@Override
+		public boolean isIncomplete() {
+			return false;
+		}
+		@Override
+		public boolean isException() {
+			return false;
+		}
+		@Override
+		public boolean isDestroyed() {
+			return false;
+		}
+	},
+
+	/**
+	 * An Asynchronous Job is waiting to complete.
+	 */
+	ACTIVE() {
+		@Override
+		public boolean isReady() {
+			return false;
+		}
+		@Override
+		public boolean isExecuting() {
+			return false;
 		}
 		@Override
 		public boolean isStoppable() {
@@ -225,6 +262,17 @@ public enum JobState implements State {
 	public static JobState stateFor(String state) {
 		state = state.toUpperCase();
 		return valueOf(state);
+	}
+
+	static {
+
+		StateIcons.register(JobState.READY, IconHelper.READY);
+		StateIcons.register(JobState.EXECUTING, IconHelper.EXECUTING);
+		StateIcons.register(JobState.ACTIVE, IconHelper.ACTIVE);
+		StateIcons.register(JobState.INCOMPLETE, IconHelper.NOT_COMPLETE);
+		StateIcons.register(JobState.COMPLETE, IconHelper.COMPLETE);
+		StateIcons.register(JobState.EXCEPTION, IconHelper.EXCEPTION);
+		StateIcons.register(JobState.DESTROYED, IconHelper.INVALID);
 	}
 }
 

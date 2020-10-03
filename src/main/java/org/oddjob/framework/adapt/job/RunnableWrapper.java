@@ -6,10 +6,8 @@ package org.oddjob.framework.adapt.job;
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.framework.adapt.BaseWrapper;
-import org.oddjob.framework.adapt.ComponentWrapper;
-import org.oddjob.framework.adapt.ResetableAdaptorFactory;
-import org.oddjob.framework.adapt.StoppableAdaptorFactory;
+import org.oddjob.framework.AsyncJob;
+import org.oddjob.framework.adapt.*;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -75,7 +73,12 @@ public class RunnableWrapper extends BaseWrapper
     /**
      * Stop with Interface or Annotations adaptor.
      */
-    private transient volatile  Stoppable stoppableAdaptor;
+    private transient volatile Stoppable stoppableAdaptor;
+
+    /**
+     * Async with Interface or Annotations adaptor.
+     */
+    private transient volatile AsyncJob asyncAdaptor;
 
     /**
      * Constructor.
@@ -94,10 +97,10 @@ public class RunnableWrapper extends BaseWrapper
         this.dynaBean = new WrapDynaBean(wrapped);
         stateHandler = new JobStateHandler((Stateful) proxy);
         iconHelper = new IconHelper(this,
-                                    StateIcons.iconFor(stateHandler.getState()));
+                StateIcons.iconFor(stateHandler.getState()));
         stateChanger = new JobStateChanger(stateHandler,
-                                           iconHelper,
-                                           this::save);
+                iconHelper,
+                this::save);
     }
 
     @Override
@@ -106,16 +109,17 @@ public class RunnableWrapper extends BaseWrapper
 
         resetableAdaptor = new ResetableAdaptorFactory().adapt(
                 wrapped, session)
-        .orElseGet(() -> new Resetable() {
-            @Override
-            public boolean softReset() {
-                return true;
-            }
-            @Override
-            public boolean hardReset() {
-                return true;
-            }
-        });
+                .orElseGet(() -> new Resetable() {
+                    @Override
+                    public boolean softReset() {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean hardReset() {
+                        return true;
+                    }
+                });
 
         stoppableAdaptor = new StoppableAdaptorFactory().adapt(
                 wrapped, session)
@@ -132,6 +136,10 @@ public class RunnableWrapper extends BaseWrapper
                             return null;
                         })
                 );
+
+        asyncAdaptor = new AsyncAdaptorFactory()
+                .adapt(wrapped, session)
+                .orElse(null);
     }
 
     @Override
@@ -188,15 +196,25 @@ public class RunnableWrapper extends BaseWrapper
         try {
             configure();
 
-            Object result;
+            if (asyncAdaptor != null) {
+                asyncAdaptor.acceptCompletionHandle(result ->
+                        stateHandler.waitToWhen(new IsStoppable(), () -> {
+                    if (result == 0) {
+                        getStateChanger().setState(JobState.COMPLETE);
+                    } else {
+                        getStateChanger().setState(JobState.INCOMPLETE);
+                    }
+                }));
+                asyncAdaptor.acceptExceptionListener(e ->
+                        stateHandler.waitToWhen(new IsStoppable(), () ->
+                                getStateChanger().setStateException(e)));
+            }
 
             if (wrapped instanceof Callable<?>) {
-                result = ((Callable<?>) wrapped).call();
+                callableResult.set(((Callable<?>) wrapped).call());
             } else {
                 ((Runnable) wrapped).run();
-                result = null;
             }
-            callableResult.set(result);
 
         } catch (Throwable t) {
             logger().error("Exception:", t);
@@ -212,27 +230,35 @@ public class RunnableWrapper extends BaseWrapper
 
         }
 
-        logger().info("Finished.");
+        if (asyncAdaptor == null) {
+            logger().info("Finished.");
 
-        stateHandler.waitToWhen(new IsStoppable(), () -> {
+            stateHandler.waitToWhen(new IsStoppable(), () -> {
+                if (exception.get() != null) {
+                    getStateChanger().setStateException(exception.get());
+                } else {
+                    int result;
+                    try {
+                        result = getResult(callableResult.get());
 
-            if (exception.get() != null) {
-                getStateChanger().setStateException(exception.get());
-            } else {
-                int result;
-                try {
-                    result = getResult(callableResult.get());
-
-                    if (result == 0) {
-                        getStateChanger().setState(JobState.COMPLETE);
-                    } else {
-                        getStateChanger().setState(JobState.INCOMPLETE);
+                        if (result == 0) {
+                            getStateChanger().setState(JobState.COMPLETE);
+                        } else {
+                            getStateChanger().setState(JobState.INCOMPLETE);
+                        }
+                    } catch (Exception e) {
+                        // When will this ever happen?
+                        getStateChanger().setStateException(e);
                     }
-                } catch (Exception e) {
-                    getStateChanger().setStateException(e);
                 }
-            }
-        });
+            });
+        }
+        else {
+            logger().info("Started async.");
+
+            stateHandler.waitToWhen(new IsStoppable(), () ->
+                    getStateChanger().setState(JobState.ACTIVE));
+        }
     }
 
     @Override

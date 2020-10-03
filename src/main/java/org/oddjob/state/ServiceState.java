@@ -1,5 +1,8 @@
 package org.oddjob.state;
 
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
+
 /**
  * Encapsulate the allowed states for a service.
  * 
@@ -232,5 +235,17 @@ public enum ServiceState implements State {
 		state = state.toUpperCase();
 		return valueOf(state);
 	}
+
+	static {
+
+		StateIcons.register(ServiceState.STARTABLE, IconHelper.STARTABLE);
+		StateIcons.register(ServiceState.STARTING, IconHelper.EXECUTING);
+		StateIcons.register(ServiceState.STARTED, IconHelper.STARTED);
+		StateIcons.register(ServiceState.STOPPED, IconHelper.STOPPED);
+		StateIcons.register(ServiceState.EXCEPTION, IconHelper.EXCEPTION);
+		StateIcons.register(ServiceState.DESTROYED, IconHelper.INVALID);
+	}
+
+
 }
 

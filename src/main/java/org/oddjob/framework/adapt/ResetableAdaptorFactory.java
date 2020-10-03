@@ -10,8 +10,8 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
- * Create an adaptor to a Resetable that adapts a component either
- * because it is Resetable or because it has annotations to resetable
+ * Create an adaptor to an {@link Resetable} that adapts a component either
+ * because it is {@link Resetable} or because it has annotations to resetable
  * methods. 
  * 
  * @author rob

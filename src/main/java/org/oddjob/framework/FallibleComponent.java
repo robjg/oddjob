@@ -19,5 +19,5 @@ public interface FallibleComponent {
 	 * 
 	 * @param exceptionListener
 	 */
-	public void acceptExceptionListener(ExceptionListener exceptionListener);
+	void acceptExceptionListener(ExceptionListener exceptionListener);
 }

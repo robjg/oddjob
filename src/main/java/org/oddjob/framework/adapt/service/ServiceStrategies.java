@@ -1,18 +1,18 @@
 package org.oddjob.framework.adapt.service;
 
-import java.beans.ExceptionListener;
-import java.lang.reflect.Method;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.framework.AsynchronousJob;
+import org.oddjob.framework.FallibleComponent;
 import org.oddjob.framework.Service;
 import org.oddjob.framework.adapt.AcceptExceptionListener;
 import org.oddjob.framework.adapt.Start;
 import org.oddjob.framework.adapt.Stop;
+
+import java.beans.ExceptionListener;
+import java.lang.reflect.Method;
 
 /**
  * A collection of different strategies that are applied to a component
@@ -77,8 +77,8 @@ public class ServiceStrategies implements ServiceStrategy {
 					@Override
 					public void acceptExceptionListener(
 							ExceptionListener exceptionListener) {
-						if (service instanceof AsynchronousJob) {
-							((AsynchronousJob) service
+						if (service instanceof FallibleComponent) {
+							((FallibleComponent) service
 									).acceptExceptionListener(
 											exceptionListener);
 						}
@@ -100,13 +100,13 @@ public class ServiceStrategies implements ServiceStrategy {
 			Class<?> cl = component.getClass();
 			try {
 				Method startMethod = cl.getDeclaredMethod(
-						"start", new Class[0]);
+						"start");
 				if (startMethod.getReturnType() != Void.TYPE) {
 					return null;
 				}
 				Method stopMethod = cl.getDeclaredMethod(
-						"stop", new Class[0]);
-				if (startMethod.getReturnType() != Void.TYPE) {
+						"stop");
+				if (stopMethod.getReturnType() != Void.TYPE) {
 					return null;
 				}
 				return new ServiceMethodAdaptor(
@@ -150,7 +150,7 @@ public class ServiceStrategies implements ServiceStrategy {
 			}
 			throw new IllegalStateException(
 					"Class " + component.getClass().getName() + 
-					" must have both a @Start and a @Stop method annoted.");
+					" must have both a @Start and a @Stop method annotated.");
 		}
 	}
 }
