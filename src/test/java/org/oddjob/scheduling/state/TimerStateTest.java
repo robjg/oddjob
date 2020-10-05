@@ -1,13 +1,15 @@
 package org.oddjob.scheduling.state;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
+import org.oddjob.images.IconHelper;
+import org.oddjob.images.StateIcons;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.ParentStateConverter;
 import org.oddjob.state.StandardParentStateConverter;
+
+import static org.hamcrest.Matchers.not;
 
 public class TimerStateTest extends OjTestCase{
 
@@ -33,11 +35,19 @@ public class TimerStateTest extends OjTestCase{
 	}
 	
    @Test
-	public void testSinityChecks() {
+	public void testSanityChecks() {
 		
 		assertEquals(false, new IsStoppable().test(TimerState.STARTABLE));
 		assertEquals(true, new IsStoppable().test(TimerState.STARTING));
 		assertEquals(true, new IsStoppable().test(TimerState.STARTED));
 		assertEquals(true, new IsStoppable().test(TimerState.ACTIVE));
+	}
+
+	@Test
+	public void testIconsForAllStates() {
+
+		for (TimerState jobState : TimerState.values()) {
+			assertThat(jobState.name(), StateIcons.iconFor(jobState), not(IconHelper.NULL));
+		}
 	}
 }
