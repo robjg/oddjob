@@ -2,6 +2,7 @@ package org.oddjob.events;
 
 
 import org.oddjob.Structural;
+import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.state.StateEvent;
@@ -19,20 +20,36 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * @oddjob.description A list of events.
- * 
+ * @oddjob.description An event source that aggregates a list of child event sources. The
+ * events are aggregated according to the provided {@link EventOperator} which defaults to
+ * {@link AllEvents}.
+ *
+ * @oddjob.example
+ *
+ * Trigger on a list of state expressions.
+ *
+ * {@oddjob.xml.resource org/oddjob/events/ListSourceExample.xml}
+ *
  * @author Rob Gordon
  */
 public class ListSource<T> extends EventSourceBase<T>
 implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
-
 	/** Track changes to children an notify listeners. */
 	protected transient volatile ChildHelper<EventSource< T > > childHelper;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Event Operator to filter events. ANY/ALL.
+	 * @oddjob.required No, default to ALL.
+	 */
 	private volatile EventOperator<T> eventOperator;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The last event to be passed to a consumer.
+	 */
     private volatile CompositeEvent<T> last;
 
 	/**
@@ -98,6 +115,11 @@ implements Serializable, Structural {
 		this.last = null;
 	}
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The child event sources.
+	 * @oddjob.required No, but pointless without.
+	 */
 	@ArooaComponent
 	public void setChild(int index, EventSource<T> child) {
 	    childHelper.insertOrRemoveChild(index, child);
@@ -107,6 +129,7 @@ implements Serializable, Structural {
         return eventOperator;
     }
 
+    @ArooaAttribute
     public void setEventOperator(EventOperator<T> eventOperator) {
         this.eventOperator = eventOperator;
     }

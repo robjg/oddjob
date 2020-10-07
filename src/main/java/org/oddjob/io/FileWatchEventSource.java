@@ -1,11 +1,13 @@
 package org.oddjob.io;
 
-import org.oddjob.events.*;
+import org.oddjob.events.EventOf;
+import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.Trigger;
+import org.oddjob.events.When;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
-import java.nio.file.*;
-import java.nio.file.attribute.FileTime;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
@@ -15,6 +17,10 @@ import java.util.function.Consumer;
 /**
  * @oddjob.description Watch for a file and fire an event if/when it exists. A service such
  * as {@link FileWatchService} is required to do the actual watching.
+ *
+ * @oddjob.example
+ *
+ * See {@link FileWatchService}.
  *
  * @author rob
  *

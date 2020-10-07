@@ -1,11 +1,8 @@
 <arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
     prefix="events" namespace="oddjob:events">
-    <values>
-        <arooa:bean-def element='all'
-                        className='org.oddjob.events.AllEvents'/>
-        <arooa:bean-def element='any'
-                        className='org.oddjob.events.AnyEvents'/>
-    </values>
+    <conversions>
+        <value value='org.oddjob.events.EventOperators$Conversions'/>
+    </conversions>
 	<components>
         <arooa:bean-def element='file-watch'
                         className='org.oddjob.io.FileWatchEventSource'/>

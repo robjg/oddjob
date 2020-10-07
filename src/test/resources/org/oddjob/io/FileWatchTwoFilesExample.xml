@@ -7,10 +7,7 @@
                 <events:file-watch-service id="file-watch" kinds="ENTRY_CREATE" xmlns:events="oddjob:events"/>
                 <events:when id="both-files" name="When Both Files" xmlns:events="oddjob:events">
                     <jobs>
-                        <events:list>
-                            <eventOperator>
-                                <events:all/>
-                            </eventOperator>
+                        <events:list eventOperator="ALL">
                             <child>
                                 <events:file-watch name="Watch File 1">
                                     <fileWatch>

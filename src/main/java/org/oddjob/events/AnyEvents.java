@@ -3,7 +3,7 @@ package org.oddjob.events;
 import java.util.Optional;
 
 /**
- * @oddjob.decription An operator that filters on any event. Used by event sources that combine multiple event
+ * An operator that filters on any event. Used by event sources that combine multiple event
  * streams such as {@link ListSource} and {@link ForEvents}.
  *
  * @param <T> The type of event.

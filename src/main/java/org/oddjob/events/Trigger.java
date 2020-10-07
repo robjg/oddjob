@@ -6,14 +6,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @oddjob.description An Experimental Trigger that fires on evaluating a State
- * Expression to True.
+ * @oddjob.description Trigger on an event. This is a work in progress replacement
+ * for {@link org.oddjob.scheduling.Trigger}. The intention being that it has the ability
+ * to fire off any event, not just a state change.
+ * <p>
+ * The job has two children; the first being the source of the event that causes
+ * the trigger, and the second is the job that is run as the result of the trigger
+ * firing.
+ * </p>
  *
  * @oddjob.example
  *
  * A trigger expression based on the state of some jobs.
  *
- * {@oddjob.xml.resource org/oddjob/scheduling/TriggerExpressionExample.xml}
+ * {@oddjob.xml.resource org/oddjob/events/TriggerExpressionExample.xml}
  *
  *
  * @author Rob Gordon.

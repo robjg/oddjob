@@ -1,41 +1,20 @@
 package org.oddjob.framework.extend;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Forceable;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
-import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.*;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.OrderedStateChanger;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ParentStateChanger;
-import org.oddjob.state.ParentStateHandler;
-import org.oddjob.state.State;
-import org.oddjob.state.StateChanger;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateExchange;
-import org.oddjob.state.StateOperator;
-import org.oddjob.state.StructuralStateHelper;
+import org.oddjob.state.*;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.Restore;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
 /**
  * An abstract implementation of a job which provides common functionality to
@@ -70,7 +49,6 @@ implements
 	 * @oddjob.property
 	 * @oddjob.description Read only view of the internal stop flag. 
 	 * This flag is cleared with a reset.
-	 * @oddjob.required Read only.
 	 */
 	protected transient volatile boolean stop;
 		

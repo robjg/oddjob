@@ -14,7 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
- * Provide a service for subscribers to watch a file system for Files existing, being created or being modified.
+ * @oddjob.description Provide a service for subscribers to watch a file system for Files existing, being created or being modified.
  * <p/>
  * If the file is created during subscription the consumer may receive a notification for the same file twice. Once
  * the subscription has succeeded a consumer should receive every creation and modification happening to the file.
@@ -24,6 +24,15 @@ import java.util.function.Consumer;
  * <p/>
  * Consumers will receive creation and modification events on a different thread to the initial event if the
  * file exists.
+ * <p>
+ *     <em>Implementation Note:</em> This facility is still a work in progress. Requiring this service
+ *     in a configuration is messy. In future releases this service should be hidden from users.
+ * </p>
+ * @oddjob.example
+ *
+ * Trigger when two files arrive.
+ *
+ * {@oddjob.xml.resource org/oddjob/io/FileWatchTwoFilesExample.xml}
  *
  * @author rob
  * @see FileWatchEventSource

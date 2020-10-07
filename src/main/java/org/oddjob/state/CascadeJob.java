@@ -1,13 +1,5 @@
 package org.oddjob.state;
 
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.inject.Inject;
-
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
@@ -17,6 +9,13 @@ import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.jobs.structural.ParallelJob;
 import org.oddjob.jobs.structural.SequentialJob;
+
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @oddjob.description
@@ -60,9 +59,19 @@ public class CascadeJob extends StructuralJob<Object> {
 	/** The Future for the currently executing job so that it can be 
 	 * cancelled on stop. */
 	private transient volatile Future<?> future;
-	
+
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The state to continue the cascade on.
+	 * @oddjob.required No, defaults to DONE.
+	 */
 	private volatile StateCondition cascadeOn;
-	
+
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The state to halt the cascade on.
+	 * @oddjob.required No, defaults to FAILURE.
+	 */
 	private volatile StateCondition haltOn;
 	
 	/*
@@ -78,7 +87,7 @@ public class CascadeJob extends StructuralJob<Object> {
 	/**
 	 * Add a child job.
 	 * 
-	 * @oddjob.property <i>jobs</i>
+	 * @oddjob.property jobs
 	 * @oddjob.description The child jobs.
 	 * @oddjob.required No, but pointless if missing.
 	 * 

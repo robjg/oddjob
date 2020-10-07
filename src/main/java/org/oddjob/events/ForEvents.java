@@ -36,7 +36,8 @@ import java.util.stream.Stream;
 
 
 /**
- * @oddjob.description 
+ * @oddjob.description An Event Source For a variable set of child
+ * Event Sources. Still a work in progress.
  * 
  */
 public class ForEvents<T> extends EventSourceBase<T>
@@ -352,6 +353,7 @@ implements Structural, ConfigurationOwner {
         return eventOperator;
     }
 
+    @ArooaAttribute
     public void setEventOperator(EventOperator<T> eventOperator) {
         this.eventOperator = eventOperator;
     }
