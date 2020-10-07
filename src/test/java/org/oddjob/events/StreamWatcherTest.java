@@ -20,15 +20,17 @@ public class StreamWatcherTest {
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(getClass().getResource("StreamWatcherExample.xml").getFile()));
 
+        StateSteps states = new StateSteps(oddjob);
+
+        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+
         oddjob.run();
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.ACTIVE));
+        states.checkWait();
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        StateSteps states = new StateSteps(oddjob);
         states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
-
 
         Runnable job1 = lookup.lookup("job1", Runnable.class);
         job1.run();
