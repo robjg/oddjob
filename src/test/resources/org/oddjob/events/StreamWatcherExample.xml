@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <cascade>
+            <jobs>
+                <events:trigger id="trigger" xmlns:events="oddjob:events">
+                    <jobs>
+                        <bean class="org.oddjob.events.StreamWatcher" id="watchForApple" watch="Apple"/>
+                        <echo id="echo"><![CDATA[Found ${trigger.trigger.of}]]></echo>
+                    </jobs>
+                </events:trigger>
+                <folder>
+                    <jobs>
+                        <echo id="job1">
+                            <output>
+                                <value value="${watchForApple.out}"/>
+                            </output><![CDATA[The 
+quick 
+brown 
+fox 
+jumped 
+over]]></echo>
+                        <echo id="job2">
+                            <output>
+                                <value value="${watchForApple.out}"/>
+                            </output><![CDATA[an Apple!
+(Not a lazy dog)]]></echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </cascade>
+    </job>
+</oddjob>
