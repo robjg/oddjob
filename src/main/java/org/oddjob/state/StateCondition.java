@@ -19,4 +19,14 @@ public interface StateCondition extends Predicate<State> {
 	 */
 	@Override
 	boolean test(State state);
+
+	/**
+	 * Helper to save type getState all the time.
+	 *
+	 * @param stateEvent The event.
+	 * @return depends on the event state
+	 */
+	default boolean test(StateEvent stateEvent) {
+		return test(stateEvent.getState());
+	}
 }

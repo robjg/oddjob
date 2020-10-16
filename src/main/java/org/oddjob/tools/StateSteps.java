@@ -13,6 +13,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Predicate;
 
 /**
@@ -22,6 +27,9 @@ import java.util.function.Predicate;
  */
 public class StateSteps {
     private static final Logger logger = LoggerFactory.getLogger(StateSteps.class);
+
+    private final Lock lock = new ReentrantLock();
+    private final Condition waitForStates = lock.newCondition();
 
     private final Stateful stateful;
 
@@ -192,18 +200,22 @@ public class StateSteps {
                         "More states than expected: " + event.getState() +
                                 " (index " + index + ")";
             } else {
-                synchronized (StateSteps.this) {
+                lock.lock();
+                try {
                     received.add(event.getState());
 
                     if (predicates.get(index).test(event.getState())) {
                         if (index == predicates.size()) {
                             done = true;
-                            StateSteps.this.notifyAll();
+                            waitForStates.signal();
                         }
                     } else {
                         done = true;
-                        StateSteps.this.notifyAll();
+                        waitForStates.signal();
                     }
+                }
+                finally {
+                    lock.unlock();
                 }
             }
         }
@@ -277,7 +289,7 @@ public class StateSteps {
 
         private final SingleCheck[] steps;
 
-        private volatile int index;
+        private final AtomicInteger index = new AtomicInteger();
 
         private volatile boolean done;
 
@@ -311,32 +323,36 @@ public class StateSteps {
                 return;
             }
 
-            if (index >= steps.length) {
+            if (index.get() >= steps.length) {
                 failureMessage =
                         "More states than expected: " + event.getState() +
                                 " (index " + index + ")";
             } else {
-                synchronized (StateSteps.this) {
-                    SingleCheck expected = steps[index];
+                lock.lock();
+                try {
+                    SingleCheck expected = steps[index.get()];
                     State incoming = event.getState();
                     failureMessage = expected.test(incoming)
                             .map(msg -> msg + " (index " + index + ")")
                             .orElse(null);
 
                     if (failureMessage == null) {
-                        if (++index == steps.length) {
+                        if (index.incrementAndGet() == steps.length) {
                             done = true;
-                            StateSteps.this.notifyAll();
+                            waitForStates.signal();
                         }
                     } else {
                         done = true;
-                        StateSteps.this.notifyAll();
+                        waitForStates.signal();
                     }
+                }
+                finally {
+                    lock.unlock();
                 }
             }
         }
 
-        public synchronized boolean isDone() {
+        public boolean isDone() {
             return done;
         }
 
@@ -366,7 +382,7 @@ public class StateSteps {
         }
     }
 
-    public synchronized void startCheck(CheckConstruct... constructs) {
+    public void startCheck(CheckConstruct... constructs) {
 
         ComplexCheck complexCheck = new ComplexCheck();
         for (CheckConstruct construct : constructs) {
@@ -393,7 +409,7 @@ public class StateSteps {
 		startCheck(new Listener(steps));
 	}
 
-	public synchronized void startCheck(Check check) {
+	public void startCheck(Check check) {
 
         if (listener != null) {
             throw new IllegalStateException("Check in progress!");
@@ -435,11 +451,16 @@ public class StateSteps {
 
         if (!listener.isDone()) {
 
-            synchronized (this) {
-                wait(timeout);
+            boolean signalled;
+            lock.lock();
+            try {
+                signalled = waitForStates.await(timeout, TimeUnit.MILLISECONDS);
+            }
+            finally {
+                lock.unlock();
             }
 
-            logger.info("Woken or Timedout " +
+            logger.info((signalled ? "Woken" : "Timeout") +
                     " on " + listener);
         }
 

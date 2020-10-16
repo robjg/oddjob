@@ -1,0 +1,13 @@
+<oddjob>
+    <job>
+        <repeat times='10'>
+            <job>
+                <parallel>
+                    <jobs>
+                        <bean id='c' class="org.oddjob.jobs.structural.RepeatJobTest$SlowCounter"/>
+                    </jobs>
+                </parallel>
+            </job>
+        </repeat>
+    </job>
+</oddjob>

@@ -1,19 +1,18 @@
 package org.oddjob.framework.extend;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-
-import javax.inject.Inject;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.framework.util.AsyncExecutionSupport;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
 
 /**
  * An abstract base class for Structural jobs where all child jobs
@@ -46,12 +45,10 @@ implements Stoppable {
 	 */
 	private void completeConstruction() {
 		asyncSupport = 
-				new AsyncExecutionSupport(new Runnable() {
-					public void run() {
-						stop = false;
-						SimultaneousStructural.super.startChildStateReflector();
-					}
-			});		
+				new AsyncExecutionSupport(() -> {
+					stop = false;
+					SimultaneousStructural.super.startChildStateReflector();
+				});
 	}
 	
 	/**
@@ -62,7 +59,7 @@ implements Stoppable {
 	 * be automatically set by Oddjob.
 	 * @oddjob.required No.
 	 * 
-	 * @param child A child
+	 * @param executorService The Executor Service.
 	 */
 	@Inject
 	public void setExecutorService(ExecutorService executorService) {
@@ -137,11 +134,8 @@ implements Stoppable {
 		}		
 		else {
 			if (asyncSupport.size() > 0) {
-				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(ParentState.ACTIVE);
-					}
-				});
+				stateHandler().waitToWhen(new IsStoppable(),
+						() -> getStateChanger().setState(ParentState.ACTIVE));
 			}
 		}
 
