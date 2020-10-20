@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -111,12 +110,12 @@ public class ForEachJob extends StructuralJob<Object>
      * @oddjob.description Any value.
      * @oddjob.required No.
      */
-    private transient Iterable<? extends Object> values;
+    private transient Iterable<?> values;
 
     /**
      * The current iterator.
      */
-    private transient Iterator<? extends Object> iterator;
+    private transient Iterator<?> iterator;
 
     /**
      * @oddjob.property
@@ -344,7 +343,7 @@ public class ForEachJob extends StructuralJob<Object>
                 session);
         parser.setExpectedDocumentElement(FOREACH_ELEMENT);
 
-        ConfigurationHandle handle = parser.parse(configuration);
+        ConfigurationHandle<ArooaContext> handle = parser.parse(configuration);
 
         Object root = seed.job;
 
@@ -435,13 +434,15 @@ public class ForEachJob extends StructuralJob<Object>
 
         if (values == null) {
             logger().info("No Values.");
-            iterator = Collections.emptyList().iterator();
+            iterator = Collections.emptyIterator();
         } else {
             iterator = values.iterator();
         }
 
-        while ((preLoad < 1 || ready.size() < preLoad) &&
-                (loadNext() != null)) {
+        while ((preLoad < 1 || ready.size() < preLoad)) {
+            if (loadNext() == null) {
+                break;
+            }
         }
     }
 
@@ -548,11 +549,8 @@ public class ForEachJob extends StructuralJob<Object>
         // so the active state is missed, or that none have started
         // so there is a spurious ready state.
         if (parallel && !stop) {
-            stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-                public void run() {
-                    getStateChanger().setState(ParentState.ACTIVE);
-                }
-            });
+            stateHandler().waitToWhen(new IsStoppable(),
+                    () -> getStateChanger().setState(ParentState.ACTIVE));
         }
 
         executionWatcher.start();
@@ -562,24 +560,22 @@ public class ForEachJob extends StructuralJob<Object>
             final ExecutionWatcher executionWatcher,
             final Runnable job) {
 
-        Runnable runnable = new Runnable() {
-            public void run() {
+        Runnable runnable = () -> {
 
-                job.run();
+            job.run();
 
-                if (stop) {
-                    return;
+            if (stop) {
+                return;
+            }
+
+            try {
+                Object next = purgeAndLoad();
+
+                if (next instanceof Runnable) {
+                    parallelRun(executionWatcher, (Runnable) next);
                 }
-
-                try {
-                    Object next = purgeAndLoad();
-
-                    if (next != null && next instanceof Runnable) {
-                        parallelRun(executionWatcher, (Runnable) next);
-                    }
-                } catch (ArooaParseException e) {
-                    logger().error("Failed to load Jobs.", e);
-                }
+            } catch (ArooaParseException e) {
+                logger().error("Failed to load Jobs.", e);
             }
         };
 
@@ -676,37 +672,32 @@ public class ForEachJob extends StructuralJob<Object>
 
             // Do this locked so editing can't happen when job is being
             // stopped or reset or suchlike.
-            stateHandler().callLocked(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    if (child == null) {
-                        if (job == null) {
-                            throw new NullPointerException(
-                                    "This is an intermittent bug that I can't fix. " +
-                                            "Current index is " + index);
-                        }
-
-                        structuralPosition = childHelper.removeChild(job);
-                        ci = childTracking.remove(job);
-                        jobThreads.remove(job);
-                        ready.remove(job);
-                    } else {
-                        // Replacement after edit.
-                        if (structuralPosition != -1) {
-
-                            // Configure the root so we can see the name if it
-                            // uses the current value.
-                            session.getComponentPool().configure(child);
-
-                            childHelper.insertChild(structuralPosition, child);
-                            childTracking.add(child, LocalBean.this, ci.getConfigurationHandle());
-                        }
+            stateHandler().runLocked(() -> {
+                if (child == null) {
+                    if (job == null) {
+                        throw new NullPointerException(
+                                "This is an intermittent bug that I can't fix. " +
+                                        "Current index is " + index);
                     }
 
-                    job = child;
+                    structuralPosition = childHelper.removeChild(job);
+                    ci = childTracking.remove(job);
+                    jobThreads.remove(job);
+                    ready.remove(job);
+                } else {
+                    // Replacement after edit.
+                    if (structuralPosition != -1) {
 
-                    return null;
+                        // Configure the root so we can see the name if it
+                        // uses the current value.
+                        session.getComponentPool().configure(child);
+
+                        childHelper.insertChild(structuralPosition, child);
+                        childTracking.add(child, LocalBean.this, ci.getConfigurationHandle());
+                    }
                 }
+
+                job = child;
             });
         }
 
@@ -794,7 +785,7 @@ public class ForEachJob extends StructuralJob<Object>
 
         @Override
         public Iterable<ComponentTrinity> allTrinities() {
-            List<ComponentTrinity> results = new ArrayList<ComponentTrinity>();
+            List<ComponentTrinity> results = new ArrayList<>();
             for (ComponentTrinity t : super.allTrinities()) {
                 results.add(t);
             }
@@ -846,15 +837,13 @@ public class ForEachJob extends StructuralJob<Object>
      */
     public boolean hardReset() {
         try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-            return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
-                public void run() {
-                    stopChildStateReflector();
+            return stateHandler().waitToWhen(new IsHardResetable(), () -> {
+                stopChildStateReflector();
 
-                    reset();
+                reset();
 
-                    getStateChanger().setState(ParentState.READY);
-                    logger().info("Hard Reset complete.");
-                }
+                getStateChanger().setState(ParentState.READY);
+                logger().info("Hard Reset complete.");
             });
         }
     }
@@ -884,17 +873,15 @@ public class ForEachJob extends StructuralJob<Object>
     @ArooaAttribute
     public void setFile(File file) {
 
-        this.file = file;
         if (file == null) {
-            this.file = null;
             configuration = null;
         } else {
             new RootConfigurationFileCreator(
                     FOREACH_ELEMENT, NamespaceMappings.empty())
                     .createIfNone(file);
-            this.file = file;
             configuration = new XMLConfiguration(file);
         }
+        this.file = file;
     }
 
     public File getFile() {
@@ -974,7 +961,7 @@ public class ForEachJob extends StructuralJob<Object>
             if (component == ForEachJob.this) {
                 return mainSession.dragPointFor(component);
             } else {
-                for (ConfigurationHandle configHandle :
+                for (ConfigurationHandle<ArooaContext> configHandle :
                         childTracking.configurationHandles()) {
 
                     ConfigurationSession confSession =
@@ -1049,7 +1036,8 @@ public class ForEachJob extends StructuralJob<Object>
 
         private final Map<LocalBean, String> beanToId = new ConcurrentHashMap<>();
 
-        void add(Object child, LocalBean localBean, ConfigurationHandle handle) {
+        void add(Object child, LocalBean localBean,
+                 ConfigurationHandle<ArooaContext> handle) {
             Objects.requireNonNull(child);
 
             childInfo.put(child, new ChildInfo(localBean, handle));
@@ -1079,15 +1067,20 @@ public class ForEachJob extends StructuralJob<Object>
         LocalBean getBean(String id) {
             return Optional.ofNullable(idToChild.get(id)).flatMap(
                     child -> Optional.ofNullable(childInfo.get(child))
-                            .map(childInfo -> childInfo.getLocalBean()))
+                            .map(ChildInfo::getLocalBean))
                     .orElse(null);
         }
 
         String getId(Object localBean) {
-            return beanToId.get(localBean);
+            if (localBean instanceof LocalBean) {
+                return beanToId.get(localBean);
+            }
+            else {
+                return null;
+            }
         }
 
-        public ConfigurationHandle[] configurationHandles() {
+        public ConfigurationHandle<ArooaContext>[] configurationHandles() {
             return childInfo.values().stream()
                     .map(ci -> ci.getConfigurationHandle()).toArray(ConfigurationHandle[]::new);
         }

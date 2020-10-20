@@ -124,7 +124,7 @@ public class RunnableWrapper extends BaseWrapper
         stoppableAdaptor = new StoppableAdaptorFactory().adapt(
                 wrapped, session)
                 .orElseGet(() ->
-                        () -> stateHandler.callLocked((Callable<Void>) () -> {
+                        () -> stateHandler.runLocked(() -> {
                             Thread t = thread;
                             if (t != null) {
                                 logger().info("Interrupting Thread [" + t.getName() +
@@ -133,7 +133,6 @@ public class RunnableWrapper extends BaseWrapper
                             } else {
                                 logger().info("No Thread to interrupt. Hopefully Job has just stopped.");
                             }
-                            return null;
                         })
                 );
 
@@ -220,14 +219,12 @@ public class RunnableWrapper extends BaseWrapper
             logger().error("Exception:", t);
             exception.set(t);
         } finally {
-            stateHandler.callLocked((Callable<Void>) () -> {
+            stateHandler.runLocked(() -> {
                 if (Thread.interrupted()) {
                     logger().debug("Clearing thread interrupted flag.");
                 }
                 thread = null;
-                return null;
             });
-
         }
 
         if (asyncAdaptor == null) {

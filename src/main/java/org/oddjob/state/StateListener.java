@@ -8,6 +8,7 @@ package org.oddjob.state;
  * @author Rob Gordon
  */
 
+@FunctionalInterface
 public interface StateListener {
 
 
@@ -15,7 +16,7 @@ public interface StateListener {
 	 * Triggered when the job state changes.
 	 * 
 	 * @param event The job state event.
-	 */	
-	public void jobStateChange(StateEvent event);
+	 */
+	void jobStateChange(StateEvent event);
 	
 }

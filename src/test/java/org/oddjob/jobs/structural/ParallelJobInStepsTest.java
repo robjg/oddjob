@@ -1,313 +1,303 @@
 package org.oddjob.jobs.structural;
 
 import org.junit.Test;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.FailedToStopException;
+import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.scheduling.MockScheduledExecutorService;
 import org.oddjob.scheduling.MockScheduledFuture;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 import org.oddjob.tools.StateSteps;
+
+import java.util.concurrent.Future;
 
 public class ParallelJobInStepsTest extends OjTestCase {
 
-	private class ManualExecutor1 extends MockScheduledExecutorService {
+    private static class ManualExecutor1 extends MockScheduledExecutorService {
 
-		private Runnable runnable;
-		
-		public Future<?> submit(Runnable runnable) {
-			if (this.runnable != null) {
-				throw new IllegalStateException();
-			}
-			this.runnable = runnable;
-			return new MockScheduledFuture<Void>();
-		}
-	}
-	
-   @Test
-	public void testStatesExecutingAndCompletingOneJob() {
-		
-		FlagState job1 = new FlagState(JobState.COMPLETE);
+        private Runnable runnable;
 
-		ManualExecutor1 executor = new ManualExecutor1();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
+        @Override
+        public Future<?> submit(Runnable runnable) {
+            if (this.runnable != null) {
+                throw new IllegalStateException();
+            }
+            this.runnable = runnable;
+            return new MockScheduledFuture<Void>();
+        }
+    }
 
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		steps.checkNow();
-		
-		assertNotNull(executor.runnable);
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.COMPLETE);
-		
-		executor.runnable.run();
-		
-		steps.checkNow();
-		
-		steps.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
-		
-		test.destroy();
-		
-		steps.checkNow();
-	}
-	
-	private class ManualExecutor2 extends MockScheduledExecutorService {
+    @Test
+    public void testStatesExecutingAndCompletingOneJob() {
 
-		boolean cancelled;
-		
-		public Future<?> submit(Runnable runnable) {
-			return new MockScheduledFuture<Void>() {
-				@Override
-				public boolean cancel(boolean mayInterruptIfRunning) {
-					assertFalse(mayInterruptIfRunning);
-					cancelled = true;
-					return true;
-				}
-			};
-		}
-	}
-	
-	private class CaptureStoppedJob extends SimpleJob
-	implements Stoppable {
+        FlagState job1 = new FlagState(JobState.COMPLETE);
 
-		@Override
-		protected int execute() throws Throwable {
-			throw new RuntimeException("Unexpected");
-		}
-	}
-	
+        ManualExecutor1 executor = new ManualExecutor1();
 
-   @Test
-	public void testStatesWhenStoppingJobThatHasntExecuted() throws FailedToStopException {
-		
-		CaptureStoppedJob job1 = new CaptureStoppedJob();
+        ParallelJob test = new ParallelJob();
 
-		ManualExecutor2 executor = new ManualExecutor2();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
+        StateSteps steps = new StateSteps(test);
+        steps.startCheck(ParentState.READY,
+                ParentState.EXECUTING, ParentState.ACTIVE);
 
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		steps.checkNow();
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.READY);
-		
-		test.stop();
-		
-		steps.checkNow();
+        test.setExecutorService(executor);
 
-		assertEquals(false, job1.isStop());
-		
-		assertEquals(true, executor.cancelled);
-		
-		steps.startCheck(ParentState.READY, ParentState.DESTROYED);
-		
-		test.destroy();
-		
-		steps.checkNow();
-	}
-	
-   @Test
-	public void testStatesWhenDestroyedWithoutStoppingJobThatHasntExecuted() {
-		
-		CaptureStoppedJob job1 = new CaptureStoppedJob();
+        test.setJobs(0, job1);
 
-		ManualExecutor2 executor = new ManualExecutor2();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
+        test.run();
 
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		steps.checkNow();
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.DESTROYED);
+        steps.checkNow();
 
-		test.destroy();
-				
-		assertEquals(false, job1.isStop());
-		
-		assertEquals(true, executor.cancelled);
-		
-		steps.checkNow();
-	}
-	
-	private class ManualExecutor3 extends MockScheduledExecutorService {
+        assertNotNull(executor.runnable);
 
-		boolean cancelled;
-		
-		Runnable runnable;
-		
-		public Future<?> submit(Runnable runnable) {
-			this.runnable = runnable;
-			return new MockScheduledFuture<Void>() {
-				@Override
-				public boolean cancel(boolean mayInterruptIfRunning) {
-					assertFalse(mayInterruptIfRunning);
-					cancelled = true;
-					return false;
-				}
-			};
-		}
-	}
-	
-	private class AsyncJob implements Stateful, Runnable, Stoppable {
-		
-		private final JobStateHandler stateHandler = 
-				new JobStateHandler(this);
+        steps.startCheck(ParentState.ACTIVE,
+                ParentState.COMPLETE);
 
-		private void sendEvent(final JobState jobState) {
-			stateHandler.callLocked(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					stateHandler.setState(jobState);
-					stateHandler.fireEvent();
-					return null;
-				}
-			});
-		}
-		
-		@Override
-		public void run() {
-			sendEvent(JobState.EXECUTING);
-		}
+        executor.runnable.run();
 
-		@Override
-		public void addStateListener(StateListener listener)
-				throws JobDestroyedException {
-			stateHandler.addStateListener(listener);
-		}
+        steps.checkNow();
 
-		@Override
-		public void removeStateListener(StateListener listener) {
-			stateHandler.removeStateListener(listener);
-		}
+        steps.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
 
-		@Override
-		public void stop() throws FailedToStopException {
-			sendEvent(JobState.COMPLETE);
-		}
-		
-		@Override
-		public StateEvent lastStateEvent() {
-			return stateHandler.lastStateEvent();
-		}
-	}
-	
-   @Test
-	public void testStatesWhenStoppingAsyncJobThatIsStillExecuting() throws FailedToStopException {
-		
-		AsyncJob job1 = new AsyncJob();
+        test.destroy();
 
-		ManualExecutor3 executor = new ManualExecutor3();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
+        steps.checkNow();
+    }
 
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		executor.runnable.run();
-		
-		steps.checkNow();
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.COMPLETE);
-		
-		test.stop();
-		
-		steps.checkNow();
+    private static class ManualExecutor2 extends MockScheduledExecutorService {
 
-		assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
-		
-		assertEquals(true, executor.cancelled);
-		
-		steps.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
-		
-		test.destroy();
-		
-		steps.checkNow();
-	}
-	
-   @Test
-	public void testStatesWhenDestroyedWithoutStoppingAsyncJobThatIsStillExecuting() {
-		
-		AsyncJob job1 = new AsyncJob();
+        boolean cancelled;
 
-		ManualExecutor3 executor = new ManualExecutor3();
-		
-		ParallelJob test = new ParallelJob();
-		
-		StateSteps steps = new StateSteps(test);
-		steps.startCheck(ParentState.READY, 
-				ParentState.EXECUTING, ParentState.ACTIVE);
-		
-		test.setExecutorService(executor);
+        @Override
+        public Future<?> submit(Runnable runnable) {
+            return new MockScheduledFuture<Void>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    assertFalse(mayInterruptIfRunning);
+                    cancelled = true;
+                    return true;
+                }
+            };
+        }
+    }
 
-		test.setJobs(0, job1);
-		
-		test.run();
-	
-		executor.runnable.run();
-		
-		steps.checkNow();
-		
-		steps.startCheck(ParentState.ACTIVE,
-				ParentState.DESTROYED);
-		
-		test.destroy();
-		
-		steps.checkNow();
+    private static class CaptureStoppedJob extends SimpleJob
+            implements Stoppable {
 
-		assertEquals(JobState.EXECUTING, job1.lastStateEvent().getState());
-		
-		assertEquals(true, executor.cancelled);
-		
-	}
+        @Override
+        protected int execute() throws Throwable {
+            throw new RuntimeException("Unexpected");
+        }
+    }
+
+
+    @Test
+    public void testStatesWhenStoppingJobThatHasntExecuted() throws FailedToStopException {
+
+        CaptureStoppedJob job1 = new CaptureStoppedJob();
+
+        ManualExecutor2 executor = new ManualExecutor2();
+
+        ParallelJob test = new ParallelJob();
+
+        StateSteps steps = new StateSteps(test);
+        steps.startCheck(ParentState.READY,
+                ParentState.EXECUTING, ParentState.ACTIVE);
+
+        test.setExecutorService(executor);
+
+        test.setJobs(0, job1);
+
+        test.run();
+
+        steps.checkNow();
+
+        steps.startCheck(ParentState.ACTIVE,
+                ParentState.READY);
+
+        test.stop();
+
+        steps.checkNow();
+
+        assertFalse(job1.isStop());
+
+        assertTrue(executor.cancelled);
+
+        steps.startCheck(ParentState.READY, ParentState.DESTROYED);
+
+        test.destroy();
+
+        steps.checkNow();
+    }
+
+    @Test
+    public void testStatesWhenDestroyedWithoutStoppingJobThatHasntExecuted() {
+
+        CaptureStoppedJob job1 = new CaptureStoppedJob();
+
+        ManualExecutor2 executor = new ManualExecutor2();
+
+        ParallelJob test = new ParallelJob();
+
+        StateSteps steps = new StateSteps(test);
+        steps.startCheck(ParentState.READY,
+                ParentState.EXECUTING, ParentState.ACTIVE);
+
+        test.setExecutorService(executor);
+
+        test.setJobs(0, job1);
+
+        test.run();
+
+        steps.checkNow();
+
+        steps.startCheck(ParentState.ACTIVE,
+                ParentState.DESTROYED);
+
+        test.destroy();
+
+        assertFalse(job1.isStop());
+
+        assertTrue(executor.cancelled);
+
+        steps.checkNow();
+    }
+
+    private static class ManualExecutor3 extends MockScheduledExecutorService {
+
+        boolean cancelled;
+
+        Runnable runnable;
+
+        public Future<?> submit(Runnable runnable) {
+            this.runnable = runnable;
+            return new MockScheduledFuture<Void>() {
+                @Override
+                public boolean cancel(boolean mayInterruptIfRunning) {
+                    assertFalse(mayInterruptIfRunning);
+                    cancelled = true;
+                    return false;
+                }
+            };
+        }
+    }
+
+    private static class AsyncJob implements Stateful, Runnable, Stoppable {
+
+        private final JobStateHandler stateHandler =
+                new JobStateHandler(this);
+
+        private void sendEvent(final JobState jobState) {
+            stateHandler.runLocked(() -> {
+                stateHandler.setState(jobState);
+                stateHandler.fireEvent();
+            });
+        }
+
+        @Override
+        public void run() {
+            sendEvent(JobState.EXECUTING);
+        }
+
+        @Override
+        public void addStateListener(StateListener listener)
+                throws JobDestroyedException {
+            stateHandler.addStateListener(listener);
+        }
+
+        @Override
+        public void removeStateListener(StateListener listener) {
+            stateHandler.removeStateListener(listener);
+        }
+
+        @Override
+        public void stop() {
+            sendEvent(JobState.COMPLETE);
+        }
+
+        @Override
+        public StateEvent lastStateEvent() {
+            return stateHandler.lastStateEvent();
+        }
+    }
+
+    @Test
+    public void testStatesWhenStoppingAsyncJobThatIsStillExecuting() throws FailedToStopException {
+
+        AsyncJob job1 = new AsyncJob();
+
+        ManualExecutor3 executor = new ManualExecutor3();
+
+        ParallelJob test = new ParallelJob();
+
+        StateSteps steps = new StateSteps(test);
+        steps.startCheck(ParentState.READY,
+                ParentState.EXECUTING, ParentState.ACTIVE);
+
+        test.setExecutorService(executor);
+
+        test.setJobs(0, job1);
+
+        test.run();
+
+        executor.runnable.run();
+
+        steps.checkNow();
+
+        steps.startCheck(ParentState.ACTIVE,
+                ParentState.COMPLETE);
+
+        test.stop();
+
+        steps.checkNow();
+
+        assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
+
+        assertTrue(executor.cancelled);
+
+        steps.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
+
+        test.destroy();
+
+        steps.checkNow();
+    }
+
+    @Test
+    public void testStatesWhenDestroyedWithoutStoppingAsyncJobThatIsStillExecuting() {
+
+        AsyncJob job1 = new AsyncJob();
+
+        ManualExecutor3 executor = new ManualExecutor3();
+
+        ParallelJob test = new ParallelJob();
+
+        StateSteps steps = new StateSteps(test);
+        steps.startCheck(ParentState.READY,
+                ParentState.EXECUTING, ParentState.ACTIVE);
+
+        test.setExecutorService(executor);
+
+        test.setJobs(0, job1);
+
+        test.run();
+
+        executor.runnable.run();
+
+        steps.checkNow();
+
+        steps.startCheck(ParentState.ACTIVE,
+                ParentState.DESTROYED);
+
+        test.destroy();
+
+        steps.checkNow();
+
+        assertEquals(JobState.EXECUTING, job1.lastStateEvent().getState());
+
+        assertTrue(executor.cancelled);
+
+    }
 }

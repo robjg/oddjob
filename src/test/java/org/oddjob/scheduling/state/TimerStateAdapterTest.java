@@ -1,22 +1,14 @@
 package org.oddjob.scheduling.state;
 
 import org.junit.Test;
-
-import java.util.concurrent.Callable;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ParentStateHandler;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 
 public class TimerStateAdapterTest extends OjTestCase {
 	
-	private class OurStateful implements Stateful {
+	private static class OurStateful implements Stateful {
 		
 		@Override
 		public StateEvent lastStateEvent() {
@@ -35,7 +27,7 @@ public class TimerStateAdapterTest extends OjTestCase {
 		}
 	}
 	
-	private class OurListener implements StateListener {
+	private static class OurListener implements StateListener {
 		
 		State state;
 		@Override
@@ -58,70 +50,46 @@ public class TimerStateAdapterTest extends OjTestCase {
 		
 		test.addStateListener(listener);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setState(ParentState.STARTED);
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setState(ParentState.STARTED);
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.STARTED, listener.state);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setState(ParentState.INCOMPLETE);
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setState(ParentState.INCOMPLETE);
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.INCOMPLETE, listener.state);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setState(ParentState.READY);
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setState(ParentState.READY);
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.STARTABLE, listener.state);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setStateException(ParentState.EXCEPTION, new RuntimeException());
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setStateException(ParentState.EXCEPTION, new RuntimeException());
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.EXCEPTION, listener.state);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setState(ParentState.COMPLETE);
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setState(ParentState.COMPLETE);
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.COMPLETE, listener.state);
 		
 		test.removeStateListener(listener);
 		
-		parentStateful.callLocked(new Callable<Void>() {
-			@Override
-			public Void call() throws Exception {
-				parentStateful.setState(ParentState.READY);
-				parentStateful.fireEvent();
-				return null;
-			}
+		parentStateful.runLocked(() -> {
+			parentStateful.setState(ParentState.READY);
+			parentStateful.fireEvent();
 		});
 		
 		assertEquals(TimerState.COMPLETE, listener.state);

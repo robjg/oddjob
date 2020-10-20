@@ -85,12 +85,10 @@ public class IconicInfoTest extends OjTestCase {
 
         iconic.l.iconEvent(new IconEvent(iconic, "test"));
 
-        Notification<IconicHandlerFactory.IconData>[] notifications =
-                (Notification<IconicHandlerFactory.IconData>[]) ojmb.invoke(
+        Notification<IconicHandlerFactory.IconData> n =
+                (Notification<IconicHandlerFactory.IconData>) ojmb.invoke(
                 "iconicSynchronize", new Object[]{},
                 new String[]{});
-
-        Notification<IconicHandlerFactory.IconData> n = notifications[0];
 
         assertEquals(IconicHandlerFactory.ICON_CHANGED_NOTIF_TYPE, n.getType());
 

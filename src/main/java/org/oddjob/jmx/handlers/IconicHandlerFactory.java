@@ -40,11 +40,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 					.andDataType(IconData.class);
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	static final JMXOperationPlus<Notification<IconData>[]> SYNCHRONIZE =
+	static final JMXOperationPlus<Notification<IconData>> SYNCHRONIZE =
 			new JMXOperationPlus(
 					"iconicSynchronize",
 					"Sychronize Notifications.",
-					Notification[].class,
+					Notification.class,
 					MBeanOperationInfo.INFO);
 		
 	static final JMXOperationPlus<ImageIconData> ICON_FOR =
@@ -184,14 +184,14 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 					toolkit.registerNotificationListener(
 							ICON_CHANGED_NOTIF_TYPE, synchronizer);
 					
-					Notification<IconData>[] lastNotifications;
+					Notification<IconData> lastNotification;
 					try {
-						lastNotifications = toolkit.invoke(SYNCHRONIZE);
+						lastNotification = toolkit.invoke(SYNCHRONIZE);
 					} catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
 					
-					synchronizer.synchronize(lastNotifications);
+					synchronizer.synchronize(lastNotification);
 				}
 				
 				IconEvent nowEvent = lastEvent;
@@ -264,7 +264,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			}
 			
 			if (SYNCHRONIZE.equals(operation)) {
-				return new Notification[] { lastNotification };
+				return lastNotification;
 			}
 
 			throw new ReflectionException(

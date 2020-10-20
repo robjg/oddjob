@@ -1,15 +1,10 @@
 package org.oddjob.jobs.tasks;
 
-import java.util.Date;
-import java.util.concurrent.Callable;
-
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
-import org.oddjob.state.State;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateHandler;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
+
+import java.util.Date;
 
 /**
  * A {@link TaskView} that is based on a job that is performing the task.
@@ -19,8 +14,8 @@ import org.oddjob.state.StateListener;
  */
 abstract public class JobTaskView implements TaskView {
 
-	private final StateHandler<TaskState> stateHandler = 
-			new StateHandler<TaskState>(this, TaskState.PENDING);
+	private final StateHandler<TaskState> stateHandler =
+			new StateHandler<>(this, TaskState.PENDING);
 
 	private volatile Object response;
 	
@@ -41,54 +36,49 @@ abstract public class JobTaskView implements TaskView {
 				event.getSource().removeStateListener(this);
 			}
 			
-			stateHandler.callLocked(new Callable<Void>() {
-				@Override
-				public Void call() throws Exception {
-					
-					TaskState newState;
-					Throwable exception = null;
-					
-					if (state.isDestroyed()) {
-						newState = TaskState.EXCEPTION;
-						exception = new TaskException("Job Executing Task has been destroyed.");
-					}
-					else if (state.isStoppable()) {
-						newState = TaskState.INPROGRESS;
-					}
-					else if (state.isIncomplete()) {
-						newState = TaskState.INCOMPLETE;
-					}
-					else if (state.isComplete()) {
-						newState = TaskState.COMPLETE;
-					}
-					else if (state.isException()) {
-						newState = TaskState.EXCEPTION;
-						exception = event.getException();
-					}
-					else if (state.isReady()) {
-						newState = TaskState.PENDING;
-					}
-					else {
-						throw new IllegalStateException("Unconvertable state " + state);
-					}
-					
-					if (newState == stateHandler.lastStateEvent().getState()) {
-						return null;
-					}
-					
-					if (newState == TaskState.EXCEPTION) {
-						stateHandler.setStateException(
-								TaskState.EXCEPTION,
-								exception, time);
-					}
-					else {
-						stateHandler.setState(newState, time);
-					}
-					
-					stateHandler.fireEvent();
-					
-					return null;
+			stateHandler.runLocked(() -> {
+
+				TaskState newState;
+				Throwable exception = null;
+
+				if (state.isDestroyed()) {
+					newState = TaskState.EXCEPTION;
+					exception = new TaskException("Job Executing Task has been destroyed.");
 				}
+				else if (state.isStoppable()) {
+					newState = TaskState.INPROGRESS;
+				}
+				else if (state.isIncomplete()) {
+					newState = TaskState.INCOMPLETE;
+				}
+				else if (state.isComplete()) {
+					newState = TaskState.COMPLETE;
+				}
+				else if (state.isException()) {
+					newState = TaskState.EXCEPTION;
+					exception = event.getException();
+				}
+				else if (state.isReady()) {
+					newState = TaskState.PENDING;
+				}
+				else {
+					throw new IllegalStateException("Unconvertable state " + state);
+				}
+
+				if (newState == stateHandler.lastStateEvent().getState()) {
+					return;
+				}
+
+				if (newState == TaskState.EXCEPTION) {
+					stateHandler.setStateException(
+							TaskState.EXCEPTION,
+							exception, time);
+				}
+				else {
+					stateHandler.setState(newState, time);
+				}
+
+				stateHandler.fireEvent();
 			});
 		}
 	};

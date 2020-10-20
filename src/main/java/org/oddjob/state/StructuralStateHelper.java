@@ -1,18 +1,15 @@
 package org.oddjob.state;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.oddjob.framework.JobDestroyedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
 import org.oddjob.Structural;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Track, and aggregate the states of child jobs. Aggregation is
@@ -61,7 +58,7 @@ public class StructuralStateHelper implements Stateful {
 		@Override
 		public void jobStateChange(final StateEvent event) {
 			
-			stateHandler.callLocked((Callable<Void>) () -> {
+			stateHandler.runLocked(() -> {
 				StateEvent previous = holder.getAndSet(event);
 
 				// Don't check when listener initially added as this happens
@@ -69,8 +66,6 @@ public class StructuralStateHelper implements Stateful {
 				if (previous != null) {
 					checkStates();
 				}
-
-				return null;
 			});
 		}
 		
@@ -78,8 +73,8 @@ public class StructuralStateHelper implements Stateful {
 		public String toString() {
 			return getClass().getName() + " for [" + structural + "]";
 		}
-	};
-	
+	}
+
 	/**
 	 * Create a new instance that will track state changes in the children
 	 * of the given {@link Structural}. States of the children will be
@@ -107,52 +102,45 @@ public class StructuralStateHelper implements Stateful {
 					
 			@Override
 			public void childAdded(final StructuralEvent event) {
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					@Override
-					public void run() {
-						int index = event.getIndex();
-						Object child = event.getChild();
-		
-						AtomicReference<StateEvent> stateHolder =
-								new AtomicReference<>();
-		
-						ChildStateListener listener = 
-								new ChildStateListener(stateHolder);
-		
-						if (child instanceof Stateful) {
-							((Stateful) child).addStateListener(listener);
-						}
-						else {
-							stateHolder.set(new ConstStateful(JobState.COMPLETE).lastStateEvent());
-						}
-						
-						listeners.add(index, listener);
-						childStateEvents.add(index, stateHolder);
-						
-						checkStates();
+				stateHandler.runLocked(() -> {
+					int index = event.getIndex();
+					Object child = event.getChild();
+
+					AtomicReference<StateEvent> stateHolder =
+							new AtomicReference<>();
+
+					ChildStateListener listener =
+							new ChildStateListener(stateHolder);
+
+					if (child instanceof Stateful) {
+						((Stateful) child).addStateListener(listener);
 					}
+					else {
+						stateHolder.set(new ConstStateful(JobState.COMPLETE).lastStateEvent());
+					}
+
+					listeners.add(index, listener);
+					childStateEvents.add(index, stateHolder);
+
+					checkStates();
 				});
 			}
 				
 			@Override
 			public void childRemoved(final StructuralEvent event) {
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					@Override
-					public void run() {
-						int index = event.getIndex();
-						Object child = event.getChild();
+				stateHandler.runLocked(() -> {
+					int index = event.getIndex();
+					Object child = event.getChild();
 
+					StateListener listener = listeners.remove(index);
 
-						StateListener listener = listeners.remove(index);
-
-						if (child instanceof Stateful) {
-							((Stateful) child).removeStateListener(listener);
-						}
-
-						childStateEvents.remove(index);
-
-						checkStates();
+					if (child instanceof Stateful) {
+						((Stateful) child).removeStateListener(listener);
 					}
+
+					childStateEvents.remove(index);
+
+					checkStates();
 				});
 			}				
 		});
@@ -168,36 +156,34 @@ public class StructuralStateHelper implements Stateful {
 			
 	private void checkStates() {
 		
-		stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				StateEvent[] stateArgs = childStateEvents.stream()
-						.map(AtomicReference::get)
-						.toArray(StateEvent[]::new);
+		stateHandler.runLocked(() -> {
+			StateEvent[] stateArgs = childStateEvents.stream()
+					.map(AtomicReference::get)
+					.toArray(StateEvent[]::new);
 
-				StateEvent stateEvent = stateOperator.evaluate(stateArgs);
+			StateEvent stateEvent = stateOperator.evaluate(stateArgs);
 
-				if (stateEvent == null) {
-					if (stateHandler.getState() == ParentState.READY) {
-						return;
-					}
-					stateHandler.setState(ParentState.READY);
+			if (stateEvent == null) {
+				if (stateHandler.getState() == ParentState.READY) {
+					return;
+				}
+				stateHandler.setState(ParentState.READY);
+			}
+			else {
+				// don't fire a new state if it is the same as the last.
+				if (stateEvent.equals(stateHandler.lastStateEvent())) {
+					return;
+				}
+
+				if (stateEvent.getState().isException()) {
+					stateHandler.setStateException((ParentState) stateEvent.getState(),
+							stateEvent.getException(), stateEvent.getTime());
 				}
 				else {
-					// don't fire a new state if it is the same as the last.
-					if (stateEvent.getState().equals(stateHandler.lastStateEvent())) {
-						return;
-					}
-
-					if (stateEvent.getState().isException()) {
-						stateHandler.setStateException((ParentState) stateEvent.getState(),
-								stateEvent.getException(), stateEvent.getTime());
-					}
-					else {
-						stateHandler.setState((ParentState) stateEvent.getState(), stateEvent.getTime());
-					}
+					stateHandler.setState((ParentState) stateEvent.getState(), stateEvent.getTime());
 				}
-				stateHandler.fireEvent();
 			}
+			stateHandler.fireEvent();
 		});
 	}
 
@@ -208,7 +194,7 @@ public class StructuralStateHelper implements Stateful {
 	
 	public StateEvent[] getChildStates() {
 		
-		return stateHandler.callLocked(() -> childStateEvents.stream()
+		return stateHandler.supplyLocked(() -> childStateEvents.stream()
 				.map(AtomicReference::get)
 				.toArray(StateEvent[]::new));
 	}

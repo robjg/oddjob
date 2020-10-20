@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -55,10 +54,10 @@ implements Structural, ConfigurationOwner {
      * @oddjob.description Any value.
      * @oddjob.required No.
      */
-	private transient Stream<? extends Object> values;
+	private transient Stream<?> values;
     		
 	/** The current iterator. */
-	private transient Iterator<? extends Object> iterator;
+	private transient Iterator<?> iterator;
 
 	private volatile EventOperator<T> eventOperator;
 
@@ -102,7 +101,7 @@ implements Structural, ConfigurationOwner {
 	private transient volatile int index;
 		
     /** Track configuration so they can be destroyed. */
-    private transient Map<Object, ConfigurationHandle> configurationHandles;
+    private transient Map<Object, ConfigurationHandle<ArooaContext>> configurationHandles;
     
     
     
@@ -114,7 +113,7 @@ implements Structural, ConfigurationOwner {
 	}
     
 	private void completeConstruction() {
-		childHelper = new ChildHelper<Object>(this);
+		childHelper = new ChildHelper<>(this);
 		configurationOwnerSupport =
 			new ConfigurationOwnerSupport(this);		
 	}
@@ -213,7 +212,7 @@ implements Structural, ConfigurationOwner {
 				session);
 		parser.setExpectedDocumentElement(FOREACH_ELEMENT);
 		
-		ConfigurationHandle handle = parser.parse(configuration);
+		ConfigurationHandle<ArooaContext> handle = parser.parse(configuration);
 		
 		Object root = seed.job;
 
@@ -235,7 +234,7 @@ implements Structural, ConfigurationOwner {
 		
 		// Must happen after configure so we see the correct value
 		// in the job tree.
-		childHelper.addChild((EventSource<Object>) root);
+		childHelper.addChild(root);
 		
 	    return root;
 	}
@@ -278,11 +277,11 @@ implements Structural, ConfigurationOwner {
         
 	    logger().debug("Creating children from configuration.");
 	    
-		configurationHandles = new HashMap<Object, ConfigurationHandle>();
+		configurationHandles = new HashMap<>();
 		
 		if (values == null) {
 			logger().info("No Values.");
-			iterator = Collections.emptyList().iterator();
+			iterator = Collections.emptyIterator();
 		}
 		else {
 			iterator = values.iterator();
@@ -376,7 +375,7 @@ implements Structural, ConfigurationOwner {
     	private volatile Object job;
     	
     	private volatile int structuralPosition = -1;
-    	private volatile ConfigurationHandle handle;
+    	private volatile ConfigurationHandle<ArooaContext> handle;
     	
     	LocalBean (int index, Object value) {
     		this.index = index;
@@ -400,37 +399,32 @@ implements Structural, ConfigurationOwner {
 	    	
     		// Do this locked so editing can't happen when job is being
     		// stopped or reset or suchlike.
-    		stateHandler().callLocked(new Callable<Void>() {
-    			@Override
-    			public Void call() throws Exception {
-    		    	if (child == null) {
-    		    		if (job == null) {
-    		    			throw new NullPointerException(
-    		    					"This is an intermittent bug that I can't fix. " +
-    		    					"Current index is " + index);
-    		    		}
-    		    		
-    		    		structuralPosition = childHelper.removeChild(job);
-			    	    handle = configurationHandles.remove(job);
-    		    	}
-    		    	else {
-    		    		// Replacement after edit.
-    		    		if (structuralPosition != -1) {
-    		    			
-    			    		// Configure the root so we can see the name if it 
-    			    	    // uses the current value.
-    			    		session.getComponentPool().configure(child);
-    			    		
-    			    	    childHelper.insertChild(structuralPosition, child);
-    			    	    configurationHandles.put(child, handle);
-    		    		}
-    		    	}
-    		    	
-    		    	job = child;
-    		    	
-    				return null;
-    			}
-    		});
+    		stateHandler().runLocked(() -> {
+				if (child == null) {
+					if (job == null) {
+						throw new NullPointerException(
+								"This is an intermittent bug that I can't fix. " +
+								"Current index is " + index);
+					}
+
+					structuralPosition = childHelper.removeChild(job);
+					handle = configurationHandles.remove(job);
+				}
+				else {
+					// Replacement after edit.
+					if (structuralPosition != -1) {
+
+						// Configure the root so we can see the name if it
+						// uses the current value.
+						session.getComponentPool().configure(child);
+
+						childHelper.insertChild(structuralPosition, child);
+						configurationHandles.put(child, handle);
+					}
+				}
+
+				job = child;
+			});
 	    }
     }
 
@@ -514,7 +508,7 @@ implements Structural, ConfigurationOwner {
     	
     	@Override
     	public Iterable<ComponentTrinity> allTrinities() {
-			List<ComponentTrinity> results = new ArrayList<ComponentTrinity>();
+			List<ComponentTrinity> results = new ArrayList<>();
 			for (ComponentTrinity t : super.allTrinities()) {
 				results.add(t);
 			}
@@ -563,17 +557,15 @@ implements Structural, ConfigurationOwner {
 	@ArooaAttribute
 	public void setFile(File file) {
 
-		this.file = file;
 		if (file == null) {
-			this.file = null;
 			configuration = null;
 		}
 		else {
 			new RootConfigurationFileCreator(
 					FOREACH_ELEMENT, NamespaceMappings.empty()).createIfNone(file);
-			this.file = file;
 			configuration = new XMLConfiguration(file);
-		} 
+		}
+		this.file = file;
 	}
 
 	public File getFile() {
@@ -639,7 +631,7 @@ implements Structural, ConfigurationOwner {
 				return mainSession.dragPointFor(component);
 			}
 			else {
-				for (ConfigurationHandle configHandle : 
+				for (ConfigurationHandle<ArooaContext> configHandle :
 							configurationHandles.values()) {
 					
 					ConfigurationSession confSession = 
