@@ -6,5 +6,5 @@ package org.oddjob.images;
 
 public interface IconListener {
 
-	public void iconEvent(IconEvent e);
+	void iconEvent(IconEvent e);
 }

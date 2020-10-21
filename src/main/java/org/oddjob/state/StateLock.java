@@ -2,6 +2,9 @@ package org.oddjob.state;
 
 import org.oddjob.util.OddjobLockedException;
 
+import java.util.concurrent.Callable;
+import java.util.function.Supplier;
+
 /**
  * A mechanism for allowing actions to be performed synchronously
  * with respect to state change.
@@ -27,7 +30,7 @@ public interface StateLock {
 	 * 
 	 * @throws OddjobLockedException If the lock can not be acquired.
 	 */
-	public boolean tryToWhen(StateCondition when, Runnable runnable)
+	boolean tryToWhen(StateCondition when, Runnable runnable)
 	throws OddjobLockedException;
 
 	/**
@@ -42,6 +45,29 @@ public interface StateLock {
 	 * @return true if the condition was true and the action
 	 * executed.
 	 */
-	public boolean waitToWhen(StateCondition when, Runnable runnable); 
+	boolean waitToWhen(StateCondition when, Runnable runnable);
 
+	/**
+	 * Wait to acquire the lock and execute the Runnable while holding the lock.
+	 *
+	 * @param runnable The Runnable.
+	 */
+	void runLocked(Runnable runnable);
+
+	/**
+	 * Wait to acquire the lock and execute the Callable while holding the lock.
+	 *
+	 * @param callable The callable.
+	 * @return The result of the callable.
+	 * @throws Exception from the callable.
+	 */
+	<T> T callLocked(Callable<T> callable) throws Exception;
+
+	/**
+	 * Wait to acquire the lock and execute the Supplier while holding the lock.
+	 *
+	 * @param supplier The Supplier.
+	 * @return The result from the Supplier.
+	 */
+	<T> T supplyLocked(Supplier<T> supplier);
 }

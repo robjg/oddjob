@@ -1,13 +1,13 @@
 package org.oddjob.persist;
 
+import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.arooa.registry.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.arooa.registry.Path;
 
 /**
  * A Memory based {@link OddjobPersister}.
@@ -62,7 +62,7 @@ public class MapPersister extends PersisterBase {
 		synchronized (cache) {
 			Map<String, byte[]> inner = cache.get(path);
 			if (inner == null) {
-				logger.info("Restore Failed. No cache for path [" + path + "]");
+				logger.info("Restore Failed. No cache for path [" + path + "],[" + id + "]");
 				return null;
 			}
 			buffer = inner.get(id);

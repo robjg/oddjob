@@ -20,22 +20,20 @@ public class OrderedStateChanger<S extends State> implements StateChanger<S> {
 	}
 	
 	public void setStateException(final Throwable t, final Date date) {
-		runLocked(() -> stateChanger.setStateException(t, date));
+		stateLock.runLocked(() -> stateChanger.setStateException(t, date));
 	}
 	
 	public void setStateException(final Throwable t) {
-		runLocked(() -> stateChanger.setStateException(t));
+		stateLock.runLocked(() -> stateChanger.setStateException(t));
 	}
 	
 	public void setState(final S state, final Date date) {
-		runLocked(() -> stateChanger.setState(state, date));
+		stateLock.runLocked(
+				() -> stateChanger.setState(state, date));
 	}
 	
 	public void setState(final S state) {
-		runLocked(() -> stateChanger.setState(state));
-	}
-	
-	private void runLocked(Runnable runnable) {
-		stateLock.waitToWhen(new IsAnyState(), runnable);
+		stateLock.runLocked(
+				() -> stateChanger.setState(state));
 	}
 }

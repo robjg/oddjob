@@ -3,9 +3,9 @@
  */
 package org.oddjob;
 
-import javax.swing.ImageIcon;
-
 import org.oddjob.images.IconListener;
+
+import javax.swing.*;
 
 
 /**
@@ -27,19 +27,19 @@ public interface Iconic {
      * @param id The icon id.
      * @return The IconTip or null if it doesn't exist.
      */
-	public ImageIcon iconForId(String id);
+	ImageIcon iconForId(String id);
 
 	/**
 	 * Add a listener.
 	 * 
 	 * @param listener The IconListener.
 	 */
-	public void addIconListener(IconListener listener);
+	void addIconListener(IconListener listener);
 
 	/**
 	 * Remove a listener.
 	 * 
 	 * @param listener The IconListener.
 	 */
-	public void removeIconListener(IconListener listener);
+	void removeIconListener(IconListener listener);
 }

@@ -20,15 +20,19 @@ import java.util.function.Supplier;
 /**
  * Helps Jobs handle state change.
  * <p>
- *     Lock must be held during setting and firing operations. Considered using
- *     a read/write lock so state could be read while event fired to listeners,
- *     however as read write locks are not as performant as a single mutex lock,
- *     it was deemed not worth it.
+ * The state setting operations don't notify the listeners. This must be done using the separate
+ * {@link #fireEvent()} method. This is because jobs that use this need to persist their
+ * themselves after setting the state.
+ * </p>
+ * <p>
+ * Lock must be held during setting and firing operations. Considered using
+ * a read/write lock so state could be read while event fired to listeners,
+ * however as read write locks are not as performant as a single mutex lock,
+ * it was deemed not worth it.
  * </p>
  * <p>
  * Todo:
  *     <ul>
- *         <li>Can't remember why setState and fireEvent are separate operations...</li>
  *         <li>Attempted to make {@link #waitToWhen(StateCondition, Runnable)} and
  *         {@link #tryToWhen(StateCondition, Runnable) both use timeouts. This
  *         now required interrupt handling and the tryLock was intermittently
@@ -71,7 +75,7 @@ public class StateHandler<S extends State>
     /**
      * Used for the state lock.
      */
-	private final ReentrantLock lock = new ReentrantLock(true) {
+    private final ReentrantLock lock = new ReentrantLock(true) {
         private static final long serialVersionUID = 2010080400L;
 
         public String toString() {
@@ -249,7 +253,7 @@ public class StateHandler<S extends State>
     }
 
     /**
-     * Runs locked.
+     * Wait to acquire the lock and execute the Runnable while holding the lock.
      *
      * @param runnable The Runnable.
      */
@@ -263,7 +267,7 @@ public class StateHandler<S extends State>
     }
 
     /**
-     * Runs the Callable locked.
+     * Wait to acquire the lock and execute the Callable while holding the lock.
      *
      * @param callable The callable.
      * @return The result of the callable.
@@ -279,7 +283,7 @@ public class StateHandler<S extends State>
     }
 
     /**
-     * Call a supplier locked.
+     * Wait to acquire the lock and execute the Supplier while holding the lock.
      *
      * @param supplier The Supplier.
      * @return The result from the Supplier.
@@ -330,9 +334,9 @@ public class StateHandler<S extends State>
             throws JobDestroyedException {
         assertAlive();
 
-        waitToWhen(new IsAnyState(), () -> {
-            // setting pending event stops the listener chaining state.
+        runLocked(() -> {
             listeners.add(listener);
+            // setting firing flag stops the listener chaining state.
             firing = true;
             try {
                 listener.jobStateChange(lastEvent);
@@ -349,7 +353,7 @@ public class StateHandler<S extends State>
      * @param listener The listener.
      */
     public void removeStateListener(final StateListener listener) {
-        waitToWhen(new IsAnyState(), () -> listeners.remove(listener));
+        runLocked(() -> listeners.remove(listener));
     }
 
     /**

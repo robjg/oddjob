@@ -1,18 +1,12 @@
 package org.oddjob.scheduling;
 
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 import org.oddjob.OddjobExecutors;
 import org.oddjob.Stoppable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.concurrent.*;
 
 /**
  * Provide Simple Oddjob Services.
@@ -47,8 +41,6 @@ public class DefaultExecutors implements OddjobExecutors, Stoppable {
 	 * fixed pool size that is either from the system property
 	 * or based on the number of available processors discovered at
 	 * runtime. The pool size can also be set by the property.
-	 * 
-	 * @param poolBaseName Name that will prefix threads.
 	 */
 	public DefaultExecutors() {
 		String poolSizeString = System.getProperty(POOL_SIZE_PROPERTY);
@@ -78,15 +70,15 @@ public class DefaultExecutors implements OddjobExecutors, Stoppable {
 		if (poolExecutor != null) {
 			logger.info("Shutting down Pool Executor.");
 			List<Runnable> running = poolExecutor.shutdownNow();
-			logger.info("Shutdown Pool Exector with " + 
-					running.size() + " unexecuted jobs.");
+			logger.info("Shutdown Pool Executor with " +
+					running.size() + " un executed jobs.");
 		}
 		
 		if (scheduledExecutor != null) {
 			logger.info("Shutting down Scheduled Executor.");
 			List<Runnable> running = scheduledExecutor.shutdownNow();
-			logger.info("Shutdown Scheduled Exector with " + 
-					running.size() + " unexecuted jobs.");
+			logger.info("Shutdown Scheduled Executor with " +
+					running.size() + " un executed jobs.");
 		}
 	}
 
@@ -127,7 +119,7 @@ public class DefaultExecutors implements OddjobExecutors, Stoppable {
 		
 		if (scheduledExecutorService == null) {
 			
-			logger.info("Starting Scheduled Exector with " + poolSize + " threads.");
+			logger.info("Starting Scheduled Executor with " + poolSize + " threads.");
 			
 			scheduledExecutorService = new OddjobScheduledExecutorService(
 					new ScheduledThreadPoolExecutor(poolSize, getThreadFactory()));
@@ -150,7 +142,7 @@ public class DefaultExecutors implements OddjobExecutors, Stoppable {
 			poolExecutorService = new OddjobExecutorService(
 					new ThreadPoolExecutor(0, Integer.MAX_VALUE,
                                       60L, TimeUnit.SECONDS,
-                                      new SynchronousQueue<Runnable>(),
+                                      new SynchronousQueue<>(),
                                       getThreadFactory()
                                       ));
 		}
