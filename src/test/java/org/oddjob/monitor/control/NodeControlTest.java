@@ -1,23 +1,9 @@
 package org.oddjob.monitor.control;
 
 import org.junit.Test;
-
-import java.awt.Component;
-import java.awt.Toolkit;
-import java.lang.reflect.InvocationTargetException;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.tree.TreePath;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
@@ -25,7 +11,9 @@ import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.images.IconEvent;
+import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.model.JobTreeModel;
 import org.oddjob.monitor.model.JobTreeNode;
@@ -33,11 +21,17 @@ import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.state.ParentState;
 import org.oddjob.util.ThreadManager;
 
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicReference;
+
 public class NodeControlTest extends OjTestCase {
 
 	Component comp;
 	
-	class OurExplorerModel extends MockExplorerModel {
+	static class OurExplorerModel extends MockExplorerModel {
 		
 		Oddjob oddjob;
 		@Override
@@ -57,8 +51,7 @@ public class NodeControlTest extends OjTestCase {
 	}
 		
 	public static class OurIconic extends SimpleJob {
-	
-		String icon = "apple"; 
+
 		IconListener listener;
 		
 		@Override
@@ -71,12 +64,12 @@ public class NodeControlTest extends OjTestCase {
 				throw new RuntimeException("Doh!");
 			}
 			this.listener = listener;
-			listener.iconEvent(new IconEvent(this, "apple"));
+			listener.iconEvent(new IconEvent(this, "started"));
 		}
 		
-		public ImageIcon iconForId(String id) {
-			assertEquals("apple", id);
-			return new ImageIcon(new byte[0], "apple");
+		public ImageData iconForId(String id) {
+			assertEquals("started", id);
+			return IconHelper.startedIcon;
 		}
 		
 		public void removeIconListener(IconListener listener) {
@@ -119,20 +112,16 @@ public class NodeControlTest extends OjTestCase {
 		root.setVisible(true);
 		
 		tree.addTreeWillExpandListener(test);
-		
-		assertEquals(false, tree.isExpanded(0));
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				tree.expandRow(0);
-			}
-		});
+
+	   assertFalse(tree.isExpanded(0));
+		SwingUtilities.invokeAndWait(() -> tree.expandRow(0));
 		
 		
 		TreePath path = tree.getPathForRow(1);
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getDescription());
+		assertEquals("Started", result.getIcon().getDescription());
 		
 		this.comp = tree;
 	}
@@ -168,58 +157,48 @@ public class NodeControlTest extends OjTestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
 		Toolkit.getDefaultToolkit();
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				oddjob.run();
-			}
-		});
+		SwingUtilities.invokeAndWait(oddjob);
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				// Wait for queue to drain.
-			}
+		SwingUtilities.invokeAndWait(() -> {
+			// Wait for queue to drain.
 		});
-		
-		assertEquals(false, tree.isExpanded(0));
+
+	   assertFalse(tree.isExpanded(0));
 		tree.expandRow(0);
 		
 		TreePath path = tree.getPathForRow(1);
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getDescription());
+		assertEquals("Started", result.getIcon().getDescription());
 		
 		OurIconic component = (OurIconic) new OddjobLookup(oddjob).lookup("x");
 		final DragPoint drag = oddjob.provideConfigurationSession().dragPointFor(component);
 		
-		final AtomicReference<Exception> er = new AtomicReference<Exception>();
+		final AtomicReference<Exception> er = new AtomicReference<>();
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
-				drag.cut();
-				try {
-					trn.commit();
-				} catch (ArooaParseException e) {
-					trn.rollback();
-					er.set(e);
-				}
+		SwingUtilities.invokeAndWait(() -> {
+			DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
+			drag.cut();
+			try {
+				trn.commit();
+			} catch (ArooaParseException e) {
+				trn.rollback();
+				er.set(e);
 			}
 		});
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				// Wait for queue to drain.
-			}
+		SwingUtilities.invokeAndWait(() -> {
+			// Wait for queue to drain.
 		});
 		
 		if (er.get() != null) {
 			throw er.get();
 		}
-		
-		assertEquals(null, component.listener);
+
+	   assertNull(component.listener);
 		
 		this.comp = tree;
 	}
@@ -260,52 +239,42 @@ public class NodeControlTest extends OjTestCase {
 		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 		
 		Toolkit.getDefaultToolkit();
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				oddjob.run();
-			}
-		});
+		SwingUtilities.invokeAndWait(oddjob);
 		
 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				// Wait for queue to drain.
-			}
+		SwingUtilities.invokeAndWait(() -> {
+			// Wait for queue to drain.
 		});
 		
 		tree.expandRow(0);
 		tree.expandRow(1);
 		
-		Object seqential = new OddjobLookup(oddjob).lookup("x");
+		Object sequential = new OddjobLookup(oddjob).lookup("x");
 		
 		final DragPoint drag = oddjob.provideConfigurationSession().dragPointFor(
-				seqential);
+				sequential);
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				try {
-					DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
-					drag.paste(0, 			
-							"<bean id='x' class='" + OurIconic.class.getName() + "'/>");
-					trn.commit();
-				} catch (ArooaParseException e) {
-					throw new RuntimeException(e);
-				}
+		SwingUtilities.invokeAndWait(() -> {
+			try {
+				DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
+				drag.paste(0,
+						"<bean id='x' class='" + OurIconic.class.getName() + "'/>");
+				trn.commit();
+			} catch (ArooaParseException e) {
+				throw new RuntimeException(e);
 			}
 		});
 		
-		SwingUtilities.invokeAndWait(new Runnable() {
-			public void run() {
-				// Wait for queue to drain.
-			}
+		SwingUtilities.invokeAndWait(() -> {
+			// Wait for queue to drain.
 		});
 		
 		TreePath path = tree.getPathForRow(2);
 		
 		JobTreeNode result = (JobTreeNode) path.getLastPathComponent();
 
-		assertEquals("apple", result.getIcon().getDescription());
+		assertEquals("Started", result.getIcon().getDescription());
 		
 		this.comp = tree;
 	}

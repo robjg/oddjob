@@ -1,5 +1,19 @@
 package org.oddjob.persist;
 
+import org.oddjob.Describable;
+import org.oddjob.Iconic;
+import org.oddjob.Stateful;
+import org.oddjob.Structural;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.describe.UniversalDescriber;
+import org.oddjob.images.IconEvent;
+import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
+import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.oddjob.structural.StructuralEvent;
+import org.oddjob.structural.StructuralListener;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -10,21 +24,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.ImageIcon;
-
-import org.oddjob.Describable;
-import org.oddjob.Iconic;
-import org.oddjob.Stateful;
-import org.oddjob.Structural;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.describe.UniversalDescriber;
-import org.oddjob.images.IconEvent;
-import org.oddjob.images.IconListener;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.structural.StructuralEvent;
-import org.oddjob.structural.StructuralListener;
 
 /**
  * Capture as much serializable information about a job 
@@ -50,7 +49,7 @@ public class SilhouetteFactory {
 		Map<String, String> description = new UniversalDescriber(
 				session).describe(subject);
 				
-		List<Class<?>> interfaces = new ArrayList<Class<?>>();
+		List<Class<?>> interfaces = new ArrayList<>();
 		
 		interfaces.add(Describable.class);
 		
@@ -89,7 +88,7 @@ public class SilhouetteFactory {
 		
 		Object proxy = Proxy.newProxyInstance(
 				this.getClass().getClassLoader(), 
-				interfaces.toArray(new Class[interfaces.size()]), 
+				interfaces.toArray(new Class[0]),
 				silhouette);
 		
 		if (lastJobStateEvent != null) {
@@ -139,7 +138,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	
 	private volatile IconEvent iconEvent;
 	
-	private volatile ImageIcon iconTip;
+	private volatile ImageData iconTip;
 	
 	Silhouette(String name, Map<String, String> description) {
 		this.name = name;
@@ -154,7 +153,7 @@ class Silhouette implements InvocationHandler, Serializable,
 		this.lastStateEvent = lastJobStateEvent;
 	}
 	
-	void setIconInfo(IconEvent iconEvent, ImageIcon iconTip) {
+	void setIconInfo(IconEvent iconEvent, ImageData iconTip) {
 		this.iconEvent = iconEvent;
 		this.iconTip = iconTip;
 	}
@@ -189,8 +188,8 @@ class Silhouette implements InvocationHandler, Serializable,
 	
 	@Override
 	public void addStructuralListener(StructuralListener listener) {
-		for (int i = 0; i < structuralEvents.length; ++i) {
-			listener.childAdded(structuralEvents[i]);
+		for (StructuralEvent structuralEvent : structuralEvents) {
+			listener.childAdded(structuralEvent);
 		}
 	}
 	
@@ -208,7 +207,7 @@ class Silhouette implements InvocationHandler, Serializable,
 	}
 	
 	@Override
-	public ImageIcon iconForId(String id) {
+	public ImageData iconForId(String id) {
 		return iconTip;
 	}
 	
@@ -264,8 +263,8 @@ class ChildCatcher implements StructuralListener {
 
 	private final ArooaSession session;
 
-	private final List<Object> childHelper = 
-		new ArrayList<Object>();
+	private final List<Object> childHelper =
+			new ArrayList<>();
 	
 	private boolean childNotOurs;
 	
@@ -278,7 +277,7 @@ class ChildCatcher implements StructuralListener {
 			return new Object[0];
 		}
 		else {
-			return childHelper.toArray(new Object[childHelper.size()]);
+			return childHelper.toArray(new Object[0]);
 		}
 	}
 	
@@ -309,9 +308,9 @@ class ChildCatcher implements StructuralListener {
 class IconInfo {
 	
 	private final String iconId;
-	private final ImageIcon icon;
+	private final ImageData icon;
 	
-	IconInfo(String iconId, ImageIcon iconTip) {
+	IconInfo(String iconId, ImageData iconTip) {
 		this.iconId = iconId;
 		this.icon = iconTip;
 	}
@@ -320,7 +319,7 @@ class IconInfo {
 		return iconId;
 	}
 	
-	public ImageIcon getIcon() {
+	public ImageData getIcon() {
 		return icon;
 	}
 }

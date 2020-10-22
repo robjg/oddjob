@@ -1,12 +1,11 @@
 package org.oddjob;
 
-import javax.swing.ImageIcon;
-
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 
 public class MockIconic implements Iconic {
 
-	public ImageIcon iconForId(String id) {
+	public ImageData iconForId(String id) {
 		throw new RuntimeException("Unexpected from class " + getClass());
 	}
 	

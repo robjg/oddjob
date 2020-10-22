@@ -4,7 +4,7 @@ import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconData;
+import org.oddjob.images.ImageData;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSideToolkit;
@@ -18,8 +18,6 @@ import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
-import javax.swing.*;
-import java.io.IOException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
@@ -47,11 +45,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 					Notification.class,
 					MBeanOperationInfo.INFO);
 		
-	static final JMXOperationPlus<ImageIconData> ICON_FOR =
+	static final JMXOperationPlus<ImageData> ICON_FOR =
 			new JMXOperationPlus<>(
 					"Iconic.iconForId",
 					"Retrieve an Icon and ToolTip.",
-					ImageIconData.class,
+					ImageData.class,
 					MBeanOperationInfo.INFO)
 			.addParam("iconId", String.class, "The icon id.");
 	
@@ -141,17 +139,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			lastEvent = new IconEvent(owner, IconHelper.NULL);
 		}
 		
-		public ImageIcon iconForId(String id) {
+		public ImageData iconForId(String id) {
 			try {
-				ImageIconData data = toolkit.invoke(
+				return toolkit.invoke(
 						ICON_FOR,
 						id);
-				if (data == null) {
-					return null;
-				}
-				else {
-					return data.toImageIcon();
-				}
 			}
 			catch (Throwable e) {
 				throw new UndeclaredThrowableException(e);
@@ -250,17 +242,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		throws MBeanException, ReflectionException {
 
 			if (ICON_FOR.equals(operation)) {
-				ImageIcon image = iconic.iconForId((String) params[0]);
-				if (image == null) {
-					return null;
-				}
-				else {
-					try {
-						return ImageIconData.fromImageIcon(image);
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
+				return iconic.iconForId((String) params[0]);
 			}
 			
 			if (SYNCHRONIZE.equals(operation)) {

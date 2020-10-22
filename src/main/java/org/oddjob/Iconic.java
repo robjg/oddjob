@@ -4,8 +4,7 @@
 package org.oddjob;
 
 import org.oddjob.images.IconListener;
-
-import javax.swing.*;
+import org.oddjob.images.ImageData;
 
 
 /**
@@ -22,12 +21,12 @@ import javax.swing.*;
 public interface Iconic {
 
     /**
-     * Return the IconTip (Icon and ToolTip pair).
+     * Return the Icon Image Data.
      * 
      * @param id The icon id.
-     * @return The IconTip or null if it doesn't exist.
+     * @return The Icon Image Data or null if it doesn't exist.
      */
-	ImageIcon iconForId(String id);
+	ImageData iconForId(String id);
 
 	/**
 	 * Add a listener.

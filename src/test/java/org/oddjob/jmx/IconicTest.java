@@ -1,25 +1,18 @@
 package org.oddjob.jmx;
 
 import org.junit.Test;
-
-import javax.swing.ImageIcon;
-
-import org.oddjob.OjTestCase;
-
-import org.oddjob.Iconic;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 
 public class IconicTest extends OjTestCase {
 
-	class Result implements IconListener {
+	static class Result implements IconListener {
 		IconEvent event;
 
 		public void iconEvent(IconEvent e) {
@@ -65,7 +58,7 @@ public class IconicTest extends OjTestCase {
 		
 		RemoteDirectory remote = client.provideBeanDirectory();
 		
-		Iconic fruit = (Iconic) remote.lookup("fruit", Iconic.class);
+		Iconic fruit = remote.lookup("fruit", Iconic.class);
 		
 		assertNotNull(fruit);
 		
@@ -77,7 +70,7 @@ public class IconicTest extends OjTestCase {
 		
 		assertEquals(IconHelper.COMPLETE, iconId);
 
-		ImageIcon tip = fruit.iconForId(iconId);
+		ImageData tip = fruit.iconForId(iconId);
 
 		assertEquals("Complete", tip.getDescription());
 		

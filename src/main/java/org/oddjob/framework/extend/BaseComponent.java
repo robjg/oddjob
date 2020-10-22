@@ -1,11 +1,6 @@
 package org.oddjob.framework.extend;
 
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-
-import javax.swing.ImageIcon;
-
 import org.oddjob.Iconic;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaConfigurationException;
@@ -24,12 +19,16 @@ import org.oddjob.framework.PropertyChangeNotifier;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 import org.oddjob.state.IsAnyState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateHandler;
 import org.oddjob.state.StateListener;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 
 /**
  * An abstract implementation of a component which provides common 
@@ -244,7 +243,7 @@ implements Iconic, Stateful,
 	 * of the Iconic interface.
 	 */
 	@Override
-	public ImageIcon iconForId(String iconId) {
+	public ImageData iconForId(String iconId) {
 		return iconHelper().iconForId(iconId);
 	}
 

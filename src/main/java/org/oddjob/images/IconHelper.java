@@ -1,13 +1,19 @@
 package org.oddjob.images;
 
+import org.oddjob.Iconic;
+import org.oddjob.util.OddjobWrapperException;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOError;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.swing.ImageIcon;
-
-import org.oddjob.Iconic;
 
 
 /**
@@ -37,93 +43,118 @@ public class IconHelper implements Iconic {
 	public static final String TRIGGERED = "triggered"; 
 	public static final String INVALID = "invalid"; 
 	
-	public static final ImageIcon nullIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("diamond.gif"),
-				"Null Icon");
+	public static final ImageData nullIcon;
 	
-	public static final ImageIcon initializingIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("triangle.gif"),
-				"Initialising");
+	public static final ImageData initializingIcon;
 
-	public static final ImageIcon readyIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("right_blue.gif"),
-				"Ready");
+	public static final ImageData readyIcon;
 
-	public static final ImageIcon startableIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("square_blue.gif"),
-				"Startable");
+	public static final ImageData startableIcon;
 
-	public static final ImageIcon executingIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("triangle_green.gif"),
-				"Executing");
+	public static final ImageData executingIcon;
 
-	public static final ImageIcon completeIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("tick_green.gif"),
-				"Complete");
+	public static final ImageData completeIcon;
 
-	public static final ImageIcon notCompleteIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("cross.gif"),
-				"Not Complete");
+	public static final ImageData notCompleteIcon;
 
-	public static final ImageIcon stoppingIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("triangle_red.gif"),
-				"Stopping");
+	public static final ImageData stoppingIcon;
 
-	public static final ImageIcon stoppedIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("square_green.gif"),
-				"Stopped");
+	public static final ImageData stoppedIcon;
 
-	public static final ImageIcon sleepingIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("dot_blue.gif"),
-				"Sleeping");
+	public static final ImageData sleepingIcon;
 
-	public static final ImageIcon invalidIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("cross_red.gif"),
-				"Invalid");
+	public static final ImageData invalidIcon;
 
-	public static final ImageIcon exceptionIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("asterix_red.gif"),
-				"Exception");
+	public static final ImageData exceptionIcon;
 
-	public static final ImageIcon startedIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("dot_green.gif"),
-				"Started");
+	public static final ImageData startedIcon;
 
-	public static final ImageIcon activeIcon
-		= new ImageIconStable(
-			IconHelper.class.getResource("right_green.gif"),
-			"Active");
+	public static final ImageData activeIcon;
 	
-	public static final ImageIcon waitingIcon
-	= new ImageIconStable(
-		IconHelper.class.getResource("diamond_blue.gif"),
-		"Waiting");
+	public static final ImageData waitingIcon;
 
-	public static final ImageIcon firingIcon
-	= new ImageIconStable(
-		IconHelper.class.getResource("star_red.gif"),
-		"Firing");
+	public static final ImageData firingIcon;
 	
-	public static final ImageIcon triggeredIcon
-	= new ImageIconStable(
-		IconHelper.class.getResource("star_green.gif"),
-		"Triggered");
+	public static final ImageData triggeredIcon;
 
-	private static Map<String, ImageIcon> defaultIconMap = 
-		new ConcurrentHashMap<String, ImageIcon>();
+	static {
+
+		try {
+			nullIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("diamond.gif"),
+					"Null Icon");
+
+			initializingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("triangle.gif"),
+					"Initialising");
+
+			readyIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("right_blue.gif"),
+					"Ready");
+
+			startableIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("square_blue.gif"),
+					"Startable");
+
+			executingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("triangle_green.gif"),
+					"Executing");
+
+			completeIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("tick_green.gif"),
+					"Complete");
+
+			notCompleteIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("cross.gif"),
+					"Not Complete");
+
+			stoppingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("triangle_red.gif"),
+					"Stopping");
+
+			stoppedIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("square_green.gif"),
+					"Stopped");
+
+			sleepingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("dot_blue.gif"),
+					"Sleeping");
+
+			invalidIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("cross_red.gif"),
+					"Invalid");
+
+			exceptionIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("asterix_red.gif"),
+					"Exception");
+
+			startedIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("dot_green.gif"),
+					"Started");
+
+			activeIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("right_green.gif"),
+					"Active");
+
+			waitingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("diamond_blue.gif"),
+					"Waiting");
+
+			firingIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("star_red.gif"),
+					"Firing");
+
+			triggeredIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("star_green.gif"),
+					"Triggered");
+		}
+		catch (IOException e) {
+			throw new IOError(e);
+		}
+	}
+
+	private static final Map<String, ImageData> defaultIconMap =
+			new ConcurrentHashMap<>();
 
 	static {
 		defaultIconMap.put(NULL, nullIcon);
@@ -147,14 +178,14 @@ public class IconHelper implements Iconic {
 
 	private final Iconic source;
 	private volatile IconEvent lastEvent;
-	private final List<IconListener> listeners = new ArrayList<IconListener>();
-	private final Map<String, ImageIcon> iconMap;
+	private final List<IconListener> listeners = new ArrayList<>();
+	private final Map<String, ImageData> iconMap;
 	
 	/**
 	 * Constructor with default icon map.
 	 * 
 	 * @param source The source for events.
-	 * @param intialId The initial icon id.
+	 * @param initialId The initial icon id.
 	 */
 	public IconHelper(Iconic source, String initialId) {
 		this(source, initialId, defaultIconMap);
@@ -164,11 +195,11 @@ public class IconHelper implements Iconic {
 	 * Constructor.
 	 * 
 	 * @param source The source for events.
-	 * @param intialId The initial icon id.
+	 * @param initialId The initial icon id.
 	 * @param iconMap The map of ids to icons to use.
 	 */
 	public IconHelper(Iconic source, String initialId,
-			Map<String, ImageIcon> iconMap) {
+			Map<String, ImageData> iconMap) {
 		this.source = source;
 		lastEvent = new IconEvent(source, initialId);
 		this.iconMap = iconMap;
@@ -179,11 +210,9 @@ public class IconHelper implements Iconic {
 	 * 
 	 * @param iconId The id.
 	 * @return The ImageIcon never null.
-	 * 
-	 * @throws NoSuchIconException If the icon doesn't exist.
 	 */
 	@Override
-	public ImageIcon iconForId(String iconId) {
+	public ImageData iconForId(String iconId) {
 		return iconMap.get(iconId);
 	}
 
@@ -204,7 +233,7 @@ public class IconHelper implements Iconic {
 		// list of listeners so that we don't need to
 		// hold the monitor lock when we notify them.
 		IconEvent localEvent = new IconEvent(source, iconId);
-		IconListener[] listenersCopy = null;
+		IconListener[] listenersCopy;
 		
 		synchronized (listeners) {
 			if (iconId.equals(lastEvent.getIconId())) {
@@ -213,10 +242,10 @@ public class IconHelper implements Iconic {
 			
 			lastEvent = localEvent;
 			listenersCopy = listeners.toArray(
-					new IconListener[listeners.size()]);
+					new IconListener[0]);
 		}
-		for (int i = 0; i < listenersCopy.length; ++i) {
-			listenersCopy[i].iconEvent(localEvent);
+		for (IconListener iconListener : listenersCopy) {
+			iconListener.iconEvent(localEvent);
 		}
 	}
 
@@ -243,5 +272,21 @@ public class IconHelper implements Iconic {
 		synchronized (listeners) {
 			listeners.remove(listener);
 		}
-	}		
+	}
+
+	public static ImageIcon imageIconFrom(ImageData imageData) {
+		Objects.requireNonNull(imageData);
+
+		try {
+			BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageData.getBytes()));
+
+			if (image == null) {
+				throw new NullPointerException("Buffered Image for " + imageData.getDescription() +
+						" is null!");
+			}
+			return new ImageIconStable(image, imageData.getDescription());
+		} catch (IOException e) {
+			throw new OddjobWrapperException(e);
+		}
+	}
 }

@@ -1,24 +1,24 @@
 package org.oddjob.monitor.model;
 
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Vector;
-import java.util.concurrent.Executor;
-
-import javax.swing.ImageIcon;
-import javax.swing.tree.TreeNode;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.tree.TreeNode;
+import java.util.Enumeration;
+import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 
 /**
  * This class encapsulates the model of a job to be
@@ -30,17 +30,19 @@ public class JobTreeNode
 		implements TreeNode {
 
 	private static final Logger logger = LoggerFactory.getLogger(JobTreeNode.class);
-	
+
+	private final ConcurrentMap<String, ImageIcon> icons = new ConcurrentHashMap<>();
+
 	/** How to dispatch tree model changes. */
 	private final Executor executor;
 	
 	/** For list of children from the AWT Event Thread perspective. */
-	private final Vector<JobTreeNode> nodeList = 
-		new Vector<JobTreeNode>();
+	private final Vector<JobTreeNode> nodeList =
+			new Vector<>();
 
 	/** From the Job perspective. */	
-	private final Vector<JobTreeNode> currentList = 
-		new Vector<JobTreeNode>();
+	private final Vector<JobTreeNode> currentList =
+			new Vector<>();
 
 	/** Parent node */
 	final private JobTreeNode parent;
@@ -50,7 +52,9 @@ public class JobTreeNode
 
 	/** Save icon information */
 	private final OurIconListener iconListener = new OurIconListener();
-	private volatile ImageIcon iconTip = IconHelper.nullIcon;
+
+	private volatile ImageIcon iconTip = icons.computeIfAbsent(IconHelper.NULL,
+			s -> IconHelper.imageIconFrom(IconHelper.nullIcon));
 
 	/** The job this is modelling. */
 	final private Object component;
@@ -87,14 +91,12 @@ public class JobTreeNode
 			
 			currentList.add(index, childNode);
 			
-			executor.execute(new Runnable() {
-				public void run() {
-					logger.debug("Adding node for [" + childNode.getComponent() + "]");
-					
-					nodeList.add(index, childNode);
+			executor.execute(() -> {
+				logger.debug("Adding node for [" + childNode.getComponent() + "]");
 
-					model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);							
-				}
+				nodeList.add(index, childNode);
+
+				model.fireTreeNodesInserted(JobTreeNode.this, childNode, index);
 			});
 		}
 		
@@ -113,16 +115,14 @@ public class JobTreeNode
 			
 			child.destroy();
 			
-			executor.execute(new Runnable() {
-				public void run() {
-					
-					logger.debug("Removing node for [" + child.getComponent() + "]");
-					
-					JobTreeNode child = nodeList.remove(index);
-					
-					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);
+			executor.execute(() -> {
 
-				}
+				logger.debug("Removing node for [" + child.getComponent() + "]");
+
+				JobTreeNode child1 = nodeList.remove(index);
+
+				model.fireTreeNodesRemoved(JobTreeNode.this, child1, index);
+
 			});
 		}
 
@@ -211,12 +211,7 @@ public class JobTreeNode
 	    synchronized (this) {
 	        this.iconTip = icon;
 	    }
-	    executor.execute(new Runnable() {			
-			@Override
-			public void run() {
-				model.fireTreeNodesChanged(JobTreeNode.this);
-			}
-		});
+	    executor.execute(() -> model.fireTreeNodesChanged(JobTreeNode.this));
 	}
 	
 	public Object getComponent() {
@@ -242,12 +237,16 @@ public class JobTreeNode
 	}
 
 	public boolean isLeaf() {
-		return nodeList.size() == 0 ? true : false;		
+		return nodeList.isEmpty();
 	}
 
 	public int getIndex(TreeNode child) {
 
-		return nodeList.indexOf(child);		
+		if (!( child instanceof JobTreeNode)) {
+			throw new IllegalStateException("Should be a " + JobTreeNode.class.getSimpleName());
+		}
+
+		return nodeList.indexOf(child);
 	}
 
 	public TreeNode getParent() {
@@ -269,7 +268,7 @@ public class JobTreeNode
 
 	public JobTreeNode[] getChildren() {
 		synchronized (nodeList) {
-			return (JobTreeNode[]) nodeList.toArray(new JobTreeNode[0]);
+			return nodeList.toArray(new JobTreeNode[0]);
 		}
 	}
 		
@@ -297,23 +296,18 @@ public class JobTreeNode
 			
 			child.destroy();
 			
-			executor.execute(new Runnable() {
-				public void run() {
-					logger.debug("Removing node for [" + child.getComponent() + "]");
-					
-					JobTreeNode child = nodeList.remove(index);
-					
-					model.fireTreeNodesRemoved(JobTreeNode.this, child, index);				
-				}
+			executor.execute(() -> {
+				logger.debug("Removing node for [" + child.getComponent() + "]");
+
+				JobTreeNode child1 = nodeList.remove(index);
+
+				model.fireTreeNodesRemoved(JobTreeNode.this, child1, index);
 			});
 		}
 	}
 
 	class OurIconListener implements IconListener {
 		private boolean listening;
-		
-		private final Map<String, ImageIcon> icons = 
-			new HashMap<String, ImageIcon>();
 		
 		void listen() {
 			if (listening) {
@@ -327,14 +321,14 @@ public class JobTreeNode
 
 		public void iconEvent(IconEvent event) {
 			String iconId = event.getIconId();
-			ImageIcon it = icons.get(iconId);
-			if (it == null) {
-				it = ((Iconic)component).iconForId(iconId);
-				if (it == null) {
+			ImageIcon it = icons.computeIfAbsent(iconId,
+					s -> {
+				ImageData iconData = ((Iconic)component).iconForId(iconId);
+				if (iconData == null) {
 					throw new NullPointerException("No icon for " + iconId);
 				}
-				icons.put(iconId, it);
-			}
+				return IconHelper.imageIconFrom(iconData);
+			});
 			setIcon(it);
 		}
 		

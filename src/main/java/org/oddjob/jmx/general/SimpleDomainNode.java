@@ -4,7 +4,7 @@ import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconStable;
+import org.oddjob.images.ImageData;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
@@ -12,7 +12,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.ObjectName;
-import javax.swing.*;
+import java.io.IOError;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -27,9 +28,16 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
 	/** The icon. */
-    private final static ImageIcon icon = new ImageIconStable(	
-            IconHelper.class.getResource("Open16.gif"),
-			"folder");
+    private final static ImageData icon;
+
+    static {
+		try {
+			icon = ImageData.fromUrl(IconHelper.class.getResource("Open16.gif"),
+					"folder");
+		} catch (IOException e) {
+			throw new IOError(e);
+		}
+	}
 
 	/** Logger for this instance. */
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName() + 
@@ -97,7 +105,7 @@ public class SimpleDomainNode implements DomainNode, Iconic, LogEnabled {
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
 	 */
-	public ImageIcon iconForId(String iconId) {
+	public ImageData iconForId(String iconId) {
 		return icon;
 	}
 	

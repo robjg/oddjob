@@ -3,13 +3,6 @@
  */
 package org.oddjob.beanbus.mega;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.swing.ImageIcon;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.oddjob.Describable;
@@ -17,23 +10,26 @@ import org.oddjob.Iconic;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListener;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.*;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconStable;
+import org.oddjob.images.ImageData;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOError;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Wraps a Collection object so that it can be added to an 
@@ -50,18 +46,26 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	
 	public static final String ACTIVE = "active";
 	
-	public static final ImageIcon inactiveIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("diamond.gif"),
-				"Inactive");
-	
-	public static final ImageIcon activeIcon
-		= new ImageIconStable(
-				IconHelper.class.getResource("dot_green.gif"),
-				"Actvie");
-	
-	private static Map<String, ImageIcon> busPartIconMap = 
-			new HashMap<String, ImageIcon>();
+	public static final ImageData inactiveIcon;
+
+	public static final ImageData activeIcon;
+
+	static {
+		try {
+			inactiveIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("diamond.gif"),
+					"Inactive");
+
+			activeIcon = ImageData.fromUrl(
+					IconHelper.class.getResource("dot_green.gif"),
+					"Actvie");
+		} catch (IOException e) {
+			throw new IOError(e);
+		}
+	}
+
+	private static final Map<String, ImageData> busPartIconMap =
+			new HashMap<>();
 
 	static {
 		busPartIconMap.put(INACTIVE, inactiveIcon);
@@ -87,9 +91,9 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
     	@Override
     	public void busCrashed(BusEvent event) {
     		busCrashException = event.getBusCrashException();
-    	};
-    	
-		@Override
+    	}
+
+				@Override
 		public void busTerminated(BusEvent event) {
 			iconHelper.changeIcon(INACTIVE);
 		}
@@ -200,7 +204,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	 * of the Iconic interface.
 	 */
 	@Override
-	public ImageIcon iconForId(String iconId) {
+	public ImageData iconForId(String iconId) {
 		return iconHelper.iconForId(iconId);
 	}
 

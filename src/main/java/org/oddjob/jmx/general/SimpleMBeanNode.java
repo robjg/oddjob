@@ -9,7 +9,7 @@ import org.oddjob.arooa.ClassResolver;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconStable;
+import org.oddjob.images.ImageData;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.script.InvokerArguments;
 import org.slf4j.Logger;
@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import javax.management.openmbean.CompositeData;
-import javax.swing.*;
-import java.awt.*;
+import java.io.IOError;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -40,10 +39,17 @@ public class SimpleMBeanNode implements
 	private static final AtomicInteger instanceCount = new AtomicInteger();
 	
 	/** The icon. */
-	private static final ImageIcon icon = new ImageIconStable(new ImageIcon(
-			SimpleDomainNode.class.getResource("mbean.gif")).getImage(
-					).getScaledInstance(16, 16, Image.SCALE_SMOOTH),
+	private static final ImageData icon;
+
+	static {
+		try {
+			icon = ImageData.fromUrl(
+					SimpleDomainNode.class.getResource("mbean.gif"),
 					"MBean");
+		} catch (IOException e) {
+			throw new IOError(e);
+		}
+	}
 
 	/** The logger for this instance. */
 	private final Logger logger = LoggerFactory.getLogger(getClass().getName() + 
@@ -180,7 +186,7 @@ public class SimpleMBeanNode implements
 			Object result = mBeanServer.invoke(
 					objectName, name, converted, signature);
 			
-			logger.info("Succesfully invoked " + name + ", result " +  
+			logger.info("Successfully invoked " + name + ", result " +
 					result);
 			
 			return result;
@@ -201,7 +207,7 @@ public class SimpleMBeanNode implements
 	}
 	
 	@Override
-	public ImageIcon iconForId(String id) {
+	public ImageData iconForId(String id) {
 		return icon;
 	}
 	

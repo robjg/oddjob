@@ -1,19 +1,20 @@
 package org.oddjob.jobs.structural;
 
 
-import javax.swing.ImageIcon;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Iconic;
 import org.oddjob.Structural;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconStable;
+import org.oddjob.images.ImageData;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOError;
+import java.io.IOException;
 
 /**
  * @oddjob.description Holds a collection of jobs but does not
@@ -37,13 +38,20 @@ public class JobFolder
 	private static final Logger logger = LoggerFactory.getLogger(JobFolder.class);
 	
 	/** Icon. */
-	private static final ImageIcon icon = new ImageIconStable(	
-            IconHelper.class.getResource("Open16.gif"),
-			"folder");
+	private static final ImageData icon;
+	static {
+		try {
+			icon = ImageData.fromUrl(
+					IconHelper.class.getResource("Open16.gif"),
+					"folder");
+		} catch (IOException e) {
+			throw new IOError(e);
+		}
+	}
 	
 	/** Child helper. */
 	protected ChildHelper<Object> childHelper
-			= new ChildHelper<Object>(this);
+			= new ChildHelper<>(this);
 			
 	/** 
 	 * @oddjob.property
@@ -98,7 +106,7 @@ public class JobFolder
 	}	
 
 	/**
-	 * Add a listener. The listener will immediately recieve add
+	 * Add a listener. The listener will immediately receive add
 	 * notifications for all existing children.
 	 * 
 	 * @param listener The listener.
@@ -113,7 +121,7 @@ public class JobFolder
 	/**
 	 * Remove a listener.
 	 * 
-	 * @param listener The listner.
+	 * @param listener The listener.
 	 */
 	public void removeStructuralListener(StructuralListener listener) {
 		childHelper.removeStructuralListener(listener);
@@ -135,7 +143,7 @@ public class JobFolder
 	 * Return an icon tip for a given id. Part
 	 * of the Iconic interface.
 	 */
-	public ImageIcon iconForId(String iconId) {
+	public ImageData iconForId(String iconId) {
 		return icon;
 	}
 

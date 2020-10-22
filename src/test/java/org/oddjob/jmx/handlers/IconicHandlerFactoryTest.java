@@ -6,6 +6,7 @@ import org.oddjob.OjTestCase;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.images.ImageData;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
@@ -13,8 +14,6 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
-
-import javax.swing.*;
 
 public class IconicHandlerFactoryTest extends OjTestCase {
 
@@ -34,7 +33,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
             helper.removeIconListener(listener);
         }
 
-        public ImageIcon iconForId(String iconId) {
+        public ImageData iconForId(String iconId) {
             return helper.iconForId(iconId);
         }
     }
@@ -86,7 +85,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
                 new IconicHandlerFactory.ClientFactory(
                 ).createClientHandler(iconic, toolkit);
 
-        ImageIcon result = h.iconForId(IconHelper.EXECUTING);
+        ImageData result = h.iconForId(IconHelper.EXECUTING);
 
         assertEquals("Executing", result.getDescription());
     }

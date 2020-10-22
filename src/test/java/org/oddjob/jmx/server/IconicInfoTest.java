@@ -13,12 +13,10 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
-import org.oddjob.images.ImageIconData;
+import org.oddjob.images.ImageData;
 import org.oddjob.jmx.handlers.IconicHandlerFactory;
 import org.oddjob.remote.Notification;
 import org.oddjob.util.MockThreadManager;
-
-import javax.swing.*;
 
 public class IconicInfoTest extends OjTestCase {
 //	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
@@ -49,7 +47,7 @@ public class IconicInfoTest extends OjTestCase {
             l = listener;
         }
 
-        public ImageIcon iconForId(String id) {
+        public ImageData iconForId(String id) {
             return IconHelper.completeIcon;
         }
 
@@ -92,7 +90,7 @@ public class IconicInfoTest extends OjTestCase {
 
         assertEquals(IconicHandlerFactory.ICON_CHANGED_NOTIF_TYPE, n.getType());
 
-        ImageIconData it = (ImageIconData) ojmb.invoke("Iconic.iconForId",
+        ImageData it = (ImageData) ojmb.invoke("Iconic.iconForId",
                 new Object[]{"whatever"},
                 new String[]{String.class.getName()});
 
