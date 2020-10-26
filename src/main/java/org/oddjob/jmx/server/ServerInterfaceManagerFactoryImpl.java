@@ -92,7 +92,7 @@ implements ServerInterfaceManagerFactory {
 		{
 			if (this.serverHandlerFactories.contains(factory)) {
 				throw new IllegalArgumentException("Failed registering [" + factory + 
-						", it is already registered for class [" + factory.interfaceClass() +"]");
+						", it is already registered for class [" + factory.serverClass() +"]");
 			}
 			this.serverHandlerFactories.add(factory);			
 		}
@@ -108,7 +108,7 @@ implements ServerInterfaceManagerFactory {
 
 		// build up a list of supported interfaces
 		for (ServerInterfaceHandlerFactory<?, ?> interfaceHandler : serverHandlerFactories) {
-			Class<?> handles = interfaceHandler.interfaceClass();
+			Class<?> handles = interfaceHandler.serverClass();
 			if (handles.isInstance(target)) {
 				handlers.add(interfaceHandler);
 			}

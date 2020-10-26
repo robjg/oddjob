@@ -1,5 +1,6 @@
 package org.oddjob.jmx.handlers;
 
+import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
 
 import javax.management.MBeanAttributeInfo;
@@ -22,6 +23,8 @@ import java.util.Objects;
  */
 public class VanillaServerHandlerFactory<T> 
 implements ServerInterfaceHandlerFactory<T, T> {
+
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 
 	/** The interface class. */
 	private final Class<T> cl;
@@ -55,14 +58,26 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
 	 */
-	public Class<T> interfaceClass() {
+	@Override
+	public Class<T> serverClass() {
 		return cl;
 	}
-	
+
+	@Override
+	public Class<T> clientClass() {
+		return cl;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#getMBeanAttributeInfo()
 	 */
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
@@ -71,6 +86,7 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#getMBeanOperationInfo()
 	 */
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return opInfo;
 	}
@@ -79,6 +95,7 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#getMBeanNotificationInfo()
 	 */
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
@@ -87,14 +104,11 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#createServerHandler(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)
 	 */
+	@Override
 	public ServerInterfaceHandler createServerHandler(T target, ServerSideToolkit ojmb) {
 		return new ServerAllOperationsHandler<>(cl, target);
 	}
 
-	public Class<T> clientClass() {
-		return cl;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

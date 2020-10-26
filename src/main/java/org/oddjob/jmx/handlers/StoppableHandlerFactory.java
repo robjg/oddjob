@@ -18,16 +18,29 @@ import javax.management.MBeanParameterInfo;
 public class StoppableHandlerFactory 
 implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
-	
-	public Class<Stoppable> interfaceClass() {
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
+
+	@Override
+	public Class<Stoppable> serverClass() {
 		return Stoppable.class;
 	}
-	
+
+	@Override
+	public Class<Stoppable> clientClass() {
+		return Stoppable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				new MBeanOperationInfo("stop", "Stop the job.",
@@ -35,11 +48,13 @@ implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 						MBeanOperationInfo.ACTION)
 			};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(
 			Stoppable target, ServerSideToolkit ojmb) {
 		
@@ -47,10 +62,6 @@ implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 				Stoppable.class, target);
 	}
 
-	public Class<Stoppable> clientClass() {
-		return Stoppable.class;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

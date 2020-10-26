@@ -10,6 +10,9 @@ import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.Implementation;
+
+import java.util.Arrays;
 
 public class LoadableHandlerFactoryTest extends OjTestCase {
 
@@ -62,9 +65,12 @@ public class LoadableHandlerFactoryTest extends OjTestCase {
 		ServerInterfaceManager manager =
 			managerFactory.create(loadable, new MockServerSideToolkit());
 		
-		Class<?>[] resolvers = manager.allClientInfo();
-		
-		assertThat(resolvers, Matchers.is(new Class<?>[] { Loadable.class }));
+		Implementation<?>[] implementations = manager.allClientInfo();
+
+	   String[] implClasses = Arrays.stream(implementations).map(Implementation::getType)
+			   .toArray(String[]::new);
+
+		assertThat(implClasses, Matchers.is(new String[] { Loadable.class.getName() }));
 
 	   ClientInterfaceHandlerFactory<?> clientFactory =
 			   new DirectInvocationClientFactory<>(Loadable.class);

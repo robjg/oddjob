@@ -19,7 +19,6 @@ import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.SharedConstants;
@@ -30,6 +29,8 @@ import org.oddjob.jmx.handlers.RemoteOddjobHandlerFactory;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
+import org.oddjob.remote.Implementation;
+import org.oddjob.remote.Initialisation;
 import org.oddjob.util.MockThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,11 +58,11 @@ public class ClientNodeTest extends OjTestCase {
 
     ClientInterfaceManagerFactory clientInterfaceManagerFactory =
             new ClientInterfaceManagerFactoryBuilder()
-            .addFactories(SharedConstants.DEFAULT_CLIENT_HANDLER_FACTORIES)
-            .addFactories(
-                    new DirectInvocationClientFactory<>(Runnable.class)
+                    .addFactories(SharedConstants.DEFAULT_CLIENT_HANDLER_FACTORIES)
+                    .addFactories(
+                            new DirectInvocationClientFactory<>(Runnable.class)
                     )
-            .build();
+                    .build();
 
     /**
      * Fixture for the base class of an MBean which provides
@@ -72,12 +73,12 @@ public class ClientNodeTest extends OjTestCase {
 
         int instance = unique++;
 
-        abstract protected Class<?>[] getInterfaces();
+        abstract protected Implementation<?>[] getImplementations();
 
         public ServerInfo serverInfo() {
             return new ServerInfo(
                     new Address(new ServerId(url()), new Path(id())),
-                    ClassUtils.classesToStrings(getInterfaces())
+                    getImplementations()
             );
         }
 
@@ -109,12 +110,15 @@ public class ClientNodeTest extends OjTestCase {
     public class Simple extends BaseMockOJMBean
             implements SimpleMBean {
         public String toString() {
-            return "test";
+            throw new RuntimeException("Unexpected");
         }
 
         @Override
-        protected Class<?>[] getInterfaces() {
-            return new Class[] { Object.class };
+        protected Implementation<?>[] getImplementations() {
+
+            return new Implementation<?>[]{
+                    Implementation.create(Object.class.getName(), "2.0",
+                            new Initialisation<>(String.class, "test"))};
         }
     }
 
@@ -210,8 +214,12 @@ public class ClientNodeTest extends OjTestCase {
         }
 
         @Override
-        protected Class<?>[] getInterfaces() {
-            return new Class[] { Runnable.class };
+        protected Implementation<?>[] getImplementations() {
+            return new Implementation[] {
+                    Implementation.create(
+                            Object.class.getName(), "2.0",
+                            new Initialisation<>(String.class, "Our Runnable Thing")),
+                    Implementation.create(Runnable.class.getName(), "2.0") };
         }
     }
 
@@ -366,14 +374,22 @@ public class ClientNodeTest extends OjTestCase {
         public Object invoke(String actionName, Object[] arguments, String[] signature) throws MBeanException, ReflectionException {
             logger.debug("MyDynamicMBean invoking [" + actionName + "]");
             if ("toString".equals(actionName)) {
-                return "MyDynamicMBean";
+                throw new RuntimeException("toString unexpected");
             } else if ("serverInfo".equals(actionName)) {
+                ServerInterfaceHandlerFactory<?, ?> sihf1 = new ObjectInterfaceHandlerFactory();
+                ServerInterfaceHandlerFactory<?, ?> sihf2 = new RemoteOddjobHandlerFactory();
+                ServerInterfaceHandlerFactory<?, ?> sihf3 = new DynaBeanHandlerFactory();
+
                 return new ServerInfo(
                         new Address(new ServerId("//foo/"), new Path("whatever")),
-                        ClassUtils.classesToStrings(new Class<?>[]{
-                                new ObjectInterfaceHandlerFactory().clientClass(),
-                                new RemoteOddjobHandlerFactory().clientClass(),
-                                new DynaBeanHandlerFactory().clientClass()})
+                        new Implementation<?>[]{
+                                Implementation.create(
+                                        sihf1.clientClass().getName(), sihf1.getHandlerVersion().getVersionAsText(),
+                                        new Initialisation<>(String.class, "MyDynamicMBean")),
+                                Implementation.create(
+                                        sihf2.clientClass().getName(), sihf2.getHandlerVersion().getVersionAsText()),
+                                Implementation.create(
+                                        sihf3.clientClass().getName(), sihf3.getHandlerVersion().getVersionAsText())}
                 );
             } else if ("loggerName".equals(actionName)) {
                 return "org.oddjob.TestLogger";
@@ -407,8 +423,6 @@ public class ClientNodeTest extends OjTestCase {
         long objectId = 2L;
         ObjectName on = OddjobMBeanFactory.objectName(objectId);
         mbs.registerMBean(firstBean, on);
-
-
 
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
@@ -510,8 +524,13 @@ public class ClientNodeTest extends OjTestCase {
             implements MockLoggingMBean {
 
         @Override
-        protected Class<?>[] getInterfaces() {
-            return new Class<?>[] { LogPollable.class };
+        protected Implementation<?>[] getImplementations() {
+            return new Implementation<?>[] {
+                    Implementation.create(
+                            Object.class.getName(), "2.0",
+                            new Initialisation<>(String.class, "Our Logging Thing")),
+                    Implementation.create(
+                            LogPollable.class.getName(), "2.0") };
         }
 
         public LogEvent[] retrieveLogEvents(long from, int max) {

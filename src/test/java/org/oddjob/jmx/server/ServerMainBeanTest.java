@@ -18,6 +18,7 @@ import org.oddjob.jmx.RemoteDirectoryOwner;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.client.LogPollable;
 import org.oddjob.logging.LogEnabled;
+import org.oddjob.remote.Implementation;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
@@ -160,12 +161,23 @@ public class ServerMainBeanTest extends OjTestCase {
         assertEquals(child, toolkit.child);
         assertEquals(1, toolkit.sent.size());
 
-        Class<?>[] interfaces =
+        Implementation<?>[] interfaces =
                 serverInterfaceManager.allClientInfo();
 
-        assertThat(Arrays.asList(interfaces), Matchers.containsInAnyOrder(
-                Object.class, RemoteOddjobBean.class, RemoteDirectoryOwner.class, Structural.class,
-                Describable.class, LogPollable.class, LogEnabled.class, DynaBean.class, Exportable.class));
+        String[] classNames = Arrays.stream(interfaces)
+                .map(implementation -> implementation.getType())
+                .toArray(String[]::new);
+
+        assertThat(Arrays.asList(classNames), Matchers.containsInAnyOrder(
+                Object.class.getName(),
+                RemoteOddjobBean.class.getName(),
+                RemoteDirectoryOwner.class.getName(),
+                Structural.class.getName(),
+                Describable.class.getName(),
+                LogPollable.class.getName(),
+                LogEnabled.class.getName(),
+                DynaBean.class.getName(),
+                Exportable.class.getName()));
 
         serverInterfaceManager.destroy();
 

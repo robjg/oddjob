@@ -25,11 +25,21 @@ import java.lang.reflect.Proxy;
  */
 public class ExportableHandlerFactory implements ServerInterfaceHandlerFactory<Object, Exportable> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
 
 	@Override
-	public Class<Object> interfaceClass() {
+	public Class<Object> serverClass() {
 		return Object.class;
+	}
+
+	@Override
+	public Class<Exportable> clientClass() {
+		return Exportable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
 	}
 
 	@Override
@@ -59,11 +69,6 @@ public class ExportableHandlerFactory implements ServerInterfaceHandlerFactory<O
 			public void destroy() {
 			}
 		};
-	}
-
-	@Override
-	public Class<Exportable> clientClass() {
-		return Exportable.class;
 	}
 
 	public static class ClientFactory implements ClientInterfaceHandlerFactory<Exportable> {

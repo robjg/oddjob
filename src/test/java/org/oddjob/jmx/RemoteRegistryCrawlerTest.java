@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.registry.*;
 import org.oddjob.jmx.server.ServerInfo;
+import org.oddjob.remote.Implementation;
 
 public class RemoteRegistryCrawlerTest extends OjTestCase {
 
@@ -25,7 +26,7 @@ public class RemoteRegistryCrawlerTest extends OjTestCase {
 			return new ServerInfo(
 					new Address(new ServerId("server1"),
 							new Path("a/b")),
-					new String[0]);
+					new Implementation[0]);
 		}
 	}
 

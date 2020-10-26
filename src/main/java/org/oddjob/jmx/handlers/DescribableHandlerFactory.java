@@ -19,42 +19,53 @@ import java.util.Map;
 public class DescribableHandlerFactory
 implements ServerInterfaceHandlerFactory<Object, Describable> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperation<Map<String, String>> DESCRIBE = 
 		new JMXOperationFactory(Describable.class
 				).operationFor("describe", 
 			"Describe properties.",
 			MBeanOperationInfo.INFO);
-	
-	public Class<Object> interfaceClass() {
+
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<Describable> clientClass() {
+		return Describable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 			DESCRIBE.getOpInfo()
 			};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
-	
+
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
 		return new ServerDescribableHandler(target,
 				ojmb.getServerSession().getArooaSession());
 	}
 
-	public Class<Describable> clientClass() {
-		return Describable.class;
-	}
-	
 	static class ServerDescribableHandler implements ServerInterfaceHandler {
 	
 		private final Object object;
@@ -64,8 +75,9 @@ implements ServerInterfaceHandlerFactory<Object, Describable> {
 			this.object = object;
 			this.describer = new UniversalDescriber(session);
 		}
-		
-		public Object invoke(RemoteOperation<?> operation, Object[] params) 
+
+		@Override
+		public Object invoke(RemoteOperation<?> operation, Object[] params)
 		throws MBeanException, ReflectionException {
 
 			if (DESCRIBE.equals(operation)) {
@@ -77,7 +89,8 @@ implements ServerInterfaceHandlerFactory<Object, Describable> {
 								operation.getActionName());				
 			}
 		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

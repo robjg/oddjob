@@ -28,7 +28,7 @@ import java.util.List;
 public class BeanDirectoryHandlerFactory implements
 		ServerInterfaceHandlerFactory<BeanDirectoryOwner, RemoteDirectoryOwner> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperationPlus<ServerId> SERVER_ID =
 			new JMXOperationPlus<>(
@@ -70,40 +70,53 @@ public class BeanDirectoryHandlerFactory implements
 			.addParam("id", String.class, "The id.")
 			.addParam("type", Class.class, "The type.");
 
-	public Class<BeanDirectoryOwner> interfaceClass() {
+	@Override
+	public Class<BeanDirectoryOwner> serverClass() {
 		return BeanDirectoryOwner.class;
 	}
 
+	@Override
+	public Class<RemoteDirectoryOwner> clientClass() {
+		return RemoteDirectoryOwner.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] { SERVER_ID.getOpInfo(),
 				LIST.getOpInfo(), ID_FOR.getOpInfo(), LOOKUP.getOpInfo(),
 				LOOKUP_TYPE.getOpInfo() };
 	}
 
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
 		return new MBeanNotificationInfo[0];
 	}
 
-	public Class<RemoteDirectoryOwner> clientClass() {
-		return RemoteDirectoryOwner.class;
-	}
-
 	public static class ClientFactory implements
 			ClientInterfaceHandlerFactory<RemoteDirectoryOwner> {
 
+		@Override
 		public Class<RemoteDirectoryOwner> interfaceClass() {
 			return RemoteDirectoryOwner.class;
 		}
 
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public RemoteDirectoryOwner createClientHandler(RemoteDirectoryOwner ignored,
 				ClientSideToolkit toolkit) {
 			return new ClientBeanDirectoryHandler(toolkit);
@@ -118,11 +131,13 @@ public class BeanDirectoryHandlerFactory implements
 			this.toolkit = toolkit;
 		}
 
+		@Override
 		public RemoteDirectory provideBeanDirectory() {
 			return new RemoteDirectory() {
 
 				private ServerId serverId;
 
+				@Override
 				public Object lookup(String path) {
 					try {
 						Object result = toolkit.invoke(LOOKUP, path);
@@ -137,6 +152,7 @@ public class BeanDirectoryHandlerFactory implements
 					}
 				}
 
+				@Override
 				public <T> T lookup(String path, Class<T> required) {
 					try {
 						Object result = toolkit.invoke(LOOKUP_TYPE, path, required);
@@ -149,7 +165,8 @@ public class BeanDirectoryHandlerFactory implements
 						throw new UndeclaredThrowableException(e);
 					}
 				}
-		
+
+				@Override
 				public String getIdFor(Object bean) {
 					long objectName = toolkit.getClientSession().idFor(bean);
 		
@@ -165,7 +182,8 @@ public class BeanDirectoryHandlerFactory implements
 					}
 		
 				}
-		
+
+				@Override
 				public <T> Iterable<T> getAllByType(Class<T> type) {
 					try {
 						long[] names = toolkit.invoke(LIST, type);
@@ -189,7 +207,8 @@ public class BeanDirectoryHandlerFactory implements
 						throw new UndeclaredThrowableException(e);
 					}
 				}
-		
+
+				@Override
 				public ServerId getServerId() {
 					if (serverId == null) {
 						try {
@@ -204,6 +223,7 @@ public class BeanDirectoryHandlerFactory implements
 		}
 	}
 
+	@Override
 	public ServerInterfaceHandler createServerHandler(BeanDirectoryOwner directory,
 			ServerSideToolkit serverToolkit) {
 		return new ServerBeanDirectoryHandler(
@@ -314,6 +334,7 @@ public class BeanDirectoryHandlerFactory implements
 					"invoked for an unknown method."), operation.toString());
 		}
 
+		@Override
 		public void destroy() {
 		}
 

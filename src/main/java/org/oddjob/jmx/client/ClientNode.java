@@ -5,6 +5,7 @@ import org.oddjob.framework.Exportable;
 import org.oddjob.framework.Transportable;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.server.ServerInfo;
+import org.oddjob.remote.Implementation;
 import org.oddjob.util.ClassLoaderSorter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,25 +65,27 @@ public class ClientNode implements InvocationHandler, Exportable {
 		
 		ServerInfo serverInfo = remote.serverInfo();
 		
-		ClassResolver classResolver =  
-			toolkit.getClientSession().getArooaSession(
-					).getArooaDescriptor().getClassResolver();
-		
-		Class<?>[] classesRemoteSupports = new ResolverHelper(classResolver
-				).resolve(serverInfo.getInterfaces());
+		Implementation<?>[] classesRemoteSupports = serverInfo.getImplementations();
 
 		ClientInterfaceManagerFactory managerFactory =
 				toolkit.getClientSession().getInterfaceManagerFactory();
 
-		Class<?>[] interfaces = managerFactory.filter(classesRemoteSupports);
-		
+		ClassResolver classResolver =
+				toolkit.getClientSession().getArooaSession()
+						.getArooaDescriptor().getClassResolver();
+
+		ClientInterfaceManagerFactory.Prepared prepared =
+				managerFactory.prepare(classesRemoteSupports, classResolver);
+
+		Class<?>[] interfaces = prepared.supportedInterfaces();
+
 		this.proxy = Proxy.newProxyInstance(
 				new ClassLoaderSorter().getTopLoader(interfaces),
 				interfaces, 
 				this);
 
 		// create the ClientInterfaceManager
-		interfaceManager = managerFactory.create(
+		interfaceManager = prepared.create(
 				proxy, 
 				toolkit);
 		

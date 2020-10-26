@@ -23,7 +23,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 public class LogPollableHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperationPlus<String> CONSOLE_ID =
 			new JMXOperationPlus<>(
@@ -62,14 +62,27 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
 	 */
-	public Class<Object> interfaceClass() {
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<LogPollable> clientClass() {
+		return LogPollable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				CONSOLE_ID.getOpInfo(),
@@ -78,30 +91,31 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 				RETRIEVE_LOG_EVENTS.getOpInfo()
 		};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
-	}	
+	}
 
+	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
 		return new ServerLogPollableHandler(target, ojmb);
 	}
 
-	public Class<LogPollable> clientClass() {
-		return LogPollable.class;
-	}
-
 	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<LogPollable> {
-		
+
+		@Override
 		public Class<LogPollable> interfaceClass() {
 			return LogPollable.class;
 		}
 
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public LogPollable createClientHandler(LogPollable ignored, ClientSideToolkit toolkit) {
 			return new ClientLogPollableHandler(toolkit);
 		}
@@ -136,14 +150,17 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 		 *  
 		 * @return The consoleId.
 		 */
+		@Override
 		public String consoleId() {
 			return consoleId;
 		}
-		
+
+		@Override
 		public String url() {
 			return url;
 		}
-		
+
+		@Override
 		public LogEvent[] retrieveConsoleEvents(long from, int max) {
 			try {
 				return toolkit.invoke(
@@ -153,7 +170,8 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 				throw new UndeclaredThrowableException(t);
 			}
 		}
-		
+
+		@Override
 		public LogEvent[] retrieveLogEvents(long from, int max) {
 			try {
 				return toolkit.invoke(
@@ -175,7 +193,8 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 			this.node = object;
 			this.srvcon = ojmb.getContext();
 		}
-		
+
+		@Override
 		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
 			if (CONSOLE_ID.equals(operation)) {
 				return LogArchiverHelper.consoleId(
@@ -200,7 +219,8 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 								operation.toString());				
 			}
 		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

@@ -17,16 +17,29 @@ import javax.management.MBeanParameterInfo;
 public class ResetableHandlerFactory 
 implements ServerInterfaceHandlerFactory<Resetable, Resetable> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
-	
-	public Class<Resetable> interfaceClass() {
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
+
+	@Override
+	public Class<Resetable> serverClass() {
 		return Resetable.class;
 	}
-	
+
+	@Override
+	public Class<Resetable> clientClass() {
+		return Resetable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				new MBeanOperationInfo("softReset",
@@ -37,20 +50,18 @@ implements ServerInterfaceHandlerFactory<Resetable, Resetable> {
 								.getName(), MBeanOperationInfo.ACTION)
 			};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Resetable target, ServerSideToolkit ojmb) {
 		return new ServerAllOperationsHandler<>(
 				Resetable.class, target);
 	}
 
-	public Class<Resetable> clientClass() {
-		return Resetable.class;
-	}
-	
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == null) {

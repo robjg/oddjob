@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.remote.Implementation;
+
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
@@ -19,7 +21,7 @@ public interface ServerInterfaceManager {
 	 * 
 	 * @return The interfaces.
 	 */
-	Class<?>[] allClientInfo();
+	Implementation<?>[] allClientInfo();
 
 	/**
 	 * Get the MBeanInfo based on all the interfaces.

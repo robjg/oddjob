@@ -8,17 +8,18 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.HasInitialisation;
+import org.oddjob.remote.Initialisation;
 
 import javax.management.*;
 import java.lang.reflect.Proxy;
-import java.lang.reflect.UndeclaredThrowableException;
 
 /**
  */
 public class ObjectInterfaceHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, Object> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperationPlus<String> TO_STRING =
 			new JMXOperationPlus<>(
@@ -26,45 +27,67 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 					"toString.",
 					String.class,
 					MBeanOperationInfo.INFO);
-	
-	public Class<Object> interfaceClass() {
+
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<Object> clientClass() {
+		return Object.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 			TO_STRING.getOpInfo() };
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
-	
+
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
 		return new ServerObjectHandler(target);
 	}
 
-	public Class<Object> clientClass() {
-		return Object.class;
-	}
-	
 	public static class ClientFactory implements ClientInterfaceHandlerFactory<Object> {
-		
+
+		@Override
 		public Class<Object> interfaceClass() {
 			return Object.class;
 		}
-		
+
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
 
-		public Object createClientHandler(Object proxy, ClientSideToolkit toolkit) {
-			return new ClientObjectHandler(proxy, toolkit);
+		@Override
+		public Object createClientHandler(Object proxy, ClientSideToolkit toolkit,
+										  Initialisation<?> initialisation) {
+
+			if (String.class.isAssignableFrom(initialisation.getType())) {
+				return new ClientObjectHandler(proxy, toolkit,
+						String.class.cast(initialisation.getData()));
+			}
+			else {
+				throw new IllegalArgumentException("String initialisation data expected.");
+			}
 		}
 	}
 	
@@ -75,27 +98,20 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		private final Object proxy;
 		
 		/** Save the remote toString value */
-		private String toString;
+		private final String toString;
 		
-		ClientObjectHandler(Object proxy, ClientSideToolkit toolkit) {
+		ClientObjectHandler(Object proxy, ClientSideToolkit toolkit, String toString) {
 			this.proxy = proxy;
 			this.toolkit = toolkit;
+			this.toString = toString;
 		}
-		
+
+		@Override
 		public String toString() {
-			if (toString == null) {
-				try {
-					toString = toolkit.invoke(TO_STRING);
-				} catch (Throwable t) {
-					throw new UndeclaredThrowableException(t);
-				}
-				if (toString == null) {
-					toString = "null";
-				}
-			}
 			return toString;
 		}
-		
+
+		@Override
 		public boolean equals(Object other) {
 			return (other == proxy);
 		}
@@ -106,15 +122,22 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		}
 	}
 	
-	static class ServerObjectHandler implements ServerInterfaceHandler {
+	static class ServerObjectHandler implements ServerInterfaceHandler, HasInitialisation<String>  {
 	
 		private final Object object;
 		
 		ServerObjectHandler(Object object) {
 			this.object = object;
 		}
-		
-		public Object invoke(RemoteOperation<?> operation, Object[] params) 
+
+		@Override
+		public Initialisation<String> initialisation() {
+			return new Initialisation<>(String.class,
+					object.toString());
+		}
+
+		@Override
+		public Object invoke(RemoteOperation<?> operation, Object[] params)
 		throws MBeanException, ReflectionException {
 			
 			if (TO_STRING.equals(operation)) {
@@ -126,11 +149,8 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 								operation.toString());				
 			}
 		}
-		
-		public Notification[] getLastNotifications() {
-			return null;
-		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

@@ -33,7 +33,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(StructuralHandlerFactory.class);
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	public static final NotificationType<ChildData> STRUCTURAL_NOTIF_TYPE =
 			NotificationType.ofName("org.oddjob.structural")
@@ -46,21 +46,35 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 					"Synchronize Notifications.",
 					Notification.class,
 					MBeanOperationInfo.INFO);
-	
-	public Class<Structural> interfaceClass() {
+
+	@Override
+	public Class<Structural> serverClass() {
 		return Structural.class;
 	}
-	
+
+	@Override
+	public Class<Structural> clientClass() {
+		return Structural.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				SYNCHRONIZE.getOpInfo()
 		};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
 		return new MBeanNotificationInfo[] {
@@ -69,28 +83,28 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 						Notification.class.getName(), "Structural notification.")};
 	}
 
+	@Override
 	public ServerInterfaceHandler createServerHandler(
 			Structural structural, 
 			ServerSideToolkit ojmb) {
 
 		return new ServerStructuralHelper(structural, ojmb);
 	}
-	
-	public Class<Structural> clientClass() {
-		return Structural.class;
-	}
-	
+
 	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<Structural> {
-		
+
+		@Override
 		public Class<Structural> interfaceClass() {
 			return Structural.class;
 		}
-		
+
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public Structural createClientHandler(Structural proxy, ClientSideToolkit toolkit) {
 			return new ClientStructuralHandler(proxy, toolkit);
 		}		
@@ -118,6 +132,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		/*
 		 * Add a structural listener. From the Structural interface.
 		 */
+		@Override
 		public void addStructuralListener(StructuralListener listener) {
 			synchronized (this) {
 				if (structuralHelper == null) {
@@ -129,6 +144,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 								ChildData childData = notification.getData();
 
 								new ChildMatch<Long>(childNames) {
+									@Override
 									protected void insertChild(int index, Long childName) {
 										Object childProxy = toolkit.getClientSession().create(childName);
 										// child proxy will be null if the toolkit can't create it.
@@ -165,6 +181,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 		/*
 		 * Remove a structural listener. From the Structural interface.
 		 */
+		@Override
 		public void removeStructuralListener(StructuralListener listener) {
 			synchronized (this) {
 				if (structuralHelper != null) {
@@ -198,6 +215,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 			 * 
 			 * @see org.oddjob.structural.StructuralListener#childAdded(org.oddjob.structural.StructuralEvent)
 			 */
+			@Override
 			public void childAdded(final StructuralEvent e) {
 				// stop events overlapping.
 				final long child;
@@ -236,6 +254,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 			 * 
 			 * @see org.oddjob.structural.StructuralListener#childRemoved(org.oddjob.structural.StructuralEvent)
 			 */
+			@Override
 			public void childRemoved(final StructuralEvent e) {
 				if (duplicate) {
 					// a duplicate was never added.
@@ -288,6 +307,7 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 			return lastNotifications.get();
 		}
 
+		@Override
 		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
 		
 			
@@ -299,7 +319,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 					new IllegalStateException("invoked for an unknown method."), 
 							operation.toString());
 		}
-		
+
+		@Override
 		public void destroy() {
 			
 			// Stop receiving event from Oddjob

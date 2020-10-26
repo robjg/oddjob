@@ -4,6 +4,7 @@
 package org.oddjob.jmx.client;
 
 
+import org.oddjob.remote.Initialisation;
 
 /**
  * Implementations are able to create a handler for the client
@@ -43,7 +44,16 @@ public interface ClientInterfaceHandlerFactory<T> {
 	 * 
 	 * @return An Handler object. Never null.
 	 */
-	T createClientHandler(T proxy, ClientSideToolkit toolkit);
+	default T createClientHandler(T proxy, ClientSideToolkit toolkit) {
+		throw new UnsupportedOperationException("Initialisation Data required for Handler for " +
+				interfaceClass().getName());
+	}
+
+	default T createClientHandler(T proxy, ClientSideToolkit toolkit,
+								  Initialisation<?> initialisation) {
+		throw new UnsupportedOperationException("Initialisation Data not expected for Handler for " +
+				interfaceClass().getName());
+	}
 
 	
 }

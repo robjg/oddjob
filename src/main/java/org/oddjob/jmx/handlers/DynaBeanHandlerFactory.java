@@ -18,7 +18,7 @@ import javax.management.*;
 public class DynaBeanHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperationPlus<Boolean> CONTAINS =
 			new JMXOperationPlus<>(
@@ -100,16 +100,29 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 			.addParam("property", String.class, "The property name.")
 			.addParam("key", String.class, "The key.")
 			.addParam("value ", Object.class, "The value.");
-	
 
-	public Class<Object> interfaceClass() {
+
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<DynaBean> clientClass() {
+		return DynaBean.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				CONTAINS.getOpInfo(),		
@@ -123,21 +136,18 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 				SET_MAPPED.getOpInfo(),
 			};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
-	
-	public ServerInterfaceHandler createServerHandler(Object target, 
+
+	@Override
+	public ServerInterfaceHandler createServerHandler(Object target,
 			ServerSideToolkit serverSideToolkit) {
 		return new DynaBeanServerHandler(target);
 	}
 
-	public Class<DynaBean> clientClass() {
-		return DynaBean.class;
-	}
-		
 	static class DynaBeanServerHandler implements ServerInterfaceHandler {
 	
 		private final Object bean;
@@ -145,8 +155,9 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 		DynaBeanServerHandler(Object bean) {
 			this.bean = bean;
 		}
-		
-		public Object invoke(RemoteOperation<?> operation, Object[] params) 
+
+		@Override
+		public Object invoke(RemoteOperation<?> operation, Object[] params)
 		throws MBeanException, ReflectionException {
 			
 			if (CONTAINS.equals(operation)) {
@@ -231,7 +242,8 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 								operation.toString());				
 			}
 		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

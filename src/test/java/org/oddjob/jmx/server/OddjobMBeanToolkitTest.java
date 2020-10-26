@@ -48,7 +48,7 @@ public class OddjobMBeanToolkitTest extends OjTestCase {
         }
 
         @Override
-        public Class<Object> interfaceClass() {
+        public Class<Object> serverClass() {
             return Object.class;
         }
 

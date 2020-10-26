@@ -3,6 +3,8 @@
  */
 package org.oddjob.jmx.server;
 
+import org.oddjob.jmx.client.HandlerVersion;
+
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
@@ -20,13 +22,28 @@ import javax.management.MBeanOperationInfo;
 public interface ServerInterfaceHandlerFactory<S, T> {
 
 	/**
-	 * Provide the interface class this is the information
-	 * about.
-	 * 
-	 * @return The class.
+	 * Provide the service side class this is the factory for.
+	 *
+	 * @return The class. Not null.
 	 */
-	Class<S> interfaceClass();
-	
+	Class<S> serverClass();
+
+	/**
+	 * Provide the client class. This is what the client proxy will implement.
+	 * It will mainly be the same as the server class but sometime there is
+	 * extra functionality the client needs and these classes will provide that.
+	 *
+	 * @return The class. Not null.
+	 */
+	Class<T> clientClass();
+
+	/**
+	 * Get the version of this handler.
+	 *
+	 * @return The version. Not null.
+	 */
+	HandlerVersion getHandlerVersion();
+
 	/**
 	 * Get the MBeanAttributeInfo for the interface.
 	 *  
@@ -60,11 +77,4 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 */
 	ServerInterfaceHandler createServerHandler(S target, ServerSideToolkit toolkit);
 	
-	/**
-	 * Provide the corresponding {@link org.oddjob.jmx.client.ClientInterfaceHandlerFactory}
-	 * resolver.
-	 * 
-	 * @return The resolver.
-	 */
-	Class<T> clientClass();
 }

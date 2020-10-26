@@ -1,14 +1,18 @@
 package org.oddjob.jmx.client;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.OjTestCase;
+import org.oddjob.arooa.life.ClassLoaderClassResolver;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.handlers.ObjectInterfaceHandlerFactory;
+import org.oddjob.remote.Implementation;
+import org.oddjob.remote.Initialisation;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,8 +22,9 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
         void foo();
     }
 
+
     @Test
-    public void testInvoke() throws Throwable {
+    public void testPrepareAndInvoke() throws Throwable {
 
         class MockFoo implements Foo {
             boolean invoked;
@@ -32,19 +37,27 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
 
         class FooClientHandlerFactory extends MockClientInterfaceHandlerFactory<Foo> {
 
+            @Override
             public Foo createClientHandler(Foo proxy, ClientSideToolkit toolkit) {
                 return proxy;
             }
 
+            @Override
             public Class<Foo> interfaceClass() {
                 return Foo.class;
             }
 
         }
 
-        ClientInterfaceManagerFactory test = new ClientInterfaceManagerFactoryBuilder()
+        Implementation<?>[] implementations = new Implementation[] {
+                Implementation.create(Foo.class.getName(), "2.0") };
+
+        ClientInterfaceManagerFactory.Prepared test = new ClientInterfaceManagerFactoryBuilder()
                 .addFactory(new FooClientHandlerFactory())
-                .build();
+                .build()
+                .prepare(implementations, new ClassLoaderClassResolver(getClass().getClassLoader()));
+
+        assertThat(test.supportedInterfaces(), is(new Class<?>[]{Foo.class}));
 
         ClientInterfaceManager cim = test.create(foo, null);
 
@@ -70,8 +83,13 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
         }
         MockFoo foo = new MockFoo();
 
-        ClientInterfaceManagerFactory test = new ClientInterfaceManagerFactoryBuilder()
-                .build();
+        Implementation<?>[] implementations = new Implementation[]{
+                Implementation.create(Foo.class.getName(), "2.0")
+        };
+
+        ClientInterfaceManagerFactory.Prepared test = new ClientInterfaceManagerFactoryBuilder()
+                .build()
+                .prepare(implementations, new ClassLoaderClassResolver(getClass().getClassLoader()));
 
         ClientInterfaceManager cim = test.create(foo, null);
         try {
@@ -126,15 +144,21 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
 
         }
 
-        ClientInterfaceManagerFactory test = new ClientInterfaceManagerFactoryBuilder()
+        Implementation<?>[] implementations = new Implementation[]{
+                Implementation.create(Object.class.getName(), "2.0"),
+                Implementation.create(Foo.class.getName(), "2.0")
+        };
+
+        ClientInterfaceManagerFactory.Prepared test = new ClientInterfaceManagerFactoryBuilder()
                 .addFactories(new OClientHandlerFactory(), new FooClientHandlerFactory())
-                .build();
+                .build()
+                .prepare(implementations, new ClassLoaderClassResolver(getClass().getClassLoader()));
 
         ClientInterfaceManager cim = test.create(foo, null);
 
-        Class<?>[] supported = test.filter(new Class<?>[]{Object.class, Foo.class});
+        Class<?>[] supported = test.supportedInterfaces();
 
-        assertThat(supported, Matchers.is(new Class<?>[]{Foo.class}));
+        assertThat(supported, is(new Class<?>[] { Foo.class } ));
 
         Object result = cim.invoke(Object.class.getMethod("toString", (Class<?>[]) null), null);
 
@@ -163,23 +187,35 @@ public class ClientInterfaceManagerFactoryTest extends OjTestCase {
     @Test
     public void testWithSomeRealHandlerFactories() throws Throwable {
 
-        ClientInterfaceManagerFactory test =
+        Implementation<?>[] implementations = new Implementation[]{
+                Implementation.create(Object.class.getName(), "2.0",
+                        new Initialisation<>(String.class, "Foo")),
+                Implementation.create(RemoteOddjobBean.class.getName(), "2.0")
+        };
+
+        ClientInterfaceManagerFactory.Prepared test =
                 new ClientInterfaceManagerFactoryBuilder()
                         .addFactories(
                                 new ObjectInterfaceHandlerFactory.ClientFactory(),
                                 new DirectInvocationClientFactory<>(RemoteOddjobBean.class))
-                        .build();
+                        .build()
+                        .prepare(implementations, new ClassLoaderClassResolver(getClass().getClassLoader()));
 
         Method toString = Object.class.getMethod("toString");
 
         ClientSideToolkit toolkit = Mockito.mock(ClientSideToolkit.class);
-        Mockito.when(toolkit.invoke(MethodOperation.from(toString)))
-                .thenReturn("Foo");
 
-        ClientInterfaceManager cim = test.create(new Object(), toolkit);
+        Object proxy = Proxy.newProxyInstance(getClass().getClassLoader(),
+                test.supportedInterfaces(), (proxy1, method, args) -> {
+            throw new RuntimeException("Unexpected");
+                });
+
+        ClientInterfaceManager cim = test.create(proxy, toolkit);
 
         String result = (String) cim.invoke(toString, new Object[0]);
 
-        assertThat(result, Matchers.is("Foo"));
+        assertThat(result, is("Foo"));
+
+        Mockito.verifyNoMoreInteractions(toolkit);
     }
 }

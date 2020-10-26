@@ -28,12 +28,14 @@ import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
 
 /**
+ * This should be ConfigurationOwnerHandlerFactory.
+ *
  * @author rob
  */
 public class ComponentOwnerHandlerFactory
         implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner> {
 
-    public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
+    public static final HandlerVersion VERSION = new HandlerVersion(4, 0);
 
     public static final NotificationType<Boolean> MODIFIED_NOTIF_TYPE =
             NotificationType.ofName("oddjob.config.modified")
@@ -139,14 +141,27 @@ public class ComponentOwnerHandlerFactory
      * (non-Javadoc)
      * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#interfaceClass()
      */
-    public Class<ConfigurationOwner> interfaceClass() {
+    @Override
+    public Class<ConfigurationOwner> serverClass() {
         return ConfigurationOwner.class;
     }
 
+    @Override
+    public Class<ConfigurationOwner> clientClass() {
+        return ConfigurationOwner.class;
+    }
+
+    @Override
+    public HandlerVersion getHandlerVersion() {
+        return VERSION;
+    }
+
+    @Override
     public MBeanAttributeInfo[] getMBeanAttributeInfo() {
         return new MBeanAttributeInfo[0];
     }
 
+    @Override
     public MBeanOperationInfo[] getMBeanOperationInfo() {
         return new MBeanOperationInfo[]{
                 INFO.getOpInfo(),
@@ -163,6 +178,7 @@ public class ComponentOwnerHandlerFactory
         };
     }
 
+    @Override
     public MBeanNotificationInfo[] getMBeanNotificationInfo() {
         return new MBeanNotificationInfo[]{
                 new MBeanNotificationInfo(new String[]{
@@ -170,26 +186,26 @@ public class ComponentOwnerHandlerFactory
                         Notification.class.getName(), "Modified Notification.")};
     }
 
+    @Override
     public ServerInterfaceHandler createServerHandler(
             ConfigurationOwner target, ServerSideToolkit ojmb) {
         return new ServerComponentOwnerHandler(target, ojmb);
     }
 
-    public Class<ConfigurationOwner> clientClass() {
-        return ConfigurationOwner.class;
-    }
-
     public static class ClientFactory
             implements ClientInterfaceHandlerFactory<ConfigurationOwner> {
 
+        @Override
         public Class<ConfigurationOwner> interfaceClass() {
             return ConfigurationOwner.class;
         }
 
+        @Override
         public HandlerVersion getVersion() {
             return VERSION;
         }
 
+        @Override
         public ConfigurationOwner createClientHandler(ConfigurationOwner proxy, ClientSideToolkit toolkit) {
             return new ClientComponentOwnerHandler(proxy, toolkit);
         }
@@ -243,6 +259,7 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public ConfigurationSession provideConfigurationSession() {
             if (!listening) {
                 updateSession(null);
@@ -288,10 +305,12 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public void addOwnerStateListener(OwnerStateListener listener) {
             ownerSupport.addOwnerStateListener(listener);
         }
 
+        @Override
         public void removeOwnerStateListener(OwnerStateListener listener) {
             ownerSupport.removeOwnerStateListener(listener);
         }
@@ -321,6 +340,7 @@ public class ComponentOwnerHandlerFactory
 
         private final NotificationListener<Boolean> listener =
                 new NotificationListener<Boolean>() {
+                    @Override
                     public void handleNotification(Notification<Boolean> notification) {
                         Boolean modified = notification.getData();
                         if (modified) {
@@ -343,6 +363,7 @@ public class ComponentOwnerHandlerFactory
                     listener));
         }
 
+        @Override
         public DragPoint dragPointFor(Object component) {
 
             if (component == null) {
@@ -361,6 +382,7 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public void save() {
             try {
                 clientToolkit.invoke(
@@ -370,6 +392,7 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public boolean isModified() {
             try {
                 return clientToolkit.invoke(
@@ -379,14 +402,17 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public void addSessionStateListener(SessionStateListener listener) {
             sessionSupport.addSessionStateListener(listener);
         }
 
+        @Override
         public void removeSessionStateListener(SessionStateListener listener) {
             sessionSupport.removeSessionStateListener(listener);
         }
 
+        @Override
         public ArooaDescriptor getArooaDescriptor() {
             return clientToolkit.getClientSession().getArooaSession().getArooaDescriptor();
         }
@@ -451,10 +477,12 @@ public class ComponentOwnerHandlerFactory
                                 config.parse(parentContext);
 
                         return new ConfigurationHandle<P>() {
+                            @Override
                             public P getDocumentContext() {
                                 return handle.getDocumentContext();
                             }
 
+                            @Override
                             public void save()
                                     throws ArooaParseException {
 
@@ -480,6 +508,7 @@ public class ComponentOwnerHandlerFactory
                     }
                 }
 
+                @Override
                 public void paste(int index, String config) {
                     try {
                         clientToolkit.invoke(
@@ -506,10 +535,12 @@ public class ComponentOwnerHandlerFactory
 
         private final SessionStateListener modifiedListener = new SessionStateListener() {
 
+            @Override
             public void sessionModified(ConfigSessionEvent event) {
                 send(true);
             }
 
+            @Override
             public void sessionSaved(ConfigSessionEvent event) {
                 send(false);
             }
@@ -526,6 +557,7 @@ public class ComponentOwnerHandlerFactory
         private final OwnerStateListener configurationListener
                 = new OwnerStateListener() {
 
+            @Override
             public void sessionChanged(final ConfigOwnerEvent event) {
                 configurationSession = configurationOwner.provideConfigurationSession();
                 if (configurationSession != null) {
@@ -550,6 +582,7 @@ public class ComponentOwnerHandlerFactory
             }
         }
 
+        @Override
         public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
 
             if (INFO.equals(operation)) {
@@ -739,6 +772,7 @@ public class ComponentOwnerHandlerFactory
 
         }
 
+        @Override
         public void destroy() {
             configurationOwner.removeOwnerStateListener(configurationListener);
             if (configurationSession != null) {

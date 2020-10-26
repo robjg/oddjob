@@ -3,9 +3,18 @@
  */
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.ClassResolver;
+import org.oddjob.remote.Implementation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Client side utility class for creating an {@link ClientInterfaceManagerFactory}.
@@ -14,200 +23,199 @@ import java.util.*;
  */
 public class ClientInterfaceManagerFactoryBuilder {
 
-	private final Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories =
-			new HashMap<>();
+    private static final Logger logger = LoggerFactory.getLogger(ClientInterfaceManagerFactoryBuilder.class);
 
-	public ClientInterfaceManagerFactoryBuilder addFactories(
-			ClientInterfaceHandlerFactory<?>... clientHandlerFactories) {
+    private final Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories =
+            new HashMap<>();
 
-		for (int i = 0; clientHandlerFactories != null && i < clientHandlerFactories.length; ++i) {
-			ClientInterfaceHandlerFactory<?> handlerFactory = clientHandlerFactories[i];
-			addFactory(handlerFactory);
-		}
+    public ClientInterfaceManagerFactoryBuilder addFactories(
+            ClientInterfaceHandlerFactory<?>... clientHandlerFactories) {
 
-		return this;
-	}
-		
-	public ClientInterfaceManagerFactoryBuilder addFactory(
-			ClientInterfaceHandlerFactory<?> handlerFactory) {
+        for (int i = 0; clientHandlerFactories != null && i < clientHandlerFactories.length; ++i) {
+            ClientInterfaceHandlerFactory<?> handlerFactory = clientHandlerFactories[i];
+            addFactory(handlerFactory);
+        }
 
-		if (handlerFactory == null) {
-			return this;
-		}
+        return this;
+    }
 
-		Class<?> interfaceClass = handlerFactory.interfaceClass();
+    public ClientInterfaceManagerFactoryBuilder addFactory(
+            ClientInterfaceHandlerFactory<?> handlerFactory) {
 
-		if (this.clientHandlerFactories.containsKey(interfaceClass)) {
-			throw new IllegalArgumentException("A Client Interface Handler Factory is already registered for ["
-					+ interfaceClass + "], handlerFactory [" + handlerFactory + "]");
-		}
+        if (handlerFactory == null) {
+            return this;
+        }
 
-		// add to factories.
-		this.clientHandlerFactories.put(interfaceClass, handlerFactory);
+        Class<?> interfaceClass = handlerFactory.interfaceClass();
 
-		return this;
-	}
+        if (this.clientHandlerFactories.containsKey(interfaceClass)) {
+            throw new IllegalArgumentException("A Client Interface Handler Factory is already registered for ["
+                    + interfaceClass + "], handlerFactory [" + handlerFactory + "]");
+        }
 
-	public ClientInterfaceManagerFactoryBuilder addFromProvider(
-			HandlerFactoryProvider handlerFactory) {
-		if (handlerFactory == null) {
-			return this;
-		}
-		ClientInterfaceHandlerFactory<?>[] factories = handlerFactory.getHandlerFactories();
-		for (ClientInterfaceHandlerFactory<?> factory : factories) {
-			addFactory(factory);
-		}
-		return this;
-	}
+        // add to factories.
+        this.clientHandlerFactories.put(interfaceClass, handlerFactory);
 
-	public ClientInterfaceManagerFactory build() {
-		return new Impl(this.clientHandlerFactories);
-	}
+        return this;
+    }
 
-	static class Impl implements ClientInterfaceManagerFactory {
+    public ClientInterfaceManagerFactoryBuilder addFromProvider(
+            HandlerFactoryProvider handlerFactory) {
+        if (handlerFactory == null) {
+            return this;
+        }
+        ClientInterfaceHandlerFactory<?>[] factories = handlerFactory.getHandlerFactories();
+        for (ClientInterfaceHandlerFactory<?> factory : factories) {
+            addFactory(factory);
+        }
+        return this;
+    }
 
-		private final Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories;
+    public ClientInterfaceManagerFactory build() {
+        return new Impl(this.clientHandlerFactories);
+    }
 
-		Impl(Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories) {
-			this.clientHandlerFactories = new HashMap<>(clientHandlerFactories);
-		}
+    static class Impl implements ClientInterfaceManagerFactory {
 
+        private final Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories;
 
-		public Class<?>[] filter(Class<?>[] remoteSupports) {
-			return Arrays.stream(remoteSupports)
-			.filter(clientHandlerFactories::containsKey)
-					.filter(Class::isInterface)
-					.toArray(Class[]::new);
-		}
+        Impl(Map<Class<?>, ClientInterfaceHandlerFactory<?>> clientHandlerFactories) {
+            this.clientHandlerFactories = new HashMap<>(clientHandlerFactories);
+        }
 
-		@Override
-		public ClientInterfaceManager create(
-				Object source,
-				ClientSideToolkit csToolkit) {
+        @Override
+        public Prepared prepare(Implementation<?>[] remoteSupports, ClassResolver classResolver) {
 
-			/* Map of methods of the InterfaceHandlers. Not sure if the order
-			 * interface might be important but we are using a LinkedHashMap just
-			 * in case it is. */
-			final Map<Method, Operation<?>> operations =
-					new LinkedHashMap<>();
+            final Map<Class<?>, Implementation<?>> implementationMap =
+                    new LinkedHashMap<>();
 
-			final List<Destroyable> destroyables =
-					new ArrayList<>();
+            for (Implementation<?> implementation : remoteSupports) {
 
-			// Loop over all definitions.
-			for (ClientInterfaceHandlerFactory<?> clientHandlerFactory :
-					clientHandlerFactories.values()) {
+                Class<?> implType = classResolver.findClass(implementation.getType());
 
-				if (clientHandlerFactory.interfaceClass().isInstance(source)) {
-					Object handler = createOperations(source, csToolkit,
-							clientHandlerFactory, operations);
+                if (implType == null) {
 
-					if (handler instanceof Destroyable) {
-						destroyables.add((Destroyable) handler);
-					}
-				}
-			}
+                    logger.debug("No class for {}", implementation.getType());
+                    continue;
+                }
 
-			return new ClientInterfaceManager() {
-				public Object invoke(Method method, Object[] args)
-						throws Throwable {
-					Operation<?> op = operations.get(method);
+                if (clientHandlerFactories.containsKey(implType)) {
+                    implementationMap.put(implType, implementation);
+                } else {
+                    logger.debug("No factory for {}", implType.getName());
+                }
+            }
 
-					if (op == null) {
-						throw new IllegalArgumentException("No interface supports method [" + method + "]");
-					}
+            final Class<?>[] supportedInterfaces = implementationMap.keySet()
+                    .stream()
+                    .filter(Class::isInterface)
+                    .toArray(Class[]::new);
 
-					Object interfaceHandler = op.getHandler();
+            return new Prepared() {
 
-					try {
-						return method.invoke(interfaceHandler,
-								args);
-					} catch (InvocationTargetException e) {
-						throw e.getTargetException();
-					}
-				}
+                @Override
+                public Class<?>[] supportedInterfaces() {
+                    return supportedInterfaces;
+                }
 
-				@Override
-				public void destroy() {
-					for (Destroyable destroyable : destroyables) {
-						destroyable.destroy();
-					}
-				}
+                @Override
+                public ClientInterfaceManager create(Object source, ClientSideToolkit csToolkit) {
 
-			};
-		}
-	}
+                    /* Map of methods of the InterfaceHandlers. Not sure if the order
+                     * interface might be important but we are using a LinkedHashMap just
+                     * in case it is. */
+                    final Map<Method, Object> methodMapping =
+                            new LinkedHashMap<>();
 
-	/**
-	 * Purely for Template trickary.
-	 * 
-	 * @param <T>
-	 * @param source
-	 * @param csToolkit
-	 * @param factory
-	 * @param operations
-	 */
-	private static <T> T createOperations(
-			Object source, 
-			ClientSideToolkit csToolkit,
-			ClientInterfaceHandlerFactory<T> factory, 
-			Map<Method, Operation<?>> operations) {
+                    for (Map.Entry<Class<?>, Implementation<?>> entry : implementationMap.entrySet()) {
 
-		Class<T> cl = factory.interfaceClass();
+                        Class<?> type = entry.getKey();
 
-		// create the interface handler
-		T interfaceHandler
-			= factory.createClientHandler(cl.cast(source), csToolkit);
+                        ClientInterfaceHandlerFactory<?> factory = clientHandlerFactories.get(type);
 
-		// map operations to handler
-		Method[] methods = cl.getMethods();
+                        Implementation<?> implementation = entry.getValue();
 
-		for (Method m : methods) {
-			Operation<?> op = operations.get(m);
+                        Object handler = createHandler(source, csToolkit, factory, implementation);
 
-			if (op != null) {
-				throw new IllegalArgumentException("Failed adding methods for Interface Hander [" +
-						interfaceHandler + "], method [" +
-						m + "] already registered by factory for " +
-						op.getFactory().interfaceClass().getName());
-			}
+                        // map operations to handler
+                        Method[] methods = type.getMethods();
 
-			operations.put(
-					m,
-					new Operation<>(interfaceHandler,
-							factory));
-		}
-		
-		return interfaceHandler;
-	}
-	
-	/**
-	 * Store a handler and a factory for an operation.
-	 * <p>
-	 * The factory is only stored for to create the duplicate message. Can't remember why
-	 * this the handler wasn't good enough for the message.
-	 *
-	 * 
-	 * @author rob
-	 *
-	 */
-	static class Operation<T> {
-		
-		private final T handler;
-		private final ClientInterfaceHandlerFactory<T> factory;
-		
-		Operation(T handler,
-				ClientInterfaceHandlerFactory<T> factory) {
-			this.handler = handler;
-			this.factory = factory;
-		}
-		
-		T getHandler() {
-			return handler;
-		}
-		
-		ClientInterfaceHandlerFactory<T> getFactory() {
-			return factory;
-		}
-	}
+                        for (Method m : methods) {
+                            Object op = methodMapping.get(m);
+
+                            if (op != null) {
+                                logger.debug("Ignoring method [" +
+                                        m + "] already registered for " +
+                                        handler.getClass());
+                                continue;
+                            }
+
+                            methodMapping.put(m, handler);
+                        }
+                    }
+
+                    return new ManagerImpl(methodMapping);
+                }
+            };
+        }
+
+        private static <T> T createHandler(
+                Object source,
+                ClientSideToolkit csToolkit,
+                ClientInterfaceHandlerFactory<T> factory,
+                Implementation<?> implementation) {
+
+            Class<T> cl = factory.interfaceClass();
+
+            T sourceCast = cl.cast(source);
+
+            if (implementation.getInitialisation() == null) {
+                return factory.createClientHandler(sourceCast, csToolkit);
+            } else {
+                return factory.createClientHandler(sourceCast,
+                        csToolkit, implementation.getInitialisation());
+            }
+        }
+
+        static class ManagerImpl implements ClientInterfaceManager {
+
+            private final Map<Method, Object> methodMapping;
+
+            ManagerImpl(Map<Method, Object> methodMapping) {
+                this.methodMapping = methodMapping;
+            }
+
+            @Override
+            public Object invoke(Method method, Object[] args)
+                    throws Throwable {
+
+                Object interfaceHandler = methodMapping.get(method);
+
+                if (interfaceHandler == null) {
+                    throw new IllegalArgumentException("No interface supports method [" + method + "]");
+                }
+
+                try {
+                    return method.invoke(interfaceHandler,
+                            args);
+                } catch (InvocationTargetException e) {
+                    throw e.getTargetException();
+                }
+            }
+
+            @Override
+            public void destroy() {
+
+                Set<Destroyable> destroyables = methodMapping.values().stream()
+                        .filter(o -> o instanceof Destroyable)
+                        .map(o -> (Destroyable) o)
+                        .collect(Collectors.toSet());
+
+                for (Destroyable destroyable : destroyables) {
+                    destroyable.destroy();
+                }
+            }
+
+        }
+    }
 }

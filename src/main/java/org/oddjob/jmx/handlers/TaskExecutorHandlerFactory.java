@@ -31,7 +31,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(TaskExecutorHandlerFactory.class);
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 		
 	static final JMXOperationPlus<InputRequest[]> GET_PARAMETER_INFO = 
 			new JMXOperationPlus<>(
@@ -47,27 +47,42 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 					TaskViewData.class, 
 					MBeanOperationInfo.ACTION)
 				.addParam("task", Task.class, "The task.");
-			
-	public Class<TaskExecutor> interfaceClass() {
+
+	@Override
+	public Class<TaskExecutor> serverClass() {
 		return TaskExecutor.class;
 	}
-	
+
+	@Override
+	public Class<TaskExecutor> clientClass() {
+		return TaskExecutor.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				GET_PARAMETER_INFO.getOpInfo(),
 				EXECUTE.getOpInfo()
 		};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 
 		return new MBeanNotificationInfo[] {};
 	}
 
+	@Override
 	public ServerInterfaceHandler createServerHandler(
 			TaskExecutor taskExecutor, 
 			ServerSideToolkit ojmb) {
@@ -75,21 +90,20 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		return new ServerTaskExecutorHelper(taskExecutor, ojmb);
 	}
 	
-	public Class<TaskExecutor> clientClass() {
-		return TaskExecutor.class;
-	}
-	
 	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<TaskExecutor> {
-		
+
+		@Override
 		public Class<TaskExecutor> interfaceClass() {
 			return TaskExecutor.class;
 		}
-		
+
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public TaskExecutor createClientHandler(TaskExecutor proxy, ClientSideToolkit toolkit) {
 			return new ClientTaskExecutorHandler(proxy, toolkit);
 		}		

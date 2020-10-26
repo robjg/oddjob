@@ -14,7 +14,7 @@ import javax.management.*;
 public class RunnableHandlerFactory 
 implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperationPlus<Void> RUN =
 			new JMXOperationPlus<>(
@@ -23,32 +23,43 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 					Void.TYPE,
 					MBeanOperationInfo.ACTION);
 
-	
-	public Class<Runnable> interfaceClass() {
+
+	@Override
+	public Class<Runnable> serverClass() {
 		return Runnable.class;
 	}
-	
+
+	@Override
+	public Class<Runnable> clientClass() {
+		return Runnable.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 			RUN.getOpInfo() };
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Runnable target, ServerSideToolkit ojmb) {
 		return new RunnableServerHandler(target, ojmb);
 	}
 
-	public Class<Runnable> clientClass() {
-		return Runnable.class;
-	}
-	
 	static class RunnableServerHandler implements ServerInterfaceHandler {
 	
 		private final Runnable runnable;
@@ -58,7 +69,8 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 			this.runnable = runnable;
 			this.ojmb = ojmb;
 		}
-		
+
+		@Override
 		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
 			if (RUN.equals(operation)) {
 				
@@ -72,7 +84,8 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 								operation.toString());				
 			}
 		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

@@ -16,48 +16,62 @@ import java.lang.reflect.UndeclaredThrowableException;
 public class LogEnabledHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
 	private static final JMXOperation<String> GET_LOGGER = 
 		new JMXOperationFactory(LogEnabled.class
 				).operationFor("loggerName", MBeanOperationInfo.INFO);
-	
-	public Class<Object> interfaceClass() {
+
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<LogEnabled> clientClass() {
+		return LogEnabled.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 			GET_LOGGER.getOpInfo() };
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
-	}	
+	}
 
+	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
 		return new LogEnabledServerHandler(target, ojmb);
 	}
 
-	public Class<LogEnabled> clientClass() {
-		return LogEnabled.class;
-	}
-	
 	public static class ClientFactory
 	implements ClientInterfaceHandlerFactory<LogEnabled> {
-		
+
+		@Override
 		public LogEnabled createClientHandler(LogEnabled ignored, ClientSideToolkit toolkit) {
 			return new ClientLogEnabledHandler(toolkit);
 		}
-		
+
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public Class<LogEnabled> interfaceClass() {
 			return LogEnabled.class;
 		}
@@ -75,7 +89,8 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 				throw new UndeclaredThrowableException(t);
 			}
 		}
-		
+
+		@Override
 		public String loggerName() {
 			return remoteLoggerName;
 		}
@@ -90,8 +105,9 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 		LogEnabledServerHandler(Object object, ServerSideToolkit ojmb) {
 			this.loggerName = LogHelper.getLogger(object);
 		}
-		
-		public Object invoke(RemoteOperation<?> operation, Object[] params) 
+
+		@Override
+		public Object invoke(RemoteOperation<?> operation, Object[] params)
 		throws MBeanException, ReflectionException {
 
 			if (GET_LOGGER.equals(operation)) {
@@ -103,7 +119,8 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 								operation.toString());				
 			}
 		}
-		
+
+		@Override
 		public void destroy() {
 		}
 	}

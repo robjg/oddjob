@@ -31,7 +31,7 @@ import java.util.List;
 public class IconicHandlerFactory 
 implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	
-	public static final HandlerVersion VERSION = new HandlerVersion(3, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(4, 0);
 	
 	public static final NotificationType<IconData> ICON_CHANGED_NOTIF_TYPE =
 			NotificationType.ofName("org.oddjob.iconchanged")
@@ -57,14 +57,26 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jmx.server.InterfaceInfo#interfaceClass()
 	 */
-	public Class<Iconic> interfaceClass() {
+	@Override
+	public Class<Iconic> serverClass() {
 		return Iconic.class;
 	}
-	
+
+	@Override
+	public Class<Iconic> clientClass() {
+		return Iconic.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
 	/*
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jmx.server.InterfaceInfo#getMBeanAttributeInfo()
 	 */
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
@@ -73,6 +85,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jmx.server.InterfaceInfo#getMBeanOperationInfo()
 	 */
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 				SYNCHRONIZE.getOpInfo(),
@@ -83,6 +96,7 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jmx.server.InterfaceInfo#getMBeanNotificationInfo()
 	 */
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[] {
 				new MBeanNotificationInfo(
@@ -90,27 +104,27 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 							Notification.class.getName(),
 							"Icon changed notification.") };
 	}
-	
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Iconic iconic, ServerSideToolkit ojmb) {
 		ServerIconicHelper iconicHelper = new ServerIconicHelper(iconic, ojmb);
 		iconic.addIconListener(iconicHelper);
 		return iconicHelper;
 	}
 
-	public Class<Iconic> clientClass() {
-		return Iconic.class;
-	}
-	
 	public static class ClientFactory implements ClientInterfaceHandlerFactory<Iconic> {
-		
+
+		@Override
 		public Class<Iconic> interfaceClass() {
 			return Iconic.class;
 		}
-		
+
+		@Override
 		public HandlerVersion getVersion() {
 			return VERSION;
 		}
-		
+
+		@Override
 		public Iconic createClientHandler(Iconic proxy, ClientSideToolkit toolkit) {
 			return new ClientIconicHandler(proxy, toolkit);
 		}
@@ -138,7 +152,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			
 			lastEvent = new IconEvent(owner, IconHelper.NULL);
 		}
-		
+
+		@Override
 		public ImageData iconForId(String id) {
 			try {
 				return toolkit.invoke(
@@ -163,7 +178,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 				}
 			}
 		}
-		
+
+		@Override
 		public void addIconListener(IconListener listener) {
 			synchronized (this) {
 				if (synchronizer == null) {
@@ -198,7 +214,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		 * Remove a job state listener.
 		 * 
 		 * @param listener The job state listener.
-		 */	
+		 */
+		@Override
 		public void removeIconListener(IconListener listener) {
 			synchronized (this) {
 				listeners.remove(listener);
@@ -226,7 +243,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			this.iconic = iconic;
 			this.toolkit = ojmb;
 		}
-		
+
+		@Override
 		public void iconEvent(final IconEvent event) {
 			toolkit.runSynchronized(() -> {
 				// send a dummy source accross the wire
@@ -238,7 +256,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 			});
 		}
 
-		public Object invoke(RemoteOperation<?> operation, Object[] params) 
+		@Override
+		public Object invoke(RemoteOperation<?> operation, Object[] params)
 		throws MBeanException, ReflectionException {
 
 			if (ICON_FOR.equals(operation)) {
@@ -253,7 +272,8 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 					new IllegalStateException("invoked for an unknown method."), 
 							operation.toString());
 		}
-		
+
+		@Override
 		public void destroy() {
 			iconic.removeIconListener(this);
 		}

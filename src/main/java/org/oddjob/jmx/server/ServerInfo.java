@@ -4,6 +4,7 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.arooa.registry.Address;
+import org.oddjob.remote.Implementation;
 
 import java.io.Serializable;
 
@@ -22,9 +23,12 @@ public class ServerInfo implements Serializable {
 	
 	private final Address address;
 	
-	/** The set of interfaces the server side
-	 * component supports. */
-	private final String[] interfaces;
+	/** The implementations the server side
+	 * component supports.
+	 *
+	 * @returns Implementations.
+	 */
+	private final Implementation<?>[] implementations;
 	
 	/**
 	 * Constructor.
@@ -34,13 +38,13 @@ public class ServerInfo implements Serializable {
 	 */
 	public ServerInfo(
 			Address address,
-			String[] resolvers) {
+			Implementation<?>[] resolvers) {
 		if (resolvers == null) {
 			throw new NullPointerException("interfaces must not be null.");
 		}
 		
 		this.address = address;
-		this.interfaces = resolvers;
+		this.implementations = resolvers;
 	}
 
 	/**
@@ -60,8 +64,8 @@ public class ServerInfo implements Serializable {
 	 * 
 	 * @return The factories.
 	 */
-	public String[] getInterfaces() {
-		return interfaces;
+	public Implementation<?>[] getImplementations() {
+		return implementations;
 	}
 
 	/**

@@ -3,6 +3,9 @@
  */
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.ClassResolver;
+import org.oddjob.remote.Implementation;
+
 /**
  * Client side class for creating {@link ClientInterfaceManager}s.
  *
@@ -10,9 +13,16 @@ package org.oddjob.jmx.client;
  */
 public interface ClientInterfaceManagerFactory {
 
-	Class<?>[] filter(Class<?>[] remoteSupports);
 
-	ClientInterfaceManager create(
-			Object source, 
-			ClientSideToolkit csToolkit);
+	interface Prepared {
+
+		Class<?>[] supportedInterfaces();
+
+		ClientInterfaceManager create(
+				Object source,
+				ClientSideToolkit csToolkit);
+	}
+
+	Prepared prepare(Implementation<?>[] remoteSupports, ClassResolver classResolver);
+
 }

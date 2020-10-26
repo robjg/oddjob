@@ -85,9 +85,13 @@ public class ObjectMBeanServerInfoTest extends OjTestCase {
 		
 		ServerInfo info = rob.serverInfo();
 		
-		assertEquals("url", "//test:x", info.getAddress().toString());		
+		assertEquals("url", "//test:x", info.getAddress().toString());
 
-		assertThat("runnable", Arrays.asList(info.getInterfaces()),
+	   String[] classNames = Arrays.stream(info.getImplementations())
+			   .map(implementation -> implementation.getType())
+			   .toArray(String[]::new);
+
+		assertThat("runnable", Arrays.asList(classNames),
 				Matchers.hasItem(Runnable.class.getName()));
 	}
 }

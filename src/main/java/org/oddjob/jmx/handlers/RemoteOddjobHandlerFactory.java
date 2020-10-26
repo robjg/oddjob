@@ -12,7 +12,7 @@ import javax.management.*;
 public class RemoteOddjobHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 
-	public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
+	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 
 	private static final JMXOperation<ServerInfo> SERVER_INFO = 
 		new JMXOperationFactory(RemoteOddjobBean.class 
@@ -25,33 +25,44 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 		new JMXOperationFactory(RemoteOddjobBean.class 
 				).operationFor("noop", MBeanOperationInfo.INFO);
 
-	public Class<Object> interfaceClass() {
+	@Override
+	public Class<Object> serverClass() {
 		return Object.class;
 	}
-	
+
+	@Override
+	public Class<RemoteOddjobBean> clientClass() {
+		return RemoteOddjobBean.class;
+	}
+
+	@Override
+	public HandlerVersion getHandlerVersion() {
+		return VERSION;
+	}
+
+	@Override
 	public MBeanAttributeInfo[] getMBeanAttributeInfo() {
 		return new MBeanAttributeInfo[0];
 	}
 
+	@Override
 	public MBeanOperationInfo[] getMBeanOperationInfo() {
 		return new MBeanOperationInfo[] {
 			SERVER_INFO.getOpInfo(), 
 			NOOP.getOpInfo() 
 			};
 	}
-	
+
+	@Override
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}
-	
+
+	@Override
 	public ServerInterfaceHandler createServerHandler(Object ignored, ServerSideToolkit toolkit) {
 		return new RemoteOddjobServerHandler(toolkit.getRemoteBean());
 	}
 
-	public Class<RemoteOddjobBean> clientClass() {
-		return RemoteOddjobBean.class;
-	}
-	
 	static class RemoteOddjobServerHandler implements ServerInterfaceHandler {
 	
 		private final RemoteOddjobBean ojmb;
@@ -59,7 +70,8 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 		RemoteOddjobServerHandler(RemoteOddjobBean ojmb) {
 			this.ojmb = ojmb;
 		}
-		
+
+		@Override
 		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
 			if (SERVER_INFO.equals(operation)) {
 				return ojmb.serverInfo();
@@ -75,10 +87,7 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 								operation.toString());				
 		}
 		
-		public Notification[] getLastNotifications() {
-			return null;
-		}
-		
+		@Override
 		public void destroy() {
 		}
 	}
