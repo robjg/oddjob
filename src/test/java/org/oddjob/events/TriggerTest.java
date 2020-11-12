@@ -2,33 +2,11 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.events;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.events.state.EventState;
 import org.oddjob.framework.extend.SimpleJob;
@@ -37,6 +15,17 @@ import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.mockito.Mockito.*;
 
 /**
  * 
@@ -52,7 +41,7 @@ public class TriggerTest extends OjTestCase {
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 
-	private static class OurSubscribeable extends EventSourceBase<Integer> {
+	private static class OurSubscribable extends EventSourceBase<Integer> {
 
 		final List<Integer> ints = Arrays.asList(1, 2, 3);
 		
@@ -76,14 +65,14 @@ public class TriggerTest extends OjTestCase {
 	@Test
 	public void testStartJobExecutedStop() {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 				
 		Queue<Runnable> executions = new LinkedList<>();
 		ExecutorService executorService = mock(ExecutorService.class);
 		
 		Future<?> future = mock(Future.class);
 		doAnswer(invocation -> {
-			executions.add(invocation.getArgumentAt(0, Runnable.class));
+			executions.add(invocation.getArgument(0, Runnable.class));
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
@@ -134,7 +123,7 @@ public class TriggerTest extends OjTestCase {
 	@Test
 	public void testStopUntriggered() throws FailedToStopException {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 		
 		ExecutorService executorService = mock(ExecutorService.class);
 		
@@ -165,13 +154,13 @@ public class TriggerTest extends OjTestCase {
 		
 		states.checkNow();
 
-		Mockito.verifyZeroInteractions(executorService);
+		Mockito.verifyNoInteractions(executorService);
 	}
 	
 	@Test
 	public void testNoChildJob() throws FailedToStopException {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
@@ -209,7 +198,7 @@ public class TriggerTest extends OjTestCase {
 		
 		testStates.checkNow();
 
-		Mockito.verifyZeroInteractions(executorService);
+		Mockito.verifyNoInteractions(executorService);
 	}
 	
 	private static class SendWhenConnecting extends EventSourceBase<Integer> {
@@ -229,7 +218,7 @@ public class TriggerTest extends OjTestCase {
 		
 		Future<?> future = mock(Future.class);
 		doAnswer(invocation -> {
-			invocation.getArgumentAt(0, Runnable.class).run();
+			invocation.getArgument(0, Runnable.class).run();
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 

@@ -1,22 +1,5 @@
 package org.oddjob.events;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
-
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.FailedToStopException;
@@ -28,11 +11,21 @@ import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.*;
+
 public class WhenTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(WhenTest.class);
 	
-	private static class OurSubscribeable extends EventSourceBase<Integer> {
+	private static class OurSubscribable extends EventSourceBase<Integer> {
 
 		final List<EventOf<Integer>> ints = Arrays.asList(
 				EventOf.of(1), EventOf.of(2), EventOf.of(3));
@@ -55,14 +48,14 @@ public class WhenTest {
 	@Test
 	public void testStartedThenEventThenJobExecutedThenStop() throws FailedToStopException {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 				
 		Queue<Runnable> executions = new LinkedList<>();
 		ExecutorService executorService = mock(ExecutorService.class);
 		
 		Future<?> future = mock(Future.class);
 		doAnswer(invocation -> {
-			executions.add(invocation.getArgumentAt(0, Runnable.class));
+			executions.add(invocation.getArgument(0, Runnable.class));
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
@@ -134,7 +127,7 @@ public class WhenTest {
 	@Test
 	public void testStopUntriggered() throws FailedToStopException {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 		
 		ExecutorService executorService = mock(ExecutorService.class);
 		
@@ -164,13 +157,13 @@ public class WhenTest {
 		
 		states.checkNow();
 
-		Mockito.verifyZeroInteractions(executorService);
+		Mockito.verifyNoInteractions(executorService);
 	}
 	
 	@Test
 	public void testNoChildJob() throws FailedToStopException {
 		
-		OurSubscribeable subscribe = new OurSubscribeable();
+		OurSubscribable subscribe = new OurSubscribable();
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
@@ -219,7 +212,7 @@ public class WhenTest {
 		
 		testStates.checkNow();
 
-		Mockito.verifyZeroInteractions(executorService);
+		Mockito.verifyNoInteractions(executorService);
 	}
 	
 }
