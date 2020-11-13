@@ -15,7 +15,7 @@ public interface ChildList<E> {
 	 * @param index The 0 based index of the insert.
 	 * @param child The child. Must not be null.
 	 */
-	public void insertChild(int index, E child);
+	void insertChild(int index, E child);
 	
 	/**
 	 * Add a child to the end of the list.
@@ -24,7 +24,7 @@ public interface ChildList<E> {
 	 * 
 	 * @return The index the child was added at.
 	 */
-	public int addChild(E child);
+	int addChild(E child);
 	
 	/**
 	 * Remove a child by index. 
@@ -34,7 +34,7 @@ public interface ChildList<E> {
 	 * 
 	 * @throws IndexOutOfBoundsException If there is no child at the index.
 	 */
-	public E removeChildAt(int index) throws IndexOutOfBoundsException;
+	E removeChildAt(int index) throws IndexOutOfBoundsException;
 	
 	/**
 	 * Remove a child.
@@ -45,5 +45,5 @@ public interface ChildList<E> {
 	 * @throws IllegalStateException If the child is not a child of this
 	 * list.
 	 */
-	public int removeChild(Object child) throws IllegalStateException;
+	int removeChild(E child) throws IllegalStateException;
 }

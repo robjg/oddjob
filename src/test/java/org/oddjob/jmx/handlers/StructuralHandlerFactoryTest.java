@@ -4,7 +4,6 @@
 package org.oddjob.jmx.handlers;
 
 import org.junit.Test;
-import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
@@ -27,11 +26,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class StructuralHandlerFactoryTest extends OjTestCase {
+public class StructuralHandlerFactoryTest {
 
     private static class OurServerSideToolkit extends MockServerSideToolkit {
+
         List<Notification<ChildData>> notifications = new ArrayList<>();
 
         Map<Long, Object> children = new HashMap<>();
@@ -67,7 +71,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
                 @Override
                 public void destroy(long childName) {
                     Object child = children.remove(childName);
-                    assertNotNull(child);
+                    assertThat(child, notNullValue());
                 }
             };
         }
@@ -103,6 +107,7 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
 
     @Test
     public void testServerSide() throws MBeanException, ReflectionException, NullPointerException {
+
         MyStructural structural = new MyStructural();
         structural.helper.insertChild(0, new Object());
 
@@ -111,17 +116,18 @@ public class StructuralHandlerFactoryTest extends OjTestCase {
         StructuralHandlerFactory test = new StructuralHandlerFactory();
         ServerInterfaceHandler handler = test.createServerHandler(structural, toolkit);
 
-
-        assertEquals(1, toolkit.notifications.size());
+        // Creating handler send notification. Not sure if it should do this
+        // but nothings listening
+        assertThat(toolkit.notifications.size(), is(1));
 
         @SuppressWarnings("unchecked")
         Notification<ChildData> last =
                 (Notification<ChildData>) handler.invoke(
                         StructuralHandlerFactory.SYNCHRONIZE,
                         new Object[0]);
+
         assertEquals(1, last.getSequence());
         ChildData lastData0 = last.getData();
-
 
         assertEquals(1, lastData0.getRemoteIds().length);
         assertEquals(lastData0.getRemoteIds()[0], 2L);

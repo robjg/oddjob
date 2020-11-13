@@ -34,6 +34,13 @@ public class RemoteBridge implements RemoteConnection {
                                             NotificationListener<T> notificationListener)
             throws RemoteException {
 
+        Pair<Long, Pair<?, ?>> listenerKey = Pair.of(remoteId, Pair.of(notificationType, notificationListener));
+
+        if (listeners.containsKey(listenerKey)) {
+            throw new RemoteIdException(remoteId, "Listener " + notificationListener + " " +
+                    "already registered for notification type " + notificationType);
+        }
+
         javax.management.NotificationListener jmxListener = (notification, handback) ->
                 notificationListener.handleNotification(
                         fromJmxNotification(remoteId, notificationType.getDataType(), notification));
@@ -49,8 +56,7 @@ public class RemoteBridge implements RemoteConnection {
             throw new RemoteIdException(remoteId, e);
         }
 
-        listeners.put(Pair.of(remoteId, Pair.of(notificationType, notificationListener)),
-                Pair.of(filter, jmxListener));
+        listeners.put(listenerKey, Pair.of(filter, jmxListener));
     }
 
     @Override

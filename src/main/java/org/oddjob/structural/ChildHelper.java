@@ -1,17 +1,13 @@
 package org.oddjob.structural;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resetable;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * Helper for managing child Objects. This class will track structural
@@ -25,18 +21,18 @@ implements Structural, Iterable<E>, ChildList<E> {
 	private static final Logger logger = LoggerFactory.getLogger(ChildHelper.class);
 	
 	/** Contains the child jobs. */
-	private final List<E> jobList = 
-		new ArrayList<E>();
+	private final List<E> jobList =
+			new ArrayList<>();
 	
 	/** Structural listeners. */
-	private final List<StructuralListener> listeners = 
-		new ArrayList<StructuralListener>();
+	private final List<StructuralListener> listeners =
+			new ArrayList<>();
 	
 	/** Missed child actions. Allows a newly added listener to receive
 	 * outstanding event while not missing a new event that arrives
 	 * asynchronously. */
-	private final Set<List<ChildAction>> missed = 
-		new HashSet<List<ChildAction>>();
+	private final Set<List<ChildAction>> missed =
+			new HashSet<>();
 
 	/** The source. */
 	private final Structural source;
@@ -62,7 +58,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 			throw new NullPointerException("Attempt to add a null child.");
 		}
 
-		StructuralEvent event = null;
+		StructuralEvent event;
 		synchronized (missed) {
 			jobList.add(index, child);
 			event = new StructuralEvent(source, child, index);
@@ -86,9 +82,9 @@ implements Structural, Iterable<E>, ChildList<E> {
 			throw new NullPointerException("Attempt to add a null child.");
 		}
 
-		int index = -1; 
+		int index;
 			
-		StructuralEvent event = null;
+		StructuralEvent event;
 		synchronized (missed) {
 			index = jobList.size();
 			jobList.add(index, child);
@@ -104,7 +100,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	
 	/**
 	 * Remove a child by index. This method
-	 * fires the appropriate event in accordance with the Strucutral interface.
+	 * fires the appropriate event in accordance with the Structural interface.
 	 * 
 	 * @param index The index of the child to remove.
 	 * @return The child removed.
@@ -113,7 +109,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 */
 	@Override
 	public E removeChildAt(int index) throws IndexOutOfBoundsException {
-		E child = null;
+		E child;
 		
 		StructuralEvent event;
 		synchronized (missed) {
@@ -152,8 +148,8 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 * @throws IllegalStateException If the child is not our child.
 	 */
 	@Override
-	public int removeChild(Object child) throws IllegalStateException {
-		int index = -1;
+	public int removeChild(E child) throws IllegalStateException {
+		int index;
 		
 		StructuralEvent event;
 		synchronized (missed) {
@@ -232,22 +228,22 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 */
 	public void softResetChildren() {
 		Object [] children = getChildren();
-		for (int i = 0; i < children.length; ++i) {			
-			if (children[i] instanceof Resetable) {
-				((Resetable)children[i]).softReset();
+		for (Object child : children) {
+			if (child instanceof Resetable) {
+				((Resetable) child).softReset();
 			}
 		}
 	}
 
 	/**
-	 * Perform a hard reset. This method propergates the hard reset message down
+	 * Perform a hard reset. This method propagates the hard reset message down
 	 * to all child jobs. This is a convenience method a sub class can choose to use.
 	 */
 	public void hardResetChildren() {
 		Object [] children = getChildren();
-		for (int i = 0; i < children.length; ++i) {			
-			if (children[i] instanceof Resetable) { 
-				((Resetable)children[i]).hardReset();
+		for (Object child : children) {
+			if (child instanceof Resetable) {
+				((Resetable) child).hardReset();
 			}
 		}
 	}
@@ -259,7 +255,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 */
 	public Object[] getChildren() {
 		synchronized (missed) {
-			return jobList.toArray(new Object[jobList.size()]);
+			return jobList.toArray(new Object[0]);
 		}
 	}	
 	
@@ -359,8 +355,13 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 * @see org.oddjob.structural.Structural#addStructuralListener(org.oddjob.structural.StructuralListener)
 	 */
 	public void addStructuralListener(StructuralListener listener) {
-		List<ChildAction> ours = new ArrayList<ChildAction>();
+		List<ChildAction> ours = new ArrayList<>();
 		synchronized (missed) {
+
+			if  (listeners.contains(listener)) {
+				throw new IllegalArgumentException("Listener " + listener + " already registered.");
+			}
+
 			for (int i = 0; i < jobList.size(); ++i) {
 				StructuralEvent event = new StructuralEvent(source, jobList.get(i), i);
 				ours.add(new ChildAdded(event));
@@ -369,7 +370,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 		}
 
 		while (true) {
-			ChildAction action = null;
+			ChildAction action;
 			synchronized (missed) {
 				if (ours.isEmpty()) {
 					missed.remove(ours);
@@ -422,7 +423,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	/**
 	 * Used to record child added/removed events.
 	 */
-	abstract class ChildAction {
+	abstract static class ChildAction {
 		
 		protected final StructuralEvent event;
 		
@@ -449,7 +450,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	/**
 	 * Used to record a child added event.
 	 */
-	class ChildAdded extends ChildAction {
+	static class ChildAdded extends ChildAction {
 		
 		public ChildAdded(StructuralEvent event) {
 			super(event);
@@ -466,7 +467,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 	/**
 	 * Used record a child removed event.
 	 */
-	class ChildRemoved extends ChildAction {
+	static class ChildRemoved extends ChildAction {
 		
 		public ChildRemoved(StructuralEvent event) {
 			super(event);
@@ -484,9 +485,9 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 * @param event The event.
 	 */
 	private void notifyChildAdded(StructuralEvent event) {
-		List<StructuralListener> copy = null;
+		List<StructuralListener> copy;
 		synchronized (missed) {
-			copy = new ArrayList<StructuralListener>(listeners);
+			copy = new ArrayList<>(listeners);
 		}		
 		for (StructuralListener l : copy) {
 			new ChildAdded(event).dispatch(l);
@@ -499,9 +500,9 @@ implements Structural, Iterable<E>, ChildList<E> {
 	 * @param event The event.
 	 */
 	private void notifyChildRemoved(StructuralEvent event) {
-		List<StructuralListener> copy = null;
+		List<StructuralListener> copy;
 		synchronized (missed) {
-			copy = new ArrayList<StructuralListener>(listeners);
+			copy = new ArrayList<>(listeners);
 		}		
 		for (StructuralListener l : copy) {
 			new ChildRemoved(event).dispatch(l);
@@ -510,7 +511,7 @@ implements Structural, Iterable<E>, ChildList<E> {
 		
 	public static Object[] getChildren(Structural structural) {
 		class ChildCatcher implements StructuralListener {
-			List<Object> results = new ArrayList<Object>();
+			final List<Object> results = new ArrayList<>();
 			public void childAdded(StructuralEvent event) {
 				synchronized (results) {
 					results.add(event.getIndex(), event.getChild());
