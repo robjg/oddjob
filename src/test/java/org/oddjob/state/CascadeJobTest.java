@@ -108,7 +108,7 @@ public class CascadeJobTest extends OjTestCase {
         assertEquals(1, job2.ran);
         assertEquals(1, job3.ran);
 
-        ((Resetable) job2).hardReset();
+        ((Resettable) job2).hardReset();
 
         assertEquals(ParentState.READY, test.lastStateEvent().getState());
 

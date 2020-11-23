@@ -487,7 +487,7 @@ public class JMXClientJobTest extends OjTestCase {
         Object seq = new OddjobLookup(client).lookup("oj/seq");
         assertNotNull(seq);
 
-        Resetable nested = (Resetable) new OddjobLookup(client).lookup("oj/oj");
+        Resettable nested = (Resettable) new OddjobLookup(client).lookup("oj/oj");
         assertNotNull(nested);
 
         assertThat(GenericState.statesEquivalent(ParentState.COMPLETE, OddjobTestHelper.getJobState(nested)),

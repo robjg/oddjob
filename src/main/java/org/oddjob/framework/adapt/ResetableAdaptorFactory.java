@@ -1,6 +1,6 @@
 package org.oddjob.framework.adapt;
 
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.utils.AnnotationFinder;
@@ -10,14 +10,14 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 
 /**
- * Create an adaptor to an {@link Resetable} that adapts a component either
- * because it is {@link Resetable} or because it has annotations to resetable
+ * Create an adaptor to an {@link Resettable} that adapts a component either
+ * because it is {@link Resettable} or because it has annotations to resetable
  * methods. 
  * 
  * @author rob
  *
  */
-public class ResetableAdaptorFactory implements AdaptorFactory<Resetable> {
+public class ResetableAdaptorFactory implements AdaptorFactory<Resettable> {
 
 	/**
 	 * Create a resetable.
@@ -28,10 +28,10 @@ public class ResetableAdaptorFactory implements AdaptorFactory<Resetable> {
 	 * @return Possibly a Resetable.
 	 */
 	@Override
-	public Optional<Resetable> adapt(Object component, ArooaSession session) {
+	public Optional<Resettable> adapt(Object component, ArooaSession session) {
 
-		if (component instanceof Resetable) {
-			return Optional.of((Resetable) component);
+		if (component instanceof Resettable) {
+			return Optional.of((Resettable) component);
 		}
 
 		ArooaAnnotations annotations = AnnotationFinder.forSession(session)
@@ -47,7 +47,7 @@ public class ResetableAdaptorFactory implements AdaptorFactory<Resetable> {
 		}
 
 
-		return Optional.of(new Resetable() {
+		return Optional.of(new Resettable() {
 			
 			@Override
 			public boolean softReset() {
@@ -69,9 +69,7 @@ public class ResetableAdaptorFactory implements AdaptorFactory<Resetable> {
 		}
 		try {
 			m.invoke(component);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
+		} catch (IllegalAccessException | InvocationTargetException e) {
 			throw new RuntimeException(e);
 		}
 	}

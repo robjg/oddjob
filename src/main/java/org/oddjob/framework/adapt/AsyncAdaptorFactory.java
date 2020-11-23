@@ -1,6 +1,6 @@
 package org.oddjob.framework.adapt;
 
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.utils.AnnotationFinder;
@@ -34,7 +34,7 @@ public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 	@Override
 	public Optional<AsyncJob> adapt(Object component, ArooaSession session) {
 
-		if (component instanceof Resetable) {
+		if (component instanceof Resettable) {
 			return Optional.of((AsyncJob) component);
 		}
 

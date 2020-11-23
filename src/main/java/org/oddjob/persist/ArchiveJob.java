@@ -32,7 +32,7 @@ import java.io.Serializable;
 public class ArchiveJob extends BasePrimary
         implements
         Runnable, Serializable,
-        Stoppable, Resetable, Stateful, Structural {
+        Stoppable, Resettable, Stateful, Structural {
 
     private static final long serialVersionUID = 2010032500L;
 

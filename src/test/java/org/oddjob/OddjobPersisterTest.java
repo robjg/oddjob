@@ -1,19 +1,7 @@
 package org.oddjob;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.beans.PropertyVetoException;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -29,6 +17,15 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.tools.OddjobTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.beans.PropertyVetoException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class OddjobPersisterTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobPersisterTest.class);
@@ -256,8 +253,8 @@ public class OddjobPersisterTest extends OjTestCase {
     	
     	logger.debug("* Resetting Middle *");
     	
-    	Resetable middleOj = new OddjobLookup(test).lookup(
-    			"nested", Resetable.class);
+    	Resettable middleOj = new OddjobLookup(test).lookup(
+    			"nested", Resettable.class);
 
     	middleOj.hardReset();
     	

@@ -1,13 +1,6 @@
 package org.oddjob.state;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
+import org.oddjob.*;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
@@ -15,6 +8,9 @@ import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.registry.ServiceFinder;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.AsyncExecutionSupport;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @oddjob.description
@@ -59,7 +55,7 @@ import org.oddjob.framework.util.AsyncExecutionSupport;
  * @author Rob Gordon
  */
 public class IfJob extends StructuralJob<Object>
-		implements Runnable, Stateful, Resetable, Structural, Stoppable {
+		implements Runnable, Stateful, Resettable, Structural, Stoppable {
 	
     private static final long serialVersionUID = 20050806;
     
@@ -124,30 +120,28 @@ public class IfJob extends StructuralJob<Object>
 		
 	@Override
 	protected StateOperator getInitialStateOp() {
-		return new StateOperator() {
-			public StateEvent evaluate(StateEvent... states) {
+		return states -> {
 
-				if (states.length == 0) {
-					return null;
-				}
-				
-				boolean then = state.test(states[0].getState());
-				
-				if (then) {
-					if (states.length > 1) {
-						return StateOperator.toParentEvent(states[1],
-								new StandardParentStateConverter());
-					}
-				}
-				else {
-					if (states.length > 2) {
-						return StateOperator.toParentEvent(states[2],
-								new StandardParentStateConverter());
-					}
-				}
-				
-				return new StateEvent(IfJob.this, ParentState.COMPLETE);
+			if (states.length == 0) {
+				return null;
 			}
+
+			boolean then = state.test(states[0].getState());
+
+			if (then) {
+				if (states.length > 1) {
+					return StateOperator.toParentEvent(states[1],
+							new StandardParentStateConverter());
+				}
+			}
+			else {
+				if (states.length > 2) {
+					return StateOperator.toParentEvent(states[2],
+							new StandardParentStateConverter());
+				}
+			}
+
+			return new StateEvent(IfJob.this, ParentState.COMPLETE);
 		};
 
 	}
@@ -179,8 +173,6 @@ public class IfJob extends StructuralJob<Object>
 				if (childHelper.size() < 2) {
 
 					logger().info("No job for then.");
-
-					return;
 				}
 				else {
 					
@@ -199,8 +191,6 @@ public class IfJob extends StructuralJob<Object>
 				if (childHelper.size() < 3) {
 
 					logger().info("No job for else.");
-					
-					return;
 				}
 				else {
 					logger().info("Running job for else.");
@@ -216,19 +206,13 @@ public class IfJob extends StructuralJob<Object>
 			@Override
 			public void run() {
 				
-				asyncSupport = new AsyncExecutionSupport(new Runnable() {
-					@Override
-					public void run() {
-						stop = false;
-						IfJob.super.startChildStateReflector();
-					}
+				asyncSupport = new AsyncExecutionSupport(() -> {
+					stop = false;
+					IfJob.super.startChildStateReflector();
 				});
 				
-				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(ParentState.ACTIVE);
-					}
-				});				
+				stateHandler().waitToWhen(new IsAnyState(),
+						() -> getStateChanger().setState(ParentState.ACTIVE));
 				
 				depends.addStateListener(new StateListener() {
 					
@@ -273,38 +257,30 @@ public class IfJob extends StructuralJob<Object>
 			}
 		}
 		
-		final AtomicReference<Runnable> action = 
-				new AtomicReference<Runnable>(new Runnable() {
-					@Override
-					public void run() {
-						
-						State dependsState = 
-								depends.lastStateEvent().getState();
-						
-						if (state.test(dependsState)) {
-							
-							new ThenAction().run();
-						}
-						else {
-							
-							new ElseAction().run();
-						}
+		final AtomicReference<Runnable> action =
+				new AtomicReference<>(() -> {
+
+					State dependsState =
+							depends.lastStateEvent().getState();
+
+					if (state.test(dependsState)) {
+
+						new ThenAction().run();
+					} else {
+
+						new ElseAction().run();
 					}
 				});
 		
-		StateListener listenForActive = new StateListener() {
+		StateListener listenForActive = event -> {
 
-			@Override
-			public void jobStateChange(StateEvent event) {
-				
-				StateCondition condition = StateConditions.ACTIVE;
-				
-				if (condition.test(event.getState())) {
-					
-					logger().info("Setting asynchronous mode.");
-					
-					action.set(new AsyncAction());
-				}			
+			StateCondition condition = StateConditions.ACTIVE;
+
+			if (condition.test(event.getState())) {
+
+				logger().info("Setting asynchronous mode.");
+
+				action.set(new AsyncAction());
 			}
 		};
 		

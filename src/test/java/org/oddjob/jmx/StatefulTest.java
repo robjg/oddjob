@@ -69,9 +69,9 @@ public class StatefulTest extends OjTestCase {
         assertThat(GenericState.statesEquivalent(JobState.COMPLETE, result.event.getState()),
                 is(true));
 
-        Resetable resetable = (Resetable) fruit;
+        Resettable resettable = (Resettable) fruit;
 
-        resetable.hardReset();
+        resettable.hardReset();
 
         synchronized (result) {
             result.wait(5000);

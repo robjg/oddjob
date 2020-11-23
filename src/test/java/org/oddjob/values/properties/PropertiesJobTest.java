@@ -64,7 +64,7 @@ public class PropertiesJobTest extends OjTestCase {
 		
 //		assertEquals("apple", lookup.lookup("snack.favourite"));
 		
-		Resetable properties = lookup.lookup("test", Resetable.class);
+		Resettable properties = lookup.lookup("test", Resettable.class);
 		
 		properties.hardReset();
 		

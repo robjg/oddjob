@@ -68,7 +68,7 @@ public class RunnableWrapper extends BaseWrapper
     /**
      * Reset with Interface or Annotations adaptor.
      */
-    private transient volatile Resetable resetableAdaptor;
+    private transient volatile Resettable resettableAdaptor;
 
     /**
      * Stop with Interface or Annotations adaptor.
@@ -107,9 +107,9 @@ public class RunnableWrapper extends BaseWrapper
     public void setArooaSession(ArooaSession session) {
         super.setArooaSession(session);
 
-        resetableAdaptor = new ResetableAdaptorFactory().adapt(
+        resettableAdaptor = new ResetableAdaptorFactory().adapt(
                 wrapped, session)
-                .orElseGet(() -> new Resetable() {
+                .orElseGet(() -> new Resettable() {
                     @Override
                     public boolean softReset() {
                         return true;
@@ -274,13 +274,13 @@ public class RunnableWrapper extends BaseWrapper
     @Override
     public boolean softReset() {
         return stateHandler.waitToWhen(new IsSoftResetable(), () -> {
-            if (resetableAdaptor == null) {
+            if (resettableAdaptor == null) {
                 throw new NullPointerException(
-                        "ResetableAdaptor hasn't been set, " +
+                        "ResettableAdaptor hasn't been set, " +
                                 "setArooaSession() must be called on the proxy.");
             }
 
-            resetableAdaptor.softReset();
+            resettableAdaptor.softReset();
 
             getStateChanger().setState(JobState.READY);
 
@@ -294,13 +294,13 @@ public class RunnableWrapper extends BaseWrapper
     @Override
     public boolean hardReset() {
         return stateHandler.waitToWhen(new IsHardResetable(), () -> {
-            if (resetableAdaptor == null) {
+            if (resettableAdaptor == null) {
                 throw new NullPointerException(
-                        "ResetableAdaptor hasn't been set, " +
+                        "ResettableAdaptor hasn't been set, " +
                                 "setArooaSession() must be called on the proxy.");
             }
 
-            resetableAdaptor.hardReset();
+            resettableAdaptor.hardReset();
 
             getStateChanger().setState(JobState.READY);
 

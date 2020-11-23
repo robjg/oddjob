@@ -1,12 +1,9 @@
 package org.oddjob.framework.extend;
 
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.util.ComponentBoundary;
@@ -14,17 +11,11 @@ import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsForceable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateChanger;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.StateChanger;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * An abstract implementation of a job which provides common functionality to
@@ -33,7 +24,7 @@ import org.oddjob.util.Restore;
  * @author Rob Gordon
  */
 public abstract class SimpleJob extends BasePrimary
-implements  Runnable, Resetable, Stateful, Forceable {
+implements  Runnable, Resettable, Stateful, Forceable {
 
 	/** Handle state. */
 	private final JobStateHandler stateHandler;

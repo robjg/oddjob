@@ -1,34 +1,22 @@
 package org.oddjob.jobs.structural;
-import org.junit.Before;
 
+import org.junit.Before;
 import org.junit.Test;
+import org.oddjob.*;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.framework.Service;
+import org.oddjob.state.*;
+import org.oddjob.tools.ConsoleCapture;
+import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.reflect.ArooaPropertyException;
-import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.framework.Service;
-import org.oddjob.state.JobState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ServiceState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.tools.ConsoleCapture;
-import org.oddjob.tools.StateSteps;
 
 public class ServiceManagerTest extends OjTestCase {
 
@@ -181,7 +169,7 @@ public class ServiceManagerTest extends OjTestCase {
 		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
 		// Hard Reset a service makes no difference.
-		((Resetable) lights).hardReset();
+		((Resettable) lights).hardReset();
 
 		lightsState.checkNow();
 		
@@ -250,7 +238,7 @@ public class ServiceManagerTest extends OjTestCase {
 				ParentState.EXECUTING,
 				ParentState.EXCEPTION);
 		
-		((Resetable) machine).softReset();
+		((Resettable) machine).softReset();
 		test.run();
 		
 		machineStates.checkNow();
@@ -304,7 +292,7 @@ public class ServiceManagerTest extends OjTestCase {
 		assertEquals(ServiceState.STOPPED, 
 				((Stateful) lights).lastStateEvent().getState());
 		
-		((Resetable) lights).hardReset();
+		((Resettable) lights).hardReset();
 		
 		assertEquals(ServiceState.STARTABLE, 
 				((Stateful) lights).lastStateEvent().getState());
@@ -389,7 +377,7 @@ public class ServiceManagerTest extends OjTestCase {
 		
 		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
-		((Resetable) lights).hardReset();
+		((Resettable) lights).hardReset();
 
 		lightsState.checkNow();
 		
@@ -471,7 +459,7 @@ public class ServiceManagerTest extends OjTestCase {
 		
 		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
-		((Resetable) lights).hardReset();
+		((Resettable) lights).hardReset();
 
 		lightsState.checkNow();
 		
@@ -553,7 +541,7 @@ public class ServiceManagerTest extends OjTestCase {
 		
 		lightsState.startCheck(ServiceState.STOPPED, ServiceState.STARTABLE);
 		
-		((Resetable) lights).hardReset();
+		((Resettable) lights).hardReset();
 
 		lightsState.checkNow();
 		

@@ -1,21 +1,21 @@
 package org.oddjob.monitor.action;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import javax.inject.Inject;
-
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ExplorerContextImpl;
 import org.oddjob.monitor.model.ExplorerModelImpl;
 import org.oddjob.util.SimpleThreadManager;
+
+import javax.inject.Inject;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ExecuteActionTest2 {
 
@@ -83,7 +83,7 @@ public class ExecuteActionTest2 {
 
 		Object capture = 
 			new OddjobLookup(oddjob).lookup("capture");
-		((Resetable) capture).hardReset();
+		((Resettable) capture).hardReset();
 		
 		ExplorerContext ourContext = rootContext.addChild(capture);
 		

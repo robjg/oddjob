@@ -1,6 +1,6 @@
 package org.oddjob.state;
 
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaConfigurationException;
@@ -24,7 +24,7 @@ import org.oddjob.util.Restore;
  * @author Rob Gordon
  */
 public class MirrorState extends BasePrimary
-implements Runnable, Stoppable, Resetable {
+implements Runnable, Stoppable, Resettable {
 
 	/** Handle state. */
 	private final JobStateHandler stateHandler;

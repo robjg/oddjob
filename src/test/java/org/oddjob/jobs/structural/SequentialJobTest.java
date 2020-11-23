@@ -2,34 +2,21 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.jobs.structural;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobComponentResolver;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.persist.MapPersister;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.MirrorState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ServiceState;
+import org.oddjob.state.*;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 
@@ -114,7 +101,7 @@ public class SequentialJobTest extends OjTestCase {
 		
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
-		((Resetable) j2).hardReset();
+		((Resettable) j2).hardReset();
 
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());	
 	}
@@ -134,7 +121,7 @@ public class SequentialJobTest extends OjTestCase {
 		
 		assertEquals(ParentState.COMPLETE, test.lastStateEvent().getState());	
 		
-		((Resetable) j2).hardReset();
+		((Resettable) j2).hardReset();
 
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());			
 	}
@@ -406,7 +393,7 @@ public class SequentialJobTest extends OjTestCase {
 		states.startCheck(ParentState.COMPLETE, ParentState.READY,
 				ParentState.ACTIVE, ParentState.STARTED);
 		
-		((Resetable) service1).hardReset();
+		((Resettable) service1).hardReset();
 		((Runnable) service1).run();
 		
 		states.checkNow();

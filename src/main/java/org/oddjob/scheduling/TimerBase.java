@@ -1,18 +1,7 @@
 package org.oddjob.scheduling;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.inject.Inject;
-
 import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
@@ -26,17 +15,17 @@ import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
 import org.oddjob.schedules.ScheduleResult;
 import org.oddjob.scheduling.state.TimerState;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsNot;
-import org.oddjob.state.State;
-import org.oddjob.state.StateCondition;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.StateMatch;
+import org.oddjob.state.*;
 import org.oddjob.util.Clock;
 import org.oddjob.util.DefaultClock;
 import org.oddjob.util.OddjobLockedException;
 import org.oddjob.util.Restore;
+
+import javax.inject.Inject;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Common functionality for Timers.
@@ -82,7 +71,7 @@ abstract public class TimerBase extends ScheduleBase {
 
 	/** Provided to the schedule. */
 	protected final Map<Object, Object> contextData = 
-			Collections.synchronizedMap(new HashMap<Object, Object>());
+			Collections.synchronizedMap(new HashMap<>());
 	
 	/**
 	 * @oddjob.property 
@@ -149,7 +138,7 @@ abstract public class TimerBase extends ScheduleBase {
 		Future<?> future = this.future;
 		if (future != null) {
 			future.cancel(false);
-			future = null;
+			this.future = null;
 		}	
 	}
 	
@@ -210,15 +199,14 @@ abstract public class TimerBase extends ScheduleBase {
 	}
 	
 	/**
-	 * @throws ComponentPersistException
-	 * @throws OddjobLockedException 
+	 * @throws OddjobLockedException
 	 * 
 	 * @oddjob.property reschedule 
 	 * @oddjob.description Reschedule from the given date/time.
 	 * @oddjob.required Only available once the timer has started.
 	 */ 
 	@ArooaHidden
-	public void setReschedule(final Date reSchedule) throws ComponentPersistException, OddjobLockedException {
+	public void setReschedule(final Date reSchedule) throws OddjobLockedException {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 			if (!stateHandler().tryToWhen(new StateMatch(TimerState.STARTED), 
@@ -253,7 +241,7 @@ abstract public class TimerBase extends ScheduleBase {
 		Future<?> future = this.future;
 		if (future != null) {
 			future.cancel(false);
-			future = null;
+			this.future = null;
 		}
 		
 		stop = true;
@@ -468,7 +456,7 @@ abstract public class TimerBase extends ScheduleBase {
 	 * 
 	 * @param job The child job that will be reset.
 	 */
-	protected void reset(Resetable job) {
+	protected void reset(Resettable job) {
 	
 		ResetAction resetAction = this.reset;
 		if (reset == null) {
@@ -598,7 +586,7 @@ abstract public class TimerBase extends ScheduleBase {
 				});
 				
 				try {
-					reset((Resetable) job);
+					reset((Resettable) job);
 
 					((Stateful) job).addStateListener(
 							new RescheduleStateListener());

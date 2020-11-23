@@ -2,21 +2,10 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.state;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.concurrent.TimeUnit;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -25,9 +14,11 @@ import org.oddjob.schedules.schedules.CountSchedule;
 import org.oddjob.schedules.schedules.IntervalSchedule;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.scheduling.Timer;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * 
@@ -99,7 +90,7 @@ public class JoinJobTest extends OjTestCase {
 		
 		assertEquals(1, job1.ran);
 		
-		((Resetable) job1).hardReset();
+		((Resettable) job1).hardReset();
 		
 		assertEquals(ParentState.READY, test.lastStateEvent().getState());
 		assertEquals(JobState.READY, job1.lastStateEvent().getState());	
@@ -305,8 +296,8 @@ public class JoinJobTest extends OjTestCase {
 		
 		logger.info("** resetting");
 		
-		((Resetable) test).hardReset();
-		((Resetable) lastJob).hardReset();
+		((Resettable) test).hardReset();
+		((Resettable) lastJob).hardReset();
 		
 		Thread t2 = new Thread(oddjob);
 		
@@ -321,8 +312,8 @@ public class JoinJobTest extends OjTestCase {
 		assertEquals(JobState.READY, 
 				lastJob.lastStateEvent().getState());
 
-		((Resetable) applesFlag).hardReset();
-		((Resetable) orangesFlag).hardReset();
+		((Resettable) applesFlag).hardReset();
+		((Resettable) orangesFlag).hardReset();
 
 		((Runnable) applesFlag).run();
 		((Runnable) orangesFlag).run();

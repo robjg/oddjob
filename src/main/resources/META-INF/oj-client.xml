@@ -4,7 +4,7 @@
 			<values>
 				<bean class="org.oddjob.jmx.handlers.IconicHandlerFactory$ClientFactory"/>
 				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
-					  className="org.oddjob.Resetable"/>
+					  className="org.oddjob.Resettable"/>
 				<bean class="org.oddjob.jmx.client.DirectInvocationBean"
 					  className="java.lang.Runnable"/>
 				<bean class="org.oddjob.jmx.handlers.StatefulHandlerFactory$ClientFactory"/>

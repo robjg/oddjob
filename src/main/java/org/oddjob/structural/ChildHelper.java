@@ -1,7 +1,7 @@
 package org.oddjob.structural;
 
 import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stoppable;
 import org.oddjob.Structural;
 import org.slf4j.Logger;
@@ -229,8 +229,8 @@ implements Structural, Iterable<E>, ChildList<E> {
 	public void softResetChildren() {
 		Object [] children = getChildren();
 		for (Object child : children) {
-			if (child instanceof Resetable) {
-				((Resetable) child).softReset();
+			if (child instanceof Resettable) {
+				((Resettable) child).softReset();
 			}
 		}
 	}
@@ -242,8 +242,8 @@ implements Structural, Iterable<E>, ChildList<E> {
 	public void hardResetChildren() {
 		Object [] children = getChildren();
 		for (Object child : children) {
-			if (child instanceof Resetable) {
-				((Resetable) child).hardReset();
+			if (child instanceof Resettable) {
+				((Resettable) child).hardReset();
 			}
 		}
 	}

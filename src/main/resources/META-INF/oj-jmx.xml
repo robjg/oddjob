@@ -3,7 +3,7 @@
 		<list>
 			<values>
 				<bean class="org.oddjob.jmx.handlers.IconicHandlerFactory"/>
-				<bean class="org.oddjob.jmx.handlers.ResetableHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.ResettableHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.RunnableHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.StatefulHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.StoppableHandlerFactory"/>

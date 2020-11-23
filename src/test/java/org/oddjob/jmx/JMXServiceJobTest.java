@@ -1,29 +1,9 @@
 package org.oddjob.jmx;
-import org.junit.Before;
+
 import org.junit.After;
-
+import org.junit.Before;
 import org.junit.Test;
-
-import java.lang.management.ManagementFactory;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
-import javax.management.remote.rmi.RMIConnectorServer;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Structural;
+import org.oddjob.*;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -35,6 +15,18 @@ import org.oddjob.state.ServiceState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnectorServer;
+import javax.management.remote.JMXConnectorServerFactory;
+import javax.management.remote.JMXServiceURL;
+import javax.management.remote.rmi.RMIConnectorServer;
+import java.lang.management.ManagementFactory;
+import java.util.HashMap;
+import java.util.Map;
 
 public class JMXServiceJobTest extends OjTestCase {
 	
@@ -184,7 +176,7 @@ public class JMXServiceJobTest extends OjTestCase {
 		// Do it all again
 		
 		Object sequential = lookup.lookup("sequential");
-		((Resetable) sequential).hardReset();
+		((Resettable) sequential).hardReset();
 		
 		assertEquals(ParentState.READY, 
 				((Stateful) sequential).lastStateEvent().getState());

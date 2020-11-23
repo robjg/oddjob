@@ -4,10 +4,8 @@
 package org.oddjob.monitor.action;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
@@ -42,7 +40,7 @@ public class HardResetActionTest extends OjTestCase {
 	 */
    @Test
 	public void testPerform() throws Exception {
-		class MyR implements Resetable {
+		class MyR implements Resettable {
 			boolean reset = false;
 			public boolean softReset() {
 				throw new RuntimeException("Unexpected.");

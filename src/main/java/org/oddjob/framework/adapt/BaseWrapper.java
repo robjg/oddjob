@@ -3,20 +3,9 @@
  */
 package org.oddjob.framework.adapt;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
-import org.oddjob.Describable;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Reserved;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaConfigurationException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -37,12 +26,18 @@ import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+
 /**
  * Base class for proxy creators.
  *
  */
 abstract public class BaseWrapper extends BaseComponent 
-implements Runnable, Stateful, Resetable, DynaBean, Stoppable, 
+implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 		LogEnabled, Describable {
     
     private transient Logger theLogger;

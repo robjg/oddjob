@@ -94,7 +94,7 @@ public class FilePersisterTest extends OjTestCase {
 
         // check we can run it again.
 
-        ((Resetable) job).hardReset();
+        ((Resettable) job).hardReset();
 
         assertEquals(JobState.READY, OddjobTestHelper.getJobState(job));
 

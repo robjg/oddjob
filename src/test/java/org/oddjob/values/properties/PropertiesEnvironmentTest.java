@@ -2,21 +2,15 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.values.properties;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
+import org.oddjob.*;
+import org.oddjob.arooa.xml.XMLConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.Describable;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.arooa.xml.XMLConfiguration;
+
+import java.util.Map;
 
 /**
  * Tests for EnvrionmentType. 
@@ -54,7 +48,7 @@ public class PropertiesEnvironmentTest extends OjTestCase {
 		
 		assertEquals("Path is ", text);
 		
-		((Resetable) echo).hardReset();
+		((Resettable) echo).hardReset();
 		
 		oddjob.run();
 		
@@ -70,8 +64,8 @@ public class PropertiesEnvironmentTest extends OjTestCase {
 		
 		assertTrue(description.size() > 0);
 		
-		((Resetable) test).hardReset();
-		((Resetable) echo).hardReset();
+		((Resettable) test).hardReset();
+		((Resettable) echo).hardReset();
 		((Runnable) echo).run();
 		
 		text = lookup.lookup(

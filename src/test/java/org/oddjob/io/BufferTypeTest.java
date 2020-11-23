@@ -126,7 +126,7 @@ public class BufferTypeTest extends OjTestCase {
 
             Object jobs = new OddjobLookup(oddjob).lookup("jobs");
 
-            ((Resetable) jobs).hardReset();
+            ((Resettable) jobs).hardReset();
             ((Runnable) jobs).run();
         }
 

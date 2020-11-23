@@ -3,16 +3,9 @@
  */
 package org.oddjob.framework.adapt.job;
 
-import java.io.Serializable;
-import java.lang.reflect.Proxy;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.junit.Test;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.MockComponentPersister;
@@ -25,6 +18,9 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.lang.reflect.Proxy;
 
 public class SerializableWrapperTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(SerializableWrapperTest.class);
@@ -192,7 +188,7 @@ public class SerializableWrapperTest extends OjTestCase {
 		
 		// try and reset
 
-		((Resetable) proxy).hardReset();
+		((Resettable) proxy).hardReset();
 		
 		assertEquals(JobState.READY, 
 				((Stateful) proxy).lastStateEvent().getState());
@@ -229,7 +225,7 @@ public class SerializableWrapperTest extends OjTestCase {
 		
 		Object proxy = new OddjobLookup(oddjob).lookup("test");
 		
-		((Resetable) proxy).hardReset();
+		((Resettable) proxy).hardReset();
 		
 		((Runnable) proxy).run();
 		

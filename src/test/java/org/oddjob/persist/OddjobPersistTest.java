@@ -137,7 +137,7 @@ public class OddjobPersistTest extends OjTestCase {
         assertEquals(1, children.length);
 
         // otherwise it wouldn't run.
-        ((Resetable) seqJob).hardReset();
+        ((Resettable) seqJob).hardReset();
 
         assertEquals(JobState.READY, OddjobTestHelper.getJobState(seqJob));
         assertEquals(ParentState.READY, oj.lastStateEvent().getState());

@@ -1,25 +1,7 @@
 package org.oddjob.scheduling;
 
 import org.junit.Test;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-
-import org.oddjob.OjTestCase;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.MockOddjobServices;
-import org.oddjob.MockStateful;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
@@ -30,22 +12,21 @@ import org.oddjob.schedules.Interval;
 import org.oddjob.schedules.IntervalTo;
 import org.oddjob.schedules.Schedule;
 import org.oddjob.schedules.ScheduleContext;
-import org.oddjob.schedules.schedules.CountSchedule;
-import org.oddjob.schedules.schedules.DateSchedule;
-import org.oddjob.schedules.schedules.IntervalSchedule;
-import org.oddjob.schedules.schedules.NowSchedule;
-import org.oddjob.schedules.schedules.TimeSchedule;
+import org.oddjob.schedules.schedules.*;
 import org.oddjob.scheduling.state.TimerState;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.Resets;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class RetryTest extends OjTestCase {
 
@@ -294,7 +275,7 @@ public class RetryTest extends OjTestCase {
 	}
 	
 	private class OurJob extends MockStateful
-	implements Runnable, Resetable {
+	implements Runnable, Resettable {
 
 		boolean reset;
 		

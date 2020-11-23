@@ -1,19 +1,19 @@
 package org.oddjob.persist;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.Serializable;
-
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+
+import java.io.Serializable;
+
+import static org.junit.Assert.assertEquals;
 
 public class PersistAssumptionsTest {
 
@@ -91,7 +91,7 @@ public class PersistAssumptionsTest {
 		
 		assertEquals(JobState.COMPLETE, ((Stateful) bean).lastStateEvent().getState());
 		
-		((Resetable) bean).hardReset();
+		((Resettable) bean).hardReset();
 		
 		assertEquals(JobState.READY, ((Stateful) bean).lastStateEvent().getState());
 		

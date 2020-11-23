@@ -2,19 +2,11 @@
  * (c) Rob Gordon 2005
  */
 package org.oddjob.framework.adapt.service;
-import java.beans.ExceptionListener;
-import java.util.Map;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.oddjob.Describable;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
@@ -41,6 +33,9 @@ import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.beans.ExceptionListener;
+import java.util.Map;
 
 public class ServiceWrapperTest extends OjTestCase {
 
@@ -158,7 +153,7 @@ public class ServiceWrapperTest extends OjTestCase {
 		assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(wrapper));
 		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "stopped"));
 
-		((Resetable) wrapper).hardReset();
+		((Resettable) wrapper).hardReset();
 
 		// Service don't persist.
 		assertNull(session.saved);

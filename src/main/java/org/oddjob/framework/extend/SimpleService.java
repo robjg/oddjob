@@ -1,11 +1,7 @@
 package org.oddjob.framework.extend;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -14,15 +10,12 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.ServiceState;
-import org.oddjob.state.ServiceStateChanger;
-import org.oddjob.state.ServiceStateHandler;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Base class for providing a common Service implementation.
@@ -35,7 +28,7 @@ import org.oddjob.util.Restore;
  *
  */
 abstract public class SimpleService extends BaseComponent 
-implements Runnable, Stateful, Resetable,
+implements Runnable, Stateful, Resettable,
 		Stoppable, LogEnabled {
 
 	private static final AtomicInteger instanceCount = new AtomicInteger();

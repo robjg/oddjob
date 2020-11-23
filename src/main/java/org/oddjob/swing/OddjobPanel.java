@@ -1,43 +1,6 @@
 package org.oddjob.swing;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import javax.inject.Inject;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.WindowConstants;
-import javax.swing.border.EtchedBorder;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Iconic;
-import org.oddjob.OddjobServices;
-import org.oddjob.OddjobShutdownThread;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
-import org.oddjob.Version;
+import org.oddjob.*;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.registry.ServiceProvider;
@@ -51,6 +14,20 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+
+import javax.inject.Inject;
+import javax.swing.*;
+import javax.swing.border.EtchedBorder;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 /**
  * Provide a simple panel with buttons on, that run Oddjob jobs.
@@ -366,8 +343,8 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 					
 					@Override
 					public void run() {
-						if (job instanceof Resetable) {
-							((Resetable) job).hardReset();
+						if (job instanceof Resettable) {
+							((Resettable) job).hardReset();
 						}
 						
 						job.run();

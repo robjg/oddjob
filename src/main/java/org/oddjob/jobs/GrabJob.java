@@ -1,16 +1,6 @@
 package org.oddjob.jobs;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.Date;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
+import org.oddjob.*;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.JobDestroyedException;
@@ -24,25 +14,16 @@ import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
 import org.oddjob.scheduling.WinningOutcome;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateChanger;
-import org.oddjob.state.JobStateConverter;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.OrderedStateChanger;
-import org.oddjob.state.State;
-import org.oddjob.state.StateChanger;
-import org.oddjob.state.StateCondition;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.Restore;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @oddjob.description Grab work to do. By competing for work with
@@ -60,7 +41,7 @@ import org.oddjob.util.Restore;
 public class GrabJob extends BasePrimary 
 implements
 		Runnable, Serializable, 
-		Stoppable, Resetable, Stateful, Structural {
+		Stoppable, Resettable, Stateful, Structural {
 	private static final long serialVersionUID = 2010031800L;
 
 	/** Handle state. */

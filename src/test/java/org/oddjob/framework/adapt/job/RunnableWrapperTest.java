@@ -156,7 +156,7 @@ public class RunnableWrapperTest extends OjTestCase {
 
         session.saved = null;
 
-        ((Resetable) proxy).hardReset();
+        ((Resettable) proxy).hardReset();
         assertEquals("JobState", JobState.READY,
                 stateListener.lastEvent.getState());
 
@@ -192,7 +192,7 @@ public class RunnableWrapperTest extends OjTestCase {
         ((Runnable) proxy).run();
         assertEquals("JobState", JobState.EXCEPTION,
                 l.lastEvent.getState());
-        ((Resetable) proxy).softReset();
+        ((Resettable) proxy).softReset();
         assertEquals("JobState", JobState.READY,
                 l.lastEvent.getState());
     }

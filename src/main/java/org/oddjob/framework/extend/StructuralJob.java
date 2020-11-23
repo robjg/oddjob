@@ -25,7 +25,7 @@ import java.io.Serializable;
 public abstract class StructuralJob<E> extends BasePrimary
 implements 
 		Runnable, Serializable, 
-		Stoppable, Resetable, Stateful, Forceable, Structural {
+		Stoppable, Resettable, Stateful, Forceable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Handle state. */

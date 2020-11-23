@@ -52,7 +52,7 @@ public class TimerTest extends OjTestCase {
     }
 
     private class OurJob extends MockStateful
-            implements Runnable, Resetable {
+            implements Runnable, Resettable {
 
         int resets;
 

@@ -1,17 +1,17 @@
 package org.oddjob.swing;
 
-import java.util.Date;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.MapPersister;
+
+import java.util.Date;
 
 public class ConfigureBeanMain {
 
@@ -140,7 +140,7 @@ public class ConfigureBeanMain {
 		
 		Object resetable = lookup2.lookup("inner/job");
 
-		((Resetable) resetable).hardReset();
+		((Resettable) resetable).hardReset();
 		
 		((Runnable) resetable).run();
 		

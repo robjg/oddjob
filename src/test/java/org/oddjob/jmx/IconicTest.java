@@ -74,9 +74,9 @@ public class IconicTest extends OjTestCase {
 
 		assertEquals("Complete", tip.getDescription());
 		
-		Resetable resetable = (Resetable) fruit;
+		Resettable resettable = (Resettable) fruit;
 		
-		resetable.hardReset();
+		resettable.hardReset();
 
 		synchronized (result) {
 			result.wait(5000);

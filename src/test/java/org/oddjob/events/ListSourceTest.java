@@ -128,7 +128,7 @@ public class ListSourceTest {
         Object when = lookup.lookup("when");
 
         ((Stoppable) when).stop();
-        ((Resetable) when).hardReset();
+        ((Resettable) when).hardReset();
 
         oddjobState.startCheck(ParentState.READY,
                 ParentState.ACTIVE,

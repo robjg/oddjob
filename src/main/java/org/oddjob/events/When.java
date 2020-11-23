@@ -3,13 +3,13 @@
  */
 package org.oddjob.events;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.Resettable;
+import org.oddjob.Stoppable;
+
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Resetable;
-import org.oddjob.Stoppable;
 
 /**
  * @oddjob.description Runs a job when triggered by the arrival of an event.
@@ -58,8 +58,8 @@ public class When<T> extends EventJobBase<T> {
 				}
 			}
 		
-			if (job instanceof Resetable) {
-				((Resetable) job).hardReset();
+			if (job instanceof Resettable) {
+				((Resettable) job).hardReset();
 			}
 		}
 

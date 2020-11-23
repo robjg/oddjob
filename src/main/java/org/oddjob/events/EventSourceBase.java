@@ -1,6 +1,6 @@
 package org.oddjob.events;
 
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.events.state.EventState;
 import org.oddjob.events.state.EventStateChanger;
 import org.oddjob.events.state.EventStateHandler;
@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * @param <T>
  */
 abstract public class EventSourceBase<T> extends BasePrimary
-implements EventSource<T>, Resetable {
+implements EventSource<T>, Resettable {
 
 	/** Handle state. */
 	private transient volatile EventStateHandler stateHandler;

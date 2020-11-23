@@ -1,20 +1,10 @@
 package org.oddjob.sql;
-import org.junit.Before;
-import org.junit.After;
-
-import org.junit.Test;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -26,6 +16,8 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GrabbingWithSQLTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(GrabbingWithSQLTest.class);
@@ -92,7 +84,7 @@ public class GrabbingWithSQLTest extends OjTestCase {
 				echo1State == JobState.READY && 
 				echo2State == JobState.COMPLETE); 
 		
-		((Resetable) grabbers).hardReset();
+		((Resettable) grabbers).hardReset();
 		((Runnable) grabbers).run();
 		
 		wait.hardReset();
@@ -105,10 +97,10 @@ public class GrabbingWithSQLTest extends OjTestCase {
 				echo2State == JobState.READY);
 		
 		Object sequenceJob = lookup.lookup("sequence");
-		((Resetable) sequenceJob).hardReset();
+		((Resettable) sequenceJob).hardReset();
 		((Runnable) sequenceJob).run();
 		
-		((Resetable) grabbers).hardReset();
+		((Resettable) grabbers).hardReset();
 		((Runnable) grabbers).run();
 		
 		wait.hardReset();
@@ -174,7 +166,7 @@ public class GrabbingWithSQLTest extends OjTestCase {
 		DynaBean variables = lookup.lookup("vars", DynaBean.class);		
 		variables.set("state", new ArooaObject("COMPLETE"));
 		
-		((Resetable) winner).softReset();
+		((Resettable) winner).softReset();
 		((Runnable) winner).run();
 		
 		Stateful grabbers = lookup.lookup("grabbers", Stateful.class);

@@ -1,13 +1,10 @@
 package org.oddjob.framework.adapt.job;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OjTestCase;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.Destroy;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -15,6 +12,9 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.adapt.HardReset;
 import org.oddjob.framework.adapt.SoftReset;
 import org.oddjob.state.ParentState;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RunnableWrapperResetTest extends OjTestCase {
 
@@ -70,7 +70,7 @@ public class RunnableWrapperResetTest extends OjTestCase {
 		
 		assertEquals(false, lookup.lookup("b.reset"));
 		
-		((Resetable) lookup.lookup("b")).hardReset();
+		((Resettable) lookup.lookup("b")).hardReset();
 		
 		assertEquals(true, lookup.lookup("b.reset"));
 		
@@ -129,7 +129,7 @@ public class RunnableWrapperResetTest extends OjTestCase {
 		
 		assertEquals(false, lookup.lookup("b.reset"));
 		
-		((Resetable) lookup.lookup("b")).softReset();
+		((Resettable) lookup.lookup("b")).softReset();
 		
 		assertEquals(true, lookup.lookup("b.reset"));
 		
@@ -140,7 +140,7 @@ public class RunnableWrapperResetTest extends OjTestCase {
 		
 		assertEquals(false, lookup.lookup("b.reset"));
 		
-		((Resetable) lookup.lookup("b")).hardReset();
+		((Resettable) lookup.lookup("b")).hardReset();
 		
 		assertEquals(false, lookup.lookup("b.reset"));
 				

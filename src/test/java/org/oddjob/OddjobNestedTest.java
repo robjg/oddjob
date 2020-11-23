@@ -1,23 +1,8 @@
 package org.oddjob;
 
 import org.junit.Test;
-
-import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.convert.ArooaConverter;
-import org.oddjob.arooa.convert.ConversionFailedException;
-import org.oddjob.arooa.convert.ConversionPath;
-import org.oddjob.arooa.convert.DefaultConverter;
-import org.oddjob.arooa.convert.NoConversionAvailableException;
+import org.oddjob.arooa.convert.*;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
@@ -27,6 +12,13 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.values.properties.PropertiesJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Map;
 
 public class OddjobNestedTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobNestedTest.class);
@@ -294,10 +286,10 @@ public class OddjobNestedTest extends OjTestCase {
         
         inner.unload();
         
-        Resetable snackEcho = lookup.lookup(
-        		"snack-text", Resetable.class);
-        Resetable connectionEcho = lookup.lookup(
-        		"connection-text", Resetable.class);
+        Resettable snackEcho = lookup.lookup(
+        		"snack-text", Resettable.class);
+        Resettable connectionEcho = lookup.lookup(
+        		"connection-text", Resettable.class);
         snackEcho.hardReset();
         connectionEcho.hardReset();
         ((Runnable) snackEcho).run();

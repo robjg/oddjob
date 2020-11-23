@@ -96,7 +96,7 @@ public class RunJobTest extends OjTestCase {
         assertEquals(JobState.COMPLETE,
                 ((Stateful) proxy).lastStateEvent().getState());
 
-        ((Resetable) proxy).hardReset();
+        ((Resettable) proxy).hardReset();
 
         assertEquals(JobState.READY,
                 ((Stateful) proxy).lastStateEvent().getState());
@@ -519,7 +519,7 @@ public class RunJobTest extends OjTestCase {
 
         // run again.
 
-        ((Resetable) test).hardReset();
+        ((Resettable) test).hardReset();
 
         echoStates.startCheck(JobState.COMPLETE, JobState.READY, JobState.EXECUTING,
                 JobState.COMPLETE);

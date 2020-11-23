@@ -172,7 +172,7 @@ public class SimpleSecurityTest extends OjTestCase {
 			assertEquals(false, child instanceof Runnable);
 			assertEquals(true, child instanceof Stateful);
 			assertEquals(true, child instanceof Iconic);
-			assertEquals(false, child instanceof Resetable);
+			assertEquals(false, child instanceof Resettable);
 			assertEquals(false, child instanceof DynaBean);
 			assertEquals(true, child instanceof RemoteOddjobBean);
 					

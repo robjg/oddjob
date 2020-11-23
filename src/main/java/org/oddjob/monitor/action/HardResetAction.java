@@ -1,15 +1,15 @@
 package org.oddjob.monitor.action;
 
-import javax.swing.KeyStroke;
-
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.monitor.Standards;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.JobAction;
 import org.oddjob.util.ThreadManager;
 
+import javax.swing.*;
+
 /**
- * An action that performs a hard reset on a resetable.
+ * An action that performs a hard reset on a resettable.
  * 
  * @author Rob Gordon 
  */
@@ -47,7 +47,7 @@ public class HardResetAction extends JobAction {
 		
 		Object component = explorerContext.getThisComponent();
 		
-		if (!(component instanceof Resetable)) {
+		if (!(component instanceof Resettable)) {
 			this.job = null;
 			setEnabled(false);
 		}
@@ -65,12 +65,9 @@ public class HardResetAction extends JobAction {
 	
 	
 	@Override
-	protected void doAction() throws Exception {
-		threadManager.run(new Runnable() {
-			public void run() {
-				((Resetable) job).hardReset();
-			}
-		}, "Hard Reset of " + job);
+	protected void doAction() {
+		threadManager.run(() -> ((Resettable) job)
+				.hardReset(), "Hard Reset of " + job);
 	}
 	
 }

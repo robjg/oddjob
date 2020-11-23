@@ -1,24 +1,16 @@
 package org.oddjob.state;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class StateBehaviourTest extends OjTestCase {
 
@@ -292,7 +284,7 @@ public class StateBehaviourTest extends OjTestCase {
 		checker.startCheck(JobState.COMPLETE, JobState.READY, 
 				JobState.EXECUTING);
 
-		((Resetable) wait2).hardReset();
+		((Resettable) wait2).hardReset();
 		
 		new Thread((Runnable) wait2).start();
 		

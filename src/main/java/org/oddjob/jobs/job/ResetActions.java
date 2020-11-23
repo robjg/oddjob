@@ -1,11 +1,10 @@
 package org.oddjob.jobs.job;
 
 import org.oddjob.Forceable;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
-import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.state.State;
 
 /**
@@ -47,8 +46,8 @@ public enum ResetActions implements ResetAction {
 	HARD() {
 		@Override
 		public void doWith(Object job) {
-			if (job instanceof Resetable) {
-			    ((Resetable) job).hardReset();
+			if (job instanceof Resettable) {
+			    ((Resettable) job).hardReset();
 			}
 		}
 	},
@@ -58,8 +57,8 @@ public enum ResetActions implements ResetAction {
 	SOFT() {
 		@Override
 		public void doWith(Object job) {
-			if (job instanceof Resetable) {
-			    ((Resetable) job).softReset();
+			if (job instanceof Resettable) {
+			    ((Resettable) job).softReset();
 			}
 		}
 	},
@@ -84,13 +83,8 @@ public enum ResetActions implements ResetAction {
 	public static class Conversions implements ConversionProvider {
 		@Override
 		public void registerWith(ConversionRegistry registry) {
-			registry.register(String.class, ResetAction.class, 
-					new Convertlet<String, ResetAction>() {
-				@Override
-				public ResetAction convert(String from) {
-					return ResetActions.valueOf(from.toUpperCase());						
-				}
-			});
+			registry.register(String.class, ResetAction.class,
+					from -> ResetActions.valueOf(from.toUpperCase()));
 		}
 	}	
 }

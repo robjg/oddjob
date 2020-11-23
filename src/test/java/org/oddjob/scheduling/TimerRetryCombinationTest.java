@@ -1,21 +1,8 @@
 package org.oddjob.scheduling;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.beans.PropertyVetoException;
-import java.text.ParseException;
-import java.util.Date;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.types.ArooaObject;
@@ -31,6 +18,12 @@ import org.oddjob.tools.ManualClock;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Clock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.beans.PropertyVetoException;
+import java.text.ParseException;
+import java.util.Date;
 
 
 /**
@@ -180,7 +173,7 @@ public class TimerRetryCombinationTest extends OjTestCase {
 		assertEquals(17, softs1);
 		assertEquals(16, executions);
 		
-		Resetable timer = lookup1.lookup("timer", Resetable.class);
+		Resettable timer = lookup1.lookup("timer", Resettable.class);
 		timer.hardReset();
 		
 		oddjob1.destroy();

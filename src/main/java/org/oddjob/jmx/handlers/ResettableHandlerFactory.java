@@ -1,6 +1,6 @@
 package org.oddjob.jmx.handlers;
 
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.ServerAllOperationsHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
@@ -14,19 +14,19 @@ import javax.management.MBeanParameterInfo;
 
 /**
  */
-public class ResetableHandlerFactory 
-implements ServerInterfaceHandlerFactory<Resetable, Resetable> {
+public class ResettableHandlerFactory
+implements ServerInterfaceHandlerFactory<Resettable, Resettable> {
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 
 	@Override
-	public Class<Resetable> serverClass() {
-		return Resetable.class;
+	public Class<Resettable> serverClass() {
+		return Resettable.class;
 	}
 
 	@Override
-	public Class<Resetable> clientClass() {
-		return Resetable.class;
+	public Class<Resettable> clientClass() {
+		return Resettable.class;
 	}
 
 	@Override
@@ -57,9 +57,9 @@ implements ServerInterfaceHandlerFactory<Resetable, Resetable> {
 	}
 
 	@Override
-	public ServerInterfaceHandler createServerHandler(Resetable target, ServerSideToolkit ojmb) {
+	public ServerInterfaceHandler createServerHandler(Resettable target, ServerSideToolkit ojmb) {
 		return new ServerAllOperationsHandler<>(
-				Resetable.class, target);
+				Resettable.class, target);
 	}
 
 	@Override

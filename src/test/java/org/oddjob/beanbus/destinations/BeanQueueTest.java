@@ -1,10 +1,5 @@
 package org.oddjob.beanbus.destinations;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,7 +7,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.Resetable;
+import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -21,6 +16,12 @@ import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class BeanQueueTest extends Assert {
 
@@ -43,10 +44,10 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testQueueStop() throws InterruptedException, BusCrashException {
 
-		final BeanQueue<String> test = new BeanQueue<String>();
+		final BeanQueue<String> test = new BeanQueue<>();
 		test.init();
 		
-		BasicBeanBus<String> bus = new BasicBeanBus<String>();
+		BasicBeanBus<String> bus = new BasicBeanBus<>();
 		bus.setTo(test);
 		test.setBeanBus(bus.getBusConductor());
 		
@@ -54,18 +55,16 @@ public class BeanQueueTest extends Assert {
 		
 		bus.add("apple");
 		
-		final List<String> results = new ArrayList<String>();
+		final List<String> results = new ArrayList<>();
 		final CountDownLatch latch = new CountDownLatch(1);
 				
-		Thread t = new Thread() {
-			public void run() {
-				
-				for (String s : test) {
-					results.add(s);
-					latch.countDown();
-				}
+		Thread t = new Thread(() -> {
+
+			for (String s : test) {
+				results.add(s);
+				latch.countDown();
 			}
-		};
+		});
 
 		t.start();
 		
@@ -88,7 +87,7 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testStopBeforeEmpty() throws InterruptedException {
 		
-		final BeanQueue<String> test = new BeanQueue<String>();
+		final BeanQueue<String> test = new BeanQueue<>();
 		test.init();
 		
 		test.add("apple");
@@ -97,16 +96,13 @@ public class BeanQueueTest extends Assert {
 		
 		test.stop();
 		
-		final List<String> results = new ArrayList<String>();
+		final List<String> results = new ArrayList<>();
 		
-		Thread t = new Thread() {
-			public void run() {
-				
-				for (String s : test) {
-					results.add(s);
-				}
+		Thread t = new Thread(() -> {
+			for (String s : test) {
+				results.add(s);
 			}
-		};
+		});
 		t.start();
 		
 		t.join();
@@ -119,19 +115,16 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testStartConsumingFirst() throws InterruptedException {
 		
-		final BeanQueue<String> test = new BeanQueue<String>();
+		final BeanQueue<String> test = new BeanQueue<>();
 		test.init();
 		
-		final List<String> results = new ArrayList<String>();
+		final List<String> results = new ArrayList<>();
 		
-		Thread t = new Thread() {
-			public void run() {
-				
-				for (String s : test) {
-					results.add(s);
-				}
+		Thread t = new Thread(() -> {
+			for (String s : test) {
+				results.add(s);
 			}
-		};
+		});
 		t.start();
 		
 		Thread.sleep(100);
@@ -149,14 +142,14 @@ public class BeanQueueTest extends Assert {
 	}
 	
     @Test
-	public void testMulitipleConsumers() throws InterruptedException {
+	public void testMultipleConsumers() throws InterruptedException {
 
-		final BeanQueue<Integer> test = new BeanQueue<Integer>();
+		final BeanQueue<Integer> test = new BeanQueue<>();
 		test.init();
 		
 		class Consumer implements Runnable {
 			
-			List<Integer> results = new ArrayList<Integer>();
+			List<Integer> results = new ArrayList<>();
 			
 			@Override
 			public void run() {
@@ -180,7 +173,7 @@ public class BeanQueueTest extends Assert {
 		t3.start();
 		
 		for (int i = 1; i <= 100000; ++i) {
-			test.add(new Integer(i));
+			test.add(i);
 		}
 		
 		Thread.sleep(50);
@@ -239,14 +232,14 @@ public class BeanQueueTest extends Assert {
 		
 		logger.info("** Re-run producer.");
 		
-		((Resetable) producer).hardReset();
+		((Resettable) producer).hardReset();
 		((Runnable) producer).run();
 		
 		Object consumer = lookup.lookup("consumer");
 		
 		logger.info("** Re-run consumer.");
 		
-		((Resetable) consumer).hardReset();
+		((Resettable) consumer).hardReset();
 		((Runnable) consumer).run();
 		
 		
@@ -263,7 +256,7 @@ public class BeanQueueTest extends Assert {
 	}
 	
     @Test
-	public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+	public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException {
 		
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -297,7 +290,7 @@ public class BeanQueueTest extends Assert {
 		
 		logger.info("** Reset.");
 		
-		((Resetable) parallel).hardReset();
+		((Resettable) parallel).hardReset();
 		
 		assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 		

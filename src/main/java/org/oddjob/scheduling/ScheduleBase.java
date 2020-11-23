@@ -1,19 +1,7 @@
 package org.oddjob.scheduling;
 
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
-
-import org.oddjob.FailedToStopException;
-import org.oddjob.Forceable;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
+import org.oddjob.*;
 import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.extend.BasePrimary;
 import org.oddjob.framework.util.ComponentBoundary;
@@ -25,22 +13,17 @@ import org.oddjob.scheduling.state.TimerState;
 import org.oddjob.scheduling.state.TimerStateAdapter;
 import org.oddjob.scheduling.state.TimerStateChanger;
 import org.oddjob.scheduling.state.TimerStateHandler;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsExecutable;
-import org.oddjob.state.IsForceable;
-import org.oddjob.state.IsHardResetable;
-import org.oddjob.state.IsSoftResetable;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.OrderedStateChanger;
-import org.oddjob.state.StateChanger;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateExchange;
-import org.oddjob.state.StateOperator;
-import org.oddjob.state.StructuralStateHelper;
+import org.oddjob.state.*;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.Restore;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Common functionality for jobs that schedule things.
@@ -49,8 +32,8 @@ import org.oddjob.util.Restore;
  */
 public abstract class ScheduleBase extends BasePrimary
 implements 
-		Runnable, Stoppable, Serializable, 
-		Resetable, Stateful, Structural, Forceable {
+		Runnable, Stoppable, Serializable,
+        Resettable, Stateful, Structural, Forceable {
 	private static final long serialVersionUID = 2009031500L;
 	
 	/** Fires state events. */
@@ -87,7 +70,7 @@ implements
 	 */
 	private void completeConstruction() {
 		stateHandler = new TimerStateHandler(this);
-		childHelper = new ChildHelper<Runnable>(this);
+		childHelper = new ChildHelper<>(this);
 		structuralState = new TimerStateAdapter(
 				new StructuralStateHelper(childHelper, getStateOp()));
 		
@@ -102,8 +85,8 @@ implements
 					}
 				});
 		
-		childStateReflector = new StateExchange<TimerState>(structuralState, 
-				new OrderedStateChanger<TimerState>(stateChanger, stateHandler));
+		childStateReflector = new StateExchange<>(structuralState,
+				new OrderedStateChanger<>(stateChanger, stateHandler));
 	}
 
 	@Override
@@ -131,7 +114,7 @@ implements
 	/**
 	 * Sub classes must override this to submit the first execution.
 	 * 
-	 * @throws ComponentPerisistException If the scheduled time can't be saved.
+	 * @throws ComponentPersistException If the scheduled time can't be saved.
 	 */
 	abstract protected void begin() throws ComponentPersistException;
 
@@ -201,7 +184,7 @@ implements
 		stateHandler.assertAlive();
 
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			final AtomicReference<String> lastIcon = new AtomicReference<String>();
+			final AtomicReference<String> lastIcon = new AtomicReference<>();
 			
 			if (stateHandler.waitToWhen(new IsStoppable(), new Runnable() {				
 				@Override

@@ -1,15 +1,7 @@
 package org.oddjob.framework.adapt.service;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.beanutils.DynaBean;
-import org.oddjob.Describable;
-import org.oddjob.Forceable;
-import org.oddjob.Iconic;
-import org.oddjob.Resetable;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
+import org.oddjob.*;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.framework.Transient;
@@ -17,6 +9,9 @@ import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.ProxyGenerator;
 import org.oddjob.framework.adapt.WrapperFactory;
 import org.oddjob.logging.LogEnabled;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Generate a Proxy for a service.
@@ -47,7 +42,7 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 				interfaces.add(ArooaSessionAware.class);
 				interfaces.add(ArooaContextAware.class);
 				interfaces.add(Stateful.class);
-				interfaces.add(Resetable.class);
+				interfaces.add(Resettable.class);
 				interfaces.add(Forceable.class);
 				interfaces.add(DynaBean.class);
 				interfaces.add(Stoppable.class);
