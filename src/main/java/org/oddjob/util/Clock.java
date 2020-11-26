@@ -17,5 +17,5 @@ public interface Clock {
 	 * 
 	 * @return The date.
 	 */
-	public Date getDate();
+	Date getDate();
 }
