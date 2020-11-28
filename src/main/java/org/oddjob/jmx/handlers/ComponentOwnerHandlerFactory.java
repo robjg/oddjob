@@ -35,7 +35,7 @@ import java.lang.reflect.UndeclaredThrowableException;
 public class ComponentOwnerHandlerFactory
         implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner> {
 
-    public static final HandlerVersion VERSION = new HandlerVersion(4, 0);
+    public static final HandlerVersion VERSION = new HandlerVersion(5, 0);
 
     public static final NotificationType<Boolean> MODIFIED_NOTIF_TYPE =
             NotificationType.ofName("oddjob.config.modified")
@@ -59,7 +59,15 @@ public class ComponentOwnerHandlerFactory
                     "",
                     DragPointInfo.class,
                     MBeanOperationInfo.INFO
-            ).addParam("component", Object.class, "");
+            ).addParam("component", Object.class, "The Component");
+
+    private static final JMXOperationPlus<String> COPY =
+            new JMXOperationPlus<>(
+                    "configCopy",
+                    "",
+                    String.class,
+                    MBeanOperationInfo.ACTION_INFO
+            ).addParam("component", Object.class, "The Component");
 
     private static final JMXOperationPlus<Void> CUT =
             new JMXOperationPlus<>(
@@ -67,7 +75,7 @@ public class ComponentOwnerHandlerFactory
                     "",
                     Void.TYPE,
                     MBeanOperationInfo.ACTION_INFO
-            ).addParam("component", Object.class, "");
+            ).addParam("component", Object.class, "The Component");
 
     private static final JMXOperationPlus<String> PASTE =
             new JMXOperationPlus<>(
@@ -75,10 +83,9 @@ public class ComponentOwnerHandlerFactory
                     "",
                     String.class,
                     MBeanOperationInfo.ACTION
-            ).addParam(
-                    "component", Object.class, "").addParam(
-                    "index", Integer.TYPE, "").addParam(
-                    "config", String.class, "");
+            ).addParam("component", Object.class, "The Component")
+                    .addParam("index", Integer.TYPE, "The Index")
+                    .addParam("config", String.class, "The XML Configuration");
 
     private static final JMXOperationPlus<Boolean> IS_MODIFIED =
             new JMXOperationPlus<>(
@@ -167,6 +174,7 @@ public class ComponentOwnerHandlerFactory
                 INFO.getOpInfo(),
                 SESSION_AVAILABLE.getOpInfo(),
                 DRAG_POINT_INFO.getOpInfo(),
+                COPY.getOpInfo(),
                 CUT.getOpInfo(),
                 PASTE.getOpInfo(),
                 SAVE.getOpInfo(),
@@ -452,7 +460,12 @@ public class ComponentOwnerHandlerFactory
 
                 @Override
                 public String copy() {
-                    return dragPointInfo.copy;
+                    try {
+                        return clientToolkit.invoke(
+                                COPY, component);
+                    } catch (Throwable e) {
+                        throw new UndeclaredThrowableException(e);
+                    }
                 }
 
                 @Override
@@ -469,9 +482,11 @@ public class ComponentOwnerHandlerFactory
                 public <P extends ParseContext<P>> ConfigurationHandle<P> parse(
                         P parentContext) {
                     try {
+                        String configAsXml = copy();
+
                         final XMLConfiguration config =
                                 new XMLConfiguration("Server Config",
-                                        dragPointInfo.copy);
+                                        configAsXml);
 
                         final ConfigurationHandle<P> handle =
                                 config.parse(parentContext);
@@ -488,7 +503,7 @@ public class ComponentOwnerHandlerFactory
 
                                 config.setSaveHandler(xml -> {
                                     try {
-                                        if (xml.equals(dragPointInfo.copy)) {
+                                        if (xml.equals(configAsXml)) {
                                             return;
                                         }
 
@@ -700,7 +715,11 @@ public class ComponentOwnerHandlerFactory
                 return json.toString();
             }
 
-            if (CUT.equals(operation)) {
+            if (COPY.equals(operation)) {
+
+                return dragPoint.copy();
+            }
+            else if (CUT.equals(operation)) {
 
                 DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
                 dragPoint.cut();
@@ -804,12 +823,9 @@ class DragPointInfo implements Serializable {
 
     final boolean supportsPaste;
 
-    final String copy;
-
     DragPointInfo(DragPoint serverDragPoint) {
         this.supportsCut = serverDragPoint.supportsCut();
         this.supportsPaste = serverDragPoint.supportsPaste();
-        this.copy = serverDragPoint.copy();
     }
 }
 
