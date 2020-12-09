@@ -3,19 +3,9 @@
  */
 package org.oddjob.scheduling;
 
-import static org.hamcrest.CoreMatchers.is;
-
-import java.util.Date;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -31,15 +21,17 @@ import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.jobs.SequenceJob;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.state.TimerState;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.hamcrest.CoreMatchers.is;
 
 /**
  *
@@ -625,7 +617,7 @@ public class TriggerTest extends OjTestCase {
 
         DragPoint drag = oddjob.provideConfigurationSession().dragPointFor(on);
         DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
-        drag.cut();
+        drag.delete();
         try {
             trn.commit();
         } catch (ArooaParseException e) {

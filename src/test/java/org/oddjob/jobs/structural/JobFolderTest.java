@@ -1,11 +1,9 @@
 package org.oddjob.jobs.structural;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
@@ -93,7 +91,7 @@ public class JobFolderTest extends OjTestCase {
 		trn.commit();
 		
 		trn = point.beginChange(ChangeHow.FRESH);
-		point.cut();
+		point.delete();
 		trn.commit();
 		
 		assertNull(new OddjobLookup(oddjob).lookup("folder"));

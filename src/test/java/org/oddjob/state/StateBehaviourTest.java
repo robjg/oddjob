@@ -51,7 +51,7 @@ public class StateBehaviourTest extends OjTestCase {
 		DragPoint dp = oddjob.provideConfigurationSession().dragPointFor(echo);
 		
 		DragTransaction t = dp.beginChange(ChangeHow.FRESH);
-		dp.cut();
+		dp.delete();
 		t.commit();
 		
 		checker.checkNow();

@@ -1,16 +1,8 @@
 package org.oddjob.state;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.MockStateful;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
@@ -22,6 +14,8 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.scheduling.DefaultExecutors;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MirrorStateTest extends OjTestCase {
 
@@ -294,7 +288,7 @@ public class MirrorStateTest extends OjTestCase {
 		
 		DragPoint drag = oddjob.provideConfigurationSession().dragPointFor(on);
 		DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
-		drag.cut();
+		drag.delete();
 		try {
 			trn.commit();
 		} catch (ArooaParseException e) {

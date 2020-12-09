@@ -155,7 +155,7 @@ public class SequentialJobCutPasteTest extends OjTestCase {
 
         point.paste(0, amberPoint.copy());
 
-        amberPoint.cut();
+        amberPoint.delete();
 
         transaction.commit();
 
@@ -175,7 +175,7 @@ public class SequentialJobCutPasteTest extends OjTestCase {
                 new OddjobLookup(oddjob).lookup("amber"));
 
         trn = amberPoint.beginChange(ChangeHow.FRESH);
-        amberPoint.cut();
+        amberPoint.delete();
         trn.commit();
 
         test.hardReset();

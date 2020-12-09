@@ -636,7 +636,7 @@ public class MegaBeanBusTest extends OjTestCase {
 
         DragTransaction trn = busPartPoint.beginChange(ChangeHow.FRESH);
         String copy = busPartPoint.copy();
-        busPartPoint.cut();
+        busPartPoint.delete();
         trn.commit();
 
         Object bus = new OddjobLookup(

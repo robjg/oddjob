@@ -192,7 +192,7 @@ public class RunJobTest extends OjTestCase {
         ).dragPointFor(lookup.lookup("w"));
 
         DragTransaction trn = dp.beginChange(ChangeHow.FRESH);
-        dp.cut();
+        dp.delete();
         trn.commit();
 
 

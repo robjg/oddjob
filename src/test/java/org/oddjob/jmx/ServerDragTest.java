@@ -137,7 +137,7 @@ public class ServerDragTest {
         DragPoint dragPoint = remoteOddjob.provideConfigurationSession().dragPointFor(toCut);
 
         DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-        dragPoint.cut();
+        dragPoint.delete();
         trn.commit();
 
         remoteOddjob.provideConfigurationSession().save();

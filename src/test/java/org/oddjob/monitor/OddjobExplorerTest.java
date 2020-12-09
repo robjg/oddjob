@@ -1,17 +1,5 @@
 package org.oddjob.monitor;
-import java.awt.GraphicsEnvironment;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
-import java.util.concurrent.atomic.AtomicReference;
 
-import javax.swing.Action;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -20,22 +8,24 @@ import org.oddjob.OddjobSessionFactory;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.design.designer.ArooaTree;
-import org.oddjob.arooa.parsing.ConfigSessionEvent;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.DragPoint;
-import org.oddjob.arooa.parsing.DragTransaction;
-import org.oddjob.arooa.parsing.MockConfigurationOwner;
-import org.oddjob.arooa.parsing.MockConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SessionStateListener;
+import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.view.ExplorerComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
+
+import javax.swing.*;
+import java.awt.*;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class OddjobExplorerTest extends OjTestCase {
 
@@ -229,7 +219,7 @@ public class OddjobExplorerTest extends OjTestCase {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			public void run() {
 				DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-				dragPoint.cut();
+				dragPoint.delete();
 				try {
 					trn.commit();
 				} catch (ArooaParseException e) {

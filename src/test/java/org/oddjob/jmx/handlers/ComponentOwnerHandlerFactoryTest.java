@@ -1,6 +1,6 @@
 package org.oddjob.jmx.handlers;
 
-import org.junit.Assert;
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -81,7 +81,12 @@ public class ComponentOwnerHandlerFactoryTest {
                 }
 
                 @Override
-                public void cut() {
+                public String cut() {
+                    throw new UnsupportedOperationException("Unexpected");
+                }
+
+                @Override
+                public void delete() {
                     cut = true;
                 }
 
@@ -224,7 +229,7 @@ public class ComponentOwnerHandlerFactoryTest {
         assertSame(ourComponent, compO.sess.component);
 
         DragTransaction trn = local.beginChange(ChangeHow.FRESH);
-        local.cut();
+        local.delete();
         trn.commit();
 
         assertTrue(compO.sess.committed);
@@ -248,7 +253,7 @@ public class ComponentOwnerHandlerFactoryTest {
         private final ArooaDescriptor descriptor = new StandardArooaDescriptor();
 
         DragPoint drag;
-        ConfigurationHandle handle;
+        ConfigurationHandle<ArooaContext> handle;
 
         public ConfigurationSession provideConfigurationSession() {
             return new MockConfigurationSession() {
@@ -354,7 +359,7 @@ public class ComponentOwnerHandlerFactoryTest {
         String expected = "<class id=\"oranges\"/>" +
                 System.getProperty("line.separator");
 
-        Assert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
+        MatcherAssert.assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
     }
 
     private static class NullConfigurationOwner extends MockConfigurationOwner {
@@ -557,7 +562,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
     private static class ModifiedServerSideToolkit extends MockServerSideToolkit {
 
-        NotificationListener listener;
+        NotificationListener<?> listener;
 
         @Override
         public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
@@ -565,10 +570,11 @@ public class ComponentOwnerHandlerFactoryTest {
             return new Notification<>(1L, type, 0, userData);
         }
 
+        @SuppressWarnings({"rawtypes", "unchecked"})
         @Override
-        public void sendNotification(Notification notification) {
+        public void sendNotification(Notification<?> notification) {
             if (listener != null) {
-                listener.handleNotification(notification);
+                ((NotificationListener) listener).handleNotification(notification);
             }
         }
 
@@ -699,7 +705,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
     private static class NotifyServerSideToolkit extends MockServerSideToolkit {
 
-        NotificationListener listener;
+        NotificationListener<?> listener;
 
         @Override
         public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
@@ -707,10 +713,11 @@ public class ComponentOwnerHandlerFactoryTest {
             return new Notification<>(1L, type, 0, userData);
         }
 
+        @SuppressWarnings({"unchecked", "rawtypes"})
         @Override
         public void sendNotification(Notification<?> notification) {
             if (listener != null) {
-                listener.handleNotification(notification);
+                ((NotificationListener) listener).handleNotification(notification);
             }
         }
 

@@ -61,6 +61,14 @@ public class ComponentOwnerHandlerFactory
                     MBeanOperationInfo.INFO
             ).addParam("component", Object.class, "The Component");
 
+    private static final JMXOperationPlus<String> CUT =
+            new JMXOperationPlus<>(
+                    "configCut",
+                    "",
+                    String.class,
+                    MBeanOperationInfo.ACTION_INFO
+            ).addParam("component", Object.class, "The Component");
+
     private static final JMXOperationPlus<String> COPY =
             new JMXOperationPlus<>(
                     "configCopy",
@@ -69,9 +77,9 @@ public class ComponentOwnerHandlerFactory
                     MBeanOperationInfo.ACTION_INFO
             ).addParam("component", Object.class, "The Component");
 
-    private static final JMXOperationPlus<Void> CUT =
+    private static final JMXOperationPlus<Void> DELETE =
             new JMXOperationPlus<>(
-                    "configCut",
+                    "configDelete",
                     "",
                     Void.TYPE,
                     MBeanOperationInfo.ACTION_INFO
@@ -175,7 +183,7 @@ public class ComponentOwnerHandlerFactory
                 SESSION_AVAILABLE.getOpInfo(),
                 DRAG_POINT_INFO.getOpInfo(),
                 COPY.getOpInfo(),
-                CUT.getOpInfo(),
+                DELETE.getOpInfo(),
                 PASTE.getOpInfo(),
                 SAVE.getOpInfo(),
                 IS_MODIFIED.getOpInfo(),
@@ -469,10 +477,20 @@ public class ComponentOwnerHandlerFactory
                 }
 
                 @Override
-                public void cut() {
+                public String cut() {
+                    try {
+                        return clientToolkit.invoke(
+                                CUT, component);
+                    } catch (Throwable e) {
+                        throw new UndeclaredThrowableException(e);
+                    }
+                }
+
+                @Override
+                public void delete() {
                     try {
                         clientToolkit.invoke(
-                                CUT, component);
+                                DELETE, component);
                     } catch (Throwable e) {
                         throw new UndeclaredThrowableException(e);
                     }
@@ -718,11 +736,22 @@ public class ComponentOwnerHandlerFactory
             if (COPY.equals(operation)) {
 
                 return dragPoint.copy();
-            }
-            else if (CUT.equals(operation)) {
+            } else if (CUT.equals(operation)) {
 
                 DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-                dragPoint.cut();
+                String copy = dragPoint.cut();
+                try {
+                    trn.commit();
+                } catch (ArooaParseException e) {
+                    trn.rollback();
+                    throw new MBeanException(e);
+                }
+
+                return copy;
+            } else if (DELETE.equals(operation)) {
+
+                DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
+                dragPoint.delete();
                 try {
                     trn.commit();
                 } catch (ArooaParseException e) {

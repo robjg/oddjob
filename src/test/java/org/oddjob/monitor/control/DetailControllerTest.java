@@ -1,21 +1,8 @@
 package org.oddjob.monitor.control;
 
 import org.junit.Test;
-
-import java.awt.Component;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.swing.JFrame;
-import javax.swing.JTree;
-import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
-import javax.swing.tree.TreePath;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.arooa.parsing.DragTransaction;
@@ -28,6 +15,13 @@ import org.oddjob.monitor.model.JobTreeNode;
 import org.oddjob.monitor.model.MockExplorerModel;
 import org.oddjob.monitor.view.DetailView;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class DetailControllerTest extends OjTestCase {
 
@@ -117,7 +111,7 @@ public class DetailControllerTest extends OjTestCase {
 		SwingUtilities.invokeAndWait(new Runnable() {
 			public void run() {
 				DragTransaction trn = xDrag.beginChange(ChangeHow.FRESH);
-				xDrag.cut();
+				xDrag.delete();
 				try {
 					trn.commit();
 				} catch (ArooaParseException e) {

@@ -181,7 +181,7 @@ public class NodeControlTest extends OjTestCase {
 		
 		SwingUtilities.invokeAndWait(() -> {
 			DragTransaction trn = drag.beginChange(ChangeHow.FRESH);
-			drag.cut();
+			drag.delete();
 			try {
 				trn.commit();
 			} catch (ArooaParseException e) {
