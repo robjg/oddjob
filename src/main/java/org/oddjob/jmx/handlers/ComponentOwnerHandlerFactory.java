@@ -355,6 +355,9 @@ public class ComponentOwnerHandlerFactory
 
         private final int id;
 
+        /** Cache the last one because menu asks for it several times in a row */
+        private volatile ClientDragPoint lastDragPoint;
+
         private final NotificationListener<Boolean> listener =
                 new NotificationListener<Boolean>() {
                     @Override
@@ -380,6 +383,133 @@ public class ComponentOwnerHandlerFactory
                     listener));
         }
 
+        class ClientDragPoint implements DragPoint {
+
+            private final Object component;
+
+            private final DragPointInfo dragPointInfo;
+
+            ClientDragPoint(Object component, DragPointInfo dragPointInfo) {
+                this.component = component;
+                this.dragPointInfo = dragPointInfo;
+            }
+
+
+            @Override
+            public boolean supportsCut() {
+                return dragPointInfo.supportsCut;
+            }
+
+            @Override
+            public boolean supportsPaste() {
+                return dragPointInfo.supportsPaste;
+            }
+
+            @Override
+            public DragTransaction beginChange(ChangeHow how) {
+                // Only create a fake client DragTransaction. The server will
+                // create a real one.
+                return new DragTransaction() {
+
+                    @Override
+                    public void rollback() {
+                    }
+
+                    @Override
+                    public void commit() {
+                    }
+                };
+            }
+
+            @Override
+            public String copy() {
+                try {
+                    return clientToolkit.invoke(
+                            COPY, component);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+
+            @Override
+            public String cut() {
+                try {
+                    return clientToolkit.invoke(
+                            CUT, component);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+
+            @Override
+            public void delete() {
+                try {
+                    clientToolkit.invoke(
+                            DELETE, component);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+
+            @Override
+            public <P extends ParseContext<P>> ConfigurationHandle<P> parse(
+                    P parentContext) {
+                try {
+                    String configAsXml = copy();
+
+                    final XMLConfiguration config =
+                            new XMLConfiguration("Server Config",
+                                    configAsXml);
+
+                    final ConfigurationHandle<P> handle =
+                            config.parse(parentContext);
+
+                    return new ConfigurationHandle<P>() {
+                        @Override
+                        public P getDocumentContext() {
+                            return handle.getDocumentContext();
+                        }
+
+                        @Override
+                        public void save()
+                                throws ArooaParseException {
+
+                            config.setSaveHandler(xml -> {
+                                try {
+                                    if (xml.equals(configAsXml)) {
+                                        return;
+                                    }
+
+                                    clientToolkit.invoke(
+                                            REPLACE, component, xml);
+                                } catch (Throwable e) {
+                                    throw new UndeclaredThrowableException(e);
+                                }
+                            });
+
+                            handle.save();
+                        }
+                    };
+
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+
+            @Override
+            public void paste(int index, String config) {
+                try {
+                    clientToolkit.invoke(
+                            PASTE,
+                            component,
+                            index,
+                            config);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+        }
+
         @Override
         public DragPoint dragPointFor(Object component) {
 
@@ -387,12 +517,26 @@ public class ComponentOwnerHandlerFactory
                 throw new NullPointerException("No component.");
             }
 
+            ClientDragPoint lastDragPoint = this.lastDragPoint;
+            if (lastDragPoint != null && lastDragPoint.component == component) {
+                return lastDragPoint;
+            }
+
             try {
                 final DragPointInfo dragPointInfo =
                         clientToolkit.invoke(
                                 DRAG_POINT_INFO, component);
 
-                return createDragPoint(component, dragPointInfo);
+                ClientDragPoint dragPoint;
+                if (dragPointInfo == null) {
+                    dragPoint = null;
+                }
+                else {
+                    dragPoint = new ClientDragPoint(component, dragPointInfo);
+                }
+
+                this.lastDragPoint = dragPoint;
+                return dragPoint;
 
             } catch (Throwable e) {
                 throw new UndeclaredThrowableException(e);
@@ -434,128 +578,6 @@ public class ComponentOwnerHandlerFactory
             return clientToolkit.getClientSession().getArooaSession().getArooaDescriptor();
         }
 
-        private DragPoint createDragPoint(final Object component, final DragPointInfo dragPointInfo) {
-
-            if (dragPointInfo == null) {
-                return null;
-            }
-
-            return new DragPoint() {
-                @Override
-                public boolean supportsCut() {
-                    return dragPointInfo.supportsCut;
-                }
-
-                @Override
-                public boolean supportsPaste() {
-                    return dragPointInfo.supportsPaste;
-                }
-
-                @Override
-                public DragTransaction beginChange(ChangeHow how) {
-                    // Only create a fake client DragTransaction. The server will
-                    // create a real one.
-                    return new DragTransaction() {
-
-                        @Override
-                        public void rollback() {
-                        }
-
-                        @Override
-                        public void commit() {
-                        }
-                    };
-                }
-
-                @Override
-                public String copy() {
-                    try {
-                        return clientToolkit.invoke(
-                                COPY, component);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
-                    }
-                }
-
-                @Override
-                public String cut() {
-                    try {
-                        return clientToolkit.invoke(
-                                CUT, component);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
-                    }
-                }
-
-                @Override
-                public void delete() {
-                    try {
-                        clientToolkit.invoke(
-                                DELETE, component);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
-                    }
-                }
-
-                @Override
-                public <P extends ParseContext<P>> ConfigurationHandle<P> parse(
-                        P parentContext) {
-                    try {
-                        String configAsXml = copy();
-
-                        final XMLConfiguration config =
-                                new XMLConfiguration("Server Config",
-                                        configAsXml);
-
-                        final ConfigurationHandle<P> handle =
-                                config.parse(parentContext);
-
-                        return new ConfigurationHandle<P>() {
-                            @Override
-                            public P getDocumentContext() {
-                                return handle.getDocumentContext();
-                            }
-
-                            @Override
-                            public void save()
-                                    throws ArooaParseException {
-
-                                config.setSaveHandler(xml -> {
-                                    try {
-                                        if (xml.equals(configAsXml)) {
-                                            return;
-                                        }
-
-                                        clientToolkit.invoke(
-                                                REPLACE, component, xml);
-                                    } catch (Throwable e) {
-                                        throw new UndeclaredThrowableException(e);
-                                    }
-                                });
-
-                                handle.save();
-                            }
-                        };
-
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
-                    }
-                }
-
-                @Override
-                public void paste(int index, String config) {
-                    try {
-                        clientToolkit.invoke(
-                                PASTE,
-                                component,
-                                index,
-                                config);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
-                    }
-                }
-            };
-        }
 
     }
 
