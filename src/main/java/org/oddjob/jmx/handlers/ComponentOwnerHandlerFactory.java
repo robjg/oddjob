@@ -26,6 +26,12 @@ import javax.management.*;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * This should be ConfigurationOwnerHandlerFactory.
@@ -94,6 +100,15 @@ public class ComponentOwnerHandlerFactory
             ).addParam("component", Object.class, "The Component")
                     .addParam("index", Integer.TYPE, "The Index")
                     .addParam("config", String.class, "The XML Configuration");
+
+
+    private static final JMXOperationPlus<PossibleChildren> POSSIBLE_CHILDREN =
+            new JMXOperationPlus<>(
+                    "possibleChildren",
+                    "Returns the possible tags that can be used in an add job function",
+                    PossibleChildren.class,
+                    MBeanOperationInfo.ACTION_INFO
+            ).addParam("component", Object.class, "The Component");
 
     private static final JMXOperationPlus<Boolean> IS_MODIFIED =
             new JMXOperationPlus<>(
@@ -186,6 +201,7 @@ public class ComponentOwnerHandlerFactory
                 COPY.getOpInfo(),
                 PASTE.getOpInfo(),
                 DELETE.getOpInfo(),
+                POSSIBLE_CHILDREN.getOpInfo(),
                 SAVE.getOpInfo(),
                 IS_MODIFIED.getOpInfo(),
                 REPLACE.getOpInfo(),
@@ -355,7 +371,9 @@ public class ComponentOwnerHandlerFactory
 
         private final int id;
 
-        /** Cache the last one because menu asks for it several times in a row */
+        /**
+         * Cache the last one because menu asks for it several times in a row
+         */
         private volatile ClientDragPoint lastDragPoint;
 
         private final NotificationListener<Boolean> listener =
@@ -508,6 +526,34 @@ public class ComponentOwnerHandlerFactory
                     throw new UndeclaredThrowableException(e);
                 }
             }
+
+            @Override
+            public QTag[] possibleChildren() {
+                if (!dragPointInfo.supportsPaste) {
+                    throw new IllegalArgumentException("Component doesn't support children. Check supportsPaste");
+                }
+
+                PossibleChildren possibleChildren;
+                try {
+                    possibleChildren = clientToolkit.invoke(
+                            POSSIBLE_CHILDREN,
+                            component);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+
+                PrefixMapping prefixMapping = tag -> {
+                    try {
+                        return new URI(possibleChildren.prefixMapping.get(tag));
+                    } catch (URISyntaxException e) {
+                        throw new UndeclaredThrowableException(e);
+                    }
+                };
+
+                return Arrays.stream(possibleChildren.tags)
+                        .map(prefixMapping::qTagFor)
+                        .toArray(QTag[]::new);
+            }
         }
 
         @Override
@@ -530,8 +576,7 @@ public class ComponentOwnerHandlerFactory
                 ClientDragPoint dragPoint;
                 if (dragPointInfo == null) {
                     dragPoint = null;
-                }
-                else {
+                } else {
                     dragPoint = new ClientDragPoint(component, dragPointInfo);
                 }
 
@@ -834,13 +879,27 @@ public class ComponentOwnerHandlerFactory
                     throw new MBeanException(e);
                 }
                 return null;
+            } else if (POSSIBLE_CHILDREN.equals(operation)) {
+
+                Map<String, String> prefixMap = new HashMap<>();
+
+                QTag[] qTags = dragPoint.possibleChildren();
+
+                String[] tags = Arrays.stream(qTags)
+                        .map(t -> {
+                            Optional.ofNullable(t.getElement().getUri())
+                                    .ifPresent(uri -> prefixMap.put(t.getPrefix(), uri.toString()));
+                            return t.toString();
+                        })
+                        .toArray(String[]::new);
+
+                return new PossibleChildren(prefixMap, tags);
             } else {
                 throw new ReflectionException(
                         new IllegalStateException("Invoked for an unknown method [" +
                                 operation.toString() + "]"),
                         operation.toString());
             }
-
         }
 
         @Override
@@ -894,4 +953,16 @@ class ComponentOwnerInfo implements Serializable {
     }
 }
 
+class PossibleChildren implements Serializable {
+    private static final long serialVersionUID = 2020121800L;
+
+    final Map<String, String> prefixMapping;
+
+    final String[] tags;
+
+    PossibleChildren(Map<String, String> prefixMapping, String[] tags) {
+        this.prefixMapping = prefixMapping;
+        this.tags = tags;
+    }
+}
 

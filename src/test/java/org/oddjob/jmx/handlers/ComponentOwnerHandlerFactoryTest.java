@@ -2,6 +2,9 @@ package org.oddjob.jmx.handlers;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ConfigurationHandle;
@@ -15,19 +18,31 @@ import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xmlunit.matchers.CompareMatcher;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.hamcrest.Matchers.hasItemInArray;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class ComponentOwnerHandlerFactoryTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ComponentOwnerHandlerFactoryTest.class);
 
     private static class MySessionLite extends MockConfigurationSession {
 
@@ -48,7 +63,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
             this.component = component;
 
-            return new DragPoint() {
+            return new MockDragPoint() {
 
                 @Override
                 public DragTransaction beginChange(ChangeHow how) {
@@ -81,19 +96,8 @@ public class ComponentOwnerHandlerFactoryTest {
                 }
 
                 @Override
-                public String cut() {
-                    throw new UnsupportedOperationException("Unexpected");
-                }
-
-                @Override
                 public void delete() {
                     cut = true;
-                }
-
-                @Override
-                public <P extends ParseContext<P>> ConfigurationHandle<P> parse(P parentContext) {
-
-                    throw new RuntimeException("Unexpected.");
                 }
 
                 @Override
@@ -102,7 +106,6 @@ public class ComponentOwnerHandlerFactoryTest {
                     pasteText = config;
                 }
             };
-
         }
 
         public void save() {
@@ -546,7 +549,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
         @Override
         public <T> void registerNotificationListener(NotificationType<T> eventType,
-                                                 NotificationListener<T> notificationListener) {
+                                                     NotificationListener<T> notificationListener) {
             assertEquals(ComponentOwnerHandlerFactory.MODIFIED_NOTIF_TYPE, eventType);
             assertNull(serverToolkit.listener);
             serverToolkit.listener = notificationListener;
@@ -554,7 +557,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
         @Override
         public <T> void removeNotificationListener(NotificationType<T> eventType,
-                                               NotificationListener<T> notificationListener) {
+                                                   NotificationListener<T> notificationListener) {
             assertEquals(serverToolkit.listener, notificationListener);
             serverToolkit.listener = null;
         }
@@ -689,7 +692,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
         @Override
         public <T> void registerNotificationListener(NotificationType<T> eventType,
-                                                 NotificationListener<T> notificationListener) {
+                                                     NotificationListener<T> notificationListener) {
             assertEquals(ComponentOwnerHandlerFactory.CHANGE_NOTIF_TYPE, eventType);
             assertNull(serverToolkit.listener);
             serverToolkit.listener = notificationListener;
@@ -697,7 +700,7 @@ public class ComponentOwnerHandlerFactoryTest {
 
         @Override
         public <T> void removeNotificationListener(NotificationType<T> eventType,
-                                               NotificationListener<T> notificationListener) {
+                                                   NotificationListener<T> notificationListener) {
             assertEquals(serverToolkit.listener, notificationListener);
             serverToolkit.listener = null;
         }
@@ -773,5 +776,69 @@ public class ComponentOwnerHandlerFactoryTest {
         owner.setSession(new ModifiedNotifySession());
 
         assertEquals(1, results.count);
+    }
+
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Test
+    public void testPossibleChildren() throws Throwable {
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("TEST", "<oddjob/>"));
+        oddjob.load();
+
+        ServerSideToolkit serverToolkit = mock(ServerSideToolkit.class);
+        ServerInterfaceHandler serverHandler = new ComponentOwnerHandlerFactory()
+                .createServerHandler(oddjob, serverToolkit);
+
+        ClientInterfaceHandlerFactory<ConfigurationOwner> factory
+                = new ComponentOwnerHandlerFactory.ClientFactory();
+
+        ConfigurationOwner proxy = mock(ConfigurationOwner.class);
+        ClientSideToolkit clientToolkit = mock(ClientSideToolkit.class);
+
+        doAnswer(invocation -> {
+            if (invocation.getArguments().length == 1) {
+                return serverHandler.invoke(
+                        invocation.getArgument(0), new Object[0]);
+            } else if (invocation.getArguments().length == 2) {
+                return serverHandler.invoke(
+                        invocation.getArgument(0), new Object[]{invocation.getArgument(1)});
+            } else {
+                throw new RuntimeException("How do we handle VarArgs?");
+            }
+        })
+                .when(clientToolkit)
+                .invoke(Mockito.any(RemoteOperation.class), ArgumentMatchers.any());
+        Map<NotificationType<?>, NotificationListener<?>> listenerMap = new HashMap<>();
+        doAnswer(invocation -> {
+            listenerMap.put(invocation.getArgument(0), invocation.getArgument(1));
+            return null;
+        }).when(clientToolkit).
+                registerNotificationListener(any(NotificationType.class), any(NotificationListener.class));
+        AtomicInteger sequence = new AtomicInteger();
+        doAnswer(invocation -> new Notification(-1,
+                invocation.getArgument(0),
+                sequence.getAndIncrement(),
+                invocation.getArgument(1)))
+                .when(serverToolkit)
+                .createNotification(any(NotificationType.class), any());
+        doAnswer(invocation -> {
+            Notification n = invocation.getArgument(0);
+            listenerMap.get(n.getType()).handleNotification(n);
+            return null;
+        })
+                .when(serverToolkit)
+                .sendNotification(any(Notification.class));
+
+        ConfigurationOwner configurationOwner = factory.createClientHandler(proxy, clientToolkit);
+
+        DragPoint dragPoint = configurationOwner.provideConfigurationSession().dragPointFor(oddjob);
+
+        QTag[] result = dragPoint.possibleChildren();
+
+        logger.info(Arrays.toString(result));
+
+        MatcherAssert.assertThat(result, hasItemInArray(new QTag("bean")));
+        MatcherAssert.assertThat(result, hasItemInArray(new QTag("echo")));
     }
 }

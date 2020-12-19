@@ -1,13 +1,9 @@
 package org.oddjob.monitor.action;
 
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaType;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.screem.FormItem;
 import org.oddjob.arooa.design.screem.LabelledComboBox;
 import org.oddjob.arooa.design.view.*;
-import org.oddjob.arooa.life.InstantiationContext;
-import org.oddjob.arooa.life.SimpleArooaClass;
 import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.xml.XMLArooaParser;
@@ -19,8 +15,6 @@ import org.oddjob.monitor.model.JobFormAction;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 /**
  * An action that adds a child job to a job.
@@ -48,9 +42,7 @@ public class AddJobAction extends JobFormAction implements FormAction {
 	private ConfigurationSession configurationSession;
 	
 	private DragPoint dragPoint;
-	
-	private Object component;
-	
+
 	public String getName() {
 		return "Add Job";
 	}
@@ -69,8 +61,8 @@ public class AddJobAction extends JobFormAction implements FormAction {
 	
 	@Override
 	protected void doPrepare(ExplorerContext explorerContext) {
-		
-		component = explorerContext.getThisComponent();
+
+		Object component = explorerContext.getThisComponent();
 		
 		ConfigContextSearch search = new ConfigContextSearch();
 		configurationSession = search.sessionForAddJob(explorerContext);
@@ -88,28 +80,13 @@ public class AddJobAction extends JobFormAction implements FormAction {
 			return;
 		}
 
-		ArooaDescriptor descriptor = configurationSession.getArooaDescriptor();
-		
-		InstantiationContext context = new InstantiationContext(
-				ArooaType.COMPONENT, new SimpleArooaClass(Object.class));
-		
-		ArooaElement[] elements = descriptor.getElementMappings().elementsFor(
-				context);
-		
-		SortedSet<QTag> sortedTags = new TreeSet<QTag>();
-		
-		for (ArooaElement element : elements) {
-			
-			String prefix = descriptor.getPrefixFor(element.getUri());		
-			sortedTags.add(new QTag(prefix, element));
-		}
-		
-		QTag[] allOptions = new QTag[elements.length + 1];		
+		QTag[] sortedTags = dragPoint.possibleChildren();
+		QTag[] allOptions = new QTag[sortedTags.length + 1];
 		allOptions[0] = QTag.NULL_TAG;
-		System.arraycopy(sortedTags.toArray(), 0, 
-				allOptions, 1, sortedTags.size());
+		System.arraycopy(sortedTags, 0,
+				allOptions, 1, sortedTags.length);
 				
-		comboBox = new LabelledComboBox<QTag>(allOptions, "New Job");
+		comboBox = new LabelledComboBox<>(allOptions, "New Job");
 		
 		form = new AddJobForm(comboBox);
 
@@ -151,7 +128,7 @@ public class AddJobAction extends JobFormAction implements FormAction {
 		}
 	}
 	
-	class AddJobForm implements Form {
+	static class AddJobForm implements Form {
 	
 		FormItem formItem;
 		
@@ -202,7 +179,6 @@ public class AddJobAction extends JobFormAction implements FormAction {
 
 			int items = 1;
 			for (int i = 0; i < items ; ++i) {
-				c.gridx = 0;
 				c.gridy = i + 1;
 
 				JPanel panel = new JPanel();
