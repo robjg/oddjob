@@ -23,21 +23,21 @@ public interface Stateful {
 	 * 
 	 * @throw JobDestroyedException If state is already destroyed.
 	 */
-	public void addStateListener(StateListener listener) 
+	void addStateListener(StateListener listener)
 	throws JobDestroyedException;
 
 	/**
 	 * Remove a job state listener.
 	 * 
 	 * @param listener The listener.
-	 */	
-	public void removeStateListener(StateListener listener);
+	 */
+	void removeStateListener(StateListener listener);
 
 	/**
 	 * Get the last state event.
 	 * 
 	 * @return The last State Event
 	 */
-	public StateEvent lastStateEvent();
+	StateEvent lastStateEvent();
 	
 }
