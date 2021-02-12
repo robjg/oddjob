@@ -3,14 +3,6 @@
  */
 package org.oddjob.monitor.view;
 
-import java.awt.Component;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
@@ -26,12 +18,17 @@ import org.oddjob.arooa.standard.StandardArooaDescriptor;
 import org.oddjob.monitor.actions.ExplorerAction;
 import org.oddjob.monitor.actions.ResourceActionProvider;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.monitor.model.ConfigContextInialiser;
+import org.oddjob.monitor.model.ConfigContextInitialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -62,7 +59,7 @@ public class ActionModelTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			if (ConfigContextInialiser.CONFIG_OWNER.equals(key)) {
+			if (ConfigContextInitialiser.CONFIG_OWNER.equals(key)) {
 				return new MockConfigurationOwner() {
 					public ConfigurationSession provideConfigurationSession() {
 						return session;
@@ -210,7 +207,7 @@ public class ActionModelTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			if (ConfigContextInialiser.CONFIG_OWNER.equals(key)) {
+			if (ConfigContextInitialiser.CONFIG_OWNER.equals(key)) {
 				return thisComponent;
 			}
 			throw new RuntimeException("Unexpected: " + key);

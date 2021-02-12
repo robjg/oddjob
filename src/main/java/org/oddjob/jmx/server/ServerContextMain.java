@@ -9,15 +9,20 @@ import org.oddjob.jmx.handlers.RemoteOddjobHandlerFactory;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
+import org.oddjob.monitor.context.AncestorContext;
 import org.oddjob.util.ThreadManager;
 
+/**
+ * This is a {@link ServerContext} for the {@link ServerMainBean}.
+ * <p>
+ *     TODO: ServerContexts should be refactored so this can just be an {@link ServerContextImpl}.
+ * </p>
+ */
 public class ServerContextMain implements ServerContext {
 
-	private final ServerModel model;
+	private final MainModel model;
 	
-	private final BeanDirectory beanDirectory;
-	
-	private final ServerId serverId;
+	private final ServerMainBean serverMainBean;
 	
 	/**
 	 * A constructor for the top most server 
@@ -25,46 +30,69 @@ public class ServerContextMain implements ServerContext {
 	 */
 	public ServerContextMain( 
 			ServerModel model,
-			BeanDirectory componentRegistry) {
+			ServerMainBean serverMainBean) {
 		
-		this.model = model;
+		this.model = new MainModel(model);
 		
-		this.beanDirectory = componentRegistry;
-
-		this.serverId = model.getServerId();
-
+		this.serverMainBean = serverMainBean;
 	}
 
+	@Override
+	public Object getThisComponent() {
+		return serverMainBean;
+	}
+
+	@Override
+	public AncestorContext getParent() {
+		return null;
+	}
+
+	@Override
 	public ServerContext addChild(Object child) {
-		return new ServerContextImpl(child, model, beanDirectory);
+		return new ServerContextImpl(child, model.model, this);
 	}
 
+	@Override
 	public ServerModel getModel() {
-		return new MainModel();
+		return model;
 	}
-	
+
+	@Override
 	public LogArchiver getLogArchiver() {
 		return null;
 	}
-		
+
+	@Override
 	public ConsoleArchiver getConsoleArchiver() {
 		return null;
 	}
-	
+
 	public ServerId getServerId() {
-		return serverId;
+		return model.getServerId();
 	}
 
+	@Override
 	public Address getAddress() {
 		return null;
 	}
 
+	@Override
 	public BeanDirectory getBeanDirectory() {
-		return beanDirectory;
+		return serverMainBean.provideBeanDirectory();
 	}
-	
-	class MainModel implements ServerModel {
-		
+
+	/**
+	 * Not sure why we need this.
+	 */
+	static class MainModel implements ServerModel {
+
+		private final ServerModel model;
+
+		public MainModel(ServerModel model) {
+			this.model = model;
+		}
+
+		@Override
 		public ServerInterfaceManagerFactory getInterfaceManagerFactory() {
 			return new ServerInterfaceManagerFactoryImpl(
 					new ServerInterfaceHandlerFactory<?, ?>[] {
@@ -74,15 +102,18 @@ public class ServerContextMain implements ServerContext {
 							new StructuralHandlerFactory()
 					});
 		}
-		
+
+		@Override
 		public String getLogFormat() {
 			return model.getLogFormat();
 		}
-		
+
+		@Override
 		public ServerId getServerId() {
 			return model.getServerId();
 		}
-		
+
+		@Override
 		public ThreadManager getThreadManager() {
 			return model.getThreadManager();
 		}

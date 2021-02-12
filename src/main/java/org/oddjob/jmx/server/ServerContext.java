@@ -8,6 +8,7 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
+import org.oddjob.monitor.context.AncestorContext;
 
 /**
  *  Provide a server context which can be passed down through the nodes
@@ -15,7 +16,7 @@ import org.oddjob.logging.LogArchiver;
  *  
  *  @author Rob Gordon.
  */
-public interface ServerContext {
+public interface ServerContext extends AncestorContext {
 
 	/**
 	 * Add a child component to the context.

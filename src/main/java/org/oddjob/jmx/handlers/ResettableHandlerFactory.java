@@ -6,11 +6,13 @@ import org.oddjob.jmx.server.ServerAllOperationsHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
+import java.util.Collections;
+import java.util.List;
 
 /**
  */
@@ -52,8 +54,8 @@ implements ServerInterfaceHandlerFactory<Resettable, Resettable> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
 
 	@Override

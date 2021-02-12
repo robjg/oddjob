@@ -75,12 +75,8 @@ implements ServerInterfaceHandlerFactory<Structural, Structural> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-
-		return new MBeanNotificationInfo[] {
-				new MBeanNotificationInfo(new String[] {
-						STRUCTURAL_NOTIF_TYPE.getName() },
-						Notification.class.getName(), "Structural notification.")};
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Arrays.asList(STRUCTURAL_NOTIF_TYPE);
 	}
 
 	@Override

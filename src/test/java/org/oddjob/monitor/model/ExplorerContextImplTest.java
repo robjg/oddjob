@@ -4,11 +4,9 @@
 package org.oddjob.monitor.model;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobSessionFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -68,7 +66,7 @@ public class ExplorerContextImplTest extends OjTestCase {
 		ExplorerContext ec2 = ec1.addChild(nestedOddjob);
 		
 		assertEquals(nestedOddjob, 
-				ec2.getValue(ConfigContextInialiser.CONFIG_OWNER));
+				ec2.getValue(ConfigContextInitialiser.CONFIG_OWNER));
 	}
 	
 	
@@ -91,7 +89,7 @@ public class ExplorerContextImplTest extends OjTestCase {
 		
 		ConfigurationOwner configOwner = 
 			(ConfigurationOwner) test.getValue(
-					ConfigContextInialiser.CONFIG_OWNER);
+					ConfigContextInitialiser.CONFIG_OWNER);
 		
 		// Oddjob not run - no components.
 		assertNull(configOwner.provideConfigurationSession());

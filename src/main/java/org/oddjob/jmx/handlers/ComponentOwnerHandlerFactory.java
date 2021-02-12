@@ -22,16 +22,16 @@ import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This should be ConfigurationOwnerHandlerFactory.
@@ -212,11 +212,8 @@ public class ComponentOwnerHandlerFactory
     }
 
     @Override
-    public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-        return new MBeanNotificationInfo[]{
-                new MBeanNotificationInfo(new String[]{
-                        MODIFIED_NOTIF_TYPE.getName()},
-                        Notification.class.getName(), "Modified Notification.")};
+    public List<NotificationType<?>> getNotificationTypes() {
+        return Arrays.asList(MODIFIED_NOTIF_TYPE);
     }
 
     @Override
@@ -927,19 +924,6 @@ public class ComponentOwnerHandlerFactory
 
 }
 
-class DragPointInfo implements Serializable {
-    private static final long serialVersionUID = 2009020400L;
-
-    final boolean supportsCut;
-
-    final boolean supportsPaste;
-
-    DragPointInfo(DragPoint serverDragPoint) {
-        this.supportsCut = serverDragPoint.supportsCut();
-        this.supportsPaste = serverDragPoint.supportsPaste();
-    }
-}
-
 class ComponentOwnerInfo implements Serializable {
     private static final long serialVersionUID = 2011090800L;
 
@@ -950,19 +934,6 @@ class ComponentOwnerInfo implements Serializable {
     ComponentOwnerInfo(ConfigurationOwner serverConfigOwner) {
         this.rootDesignFactory = serverConfigOwner.rootDesignFactory();
         this.rootElement = serverConfigOwner.rootElement();
-    }
-}
-
-class PossibleChildren implements Serializable {
-    private static final long serialVersionUID = 2020121800L;
-
-    final Map<String, String> prefixMapping;
-
-    final String[] tags;
-
-    PossibleChildren(Map<String, String> prefixMapping, String[] tags) {
-        this.prefixMapping = prefixMapping;
-        this.tags = tags;
     }
 }
 

@@ -10,9 +10,15 @@ import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.HasInitialisation;
 import org.oddjob.remote.Initialisation;
+import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.List;
 
 /**
  */
@@ -55,10 +61,9 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
-
 
 	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
@@ -83,7 +88,7 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 
 			if (String.class.isAssignableFrom(initialisation.getType())) {
 				return new ClientObjectHandler(proxy, toolkit,
-						String.class.cast(initialisation.getData()));
+						(String) initialisation.getData());
 			}
 			else {
 				throw new IllegalArgumentException("String initialisation data expected.");
@@ -93,8 +98,6 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 	
 	static class ClientObjectHandler {
 
-		private final ClientSideToolkit toolkit;
-		
 		private final Object proxy;
 		
 		/** Save the remote toString value */
@@ -102,7 +105,6 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		
 		ClientObjectHandler(Object proxy, ClientSideToolkit toolkit, String toString) {
 			this.proxy = proxy;
-			this.toolkit = toolkit;
 			this.toString = toString;
 		}
 
@@ -111,6 +113,7 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 			return toString;
 		}
 
+		@SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
 		@Override
 		public boolean equals(Object other) {
 			return (other == proxy);

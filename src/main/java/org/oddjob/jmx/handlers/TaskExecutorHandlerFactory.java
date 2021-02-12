@@ -16,6 +16,7 @@ import org.oddjob.jobs.tasks.Task;
 import org.oddjob.jobs.tasks.TaskException;
 import org.oddjob.jobs.tasks.TaskExecutor;
 import org.oddjob.jobs.tasks.TaskView;
+import org.oddjob.remote.NotificationType;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.slf4j.Logger;
@@ -24,7 +25,9 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 
 public class TaskExecutorHandlerFactory 
 implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
@@ -77,9 +80,8 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-
-		return new MBeanNotificationInfo[] {};
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
 
 	@Override

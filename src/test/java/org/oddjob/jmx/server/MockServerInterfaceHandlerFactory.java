@@ -1,10 +1,11 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.client.HandlerVersion;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
+import java.util.List;
 
 public class MockServerInterfaceHandlerFactory <X, Y>
 implements ServerInterfaceHandlerFactory<X, Y> {
@@ -36,7 +37,7 @@ implements ServerInterfaceHandlerFactory<X, Y> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
+	public List<NotificationType<?>> getNotificationTypes() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

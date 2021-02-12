@@ -67,8 +67,15 @@ public class ClientSessionImpl implements ClientSession {
 			
 			ClientNode.Handle handle = ClientNode.createProxyFor(remoteId,
 					toolkit);
+
 			childProxy = handle.getProxy();
-			destroyers.put(childProxy, handle.getDestroyer());
+			Destroyable nodeDestroyer = handle.getDestroyer();
+			Destroyable allDestroyer = () -> {
+					nodeDestroyer.destroy();
+					toolkit.destroy();
+			};
+
+			destroyers.put(childProxy, allDestroyer);
 		} 
 		catch (Exception e) {
 			logger.error("Failed creating client node for [" + remoteId +

@@ -4,7 +4,6 @@ import org.apache.commons.beanutils.DynaBean;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.Describable;
-import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockClassResolver;
@@ -27,7 +26,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ServerMainBeanTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class ServerMainBeanTest {
 
     private static class OurModel extends MockServerModel {
 
@@ -98,7 +103,7 @@ public class ServerMainBeanTest extends OjTestCase {
 
                 @Override
                 public void destroy(long childName) {
-                    assertEquals(ServerMainBeanTest.this.childName, childName);
+                    assertThat(ServerMainBeanTest.this.childName, is(childName));
                     child = null;
                 }
 
@@ -148,8 +153,11 @@ public class ServerMainBeanTest extends OjTestCase {
         OurModel model = new OurModel();
         model.simf = simf;
 
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanDirectory);
+
         ServerContextImpl context = new ServerContextImpl(
-                test, model, beanDirectory);
+                test, model, parentContext);
 
         OurServerToolkit toolkit =
                 new OurServerToolkit();
@@ -158,14 +166,14 @@ public class ServerMainBeanTest extends OjTestCase {
         ServerInterfaceManager serverInterfaceManager =
                 simf.create(test, toolkit);
 
-        assertEquals(child, toolkit.child);
-        assertEquals(1, toolkit.sent.size());
+        assertThat(toolkit.child, is(child));
+        assertThat(toolkit.sent.size(), is(1));
 
         Implementation<?>[] interfaces =
                 serverInterfaceManager.allClientInfo();
 
         String[] classNames = Arrays.stream(interfaces)
-                .map(implementation -> implementation.getType())
+                .map(Implementation::getType)
                 .toArray(String[]::new);
 
         assertThat(Arrays.asList(classNames), Matchers.containsInAnyOrder(
@@ -181,8 +189,8 @@ public class ServerMainBeanTest extends OjTestCase {
 
         serverInterfaceManager.destroy();
 
-        assertNull(toolkit.child);
-        assertEquals(2, toolkit.sent.size());
+        assertThat(toolkit.child, nullValue());
+        assertThat(toolkit.sent.size(), is(2));
     }
 
     @Test
@@ -203,18 +211,21 @@ public class ServerMainBeanTest extends OjTestCase {
 
         OurModel model = new OurModel();
 
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanDir);
+
         ServerContext context = new ServerContextImpl(
                 test,
                 model,
-                beanDir);
+                parentContext);
 
         Object[] children = OddjobTestHelper.getChildren(test);
 
-        assertEquals(1, children.length);
-        assertEquals(root, children[0]);
+        assertThat(children.length, is(1));
+        assertThat(children[0], is(root));
 
         ServerContext childContext = context.addChild(root);
 
-        assertEquals(model.getServerId(), childContext.getServerId());
+        assertThat(model.getServerId(), is(childContext.getServerId()));
     }
 }

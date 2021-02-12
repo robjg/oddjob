@@ -31,14 +31,14 @@ public class ConfigContextSearch {
 		if (context.getParent() == null) {
 			configOwner = 
 				(ConfigurationOwner) context.getValue(
-						ConfigContextInialiser.CONFIG_OWNER);
+						ConfigContextInitialiser.CONFIG_OWNER);
 		}
 		else {
 			// Use the parent node so Oddjob nodes can be copied.
 			AncestorSearch search = new AncestorSearch(context.getParent());
 			configOwner = 
 				(ConfigurationOwner) search.getValue(
-						ConfigContextInialiser.CONFIG_OWNER);
+						ConfigContextInitialiser.CONFIG_OWNER);
 		}
 		
 		if (configOwner != null) {
@@ -62,7 +62,7 @@ public class ConfigContextSearch {
 		
 		ConfigurationOwner configOwner = 
 			(ConfigurationOwner) search.getValue(
-					ConfigContextInialiser.CONFIG_OWNER);
+					ConfigContextInitialiser.CONFIG_OWNER);
 		
 		if (configOwner != null) {
 			return configOwner.provideConfigurationSession();

@@ -1,10 +1,12 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
+import java.util.Set;
 
 public class MockServerInterfaceManager 
 implements ServerInterfaceManager {
@@ -16,6 +18,11 @@ implements ServerInterfaceManager {
 
 	@Override
 	public MBeanInfo getMBeanInfo() {
+		throw new RuntimeException("Unexpected from " + getClass());
+	}
+
+	@Override
+	public Set<NotificationType<?>> getNotificationTypes() {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

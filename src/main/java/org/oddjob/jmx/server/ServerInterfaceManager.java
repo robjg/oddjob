@@ -4,10 +4,12 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanException;
 import javax.management.MBeanInfo;
 import javax.management.ReflectionException;
+import java.util.Set;
 
 /**
  * An InterfaceManager collects together the interfaces to be exposed by 
@@ -29,6 +31,14 @@ public interface ServerInterfaceManager {
 	 * @return
 	 */
 	MBeanInfo getMBeanInfo();
+
+
+	/**
+	 * Get the Notification Types from all Interfaces.
+	 *
+	 * @return A Set of Types. Might be empty, but never null.
+	 */
+	Set<NotificationType<?>> getNotificationTypes();
 
 	/**
 	 * Invoke a method using the arguments as received by an MBean.

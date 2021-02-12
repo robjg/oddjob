@@ -119,7 +119,7 @@ public class ServerSideBuilder {
                     registry);
 
             long mainName = factory.createMBeanFor(serverBean,
-                    new ServerContextMain(model, registry));
+                    new ServerContextMain(model, serverBean));
             if (mainName != 0L) {
                 throw new IllegalStateException("Main bean id should be 0 not " + mainName);
             }

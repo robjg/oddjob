@@ -4,22 +4,9 @@
 package org.oddjob.monitor.view;
 
 import org.junit.Test;
-
-import java.awt.Component;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JSeparator;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.design.actions.ConfigurableMenus;
 import org.oddjob.arooa.design.designer.MenuProvider;
@@ -29,11 +16,19 @@ import org.oddjob.arooa.parsing.MockConfigurationOwner;
 import org.oddjob.arooa.parsing.MockConfigurationSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.monitor.model.ConfigContextInialiser;
+import org.oddjob.monitor.model.ConfigContextInitialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.util.MockThreadManager;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 
@@ -49,7 +44,7 @@ public class ExplorerEditActionsTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			if (ConfigContextInialiser.CONFIG_OWNER.equals(key)) {
+			if (ConfigContextInitialiser.CONFIG_OWNER.equals(key)) {
 				return new MockConfigurationOwner() {
 					public ConfigurationSession provideConfigurationSession() {
 						return session;
@@ -237,7 +232,7 @@ public class ExplorerEditActionsTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			if (ConfigContextInialiser.CONFIG_OWNER.equals(key)) {
+			if (ConfigContextInitialiser.CONFIG_OWNER.equals(key)) {
 				return thisComponent;
 			}
 			throw new RuntimeException("Unexpected: " + key);

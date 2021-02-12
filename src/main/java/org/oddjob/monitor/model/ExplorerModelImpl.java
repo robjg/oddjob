@@ -3,9 +3,6 @@
  */
 package org.oddjob.monitor.model;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.oddjob.OJConstants;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaSession;
@@ -18,6 +15,9 @@ import org.oddjob.monitor.actions.ResourceActionProvider;
 import org.oddjob.monitor.context.ContextInitialiser;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.util.ThreadManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Data model for an explorer session.
@@ -60,7 +60,7 @@ public class ExplorerModelImpl implements ExplorerModel {
 			new ArrayList<ContextInitialiser>();
 
 		initialisers.add(new LogContextInialiser(this));
-		initialisers.add(new ConfigContextInialiser(this));
+		initialisers.add(new ConfigContextInitialiser(this));
 		
 		for (ExplorerAction action: explorerActions) {
 			if (action instanceof ContextInitialiser) {

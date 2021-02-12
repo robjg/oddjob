@@ -1,7 +1,12 @@
 package org.oddjob.jmx;
 
 import org.junit.Test;
+import org.oddjob.OjTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.management.*;
+import javax.management.remote.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -9,40 +14,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.AttributeNotFoundException;
-import javax.management.DynamicMBean;
-import javax.management.InvalidAttributeValueException;
-import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanConstructorInfo;
-import javax.management.MBeanException;
-import javax.management.MBeanInfo;
-import javax.management.MBeanNotificationInfo;
-import javax.management.MBeanOperationInfo;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerFactory;
-import javax.management.Notification;
-import javax.management.NotificationBroadcasterSupport;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXConnectorServer;
-import javax.management.remote.JMXConnectorServerFactory;
-import javax.management.remote.JMXServiceURL;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.oddjob.OjTestCase;
-
 public class JMXAssumptionsTest extends OjTestCase {
 	private static final Logger logger = LoggerFactory.getLogger(JMXAssumptionsTest.class);
 	
-	public class OurMBean extends NotificationBroadcasterSupport implements
+	public static class OurMBean extends NotificationBroadcasterSupport implements
 	DynamicMBean {
 
 		@Override

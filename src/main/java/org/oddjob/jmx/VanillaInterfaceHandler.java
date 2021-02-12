@@ -7,6 +7,11 @@ import org.oddjob.arooa.types.ValueFactory;
 import org.oddjob.jmx.handlers.VanillaServerHandlerFactory;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 
+/**
+ * Provide a generic {@link org.oddjob.jmx.server.ServerInterfaceManagerFactory} for an interface.
+ *
+ * @param <T> The type the handler is for.
+ */
 public class VanillaInterfaceHandler<T> 
 implements ValueFactory<ServerInterfaceHandlerFactory<T, T>>, ArooaSessionAware {
 

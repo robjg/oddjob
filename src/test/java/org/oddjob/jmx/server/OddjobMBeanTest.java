@@ -5,6 +5,7 @@ package org.oddjob.jmx.server;
 
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.oddjob.Structural;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.MockBeanRegistry;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -33,12 +35,13 @@ import org.oddjob.util.MockThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.MBeanServerFactory;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for an OddjobMBeanTest.
@@ -97,8 +100,12 @@ public class OddjobMBeanTest extends OjTestCase {
 
         };
 
+        BeanRegistry beanRegistry = new OurHierarchicalRegistry();
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanRegistry);
+
         ServerContext serverContext = new ServerContextImpl(
-                myJob, sm, new OurHierarchicalRegistry());
+                myJob, sm, parentContext);
 
         OddjobMBean ojmb = new OddjobMBean(
                 myJob, 0L,
@@ -140,8 +147,12 @@ public class OddjobMBeanTest extends OjTestCase {
 
         MyNotLis myNotLis = new MyNotLis();
 
+        BeanRegistry beanRegistry = new OurHierarchicalRegistry();
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanRegistry);
+
         ServerContext serverContext = new ServerContextImpl(
-                myJob, sm, new OurHierarchicalRegistry());
+                myJob, sm, parentContext);
 
         // create and register MBean.
         OddjobMBean ojmb = new OddjobMBean(
@@ -154,6 +165,13 @@ public class OddjobMBeanTest extends OjTestCase {
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
         mbs.registerMBean(ojmb, on);
+
+        MBeanInfo mBeanInfo = mbs.getMBeanInfo(on);
+        MBeanNotificationInfo[] notificationInfo = mBeanInfo.getNotifications();
+        assertThat(notificationInfo.length, is(1));
+        assertThat(notificationInfo[0].getNotifTypes()[0],
+                is(StatefulHandlerFactory.STATE_CHANGE_NOTIF_TYPE.getName()));
+
 
         // add notification listener.
         mbs.addNotificationListener(on, myNotLis, null, null);
@@ -213,8 +231,12 @@ public class OddjobMBeanTest extends OjTestCase {
         OddjobMBeanFactory f = new OddjobMBeanFactory(mbs,
                 new StandardArooaSession());
 
+        BeanRegistry beanRegistry = new OurHierarchicalRegistry();
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanRegistry);
+
         ServerContext serverContext = new ServerContextImpl(
-                myJob, sm, new OurHierarchicalRegistry());
+                myJob, sm, parentContext);
 
         long objectId = f.createMBeanFor(myJob, serverContext);
         ObjectName on = OddjobMBeanFactory.objectName(objectId);
@@ -222,10 +244,10 @@ public class OddjobMBeanTest extends OjTestCase {
         mbs.addNotificationListener(on,
                 myNotLis, null, null);
 
-        Notification lastStructuralNotification =
-                (Notification) mbs.invoke(on, "structuralSynchronize",
+        @SuppressWarnings("unchecked") Notification<StructuralHandlerFactory.ChildData> lastStructuralNotification =
+                (Notification<StructuralHandlerFactory.ChildData>) mbs.invoke(on, "structuralSynchronize",
                         new Object[0], new String[0]);
-        assertThat( lastStructuralNotification, Matchers.notNullValue());
+        MatcherAssert.assertThat( lastStructuralNotification, Matchers.notNullValue());
 
         myJob.foo();
         assertEquals("notifications", 1, myNotLis.getNum());
@@ -257,8 +279,12 @@ public class OddjobMBeanTest extends OjTestCase {
     public void testGetDynaClass() throws Exception {
         MyBean sampleBean = new MyBean();
 
+        BeanRegistry beanRegistry = new OurHierarchicalRegistry();
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanRegistry);
+
         ServerContext serverContext = new ServerContextImpl(
-                sampleBean, sm, new OurHierarchicalRegistry());
+                sampleBean, sm, parentContext);
 
         OddjobMBean test = new OddjobMBean(
                 sampleBean, 0L,
@@ -288,8 +314,12 @@ public class OddjobMBeanTest extends OjTestCase {
 
         ((ServerModelImpl) sm).setLogFormat("%m");
 
+        BeanRegistry beanRegistry = new OurHierarchicalRegistry();
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(beanRegistry);
+
         ServerContext serverContext = new ServerContextImpl(
-                bean, sm, new OurHierarchicalRegistry());
+                bean, sm, parentContext);
 
         OddjobMBean ojmb = new OddjobMBean(
                 bean, 0L,

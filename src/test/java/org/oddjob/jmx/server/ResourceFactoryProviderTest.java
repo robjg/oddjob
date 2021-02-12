@@ -23,7 +23,7 @@ public class ResourceFactoryProviderTest extends OjTestCase {
 		ServerInterfaceHandlerFactory<?, ?>[] handlerFactories
 			 = test.getHandlerFactories();
 
-		assertEquals(11, handlerFactories.length);
+		assertEquals(12, handlerFactories.length);
 	}
 	
 	public static class HandlerCounter implements Runnable, ArooaSessionAware {
@@ -69,6 +69,6 @@ public class ResourceFactoryProviderTest extends OjTestCase {
 		
 		int count = new OddjobLookup(oddjob).lookup("x.count", int.class); 
 		
-		assertEquals(11, count);
+		assertEquals(12, count);
 	}
 }

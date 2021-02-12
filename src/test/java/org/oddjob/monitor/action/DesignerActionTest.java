@@ -1,30 +1,25 @@
 package org.oddjob.monitor.action;
 
 import org.junit.Test;
-
-import java.awt.Component;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.design.screem.Form;
 import org.oddjob.arooa.design.view.SwingFormFactory;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.input.StdInInputHandler;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.monitor.model.ConfigContextInialiser;
+import org.oddjob.monitor.model.ConfigContextInitialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 import org.oddjob.state.ParentState;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 public class DesignerActionTest extends OjTestCase {
 
@@ -61,7 +56,7 @@ public class DesignerActionTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			assertEquals(ConfigContextInialiser.CONFIG_OWNER, key);
+			assertEquals(ConfigContextInitialiser.CONFIG_OWNER, key);
 			return configOwner;
 		}
 	}

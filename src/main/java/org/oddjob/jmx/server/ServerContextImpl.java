@@ -4,16 +4,13 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.OJConstants;
-import org.oddjob.arooa.registry.Address;
-import org.oddjob.arooa.registry.BeanDirectory;
-import org.oddjob.arooa.registry.BeanDirectoryOwner;
-import org.oddjob.arooa.registry.Path;
-import org.oddjob.arooa.registry.ServerId;
+import org.oddjob.arooa.registry.*;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.logging.ConsoleArchiver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.logging.cache.LocalConsoleArchiver;
+import org.oddjob.monitor.context.AncestorContext;
 
 /**
  *  Provide a server context which can be passed down through the nodes
@@ -23,17 +20,19 @@ import org.oddjob.logging.cache.LocalConsoleArchiver;
  */
 public class ServerContextImpl implements ServerContext {
 
+	private final ServerContext parent;
+
 	private final Object node;
 	
 	private final ServerModel model;
-	
+
 	private final BeanDirectory beanDirectory;
 	
 	private final LogArchiver logArchiver;
 	private final ConsoleArchiver consoleArchiver;
 
 	private final ServerId serverId;
-	
+
 	private final String id;
 
 	private final Path path;
@@ -44,9 +43,10 @@ public class ServerContextImpl implements ServerContext {
 	 */
 	public ServerContextImpl(Object root, 
 			ServerModel model,
-			BeanDirectory componentRegistry) {
-		
+			ServerContext parent) {
+
 		this.model = model;
+		this.parent = parent;
 		this.node = root;
 		
 		String logFormat = model.getLogFormat();
@@ -54,7 +54,7 @@ public class ServerContextImpl implements ServerContext {
 				logFormat == null ? OJConstants.DEFAULT_LOG_FORMAT : logFormat);
 		consoleArchiver = new LocalConsoleArchiver();
 
-		this.beanDirectory = componentRegistry;
+		this.beanDirectory = parent.getBeanDirectory();
 
 		this.id = beanDirectory.getIdFor(node);		
 		this.serverId = model.getServerId();
@@ -70,8 +70,8 @@ public class ServerContextImpl implements ServerContext {
 	private ServerContextImpl(Object node, ServerContextImpl parent) 
 	throws ServerLoopBackException {
 		
-		this.model = parent.getModel();
-		
+		this.parent = parent;
+		this.model = parent.model;
 		this.node = node;
 		
 		if (parent.node instanceof LogArchiver) {
@@ -89,6 +89,7 @@ public class ServerContextImpl implements ServerContext {
 		}
 
 		ServerId serverId = parent.getServerId();
+		Path path = parent.path;
 
 		if (parent.node instanceof BeanDirectoryOwner) {
 			this.beanDirectory = ((BeanDirectoryOwner) parent.node).provideBeanDirectory();
@@ -97,10 +98,11 @@ public class ServerContextImpl implements ServerContext {
 				throw new IllegalStateException("" + parent.node + 
 						" has no registry.");
 			}
-			
+
 			if (beanDirectory instanceof RemoteDirectory) {
 				serverId = ((RemoteDirectory) beanDirectory).getServerId();
-				if (serverId.equals(model.getServerId())) {
+				ServerId rootServerId = parent.getModel().getServerId();
+				if (serverId.equals(rootServerId)) {
 					throw new ServerLoopBackException(serverId);
 				}
 			}
@@ -115,39 +117,52 @@ public class ServerContextImpl implements ServerContext {
 			}
 		}
 		else {
-			this.path = parent.path;
 			this.beanDirectory = parent.beanDirectory;
 		}
-		
+
+		this.path = path;
 		this.serverId = serverId;
 		this.id = beanDirectory.getIdFor(node);
 	}
-	
-	public ServerContext addChild(Object child) 
+
+	@Override
+	public Object getThisComponent() {
+		return node;
+	}
+
+	@Override
+	public AncestorContext getParent() {
+		return parent;
+	}
+
+	@Override
+	public ServerContext addChild(Object child)
 	throws ServerLoopBackException {
 		return new ServerContextImpl(child, this);
 	}
-	
-	public Object getComponent() {
-		return node;
-	}
-	
+
+	@Override
 	public ServerModel getModel() {
 		return model;
 	}
-	
+
+
+	@Override
 	public LogArchiver getLogArchiver() {
 		return logArchiver;
 	}
-		
+
+	@Override
 	public ConsoleArchiver getConsoleArchiver() {
 		return consoleArchiver;
 	}
-	
+
+	@Override
 	public ServerId getServerId() {
 		return serverId;
 	}
 
+	@Override
 	public Address getAddress() {
 		if (id != null && path != null) {
 			return new Address(serverId, path.addId(id));
@@ -157,6 +172,7 @@ public class ServerContextImpl implements ServerContext {
 		}
 	}
 
+	@Override
 	public BeanDirectory getBeanDirectory() {
 		return beanDirectory;
 	}

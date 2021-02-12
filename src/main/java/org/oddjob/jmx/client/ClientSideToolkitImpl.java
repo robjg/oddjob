@@ -1,20 +1,22 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.utils.Pair;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
 import org.oddjob.jmx.general.RemoteBridge;
 import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import javax.management.MBeanException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
 import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of {@link ClientSideToolkit}.
@@ -25,40 +27,25 @@ import java.util.Objects;
 class ClientSideToolkitImpl implements ClientSideToolkit {
 	private static final Logger logger = LoggerFactory.getLogger(ClientSideToolkitImpl.class);
 
-	private final static int ACTIVE = 0;
-
-	private final static int DESTROYED = 3;
-	
-	private volatile int phase = ACTIVE;
-
 	private final ClientSessionImpl clientSession;
 
 	private final long remoteId;
 
 	private final ObjectName objectName;
 
-	private final Map<String, NotificationType<?>> types
-			= new HashMap<>();
+	private final RemoteBridge remoteBridge;
 
-	private final Map<String, NotificationListener<?>> notifications
-		= new LinkedHashMap<>();
-
-	/** The listener that listens for all JMX notifications. */
-	private final ClientListener clientListener;
-
+	private final Set<Pair<NotificationType<?>, NotificationListener<?>>> listeners = ConcurrentHashMap.newKeySet();
 		
 	public ClientSideToolkitImpl(long remoteId,
-			ClientSessionImpl clientSession) throws InstanceNotFoundException, IOException {
+			ClientSessionImpl clientSession) {
 
 		this.clientSession = Objects.requireNonNull(clientSession);
 		this.remoteId = remoteId;
 
 		this.objectName = OddjobMBeanFactory.objectName(remoteId);
 
-		clientListener = new ClientListener();
-		
-		clientSession.getServerConnection().addNotificationListener(objectName,
-				clientListener, null, null);
+		this.remoteBridge = new RemoteBridge(clientSession.getServerConnection());
 	}
 	
 	@Override
@@ -87,15 +74,25 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	@Override
 	public <T> void registerNotificationListener(NotificationType<T> eventType,
 												 NotificationListener<T> notificationListener) {
-		notifications.put(eventType.getName(), notificationListener);
-		types.put(eventType.getName(), eventType);
+		try {
+			this.remoteBridge.addNotificationListener(remoteId, eventType, notificationListener);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+
+		listeners.add(Pair.of(eventType, notificationListener));
 	}
 
 	@Override
 	public <T> void removeNotificationListener(NotificationType<T> eventType,
 			NotificationListener<T> notificationListener) {
-		notifications.remove(eventType.getName());
-		types.remove(eventType.getName());
+		try {
+			this.remoteBridge.removeNotificationListener(remoteId, eventType, notificationListener);
+		} catch (RemoteException e) {
+			throw new RuntimeException(e);
+		}
+
+		listeners.remove(Pair.of(eventType, notificationListener));
 	}
 	
 	public ClientSession getClientSession() {
@@ -105,20 +102,11 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	/**
 	 * Destroy this node. Clean up resources, remove remote connections.
 	 */
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	void destroy() {
-		phase = DESTROYED;
-		// beware the order here. 
+		// beware the order here.
 		// notifications removed first
-		try {
-			// will fail if destroy is due to the remote node being removed.
-			if (clientListener != null) {
-				clientSession.getServerConnection().removeNotificationListener(objectName,
-						clientListener);
-			}
-		} catch (JMException | IOException e) {
-			logger.debug("Client destroy.", e);
-		}
-		
+		listeners.forEach(pair -> removeInferType((Pair) pair));
 		logger.debug("Destroyed client for [" + toString() + "]");
 	}
 
@@ -126,62 +114,13 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	public String toString() {
 		return "Client: " + objectName;
 	}
-	
-	/**
-	 * Member class which listens for notifications coming 
-	 * across the network.
-	 *
-	 */
-	class ClientListener implements javax.management.NotificationListener {
-		
-		// do notifications always come on one thread? should we synchronze just in case they don't?
-		public void handleNotification(
-				final javax.management.Notification notification,
-				final Object object) {
-			
-			String typeName = notification.getType();
-			logger.debug("Handling notification [" + typeName + "] sequence [" +
-					notification.getSequenceNumber() + "] for [" + 
-					ClientSideToolkitImpl.this.toString() + "]");
 
-			if (phase == DESTROYED) {
-				logger.debug("Ignoring notification as client destroyed [" + 
-						ClientSideToolkitImpl.this.toString() + "]");
-				return;
-			}
-			
-			final NotificationListener<?> listener =
-				 notifications.get(typeName);
-			
-			if (listener != null) {
-
-				Runnable r = () -> {
-					try {
-						fireNotification(notification, listener);
-					} catch (Exception e) {
-						// this will happen when the remote node disappears
-						logger.debug("Handle notification.", e);
-					}
-				};
-				clientSession.getNotificationProcessor().submit(r);
-			}
-						
-		} // handleNotification
-		
-		@Override
-		public String toString() {
-			return ClientSideToolkitImpl.this.toString();
+	<T> void removeInferType(Pair<NotificationType<T>, NotificationListener<T>> pair) {
+		try {
+			remoteBridge.removeNotificationListener(remoteId, pair.getLeft(), pair.getRight());
+		} catch (RemoteException e) {
+			logger.debug("Client destroy.", e);
 		}
 	}
 
-	// Infer parameter types.
-	<T> void fireNotification(Notification notification,
-									 NotificationListener<T> listener) {
-
-		@SuppressWarnings("unchecked")
-		NotificationType<T> notificationType = (NotificationType<T>) types.get(notification.getType());
-
-		listener.handleNotification(RemoteBridge.fromJmxNotification(
-				remoteId, notificationType.getDataType(), notification));
-	}
 }

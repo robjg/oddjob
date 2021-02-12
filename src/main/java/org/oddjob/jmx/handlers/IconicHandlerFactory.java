@@ -17,10 +17,14 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -91,18 +95,11 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 				SYNCHRONIZE.getOpInfo(),
 				ICON_FOR.getOpInfo() };
 	}
-	
-	/*
-	 *  (non-Javadoc)
-	 * @see org.oddjob.jmx.server.InterfaceInfo#getMBeanNotificationInfo()
-	 */
+
+
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[] {
-				new MBeanNotificationInfo(
-							new String[] { ICON_CHANGED_NOTIF_TYPE.getName() },
-							Notification.class.getName(),
-							"Icon changed notification.") };
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.singletonList(ICON_CHANGED_NOTIF_TYPE);
 	}
 
 	@Override
@@ -303,6 +300,13 @@ implements ServerInterfaceHandlerFactory<Iconic, Iconic> {
 		public String getIconId() {
 		
 			return id;	
+		}
+
+		@Override
+		public String toString() {
+			return "IconData{" +
+					"id='" + id + '\'' +
+					'}';
 		}
 	}
 	

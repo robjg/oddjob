@@ -9,11 +9,13 @@ import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provide Handlers for the {@link Exportable} interface.
@@ -53,8 +55,8 @@ public class ExportableHandlerFactory implements ServerInterfaceHandlerFactory<O
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
 
 	@Override

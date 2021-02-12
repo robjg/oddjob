@@ -2,11 +2,13 @@ package org.oddjob.jmx.handlers;
 
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
 import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -91,15 +93,11 @@ implements ServerInterfaceHandlerFactory<T, T> {
 		return opInfo;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#getMBeanNotificationInfo()
-	 */
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#createServerHandler(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)

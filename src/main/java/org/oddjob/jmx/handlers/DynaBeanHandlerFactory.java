@@ -10,8 +10,14 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  */
@@ -138,8 +144,8 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
 
 	@Override

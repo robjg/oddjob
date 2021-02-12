@@ -4,10 +4,11 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.client.HandlerVersion;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanNotificationInfo;
 import javax.management.MBeanOperationInfo;
+import java.util.List;
 
 /**
  * Information for an interface so that it may be exposed via
@@ -63,9 +64,10 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 	 * 
 	 * @return An MBeanNotificationInfo array.
 	 */
-	MBeanNotificationInfo[] getMBeanNotificationInfo();
+//	MBeanNotificationInfo[] getMBeanNotificationInfo();
 
-	
+	List<NotificationType<?>> getNotificationTypes();
+
 	/**
 	 * Create a handler that handles communication on behalf of the
 	 * MBean with the interface.

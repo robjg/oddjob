@@ -118,7 +118,7 @@ implements ServerInterfaceManagerFactory {
 		return new ServerInterfaceManagerImpl(
 				target,
 				serverSideToolkit,
-				(ServerInterfaceHandlerFactory[]) handlers.toArray(new ServerInterfaceHandlerFactory[0]),
+				handlers.toArray(new ServerInterfaceHandlerFactory[0]),
 				accessController);
 	}
 }

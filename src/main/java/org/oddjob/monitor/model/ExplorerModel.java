@@ -23,14 +23,14 @@ public interface ExplorerModel {
 	 * 
 	 * @return The root node.
 	 */
-	public Oddjob getOddjob();
+	Oddjob getOddjob();
 	
 	/**
 	 * Get an available ThreadManager.
 	 * 
 	 * @return A ThreadManager.
 	 */
-	public ThreadManager getThreadManager();
+	ThreadManager getThreadManager();
 	
 	
 	/**
@@ -38,7 +38,7 @@ public interface ExplorerModel {
 	 * 
 	 * @return The log format.
 	 */
-	public String getLogFormat();
+	String getLogFormat();
 	
 	
 	/**
@@ -50,7 +50,7 @@ public interface ExplorerModel {
 	 * 
 	 * @return A LogArchiver.
 	 */
-	public LogArchiver getLogArchiver();
+	LogArchiver getLogArchiver();
 	
 	/**
 	 * Get the console archiver. This archiver is the top level archiver
@@ -61,16 +61,16 @@ public interface ExplorerModel {
 	 * 
 	 * @return A ConsoelArchiver.
 	 */
-	public ConsoleArchiver getConsoleArchiver();
+	ConsoleArchiver getConsoleArchiver();
 	
 	
-	public ContextInitialiser[] getContextInitialisers();
+	ContextInitialiser[] getContextInitialisers();
 	
-	public ExplorerAction[] getExplorerActions();
+	ExplorerAction[] getExplorerActions();
 	
 	/**
 	 * Destroy this model.
 	 *
 	 */
-	public void destroy();
+	void destroy();
 }

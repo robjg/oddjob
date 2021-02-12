@@ -8,8 +8,11 @@ import org.oddjob.OjTestCase;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
+import java.util.Collections;
+import java.util.List;
 
 public class InterfaceManagerImplTest extends OjTestCase {
 
@@ -27,6 +30,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
             return VERSION;
         }
 
+        @Override
         public ServerInterfaceHandler createServerHandler(MockI target, ServerSideToolkit ojmb) {
             return new ServerInterfaceHandler() {
                 public void destroy() {
@@ -48,10 +52,12 @@ public class InterfaceManagerImplTest extends OjTestCase {
             return new MBeanAttributeInfo[0];
         }
 
-        public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-            return new MBeanNotificationInfo[0];
+        @Override
+        public List<NotificationType<?>> getNotificationTypes() {
+            return Collections.emptyList();
         }
 
+        @Override
         public MBeanOperationInfo[] getMBeanOperationInfo() {
             return new MBeanOperationInfo[]{
                     new MBeanOperationInfo(
@@ -68,10 +74,12 @@ public class InterfaceManagerImplTest extends OjTestCase {
                             MBeanOperationInfo.ACTION_INFO)};
         }
 
+        @Override
         public Class<MockI> serverClass() {
             return MockI.class;
         }
 
+        @Override
         public Class<MockI> clientClass() {
             return MockI.class;
         }

@@ -18,6 +18,9 @@ import org.oddjob.jmx.handlers.IconicHandlerFactory;
 import org.oddjob.remote.Notification;
 import org.oddjob.util.MockThreadManager;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class IconicInfoTest extends OjTestCase {
 //	private static final Logger logger = LoggerFactory.getLogger(IconicInfoTest.class);
 
@@ -73,8 +76,11 @@ public class IconicInfoTest extends OjTestCase {
                 new MockThreadManager(),
                 imf);
 
+        ServerContext parentContext = mock(ServerContext.class);
+        when(parentContext.getBeanDirectory()).thenReturn(new OurHierarchicalRegistry());
+
         ServerContext serverContext = new ServerContextImpl(
-                iconic, sm, new OurHierarchicalRegistry());
+                iconic, sm, parentContext);
 
         OddjobMBean ojmb = new OddjobMBean(
                 iconic, 0L,
@@ -85,8 +91,8 @@ public class IconicInfoTest extends OjTestCase {
 
         Notification<IconicHandlerFactory.IconData> n =
                 (Notification<IconicHandlerFactory.IconData>) ojmb.invoke(
-                "iconicSynchronize", new Object[]{},
-                new String[]{});
+                        "iconicSynchronize", new Object[]{},
+                        new String[]{});
 
         assertEquals(IconicHandlerFactory.ICON_CHANGED_NOTIF_TYPE, n.getType());
 

@@ -7,10 +7,11 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.rules.TestName;
+import org.oddjob.Iconic;
 import org.oddjob.OddjobConsole;
-import org.oddjob.OjTestCase;
 import org.oddjob.arooa.*;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.logging.LogLevel;
@@ -22,10 +23,7 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.SharedConstants;
-import org.oddjob.jmx.handlers.DynaBeanHandlerFactory;
-import org.oddjob.jmx.handlers.LogPollableHandlerFactory;
-import org.oddjob.jmx.handlers.ObjectInterfaceHandlerFactory;
-import org.oddjob.jmx.handlers.RemoteOddjobHandlerFactory;
+import org.oddjob.jmx.handlers.*;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
@@ -37,14 +35,29 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.io.Serializable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 /**
  * Test a ClientNode.
  */
-public class ClientNodeTest extends OjTestCase {
-    public static final Logger logger = LoggerFactory.getLogger(ClientNodeTest.class);
+public class ClientNodeTest {
+    private static final Logger logger = LoggerFactory.getLogger(ClientNodeTest.class);
+
+    @Rule
+    public TestName name = new TestName();
+
+    public String getName() {
+        return name.getMethodName();
+    }
 
     /**
      * Fixture interface which contains the minimum
@@ -151,7 +164,7 @@ public class ClientNodeTest extends OjTestCase {
      * @throws Exception
      */
     @Test
-    public void testSimple() throws Exception {
+    public void testClientCanCreateProxyForSimpleBean() throws Exception {
         Simple mb = new Simple();
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
@@ -169,7 +182,7 @@ public class ClientNodeTest extends OjTestCase {
 
         Object proxy = clientSession.create(beanId);
 
-        assertEquals("test", proxy.toString());
+        assertThat(proxy.toString(), is("test"));
     }
 
     /**
@@ -178,7 +191,7 @@ public class ClientNodeTest extends OjTestCase {
      * @throws Exception
      */
     @Test
-    public void testEquals() throws Exception {
+    public void testSameProxyInstanceAreEqual() throws Exception {
         Simple mb = new Simple();
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
@@ -187,17 +200,25 @@ public class ClientNodeTest extends OjTestCase {
         ObjectName on = OddjobMBeanFactory.objectName(objectId);
         mbs.registerMBean(mb, on);
 
+        ClientInterfaceManagerFactory cimf =
+                new ClientInterfaceManagerFactoryBuilder()
+                        .addFactories(new ObjectInterfaceHandlerFactory.ClientFactory())
+                        .build();
+
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,
                 new DummyNotificationProcessor(),
-                Mockito.mock(ClientInterfaceManagerFactory.class),
+                cimf,
                 new OurArooaSession(),
                 logger);
 
         Object proxy = clientSession.create(objectId);
 
-        assertEquals(proxy, proxy);
-        assertEquals(proxy.hashCode(), proxy.hashCode());
+        // check we created a proxy
+        assertThat(Proxy.isProxyClass(proxy.getClass()), is(true));
+
+        assertThat(proxy, is(proxy));
+        assertThat(proxy.hashCode(), is(proxy.hashCode()));
     }
 
     //////////////////////// interfaces ////////////////////////////
@@ -215,11 +236,11 @@ public class ClientNodeTest extends OjTestCase {
 
         @Override
         protected Implementation<?>[] getImplementations() {
-            return new Implementation[] {
+            return new Implementation[]{
                     Implementation.create(
                             Object.class.getName(), "2.0",
                             new Initialisation<>(String.class, "Our Runnable Thing")),
-                    Implementation.create(Runnable.class.getName(), "2.0") };
+                    Implementation.create(Runnable.class.getName(), "2.0")};
         }
     }
 
@@ -254,11 +275,12 @@ public class ClientNodeTest extends OjTestCase {
 
         Object proxy = clientSession.create(objectId);
 
-        assertTrue("Runnable", proxy instanceof Runnable);
+        assertThat("Runnable", proxy instanceof Runnable);
 
+        //noinspection ConstantConditions
         ((Runnable) proxy).run();
 
-        assertTrue("Ran", mb.ran);
+        assertThat("Ran", mb.ran, is(true));
     }
 
     ///////////////// MBean getter setter tests //////////////////
@@ -433,12 +455,12 @@ public class ClientNodeTest extends OjTestCase {
 
         Object proxy = clientSession.create(objectId);
 
-        assertNotNull(proxy);
+        assertThat(proxy, notNullValue());
 
         BeanUtilsPropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
 
         String fruit = (String) propertyAccessor.getProperty(proxy, "fred.fruit");
-        assertEquals("apples", fruit);
+        assertThat(fruit, is("apples"));
 
         // test a component registry nested lookup
         // need to add a new level to create the new registry
@@ -452,7 +474,7 @@ public class ClientNodeTest extends OjTestCase {
 
         @Override
         public String getIdFor(Object component) {
-            assertNotNull(component);
+            assertThat(component, notNullValue());
             return "x";
         }
     }
@@ -480,8 +502,11 @@ public class ClientNodeTest extends OjTestCase {
                     new ServerInterfaceManagerFactoryImpl()
             );
 
+            ServerContext parentContext = mock(ServerContext.class);
+            when(parentContext.getBeanDirectory()).thenReturn(new OurHierarchicalRegistry());
+
             ServerContext srvcon = new ServerContextImpl(o, sm,
-                    new OurHierarchicalRegistry());
+                    parentContext);
 
             Object mb = new OddjobMBean(o, 0L,
                     new OurServerSession(), srvcon);
@@ -501,17 +526,17 @@ public class ClientNodeTest extends OjTestCase {
 
             Object proxy = clientSession.create(objectId);
 
-            assertNotNull(proxy);
+            assertThat(proxy, notNullValue());
 
             ArooaSession session = new StandardArooaSession();
             Map<String, String> map = new UniversalDescriber(
                     session).describe(proxy);
-            assertNotNull(map);
+            assertThat(map, notNullValue());
 
             BeanUtilsPropertyAccessor bubh = new BeanUtilsPropertyAccessor();
 
             Object gotten = bubh.getProperty(proxy, "fred.fruit");
-            assertEquals("apples", gotten);
+            assertThat(gotten, is("apples"));
         }
     }
 
@@ -525,12 +550,12 @@ public class ClientNodeTest extends OjTestCase {
 
         @Override
         protected Implementation<?>[] getImplementations() {
-            return new Implementation<?>[] {
+            return new Implementation<?>[]{
                     Implementation.create(
                             Object.class.getName(), "2.0",
                             new Initialisation<>(String.class, "Our Logging Thing")),
                     Implementation.create(
-                            LogPollable.class.getName(), "2.0") };
+                            LogPollable.class.getName(), "2.0")};
         }
 
         public LogEvent[] retrieveLogEvents(long from, int max) {
@@ -585,15 +610,16 @@ public class ClientNodeTest extends OjTestCase {
 
         Object proxy = clientSession.create(objectId);
 
-        assertTrue("Log Pollable", proxy instanceof LogPollable);
+        assertThat("Log Pollable", proxy instanceof LogPollable, is(true));
         LogPollable test = (LogPollable) proxy;
 
-        assertEquals("url", "//test", test.url());
+        assertThat("url", test.url(), is("//test"));
         LogEvent[] events = test.retrieveLogEvents(-1L, 10);
 
-        assertEquals("num events", 1, events.length);
-        assertEquals("event", "Test", events[0].getMessage());
+        assertThat("num events", events.length, is(1));
+        assertThat("event", events[0].getMessage(), is("Test"));
 
+        clientSession.destroy(proxy);
     }
 
     ///////////////////////////////////////////
@@ -611,5 +637,52 @@ public class ClientNodeTest extends OjTestCase {
         }
     }
 
+    @Test
+    public void testNotificationListenerRemovedOnDestroy() throws Exception {
 
+        ClientInterfaceManagerFactory cimf = new ClientInterfaceManagerFactoryBuilder()
+                .addFactories(new ObjectInterfaceHandlerFactory.ClientFactory(),
+                        new IconicHandlerFactory.ClientFactory())
+                .build();
+
+        long objectId = 2L;
+        ObjectName on = OddjobMBeanFactory.objectName(objectId);
+
+        Method m = RemoteOddjobBean.class.getMethod("serverInfo");
+
+        ServerInfo serverInfo = new ServerInfo(new Address(new Path("foo")),
+                new Implementation<?>[]
+                        { Implementation.create(Object.class.getName(), "1.0",
+                                Initialisation.from(String.class, "Test")),
+                        Implementation.create(Iconic.class.getName(), "1.0")});
+
+        MBeanServerConnection mbs = mock(MBeanServerConnection.class);
+        when(mbs.invoke(eq(on), eq(m.getName()), nullable(Object[].class), any(String[].class)))
+                .thenReturn(serverInfo);
+
+        ClientSessionImpl clientSession = new ClientSessionImpl(
+                mbs,
+                new DummyNotificationProcessor(),
+                cimf,
+                new OurArooaSession(),
+                logger);
+
+        Object proxy = clientSession.create(objectId);
+
+        assertThat(Proxy.isProxyClass(proxy.getClass()), is(true));
+
+        ((Iconic) proxy).addIconListener(l -> {});
+
+        verify(mbs, times(1)).addNotificationListener(
+                eq(on),
+                any(NotificationListener.class),
+                any(NotificationFilter.class),
+                isNull());
+
+        clientSession.destroy(proxy);
+
+        verify(mbs, times(1)).removeNotificationListener(
+                eq(on), any(NotificationListener.class));
+
+    }
 }

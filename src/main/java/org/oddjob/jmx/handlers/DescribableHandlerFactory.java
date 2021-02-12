@@ -7,8 +7,14 @@ import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,10 +61,9 @@ implements ServerInterfaceHandlerFactory<Object, Describable> {
 	}
 
 	@Override
-	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-		return new MBeanNotificationInfo[0];
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
 	}
-
 
 	@Override
 	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {

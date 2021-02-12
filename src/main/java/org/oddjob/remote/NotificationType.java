@@ -45,7 +45,7 @@ public class NotificationType<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "OperationType{" +
+        return "NotificationType{" +
                 "name='" + name + '\'' +
                 ", dataType=" + dataType +
                 '}';

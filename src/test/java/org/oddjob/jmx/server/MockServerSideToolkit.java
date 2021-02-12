@@ -3,6 +3,7 @@ package org.oddjob.jmx.server;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.util.NotifierListener;
 
 public class MockServerSideToolkit implements ServerSideToolkit {
 
@@ -13,6 +14,11 @@ public class MockServerSideToolkit implements ServerSideToolkit {
 
 	@Override
 	public <T> Notification<T> createNotification(NotificationType<T> type, T userData) {
+		throw new RuntimeException("Unexpected from " + getClass());
+	}
+
+	@Override
+	public <T> void setNotifierListener(NotificationType<T> type, NotifierListener<T> notifierListener) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

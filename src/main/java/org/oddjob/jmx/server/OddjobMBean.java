@@ -2,8 +2,8 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
-import org.oddjob.jmx.general.RemoteBridge;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.util.NotifierListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,8 +25,8 @@ import java.rmi.RemoteException;
  * @author Rob Gordon.
  */
 
-public class OddjobMBean extends NotificationBroadcasterSupport implements
-		DynamicMBean {
+public class OddjobMBean implements
+		NotificationEmitter, DynamicMBean {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobMBean.class);
 
 	/** The remoteId of this node */
@@ -44,7 +44,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	private final ObjectName objectName;
 	
 	/** The factory for adding and removing beans. */
-	private final ServerSession factory;
+	private final ServerSession serverSession;
 
 	/** The interface manager. */
 	private final ServerInterfaceManager serverInterfaceManager;
@@ -52,19 +52,21 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	/** Used to ensure that no fresh notifications are sent during a resync. */
 	private final Object resyncLock = new Object();
 
+	private final JmxListenerHelper listeners;
+
 	/**
 	 * Constructor.
 	 * 
 	 * @param node The job this is shadowing.
 	 * @param objectId The object Id for this node.
-	 * @param factory The factory for creating child OddjobMBeans. May be null only
+	 * @param serverSession The factory for creating child OddjobMBeans. May be null only
 	 * if this MBean will never have children.
 	 * @param srvcon The server context The server context. Must not be null.
 	 * 
 	 * @throws RemoteException
 	 */
 	public OddjobMBean(Object node, long objectId,
-			ServerSession factory, ServerContext srvcon) {
+					   ServerSession serverSession, ServerContext srvcon) {
 		
 		if (node == null) {
 			throw new NullPointerException("Component must not be null");
@@ -75,14 +77,17 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 
 		this.objectId = objectId;
 		this.node = node;
-		this.factory = factory;
+		this.serverSession = serverSession;
 		this.srvcon = srvcon;
 		this.objectName = OddjobMBeanFactory.objectName(objectId);
-		
-		ServerInterfaceManagerFactory imf = 
+
+		this.listeners = new JmxListenerHelper(objectName);
+
+		ServerInterfaceManagerFactory imf =
 			srvcon.getModel().getInterfaceManagerFactory();
 		
-		serverInterfaceManager = imf.create(node, new Toolkit());		
+		serverInterfaceManager = imf.create(node, new Toolkit());
+		listeners.setNotificationTypes(serverInterfaceManager.getNotificationTypes());
 	}
 
 	public Object getNode() {
@@ -97,6 +102,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 *  (non-Javadoc)
 	 * @see javax.management.DynamicMBean#getAttribute(java.lang.String)
 	 */
+	@Override
 	public Object getAttribute(String attribute)
 	throws ReflectionException, MBeanException {
 		logger.debug("getAttribute(" + attribute + ")");
@@ -108,7 +114,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 *  (non-Javadoc)
 	 * @see javax.management.DynamicMBean#setAttribute(javax.management.Attribute)
 	 */
-	public void setAttribute(Attribute attribute) 
+	@Override
+	public void setAttribute(Attribute attribute)
 	throws ReflectionException, MBeanException {
 		logger.debug("setAttribute(" + attribute.getName() + ")");
 		invoke("set", new Object[] { attribute.getClass(), attribute.getValue() },
@@ -119,6 +126,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 *  (non-Javadoc)
 	 * @see javax.management.DynamicMBean#getAttributes(java.lang.String[])
 	 */
+	@Override
 	public AttributeList getAttributes(String[] attributes) {
 		AttributeList al = new AttributeList();
 		for (String attribute : attributes) {
@@ -137,6 +145,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	 *  (non-Javadoc)
 	 * @see javax.management.DynamicMBean#setAttributes(javax.management.AttributeList)
 	 */
+	@Override
 	public AttributeList setAttributes(AttributeList attributes) {
 		AttributeList al = new AttributeList();
 		for (Attribute attribute : attributes.asList()) {
@@ -148,6 +157,21 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 			}
 		}
 		return al;
+	}
+
+	@Override
+	public void removeNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws ListenerNotFoundException {
+		this.listeners.removeNotificationListener(listener, filter, handback);
+	}
+
+	@Override
+	public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
+		this.listeners.addNotificationListener(listener, filter, handback);
+	}
+
+	@Override
+	public void removeNotificationListener(NotificationListener listener) throws ListenerNotFoundException {
+		this.listeners.removeNotificationListener(listener);
 	}
 
 	/**
@@ -183,7 +207,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		////////////////////////////////////////////////////////////
 		
 		// anything else - pass to the interface manager.
-		Object[] imported = Utils.importResolve(params, factory);
+		Object[] imported = Utils.importResolve(params, serverSession);
 		if (imported == null) {
 			// ensure null params is converted to 0 length array.
 			imported = new Object[0];
@@ -243,8 +267,12 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 	
 		@Override
 		public void sendNotification(org.oddjob.remote.Notification<?> notification) {
-			OddjobMBean.this.sendNotification(
-					RemoteBridge.toJmxNotification(objectName, notification));
+			OddjobMBean.this.listeners.sendNotification(notification);
+		}
+
+		@Override
+		public <T> void setNotifierListener(NotificationType<T> type, NotifierListener<T> notifierListener) {
+			listeners.setNotifierListener(type, notifierListener);
 		}
 
 		@Override
@@ -253,7 +281,8 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 				return new org.oddjob.remote.Notification<>(objectId, type, sequenceNumber++, userData);
 			}
 		}
-		
+
+
 		/**
 		 * Used by handlers to execute functionality while
 		 * holding the resync lock.
@@ -280,7 +309,7 @@ public class OddjobMBean extends NotificationBroadcasterSupport implements
 		}
 		
 		public ServerSession getServerSession() {
-			return factory;
+			return serverSession;
 		}
 	}
 	

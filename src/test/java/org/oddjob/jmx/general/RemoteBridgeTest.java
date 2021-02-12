@@ -1,6 +1,5 @@
 package org.oddjob.jmx.general;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
@@ -23,12 +22,64 @@ import java.util.concurrent.TimeUnit;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.oddjob.state.GenericState.statesEquivalent;
 
 public class RemoteBridgeTest {
+
+    @Test
+    public void testToJmxNotification() throws MalformedObjectNameException {
+
+        NotificationType<String> type1 =
+                NotificationType.ofName("some.string.event")
+                        .andDataType(String.class);
+
+        Notification<String> remoteNotification = new Notification<>(
+                42L, type1, 1000L, "Apple");
+
+        ObjectName objectName = new ObjectName("foo:name=foo");
+
+        javax.management.Notification jmxNotification =
+                RemoteBridge.toJmxNotification(objectName, remoteNotification);
+
+        assertThat(jmxNotification.getType(), is("some.string.event"));
+        assertThat(jmxNotification.getUserData(), is("Apple"));
+        assertThat(jmxNotification.getSequenceNumber(), is(1000L));
+        assertThat(jmxNotification.getSource(), is(objectName));
+    }
+
+    @Test
+    public void testToJmxListenerListenersEqualsForSameRemoteListener() {
+
+        NotificationListener<String> remoteListener = mock(NotificationListener.class);
+
+        javax.management.NotificationListener jmxListener1 = RemoteBridge.toJmxListener(
+                42L, remoteListener, String.class);
+
+        javax.management.NotificationListener jmxListener2 = RemoteBridge.toJmxListener(
+                42L, remoteListener, String.class);
+
+        assertThat(jmxListener1, is(jmxListener2));
+    }
+
+    @Test
+    public void tesIisFilterFor() {
+
+        NotificationType<String> type1 =
+                NotificationType.ofName("some.string.event")
+                        .andDataType(String.class);
+
+        NotificationType<String> type2 =
+                NotificationType.ofName("some.other.event")
+                        .andDataType(String.class);
+
+        NotificationFilterSupport filter = new NotificationFilterSupport();
+        filter.enableType("some.string.event");
+
+        assertThat(RemoteBridge.isFilterForType(filter, type1), is(true));
+        assertThat(RemoteBridge.isFilterForType(filter, type2), is(false));
+    }
 
     @Test
     public void testAgainstJmxServer() throws RemoteException, FailedToStopException, InterruptedException {
@@ -135,7 +186,7 @@ public class RemoteBridgeTest {
                 ArgumentCaptor.forClass(javax.management.NotificationListener.class);
 
         verify(mBeanServerConnection, times(1)).removeNotificationListener(
-                removeArg1.capture(), removeArg2.capture(), any(), any());
+                removeArg1.capture(), removeArg2.capture());
 
         assertThat(removeArg2.getValue(), is(jmxListener));
     }
@@ -182,7 +233,7 @@ public class RemoteBridgeTest {
                 ArgumentCaptor.forClass(javax.management.NotificationListener.class);
 
         verify(mBeanServerConnection, times(2)).removeNotificationListener(
-                any(), removeArg2.capture(), any(), any());
+                any(), removeArg2.capture());
 
         assertThat(removeArg2.getAllValues().size(), is(2));
 
@@ -236,44 +287,12 @@ public class RemoteBridgeTest {
         ArgumentCaptor<javax.management.NotificationListener> removeArg2 =
                 ArgumentCaptor.forClass(javax.management.NotificationListener.class);
 
-        ArgumentCaptor<javax.management.NotificationFilter> removeArg3 =
-                ArgumentCaptor.forClass(javax.management.NotificationFilter.class);
-
         verify(mBeanServerConnection, times(2)).removeNotificationListener(
-                any(ObjectName.class), removeArg2.capture(), removeArg3.capture(), Mockito.isNull());
+                any(ObjectName.class), removeArg2.capture());
 
         assertThat(removeArg2.getAllValues().size(), is(2));
 
         assertThat(removeArg2.getAllValues().get(0), is(jmxListener1));
         assertThat(removeArg2.getAllValues().get(1), is(jmxListener2));
-
-        assertThat(removeArg3.getAllValues().get(0), is(arg3.getAllValues().get(0)));
-        assertThat(removeArg3.getAllValues().get(1), is(arg3.getAllValues().get(1)));
     }
-
-    @Test
-    public void whenListenerRegisteredTwiceExceptionIsThrown() throws RemoteException {
-
-        MBeanServerConnection mBeanServerConnection = mock(MBeanServerConnection.class);
-
-        RemoteBridge remoteBridge = new RemoteBridge(mBeanServerConnection);
-
-        NotificationType<String> notificationType1 = NotificationType.ofName("foo")
-                .andDataType(String.class);
-
-        NotificationListener<String> listener1 = mock(NotificationListener.class);
-
-        // Add
-
-        remoteBridge.addNotificationListener(42L, notificationType1, listener1);
-
-        try {
-            remoteBridge.addNotificationListener(42L, notificationType1, listener1);
-            fail("Exception Expected");
-        }
-        catch (RemoteIdException e) {
-            assertThat(e.getMessage(), Matchers.containsString("Listener"));
-        }
-    }
-
 }

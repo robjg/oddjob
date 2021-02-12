@@ -15,5 +15,5 @@ public interface ContextInitialiser {
 	 * @param context The context. It will contain the 
 	 * component it is the context for.
 	 */
-	public void initialise(ExplorerContext context);
+	void initialise(ExplorerContext context);
 }

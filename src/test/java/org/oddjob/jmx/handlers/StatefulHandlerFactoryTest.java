@@ -111,7 +111,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         StatefulHandlerFactory test = new StatefulHandlerFactory();
 
-        assertEquals(1, test.getMBeanNotificationInfo().length);
+        assertEquals(1, test.getNotificationTypes().size());
 
         OurStateful stateful = new OurStateful();
         OurServerSideToolkit serverToolkit = new OurServerSideToolkit();

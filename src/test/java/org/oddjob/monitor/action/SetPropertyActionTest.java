@@ -4,9 +4,7 @@
 package org.oddjob.monitor.action;
 
 import org.junit.Test;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.design.DesignInstance;
 import org.oddjob.arooa.design.screem.Form;
@@ -20,7 +18,7 @@ import org.oddjob.designer.view.DummyFormViewFactory;
 import org.oddjob.designer.view.SelectionWidget;
 import org.oddjob.designer.view.TextWidget;
 import org.oddjob.monitor.context.ExplorerContext;
-import org.oddjob.monitor.model.ConfigContextInialiser;
+import org.oddjob.monitor.model.ConfigContextInitialiser;
 import org.oddjob.monitor.model.MockExplorerContext;
 
 public class SetPropertyActionTest extends OjTestCase {
@@ -58,7 +56,7 @@ public class SetPropertyActionTest extends OjTestCase {
 		
 		@Override
 		public Object getValue(String key) {
-			assertEquals(ConfigContextInialiser.CONFIG_OWNER, key);
+			assertEquals(ConfigContextInitialiser.CONFIG_OWNER, key);
 			return new MockConfigurationOwner() {
 				public ConfigurationSession provideConfigurationSession() {
 					return new MockConfigurationSession() {

@@ -8,9 +8,12 @@ import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.client.LogPollable;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEvent;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Provide Handlers for the {@link LogPollable} interface.
@@ -93,6 +96,10 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	}
 
 	@Override
+	public List<NotificationType<?>> getNotificationTypes() {
+		return Collections.emptyList();
+	}
+
 	public MBeanNotificationInfo[] getMBeanNotificationInfo() {
 		return new MBeanNotificationInfo[0];
 	}

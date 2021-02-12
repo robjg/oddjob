@@ -9,6 +9,7 @@
 				<bean class="org.oddjob.jmx.handlers.StoppableHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.StructuralHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.ComponentOwnerHandlerFactory"/>
+				<bean class="org.oddjob.jmx.handlers.ConfigPointHandlerFactory"/>
 				<bean class="org.oddjob.jmx.handlers.BeanDirectoryHandlerFactory"/>
 				<bean class="org.oddjob.jmx.VanillaInterfaceHandler" 
 					className="org.oddjob.Loadable"/>

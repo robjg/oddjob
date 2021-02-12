@@ -19,6 +19,7 @@ import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -75,13 +76,8 @@ public class StatefulHandlerFactory
     }
 
     @Override
-    public MBeanNotificationInfo[] getMBeanNotificationInfo() {
-
-        return new MBeanNotificationInfo[]{
-                new MBeanNotificationInfo(
-                        new String[]{STATE_CHANGE_NOTIF_TYPE.getName()},
-                        Notification.class.getName(),
-                        "State change notification.")};
+    public List<NotificationType<?>> getNotificationTypes() {
+        return Arrays.asList(STATE_CHANGE_NOTIF_TYPE);
     }
 
     @Override

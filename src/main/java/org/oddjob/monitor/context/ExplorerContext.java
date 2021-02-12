@@ -15,14 +15,7 @@ import org.oddjob.util.ThreadManager;
  * 
  * @author Rob Gordon
  */
-public interface ExplorerContext {
-	
-	/**
-	 * Get the component this is the context for.
-	 * 
-	 * @return
-	 */
-	public Object getThisComponent();
+public interface ExplorerContext extends AncestorContext {
 	
 	/**
 	 * Add a child context.
@@ -30,17 +23,18 @@ public interface ExplorerContext {
 	 * @param child The component the child is for.
 	 * @return A child context for the component.
 	 */
-	public ExplorerContext addChild(Object child);
+	ExplorerContext addChild(Object child);
 	
 	
-	public ThreadManager getThreadManager();
+	ThreadManager getThreadManager();
 
 	/**
 	 * Get the parent context of this context.
 	 * 
 	 * @return The parent, or null if this is the root.
 	 */
-	public ExplorerContext getParent();
+	@Override
+	ExplorerContext getParent();
 	
 	/**
 	 * Set a value in the context.
@@ -48,7 +42,7 @@ public interface ExplorerContext {
 	 * @param key An identifier for the value.
 	 * @param value The value.
 	 */
-	public void setValue(String key, Object value);
+	void setValue(String key, Object value);
 	
 	/**
 	 * Get a value from the context.
@@ -57,5 +51,5 @@ public interface ExplorerContext {
 	 * 
 	 * @return The value, or null.
 	 */
-	public Object getValue(String key);
+	Object getValue(String key);
 }

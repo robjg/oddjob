@@ -317,7 +317,7 @@ public class RetryTest extends OjTestCase {
 	public void testSimpleSchedule() 
 	throws Exception {
 		DateSchedule schedule = new DateSchedule();
-		schedule.setOn("2020-12-25");
+		schedule.setOn("2030-12-25");
 		
 		OurJob ourJob = new OurJob();
 				
@@ -331,7 +331,7 @@ public class RetryTest extends OjTestCase {
 
 		test.run();
 		
-		Date expected = DateHelper.parseDate("2020-12-25");
+		Date expected = DateHelper.parseDate("2030-12-25");
 		
 		assertEquals(expected, test.getNextDue());
 		assertEquals(expected, test.getCurrent().getFromDate());

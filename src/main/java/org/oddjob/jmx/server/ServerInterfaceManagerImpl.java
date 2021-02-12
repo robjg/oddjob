@@ -5,8 +5,10 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.arooa.utils.Pair;
 import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.general.RemoteBridge;
 import org.oddjob.remote.HasInitialisation;
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.NotificationType;
 
 import javax.management.*;
 import java.util.*;
@@ -23,11 +25,12 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
      */
     private final MBeanInfo mBeanInfo;
 
+    private final Set<NotificationType<?>> notificationTypes;
+
     /**
      * Remember the handler info needed later
      */
-    private final Pair<ServerInterfaceHandler,
-            ServerInterfaceHandlerFactory<?, ?>>[] handlerAndFactory;
+    private final Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>[] handlerAndFactory;
 
     /**
      * Map of methods to InterfaceHandlers. Not sure if the order
@@ -70,21 +73,25 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
                 new ArrayList<>();
         List<MBeanOperationInfo> operationInfo =
                 new ArrayList<>();
-        List<MBeanNotificationInfo> notificationInfo =
+        List<NotificationType<?>> notificationInfo =
                 new ArrayList<>();
 
-        handlerAndFactory = new Pair[serverHandlerFactories.length];
+        List<Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>> handlerAndFactory =
+                new ArrayList<>();
 
         // Loop over all definitions.
-        for (int i = 0; i < serverHandlerFactories.length; ++i) {
-            ServerInterfaceHandlerFactory<?, ?> serverHandlerFactory = serverHandlerFactories[i];
+        for (ServerInterfaceHandlerFactory<?, ?> serverHandlerFactory : serverHandlerFactories) {
 
             // create the interface handler
             ServerInterfaceHandler interfaceHandler
                     = create(target, ojmb, serverHandlerFactory);
 
-            handlerAndFactory[i] = Pair.of(interfaceHandler,
-                    serverHandlerFactory);
+            if (interfaceHandler == null) {
+                continue;
+            }
+
+            handlerAndFactory.add(Pair.of(interfaceHandler,
+                    serverHandlerFactory));
 
             // collate MBeanAttributeInfo.
             attributeInfo.addAll(Arrays.asList(serverHandlerFactory.getMBeanAttributeInfo()));
@@ -104,16 +111,25 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
             }
 
             // collate MBeanNotificationInfo.
-            notificationInfo.addAll(Arrays.asList(serverHandlerFactory.getMBeanNotificationInfo()));
+            notificationInfo.addAll(serverHandlerFactory.getNotificationTypes());
         }
 
-        // create an MBeanInfo from the collated informations.
+        MBeanNotificationInfo[] notificationInfos = notificationInfo.stream()
+                .map(RemoteBridge::toMBeanNotification)
+                .toArray(MBeanNotificationInfo[]::new);
+
+        this.notificationTypes = new HashSet<>(notificationInfo);
+
+        //noinspection unchecked
+        this.handlerAndFactory = handlerAndFactory.toArray(new Pair[0]);
+
+        // create an MBeanInfo from the collated information.
         mBeanInfo = new MBeanInfo(target.toString(),
                 "Description of " + target.toString(),
                 attributeInfo.toArray(new MBeanAttributeInfo[0]),
                 new MBeanConstructorInfo[0],
                 operationInfo.toArray(new MBeanOperationInfo[0]),
-                notificationInfo.toArray(new MBeanNotificationInfo[0]));
+                notificationInfos);
 
         if (accessController == null) {
             this.accessController = opInfo -> true;
@@ -167,7 +183,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
                 implementations.add(Implementation.create(
                         clientClassName,
                         handlerVersion,
-                        ((HasInitialisation) handler).initialisation()));
+                        ((HasInitialisation<?>) handler).initialisation()));
             }
             else {
                 implementations.add(Implementation.create(
@@ -185,6 +201,11 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
      */
     public MBeanInfo getMBeanInfo() {
         return mBeanInfo;
+    }
+
+    @Override
+    public Set<NotificationType<?>> getNotificationTypes() {
+        return notificationTypes;
     }
 
     /*

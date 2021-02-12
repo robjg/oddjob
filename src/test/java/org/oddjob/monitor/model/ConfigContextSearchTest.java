@@ -1,10 +1,5 @@
 package org.oddjob.monitor.model;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -16,6 +11,11 @@ import org.oddjob.util.ThreadManager;
 import org.xml.sax.SAXException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.Diff;
+
+import java.io.IOException;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 public class ConfigContextSearchTest {
 
@@ -31,7 +31,7 @@ public class ConfigContextSearchTest {
 		@Override
 		public ContextInitialiser[] getContextInitialisers() {
 			return new ContextInitialiser[] {
-					new ConfigContextInialiser(this)
+					new ConfigContextInitialiser(this)
 			};
 		}
 		

@@ -520,7 +520,7 @@ implements Stoppable {
 				
 				ConfigurationOwner configOwner = 
 					(ConfigurationOwner) search.getValue(
-							ConfigContextInialiser.CONFIG_OWNER);
+							ConfigContextInitialiser.CONFIG_OWNER);
 
 				setOwner(configOwner);
 			}
