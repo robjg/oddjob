@@ -17,11 +17,14 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLArooaParser;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.xmlunit.matchers.CompareMatcher;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.fail;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
 public class ServerDragTest {
 
@@ -129,10 +132,10 @@ public class ServerDragTest {
     @Test
     public void testCutLeaf() throws Exception {
 
-        assertNotNull(remoteOddjob);
+        assertThat(remoteOddjob, notNullValue());
 
         Object toCut = new OddjobLookup(client).lookup("main/colour");
-        assertNotNull(toCut);
+        assertThat(toCut, notNullValue());
 
         DragPoint dragPoint = remoteOddjob.provideConfigurationSession().dragPointFor(toCut);
 
@@ -144,16 +147,16 @@ public class ServerDragTest {
 
         String expected = "<oddjob id=\"apples\"/>" + EOL;
 
-        assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
+        assertThat(savedXML.get(), isSimilarTo(expected));
     }
 
     @Test
     public void testEditRoot() throws Exception {
 
-        assertNotNull(remoteOddjob);
+        assertThat(remoteOddjob, notNullValue());
 
         Object toEdit = new OddjobLookup(client).lookup("main");
-        assertNotNull(toEdit);
+        assertThat(toEdit, notNullValue());
 
         ConfigurationSession session = remoteOddjob.provideConfigurationSession();
         DragPoint dragPoint = session.dragPointFor(toEdit);
@@ -177,11 +180,11 @@ public class ServerDragTest {
 
         handle.save();
 
-        assertNull(savedXML.get());
+        assertThat(savedXML.get(), nullValue());
 
         remoteOddjob.provideConfigurationSession().save();
 
-        assertThat(savedXML.get(), CompareMatcher.isSimilarTo(replacement));
+        assertThat(savedXML.get(), isSimilarTo(replacement).ignoreWhitespace());
     }
 
     @Test
@@ -190,7 +193,7 @@ public class ServerDragTest {
         testCutLeaf();
 
         Object pastePoint = new OddjobLookup(client).lookup("main");
-        assertNotNull(pastePoint);
+        assertThat(pastePoint, notNullValue());
 
         DragPoint dragPoint = remoteOddjob.provideConfigurationSession().dragPointFor(pastePoint);
 
@@ -210,7 +213,7 @@ public class ServerDragTest {
                         "    </job>" + EOL +
                         "</oddjob>" + EOL;
 
-        assertThat(savedXML.get(), CompareMatcher.isSimilarTo(expected));
+        assertThat(savedXML.get(), isSimilarTo(expected).ignoreWhitespace());
     }
 
     @Test
@@ -219,7 +222,7 @@ public class ServerDragTest {
         // No Cut!
 
         Object pastePoint = new OddjobLookup(client).lookup("main");
-        assertNotNull(pastePoint);
+        assertThat(pastePoint, notNullValue());
 
         DragPoint dragPoint = remoteOddjob.provideConfigurationSession().dragPointFor(pastePoint);
 

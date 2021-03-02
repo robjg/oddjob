@@ -38,12 +38,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 
 /**
  * @author Rob Gordon.
  */
-public class FilesTypeTest extends OjTestCase {
+public class FilesTypeTest {
     private static final Logger logger = LoggerFactory.getLogger(FilesTypeTest.class);
 
     private String getJavaLibDir() {
@@ -85,7 +88,7 @@ public class FilesTypeTest extends OjTestCase {
 
         File[] fs = converter.convert(test, File[].class);
 
-        assertTrue(fs.length > 1);
+        assertThat(fs.length, greaterThanOrEqualTo(1));
 
         for (File f : fs) {
             System.out.println(f);
@@ -93,11 +96,11 @@ public class FilesTypeTest extends OjTestCase {
 
         ConversionPath<FilesType, String[]> path = converter.findConversion(
                 FilesType.class, String[].class);
-        assertEquals("FilesType-File[]-Object-String[]", path.toString());
+        assertThat(path.toString(), is("FilesType-File[]-Object-String[]"));
 
         String[] strings = converter.convert(test, String[].class);
 
-        assertTrue(strings.length > 1);
+        assertThat(strings.length, greaterThanOrEqualTo(1));
     }
 
     @Test
@@ -110,7 +113,7 @@ public class FilesTypeTest extends OjTestCase {
                 new ConverterHelper().getConverter();
 
         File[] fs = converter.convert(f, File[].class);
-        assertTrue(fs.length > 1);
+        assertThat(fs.length, greaterThanOrEqualTo(1));
 
         for (File file : fs) {
             System.out.println(file);
@@ -123,7 +126,7 @@ public class FilesTypeTest extends OjTestCase {
 
         FilesType ft = (FilesType) OddjobTestHelper.createValueFromXml(xml);
 
-        assertEquals("*.txt", ft.getFiles());
+        assertThat(ft.getFiles(), is("*.txt"));
     }
 
     @Test
@@ -149,10 +152,10 @@ public class FilesTypeTest extends OjTestCase {
             logger.debug(String.valueOf(file));
         }
 
-        assertEquals(4, files.length);
+        assertThat(files.length, is(4));
 
         Set<File> set = new HashSet<>(Arrays.asList(files));
-        assertTrue(set.contains(
+        assertThat(set, hasItem(
                 new File(dirs.base(), "test/io/reference/test1.txt")));
     }
 
@@ -171,13 +174,13 @@ public class FilesTypeTest extends OjTestCase {
         File[] files = converter.convert(
                 ft, File[].class);
 
-        assertEquals(3, files.length);
+        assertThat(files.length, is(3));
 
         logger.debug(String.valueOf(files[0]));
         logger.debug(String.valueOf(files[1]));
 
         Set<File> set = new HashSet<>(Arrays.asList(files));
-        assertTrue(set.contains(new File(dirs.base(), "test/io/reference/test1.txt")));
+        assertThat(set, hasItem(new File(dirs.base(), "test/io/reference/test1.txt")));
     }
 
     public static class MyFiles extends SimpleJob {
@@ -214,11 +217,11 @@ public class FilesTypeTest extends OjTestCase {
         oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         MyFiles mine = (MyFiles) new OddjobLookup(oddjob).lookup("mine");
 
-        assertTrue(mine.files.length > 1);
+        assertThat(mine.files.length, greaterThanOrEqualTo(1));
 
         oddjob.destroy();
     }
@@ -247,13 +250,13 @@ public class FilesTypeTest extends OjTestCase {
         oddjob.setConfiguration(new XMLConfiguration("TEST", xml));
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         File[] files = lookup.lookup("v.myfiles", File[].class);
 
-        assertEquals(3, files.length);
+        assertThat(files.length, is(3));
 
         oddjob.destroy();
     }
@@ -268,31 +271,30 @@ public class FilesTypeTest extends OjTestCase {
         ElementMappings mappings =
                 session.getArooaDescriptor().getElementMappings();
 
-        assertTrue(checkElements(mappings.elementsFor(
+        assertThat(checkElements(mappings.elementsFor(
                 new InstantiationContext(ArooaType.VALUE,
                         new SimpleArooaClass(Object.class),
-                        converter))));
+                        converter))), is(true));
 
-        assertTrue(checkElements(mappings.elementsFor(
+        assertThat(checkElements(mappings.elementsFor(
                 new InstantiationContext(ArooaType.VALUE,
                         new SimpleArooaClass(ArooaValue.class),
-                        converter))));
+                        converter))), is(true));
 
-        assertTrue(checkElements(mappings.elementsFor(
+        assertThat(checkElements(mappings.elementsFor(
                 new InstantiationContext(ArooaType.VALUE,
                         new SimpleArooaClass(File.class),
-                        converter))));
+                        converter))), is(true));
 
-        assertTrue(checkElements(mappings.elementsFor(
+        assertThat(checkElements(mappings.elementsFor(
                 new InstantiationContext(ArooaType.VALUE,
                         new SimpleArooaClass(File[].class),
-                        converter))));
+                        converter))), is(true));
 
     }
 
     /**
      * Why doesn't 'files' appear in the designer selection for File[]???
-     *
      */
     @Test
     public void testSupports2() {
@@ -340,7 +342,7 @@ public class FilesTypeTest extends OjTestCase {
 
         Set<QTag> results = new HashSet<>(Arrays.asList(tags));
 
-        assertTrue(results.contains(new QTag("files")));
+        assertThat(results, hasItem(new QTag("files")));
     }
 
     private boolean checkElements(ArooaElement[] elements) {
@@ -378,9 +380,9 @@ public class FilesTypeTest extends OjTestCase {
                 File.pathSeparator +
                 new File(dirs.base(), "test/io/reference/test3.txt").getPath();
 
-        assertEquals(expected, result);
+        assertThat(result, is(expected));
 
-        assertEquals(expected, result);
+        assertThat(result, is(expected));
     }
 
     @Test
@@ -399,20 +401,19 @@ public class FilesTypeTest extends OjTestCase {
             oddjob.run();
         }
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         console.dump(logger);
 
         String[] lines = console.getLines();
 
-        assertEquals(5, lines.length);
+        assertThat(lines.length, is(5));
 
-        assertEquals(new File("a.jar").getCanonicalPath(), lines[0].trim());
-        assertEquals("b.jar", lines[1].trim());
-        assertEquals("c.jar", lines[2].trim());
-        assertEquals("d.jar", lines[3].trim());
-        assertEquals("e.jar", lines[4].trim());
+        assertThat(lines[0].trim(), is(new File("a.jar").getCanonicalPath()));
+        assertThat(lines[1].trim(), is("b.jar"));
+        assertThat(lines[2].trim(), is("c.jar"));
+        assertThat(lines[3].trim(), is("d.jar"));
+        assertThat(lines[4].trim(), is("e.jar"));
 
         oddjob.destroy();
     }
@@ -427,17 +428,17 @@ public class FilesTypeTest extends OjTestCase {
         FilesType test = (FilesType) helper.createValueFromResource(
                 "org/oddjob/io/FilesTypeSimple1.xml");
 
-        assertEquals("Files: onefile.txt", test.toString());
+        assertThat(test.toString(), is("Files: onefile.txt"));
 
         test = (FilesType) helper.createValueFromResource(
                 "org/oddjob/io/FilesTypeSimple2.xml");
 
-        assertEquals("Files: reports/*.txt", test.toString());
+        assertThat(test.toString(), is("Files: reports/*.txt"));
 
         test = (FilesType) helper.createValueFromResource(
                 "org/oddjob/io/FilesTypeSimple3.xml");
 
-        assertEquals("Files: list of size 2", test.toString());
+        assertThat(test.toString(), is("Files: list of size 2"));
     }
 
     @Test
@@ -455,12 +456,12 @@ public class FilesTypeTest extends OjTestCase {
 
         File[] out = test.toFiles();
 
-        assertEquals(FilesType.A_FEW * 2, out.length);
+        assertThat(out.length, is(FilesType.A_FEW * 2));
 
         String result = test.toString();
 
         logger.info(result);
 
-        assertTrue(result, result.endsWith("and 5 more"));
+        assertThat(result.endsWith("and 5 more"), is(true));
     }
 }

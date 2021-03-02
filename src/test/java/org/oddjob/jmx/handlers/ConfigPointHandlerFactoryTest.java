@@ -14,7 +14,6 @@ import org.oddjob.remote.things.ConfigPoint;
 import org.oddjob.state.ParentState;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
-import org.xmlunit.matchers.CompareMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.xmlunit.matchers.CompareMatcher.isSimilarTo;
 
 public class ConfigPointHandlerFactoryTest {
 
@@ -74,7 +74,7 @@ public class ConfigPointHandlerFactoryTest {
 
         String expected = "<echo id='hello'>Hello</echo>";
 
-        assertThat(copy, CompareMatcher.isSimilarTo(expected));
+        assertThat(copy, isSimilarTo(expected).ignoreWhitespace());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class ConfigPointHandlerFactoryTest {
 
         String expected = "<echo id='hello'>Hello</echo>";
 
-        assertThat(cut, CompareMatcher.isSimilarTo(expected));
+        assertThat(cut, isSimilarTo(expected).ignoreWhitespace());
     }
 
     @Test
