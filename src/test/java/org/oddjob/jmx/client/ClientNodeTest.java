@@ -277,7 +277,6 @@ public class ClientNodeTest {
 
         assertThat("Runnable", proxy instanceof Runnable);
 
-        //noinspection ConstantConditions
         ((Runnable) proxy).run();
 
         assertThat("Ran", mb.ran, is(true));
@@ -659,6 +658,7 @@ public class ClientNodeTest {
         MBeanServerConnection mbs = mock(MBeanServerConnection.class);
         when(mbs.invoke(eq(on), eq(m.getName()), nullable(Object[].class), any(String[].class)))
                 .thenReturn(serverInfo);
+        when(mbs.isRegistered(eq(on))).thenReturn(true);
 
         ClientSessionImpl clientSession = new ClientSessionImpl(
                 mbs,

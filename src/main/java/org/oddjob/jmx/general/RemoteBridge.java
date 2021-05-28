@@ -5,6 +5,8 @@ import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.io.IOException;
@@ -17,6 +19,8 @@ import java.util.concurrent.ConcurrentMap;
  * Bridge between the Oddjob Generic Remote API and JMX remoting.
  */
 public class RemoteBridge implements RemoteConnection {
+
+    private static final Logger logger = LoggerFactory.getLogger(RemoteBridge.class);
 
     private final MBeanServerConnection mbsc;
 
@@ -92,9 +96,16 @@ public class RemoteBridge implements RemoteConnection {
             throw new RemoteIdException(remoteId, "No Listener");
         }
 
+        ObjectName objectName = OddjobMBeanFactory.objectName(remoteId);
         try {
-            mbsc.removeNotificationListener(OddjobMBeanFactory.objectName(remoteId),
-                    jmxListener);
+            // A client may be trying to remove notification listeners from a destroyed component.
+            if (mbsc.isRegistered(objectName)) {
+                mbsc.removeNotificationListener(objectName, jmxListener);
+            }
+            else {
+                logger.debug("Not removing listener for {}, {} as MBean {} has already been removed",
+                        remoteId, notificationType.getName(), objectName);
+            }
         } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
             throw new RemoteIdException(remoteId, e);
         }
