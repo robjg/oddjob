@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
  * Annotate that a method is to be called during a soft reset.
  * 
  * @see Resettable
- * @see ResetableAdaptorFactory
+ * @see ResettableAdaptorFactory
  * 
  * @author rob
  *

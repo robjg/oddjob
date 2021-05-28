@@ -107,7 +107,7 @@ public class RunnableWrapper extends BaseWrapper
     public void setArooaSession(ArooaSession session) {
         super.setArooaSession(session);
 
-        resettableAdaptor = new ResetableAdaptorFactory().adapt(
+        resettableAdaptor = new ResettableAdaptorFactory().adapt(
                 wrapped, session)
                 .orElseGet(() -> new Resettable() {
                     @Override

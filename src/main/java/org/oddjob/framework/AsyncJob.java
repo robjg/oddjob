@@ -4,10 +4,13 @@ import java.util.function.IntConsumer;
 
 
 /**
- * A Component that is probably a {@link Service} that interacts with
+ * A Job that completes asynchronously. It uses callbacks that interacts with
  * the framework to inform it when it has entered an exception state and
- * when it is complete.
- * 
+ * when it is complete. Unlike a {@link Service} an Async job is expected
+ * to COMPLETE without being stopped and may also terminate as INCOMPLETE.
+ * <p/>
+ * Async jobs should be short lived or {@link org.oddjob.Stoppable}.
+ *
  * @author rob
  *
  */

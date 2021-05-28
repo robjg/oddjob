@@ -17,7 +17,7 @@ import java.util.Optional;
  * @author rob
  *
  */
-public class ResetableAdaptorFactory implements AdaptorFactory<Resettable> {
+public class ResettableAdaptorFactory implements AdaptorFactory<Resettable> {
 
 	/**
 	 * Create a resetable.
@@ -45,7 +45,6 @@ public class ResetableAdaptorFactory implements AdaptorFactory<Resettable> {
 		if (softResetMethod == null && hardResetMethod == null) {
 			return Optional.empty();
 		}
-
 
 		return Optional.of(new Resettable() {
 			

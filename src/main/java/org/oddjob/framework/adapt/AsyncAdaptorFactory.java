@@ -1,6 +1,5 @@
 package org.oddjob.framework.adapt;
 
-import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.utils.AnnotationFinder;
@@ -15,7 +14,7 @@ import java.util.function.IntConsumer;
 
 /**
  * Create an adaptor to a {@link AsyncJob} that adapts a component either
- * because it is {@link AsyncJob} or because it has annotations.
+ * because it is an {@link AsyncJob} or because it has annotated
  * methods. 
  * 
  * @author rob
@@ -24,17 +23,17 @@ import java.util.function.IntConsumer;
 public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 
 	/**
-	 * Create a resetable.
+	 * Possibly create an {@link AsyncJob}.
 	 *
 	 * @param component
 	 * @param session
 	 *
-	 * @return Possibly a Resetable.
+	 * @return Possibly a AsyncJob.
 	 */
 	@Override
 	public Optional<AsyncJob> adapt(Object component, ArooaSession session) {
 
-		if (component instanceof Resettable) {
+		if (component instanceof AsyncJob) {
 			return Optional.of((AsyncJob) component);
 		}
 
