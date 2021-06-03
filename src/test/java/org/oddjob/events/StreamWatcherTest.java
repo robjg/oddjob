@@ -3,6 +3,7 @@ package org.oddjob.events;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
@@ -20,15 +21,19 @@ public class StreamWatcherTest {
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(getClass().getResource("StreamWatcherExample.xml").getFile()));
 
-        StateSteps states = new StateSteps(oddjob);
+        oddjob.load();
+
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+        Stateful trigger = lookup.lookup("trigger", Stateful.class);
+
+        StateSteps states = new StateSteps(trigger);
 
         states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 
         oddjob.run();
 
         states.checkWait();
-
-        OddjobLookup lookup = new OddjobLookup(oddjob);
 
         states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 

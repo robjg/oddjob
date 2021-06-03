@@ -7,6 +7,7 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.handlers.StatefulHandlerFactory;
+import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.*;
@@ -143,6 +144,8 @@ public class RemoteBridgeTest {
     public void testAddNotifyRemove() throws RemoteException, IOException, InstanceNotFoundException, MalformedObjectNameException, ListenerNotFoundException {
 
         MBeanServerConnection mBeanServerConnection = mock(MBeanServerConnection.class);
+        when(mBeanServerConnection.isRegistered(OddjobMBeanFactory.objectName(42)))
+                .thenReturn(true);
 
         RemoteBridge remoteBridge = new RemoteBridge(mBeanServerConnection);
 
@@ -195,6 +198,8 @@ public class RemoteBridgeTest {
     public void givenTwoListenersWhenBothRemovedNothingReceived() throws RemoteException, IOException, InstanceNotFoundException, ListenerNotFoundException {
 
         MBeanServerConnection mBeanServerConnection = mock(MBeanServerConnection.class);
+        when(mBeanServerConnection.isRegistered(OddjobMBeanFactory.objectName(42)))
+                .thenReturn(true);
 
         RemoteBridge remoteBridge = new RemoteBridge(mBeanServerConnection);
 
@@ -245,6 +250,8 @@ public class RemoteBridgeTest {
     public void givenTwoListenersOfDifferentTypesWhenBothRemovedNothingReceived() throws RemoteException, IOException, InstanceNotFoundException, ListenerNotFoundException {
 
         MBeanServerConnection mBeanServerConnection = mock(MBeanServerConnection.class);
+        when(mBeanServerConnection.isRegistered(OddjobMBeanFactory.objectName(42)))
+            .thenReturn(true);
 
         RemoteBridge remoteBridge = new RemoteBridge(mBeanServerConnection);
 

@@ -3,17 +3,6 @@
  */
 package org.oddjob.events;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Consumer;
-
-import javax.inject.Inject;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
@@ -26,6 +15,16 @@ import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
 import org.oddjob.util.Restore;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 /**
  * Base class for Jobs that react to events.
@@ -133,6 +132,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 					}
 				});
 
+		logger().info("Starting event source [{}]", eventSource);
 		Restore close = eventSource.start(event -> consumer.get().accept(event));
 
 		if (job == null) {
@@ -156,11 +156,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 				});
 		
 		restore = () -> {
+			logger().info("Closing event source [{}]", eventSource);
 			close.close();
 			restore = null;
-			
 		};
-		
+
+		logger().info("Subscription to event source [{}] started.", eventSource);
 		onSubscriptionStarted(job, executor);
 	}
 

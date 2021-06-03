@@ -42,6 +42,8 @@ public class StreamWatcher extends EventSourceBase<String> {
                 .map(String::getBytes)
                 .orElseThrow(() -> new IllegalArgumentException("Nothing to watch"));
 
+        logger().info("Starting to watch [{}]", new String(watch));
+
         this.out = new OutputStream() {
 
             int index = 0;
@@ -64,7 +66,10 @@ public class StreamWatcher extends EventSourceBase<String> {
             }
         };
 
-        return () -> consumerRef.set(null);
+        return () -> {
+            consumerRef.set(null);
+            logger().info("Closed watcher.");
+        };
     }
 
 

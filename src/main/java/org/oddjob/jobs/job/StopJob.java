@@ -112,6 +112,7 @@ implements Stoppable {
 
 		Result result = resultQueue.poll(RESULT_POLL_TIMEOUT, TimeUnit.SECONDS);
 		if (result == null) {
+			Optional.ofNullable(thread).ifPresent(t -> t.interrupt());
 			throw new FailedToStopException(job, "failed to to stop within " + RESULT_POLL_TIMEOUT + " seconds");
 		}
 		if (result.exception != null) {
@@ -130,6 +131,7 @@ implements Stoppable {
 		}
 		else {
 			this.resultQueue.add(new Result(1));
+			Optional.ofNullable(thread).ifPresent(t -> t.interrupt());
 		}
 	}
 

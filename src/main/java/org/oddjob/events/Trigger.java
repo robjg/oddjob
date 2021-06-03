@@ -44,8 +44,9 @@ public class Trigger<T> extends EventJobBase<T> {
 		if (ran.getAndSet(true)) {
 			return;
 		}
+
+		logger().info("Will trigger off immediate event {}", value);
 		eventRef.set(value);
-		
 	}
 	
 	@Override
@@ -63,7 +64,8 @@ public class Trigger<T> extends EventJobBase<T> {
 	}
 	
 	private void trigger(EventOf<T> event, Object job, Executor executor) {
-		
+
+		logger().info("Running {} with Trigger Event {}", job, event);
 		onStop();
 		setTrigger(event);
 		if (job != null) {
