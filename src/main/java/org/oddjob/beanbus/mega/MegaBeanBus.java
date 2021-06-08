@@ -1,33 +1,19 @@
 package org.oddjob.beanbus.mega;
 
 
-import java.util.Collection;
-
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
 import org.oddjob.arooa.design.SerializableGenericDesignFactory;
-import org.oddjob.arooa.parsing.ArooaContext;
-import org.oddjob.arooa.parsing.ArooaElement;
-import org.oddjob.arooa.parsing.ConfigurationOwner;
-import org.oddjob.arooa.parsing.ConfigurationOwnerSupport;
-import org.oddjob.arooa.parsing.ConfigurationSession;
-import org.oddjob.arooa.parsing.ContextConfigurationSession;
-import org.oddjob.arooa.parsing.OwnerStateListener;
-import org.oddjob.arooa.parsing.SerializableDesignFactory;
-import org.oddjob.beanbus.BeanBus;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusService;
-import org.oddjob.beanbus.BusServiceProvider;
-import org.oddjob.beanbus.Outbound;
-import org.oddjob.beanbus.SimpleBusService;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.arooa.parsing.*;
+import org.oddjob.beanbus.*;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
+
+import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  *
@@ -74,7 +60,7 @@ implements ConfigurationOwner, BusServiceProvider {
 	}
 	
 	private void completeConstruction() {
-		preparing = new ThreadLocal<BusPart>();
+		preparing = new ThreadLocal<>();
 		configurationOwnerSupport =
 			new ConfigurationOwnerSupport(this);
 		trackingBusListener = new TrackingBusListener() {
@@ -215,13 +201,13 @@ implements ConfigurationOwner, BusServiceProvider {
 				}
 				
 				if (!noAutoLink && previousChild != null && 
-						child instanceof Collection) {
+						child instanceof Consumer) {
 					
 					Outbound outbound = new OutboundStrategies(
 							).outboundFor(previousChild, getArooaSession());
 					
 					if (outbound != null) {
-						outbound.setTo((Collection) child);
+						outbound.setTo((Consumer) child);
 					
 						logger().info("Automatically Linked Outbound [" + 
 							previousChild + "] to [" + child + "]");

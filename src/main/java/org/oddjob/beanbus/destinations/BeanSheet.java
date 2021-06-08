@@ -1,35 +1,24 @@
 package org.oddjob.beanbus.destinations;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.arooa.reflect.ArooaClass;
-import org.oddjob.arooa.reflect.BeanOverview;
-import org.oddjob.arooa.reflect.BeanView;
-import org.oddjob.arooa.reflect.BeanViews;
-import org.oddjob.arooa.reflect.FallbackBeanView;
-import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.beanbus.AbstractDestination;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.Outbound;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.arooa.reflect.*;
+import org.oddjob.beanbus.*;
 import org.oddjob.io.StdoutType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Create a simple database style report from a list
@@ -63,16 +52,16 @@ implements ArooaSessionAware, Outbound<Object> {
 	
 	private BeanViews beanViews;
 	
-	private final List<Object> beans = new ArrayList<Object>();
+	private final List<Object> beans = new ArrayList<>();
 
 	private String name;
 	
-	private Collection<? super Object> to;
+	private Consumer<? super Object> to;
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
 		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
+		public void busStarting(BusEvent event) {
 			if (output == null) {
 				try {
 					output = new StdoutType().toValue();
@@ -83,7 +72,7 @@ implements ArooaSessionAware, Outbound<Object> {
 		}
 					
 		@Override
-		public void tripEnding(BusEvent event) throws BusCrashException {
+		public void tripEnding(BusEvent event) {
 			writeBeans(beans);
 			beans.clear();
 		}
@@ -111,15 +100,13 @@ implements ArooaSessionAware, Outbound<Object> {
 	}
 
 	@Override
-	public boolean add(Object bean) {
+	public void accept(Object bean) {
 		
 		beans.add(bean);
 		
 		if (to != null) {
-			to.add(bean);
+			to.accept(bean);
 		}
-		
-		return true;
 	}
 
 	public void writeBeans(Iterable<?> beans) {
@@ -130,7 +117,7 @@ implements ArooaSessionAware, Outbound<Object> {
 		
 		PrintStream out = new PrintStream(output);
 		
-		List<Row> rows = new ArrayList<Row>();
+		List<Row> rows = new ArrayList<>();
 		
 		Header header = null;
 				
@@ -216,7 +203,7 @@ implements ArooaSessionAware, Outbound<Object> {
 			
 			String[] allProperties = view.getProperties();
 			
-			List<String> readables = new ArrayList<String>();
+			List<String> readables = new ArrayList<>();
 			
 			BeanOverview overview = arooaClass.getBeanOverview(accessor);
 			
@@ -231,7 +218,7 @@ implements ArooaSessionAware, Outbound<Object> {
 			}
 
 			this.properties = readables.toArray(
-					new String[readables.size()]);
+					new String[0]);
 			this.headings = new String[properties.length];
 			this.widths = new int[properties.length];
 			
@@ -276,7 +263,7 @@ implements ArooaSessionAware, Outbound<Object> {
 		
 				Object value = accessor.getProperty(bean, property);
 
-				String string = null;
+				String string;
 				try {
 					string = converter.convert(value, String.class);
 				}
@@ -297,11 +284,7 @@ implements ArooaSessionAware, Outbound<Object> {
 		}
 	}
 	
-	@Override
-	public boolean isEmpty() {
-		return beans.size() == 0;
-	}
-	
+
 	public int getBeanCount() {
 		return beans.size();
 	}
@@ -332,7 +315,7 @@ implements ArooaSessionAware, Outbound<Object> {
 	
 	private static String pad(char padding, int size) {
 		if (size < 1) {
-			return new String("");
+			return "";
 		}
 		char[] buff = new char[size];
 		Arrays.fill(buff, padding);
@@ -358,11 +341,12 @@ implements ArooaSessionAware, Outbound<Object> {
 		}
 	}
 
-	public Collection<? super Object> getTo() {
+	public Consumer<? super Object> getTo() {
 		return to;
 	}
 
-	public void setTo(Collection<? super Object> to) {
+	@Override
+	public void setTo(Consumer<? super Object> to) {
 		this.to = to;
 	}
 }

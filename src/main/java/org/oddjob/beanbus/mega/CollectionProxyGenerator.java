@@ -1,9 +1,5 @@
 package org.oddjob.beanbus.mega;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.Describable;
 import org.oddjob.Iconic;
@@ -14,6 +10,10 @@ import org.oddjob.framework.adapt.ProxyGenerator;
 import org.oddjob.framework.adapt.WrapperFactory;
 import org.oddjob.logging.LogEnabled;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Consumer;
+
 /**
  * Generate a Proxy for a collection.
  * <p>
@@ -21,7 +21,7 @@ import org.oddjob.logging.LogEnabled;
  * @author rob
  *
  */
-public class CollectionProxyGenerator<E> extends ProxyGenerator<Collection<E>> {
+public class CollectionProxyGenerator<E> extends ProxyGenerator<Consumer<E>> {
 
 	/**
 	 * Generate the collection.
@@ -31,12 +31,12 @@ public class CollectionProxyGenerator<E> extends ProxyGenerator<Collection<E>> {
 	 * 
 	 * @return The collection.
 	 */
-	public Object generate(Collection<E> collection, ClassLoader classLoader) {
-		return generate(collection, new WrapperFactory<Collection<E>>() {
+	public Object generate(Consumer<E> collection, ClassLoader classLoader) {
+		return generate(collection, new WrapperFactory<Consumer<E>>() {
 			@Override
-			public Class<?>[] wrappingInterfacesFor(Collection<E> wrapped) {
+			public Class<?>[] wrappingInterfacesFor(Consumer<E> wrapped) {
 					
-				Set<Class<?>> interfaces = new HashSet<Class<?>>();
+				Set<Class<?>> interfaces = new HashSet<>();
 				interfaces.add(Object.class);
 				interfaces.add(ArooaSessionAware.class);
 				interfaces.add(ArooaLifeAware.class);
@@ -45,15 +45,13 @@ public class CollectionProxyGenerator<E> extends ProxyGenerator<Collection<E>> {
 				interfaces.add(Describable.class);
 				interfaces.add(Iconic.class);
 				interfaces.add(BusPart.class);
-				interfaces.add(Collection.class);
+				interfaces.add(Consumer.class);
 				
-				return (Class[]) interfaces.toArray(
-						new Class[interfaces.size()]);		
+				return (Class<?>[]) interfaces.toArray(new Class[0]);
 			}
 			@Override
-			public ComponentWrapper wrapperFor(Collection<E> wrapped, Object proxy) {
-				CollectionWrapper<E> wrapper = new CollectionWrapper<E>(wrapped, proxy);
-				return wrapper;
+			public ComponentWrapper wrapperFor(Consumer<E> wrapped, Object proxy) {
+				return new CollectionWrapper<>(wrapped, proxy);
 			}
 		}, classLoader);
 	}

@@ -1,19 +1,16 @@
 package org.oddjob.beanbus.destinations;
 
 import org.junit.Test;
-
-import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
 import org.oddjob.arooa.reflect.BeanViews;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.destinations.BeanSheet;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 
 public class BeanSheetTest extends OjTestCase {
 
@@ -60,7 +57,7 @@ public class BeanSheetTest extends OjTestCase {
 		}
 	}
 	
-	private class OurViews implements BeanViews {
+	private static class OurViews implements BeanViews {
 		
 		@Override
 		public BeanView beanViewFor(ArooaClass arooaClass) {
@@ -107,7 +104,7 @@ public class BeanSheetTest extends OjTestCase {
    @Test
 	public void testFruitReport() throws BusCrashException {
 
-		BasicBeanBus<Fruit> bus = new BasicBeanBus<Fruit>();
+		BasicBeanBus<Fruit> bus = new BasicBeanBus<>();
 		
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		
@@ -124,13 +121,13 @@ public class BeanSheetTest extends OjTestCase {
 		bus.startBus();
 		
 		for (Fruit bean: values) {
-			bus.add(bean);
+			bus.accept(bean);
 		}
 
 		bus.getBusConductor().cleanBus();
 		
 		for (Fruit bean: values) {
-			bus.add(bean);
+			bus.accept(bean);
 		}
 		
 		bus.stopBus();

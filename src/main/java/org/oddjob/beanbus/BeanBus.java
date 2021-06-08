@@ -1,6 +1,6 @@
 package org.oddjob.beanbus;
 
-import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * The starting point for something that beans can be dispatched too.
@@ -9,11 +9,11 @@ import java.util.Collection;
  *
  * @param <T>
  */
-public interface BeanBus<T> extends Collection<T> {
+public interface BeanBus<T> extends Consumer<T> {
 
-	public void startBus() throws BusCrashException;
+	void startBus() throws BusCrashException;
 		
-	public void stopBus() throws BusCrashException;
+	void stopBus() throws BusCrashException;
 	
 	
 }

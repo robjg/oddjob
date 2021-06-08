@@ -1,6 +1,6 @@
 package org.oddjob.beanbus;
 
-import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * 
@@ -15,8 +15,8 @@ public interface Outbound<T> {
 	/**
 	 * Set the out bound destination.
 	 * 
-	 * @param to
+	 * @param destination
 	 */
-	public void setTo(Collection<? super T> destination);
+	void setTo(Consumer<? super T> destination);
 
 }

@@ -1,11 +1,7 @@
 package org.oddjob.beanbus.mega;
 
 import org.junit.Test;
-
-import java.util.Collection;
-
 import org.oddjob.OjTestCase;
-
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
@@ -15,6 +11,9 @@ import org.oddjob.beanbus.destinations.BeanCapture;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
+
+import java.util.Collection;
+import java.util.function.Consumer;
 
 public class StatefulBusConductorAdapterTest extends OjTestCase {
 
@@ -33,17 +32,17 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
 		}
 
 		@Override
-		public void tripBeginning(BusEvent event) throws BusCrashException {
+		public void tripBeginning(BusEvent event) {
 			++tripStarted;
 		}
 
 		@Override
-		public void tripEnding(BusEvent event) throws BusCrashException {
+		public void tripEnding(BusEvent event) {
 			++tripComplete;
 		}
 
 		@Override
-		public void busStopping(BusEvent event) throws BusCrashException {
+		public void busStopping(BusEvent event) {
 			++stopped;
 		}
 
@@ -161,15 +160,15 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
 		
 	}
 	
-	private class OurJob extends SimpleJob {
+	private static class OurJob extends SimpleJob {
 
-		private Collection<String> to;
+		private Consumer<String> to;
 		
 		@Override
 		protected int execute() throws Throwable {
-			to.add("apples");
-			to.add("oranges");
-			to.add("pears");
+			to.accept("apples");
+			to.accept("oranges");
+			to.accept("pears");
 			return 0;
 		}
 	}
@@ -177,11 +176,11 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
    @Test
 	public void testCleanBusWithBatcher() {
 
-		Batcher<String> batcher = new Batcher<String>();
+		Batcher<String> batcher = new Batcher<>();
 		batcher.setBatchSize(2);
 
-		BeanCapture<Collection<String>> results = 
-				new BeanCapture<Collection<String>>();
+		BeanCapture<Collection<String>> results =
+				new BeanCapture<>();
 
 		OurJob job = new OurJob();
 		
@@ -231,10 +230,10 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
 		
 	}
 
-	private class NaughtyDestination extends AbstractDestination<String> {
-		
+	private static class NaughtyDestination extends AbstractDestination<String> {
+
 		@Override
-		public boolean add(String e) {
+		public void accept(String e) {
 			throw new RuntimeException("Naughty!");
 		}
 	}

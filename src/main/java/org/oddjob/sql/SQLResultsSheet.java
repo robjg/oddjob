@@ -1,26 +1,21 @@
 package org.oddjob.sql;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @oddjob.description Writes SQL results to an output stream.
@@ -79,7 +74,7 @@ implements ArooaSessionAware {
 	/** Used to display elapsed time. */
 	private long elapsedTime = System.currentTimeMillis();
 	
-	private final List<Object> beans = new ArrayList<Object>();
+	private final List<Object> beans = new ArrayList<>();
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {

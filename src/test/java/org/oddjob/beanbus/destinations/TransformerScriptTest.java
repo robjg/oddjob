@@ -52,11 +52,11 @@ public class TransformerScriptTest extends OjTestCase {
 
         List<Object> results = new ArrayList<>();
 
-        test.setTo(results);
+        test.setTo(results::add);
         test.configured();
 
-        test.add(bean1);
-        test.add(bean2);
+        test.accept(bean1);
+        test.accept(bean2);
 
         assertEquals(1, results.size());
     }

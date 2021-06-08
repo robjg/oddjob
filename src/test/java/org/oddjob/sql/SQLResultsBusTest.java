@@ -1,20 +1,18 @@
 package org.oddjob.sql;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.List;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class SQLResultsBusTest extends OjTestCase {
 
@@ -43,7 +41,7 @@ public class SQLResultsBusTest extends OjTestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		List<?> results = lookup.lookup("select.results", List.class);
+		List<?> results = lookup.lookup("select.results.beans", List.class);
 		
 		assertEquals(2, results.size());
 		

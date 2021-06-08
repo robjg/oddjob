@@ -1,18 +1,16 @@
 package org.oddjob.beanbus.mega;
 
-import java.lang.reflect.Method;
-import java.util.Collection;
-
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.deploy.ArooaAnnotationsUtil;
-import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.Outbound;
+
+import java.lang.reflect.Method;
 
 /**
  * A collection of different {@link OutboundStrategy}s that are applied to 
@@ -97,16 +95,13 @@ public class OutboundStrategies implements OutboundStrategy {
 				final Method setToMethod = annotations.methodFor(Destination.class.getName());
 				
 				if (setToMethod != null) {
-					return new Outbound<T>() {
-						@Override
-						public void setTo(Collection<? super T> destination) {
-							try {
-								setToMethod.invoke(realComponent, destination);
-							} catch (RuntimeException e) {
-								throw e;
-							} catch (Exception e) {
-								throw new RuntimeException(e);
-							}
+					return destination -> {
+						try {
+							setToMethod.invoke(realComponent, destination);
+						} catch (RuntimeException e) {
+							throw e;
+						} catch (Exception e) {
+							throw new RuntimeException(e);
 						}
 					};
 				}
@@ -116,19 +111,8 @@ public class OutboundStrategies implements OutboundStrategy {
 								Destination.class.getName());
 				
 				if (property != null) {
-					return new Outbound<T>() {
-						@Override
-						public void setTo(Collection<? super T> destination) {
-							try {
-								accessor.setProperty(realComponent, 
-										property, destination);
-							} catch (ArooaPropertyException e) {
-								throw e;
-							} catch (RuntimeException e) {
-								throw e;
-							}
-						}
-					};
+					return destination -> accessor.setProperty(realComponent,
+							property, destination);
 				}
 				
 				return null;

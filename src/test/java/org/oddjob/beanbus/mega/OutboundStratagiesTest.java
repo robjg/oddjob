@@ -1,15 +1,8 @@
 package org.oddjob.beanbus.mega;
 
 import org.junit.Test;
-
-import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.mockito.Mockito;
 import org.oddjob.OjTestCase;
-
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
@@ -24,13 +17,16 @@ import org.oddjob.beanbus.Outbound;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.DefaultInvocationHandler;
 
+import java.lang.reflect.Proxy;
+import java.util.function.Consumer;
+
 import static org.mockito.Mockito.when;
 
 public class OutboundStratagiesTest extends OjTestCase {
 
-    public class AnOutbound extends AbstractFilter<String, String> {
+    public static class AnOutbound extends AbstractFilter<String, String> {
 
-        Collection<? super String> to;
+        Consumer<? super String> to;
 
         @Override
         protected String filter(String from) {
@@ -38,7 +34,7 @@ public class OutboundStratagiesTest extends OjTestCase {
         }
 
         @Override
-        public void setTo(Collection<? super String> destination) {
+        public void setTo(Consumer<? super String> destination) {
             this.to = destination;
         }
     }
@@ -57,10 +53,10 @@ public class OutboundStratagiesTest extends OjTestCase {
 
     public static class MyOutbound {
 
-        Collection<String> stuff;
+        Consumer<String> stuff;
 
         @Destination
-        public void setSomeStuff(Collection<String> stuff) {
+        public void setSomeStuff(Consumer<String> stuff) {
             this.stuff = stuff;
         }
     }
@@ -80,19 +76,19 @@ public class OutboundStratagiesTest extends OjTestCase {
 
         Outbound<String> result = test.outboundFor(outbound, session);
 
-        List<String> list = new ArrayList<String>();
+        Consumer<String> to = t -> {};
 
-        result.setTo(list);
+        result.setTo(to);
 
-        assertSame(list, outbound.stuff);
+        assertSame(to, outbound.stuff);
     }
 
 
     public static class IndependentOutbound {
 
-        Collection<String> stuff;
+        Consumer<String> stuff;
 
-        public void setStuff(Collection<String> stuff) {
+        public void setStuff(Consumer<String> stuff) {
             this.stuff = stuff;
         }
     }
@@ -133,11 +129,11 @@ public class OutboundStratagiesTest extends OjTestCase {
 
         assertNotNull(result);
 
-        List<String> list = new ArrayList<String>();
+        Consumer<String> to = t -> {};
 
-        result.setTo(list);
+        result.setTo(to);
 
-        assertSame(list, outbound.stuff);
+        assertSame(to, outbound.stuff);
     }
 
     @Test
@@ -170,11 +166,10 @@ public class OutboundStratagiesTest extends OjTestCase {
         Outbound<String> result = test.outboundFor(proxy,
                                                    new StandardArooaSession());
 
-        List<String> list = new ArrayList<String>();
+        Consumer<String> to = t -> {};
 
-        result.setTo(list);
+        result.setTo(to);
 
-        assertSame(list, outbound.to);
-
+        assertSame(to, outbound.to);
     }
 }

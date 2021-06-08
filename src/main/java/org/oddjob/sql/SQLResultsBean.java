@@ -1,18 +1,16 @@
 package org.oddjob.sql;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.TrackingBusListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @oddjob.description Captures SQL results in a bean that 
@@ -100,14 +98,14 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	 * indexed access to the rows in the result.
 	 * @oddjob.required Read only.
 	 */
-	private final List<List<?>> rowSets = new ArrayList<List<?>>();
+	private final List<List<?>> rowSets = new ArrayList<>();
 	
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The update count of any insert/update/delete statement.
 	 * @oddjob.required Read only. 
 	 */
-	private final List<Integer> updateCounts = new ArrayList<Integer>(); 
+	private final List<Integer> updateCounts = new ArrayList<>();
 	
 	private int rowCount;
 	
@@ -118,7 +116,7 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	private final TrackingBusListener busListener = new TrackingBusListener() {
 		
 		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {				
+		public void busStarting(BusEvent event) {
 			rowSets.clear();
 			updateCounts.clear();
 			rowCount = 0;
@@ -126,12 +124,12 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 		}
 		
 		@Override
-		public void tripBeginning(BusEvent event) throws BusCrashException {
-			beans = new ArrayList<Object>();
+		public void tripBeginning(BusEvent event) {
+			beans = new ArrayList<>();
 		}
 		
 		@Override
-		public void tripEnding(BusEvent event) throws BusCrashException {
+		public void tripEnding(BusEvent event) {
 			addBeans(beans);
 		}
 	};
@@ -149,7 +147,7 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 			
 			UpdateCount updateCount = (UpdateCount) bean;
 			
-			updateCounts.add(new Integer(updateCount.getCount()));
+			updateCounts.add(updateCount.getCount());
 			
 			this.updateCount += updateCount.getCount();
 			this.beans = null;
@@ -211,7 +209,7 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 				allSets[i++] = null;
 			}
 			else {
-				allSets[i++] = rows.toArray(new Object[rows.size()]);
+				allSets[i++] = rows.toArray(new Object[0]);
 			}
 		}
 		return allSets;
@@ -240,7 +238,7 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 			return null;
 		}
 
-		return rows.toArray(new Object[rows.size()]);		
+		return rows.toArray(new Object[0]);
 	}
 	
 	/** 
@@ -275,7 +273,7 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	 */
 	public Integer[] getUpdateCounts() {
 		
-		return updateCounts.toArray(new Integer[updateCounts.size()]);
+		return updateCounts.toArray(new Integer[0]);
 	}
 	
 	/** 

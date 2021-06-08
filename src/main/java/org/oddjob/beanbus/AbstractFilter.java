@@ -1,6 +1,6 @@
 package org.oddjob.beanbus;
 
-import java.util.Collection;
+import java.util.function.Consumer;
 
 /**
  * For Standard Filter Components to extend. 
@@ -13,35 +13,28 @@ import java.util.Collection;
 abstract public class AbstractFilter<F, T> extends AbstractDestination<F> 
 implements BusFilter<F, T> {
 
-	private Collection<? super T> to;
+	private Consumer<? super T> to;
 	
 	private String name;
-	
+
 	@Override
-	public final boolean add(F bean) {
+	public void accept(F bean) {
 
 		T filtered = filter(bean);
 		
-		if (filtered == null) {
-			return false;
-		}
-		else if (to == null) {
-			return false;
-		}
-		else {
-			to.add(filtered);
-			return true;
+		if (filtered != null && to != null) {
+			to.accept(filtered);
 		}
 	}
 	
 	abstract protected T filter(F from);
 	
-	public Collection<? super T> getTo() {
+	public Consumer<? super T> getTo() {
 		return to;
 	}
 
 	@Override
-	public void setTo(Collection<? super T> to) {
+	public void setTo(Consumer<? super T> to) {
 		this.to = to;
 	}
 

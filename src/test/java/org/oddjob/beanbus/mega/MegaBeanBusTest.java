@@ -31,6 +31,7 @@ import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class MegaBeanBusTest extends OjTestCase {
 
@@ -46,7 +47,7 @@ public class MegaBeanBusTest extends OjTestCase {
 
         IterableBusDriver<String> driver = new IterableBusDriver<>();
         driver.setBeans(Arrays.asList("apple", "pear", "banana"));
-        driver.setTo(destination);
+        driver.setTo(destination::add);
 
         MegaBeanBus test = new MegaBeanBus();
         test.setArooaSession(session);
@@ -121,18 +122,17 @@ public class MegaBeanBusTest extends OjTestCase {
 
     public static class NumberGenerator implements Runnable {
 
-        private Collection<? super Integer> to;
+        private Consumer<? super Integer> to;
 
         @Override
         public void run() {
 
             for (int i = 0; i < 100; ++i) {
-                to.add(i);
+                to.accept(i);
             }
-
         }
 
-        public void setTo(Collection<? super Integer> to) {
+        public void setTo(Consumer<? super Integer> to) {
             this.to = to;
         }
     }
@@ -160,9 +160,8 @@ public class MegaBeanBusTest extends OjTestCase {
         };
 
         @Override
-        public boolean add(Integer e) {
+        public void accept(Integer e) {
             total = total + e;
-            return true;
         }
 
         @Inject
@@ -221,7 +220,7 @@ public class MegaBeanBusTest extends OjTestCase {
 
         icons.checkNow();
 
-        assertEquals(new Integer(4950), lookup.lookup(
+        assertEquals(Integer.valueOf(4950), lookup.lookup(
                 "results.total", Integer.class));
         assertEquals(Boolean.TRUE, lookup.lookup(
                 "results.started", boolean.class));
@@ -232,7 +231,7 @@ public class MegaBeanBusTest extends OjTestCase {
         ((Resettable) test).hardReset();
         ((Runnable) test).run();
 
-        assertEquals(new Integer(4950), lookup.lookup(
+        assertEquals(Integer.valueOf(4950), lookup.lookup(
                 "results.total", Integer.class));
 
         oddjob.destroy();
@@ -262,7 +261,7 @@ public class MegaBeanBusTest extends OjTestCase {
         };
 
         @Override
-        public boolean add(Integer e) {
+        public void accept(Integer e) {
             throw new RuntimeException("Unexpected.");
         }
 
@@ -318,18 +317,18 @@ public class MegaBeanBusTest extends OjTestCase {
 
         icons.checkNow();
 
-        assertEquals(new Integer(1), lookup.lookup(
+        assertEquals(Integer.valueOf(1), lookup.lookup(
                 "results.crashed", Integer.class));
-        assertEquals(new Integer(1), lookup.lookup(
+        assertEquals(Integer.valueOf(1), lookup.lookup(
                 "results.terminated", Integer.class));
 
         Object test = lookup.lookup("test");
         ((Resettable) test).hardReset();
         ((Runnable) test).run();
 
-        assertEquals(new Integer(2), lookup.lookup(
+        assertEquals(Integer.valueOf(2), lookup.lookup(
                 "results.crashed", Integer.class));
-        assertEquals(new Integer(2), lookup.lookup(
+        assertEquals(Integer.valueOf(2), lookup.lookup(
                 "results.terminated", Integer.class));
 
 
@@ -342,9 +341,8 @@ public class MegaBeanBusTest extends OjTestCase {
                 new ArrayList<>();
 
         @Override
-        public boolean add(String e) {
+        public void accept(String e) {
             outbounds.get(outbounds.size() - 1).add(e);
-            return true;
         }
 
         @Destination
@@ -410,13 +408,13 @@ public class MegaBeanBusTest extends OjTestCase {
 
     public static class ThingWithOutbound {
 
-        private Collection<String> outbound;
+        private Consumer<String> outbound;
 
-        public Collection<String> getOutbound() {
+        public Consumer<String> getOutbound() {
             return outbound;
         }
 
-        public void setOutbound(Collection<String> outbound) {
+        public void setOutbound(Consumer<String> outbound) {
             this.outbound = outbound;
         }
     }
@@ -426,9 +424,8 @@ public class MegaBeanBusTest extends OjTestCase {
         private ThingWithOutbound thing;
 
         @Override
-        public boolean add(String e) {
-            thing.outbound.add(e);
-            return true;
+        public void accept(String e) {
+            thing.outbound.accept(e);
         }
 
         public ThingWithOutbound getThing() {
@@ -441,7 +438,7 @@ public class MegaBeanBusTest extends OjTestCase {
         }
 
         @Destination
-        public void acceptOutbound(Collection<String> outbound) {
+        public void acceptOutbound(Consumer<String> outbound) {
             this.thing.setOutbound(outbound);
         }
 
@@ -474,12 +471,12 @@ public class MegaBeanBusTest extends OjTestCase {
         assertEquals(3, results.size());
 
         @SuppressWarnings("unchecked")
-        Collection<String> outbound = lookup.lookup(
-                "capture.thing.outbound", Collection.class);
+        Consumer<String> outbound = lookup.lookup(
+                "capture.thing.outbound", Consumer.class);
 
         @SuppressWarnings("unchecked")
-        Collection<String> beanCapture = lookup.lookup(
-                "list", Collection.class);
+        Consumer<String> beanCapture = lookup.lookup(
+                "list", Consumer.class);
 
         assertSame(beanCapture, outbound);
 
@@ -522,7 +519,7 @@ public class MegaBeanBusTest extends OjTestCase {
         };
 
         @Override
-        public boolean add(String e) {
+        public void accept(String e) {
             logger.info("We have received " + e + ".");
 
             if ("crash-the-bus".equals(e)) {
@@ -530,8 +527,6 @@ public class MegaBeanBusTest extends OjTestCase {
             } else {
                 busListener.getBusConductor().requestBusStop();
             }
-
-            return true;
         }
 
         @Inject

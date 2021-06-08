@@ -1,10 +1,10 @@
 package org.oddjob.sql;
 
-import java.util.Collection;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.mega.MegaBeanBus;
+
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description 
@@ -28,9 +28,9 @@ import org.oddjob.beanbus.mega.MegaBeanBus;
  */
 public class SQLResultsBus extends BeanFactoryResultHandler {
 	
-	private final Collection<? super Object> to;
+	private final Consumer<? super Object> to;
 	
-	public SQLResultsBus(Collection<? super Object> to, 
+	public SQLResultsBus(Consumer<? super Object> to,
 			ArooaSession session) {
 		super(session);
 		this.to = to;
@@ -40,8 +40,7 @@ public class SQLResultsBus extends BeanFactoryResultHandler {
 	protected void accept(Object bean) {
 				
 		if (to != null) {
-			to.add(bean);
+			to.accept(bean);
 		}
 	}
-	
 }

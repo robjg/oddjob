@@ -1,13 +1,13 @@
 package org.oddjob.sql;
 
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BadBeanTransfer;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.sql.SQLJob.OnError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 
 public class BadSQLHandler 
 extends AbstractDestination<BadBeanTransfer<String>> {
@@ -22,9 +22,9 @@ extends AbstractDestination<BadBeanTransfer<String>> {
 	public void setBeanBus(BusConductor bus) {
 		this.bus = bus;
 	}
-	
+
 	@Override
-	public boolean add(BadBeanTransfer<String> bad) {
+	public void accept(BadBeanTransfer<String> bad) {
 		
 		String sql = bad.getBadBean();
 		
@@ -46,10 +46,7 @@ extends AbstractDestination<BadBeanTransfer<String>> {
 			logger.error("Aborting...");
 			throw bad.getException();
 		}
-		
-		return true;
 	}
-
 
 	public SQLJob.OnError getOnError() {
 		return onError;

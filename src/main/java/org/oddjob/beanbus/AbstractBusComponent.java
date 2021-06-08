@@ -1,14 +1,14 @@
 package org.oddjob.beanbus;
 
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Consumer;
 
 /**
  * A base class for Jobs and Services that provide an {@link BeanBus}.
  * <p>
- * Implementations must ensure {@link #startBus() and {@link stopBus()}
+ * Implementations must ensure {@link #startBus() and {@link #stopBus()}
  * are called and must provide a {@link #stopTheBus()} method.
  * 
  * 
@@ -22,15 +22,10 @@ implements BusServiceProvider, Outbound<T> {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractBusComponent.class);
 	
 	private final BasicBeanBus<T> beanBus = new BasicBeanBus<T>(
-			new Runnable() {
-				@Override
-				public void run() {
-					stopTheBus();
-				}
-			}) {
+			this::stopTheBus) {
 		public String toString() {
-			return BasicBeanBus.class.getSimpleName() + " for " + 
-					AbstractBusComponent.this.toString();
+			return BasicBeanBus.class.getSimpleName() + " for " +
+					AbstractBusComponent.this;
 		}
 	};
 	
@@ -40,7 +35,7 @@ implements BusServiceProvider, Outbound<T> {
 	}
 	
 	protected void accept(T bean) throws BusCrashException {
-		beanBus.add(bean);
+		beanBus.accept(bean);
 	}
 	
 	protected void stopBus() throws BusCrashException {
@@ -69,11 +64,11 @@ implements BusServiceProvider, Outbound<T> {
 	 * @param to
 	 */
 	@Override
-	public void setTo(Collection<? super T> to) {
+	public void setTo(Consumer<? super T> to) {
 		beanBus.setTo(to);
 	}
 	
-	public Collection<? super T> getTo() {
+	public Consumer<? super T> getTo() {
 		return beanBus.getTo();
 	}
 	

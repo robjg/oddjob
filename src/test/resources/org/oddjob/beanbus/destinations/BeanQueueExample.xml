@@ -29,7 +29,7 @@
                                 <value value="${vars.queue}"/>
                             </beans>
                             <to>
-                                <list/>
+                                <bean class="org.oddjob.beanbus.destinations.BeanCapture"/>
                             </to>
                         </bean>
                     </jobs>

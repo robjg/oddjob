@@ -131,7 +131,7 @@ public class SQLJobTest extends OjTestCase {
 		Integer result = new OddjobLookup(oddjob).lookup(
 				"query.results.row.count", Integer.class);
 		
-		assertEquals(new Integer(10), result);
+		assertEquals(Integer.valueOf(10), result);
 		
 		oddjob.destroy();
 	}
@@ -234,7 +234,7 @@ public class SQLJobTest extends OjTestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(1), lookup.lookup(
+		assertEquals(Integer.valueOf(1), lookup.lookup(
 				"sql.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(
@@ -265,7 +265,7 @@ public class SQLJobTest extends OjTestCase {
 		
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(1), lookup.lookup(
+		assertEquals(Integer.valueOf(1), lookup.lookup(
 				"sql-query.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(
@@ -301,7 +301,7 @@ public class SQLJobTest extends OjTestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(1), lookup.lookup(
+		assertEquals(Integer.valueOf(1), lookup.lookup(
 				"sql-query.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(
@@ -334,7 +334,7 @@ public class SQLJobTest extends OjTestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(1), lookup.lookup(
+		assertEquals(Integer.valueOf(1), lookup.lookup(
 				"sql-query.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(
@@ -365,7 +365,7 @@ public class SQLJobTest extends OjTestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(1), lookup.lookup(
+		assertEquals(Integer.valueOf(1), lookup.lookup(
 				"sql-query.results.rowSetCount", Integer.class));
 		
 		String [] rows = lookup.lookup(

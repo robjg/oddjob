@@ -3,13 +3,13 @@
  */
 package org.oddjob.beanbus.mega;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.util.Collection;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.adapt.WrapperInvocationHandler;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.util.function.Consumer;
 
 /**
  * Possibly provide a proxy to use as the component. 
@@ -35,9 +35,9 @@ implements ComponentProxyResolver {
 		if (component instanceof BusPart) {
 			proxy = component;
 		}
-		else if (component instanceof Collection) {
+		else if (component instanceof Consumer) {
 	    	proxy = new CollectionProxyGenerator().generate(
-	    			(Collection<?>) component, 
+	    			(Consumer<?>) component,
 	    			component.getClass().getClassLoader());
 	    }
 	    else {

@@ -1,20 +1,5 @@
 package org.oddjob.sql;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ParameterMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLWarning;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
@@ -24,12 +9,14 @@ import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.AbstractDestination;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusException;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles the execution of a single SQL statement at a time.
@@ -160,9 +147,9 @@ implements ArooaSessionAware {
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}
-	
+
 	@Override
-	public boolean add(String sql) {
+	public void accept(String sql) {
     	try {
     		execute(sql);
     		
@@ -171,8 +158,6 @@ implements ArooaSessionAware {
     	catch (Exception e) {
     		throw new IllegalArgumentException(sql, e);
     	}
-    	
-    	return true;
     }
     
     /**
@@ -226,7 +211,7 @@ implements ArooaSessionAware {
 			}
 			else if (resultProcessor == null) {
 				
-				logger.info("No result processor, discarding reults.");
+				logger.info("No result processor, discarding results.");
 			}
 			else {
 				
@@ -255,14 +240,12 @@ implements ArooaSessionAware {
 		else {
 			return new ParameterHandler() {
 				@Override
-				public void preExecute() throws SQLException,
-						ArooaConversionException {
+				public void preExecute() {
 					// Do Nothing
 					
 				}
 				@Override
-				public void postExecute() throws SQLException,
-						ArooaConversionException {
+				public void postExecute() {
 					// Do Nothing
 				}
 			};
@@ -451,7 +434,7 @@ implements ArooaSessionAware {
 	public void setParameters(int index, ValueType parameter) 
 	throws IndexOutOfBoundsException {
 		if (parameters == null) {
-			parameters = new ArrayList<ValueType>();
+			parameters = new ArrayList<>();
 		}
 		if (parameter == null) {
 			this.parameters.remove(index);

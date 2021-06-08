@@ -1,19 +1,20 @@
 package org.oddjob.beanbus.destinations;
 
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.arooa.deploy.annotations.ArooaText;
+import org.oddjob.arooa.life.Configured;
+import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.beanbus.BusFilter;
+import org.oddjob.beanbus.Transformer;
+
 import javax.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.deploy.annotations.ArooaText;
-import org.oddjob.arooa.life.Configured;
-import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.Transformer;
-
 /**
- * @oddjob.description Provide a Script as a {@link Filter}.
+ * @oddjob.description Provide a Script as an {@link BusFilter}.
  * 
  * @oddjob.example
  * 

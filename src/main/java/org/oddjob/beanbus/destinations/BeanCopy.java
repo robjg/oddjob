@@ -1,12 +1,5 @@
 package org.oddjob.beanbus.destinations;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaTools;
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
@@ -17,6 +10,13 @@ import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Copy the properties of a bean to another bean.
@@ -49,18 +49,18 @@ public class BeanCopy<F, T> extends AbstractDestination<F>
 implements BusFilter<F, T>, ArooaSessionAware {
 	private static final Logger logger = LoggerFactory.getLogger(BeanCopy.class);
 
-	private static AtomicInteger instance = new AtomicInteger();
+	private static final AtomicInteger instance = new AtomicInteger();
 
 	private String name;
 	
 	private ArooaClass arooaClass;
 	
-	private Collection<? super T> to;
+	private Consumer<? super T> to;
 	
 	private PropertyAccessor accessor;
 	
-	private Map<String, String> mappings = 
-			new LinkedHashMap<String, String>();
+	private final Map<String, String> mappings =
+			new LinkedHashMap<>();
 		
 	@ArooaHidden
 	@Override
@@ -69,10 +69,10 @@ implements BusFilter<F, T>, ArooaSessionAware {
 		this.accessor = tools.getPropertyAccessor().accessorWithConversions(
 				tools.getArooaConverter());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	public boolean add(F bean) {
+	public void accept(F bean) {
 		
 		if (arooaClass == null) {
 			arooaClass = createClassFromBean(bean);			
@@ -90,9 +90,7 @@ implements BusFilter<F, T>, ArooaSessionAware {
 					accessor.getProperty(bean, from));
 		}
 
-		to.add((T) toBean);
-		
-		return true;
+		to.accept((T) toBean);
 	}
 	
 	protected ArooaClass createClassFromBean(F bean) {
@@ -128,11 +126,11 @@ implements BusFilter<F, T>, ArooaSessionAware {
 	}
 	
 	@Override
-	public void setTo(Collection<? super T> to) {
+	public void setTo(Consumer<? super T> to) {
 		this.to = to;
 	}
 	
-	public Collection<? super T> getTo() {
+	public Consumer<? super T> getTo() {
 		return to;
 	}
 	

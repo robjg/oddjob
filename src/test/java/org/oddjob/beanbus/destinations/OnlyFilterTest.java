@@ -23,11 +23,11 @@ public class OnlyFilterTest extends OjTestCase {
         OnlyFilter<String> test = new OnlyFilter<>();
         test.setOnly(2);
 
-        test.setTo(results);
+        test.setTo(results::add);
 
-        test.add("Apple");
-        test.add("Orange");
-        test.add("Pear");
+        test.accept("Apple");
+        test.accept("Orange");
+        test.accept("Pear");
 
         assertEquals(2, results.size());
     }

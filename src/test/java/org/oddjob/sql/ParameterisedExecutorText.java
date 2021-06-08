@@ -1,15 +1,6 @@
 package org.oddjob.sql;
 
-import static org.junit.Assert.assertEquals;
-
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-
+import junit.framework.AssertionFailedError;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.arooa.ArooaSession;
@@ -21,9 +12,16 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
 
-import junit.framework.AssertionFailedError;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 public class ParameterisedExecutorText {
 
@@ -79,9 +77,9 @@ public class ParameterisedExecutorText {
 
 	}
 	
-	private class Results extends BeanFactoryResultHandler {
+	private static class Results extends BeanFactoryResultHandler {
 
-		List<Object> beans = new ArrayList<Object>();
+		List<Object> beans = new ArrayList<>();
 
 		public Results(ArooaSession session) {
 			super(session);
@@ -96,7 +94,7 @@ public class ParameterisedExecutorText {
 	}
 	
 	@Test
-	public void testBeanTypes() throws ArooaConversionException, BusCrashException {
+	public void testBeanTypes() throws ArooaConversionException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);
 		
@@ -125,7 +123,7 @@ public class ParameterisedExecutorText {
 			"myNumeric NUMERIC, " +
 			"myDecimal DECIMAL)";
 		
-		test.add(create);
+		test.accept(create);
 		
 		ValueType v1 = new ValueType();
 		v1.setValue(new ArooaObject("1"));
@@ -155,12 +153,12 @@ public class ParameterisedExecutorText {
 		String insert = 
 			"insert into numbers values (?, ?, ?, ?, ?, ?)";
 		
-		test.add(insert);
+		test.accept(insert);
 		
 		String select = 
 			"select * from numbers";
 		
-		test.add(select);
+		test.accept(select);
 		
 		Object bean = results.beans.get(0);
 		
@@ -181,11 +179,11 @@ public class ParameterisedExecutorText {
 		assertEquals(BigDecimal.class, beanOverview.getPropertyType("MYNUMERIC"));
 		assertEquals(BigDecimal.class, beanOverview.getPropertyType("MYDECIMAL"));
 		
-		test.add("shutdown");
+		test.accept("shutdown");
 	}
 	
 	@Test
-	public void testNullParameter() throws ArooaConversionException, BusCrashException {
+	public void testNullParameter() throws ArooaConversionException {
 
 		BusConductor conducter = Mockito.mock(BusConductor.class);
 		
@@ -210,7 +208,7 @@ public class ParameterisedExecutorText {
 			"create table thing(" +
 			"stuff VARCHAR(10))";
 		
-		test.add(create);
+		test.accept(create);
 		
 		ValueType v1 = new ValueType();
 
@@ -219,20 +217,20 @@ public class ParameterisedExecutorText {
 		String insert = 
 			"insert into thing (stuff) values (?)";
 		
-		test.add(insert);
+		test.accept(insert);
 		
 		String select = 
 			"select * from thing";
 		
-		test.add(select);
+		test.accept(select);
 		
 		Object bean = results.beans.get(0);
 		
 		PropertyAccessor accessor = session.getTools().getPropertyAccessor();
-		
+
 		assertEquals(null, accessor.getProperty(bean, "STUFF"));
 		
-		test.add("shutdown");
+		test.accept("shutdown");
 	}
 	
 }

@@ -1,17 +1,11 @@
 package org.oddjob.beanbus.destinations;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.beanbus.*;
 
 import javax.inject.Inject;
-
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusFilter;
-import org.oddjob.beanbus.TrackingBusListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A {@link BusFilter} that collects beans in a list.
@@ -33,7 +27,7 @@ import org.oddjob.beanbus.TrackingBusListener;
  */
 public class BeanCapture<T> extends AbstractFilter<T, T> {
 
-	private final List<T> beans = new ArrayList<T>();
+	private final List<T> beans = new ArrayList<>();
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
@@ -62,24 +56,10 @@ public class BeanCapture<T> extends AbstractFilter<T, T> {
 			return beans;
 		}
 	}
-	
-	@Override
-	public boolean isEmpty() {
-		synchronized (beans) {
-			return beans.size() == 0;
-		}
-	}
-	
+
 	public int getCount() {
 		synchronized (beans) {
 			return beans.size();
-		}
-	}
-	
-	@Override
-	public Iterator<T> iterator() {
-		synchronized (beans) {
-			return beans.iterator();
 		}
 	}
 }

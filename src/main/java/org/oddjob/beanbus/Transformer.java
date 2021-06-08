@@ -16,6 +16,6 @@ public interface Transformer<F, T> {
 	 * @param from
 	 * @return
 	 */
-	public T transform(F from);
+	T transform(F from);
 	
 }

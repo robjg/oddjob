@@ -59,28 +59,20 @@
  */
 package org.oddjob.sql;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.sql.Connection;
-import java.util.Collection;
-
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusService;
-import org.oddjob.beanbus.BusServiceProvider;
-import org.oddjob.beanbus.Destination;
-import org.oddjob.beanbus.SimpleBusService;
+import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.destinations.BadBeanFilter;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
+
+import java.io.*;
+import java.sql.Connection;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Runs one or more SQL statements.
@@ -132,7 +124,7 @@ import org.oddjob.io.FileType;
  * 
  * An Callable Statement example. Showing support for IN, INOUT, and OUT
  * parameters. Note that declaring the stored procedure requires a change
- * in delimiter otherwise the semicolon is inturprited as an end of 
+ * in delimiter otherwise the semicolon is interrupted as an end of
  * statement.
  * 
  * {@oddjob.xml.resource org/oddjob/sql/SQLCallableStatement.xml}
@@ -161,8 +153,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
     	CONTINUE,
     	STOP,
     	ABORT
-    	;
-    }
+	}
  
     /** Parses the SQL. */
     private transient ScriptParser parser;
@@ -186,7 +177,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * {@link SQLResultsBean} or {@link SQLResultsSheet}.
 	 * @oddjob.required No, defaults to none. 
 	 */
-	private transient Collection<Object> results;
+	private transient Consumer<Object> results;
 	
 	/** The session. */
 	private transient ArooaSession session;
@@ -258,7 +249,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	    
 	    executor.setArooaSession(session);
 	    
-    	BadBeanFilter<String> errorFilter = new BadBeanFilter<String>();
+    	BadBeanFilter<String> errorFilter = new BadBeanFilter<>();
     	errorFilter.setBadBeanHandler(errorHandler);
     	
     	parser.setTo(errorFilter);
@@ -283,7 +274,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * 
 	 * @return Result Handler. May be null.
 	 */
-	public Collection<Object> getResults() {
+	public Consumer<Object> getResults() {
 		return results;
 	}
 
@@ -293,7 +284,7 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * @param results Result Handler. May be null.
 	 */
 	@Destination
-	public void setResults(Collection<Object> results) {
+	public void setResults(Consumer<Object> results) {
 		this.results = results;
 	}
 	

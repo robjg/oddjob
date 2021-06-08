@@ -1,15 +1,15 @@
 package org.oddjob.beanbus;
 
-import java.util.Collection;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Consumer;
 
 public class BasicBeanBus<T> extends AbstractDestination<T>
 implements BeanBus<T> {
 	private static final Logger logger = LoggerFactory.getLogger(BasicBeanBus.class);
 
-	private volatile Collection<? super T> to;
+	private volatile Consumer<? super T> to;
 
 	private boolean started = false;
 	
@@ -99,10 +99,10 @@ implements BeanBus<T> {
 		finally {
 			terminateBus(BusPhase.BUS_STOPPED);
 		}
-	}		
-	
+	}
+
 	@Override
-	public boolean add(T bean) {
+	public void accept(T  bean) {
 		
 		if (!started) {
 			throw new IllegalStateException("Bus Not Started.");
@@ -125,11 +125,8 @@ implements BeanBus<T> {
 		}
 		
 		try {
-			if (to == null) {
-				return false;
-			}
-			else {
-				return to.add(bean);
+			if (to != null) {
+				to.accept(bean);
 			}
 		}
 		catch (RuntimeException e) {
@@ -138,7 +135,6 @@ implements BeanBus<T> {
 			
 			throw e;
 		}
-		
 	}
 	
 	private void tripBegin() throws BusCrashException {
@@ -203,11 +199,11 @@ implements BeanBus<T> {
 		
 	}
 	
-	public Collection<? super T> getTo() {
+	public Consumer<? super T> getTo() {
 		return to;
 	}
 
-	public void setTo(Collection<? super T> to) {
+	public void setTo(Consumer<? super T> to) {
 		this.to = to;
 	}
 

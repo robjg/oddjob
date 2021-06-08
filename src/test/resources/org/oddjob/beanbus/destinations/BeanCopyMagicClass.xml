@@ -17,7 +17,7 @@
                         </magic-class>
                     </arooaClass>
                     <to>
-                      <list/>
+                        <bean class="org.oddjob.beanbus.destinations.BeanCapture"/>
                     </to>
                     <mappings>
                         <value key="fruit" value="snack"/>

@@ -1,18 +1,12 @@
 package org.oddjob.beanbus.destinations;
 
-import java.util.Collection;
-
-import javax.inject.Inject;
-
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.beanbus.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.AbstractDestination;
-import org.oddjob.beanbus.BadBeanTransfer;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusFilter;
-import org.oddjob.beanbus.TrackingBusListener;
+
+import javax.inject.Inject;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Something that will catch bad beans and pass them to 
@@ -27,9 +21,9 @@ implements BusFilter<T, T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BadBeanFilter.class);
 	
-	private Collection<? super BadBeanTransfer<T>> badBeanHandler;
+	private Consumer<? super BadBeanTransfer<T>> badBeanHandler;
 
-	private Collection<? super T> to;
+	private Consumer<? super T> to;
 	
 	private String name;
 	
@@ -45,19 +39,19 @@ implements BusFilter<T, T> {
 			count = 0;
 		}
 	};
-	
+
 	@Override
-	public boolean add(T bean) {
+	public void accept(T bean) {
 		
 		if (to == null) {
 			if (count == 0) {
 				logger.info("No destination set. Beans will be ignored.");
 			}
-			return false;
+			return;
 		}
 		
 		try {
-			to.add(bean);
+			to.accept(bean);
 			++count;
 		}
 		catch (RuntimeException e) {
@@ -70,7 +64,7 @@ implements BusFilter<T, T> {
 						}
 					}
 					else {
-						badBeanHandler.add(new BadBeanTransfer<T>(bean, 
+						badBeanHandler.accept(new BadBeanTransfer<>(bean,
 								(IllegalArgumentException) t));
 					}
 					++badCount;
@@ -80,10 +74,8 @@ implements BusFilter<T, T> {
 			} 
 			while (t != null);
 		}
-		
-		return true;
-	};
-	
+	}
+
 	@ArooaHidden
 	@Inject
 	public void setBusConductor(BusConductor busConductor) {
@@ -91,20 +83,20 @@ implements BusFilter<T, T> {
 	}	
 	
 	@Override
-	public void setTo(Collection<? super T> to) {
+	public void setTo(Consumer<? super T> to) {
 		this.to = to;
 	}
 	
-	public Collection<? super T> getTo() {
+	public Consumer<? super T> getTo() {
 		return to;
 	}
 	
-	public Collection<? super BadBeanTransfer<T>> getBadBeanHandler() {
+	public Consumer<? super BadBeanTransfer<T>> getBadBeanHandler() {
 		return badBeanHandler;
 	}
 
 	public void setBadBeanHandler(
-			Collection<? super BadBeanTransfer<T>> badBeanHandler) {
+			Consumer<? super BadBeanTransfer<T>> badBeanHandler) {
 		this.badBeanHandler = badBeanHandler;
 	}
 

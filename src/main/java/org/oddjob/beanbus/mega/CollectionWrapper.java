@@ -26,10 +26,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOError;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Wraps a Collection object so that it can be added to an 
@@ -40,7 +39,7 @@ import java.util.Map;
  */
 public class CollectionWrapper<E>
 implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart, 
-		LogEnabled, Describable, Iconic, ArooaLifeAware, Collection<E> {
+		LogEnabled, Describable, Iconic, ArooaLifeAware, Consumer<E> {
 	
 	public static final String INACTIVE = "inactive";
 	
@@ -74,7 +73,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	
     private volatile Logger theLogger;
     
-    private final Collection<E> wrapped;
+    private final Consumer<E> wrapped;
     
     private final transient DynaBean dynaBean;
     
@@ -99,7 +98,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 		}
 		
 		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
+		public void busStarting(BusEvent event) {
 			busCrashException = null;
 			iconHelper.changeIcon(ACTIVE);
 		}
@@ -115,7 +114,7 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
      * @param collection
      * @param proxy
      */
-    public CollectionWrapper(Collection<E> collection, Object proxy) {
+    public CollectionWrapper(Consumer<E> collection, Object proxy) {
     	this.proxy = proxy;
         this.wrapped = collection;
         this.dynaBean = new WrapDynaBean(wrapped);    	
@@ -307,104 +306,18 @@ implements ComponentWrapper, ArooaSessionAware, DynaBean, BusPart,
 	
 	// Collection Methods
 	//
-	
+
+
 	@Override
-	public boolean add(E e) {
+	public void accept(E e) {
 		if (busCrashException != null) {
 			throw new RuntimeException(busCrashException);
 		}
 		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.add(e);
+			wrapped.accept(e);
 		}
 	}
-	
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		if (busCrashException != null) {
-			throw new RuntimeException(busCrashException);
-		}
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.addAll(c);
-		}
-	}
-	
-	@Override
-	public void clear() {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			wrapped.clear();
-		}
-	}
-	
-	@Override
-	public boolean contains(Object o) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.contains(o);
-		}
-	}
-	
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.containsAll(c);
-		}
-	}
-	
-	@Override
-	public boolean isEmpty() {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.isEmpty();
-		}
-	}
-	
-	@Override
-	public Iterator<E> iterator() {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.iterator();
-		}
-	}
-	
-	@Override
-	public boolean remove(Object o) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.remove(o);
-		}
-	}
-	
-	@Override
-	public boolean removeAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.removeAll(c);
-		}
-	}
-	
-	@Override
-	public boolean retainAll(Collection<?> c) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.retainAll(c);
-		}
-	}
-	
-	@Override
-	public int size() {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.size();
-		}
-	}
-	
-	@Override
-	public Object[] toArray() {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.toArray();
-		}
-	}
-	
-	@Override
-	public <T> T[] toArray(T[] a) {
-		try (Restore restore = ComponentBoundary.push(loggerName(), wrapped)) {
-			return wrapped.toArray(a);
-		}
-	}
-	
+
 	class LoggingBusConductorFilter extends BusConductorFilter {
 		
 		public LoggingBusConductorFilter(BusConductor conductor) {

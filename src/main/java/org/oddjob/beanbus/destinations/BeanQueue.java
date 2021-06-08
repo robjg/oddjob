@@ -1,23 +1,21 @@
 package org.oddjob.beanbus.destinations;
 
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.Configured;
 import org.oddjob.arooa.life.Initialised;
 import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.TrackingBusListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
+import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 
 /**
  * @oddjob.description A Queue for beans. A work in progress.
@@ -59,13 +57,13 @@ implements Iterable<E>, Stoppable {
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
 		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
+		public void busStarting(BusEvent event) {
 			logger.debug("Clearing Queue on Start.");
 			reset();
 		}
 		
 		@Override
-		public void busStopping(BusEvent event) throws BusCrashException {
+		public void busStopping(BusEvent event) {
 			stop();
 		}		
 	};
@@ -78,10 +76,10 @@ implements Iterable<E>, Stoppable {
 	@Initialised
 	public void init() {
 		if (capacity == 0) {
-			queue = new LinkedBlockingDeque<Object>();
+			queue = new LinkedBlockingDeque<>();
 		}
 		else {
-			queue = new ArrayBlockingQueue<Object>(capacity);
+			queue = new ArrayBlockingQueue<>(capacity);
 		}
 	}
 	
@@ -99,28 +97,21 @@ implements Iterable<E>, Stoppable {
 			Thread.currentThread().interrupt();
 		}
 	}
-	
+
 	@Override
-	public boolean add(E bean) {
+	public void accept(E  bean) {
 		try {
 			queue.put(bean);
 		} catch (InterruptedException e) {
 			Thread.currentThread().interrupt();
-			return false;
 		}
-		return true;
 	}
 	
 	@Override
 	public Iterator<E> iterator() {
 		return new BlockerIterator();
 	}
-	
-	@Override
-	public boolean isEmpty() {
-		return getSize() == 0;
-	}
-	
+
 	/**
 	 * The implementation of the blocking iterator.
 	 */

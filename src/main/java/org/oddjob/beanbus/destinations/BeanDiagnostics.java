@@ -1,13 +1,5 @@
 package org.oddjob.beanbus.destinations;
 
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import javax.inject.Inject;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
@@ -15,13 +7,15 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusFilter;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.*;
 import org.oddjob.io.StdoutType;
+
+import javax.inject.Inject;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * A {@link BusFilter} that analyses beans.
@@ -34,7 +28,7 @@ import org.oddjob.io.StdoutType;
 public class BeanDiagnostics<T> extends AbstractFilter<T, T> 
 implements ArooaSessionAware {
 
-	private final Set<ArooaClass> types = new LinkedHashSet<ArooaClass>();
+	private final Set<ArooaClass> types = new LinkedHashSet<>();
 	
 	private final TrackingBusListener busListener = 
 			new TrackingBusListener() {
@@ -109,12 +103,7 @@ implements ArooaSessionAware {
 	public Set<ArooaClass> getTypes() {
 		return types;
 	}
-	
-	@Override
-	public boolean isEmpty() {
-		return types.size() == 0;
-	}
-	
+
 	public int getCount() {
 		return count;
 	}

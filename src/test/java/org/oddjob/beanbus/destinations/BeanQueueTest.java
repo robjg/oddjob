@@ -53,7 +53,7 @@ public class BeanQueueTest extends Assert {
 		
 		bus.startBus();
 		
-		bus.add("apple");
+		bus.accept("apple");
 		
 		final List<String> results = new ArrayList<>();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -68,7 +68,7 @@ public class BeanQueueTest extends Assert {
 
 		t.start();
 		
-		test.add("pear");
+		test.accept("pear");
 		
 		latch.await();
 		
@@ -90,8 +90,8 @@ public class BeanQueueTest extends Assert {
 		final BeanQueue<String> test = new BeanQueue<>();
 		test.init();
 		
-		test.add("apple");
-		test.add("pear");
+		test.accept("apple");
+		test.accept("pear");
 		
 		
 		test.stop();
@@ -129,8 +129,8 @@ public class BeanQueueTest extends Assert {
 		
 		Thread.sleep(100);
 		
-		test.add("apple");
-		test.add("pear");
+		test.accept("apple");
+		test.accept("pear");
 				
 		test.stop();
 		
@@ -173,7 +173,7 @@ public class BeanQueueTest extends Assert {
 		t3.start();
 		
 		for (int i = 1; i <= 100000; ++i) {
-			test.add(i);
+			test.accept(i);
 		}
 		
 		Thread.sleep(50);
@@ -217,7 +217,7 @@ public class BeanQueueTest extends Assert {
 		parallelStates.checkWait();
 		
 		List<?> results = lookup.lookup(
-				"consumer.to", List.class);
+				"consumer.to.beans", List.class);
 		
 		logger.info("** Got " + results.size() + " results.");
 		
@@ -244,7 +244,7 @@ public class BeanQueueTest extends Assert {
 		
 		
 		results = lookup.lookup(
-				"consumer.to", List.class);
+				"consumer.to.beans", List.class);
 		
 		logger.info("** Got " + results.size() + " results.");
 		

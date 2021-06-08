@@ -1,20 +1,15 @@
 package org.oddjob.beanbus.destinations;
 
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.beanbus.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.AbstractDestination;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusFilter;
-import org.oddjob.beanbus.TrackingBusListener;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Provide batching of beans.
@@ -38,7 +33,7 @@ implements BusFilter<T, Collection<T>> {
 	
 	private int batchSize;
 
-	private Collection<? super Collection<T>> to;
+	private Consumer<? super Collection<T>> to;
 	
 	private volatile List<T> batch;
 	
@@ -50,23 +45,23 @@ implements BusFilter<T, Collection<T>> {
 			new TrackingBusListener() {
 		
 		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
+		public void busStarting(BusEvent event) {
 			count = 0;
 		}
 		
 		@Override
-		public void tripBeginning(BusEvent event) throws BusCrashException {
-			batch = new ArrayList<T>();
+		public void tripBeginning(BusEvent event) {
+			batch = new ArrayList<>();
 		}
 		
 		@Override
-		public void tripEnding(BusEvent event) throws BusCrashException {
+		public void tripEnding(BusEvent event) {
 			dispatch();				
 		}
 	};
-	
+
 	@Override
-	public boolean add(T bean) {	
+	public void accept(T bean) {
 
 		batch.add(bean);
 		++count;
@@ -78,8 +73,6 @@ implements BusFilter<T, Collection<T>> {
 				throw new RuntimeException(e);
 			}
 		}
-		
-		return true;
 	}
 	
 	/**
@@ -98,10 +91,10 @@ implements BusFilter<T, Collection<T>> {
 					" beans because there is no destination.");
 		}
 		else {
-			logger.info("Dipatching batch of " + batchSize + 
+			logger.info("Dispatching batch of " + batchSize +
 					" beans.");
 			
-			to.add(batch);
+			to.accept(batch);
 		}
 	}
 
@@ -127,12 +120,7 @@ implements BusFilter<T, Collection<T>> {
 			return batch.size();
 		}
 	}
-	
-	@Override
-	public boolean isEmpty() {
-		return getSize() == 0;
-	}
-	
+
 	public int getBatchSize() {
 		return batchSize;
 	}
@@ -141,12 +129,12 @@ implements BusFilter<T, Collection<T>> {
 		this.batchSize = batchSize;
 	}
 	
-	public Collection<? super Collection<T>> getTo() {
+	public Consumer<? super Collection<T>> getTo() {
 		return to;
 	}
 
 	@Override
-	public void setTo(Collection<? super Collection<T>> next) {
+	public void setTo(Consumer<? super Collection<T>> next) {
 		this.to = next;
 	}
 	
