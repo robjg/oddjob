@@ -3,10 +3,10 @@
  */
 package org.oddjob.framework.adapt.service;
 
+import org.oddjob.FailedToStopException;
+
 import java.beans.ExceptionListener;
 import java.lang.reflect.Method;
-
-import org.oddjob.FailedToStopException;
 
 /**
  * A {@link ServiceAdaptor} that uses a start and stop method.
@@ -40,7 +40,6 @@ public class ServiceMethodAdaptor implements ServiceAdaptor {
 	 * @param component
 	 * @param startMethod
 	 * @param stopMethod
-	 * @param acceptStopHandleMethod
 	 * @param acceptExceptionListenerMethod
 	 */
 	public ServiceMethodAdaptor(Object component, 
@@ -53,12 +52,12 @@ public class ServiceMethodAdaptor implements ServiceAdaptor {
 	}	
 	
 	public void start() throws Exception {
-		startMethod.invoke(component, new Object[0]);
+		startMethod.invoke(component);
 	}
 	
 	public void stop() throws FailedToStopException {
 		try {
-			stopMethod.invoke(component, new Object[0]);
+			stopMethod.invoke(component);
 		}
 		catch (Exception e) {
 			throw new FailedToStopException(
@@ -70,8 +69,7 @@ public class ServiceMethodAdaptor implements ServiceAdaptor {
 	public void acceptExceptionListener(ExceptionListener exceptionListener) {
 		if (acceptExceptionListenerMethod != null) {
 			try {
-				acceptExceptionListenerMethod.invoke(component, 
-						new Object[] { exceptionListener });
+				acceptExceptionListenerMethod.invoke(component, exceptionListener);
 			}
 			catch (RuntimeException e) {
 				throw e;

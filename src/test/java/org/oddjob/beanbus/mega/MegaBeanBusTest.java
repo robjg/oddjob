@@ -2,10 +2,7 @@ package org.oddjob.beanbus.mega;
 
 import org.junit.Test;
 import org.oddjob.*;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.logging.LogLevel;
@@ -14,16 +11,20 @@ import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
+import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
+import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogListener;
 import org.oddjob.logging.appender.AppenderArchiver;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.ServiceState;
 import org.oddjob.tools.IconSteps;
+import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,33 +34,59 @@ import java.net.URISyntaxException;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class MegaBeanBusTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+public class MegaBeanBusTest {
 
     private static final Logger logger = LoggerFactory.getLogger(MegaBeanBusTest.class);
 
     @Test
     public void testSimpleLifecycle() {
 
+        RuntimeConfiguration runtimeConfiguration = mock(RuntimeConfiguration.class);
 
-        ArooaSession session = new OddjobSessionFactory().createSession();
+        ArooaContext arooaContext = mock(ArooaContext.class);
+        when(arooaContext.getRuntime()).thenReturn(runtimeConfiguration);
 
+        ArooaSession session = new MegaBusSessionFactory()
+                .createSession(new OddjobSessionFactory().createSession(),
+                        getClass().getClassLoader());
         List<String> destination = new ArrayList<>();
 
         IterableBusDriver<String> driver = new IterableBusDriver<>();
         driver.setBeans(Arrays.asList("apple", "pear", "banana"));
-        driver.setTo(destination::add);
+
+        Object driverProxy = session.getComponentProxyResolver().resolve(driver, session);
+        session.getComponentPool().registerComponent(
+                ComponentTrinity.withComponent(driver)
+                        .andProxy(driverProxy)
+                        .andArooaContext(arooaContext),
+                null);
+
+        Consumer<String> consumer = destination::add;
+
+        driver.setTo(consumer);
+
+        Object destinationProxy = session.getComponentProxyResolver().resolve(consumer, session);
 
         MegaBeanBus test = new MegaBeanBus();
         test.setArooaSession(session);
-        test.setParts(0, driver);
-        test.setParts(1, destination);
+        test.setParts(0, driverProxy);
+        test.setParts(1, destinationProxy);
+
+        StateSteps destinationSteps = new StateSteps((Stateful) destinationProxy);
+        destinationSteps.startCheck(ServiceState.STARTABLE, ServiceState.STARTING,
+                ServiceState.STARTED, ServiceState.STOPPED);
 
         test.run();
 
-        assertEquals(ParentState.COMPLETE,
-                test.lastStateEvent().getState());
+        destinationSteps.checkNow();
 
-
+        assertThat(test.lastStateEvent().getState(), is(ParentState.COMPLETE));
+        assertThat(destination, contains("apple", "pear", "banana"));
     }
 
     @Test
@@ -72,18 +99,17 @@ public class MegaBeanBusTest extends OjTestCase {
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         @SuppressWarnings("unchecked")
         List<String> results = lookup.lookup("list.beans", List.class);
 
-        assertEquals("Apple", results.get(0));
-        assertEquals("Orange", results.get(1));
-        assertEquals("Pear", results.get(2));
-        assertEquals(3, results.size());
+        assertThat(results.get(0), is("Apple"));
+        assertThat(results.get(1), is("Orange"));
+        assertThat(results.get(2), is("Pear"));
+        assertThat(results.size(), is(3));
 
         oddjob.destroy();
     }
@@ -100,8 +126,7 @@ public class MegaBeanBusTest extends OjTestCase {
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
@@ -115,7 +140,7 @@ public class MegaBeanBusTest extends OjTestCase {
                 new ArooaElement(new URI("oddjob:beanbus"), "bean-copy"),
                 new InstantiationContext(ArooaType.COMPONENT, null));
 
-        assertNotNull(cl);
+        assertThat(cl, notNullValue());
 
         oddjob.destroy();
     }
@@ -210,29 +235,25 @@ public class MegaBeanBusTest extends OjTestCase {
         Iconic results = (Iconic) lookup.lookup("results");
 
         IconSteps icons = new IconSteps(results);
-        icons.startCheck(CollectionWrapper.INACTIVE,
-                CollectionWrapper.ACTIVE, CollectionWrapper.INACTIVE);
+        icons.startCheck(IconHelper.STARTABLE,
+                IconHelper.EXECUTING, IconHelper.STARTED,
+                IconHelper.STOPPING, IconHelper.STOPPED);
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         icons.checkNow();
 
-        assertEquals(Integer.valueOf(4950), lookup.lookup(
-                "results.total", Integer.class));
-        assertEquals(Boolean.TRUE, lookup.lookup(
-                "results.started", boolean.class));
-        assertEquals(Boolean.TRUE, lookup.lookup(
-                "results.stopped", boolean.class));
+        assertThat(lookup.lookup("results.total", int.class), is(4950));
+        assertThat(lookup.lookup("results.started", boolean.class), is(true));
+        assertThat(lookup.lookup("results.stopped", boolean.class), is(true));
 
         Object test = lookup.lookup("test");
         ((Resettable) test).hardReset();
         ((Runnable) test).run();
 
-        assertEquals(Integer.valueOf(4950), lookup.lookup(
-                "results.total", Integer.class));
+        assertThat(lookup.lookup("results.total", int.class), is(4950));
 
         oddjob.destroy();
     }
@@ -307,29 +328,25 @@ public class MegaBeanBusTest extends OjTestCase {
         Iconic results = (Iconic) lookup.lookup("results");
 
         IconSteps icons = new IconSteps(results);
-        icons.startCheck(CollectionWrapper.INACTIVE,
-                CollectionWrapper.ACTIVE, CollectionWrapper.INACTIVE);
+        icons.startCheck(IconHelper.STARTABLE,
+                IconHelper.EXECUTING, IconHelper.STARTED,
+                IconHelper.STOPPING, IconHelper.STOPPED);
 
         oddjob.run();
 
-        assertEquals(ParentState.EXCEPTION,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
 
         icons.checkNow();
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "results.crashed", Integer.class));
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "results.terminated", Integer.class));
+        assertThat(lookup.lookup("results.crashed", int.class), is(1));
+        assertThat(lookup.lookup("results.terminated", int.class), is(1));
 
         Object test = lookup.lookup("test");
         ((Resettable) test).hardReset();
         ((Runnable) test).run();
 
-        assertEquals(Integer.valueOf(2), lookup.lookup(
-                "results.crashed", Integer.class));
-        assertEquals(Integer.valueOf(2), lookup.lookup(
-                "results.terminated", Integer.class));
+        assertThat(lookup.lookup("results.crashed", int.class), is(2));
+        assertThat(lookup.lookup("results.terminated", int.class), is(2));
 
 
         oddjob.destroy();
@@ -368,26 +385,25 @@ public class MegaBeanBusTest extends OjTestCase {
         oddjob.setExport("our-list", new ArooaObject(ourList));
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         List<List<String>> outbounds = lookup.lookup("capture.outbounds", List.class);
 
-        assertEquals(1, outbounds.size());
+        assertThat(outbounds.size(), is(1));
 
         List<String> results = outbounds.get(0);
 
-        assertSame(ourList, results);
+        assertThat(ourList, sameInstance(results));
 
-        assertEquals("Apple", results.get(0));
-        assertEquals("Orange", results.get(1));
-        assertEquals("Pear", results.get(2));
-        assertEquals(3, results.size());
+        assertThat(results.get(0), is("Apple"));
+        assertThat(results.get(1), is("Orange"));
+        assertThat(results.get(2), is("Pear"));
+        assertThat(results.size(), is(3));
 
         List<String> outboundList = lookup.lookup("list.beans", List.class);
-        assertEquals(0, outboundList.size());
+        assertThat(outboundList.size(), is(0));
 
         Object bus = lookup.lookup("bus");
 
@@ -397,11 +413,11 @@ public class MegaBeanBusTest extends OjTestCase {
 
         outbounds = lookup.lookup("capture.outbounds", List.class);
 
-        assertEquals(3, outbounds.size());
+        assertThat(outbounds.size(), is(3));
 
         results = outbounds.get(2);
 
-        assertSame(ourList, results);
+        assertThat(ourList, sameInstance(results));
 
         oddjob.destroy();
     }
@@ -457,18 +473,17 @@ public class MegaBeanBusTest extends OjTestCase {
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         @SuppressWarnings("unchecked")
         List<String> results = lookup.lookup("list.beans", List.class);
 
-        assertEquals("Apple", results.get(0));
-        assertEquals("Orange", results.get(1));
-        assertEquals("Pear", results.get(2));
-        assertEquals(3, results.size());
+        assertThat(results.get(0), is("Apple"));
+        assertThat(results.get(1), is("Orange"));
+        assertThat(results.get(2), is("Pear"));
+        assertThat(results.size(), is(3));
 
         @SuppressWarnings("unchecked")
         Consumer<String> outbound = lookup.lookup(
@@ -478,7 +493,7 @@ public class MegaBeanBusTest extends OjTestCase {
         Consumer<String> beanCapture = lookup.lookup(
                 "list", Consumer.class);
 
-        assertSame(beanCapture, outbound);
+        assertThat(beanCapture, sameInstance(outbound));
 
         oddjob.destroy();
     }
@@ -488,39 +503,44 @@ public class MegaBeanBusTest extends OjTestCase {
         final TrackingBusListener busListener = new TrackingBusListener() {
             @Override
             public void busStarting(BusEvent event) {
-                logger.info("The Bus is Starting.");
+                logger.info("** The Bus is Starting.");
             }
 
             public void tripBeginning(BusEvent event) {
-                logger.info("A Trip is Beginning.");
+                logger.info("** A Trip is Beginning.");
             }
 
             public void tripEnding(BusEvent event) {
-                logger.info("A Trip is Ending.");
+                logger.info("** A Trip is Ending.");
 
             }
 
             public void busStopRequested(BusEvent event) {
-                logger.info("A Bus Stop is Requested.");
+                logger.info("** A Bus Stop is Requested.");
             }
 
             @Override
             public void busStopping(BusEvent event) {
-                logger.info("The Bus is Stopping.");
+                logger.info("** The Bus is Stopping.");
             }
 
             public void busCrashed(BusEvent event) {
-                logger.info("The Bus has Crashed.");
+                logger.info("** The Bus has Crashed.");
             }
 
             public void busTerminated(BusEvent event) {
-                logger.info("The Bus has terminated.");
+                logger.info("** The Bus has terminated.");
+            }
+
+            @Override
+            public String toString() {
+                return "OurLoggingBusListener";
             }
         };
 
         @Override
         public void accept(String e) {
-            logger.info("We have received " + e + ".");
+            logger.info("** We have received " + e + ".");
 
             if ("crash-the-bus".equals(e)) {
                 throw new IllegalArgumentException(e);
@@ -534,12 +554,15 @@ public class MegaBeanBusTest extends OjTestCase {
             busListener.setBusConductor(busConductor);
         }
 
+        @Override
+        public String toString() {
+            return "OurLoggingThing";
+        }
     }
 
     /**
      * Test logging. Note that this test is fragile with respect to change
      * in the logging properties.
-     *
      */
     @Test
     public void testDefaultLogger() {
@@ -559,8 +582,7 @@ public class MegaBeanBusTest extends OjTestCase {
 
         oddjob.load();
 
-        assertEquals(ParentState.READY,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
@@ -568,8 +590,8 @@ public class MegaBeanBusTest extends OjTestCase {
 
         String loggerName = ((LogEnabled) thingWithLogging).loggerName();
 
-        assertEquals(DestinationWithLogger.class.getName(),
-                loggerName.substring(0, DestinationWithLogger.class.getName().length()));
+        assertThat(loggerName.substring(0, DestinationWithLogger.class.getName().length()),
+                is(DestinationWithLogger.class.getName()));
 
         LoggerAdapter.appenderAdapterFor(loggerName).setLevel(LogLevel.INFO);
 
@@ -580,33 +602,30 @@ public class MegaBeanBusTest extends OjTestCase {
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(ParentState.COMPLETE, is(oddjob.lastStateEvent().getState()));
 
-        assertEquals("The Bus is Starting.", messages.get(1));
-        assertEquals("A Trip is Beginning.", messages.get(2));
-        assertEquals("We have received Apples.", messages.get(3));
-        assertEquals("A Bus Stop is Requested.", messages.get(4));
-        assertEquals("A Trip is Ending.", messages.get(5));
-        assertEquals("The Bus is Stopping.", messages.get(6));
-        assertEquals("The Bus has terminated.", messages.get(7));
-
-        assertEquals(8, messages.size());
+        assertThat(messages, hasItem("** The Bus is Starting."));
+        assertThat(messages, hasItem("** A Trip is Beginning."));
+        assertThat(messages, hasItem("** We have received Apples."));
+        assertThat(messages, hasItem("** A Bus Stop is Requested."));
+        assertThat(messages, hasItem("** A Trip is Ending."));
+        assertThat(messages, hasItem("** The Bus is Stopping."));
+        assertThat(messages, hasItem("** The Bus has terminated."));
 
         Object secondBus = lookup.lookup("second-bus");
 
         ((Resettable) secondBus).hardReset();
+        messages.clear();
 
         oddjob.run();
 
-        assertEquals(ParentState.EXCEPTION,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
 
-        assertEquals("The Bus is Starting.", messages.get(9));
-        assertEquals("A Trip is Beginning.", messages.get(10));
-        assertEquals("We have received crash-the-bus.", messages.get(11));
-        assertEquals("The Bus has Crashed.", messages.get(12));
-        assertEquals("The Bus has terminated.", messages.get(13));
+        assertThat(messages, hasItem("** The Bus is Starting."));
+        assertThat(messages, hasItem("** A Trip is Beginning."));
+        assertThat(messages, hasItem("** We have received crash-the-bus."));
+        assertThat(messages, hasItem("** The Bus has Crashed."));
+        assertThat(messages, hasItem("** The Bus has terminated."));
 
         oddjob.destroy();
     }
@@ -620,8 +639,7 @@ public class MegaBeanBusTest extends OjTestCase {
                 getClass().getClassLoader()));
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         Object busPart = new OddjobLookup(
                 oddjob).lookup("bus-part");
@@ -650,8 +668,7 @@ public class MegaBeanBusTest extends OjTestCase {
         ((Resettable) driver).hardReset();
         ((Runnable) driver).run();
 
-        assertEquals(ParentState.EXCEPTION,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
 
         oddjob.destroy();
     }

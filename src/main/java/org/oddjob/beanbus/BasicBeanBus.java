@@ -5,8 +5,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.Consumer;
 
-public class BasicBeanBus<T> extends AbstractDestination<T>
-implements BeanBus<T> {
+public class BasicBeanBus<T> implements Consumer<T>, BeanBus<T> {
+
 	private static final Logger logger = LoggerFactory.getLogger(BasicBeanBus.class);
 
 	private volatile Consumer<? super T> to;

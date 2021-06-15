@@ -13,5 +13,5 @@ public interface ComponentAdapter {
 	 * 
 	 * @return The component. Never null.
 	 */
-	public Object getComponent();
+	Object getComponent();
 }

@@ -43,7 +43,6 @@ public class ServiceProxyGenerator extends ProxyGenerator<ServiceAdaptor> {
 				interfaces.add(ArooaContextAware.class);
 				interfaces.add(Stateful.class);
 				interfaces.add(Resettable.class);
-				interfaces.add(Forceable.class);
 				interfaces.add(DynaBean.class);
 				interfaces.add(Stoppable.class);
 				interfaces.add(Iconic.class);

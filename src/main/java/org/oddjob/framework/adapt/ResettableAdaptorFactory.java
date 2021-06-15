@@ -20,12 +20,12 @@ import java.util.Optional;
 public class ResettableAdaptorFactory implements AdaptorFactory<Resettable> {
 
 	/**
-	 * Create a resetable.
+	 * Create an {@link Resettable}.
 	 *
 	 * @param component
 	 * @param session
 	 *
-	 * @return Possibly a Resetable.
+	 * @return Possibly a Resettable.
 	 */
 	@Override
 	public Optional<Resettable> adapt(Object component, ArooaSession session) {

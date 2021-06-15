@@ -36,7 +36,7 @@ implements ComponentProxyResolver {
 			proxy = component;
 		}
 		else if (component instanceof Consumer) {
-	    	proxy = new CollectionProxyGenerator().generate(
+	    	proxy = new ConsumerProxyGenerator(session).generate(
 	    			(Consumer<?>) component,
 	    			component.getClass().getClassLoader());
 	    }

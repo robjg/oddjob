@@ -84,6 +84,9 @@ implements WrapperInvocationHandler, Serializable {
 	private void addMethods(Class<?> from, Object destination) {
 		Method[] ms = from.getMethods();
         for (Method m : ms) {
+        	if (!m.getDeclaringClass().isInstance(destination)) {
+        		throw new IllegalArgumentException("Destination " + destination + " is not an instance of " + m.getDeclaringClass());
+			}
             methods.put(m, destination);
         }
 	}	

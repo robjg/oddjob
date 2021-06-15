@@ -2,17 +2,24 @@ package org.oddjob.beanbus.mega;
 
 
 import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
+import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
 import org.oddjob.arooa.design.SerializableGenericDesignFactory;
 import org.oddjob.arooa.parsing.*;
+import org.oddjob.arooa.runtime.RuntimeConfiguration;
+import org.oddjob.arooa.runtime.RuntimeEvent;
+import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.beanbus.*;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.function.Consumer;
 
 /**
@@ -165,7 +172,40 @@ implements ConfigurationOwner, BusServiceProvider {
 		StatefulBusConductorAdapter adaptor = null;
 		
 		Object previousChild = null;
-		
+
+		for (Object child: children) {
+
+			if (!noAutoLink && previousChild != null &&
+					child instanceof Consumer) {
+
+				final Outbound outbound = new OutboundStrategies()
+						.outboundFor(previousChild, getArooaSession());
+
+				if (outbound != null) {
+
+					RuntimeConfiguration previousRuntime =
+					getArooaSession().getComponentPool().contextFor(previousChild)
+							.getRuntime();
+
+					final Object finalPreviousChild = previousChild;
+
+					previousRuntime.addRuntimeListener(new RuntimeListenerAdapter() {
+						@Override
+						public void afterConfigure(RuntimeEvent event) throws ArooaException {
+							outbound.setTo((Consumer) child);
+
+							logger().info("Automatically Linked Outbound [" +
+									finalPreviousChild + "] to [" + child + "]");
+
+							previousRuntime.removeRuntimeListener(this);
+						}
+					});
+				}
+			}
+
+			previousChild = child;
+		}
+
 		try {
 			for (Object child : children) {
 				
@@ -199,32 +239,33 @@ implements ConfigurationOwner, BusServiceProvider {
 						preparing.remove();
 					}
 				}
-				
-				if (!noAutoLink && previousChild != null && 
-						child instanceof Consumer) {
-					
-					Outbound outbound = new OutboundStrategies(
-							).outboundFor(previousChild, getArooaSession());
-					
-					if (outbound != null) {
-						outbound.setTo((Consumer) child);
-					
-						logger().info("Automatically Linked Outbound [" + 
-							previousChild + "] to [" + child + "]");
-					}
-				}
-				
-				previousChild = child;
 			}
 			
 			valid = true;
 			trackingBusListener.setBusConductor(busConductor);
-			
-			
-			for (Object child : children) {
+
+			LinkedList<Object> childList = new LinkedList<>(Arrays.asList(children));
+			Iterable reverseIterable = () -> childList.descendingIterator();
+			for (Object child : reverseIterable) {
 				
 				if (child instanceof Runnable) {
-					((Runnable) child).run();
+					// Horrible bodge to get the logging BusConductor set.
+					if (child instanceof BusPart) {
+						preparing.set((BusPart) child);
+					}
+					try {
+						((Runnable) child).run();
+					}
+					finally {
+						preparing.remove();
+					}
+				}
+			}
+
+			for (Object child : reverseIterable) {
+
+				if (child instanceof Stoppable) {
+					((Stoppable) child).stop();
 				}
 			}
 		}

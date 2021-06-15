@@ -8,11 +8,13 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.framework.FallibleComponent;
 import org.oddjob.framework.Service;
 import org.oddjob.framework.adapt.AcceptExceptionListener;
+import org.oddjob.framework.adapt.AdaptorFactory;
 import org.oddjob.framework.adapt.Start;
 import org.oddjob.framework.adapt.Stop;
 
 import java.beans.ExceptionListener;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * A collection of different strategies that are applied to a component
@@ -21,8 +23,14 @@ import java.lang.reflect.Method;
  * @author rob
  *
  */
-public class ServiceStrategies implements ServiceStrategy {
-	
+public class ServiceStrategies implements ServiceStrategy, AdaptorFactory<ServiceAdaptor> {
+
+	@Override
+	public Optional<ServiceAdaptor> adapt(Object component, ArooaSession session) {
+
+		return Optional.ofNullable(serviceFor(component, session));
+	}
+
 	@Override
 	public ServiceAdaptor serviceFor(Object component,
 			ArooaSession session) {

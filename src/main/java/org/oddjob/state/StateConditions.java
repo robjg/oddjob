@@ -2,7 +2,6 @@ package org.oddjob.state;
 
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
-import org.oddjob.arooa.convert.Convertlet;
 
 /**
  * These are drop in replacements for jobs that used to use 
@@ -154,7 +153,7 @@ public enum StateConditions implements StateCondition {
 	
 	/**
 	 * A job that is active. Indicates necessary work is still being done 
-	 * asynchronously, as opposed to {@link STARTED) which indicates 
+	 * asynchronously, as opposed to {@link #STARTED) which indicates
 	 * necessary work is complete.
 	 */
 	ACTIVE() {
@@ -215,20 +214,17 @@ public enum StateConditions implements StateCondition {
 	public static class Conversions implements ConversionProvider {
 		@Override
 		public void registerWith(ConversionRegistry registry) {
-			registry.register(String.class, StateCondition.class, 
-					new Convertlet<String, StateCondition>() {
-				@Override
-				public StateCondition convert(String from) {
-					if (from.startsWith("!")) {
-						return new IsNot(
-								StateConditions.valueOf(
-										from.substring(1).toUpperCase()));
-					}
-					else {
-						return StateConditions.valueOf(from.toUpperCase());						
-					}
-				}
-			});
+			registry.register(String.class, StateCondition.class,
+					from -> {
+						if (from.startsWith("!")) {
+							return new IsNot(
+									StateConditions.valueOf(
+											from.substring(1).toUpperCase()));
+						}
+						else {
+							return StateConditions.valueOf(from.toUpperCase());
+						}
+					});
 		}
 	}	
 }

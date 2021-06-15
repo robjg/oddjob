@@ -1,6 +1,9 @@
 package org.oddjob.framework.adapt.service;
 
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.framework.adapt.AdaptorFactory;
+
+import java.util.Optional;
 
 /**
  * Something that can attempt to adapt a component to a service.
@@ -8,7 +11,12 @@ import org.oddjob.arooa.ArooaSession;
  * @author rob
  *
  */
-public interface ServiceStrategy {
+public interface ServiceStrategy extends AdaptorFactory<ServiceAdaptor> {
+
+	@Override
+	default Optional<ServiceAdaptor> adapt(Object component, ArooaSession session) {
+		return Optional.ofNullable(serviceFor(component, session));
+	}
 
 	/**
 	 * Attempt to provide an adaptor.
@@ -19,5 +27,5 @@ public interface ServiceStrategy {
 	 * @return The adaptor or null if this strategy can not provide the
 	 * adaptor.
 	 */
-	public ServiceAdaptor serviceFor(Object component, ArooaSession session);
+	ServiceAdaptor serviceFor(Object component, ArooaSession session);
 }

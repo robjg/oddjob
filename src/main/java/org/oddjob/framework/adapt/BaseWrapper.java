@@ -67,6 +67,7 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	 * (non-Javadoc)
 	 * @see org.oddjob.framework.BaseComponent#logger()
 	 */
+	@Override
 	protected Logger logger() {
     	if (theLogger == null) {
     		String logger = LogHelper.getLogger(getWrapped());
@@ -82,6 +83,7 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	 * (non-Javadoc)
 	 * @see org.oddjob.logging.LogEnabled#loggerName()
 	 */
+	@Override
     public String loggerName() {
 		return logger().getName();    	
     }
@@ -95,7 +97,8 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	throws ArooaConfigurationException {
 		configure(getProxy());
 	}
-	
+
+	@Override
 	protected void save() throws ComponentPersistException {
 		save(getProxy());
 	}
@@ -108,6 +111,7 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	 * to this wrapper so just let the native hash code provide the contract
 	 * as there is one to one between this wrapper and its proxy.
 	 */
+	@Override
 	public boolean equals(Object other) {
 		return other == getProxy();
 	}
@@ -116,46 +120,57 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	 *  (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
     public String toString() {
         return getWrapped().toString();
-    }    
-    
+    }
+
+	@Override
     public boolean contains(String name, String key) {
     	return getDynaBean().contains(name, key);
     }
-    
+
+	@Override
     public Object get(String name) {
     	return getDynaBean().get(name);
     }
 
+	@Override
     public Object get(String name, int index) {
     	return getDynaBean().get(name, index);
     }
-    
+
+	@Override
     public Object get(String name, String key) {
     	return getDynaBean().get(name, key);
     }
-    
+
+	@Override
     public DynaClass getDynaClass() {
     	return getDynaBean().getDynaClass();
     }
-    
+
+	@Override
     public void remove(String name, String key) {
     	getDynaBean().remove(name, key);
     }
-    
+
+	@Override
     public void set(String name, int index, Object value) {
     	getDynaBean().set(name, index, value);
     }
-    
+
+	@Override
     public void set(String name, Object value) {
     	getDynaBean().set(name, value);
     }
-    
+
+	@Override
     public void set(String name, String key, Object value) {
     	getDynaBean().set(name, key, value);
     }
-    
+
+	@Override
 	public final void stop() throws FailedToStopException {
 		stateHandler().assertAlive();
 		
@@ -195,8 +210,8 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 			}
 		} 
 	}
-	
-	protected void onStop() throws FailedToStopException {} 
+
+	protected void onStop() throws FailedToStopException {}
 	
 	/**
 	 * Get the result. Use either the return value from the Callable or
@@ -274,11 +289,11 @@ implements Runnable, Stateful, Resettable, DynaBean, Stoppable,
 	 * @return An array of the interface classes.
 	 */
     public static Class<?>[] interfacesFor(Object object) {
-    	List<Class<?>> results = new ArrayList<Class<?>>();
+    	List<Class<?>> results = new ArrayList<>();
     	for (Class<?> cl = object.getClass(); cl != null; cl = cl.getSuperclass()) {
-    		results.addAll(Arrays.asList((Class<?>[]) cl.getInterfaces()));
+    		results.addAll(Arrays.asList(cl.getInterfaces()));
     	}
-    	return (Class[]) results.toArray(new Class[results.size()]);
+    	return (Class<?>[]) results.toArray(new Class[0]);
     }
     
 }
