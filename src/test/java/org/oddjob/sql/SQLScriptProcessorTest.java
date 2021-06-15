@@ -2,17 +2,17 @@ package org.oddjob.sql;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.beanbus.AbstractDestination;
 
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class SQLScriptProcessorTest extends OjTestCase {
 
 	String EOL = System.getProperty("line.separator");
 	
-	static class SqlCapture extends AbstractDestination<String> {
+	static class SqlCapture implements Consumer<String> {
 		
 		List<String> results = new ArrayList<>();
 

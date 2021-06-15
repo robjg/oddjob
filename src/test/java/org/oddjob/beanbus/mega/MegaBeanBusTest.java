@@ -162,7 +162,7 @@ public class MegaBeanBusTest {
         }
     }
 
-    public static class OurDestination extends AbstractDestination<Integer> {
+    public static class OurDestination implements Consumer<Integer> {
 
         int total;
 
@@ -258,7 +258,7 @@ public class MegaBeanBusTest {
         oddjob.destroy();
     }
 
-    public static class OurSliperyDestination extends AbstractDestination<Integer> {
+    public static class OurSliperyDestination implements Consumer<Integer> {
 
         int crashed;
         int terminated;
@@ -352,7 +352,7 @@ public class MegaBeanBusTest {
         oddjob.destroy();
     }
 
-    public static class OutboundCapture extends AbstractDestination<String> {
+    public static class OutboundCapture implements Consumer<String> {
 
         private final List<Collection<String>> outbounds =
                 new ArrayList<>();
@@ -435,7 +435,7 @@ public class MegaBeanBusTest {
         }
     }
 
-    public static class ComplicatedOutbound extends AbstractDestination<String> {
+    public static class ComplicatedOutbound implements Consumer<String> {
 
         private ThingWithOutbound thing;
 
@@ -498,7 +498,7 @@ public class MegaBeanBusTest {
         oddjob.destroy();
     }
 
-    public static class DestinationWithLogger extends AbstractDestination<String> {
+    public static class DestinationWithLogger implements Consumer<String> {
 
         final TrackingBusListener busListener = new TrackingBusListener() {
             @Override

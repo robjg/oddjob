@@ -5,6 +5,7 @@ import org.oddjob.OjTestCase;
 import org.oddjob.beanbus.destinations.BeanCapture;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BasicBeanBusTest extends OjTestCase {
 
@@ -88,7 +89,7 @@ public class BasicBeanBusTest extends OjTestCase {
         assertEquals("apple", results.get(0));
     }
 
-    private static class BadDestination extends AbstractDestination<Object> {
+    private static class BadDestination implements Consumer<Object> {
 
         @Override
         public void accept(Object bean) {

@@ -10,8 +10,7 @@ import java.util.function.Consumer;
  * @param <F> From Type
  * @param <T> To Type
  */
-abstract public class AbstractFilter<F, T> extends AbstractDestination<F> 
-implements BusFilter<F, T> {
+abstract public class AbstractFilter<F, T> implements Consumer<F>, BusFilter<F, T> {
 
 	private Consumer<? super T> to;
 	

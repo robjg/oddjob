@@ -1,6 +1,5 @@
 package org.oddjob.sql;
 
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BadBeanTransfer;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.sql.SQLJob.OnError;
@@ -8,9 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.util.function.Consumer;
 
 public class BadSQLHandler 
-extends AbstractDestination<BadBeanTransfer<String>> {
+implements Consumer<BadBeanTransfer<String>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BadSQLHandler.class);
 	

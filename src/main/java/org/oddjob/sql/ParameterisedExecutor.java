@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Handles the execution of a single SQL statement at a time.
@@ -24,8 +25,7 @@ import java.util.List;
  * @author rob
  *
  */
-public class ParameterisedExecutor extends AbstractDestination<String> 
-implements ArooaSessionAware {
+public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAware {
 
 	private static final Logger logger = LoggerFactory.getLogger(SQLJob.class);
 	

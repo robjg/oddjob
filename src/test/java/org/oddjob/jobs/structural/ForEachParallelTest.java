@@ -1,28 +1,8 @@
 package org.oddjob.jobs.structural;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.Future;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.FailedToStopException;
-import org.oddjob.Loadable;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.OddjobSessionFactory;
-import org.oddjob.Stateful;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
+import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.Configured;
@@ -37,6 +17,12 @@ import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.tools.OddjobTestHelper;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.Future;
 
 public class ForEachParallelTest extends OjTestCase {
 
@@ -142,8 +128,9 @@ public class ForEachParallelTest extends OjTestCase {
     	state.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
     	
     	test.stop();
-    	
-    	state.checkNow();
+
+    	// stop gets complete before check so need check wait not check now.
+    	state.checkWait();
     	
     	test.destroy();
     	

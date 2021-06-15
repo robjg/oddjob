@@ -3,7 +3,6 @@ package org.oddjob.beanbus.destinations;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.life.Configured;
 import org.oddjob.arooa.life.Initialised;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.TrackingBusListener;
@@ -16,6 +15,7 @@ import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description A Queue for beans. A work in progress.
@@ -37,8 +37,7 @@ import java.util.concurrent.LinkedBlockingDeque;
  *
  * @param <E> The type of element on the queue.
  */
-public class BeanQueue<E> extends AbstractDestination<E>
-implements Iterable<E>, Stoppable {
+public class BeanQueue<E> implements Consumer<E>, Iterable<E>, Stoppable {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeanQueue.class);
 	

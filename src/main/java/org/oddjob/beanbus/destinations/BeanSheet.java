@@ -6,7 +6,10 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.*;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.beanbus.BusEvent;
+import org.oddjob.beanbus.Outbound;
+import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.io.StdoutType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +30,7 @@ import java.util.function.Consumer;
  * @author rob
  *
  */
-public class BeanSheet extends AbstractDestination<Object>
-implements ArooaSessionAware, Outbound<Object> {
+public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<Object> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeanSheet.class);
 	

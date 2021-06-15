@@ -16,8 +16,7 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
-public class BadBeanFilter<T> extends AbstractDestination<T>
-implements BusFilter<T, T> {
+public class BadBeanFilter<T> implements Consumer<T>, BusFilter<T, T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(BadBeanFilter.class);
 	

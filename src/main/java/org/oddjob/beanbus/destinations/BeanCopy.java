@@ -8,7 +8,6 @@ import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,8 @@ import java.util.function.Consumer;
  * @param <F> From
  * @param <T> To
  */
-public class BeanCopy<F, T> extends AbstractDestination<F>
-implements BusFilter<F, T>, ArooaSessionAware {
+public class BeanCopy<F, T>
+implements Consumer<F>, BusFilter<F, T>, ArooaSessionAware {
 	private static final Logger logger = LoggerFactory.getLogger(BeanCopy.class);
 
 	private static final AtomicInteger instance = new AtomicInteger();

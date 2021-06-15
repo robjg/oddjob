@@ -24,8 +24,7 @@ import java.util.function.Consumer;
  *
  * @param <T> The type of bean being batched.
  */
-public class Batcher<T> extends AbstractDestination<T>
-implements BusFilter<T, Collection<T>> {
+public class Batcher<T> implements Consumer<T>, BusFilter<T, Collection<T>> {
 
 	private static final Logger logger = LoggerFactory.getLogger(Batcher.class);
 	

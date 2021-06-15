@@ -2,7 +2,6 @@ package org.oddjob.beanbus.mega;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.beanbus.AbstractDestination;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListener;
@@ -230,7 +229,7 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
 		
 	}
 
-	private static class NaughtyDestination extends AbstractDestination<String> {
+	private static class NaughtyDestination implements Consumer<String> {
 
 		@Override
 		public void accept(String e) {
