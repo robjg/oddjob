@@ -17,6 +17,8 @@ import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
 
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -240,12 +242,24 @@ implements ConfigurationOwner, BusServiceProvider {
 					}
 				}
 			}
-			
-			valid = true;
-			trackingBusListener.setBusConductor(busConductor);
 
 			LinkedList<Object> childList = new LinkedList<>(Arrays.asList(children));
-			Iterable reverseIterable = () -> childList.descendingIterator();
+
+			valid = true;
+			trackingBusListener.setBusConductor(busConductor);
+			busConductor.addBusListener(new BusListenerAdapter() {
+				@Override
+				public void tripEnding(BusEvent event) {
+					flushBus(childList);
+				}
+
+				@Override
+				public void busStopping(BusEvent event) {
+					flushBus(childList);
+				}
+			});
+
+			Iterable reverseIterable = childList::descendingIterator;
 			for (Object child : reverseIterable) {
 				
 				if (child instanceof Runnable) {
@@ -276,6 +290,19 @@ implements ConfigurationOwner, BusServiceProvider {
 			busConductor = null;
 		}		
 	}	
+
+	static void flushBus(Iterable<Object> children) {
+		for (Object child: children) {
+			if (child instanceof Flushable) {
+				try {
+					((Flushable) child).flush();
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
 
 	@Override
 	protected void onReset() {

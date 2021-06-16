@@ -107,7 +107,7 @@ implements Consumer<E>, BusPart {
 		
 		@Override
 		protected void tripBeginning(BusEvent event,
-				BusListener listener) throws BusCrashException {
+				BusListener listener) {
 			try (Restore restore = ComponentBoundary.push(loggerName(), consumer)) {
 				super.tripBeginning(event, listener);
 			}
@@ -115,7 +115,7 @@ implements Consumer<E>, BusPart {
 		
 		@Override
 		protected void tripEnding(BusEvent event,
-				BusListener listener) throws BusCrashException {
+				BusListener listener) {
 			try (Restore restore = ComponentBoundary.push(loggerName(), consumer)) {
 				super.tripEnding(event, listener);
 			}

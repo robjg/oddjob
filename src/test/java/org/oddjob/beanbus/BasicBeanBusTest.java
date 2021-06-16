@@ -29,7 +29,7 @@ public class BasicBeanBusTest extends OjTestCase {
         }
 
         @Override
-        public void tripEnding(BusEvent event) throws BusCrashException {
+        public void tripEnding(BusEvent event) {
             ++ending;
         }
 
@@ -166,7 +166,7 @@ public class BasicBeanBusTest extends OjTestCase {
 
         assertEquals(1, listener.beginning);
 
-        test.getBusConductor().cleanBus();
+        test.getBusConductor().flush();
 
         assertEquals(1, listener.ending);
 
@@ -174,7 +174,7 @@ public class BasicBeanBusTest extends OjTestCase {
 
         assertEquals(2, listener.beginning);
 
-        test.getBusConductor().cleanBus();
+        test.getBusConductor().flush();
 
         assertEquals(2, listener.ending);
 
@@ -191,7 +191,7 @@ public class BasicBeanBusTest extends OjTestCase {
 
         test.accept("orange");
 
-        test.getBusConductor().cleanBus();
+        test.getBusConductor().flush();
 
         test.accept("kiwi");
 
@@ -303,8 +303,8 @@ public class BasicBeanBusTest extends OjTestCase {
     private static class CrashingOnCleanListener extends OurListener {
 
         @Override
-        public void tripEnding(BusEvent event) throws BusCrashException {
-            throw new BusCrashException("Bang!");
+        public void tripEnding(BusEvent event) {
+            throw new RuntimeException("Bang!");
         }
 
     }
@@ -328,8 +328,8 @@ public class BasicBeanBusTest extends OjTestCase {
         assertEquals(1, listener.beginning);
 
         try {
-            test.getBusConductor().cleanBus();
-        } catch (BusCrashException e) {
+            test.getBusConductor().flush();
+        } catch (RuntimeException e) {
             assertEquals("Bang!", e.getMessage());
         }
 

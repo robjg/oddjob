@@ -24,14 +24,14 @@ public interface BusListener extends EventListener {
 	 * 
 	 * @param event
 	 */
-	public void tripBeginning(BusEvent event) throws BusCrashException;
+	void tripBeginning(BusEvent event);
 	
 	/**
 	 * Stage complete.
 	 * 
 	 * @param event
 	 */
-	public void tripEnding(BusEvent event) throws BusCrashException;
+	void tripEnding(BusEvent event);
 	
 	/**
 	 * The bus is stopping. Called when all the beans have arrived at 

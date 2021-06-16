@@ -13,11 +13,11 @@ public class BusListenerAdapter implements BusListener {
 	}
 	
 	@Override
-	public void tripBeginning(BusEvent event) throws BusCrashException {
+	public void tripBeginning(BusEvent event) {
 	}
 	
 	@Override
-	public void tripEnding(BusEvent event) throws BusCrashException {
+	public void tripEnding(BusEvent event) {
 	}
 	
 	@Override

@@ -22,12 +22,12 @@ public class TrackingBusListener {
 		}
 		
 		@Override
-		public void tripBeginning(BusEvent event) throws BusCrashException {
+		public void tripBeginning(BusEvent event) {
 			TrackingBusListener.this.tripBeginning(event);
 		}
 		
 		@Override
-		public void tripEnding(BusEvent event) throws BusCrashException {
+		public void tripEnding(BusEvent event)  {
 			TrackingBusListener.this.tripEnding(event);
 		}
 		
@@ -68,10 +68,10 @@ public class TrackingBusListener {
 	public void busStarting(BusEvent event) throws BusCrashException {
 	}
 	
-	public void tripBeginning(BusEvent event) throws BusCrashException {
+	public void tripBeginning(BusEvent event) {
 	}
 	
-	public void tripEnding(BusEvent event) throws BusCrashException {
+	public void tripEnding(BusEvent event) {
 	}
 	
 	public void busStopRequested(BusEvent event) {

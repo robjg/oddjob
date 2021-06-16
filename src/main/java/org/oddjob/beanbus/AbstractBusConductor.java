@@ -1,10 +1,10 @@
 package org.oddjob.beanbus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base class for {@link BusConductor}s. Provides methods for firing 
@@ -17,8 +17,8 @@ abstract public class AbstractBusConductor implements BusConductor {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractBusConductor.class);
 	
-	private final List<BusListener> busListeners = 
-			new ArrayList<BusListener>();
+	private final List<BusListener> busListeners =
+			new ArrayList<>();
 	
 	@Override
 	public void addBusListener(BusListener listener) {
@@ -31,7 +31,7 @@ abstract public class AbstractBusConductor implements BusConductor {
 	}
 	
 	protected void fireBusStarting() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, BusPhase.BUS_STARTING);
 		
@@ -40,8 +40,8 @@ abstract public class AbstractBusConductor implements BusConductor {
 		}
 	}
 	
-	protected void fireTripBeginning() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+	protected void fireTripBeginning() {
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, BusPhase.TRIP_BEGINNING);
 		
@@ -50,8 +50,8 @@ abstract public class AbstractBusConductor implements BusConductor {
 		}
 	}
 	
-	protected void fireTripEnding() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+	protected void fireTripEnding()  {
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, BusPhase.TRIP_ENDING);
 		
@@ -61,7 +61,7 @@ abstract public class AbstractBusConductor implements BusConductor {
 	}
 	
 	protected void fireBusStopRequested(boolean started) {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, 
 				started ? BusPhase.BUS_RUNNING : BusPhase.BUS_STOPPED);
@@ -72,7 +72,7 @@ abstract public class AbstractBusConductor implements BusConductor {
 	}
 	
 	protected void fireBusStopping() throws BusCrashException {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, BusPhase.BUS_STOPPING);
 
@@ -92,7 +92,7 @@ abstract public class AbstractBusConductor implements BusConductor {
 	}
 	
 	protected void fireBusTerminated() {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, BusPhase.BUS_STOPPED);
 		
@@ -108,7 +108,7 @@ abstract public class AbstractBusConductor implements BusConductor {
 	}
 	
 	protected void fireBusCrashed(BusPhase phase, Exception e) {
-		List<BusListener> copy = new ArrayList<BusListener>(busListeners);
+		List<BusListener> copy = new ArrayList<>(busListeners);
 		
 		BusEvent event = new BusEvent(this, phase, e);
 		

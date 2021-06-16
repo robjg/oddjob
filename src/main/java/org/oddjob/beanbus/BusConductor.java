@@ -2,6 +2,8 @@ package org.oddjob.beanbus;
 
 import org.oddjob.beanbus.destinations.Batcher;
 
+import java.io.Flushable;
+
 /**
  * Provides co-ordination for a {@link BeanBus}.
  * <p>
@@ -9,34 +11,34 @@ import org.oddjob.beanbus.destinations.Batcher;
  * @author rob
  *
  */
-public interface BusConductor {
+public interface BusConductor extends Flushable {
 
 	/**
 	 * Cleaning the bus will cause the trip to end and a new one to 
 	 * begin. Intended for components such as {@link Batcher} so that
 	 * they can flush the bus.
 	 * 
-	 * @throws BusCrashException
 	 */
-	public void cleanBus() throws BusCrashException;
+	@Override
+	void flush();
 	
 	/**
 	 * Request that the bus stop. This may, and probably will,
 	 * be called asynchronously.
 	 */
-	public void requestBusStop();	
+	void requestBusStop();
 	
 	/**
 	 * Add a listener.
 	 * 
 	 * @param listener The listener.
 	 */
-	public void addBusListener(BusListener listener);
+	void addBusListener(BusListener listener);
 	
 	/**
 	 * Remove the listener.
 	 * 
 	 * @param listener The listener.
 	 */
-	public void removeBusListener(BusListener listener);
+	void removeBusListener(BusListener listener);
 }

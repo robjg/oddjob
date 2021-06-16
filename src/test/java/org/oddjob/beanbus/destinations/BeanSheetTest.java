@@ -124,7 +124,7 @@ public class BeanSheetTest extends OjTestCase {
 			bus.accept(bean);
 		}
 
-		bus.getBusConductor().cleanBus();
+		bus.getBusConductor().flush();
 		
 		for (Fruit bean: values) {
 			bus.accept(bean);

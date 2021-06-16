@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bean-bus>
+        <bean-bus id="bean-bus">
             <parts>
-                <bus:iterable-driver id="bean-bus" xmlns:bus="oddjob:beanbus">
+                <bus:iterable-driver xmlns:bus="oddjob:beanbus">
                     <beans>
                         <list>
                             <values>

@@ -11,259 +11,264 @@ import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.function.Consumer;
 
 public class StatefulBusConductorAdapterTest extends OjTestCase {
 
-	int started;
-	int tripStarted;
-	int tripComplete;
-	int stopped;
-	int crashed;
-	int terminated;
-	
-	private class OurBusListener implements BusListener {
+    int started;
+    int tripStarted;
+    int tripComplete;
+    int stopped;
+    int crashed;
+    int terminated;
 
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			++started;
-		}
+    private class OurBusListener implements BusListener {
 
-		@Override
-		public void tripBeginning(BusEvent event) {
-			++tripStarted;
-		}
+        @Override
+        public void busStarting(BusEvent event) throws BusCrashException {
+            ++started;
+        }
 
-		@Override
-		public void tripEnding(BusEvent event) {
-			++tripComplete;
-		}
+        @Override
+        public void tripBeginning(BusEvent event) {
+            ++tripStarted;
+        }
 
-		@Override
-		public void busStopping(BusEvent event) {
-			++stopped;
-		}
+        @Override
+        public void tripEnding(BusEvent event) {
+            ++tripComplete;
+        }
 
-		@Override
-		public void busStopRequested(BusEvent event) {
-			throw new RuntimeException("Unexpected!");
-		}
+        @Override
+        public void busStopping(BusEvent event) {
+            ++stopped;
+        }
 
-		@Override
-		public void busTerminated(BusEvent event) {
-			++terminated;
-		}
+        @Override
+        public void busStopRequested(BusEvent event) {
+            throw new RuntimeException("Unexpected!");
+        }
 
-		@Override
-		public void busCrashed(BusEvent event) {
-			++crashed;
-		}
-	}
-	
-   @Test
-	public void testStartedAndStopped() {
-		
-		FlagState flag = new FlagState();
-		
-		StatefulBusConductorAdapter test = 
-				new StatefulBusConductorAdapter(flag);
-		
-		OurBusListener listener = new OurBusListener();
-		
-		test.addBusListener(listener);
-		
-		flag.run();
-		
-		assertEquals(1, started);
-		assertEquals(1, tripStarted);
-		assertEquals(1, tripComplete);
-		assertEquals(1, stopped);
-		assertEquals(1, terminated);
-		assertEquals(0, crashed);
-		
-		// test listener removed ok.
-		
-		test.removeBusListener(listener);
-		
-		flag.hardReset();
-		flag.run();
-		
-		assertEquals(1, started);
-		assertEquals(1, stopped);
-	}
-	
-   @Test
-	public void testStartedAndCrashed() {
-		
-		FlagState flag = new FlagState(JobState.EXCEPTION);
-		
-		StatefulBusConductorAdapter test = 
-				new StatefulBusConductorAdapter(flag);
-		
-		OurBusListener listener = new OurBusListener();
-		
-		test.addBusListener(listener);
-		
-		flag.run();
-		
-		assertEquals(1, started);
-		assertEquals(1, tripStarted);
-		assertEquals(0, tripComplete);
-		assertEquals(0, stopped);
-		assertEquals(1, terminated);
-		assertEquals(1, crashed);
-		
-		flag.setState(JobState.COMPLETE);
-		
-		flag.hardReset();
-		flag.run();
-		
-		assertEquals(2, started);
-		assertEquals(2, tripStarted);
-		assertEquals(1, tripComplete);
-		assertEquals(1, stopped);
-		assertEquals(2, terminated);
-		assertEquals(1, crashed);
-	}
-	
-	private class CrashingOnStartListener extends OurBusListener {
-		
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			
-			throw new BusCrashException("Bang!");
-		}
-	}
-	
-   @Test
-	public void testCrashedByListenerWhenStarting() {
-		
-		FlagState flag = new FlagState();
-		
-		StatefulBusConductorAdapter test = 
-				new StatefulBusConductorAdapter(flag);
-		
-		CrashingOnStartListener listener = new CrashingOnStartListener();
-		
-		test.addBusListener(listener);
-		
-		flag.run();
-		
-		assertEquals(0, started);
-		assertEquals(0, tripStarted);
-		assertEquals(0, tripComplete);
-		assertEquals(0, stopped);
-		assertEquals(1, terminated);
-		assertEquals(1, crashed);
-		
-	}
-	
-	private static class OurJob extends SimpleJob {
+        @Override
+        public void busTerminated(BusEvent event) {
+            ++terminated;
+        }
 
-		private Consumer<String> to;
-		
-		@Override
-		protected int execute() throws Throwable {
-			to.accept("apples");
-			to.accept("oranges");
-			to.accept("pears");
-			return 0;
-		}
-	}
-	
-   @Test
-	public void testCleanBusWithBatcher() {
+        @Override
+        public void busCrashed(BusEvent event) {
+            ++crashed;
+        }
+    }
 
-		Batcher<String> batcher = new Batcher<>();
-		batcher.setBatchSize(2);
+    @Test
+    public void testStartedAndStopped() {
 
-		BeanCapture<Collection<String>> results =
-				new BeanCapture<>();
+        FlagState flag = new FlagState();
 
-		OurJob job = new OurJob();
-		
-		job.to = batcher;
-		batcher.setTo(results);
-		
-		
-		StatefulBusConductorAdapter test = 
-				new StatefulBusConductorAdapter(job);
-		
-		batcher.setBeanBus(test);
-		results.setBusConductor(test);
-		
-		OurBusListener listener = new OurBusListener();
-		
-		test.addBusListener(listener);
-		
-		job.run();
-		
-		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
-		
-		assertEquals(1, started);
-		assertEquals(2, tripStarted);
-		assertEquals(2, tripComplete);
-		assertEquals(1, stopped);
-		assertEquals(1, terminated);
-		assertEquals(0, crashed);
-		
-		assertEquals(3, batcher.getCount());
-		assertEquals(2, results.getCount());
-		
-		job.hardReset();
-		
-		job.run();
-		
-		assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
-		
-		assertEquals(2, started);
-		assertEquals(4, tripStarted);
-		assertEquals(4, tripComplete);
-		assertEquals(2, stopped);
-		assertEquals(2, terminated);
-		assertEquals(0, crashed);
-		
-		assertEquals(3, batcher.getCount());
-		assertEquals(2, results.getCount());
-		
-	}
+        StatefulBusConductorAdapter test =
+                new StatefulBusConductorAdapter(flag);
 
-	private static class NaughtyDestination implements Consumer<String> {
+        OurBusListener listener = new OurBusListener();
 
-		@Override
-		public void accept(String e) {
-			throw new RuntimeException("Naughty!");
-		}
-	}
-	
-   @Test
-	public void testWithNaughtyDestination() {
+        test.addBusListener(listener);
 
-		NaughtyDestination naughty = new NaughtyDestination();
+        flag.run();
 
-		OurJob job = new OurJob();
-		
-		job.to = naughty;
-		
-		StatefulBusConductorAdapter test = 
-				new StatefulBusConductorAdapter(job);
-		
-		OurBusListener listener = new OurBusListener();
-		
-		test.addBusListener(listener);
-		
-		job.run();
-		
-		assertEquals(JobState.EXCEPTION, job.lastStateEvent().getState());
-		
-		assertEquals(1, started);
-		assertEquals(1, tripStarted);
-		assertEquals(0, tripComplete);
-		assertEquals(0, stopped);
-		assertEquals(1, terminated);
-		assertEquals(1, crashed);
-				
-	}
-	
+        assertEquals(1, started);
+        assertEquals(1, tripStarted);
+        assertEquals(1, tripComplete);
+        assertEquals(1, stopped);
+        assertEquals(1, terminated);
+        assertEquals(0, crashed);
+
+        // test listener removed ok.
+
+        test.removeBusListener(listener);
+
+        flag.hardReset();
+        flag.run();
+
+        assertEquals(1, started);
+        assertEquals(1, stopped);
+    }
+
+    @Test
+    public void testStartedAndCrashed() {
+
+        FlagState flag = new FlagState(JobState.EXCEPTION);
+
+        StatefulBusConductorAdapter test =
+                new StatefulBusConductorAdapter(flag);
+
+        OurBusListener listener = new OurBusListener();
+
+        test.addBusListener(listener);
+
+        flag.run();
+
+        assertEquals(1, started);
+        assertEquals(1, tripStarted);
+        assertEquals(0, tripComplete);
+        assertEquals(0, stopped);
+        assertEquals(1, terminated);
+        assertEquals(1, crashed);
+
+        flag.setState(JobState.COMPLETE);
+
+        flag.hardReset();
+        flag.run();
+
+        assertEquals(2, started);
+        assertEquals(2, tripStarted);
+        assertEquals(1, tripComplete);
+        assertEquals(1, stopped);
+        assertEquals(2, terminated);
+        assertEquals(1, crashed);
+    }
+
+    private class CrashingOnStartListener extends OurBusListener {
+
+        @Override
+        public void busStarting(BusEvent event) throws BusCrashException {
+
+            throw new BusCrashException("Bang!");
+        }
+    }
+
+    @Test
+    public void testCrashedByListenerWhenStarting() {
+
+        FlagState flag = new FlagState();
+
+        StatefulBusConductorAdapter test =
+                new StatefulBusConductorAdapter(flag);
+
+        CrashingOnStartListener listener = new CrashingOnStartListener();
+
+        test.addBusListener(listener);
+
+        flag.run();
+
+        assertEquals(0, started);
+        assertEquals(0, tripStarted);
+        assertEquals(0, tripComplete);
+        assertEquals(0, stopped);
+        assertEquals(1, terminated);
+        assertEquals(1, crashed);
+
+    }
+
+    private static class OurJob extends SimpleJob {
+
+        private Consumer<String> to;
+
+        @Override
+        protected int execute() throws Throwable {
+            to.accept("apples");
+            to.accept("oranges");
+            to.accept("pears");
+            return 0;
+        }
+    }
+
+    @Test
+    public void testCleanBusWithBatcher() throws IOException {
+
+        Batcher<String> batcher = new Batcher<>();
+        batcher.setBatchSize(2);
+
+        BeanCapture<Collection<String>> results =
+                new BeanCapture<>();
+
+        OurJob job = new OurJob();
+
+        job.to = batcher;
+        batcher.setTo(results);
+
+
+        StatefulBusConductorAdapter test =
+                new StatefulBusConductorAdapter(job);
+
+        results.setBusConductor(test);
+
+        OurBusListener listener = new OurBusListener();
+
+        test.addBusListener(listener);
+
+        batcher.start();
+        job.run();
+        batcher.flush();
+
+        assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
+
+        assertEquals(1, started);
+        assertEquals(1, tripStarted);
+        assertEquals(1, tripComplete);
+        assertEquals(1, stopped);
+        assertEquals(1, terminated);
+        assertEquals(0, crashed);
+
+        assertEquals(3, batcher.getCount());
+        assertEquals(2, results.getCount());
+
+        job.hardReset();
+        batcher.reset();
+
+        batcher.start();
+        job.run();
+        batcher.flush();
+
+        assertEquals(JobState.COMPLETE, job.lastStateEvent().getState());
+
+        assertEquals(2, started);
+        assertEquals(2, tripStarted);
+        assertEquals(2, tripComplete);
+        assertEquals(2, stopped);
+        assertEquals(2, terminated);
+        assertEquals(0, crashed);
+
+        assertEquals(3, batcher.getCount());
+        assertEquals(2, results.getCount());
+
+    }
+
+    private static class NaughtyDestination implements Consumer<String> {
+
+        @Override
+        public void accept(String e) {
+            throw new RuntimeException("Naughty!");
+        }
+    }
+
+    @Test
+    public void testWithNaughtyDestination() {
+
+        NaughtyDestination naughty = new NaughtyDestination();
+
+        OurJob job = new OurJob();
+
+        job.to = naughty;
+
+        StatefulBusConductorAdapter test =
+                new StatefulBusConductorAdapter(job);
+
+        OurBusListener listener = new OurBusListener();
+
+        test.addBusListener(listener);
+
+        job.run();
+
+        assertEquals(JobState.EXCEPTION, job.lastStateEvent().getState());
+
+        assertEquals(1, started);
+        assertEquals(1, tripStarted);
+        assertEquals(0, tripComplete);
+        assertEquals(0, stopped);
+        assertEquals(1, terminated);
+        assertEquals(1, crashed);
+
+    }
+
 }

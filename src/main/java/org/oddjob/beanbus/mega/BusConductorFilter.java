@@ -1,17 +1,17 @@
 package org.oddjob.beanbus.mega;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.oddjob.beanbus.BusConductor;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.BusListener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class BusConductorFilter implements BusConductor {
 
 	private final Map<BusListener, BusListener> listeners =
-			new HashMap<BusListener, BusListener>();
+			new HashMap<>();
 	
 	private final BusConductor original;
 	
@@ -25,12 +25,12 @@ public class BusConductorFilter implements BusConductor {
 	}
 	
 	protected void tripBeginning(BusEvent event,
-			BusListener listener) throws BusCrashException {
+			BusListener listener) {
 		listener.tripBeginning(event);
 	}
 	
 	protected void tripEnding(BusEvent event,
-			BusListener listener) throws BusCrashException {
+			BusListener listener) {
 		listener.tripEnding(event);
 	}
 	
@@ -59,12 +59,12 @@ public class BusConductorFilter implements BusConductor {
 		BusListener filteredListener = new BusListener() {
 			
 			@Override
-			public void tripEnding(BusEvent event) throws BusCrashException {
+			public void tripEnding(BusEvent event) {
 				BusConductorFilter.this.tripEnding(event, listener);
 			}
 			
 			@Override
-			public void tripBeginning(BusEvent event) throws BusCrashException {
+			public void tripBeginning(BusEvent event) {
 				BusConductorFilter.this.tripBeginning(event, listener);
 			}
 			
@@ -108,8 +108,8 @@ public class BusConductorFilter implements BusConductor {
 	}
 	
 	@Override
-	public void cleanBus() throws BusCrashException {
-		original.cleanBus();
+	public void flush() {
+		original.flush();
 	}
 	
 	@Override

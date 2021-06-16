@@ -153,7 +153,7 @@ public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAwar
     	try {
     		execute(sql);
     		
-    		busConductor.cleanBus();
+    		busConductor.flush();
     	} 
     	catch (Exception e) {
     		throw new IllegalArgumentException(sql, e);

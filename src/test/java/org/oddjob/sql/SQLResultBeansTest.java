@@ -57,7 +57,7 @@ public class SQLResultBeansTest extends OjTestCase {
 
         test.filter("Apple");
 
-        beanBus.getBusConductor().cleanBus();
+        beanBus.getBusConductor().flush();
 
         assertEquals("Apple", test.getRow());
         assertEquals(1, test.getRowCount());
