@@ -13,6 +13,8 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.types.ValueType;
 import org.oddjob.beanbus.BusConductor;
 
+import java.io.Flushable;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -23,7 +25,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
-public class ParameterisedExecutorText {
+public class ParameterisedExecutorTest {
 
 	@Test
 	public void testHSQLDataTypes() throws SQLException, ClassNotFoundException, ArooaConversionException {
@@ -77,7 +79,7 @@ public class ParameterisedExecutorText {
 
 	}
 	
-	private static class Results extends BeanFactoryResultHandler {
+	private static class Results extends BeanFactoryResultHandler implements Runnable, Flushable {
 
 		List<Object> beans = new ArrayList<>();
 
@@ -91,6 +93,12 @@ public class ParameterisedExecutorText {
 				beans.add(bean);
 			}
 		}
+
+		@Override
+		public void flush() throws IOException { }
+
+		@Override
+		public void run() { }
 	}
 	
 	@Test

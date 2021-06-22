@@ -44,7 +44,7 @@ implements BusServiceProvider, Outbound<T> {
 	}
 
 	protected void requestBusStop() {
-		beanBus.getBusConductor().requestBusStop();
+		beanBus.getBusConductor().close();
 	}
 	
 	/**

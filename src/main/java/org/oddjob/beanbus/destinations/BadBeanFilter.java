@@ -1,11 +1,12 @@
 package org.oddjob.beanbus.destinations;
 
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.*;
+import org.oddjob.FailedToStopException;
+import org.oddjob.beanbus.BadBeanTransfer;
+import org.oddjob.beanbus.BusFilter;
+import org.oddjob.framework.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.function.Consumer;
 
 /**
@@ -16,7 +17,7 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
-public class BadBeanFilter<T> implements Consumer<T>, BusFilter<T, T> {
+public class BadBeanFilter<T> implements BusFilter<T, T>, Service {
 
 	private static final Logger logger = LoggerFactory.getLogger(BadBeanFilter.class);
 	
@@ -29,15 +30,18 @@ public class BadBeanFilter<T> implements Consumer<T>, BusFilter<T, T> {
 	private int badCount;
 	
 	private int count;
-	
-	private final TrackingBusListener trackingListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) {
-			badCount = 0;
-			count = 0;
-		}
-	};
+
+
+	@Override
+	public void start() throws Exception {
+		badCount = 0;
+		count = 0;
+	}
+
+	@Override
+	public void stop() throws FailedToStopException {
+
+	}
 
 	@Override
 	public void accept(T bean) {
@@ -68,19 +72,17 @@ public class BadBeanFilter<T> implements Consumer<T>, BusFilter<T, T> {
 					}
 					++badCount;
 					++count;
+					break;
 				}
 				t = t.getCause();
 			} 
 			while (t != null);
+			if (t == null) {
+				throw e;
+			}
 		}
 	}
 
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		trackingListener.setBusConductor(busConductor);
-	}	
-	
 	@Override
 	public void setTo(Consumer<? super T> to) {
 		this.to = to;

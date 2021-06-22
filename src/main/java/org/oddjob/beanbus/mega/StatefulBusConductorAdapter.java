@@ -103,7 +103,7 @@ public class StatefulBusConductorAdapter extends AbstractBusConductor
     }
 
     @Override
-    public void requestBusStop() {
+    public void close() {
 
         fireBusStopRequested(started);
 
@@ -122,7 +122,7 @@ public class StatefulBusConductorAdapter extends AbstractBusConductor
     /**
      * Must be called to remove listener.
      */
-    public void close() {
+    public void destroy() {
         stateful.removeStateListener(stateListener);
     }
 

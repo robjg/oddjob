@@ -4,6 +4,8 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.mega.MegaBeanBus;
 
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 /**
@@ -42,5 +44,34 @@ public class SQLResultsBus extends BeanFactoryResultHandler {
 		if (to != null) {
 			to.accept(bean);
 		}
+	}
+
+	@Override
+	public void flush() throws IOException {
+		if (to instanceof Flushable) {
+			((Flushable) to).flush();
+		}
+	}
+
+	@Override
+	public void run() {
+		if (to instanceof Runnable) {
+			((Runnable) to).run();
+		}
+	}
+
+	@Override
+	public void close() throws Exception {
+		super.close();
+		if (to instanceof AutoCloseable) {
+			((AutoCloseable) to).close();
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "SQLResultsBus{" +
+				"to=" + to +
+				'}';
 	}
 }

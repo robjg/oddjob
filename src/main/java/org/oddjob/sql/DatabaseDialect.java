@@ -20,6 +20,6 @@ public interface DatabaseDialect {
 	 * 
 	 * @throws SQLException
 	 */
-	public ResultSetExtractor resultSetExtractorFor(ResultSet resultSet)
+	ResultSetExtractor resultSetExtractorFor(ResultSet resultSet)
 	throws SQLException;
 }

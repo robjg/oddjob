@@ -545,7 +545,7 @@ public class MegaBeanBusTest {
             if ("crash-the-bus".equals(e)) {
                 throw new IllegalArgumentException(e);
             } else {
-                busListener.getBusConductor().requestBusStop();
+                busListener.getBusConductor().close();
             }
         }
 

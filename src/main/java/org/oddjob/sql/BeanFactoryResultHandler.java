@@ -1,13 +1,11 @@
 package org.oddjob.sql;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+
+import java.io.Flushable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * A {@link SQLResultHandler} that creates beans.
@@ -16,9 +14,9 @@ import org.oddjob.beanbus.BusListenerAdapter;
  *
  */
 abstract public class BeanFactoryResultHandler 
-implements SQLResultHandler {
+implements SQLResultHandler, AutoCloseable, Runnable, Flushable {
 
-	private PropertyAccessor accessor;
+	private final PropertyAccessor accessor;
 	
 	private volatile boolean stop;
 	
@@ -55,20 +53,9 @@ implements SQLResultHandler {
 	}
 	
 	abstract protected void accept(Object bean);
-	
+
 	@Override
-	public void setBusConductor(BusConductor busConductor) {
-		busConductor.addBusListener(new BusListenerAdapter() {
-			
-			@Override
-			public void busStopRequested(BusEvent event) {
-				stop = true;
-			}
-			
-			@Override
-			public void busTerminated(BusEvent event) {
-				event.getSource().removeBusListener(this);
-			}
-		});
+	public void close() throws Exception {
+		stop = true;
 	}
 }

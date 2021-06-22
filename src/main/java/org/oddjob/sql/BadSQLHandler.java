@@ -27,9 +27,14 @@ implements Consumer<BadBeanTransfer<String>> {
 	public void accept(BadBeanTransfer<String> bad) {
 		
 		String sql = bad.getBadBean();
-		
-		logger.info("Failed executing: " + sql + 
-				"\n\t" + bad.getException().getCause().getMessage());
+
+		Throwable exception = bad.getException().getCause();
+		if (exception == null) {
+			exception = bad.getException();
+		}
+
+		logger.info("Failed executing: " + sql +
+				"\n\t" + exception.getClass().getName() + ": " + exception.getMessage());
 		
 		OnError onError = this.onError;
 		if (onError == null) {
@@ -40,7 +45,7 @@ implements Consumer<BadBeanTransfer<String>> {
 		case CONTINUE:
 			break;
 		case STOP:
-				bus.requestBusStop();
+				bus.close();
 			break;
 		case ABORT:
 			logger.error("Aborting...");

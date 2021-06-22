@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bean-bus noAutoLink="true">
+        <bean-bus noAutoLink="true" id="bus">
             <parts>
                 <bus:iterable-driver id="driver" xmlns:bus="oddjob:beanbus">
                     <beans>
                         <list>
                             <values>
                                 <value value="Good Apple"/>
-                                <value value="Rotton Apple"/>
+                                <value value="Rotten Apple"/>
                                 <value value="Good Apple"/>
                             </values>
                         </list>
@@ -25,7 +25,7 @@
                         <value value="${qa}"/>
                     </to>
                 </bus:bad-bean-filter>
-                <bean class="org.oddjob.beanbus.destinations.BadBeanFilterTest$RottonAppleDetector" id="qa">
+                <bean class="org.oddjob.beanbus.destinations.BadBeanFilterTest$RottenAppleDetector" id="qa">
                     <to>
                         <value value="${good}"/>
                     </to>

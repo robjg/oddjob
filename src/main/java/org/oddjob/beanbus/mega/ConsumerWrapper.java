@@ -48,12 +48,12 @@ implements Consumer<E>, BusPart {
     /**
      * Constructor.
      * 
-     * @param collection
+     * @param consumer
      * @param proxy
      */
-    public ConsumerWrapper(ServiceAdaptor serviceAdaptor, Consumer<E> collection, Object proxy) {
+    public ConsumerWrapper(ServiceAdaptor serviceAdaptor, Consumer<E> consumer, Object proxy) {
     	super(serviceAdaptor, proxy);
-    	this.consumer = collection;
+    	this.consumer = consumer;
     }
 
 	@Override

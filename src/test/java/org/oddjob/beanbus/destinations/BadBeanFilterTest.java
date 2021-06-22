@@ -3,26 +3,32 @@ package org.oddjob.beanbus.destinations;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
 import org.oddjob.Resettable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.beanbus.BadBeanTransfer;
 import org.oddjob.state.ParentState;
 
 import java.util.List;
 
-public class BadBeanFilterTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 
-    public static class RottonAppleDetector
+public class BadBeanFilterTest {
+
+    private final static IllegalArgumentException exception = new IllegalArgumentException(
+            "Rotten Apples Spoil The Barrel.");
+
+    public static class RottenAppleDetector
             extends AbstractFilter<String, String> {
 
         @Override
         protected String filter(String from) {
-            if (from.startsWith("Rotton")) {
-                throw new IllegalArgumentException(
-                        "Rotton Apples Spoil The Barrel.");
+            if (from.startsWith("Rotten")) {
+                throw exception;
             } else {
                 return from;
             }
@@ -39,8 +45,7 @@ public class BadBeanFilterTest extends OjTestCase {
 
         oddjob.run();
 
-        assertEquals(ParentState.COMPLETE,
-                oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
@@ -50,22 +55,18 @@ public class BadBeanFilterTest extends OjTestCase {
         List<?> badBeans = lookup.lookup(
                 "bad.beans", List.class);
 
-        assertEquals(2, goodBeans.size());
+        assertThat(goodBeans, contains("Good Apple", "Good Apple"));
+        assertThat(badBeans, contains(new BadBeanTransfer<>("Rotten Apple", exception)));
 
-        assertEquals("Good Apple", goodBeans.get(0));
-        assertEquals("Good Apple", goodBeans.get(1));
-
-        assertEquals(1, badBeans.size());
-
-        Object driver = lookup.lookup("driver");
-        ((Resettable) driver).hardReset();
-        ((Runnable) driver).run();
+        Object bus = lookup.lookup("bus");
+        ((Resettable) bus).hardReset();
+        ((Runnable) bus).run();
 
         int beanCount = lookup.lookup("filter.count", int.class);
         int badBeanCount = lookup.lookup("filter.badCount", int.class);
 
-        assertEquals(3, beanCount);
-        assertEquals(1, badBeanCount);
+        assertThat(beanCount, is(3));
+        assertThat(badBeanCount, is(1));
 
         oddjob.destroy();
     }

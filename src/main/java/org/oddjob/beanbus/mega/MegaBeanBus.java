@@ -285,7 +285,7 @@ implements ConfigurationOwner, BusServiceProvider {
 		}
 		finally {
 			if (adaptor != null) {
-				adaptor.close();
+				adaptor.destroy();
 			}
 			busConductor = null;
 		}		

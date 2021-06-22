@@ -21,7 +21,7 @@ public class BasicBeanBus<T> implements Consumer<T>, BeanBus<T> {
             new AbstractBusConductor() {
 
                 @Override
-                public void requestBusStop() {
+                public void close() {
                     busConductor.fireBusStopRequested(started);
 
                     if (stopBusCommand != null) {

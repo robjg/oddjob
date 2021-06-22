@@ -2,9 +2,8 @@ package org.oddjob.sql;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.beanbus.BasicBeanBus;
-import org.oddjob.beanbus.BusCrashException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,32 +41,23 @@ public class SQLResultBeansTest extends OjTestCase {
     }
 
     @Test
-    public void testFullLifeCycle() throws BusCrashException {
+    public void testFullLifeCycle() throws IOException {
 
         SQLResultsBean test = new SQLResultsBean();
 
-        BasicBeanBus<String> beanBus = new BasicBeanBus<>();
-
-        test.setBusConductor(beanBus.getBusConductor());
-
-        beanBus.startBus();
-
-        // Start the trip.
-        beanBus.accept("ignored");
+        test.run();
 
         test.filter("Apple");
 
-        beanBus.getBusConductor().flush();
+        test.flush();
 
         assertEquals("Apple", test.getRow());
         assertEquals(1, test.getRowCount());
 
-        beanBus.accept("ignored");
-
         test.filter("Pear");
         test.filter("Banana");
 
-        beanBus.stopBus();
+        test.flush();
 
         assertEquals(2, test.getRowSetCount());
 
@@ -78,39 +68,14 @@ public class SQLResultBeansTest extends OjTestCase {
 
         // test restarts.
 
-        beanBus.startBus();
-
-        beanBus.accept("ignored");
+        test.run();
 
         test.filter("Apple");
 
-        beanBus.stopBus();
-
-        assertEquals("Apple", test.getRow());
-        assertEquals(1, test.getRowCount());
-
-    }
-
-    @Test
-    public void testSetBeanBusTwice() throws BusCrashException {
-
-        SQLResultsBean test = new SQLResultsBean();
-
-        BasicBeanBus<String> beanBus = new BasicBeanBus<>();
-
-        test.setBusConductor(beanBus.getBusConductor());
-        test.setBusConductor(beanBus.getBusConductor());
-
-        beanBus.startBus();
-
-        // Start the trip.
-        beanBus.accept("ignored");
-
-        test.filter("Apple");
-
-        beanBus.stopBus();
+        test.flush();
 
         assertEquals("Apple", test.getRow());
         assertEquals(1, test.getRowCount());
     }
+
 }

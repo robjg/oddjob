@@ -1,13 +1,9 @@
 package org.oddjob.beanbus.destinations;
 
-import javax.inject.Inject;
-
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.TrackingBusListener;
+import org.oddjob.beanbus.*;
+
+import javax.inject.Inject;
 
 /**
  * Only allow a certain number of beans passed.
@@ -40,7 +36,7 @@ public class OnlyFilter<F> extends AbstractFilter<F, F>{
 		
 		if (count > only) {
 			if (stopBus) {
-				busConductor.requestBusStop();
+				busConductor.close();
 			}
 			return null;
 		}

@@ -4,14 +4,15 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.io.StdoutType;
 import org.oddjob.util.StreamPrinter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import java.io.Closeable;
+import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import java.util.List;
  *
  */
 public class SQLResultsSheet extends AbstractFilter<Object, Object>
-implements ArooaSessionAware {
+implements ArooaSessionAware, Runnable, Closeable, Flushable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SQLResultsSheet.class);
 	
@@ -75,49 +76,7 @@ implements ArooaSessionAware {
 	private long elapsedTime = System.currentTimeMillis();
 	
 	private final List<Object> beans = new ArrayList<>();
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			if (output == null) {
-				try {
-					output = new StdoutType().toValue();
-				} catch (ArooaConversionException e) {
-					throw new BusCrashException(e);
-				}
-			}						
-		}
-		
-		@Override
-		public void tripBeginning(BusEvent event) {
-			elapsedTime = System.currentTimeMillis();
-		}
-		
-		@Override
-		public void tripEnding(BusEvent event) {
-			writeBeans(beans);
-			beans.clear();
-			
-			if (!dataOnly) {
-				new StreamPrinter(output).println();
-			}
-		}
 
-		@Override
-		public void busTerminated(BusEvent event) {
-			try {
-				if (output != null) {
-					output.close();
-				}
-			}
-			catch (IOException ioe) {
-				logger.error("Failed to close output.", ioe);
-			}
-		}			
-	};
-	
-	
 	@Override
 	@ArooaHidden
 	public void setArooaSession(ArooaSession session) {
@@ -125,7 +84,22 @@ implements ArooaSessionAware {
 	}
 
 	@Override
+	public void run() {
+		if (output == null) {
+			try {
+				output = new StdoutType().toValue();
+			} catch (ArooaConversionException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
 	protected Object filter(Object from) {
+		if (beans.isEmpty()) {
+			elapsedTime = System.currentTimeMillis();
+		}
+
 		beans.add(from);
 		return from;
 	}
@@ -163,7 +137,24 @@ implements ArooaSessionAware {
 			}
 		}
 	}
-	
+
+	@Override
+	public void flush() throws IOException {
+		writeBeans(beans);
+		beans.clear();
+
+		if (!dataOnly) {
+			new StreamPrinter(output).println();
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		if (output != null) {
+			output.close();
+		}
+	}
+
 	public OutputStream getOutput() {
 		return output;
 	}
@@ -179,10 +170,4 @@ implements ArooaSessionAware {
 	public void setDataOnly(boolean dataOnly) {
 		this.dataOnly = dataOnly;
 	}
-
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		this.busListener.setBusConductor(busConductor);
-	}	
 }

@@ -1,14 +1,11 @@
 package org.oddjob.sql;
 
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.TrackingBusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
+import java.io.Flushable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,10 +85,13 @@ import java.util.List;
  * @author rob
  *
  */
-public class SQLResultsBean extends AbstractFilter<Object, Object>{
+public class SQLResultsBean extends AbstractFilter<Object, Object> implements Runnable, Flushable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(SQLResultsBean.class);
-	
+
+	/** LinkedList or ArrayList? Maybe read many times so probably ArrayList. But increase capacity. */
+	private static final int DEFAULT_LIST_CAPACITY = 100;
+
 	/** 
 	 * @oddjob.property
 	 * @oddjob.description The results of the query. This property allows
@@ -112,34 +112,23 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	private int updateCount;
 	
 	private List<Object> beans;
-	
-	private final TrackingBusListener busListener = new TrackingBusListener() {
-		
-		@Override
-		public void busStarting(BusEvent event) {
-			rowSets.clear();
-			updateCounts.clear();
-			rowCount = 0;
-			updateCount = 0;
-		}
-		
-		@Override
-		public void tripBeginning(BusEvent event) {
-			beans = new ArrayList<>();
-		}
-		
-		@Override
-		public void tripEnding(BusEvent event) {
-			addBeans(beans);
-		}
-	};
 
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		busListener.setBusConductor(busConductor);
+
+	@Override
+	public void run() {
+		rowSets.clear();
+		updateCounts.clear();
+		rowCount = 0;
+		updateCount = 0;
+		beans = new ArrayList<>(DEFAULT_LIST_CAPACITY);
 	}
-	
+
+	@Override
+	public void flush() throws IOException {
+		addBeans(beans);
+		beans = new ArrayList<>(DEFAULT_LIST_CAPACITY);
+	}
+
 	@Override
 	protected Object filter(Object bean) {
 		
@@ -284,5 +273,13 @@ public class SQLResultsBean extends AbstractFilter<Object, Object>{
 	public int getUpdateCount() {
 		
 		return updateCount;
+	}
+
+	@Override
+	public String toString() {
+		return "SQLResultsBean{" +
+				"rowSets=" + rowSets.size() +
+				", updateCounts=" + updateCounts.size() +
+				'}';
 	}
 }

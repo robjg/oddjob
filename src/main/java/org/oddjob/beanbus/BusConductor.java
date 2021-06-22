@@ -2,6 +2,7 @@ package org.oddjob.beanbus;
 
 import org.oddjob.beanbus.destinations.Batcher;
 
+import java.io.Closeable;
 import java.io.Flushable;
 
 /**
@@ -11,7 +12,7 @@ import java.io.Flushable;
  * @author rob
  *
  */
-public interface BusConductor extends Flushable {
+public interface BusConductor extends Flushable, Closeable {
 
 	/**
 	 * Cleaning the bus will cause the trip to end and a new one to 
@@ -21,12 +22,13 @@ public interface BusConductor extends Flushable {
 	 */
 	@Override
 	void flush();
-	
+
 	/**
 	 * Request that the bus stop. This may, and probably will,
 	 * be called asynchronously.
 	 */
-	void requestBusStop();
+	@Override
+	void close();
 	
 	/**
 	 * Add a listener.

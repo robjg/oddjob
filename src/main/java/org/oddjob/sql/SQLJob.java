@@ -65,13 +65,15 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.IdentifiableValueType;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.Destination;
+import org.oddjob.beanbus.SimpleBusConductor;
 import org.oddjob.beanbus.destinations.BadBeanFilter;
 import org.oddjob.io.BufferType;
 import org.oddjob.io.FileType;
 
 import java.io.*;
 import java.sql.Connection;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -132,8 +134,8 @@ import java.util.function.Consumer;
  * @author rob and Ant.
  */
 public class SQLJob
-implements Runnable, Serializable, ArooaSessionAware, Stoppable,
-		BusServiceProvider {
+implements Runnable, Serializable, ArooaSessionAware, Stoppable {
+
 	private static final long serialVersionUID = 20051106;
 		
 //	private static final Logger logger = LoggerFactory.getLogger(SqlJob.class);
@@ -182,6 +184,8 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	/** The session. */
 	private transient ArooaSession session;
 
+	private transient SimpleBusConductor conductor;
+
 	/**
 	 * Constructor.
 	 */
@@ -194,15 +198,10 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 */
     private void completeConstruction() {
     	parser = new ScriptParser();
-    	
-    	BusConductor conductor = parser.getServices().getService(
-    			SimpleBusService.BEAN_BUS_SERVICE_NAME);
-    	
+
     	executor = new ParameterisedExecutor();    	
-    	executor.setBeanBus(conductor);
-    	
+
     	errorHandler = new BadSQLHandler();     	
-    	errorHandler.setBeanBus(conductor);
     }
 	
 	@Override
@@ -234,41 +233,49 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
-		
-		SQLResultHandler resultHandler = null;
-		
-		if (results != null) {			
-			resultHandler = new SQLResultsBus(results, session);
-			resultHandler.setBusConductor(parser.getServices(
-					).getService(BusService.BEAN_BUS_SERVICE_NAME));
-		}
-		
+
+		SQLResultHandler resultHandler =
+				Optional.ofNullable(results)
+				.<SQLResultHandler>map(r -> new SQLResultsBus(r, session))
+				.orElseGet(DefaultResultsHandler::new);
+
 		executor.setResultProcessor(resultHandler);
 		
 	    parser.setArooaSession(session);
 	    
 	    executor.setArooaSession(session);
-	    
+
     	BadBeanFilter<String> errorFilter = new BadBeanFilter<>();
     	errorFilter.setBadBeanHandler(errorHandler);
-    	
-    	parser.setTo(errorFilter);
+
+		conductor = new SimpleBusConductor(parser, errorFilter, executor, resultHandler);
+
+		executor.setBeanBus(conductor);
+
+		parser.setTo(sql -> {
+    		try {
+    			errorFilter.accept(sql);
+			}
+    		catch (RuntimeException e) {
+				conductor.actOnBusCrash(e);
+				throw e;
+			}
+		});
     	
     	errorFilter.setTo(executor);
-    	
-    	parser.run();
+
+		errorHandler.setBeanBus(conductor);
+
+    	conductor.run();
+    	conductor.close();
 	}
+
 
 	@Override
 	public void stop() {
-		parser.stop();
+		conductor.close();
 	}
 
-	@Override
-	public SimpleBusService getServices() {
-		return new SimpleBusService(parser);
-	}
-	
 	/**
 	 * Getter for results.
 	 * 
@@ -401,10 +408,10 @@ implements Runnable, Serializable, ArooaSessionAware, Stoppable,
 	 * SQL should be preserved.
 	 * @oddjob.required No. Defaults to false. 
      *
-     * @param keepformat The keepformat to set
+     * @param keepFormat The true or false to keep the format of the SQL.
      */
-    public void setKeepFormat(boolean keepformat) {
-        this.parser.setKeepFormat(keepformat);
+    public void setKeepFormat(boolean keepFormat) {
+        this.parser.setKeepFormat(keepFormat);
     }
     
     /**

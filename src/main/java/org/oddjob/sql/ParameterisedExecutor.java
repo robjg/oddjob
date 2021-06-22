@@ -1,5 +1,6 @@
 package org.oddjob.sql;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
@@ -9,14 +10,19 @@ import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.types.ValueType;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.BusException;
+import org.oddjob.framework.adapt.Start;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.beans.ExceptionListener;
+import java.io.Flushable;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -25,7 +31,8 @@ import java.util.function.Consumer;
  * @author rob
  *
  */
-public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAware {
+public class ParameterisedExecutor implements Consumer<String>,
+		ArooaSessionAware, Runnable, AutoCloseable, ExceptionListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(SQLJob.class);
 	
@@ -60,101 +67,91 @@ public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAwar
     
     /** The session. */
 	private transient ArooaSession session;
-	
-	private BusConductor busConductor;
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		private boolean rollbackOnly;
-		
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			if (connection == null) {
-				throw new BusCrashException("No Connection.");
-			}
-			try {
-				connection.setAutoCommit(autocommit);
-				logger.info("Setting autocommit " + autocommit);
-			}
-			catch (SQLException e) {
-				throw new BusCrashException(e);
-			}
-			rollbackOnly = false;
-			successfulSQLCount = 0;
-			executedSQLCount = 0;
-		}
-		
-		@Override
-		public void busStopRequested(BusEvent event) {
-	    	Statement stmt = ParameterisedExecutor.this.statement;
-	    	if (stmt != null) {
-	    		try {
-					stmt.cancel();
-				} catch (SQLException e) {
-					logger.debug("Failed to cancel.", e);
-				}
-	    	}
-	    	rollbackOnly = true;
-		}
-		
-		@Override
-		public void busStopping(BusEvent event) throws BusCrashException {
-    		if (!isAutocommit()) {
-	        	try {
-	        		if (rollbackOnly) {
-	        			connection.rollback();
-						logger.info("Connection Rolled Back.");
-	        		}
-	        		else {
-						connection.commit();
-						logger.info("Connection committed.");
-	        		}
-				} catch (SQLException e) {
-					throw new BusCrashException(
-							"Failed to Commit/Rollback.", e);
-				}
-    		}
-		}
-		
-		@Override
-		public void busCrashed(BusEvent event) {
-			if (connection != null && !isAutocommit()) {
-	        	try {
-					connection.rollback();
-					logger.info("Connection rolled back.");
-				} catch (SQLException sqlException) {
-					logger.error("Failed to rollback.", sqlException);
-				}
-			}
-		}
-		@Override
-		public void busTerminated(BusEvent event) {
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					logger.error("Failed closing connection.", e);
-				}
-			}
-			
-	        logger.info(successfulSQLCount + " of " + executedSQLCount + " SQL statements executed successfully");   	
-	        
-		}
-	};
-	
-	
+
+	private Flushable busConductor;
+
+	/** Set if something goes wrong */
+	private volatile boolean rollbackOnly;
+
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}
 
+	@Start
+	@Override
+	public void run() {
+
+		Objects.requireNonNull(busConductor, "No Bus Conductor");
+		Objects.requireNonNull(connection, "No Connection.");
+
+		try {
+			connection.setAutoCommit(autocommit);
+			logger.info("Setting autocommit " + autocommit);
+		}
+		catch (SQLException e) {
+			throw new IllegalStateException(e);
+		}
+		rollbackOnly = false;
+		successfulSQLCount = 0;
+		executedSQLCount = 0;
+	}
+
+	@Override
+	public void exceptionThrown(Exception e) {
+
+		logger.info("Exception Thrown {}, will rollback.", e.getMessage());
+		rollbackOnly = true;
+	}
+
+	@Override
+	public void close() throws FailedToStopException {
+
+		// If a statement is currently being executed
+		Optional.ofNullable(this.statement).ifPresent(stmt -> {
+			try {
+				stmt.cancel();
+			} catch (SQLException e) {
+				logger.debug("Failed to cancel.", e);
+			}
+			rollbackOnly = true;
+		});
+
+		if (!isAutocommit()) {
+			try {
+				if (rollbackOnly) {
+					connection.rollback();
+					logger.info("Connection Rolled Back.");
+				}
+				else {
+					connection.commit();
+					logger.info("Connection committed.");
+				}
+			} catch (SQLException e) {
+				throw new FailedToStopException(
+						"Failed to Commit/Rollback.", e);
+			}
+		}
+
+		try {
+			connection.close();
+		} catch (SQLException e) {
+			throw new FailedToStopException("Failed to close connection", e);
+		}
+
+		logger.info(successfulSQLCount + " of " + executedSQLCount + " SQL statements executed successfully");
+
+		connection = null;
+	}
+
 	@Override
 	public void accept(String sql) {
     	try {
+    		if (executedSQLCount > 0) {
+    			busConductor.flush();
+			}
     		execute(sql);
-    		
-    		busConductor.flush();
-    	} 
+    	}
     	catch (Exception e) {
     		throw new IllegalArgumentException(sql, e);
     	}
@@ -205,16 +202,9 @@ public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAwar
 				int updateCount = statement.getUpdateCount();
 				logger.info("" + updateCount + " row(s) affected.");
 				
-				if (resultProcessor != null) {
-					resultProcessor.handleUpdate(updateCount, dialect);
-				}
-			}
-			else if (resultProcessor == null) {
-				
-				logger.info("No result processor, discarding results.");
+				resultProcessor.handleUpdate(updateCount, dialect);
 			}
 			else {
-				
 				resultProcessor.handleResultSet(results, dialect);
 			}
 			
@@ -342,18 +332,17 @@ public class ParameterisedExecutor implements Consumer<String>, ArooaSessionAwar
     }
             
 	@Inject
-	public void setBeanBus(BusConductor busConductor) {
+	public void setBeanBus(Flushable busConductor) {
 		this.busConductor = busConductor;
-		this.busListener.setBusConductor(busConductor);
 	}
-	
+
 	/**
 	 * Set the result processor.
 	 * 
 	 * @param processor The result processor to pass results to.
 	 */
 	public void setResultProcessor(SQLResultHandler processor) {
-		this.resultProcessor = processor;
+		this.resultProcessor = Objects.requireNonNull(processor);
 	}
 
 	/**

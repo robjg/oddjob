@@ -89,7 +89,6 @@ public class ConsumerProxyGeneratorTest {
         assertThat(wrapped.received, Matchers.contains("apples"));
     }
 
-
     @SuppressWarnings("unchecked")
     @Test
     public void testGeneratedProxyImplementsConsumer() throws BusCrashException {

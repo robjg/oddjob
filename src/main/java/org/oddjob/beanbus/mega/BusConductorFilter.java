@@ -113,7 +113,7 @@ public class BusConductorFilter implements BusConductor {
 	}
 	
 	@Override
-	public void requestBusStop() {
-		original.requestBusStop();
+	public void close() {
+		original.close();
 	}
 }
