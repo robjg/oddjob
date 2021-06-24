@@ -1,18 +1,17 @@
 package org.oddjob.jobs;
 
-import java.io.OutputStream;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanView;
-import org.oddjob.arooa.reflect.BeanViews;
-import org.oddjob.beanbus.SimpleBusService;
+import org.oddjob.beanbus.SimpleBusConductor;
 import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.io.StdoutType;
+
+import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * @oddjob.description Create a simple listing of the properties of 
@@ -37,7 +36,7 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 	 * @oddjob.description The beans to report on. 
 	 * @oddjob.required Yes.
 	 */
-	private Iterable<? extends Object> beans;
+	private Iterable<?> beans;
 	
 	/** 
 	 * @oddjob.property
@@ -75,9 +74,7 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 	@Override
 	public void run() {
 
-		if (beans == null) {
-			throw new NullPointerException("No beans.");
-		}
+		Iterable<?> beans = Objects.requireNonNull(this.beans, "No beans.");
 		
 		if (output == null) {
 			try {
@@ -87,26 +84,21 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 			}
 		}
 
-		IterableBusDriver<Object> iterableBusDriver = 
-				new IterableBusDriver<Object>();
+		IterableBusDriver<Object> iterableBusDriver =
+				new IterableBusDriver<>();
 	
 		final BeanSheet sheet = new BeanSheet();
 		sheet.setArooaSession(session);
 		sheet.setOutput(output);
 		sheet.setNoHeaders(noHeaders);
-		sheet.setBeanViews(new BeanViews() {
-			@Override
-			public BeanView beanViewFor(ArooaClass arooaClass) {
-				return beanView;
-			}
-		});
-		sheet.setBusConductor(iterableBusDriver.getServices().getService(
-				SimpleBusService.BEAN_BUS_SERVICE_NAME));
-		
+		sheet.setBeanViews(arooaClass -> beanView);
+
 		iterableBusDriver.setBeans(beans);
 		iterableBusDriver.setTo(sheet);
-		
-		iterableBusDriver.run();
+
+		SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, sheet);
+		busConductor.run();
+		busConductor.close();
 	}
 
 	
@@ -118,11 +110,11 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 		this.name = name;
 	}
 
-	public Iterable<? extends Object> getBeans() {
+	public Iterable<?> getBeans() {
 		return beans;
 	}
 
-	public void setBeans(Iterable<? extends Object> beans) {
+	public void setBeans(Iterable<?> beans) {
 		this.beans = beans;
 	}
 

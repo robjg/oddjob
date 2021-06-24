@@ -6,18 +6,12 @@ import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.*;
-import org.oddjob.beanbus.BusConductor;
-import org.oddjob.beanbus.BusEvent;
 import org.oddjob.beanbus.Outbound;
-import org.oddjob.beanbus.TrackingBusListener;
 import org.oddjob.io.StdoutType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +24,8 @@ import java.util.function.Consumer;
  * @author rob
  *
  */
-public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<Object> {
+public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<Object>,
+		Runnable, Flushable, Closeable {
 
 	private static final Logger logger = LoggerFactory.getLogger(BeanSheet.class);
 	
@@ -59,39 +54,7 @@ public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<
 	private String name;
 	
 	private Consumer<? super Object> to;
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) {
-			if (output == null) {
-				try {
-					output = new StdoutType().toValue();
-				} catch (ArooaConversionException e) {
-					throw new RuntimeException(e);
-				}
-			}						
-		}
-					
-		@Override
-		public void tripEnding(BusEvent event) {
-			writeBeans(beans);
-			beans.clear();
-		}
-		
-		@Override
-		public void busTerminated(BusEvent event) {
-			try {
-				if (output != null) {
-					output.close();
-				}
-			}
-			catch (IOException ioe) {
-				logger.error("Failed to close output.", ioe);
-			}
-		}			
-	};
-	
+
 	@ArooaHidden
 	@Override
 	public void setArooaSession(ArooaSession session) {
@@ -102,6 +65,23 @@ public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<
 	}
 
 	@Override
+	public void run() {
+		if (output == null) {
+			try {
+				output = new StdoutType().toValue();
+			} catch (ArooaConversionException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Override
+	public void flush() throws IOException {
+		writeBeans(beans);
+		beans.clear();
+	}
+
+	@Override
 	public void accept(Object bean) {
 		
 		beans.add(bean);
@@ -109,6 +89,11 @@ public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<
 		if (to != null) {
 			to.accept(bean);
 		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		output.close();
 	}
 
 	public void writeBeans(Iterable<?> beans) {
@@ -143,12 +128,6 @@ public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<
 		}		
 
 		out.flush();
-	}
-	
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		busListener.setBusConductor(busConductor);
 	}
 	
 	interface Row {

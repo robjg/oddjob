@@ -1,9 +1,10 @@
 package org.oddjob.beanbus.destinations;
 
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.beanbus.BusFilter;
+import org.oddjob.framework.adapt.Start;
+import org.oddjob.framework.adapt.Stop;
 
-import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,18 +26,22 @@ import java.util.List;
  *
  * @param <T> The type of the beans to be collected.
  */
-public class BeanCapture<T> extends AbstractFilter<T, T> {
+public class BeanCapture<T> extends AbstractFilter<T, T> implements Runnable, AutoCloseable {
 
 	private final List<T> beans = new ArrayList<>();
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) {
-			beans.clear();
-		}
-	};
-	
+
+	@Stop
+	@Override
+	public void close() {
+
+	}
+
+	@Start
+	@Override
+	public void run() {
+		beans.clear();
+	}
+
 	@Override
 	protected T filter(T from) {
 		synchronized(beans) {
@@ -45,12 +50,6 @@ public class BeanCapture<T> extends AbstractFilter<T, T> {
 		return from;
 	}
 	
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		busListener.setBusConductor(busConductor);
-	}
-
 	public List<T> getBeans() {
 		synchronized (beans) {
 			return beans;

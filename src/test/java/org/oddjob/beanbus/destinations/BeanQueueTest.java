@@ -12,7 +12,6 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.beanbus.BasicBeanBus;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
@@ -45,15 +44,11 @@ public class BeanQueueTest extends Assert {
 	public void testQueueStop() throws InterruptedException, BusCrashException {
 
 		final BeanQueue<String> test = new BeanQueue<>();
-		test.init();
+
+
+		test.start();
 		
-		BasicBeanBus<String> bus = new BasicBeanBus<>();
-		bus.setTo(test);
-		test.setBeanBus(bus.getBusConductor());
-		
-		bus.startBus();
-		
-		bus.accept("apple");
+		test.accept("apple");
 		
 		final List<String> results = new ArrayList<>();
 		final CountDownLatch latch = new CountDownLatch(1);
@@ -75,7 +70,7 @@ public class BeanQueueTest extends Assert {
 		// Ensure it's blocking
 		Thread.sleep(100);
 		
-		bus.stopBus();
+		test.stop();
 		
 		t.join();
 		
@@ -88,7 +83,7 @@ public class BeanQueueTest extends Assert {
 	public void testStopBeforeEmpty() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<>();
-		test.init();
+		test.start();
 		
 		test.accept("apple");
 		test.accept("pear");
@@ -116,7 +111,7 @@ public class BeanQueueTest extends Assert {
 	public void testStartConsumingFirst() throws InterruptedException {
 		
 		final BeanQueue<String> test = new BeanQueue<>();
-		test.init();
+		test.start();
 		
 		final List<String> results = new ArrayList<>();
 		
@@ -145,7 +140,7 @@ public class BeanQueueTest extends Assert {
 	public void testMultipleConsumers() throws InterruptedException {
 
 		final BeanQueue<Integer> test = new BeanQueue<>();
-		test.init();
+		test.start();
 		
 		class Consumer implements Runnable {
 			
@@ -217,7 +212,7 @@ public class BeanQueueTest extends Assert {
 		parallelStates.checkWait();
 		
 		List<?> results = lookup.lookup(
-				"consumer.to.beans", List.class);
+				"vars.results", List.class);
 		
 		logger.info("** Got " + results.size() + " results.");
 		
@@ -244,7 +239,7 @@ public class BeanQueueTest extends Assert {
 		
 		
 		results = lookup.lookup(
-				"consumer.to.beans", List.class);
+				"vars.results", List.class);
 		
 		logger.info("** Got " + results.size() + " results.");
 		

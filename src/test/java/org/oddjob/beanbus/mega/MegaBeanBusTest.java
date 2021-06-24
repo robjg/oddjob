@@ -631,7 +631,7 @@ public class MegaBeanBusTest {
     }
 
     @Test
-    public void testCutPasteBusPartInvalidatesBus() throws ArooaParseException {
+    public void testCutPasteBusPartIsFine() throws ArooaParseException {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setConfiguration(new XMLConfiguration(
@@ -666,9 +666,9 @@ public class MegaBeanBusTest {
                 oddjob).lookup("driver");
 
         ((Resettable) driver).hardReset();
-        ((Runnable) driver).run();
+        ((Runnable) bus).run();
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
 
         oddjob.destroy();
     }

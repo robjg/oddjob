@@ -4,32 +4,38 @@
         <sequential>
             <jobs>
                 <variables id="vars">
-                    <queue>
-                        <bean class="org.oddjob.beanbus.destinations.BeanQueue"/>
-                    </queue>
+                    <results>
+                        <list/>
+                    </results>
                 </variables>
+                <bean class="org.oddjob.beanbus.destinations.BeanQueue" id="queue"/>
                 <parallel id="parallel">
                     <jobs>
-                        <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="producer" name="Producer">
-                            <beans>
-                                <list>
-                                    <values>
-                                        <value value="apple"/>
-                                        <value value="orange"/>
-                                        <value value="pear"/>
-                                    </values>
-                                </list>
-                            </beans>
-                            <to>
-                                <value value="${vars.queue}"/>
-                            </to>
-                        </bean>
+                        <sequential>
+                            <jobs>
+                                <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="producer" name="Producer">
+                                    <beans>
+                                        <list>
+                                            <values>
+                                                <value value="apple"/>
+                                                <value value="orange"/>
+                                                <value value="pear"/>
+                                            </values>
+                                        </list>
+                                    </beans>
+                                    <to>
+                                        <value value="${queue}"/>
+                                    </to>
+                                </bean>
+                                <stop job="${queue}" name="Stop Queue"/>
+                            </jobs>
+                        </sequential>
                         <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="consumer" name="Consumer">
                             <beans>
-                                <value value="${vars.queue}"/>
+                                <value value="${queue}"/>
                             </beans>
                             <to>
-                                <bean class="org.oddjob.beanbus.destinations.BeanCapture"/>
+                                <value value="${vars.results}"/>
                             </to>
                         </bean>
                     </jobs>

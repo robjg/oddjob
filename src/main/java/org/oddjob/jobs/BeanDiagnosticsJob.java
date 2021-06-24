@@ -1,79 +1,78 @@
 package org.oddjob.jobs;
 
-import java.io.OutputStream;
-import java.util.Arrays;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
-import org.oddjob.beanbus.SimpleBusService;
+import org.oddjob.beanbus.SimpleBusConductor;
 import org.oddjob.beanbus.destinations.BeanDiagnostics;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.io.StdoutType;
 
+import java.io.OutputStream;
+import java.util.Collections;
+import java.util.Objects;
+
 /**
- * @oddjob.description Dump out the types and properites of a bean or 
+ * @oddjob.description Dump out the types and properties of a bean or
  * beans.
- * 
+ *
  * @author rob
  *
  */
 public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 
 //	private static final Logger logger = LoggerFactory.getLogger(BeanReportJob.class);
-	
-	/** 
+
+	/**
 	 * @oddjob.property
-	 * @oddjob.description The name of this job. 
+	 * @oddjob.description The name of this job.
 	 * @oddjob.required No.
 	 */
 	private String name;
-	
+
 	/**
 	 * @oddjob.property
-	 * @oddjob.description A single bean to analyse. 
+	 * @oddjob.description A single bean to analyse.
 	 * @oddjob.required Either this or the beans are required.
 	 */
 	private Object bean;
-	
-	/** 
+
+	/**
 	 * @oddjob.property
-	 * @oddjob.description The beans to analyse. 
+	 * @oddjob.description The beans to analyse.
 	 * @oddjob.required Either this or a bean is required.
 	 */
-	private Iterable<? extends Object> beans;
-	
-	/** 
+	private Iterable<?> beans;
+
+	/**
 	 * @oddjob.property
-	 * @oddjob.description The Output to where the report will 
-	 * be written. 
+	 * @oddjob.description The Output to where the report will
+	 * be written.
 	 * @oddjob.required Yes.
 	 */
 	private OutputStream output;
 
-	
+
 	/** Required for bean access. */
 	private ArooaSession session;
-	
+
 
 	@ArooaHidden
 	@Override
 	public void setArooaSession(ArooaSession session) {
 		this.session = session;
 	}
-	
+
 	@Override
 	public void run() {
 
-		if (bean != null) {
-			beans = Arrays.asList(bean);
-		}
-		
+		Iterable<?> beans = this.beans;
+
 		if (beans == null) {
-			throw new NullPointerException("No beans.");
+			beans = Collections.singletonList(Objects.requireNonNull(this.bean, "No Beans"));
 		}
-		
+
 		if (output == null) {
 			try {
 				output = new StdoutType().toValue();
@@ -82,22 +81,22 @@ public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 			}
 		}
 
-		IterableBusDriver<Object> iterableBusDriver = 
-				new IterableBusDriver<Object>();
-	
-		BeanDiagnostics<Object> diagnostics = new BeanDiagnostics<Object>();
+		IterableBusDriver<Object> iterableBusDriver =
+                new IterableBusDriver<>();
+
+		BeanDiagnostics<Object> diagnostics = new BeanDiagnostics<>();
 		diagnostics.setArooaSession(session);
 		diagnostics.setOutput(output);
-		diagnostics.setBusConductor(iterableBusDriver.getServices().getService(
-				SimpleBusService.BEAN_BUS_SERVICE_NAME));
-		
+
 		iterableBusDriver.setBeans(beans);
 		iterableBusDriver.setTo(diagnostics);
-		
-		iterableBusDriver.run();
+
+		SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, diagnostics);
+		busConductor.run();
+		busConductor.close();
 	}
 
-	
+
 	public String getName() {
 		return name;
 	}
@@ -112,13 +111,13 @@ public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 
 	public void setBean(Object bean) {
 		this.bean = bean;
-	}	
-	
-	public Iterable<? extends Object> getBeans() {
+	}
+
+	public Iterable<?> getBeans() {
 		return beans;
 	}
 
-	public void setBeans(Iterable<? extends Object> beans) {
+	public void setBeans(Iterable<?> beans) {
 		this.beans = beans;
 	}
 
@@ -129,7 +128,7 @@ public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 	public void setOutput(OutputStream output) {
 		this.output = output;
 	}
-	
+
 	@Override
 	public String toString() {
 		if (name == null) {

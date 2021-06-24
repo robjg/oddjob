@@ -182,6 +182,8 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
         BeanCapture<Collection<String>> results =
                 new BeanCapture<>();
 
+        results.run();
+
         OurJob job = new OurJob();
 
         job.to = batcher;
@@ -190,8 +192,6 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
 
         StatefulBusConductorAdapter test =
                 new StatefulBusConductorAdapter(job);
-
-        results.setBusConductor(test);
 
         OurBusListener listener = new OurBusListener();
 
@@ -213,8 +213,12 @@ public class StatefulBusConductorAdapterTest extends OjTestCase {
         assertEquals(3, batcher.getCount());
         assertEquals(2, results.getCount());
 
+        results.close();
+
         job.hardReset();
         batcher.reset();
+
+        results.run();
 
         batcher.start();
         job.run();

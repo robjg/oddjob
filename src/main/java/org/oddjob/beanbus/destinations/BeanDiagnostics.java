@@ -2,15 +2,18 @@ package org.oddjob.beanbus.destinations;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.beanbus.BusFilter;
+import org.oddjob.framework.adapt.Start;
+import org.oddjob.framework.adapt.Stop;
 import org.oddjob.io.StdoutType;
 
-import javax.inject.Inject;
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -26,39 +29,10 @@ import java.util.Set;
  * @param <T> The type of the beans to be analysed.
  */
 public class BeanDiagnostics<T> extends AbstractFilter<T, T> 
-implements ArooaSessionAware {
+implements ArooaSessionAware, Runnable, Closeable {
 
 	private final Set<ArooaClass> types = new LinkedHashSet<>();
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			types.clear();
-			nulls = 0;
-			count = 0;
-			
-			if (output == null) {
-				try {
-					output = new StdoutType().toValue();
-				} catch (ArooaConversionException e) {
-					throw new BusCrashException(e);
-				}
-			}
-		}
-		
-		@Override
-		public void busTerminated(BusEvent event) {
-			PrintStream out = new PrintStream(output);
-			out.println("Analysed " + count + " beans. Discovered " + 
-					types.size() + " types.");
-			for (ArooaClass type : types) {
-				printTypeInfo(type, out);
-			}
-			out.close();
-		}
-	};
-	
+
 	private PropertyAccessor accessor;
 	
 	private int nulls;
@@ -70,7 +44,33 @@ implements ArooaSessionAware {
 	public void setArooaSession(ArooaSession session) {
 		this.accessor = session.getTools().getPropertyAccessor();
 	}
-	
+
+	@Start
+	public void run() {
+		types.clear();
+		nulls = 0;
+		count = 0;
+
+		if (output == null) {
+			try {
+				output = new StdoutType().toValue();
+			} catch (ArooaConversionException e) {
+				throw new RuntimeException(e);
+			}
+		}
+	}
+
+	@Stop
+	public void close() throws IOException {
+		PrintStream out = new PrintStream(output);
+		out.println("Analysed " + count + " beans. Discovered " +
+				types.size() + " types.");
+		for (ArooaClass type : types) {
+			printTypeInfo(type, out);
+		}
+		out.close();
+	}
+
 	@Override
 	protected T filter(T from) {
 		
@@ -86,12 +86,6 @@ implements ArooaSessionAware {
 		return from;
 	}
 	
-	@ArooaHidden
-	@Inject
-	public void setBusConductor(BusConductor busConductor) {
-		busListener.setBusConductor(busConductor);
-	}
-
 	public void setOutput(OutputStream output) {
 		this.output = output;
 	}
