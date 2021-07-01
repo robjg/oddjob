@@ -14,24 +14,15 @@
                         </list>
                     </beans>
                     <to>
-                        <value value="${filter}"/>
-                    </to>
-                </bus:iterable-driver>
-                <bus:bad-bean-filter id="filter" xmlns:bus="oddjob:beanbus">
-                    <badBeanHandler>
-                        <value value="${bad}"/>
-                    </badBeanHandler>
-                    <to>
                         <value value="${qa}"/>
                     </to>
-                </bus:bad-bean-filter>
+                </bus:iterable-driver>
                 <bean class="org.oddjob.beanbus.destinations.BadBeanFilterTest$RottenAppleDetector" id="qa">
                     <to>
                         <value value="${good}"/>
                     </to>
                 </bean>
                 <bus:bean-capture id="good" name="Good Beans" xmlns:bus="oddjob:beanbus"/>
-                <bus:bean-capture id="bad" name="Bad Beans" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean-bus>
     </job>

@@ -57,7 +57,6 @@ public class ConsumerProxyGenerator<E> extends ProxyGenerator<Consumer<E>> {
 				interfaces.add(Runnable.class);
 				interfaces.add(LogEnabled.class);
 				interfaces.add(Describable.class);
-				interfaces.add(BusPart.class);
 				interfaces.add(Consumer.class);
 				
 				return (Class<?>[]) interfaces.toArray(new Class[0]);

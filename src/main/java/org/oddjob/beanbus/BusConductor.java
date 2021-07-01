@@ -2,7 +2,6 @@ package org.oddjob.beanbus;
 
 import org.oddjob.beanbus.destinations.Batcher;
 
-import java.io.Closeable;
 import java.io.Flushable;
 
 /**
@@ -12,7 +11,7 @@ import java.io.Flushable;
  * @author rob
  *
  */
-public interface BusConductor extends Flushable, Closeable {
+public interface BusConductor extends Flushable, AutoCloseable {
 
 	/**
 	 * Cleaning the bus will cause the trip to end and a new one to 
@@ -29,18 +28,4 @@ public interface BusConductor extends Flushable, Closeable {
 	 */
 	@Override
 	void close();
-	
-	/**
-	 * Add a listener.
-	 * 
-	 * @param listener The listener.
-	 */
-	void addBusListener(BusListener listener);
-	
-	/**
-	 * Remove the listener.
-	 * 
-	 * @param listener The listener.
-	 */
-	void removeBusListener(BusListener listener);
 }

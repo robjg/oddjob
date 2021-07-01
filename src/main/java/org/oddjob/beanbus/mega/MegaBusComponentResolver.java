@@ -3,6 +3,7 @@
  */
 package org.oddjob.beanbus.mega;
 
+import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.adapt.WrapperInvocationHandler;
@@ -32,7 +33,7 @@ implements ComponentProxyResolver {
 
 		Object proxy;
 		
-		if (component instanceof BusPart) {
+		if (component instanceof Stateful) {
 			proxy = component;
 		}
 		else if (component instanceof Consumer) {

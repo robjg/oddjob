@@ -14,8 +14,10 @@ import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.BusCrashException;
+import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
+import org.oddjob.framework.Service;
 import org.oddjob.images.IconHelper;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
@@ -29,6 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
+import java.beans.ExceptionListener;
+import java.io.Flushable;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -74,6 +79,7 @@ public class MegaBeanBusTest {
 
         MegaBeanBus test = new MegaBeanBus();
         test.setArooaSession(session);
+        test.setExecutor(Runnable::run);
         test.setParts(0, driverProxy);
         test.setParts(1, destinationProxy);
 
@@ -162,7 +168,7 @@ public class MegaBeanBusTest {
         }
     }
 
-    public static class OurDestination implements Consumer<Integer> {
+    public static class OurDestination implements Consumer<Integer>, Service {
 
         int total;
 
@@ -170,28 +176,20 @@ public class MegaBeanBusTest {
 
         boolean stopped;
 
+        @Override
+        public void start() throws Exception {
+            started = true;
+            total = 0;
+        }
 
-        final TrackingBusListener busListener = new TrackingBusListener() {
-            @Override
-            public void busStarting(BusEvent event) {
-                started = true;
-                total = 0;
-            }
-
-            @Override
-            public void busStopping(BusEvent event) {
-                stopped = true;
-            }
-        };
+        @Override
+        public void stop() throws FailedToStopException {
+            stopped = true;
+        }
 
         @Override
         public void accept(Integer e) {
             total = total + e;
-        }
-
-        @Inject
-        public void setBusConductor(BusConductor busConductor) {
-            busListener.setBusConductor(busConductor);
         }
 
         public int getTotal() {
@@ -258,37 +256,29 @@ public class MegaBeanBusTest {
         oddjob.destroy();
     }
 
-    public static class OurSliperyDestination implements Consumer<Integer> {
+    public static class OurSlipperyDestination implements Consumer<Integer>, ExceptionListener, Service {
 
         int crashed;
         int terminated;
 
+        @Override
+        public void exceptionThrown(Exception e) {
+            ++crashed;
+        }
 
-        final TrackingBusListener busListener = new TrackingBusListener() {
-            @Override
-            public void busStarting(BusEvent event) throws BusCrashException {
-                throw new BusCrashException("Slippery Destination!");
-            }
+        @Override
+        public void stop() throws FailedToStopException {
+            ++terminated;
+        }
 
-            @Override
-            public void busCrashed(BusEvent event) {
-                ++crashed;
-            }
-
-            @Override
-            public void busTerminated(BusEvent event) {
-                ++terminated;
-            }
-        };
+        @Override
+        public void start() throws Exception {
+            throw new BusCrashException("Slippery Destination!");
+        }
 
         @Override
         public void accept(Integer e) {
             throw new RuntimeException("Unexpected.");
-        }
-
-        @Inject
-        public void setBusConductor(BusConductor busConductor) {
-            busListener.setBusConductor(busConductor);
         }
 
         public int getCrashed() {
@@ -311,7 +301,7 @@ public class MegaBeanBusTest {
                         "    <bean class='" + NumberGenerator.class.getName() + "'>" +
                         "     <to><value value='${results}'/></to>" +
                         "    </bean>" +
-                        "    <bean class='" + OurSliperyDestination.class.getName() + "' " +
+                        "    <bean class='" + OurSlipperyDestination.class.getName() + "' " +
                         "          id='results'/>" +
                         "   </parts>" +
                         "  </bean-bus>" +
@@ -329,8 +319,7 @@ public class MegaBeanBusTest {
 
         IconSteps icons = new IconSteps(results);
         icons.startCheck(IconHelper.STARTABLE,
-                IconHelper.EXECUTING, IconHelper.STARTED,
-                IconHelper.STOPPING, IconHelper.STOPPED);
+                IconHelper.EXECUTING, IconHelper.EXCEPTION);
 
         oddjob.run();
 
@@ -338,15 +327,16 @@ public class MegaBeanBusTest {
 
         icons.checkNow();
 
+        // close and crash not called on the thing that crashed.
         assertThat(lookup.lookup("results.crashed", int.class), is(1));
-        assertThat(lookup.lookup("results.terminated", int.class), is(1));
+        assertThat(lookup.lookup("results.terminated", int.class), is(0));
 
         Object test = lookup.lookup("test");
         ((Resettable) test).hardReset();
         ((Runnable) test).run();
 
         assertThat(lookup.lookup("results.crashed", int.class), is(2));
-        assertThat(lookup.lookup("results.terminated", int.class), is(2));
+        assertThat(lookup.lookup("results.terminated", int.class), is(0));
 
 
         oddjob.destroy();
@@ -498,45 +488,31 @@ public class MegaBeanBusTest {
         oddjob.destroy();
     }
 
-    public static class DestinationWithLogger implements Consumer<String> {
+    public static class DestinationWithLogger
+            implements Consumer<String>, Service, Flushable, ExceptionListener {
 
-        final TrackingBusListener busListener = new TrackingBusListener() {
-            @Override
-            public void busStarting(BusEvent event) {
-                logger.info("** The Bus is Starting.");
-            }
+        private AutoCloseable closeable;
 
-            public void tripBeginning(BusEvent event) {
-                logger.info("** A Trip is Beginning.");
-            }
+        @Override
+        public void start() throws Exception {
+            logger.info("** The Bus is Starting.");
+        }
 
-            public void tripEnding(BusEvent event) {
-                logger.info("** A Trip is Ending.");
+        @Override
+        public void flush() throws IOException {
+            logger.info("** A Trip is Ending.");
+        }
 
-            }
+        @Override
+        public void stop() throws FailedToStopException {
+            logger.info("** The Bus is Stopping.");
 
-            public void busStopRequested(BusEvent event) {
-                logger.info("** A Bus Stop is Requested.");
-            }
+        }
 
-            @Override
-            public void busStopping(BusEvent event) {
-                logger.info("** The Bus is Stopping.");
-            }
-
-            public void busCrashed(BusEvent event) {
-                logger.info("** The Bus has Crashed.");
-            }
-
-            public void busTerminated(BusEvent event) {
-                logger.info("** The Bus has terminated.");
-            }
-
-            @Override
-            public String toString() {
-                return "OurLoggingBusListener";
-            }
-        };
+        @Override
+        public void exceptionThrown(Exception e) {
+            logger.info("** The Bus has Crashed.");
+        }
 
         @Override
         public void accept(String e) {
@@ -545,13 +521,17 @@ public class MegaBeanBusTest {
             if ("crash-the-bus".equals(e)) {
                 throw new IllegalArgumentException(e);
             } else {
-                busListener.getBusConductor().close();
+                try {
+                    closeable.close();
+                } catch (Exception exception) {
+                    throw new RuntimeException(exception);
+                }
             }
         }
 
         @Inject
-        public void setBusConductor(BusConductor busConductor) {
-            busListener.setBusConductor(busConductor);
+        public void setBusConductor(AutoCloseable stopBus) {
+            this.closeable = stopBus;
         }
 
         @Override
@@ -559,6 +539,11 @@ public class MegaBeanBusTest {
             return "OurLoggingThing";
         }
     }
+
+//    public static class MaybeCrash implements Service, Consumer<String> {
+//
+//
+//    }
 
     /**
      * Test logging. Note that this test is fragile with respect to change
@@ -571,7 +556,10 @@ public class MegaBeanBusTest {
 
         class MyLogListener implements LogListener {
             public void logEvent(LogEvent logEvent) {
-                messages.add(logEvent.getMessage().trim());
+                String message = logEvent.getMessage().trim();
+                if (message.startsWith("** ")) {
+                    messages.add(message);
+                }
             }
         }
 
@@ -604,13 +592,10 @@ public class MegaBeanBusTest {
 
         assertThat(ParentState.COMPLETE, is(oddjob.lastStateEvent().getState()));
 
-        assertThat(messages, hasItem("** The Bus is Starting."));
-        assertThat(messages, hasItem("** A Trip is Beginning."));
-        assertThat(messages, hasItem("** We have received Apples."));
-        assertThat(messages, hasItem("** A Bus Stop is Requested."));
-        assertThat(messages, hasItem("** A Trip is Ending."));
-        assertThat(messages, hasItem("** The Bus is Stopping."));
-        assertThat(messages, hasItem("** The Bus has terminated."));
+        assertThat(messages, contains("** The Bus is Starting.",
+                "** We have received Apples.",
+                "** A Trip is Ending.",
+                "** The Bus is Stopping."));
 
         Object secondBus = lookup.lookup("second-bus");
 
@@ -621,11 +606,9 @@ public class MegaBeanBusTest {
 
         assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
 
-        assertThat(messages, hasItem("** The Bus is Starting."));
-        assertThat(messages, hasItem("** A Trip is Beginning."));
-        assertThat(messages, hasItem("** We have received crash-the-bus."));
-        assertThat(messages, hasItem("** The Bus has Crashed."));
-        assertThat(messages, hasItem("** The Bus has terminated."));
+        assertThat(messages, contains("** The Bus is Starting.",
+                "** We have received crash-the-bus.",
+                "** The Bus has Crashed."));
 
         oddjob.destroy();
     }

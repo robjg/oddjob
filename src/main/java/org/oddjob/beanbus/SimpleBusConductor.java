@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * A Simple Bus Conductor that manages the lifecycle of components.
  */
-public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, BusConductor {
+public class SimpleBusConductor implements Runnable, BusConductor {
 
     private static final Logger logger = LoggerFactory.getLogger(SimpleBusConductor.class);
 
@@ -23,6 +23,7 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
 
     private final Deque<Object> started = new ConcurrentLinkedDeque<>();
 
+    private volatile boolean stop;
 
     public SimpleBusConductor(Object... components) {
         this.components = new LinkedList<>();
@@ -35,6 +36,7 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
     @Override
     public void close() {
 
+        stop = true;
         flush();
         closeNoFlush();
     }
@@ -43,20 +45,20 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
 
         while (!started.isEmpty()) {
             Object component = started.remove();
-            if (component instanceof AutoCloseable) {
-                try {
-                    logger.debug("Closing {}", component);
-                    ((AutoCloseable) component).close();
-                } catch (Exception e) {
-                    logger.warn("failed closing " + component, e);
-                }
-            }
             if (component instanceof Stoppable) {
                 try {
-                    logger.debug("Stopping {}", component);
+                    logger.debug("Stopping [{}]", component);
                     ((Stoppable) component).stop();
                 } catch (FailedToStopException e) {
-                    logger.warn("failed stopping " + component, e);
+                    logger.warn("failed stopping [" + component + "]", e);
+                }
+            }
+            else if (component instanceof AutoCloseable) {
+                try {
+                    logger.debug("Closing [{}]", component);
+                    ((AutoCloseable) component).close();
+                } catch (Exception e) {
+                    logger.warn("failed closing [" + component + "]", e);
                 }
             }
         }
@@ -68,10 +70,10 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
         for (Object component : started) {
             if (component instanceof Flushable) {
                 try {
-                    logger.debug("Flushing {}", component);
+                    logger.debug("Flushing [{}]", component);
                     ((Flushable) component).flush();
                 } catch (Exception e) {
-                    logger.warn("failed flushing " + component, e);
+                    logger.warn("failed flushing [" + component + "]", e);
                     actOnBusCrash(e);
                     return;
                 }
@@ -79,12 +81,19 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
         }
     }
 
-    public void actOnBusCrash(Exception e) {
+    public void actOnBusCrash(Throwable e) {
+
+        stop = true;
 
         for (Object component : started) {
             if (component instanceof ExceptionListener) {
-                logger.debug("Notifying {} of Exception {}", component, e);
-                ((ExceptionListener) component).exceptionThrown(e);
+                logger.debug("Notifying [{}] of Exception {}", component, e);
+                if (e instanceof Exception) {
+                    ((ExceptionListener) component).exceptionThrown((Exception) e);
+                }
+                else {
+                    ((ExceptionListener) component).exceptionThrown(new Exception(e));
+                }
             }
         }
 
@@ -95,6 +104,8 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
     @Override
     public void run() {
 
+        stop = false;
+
         if (!started.isEmpty()) {
             throw new IllegalStateException("Started not empty");
         }
@@ -103,12 +114,16 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
 
         for (Object component : reverseIterable) {
 
+            if (stop) {
+                break;
+            }
+
             // add before running in case stopped
             this.started.addFirst(component);
 
             if (component instanceof Runnable) {
                 try {
-                    logger.debug("Running {}", component);
+                    logger.debug("Running [{}]", component);
                     ((Runnable) component).run();
                 }
                 catch (RuntimeException e) {
@@ -117,15 +132,5 @@ public class SimpleBusConductor implements Runnable, Flushable, AutoCloseable, B
                 }
             }
         }
-    }
-
-    @Override
-    public void addBusListener(BusListener listener) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void removeBusListener(BusListener listener) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -1,16 +1,20 @@
 package org.oddjob.beanbus.destinations;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.Resettable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BadBeanTransfer;
+import org.oddjob.beanbus.SimpleBusConductor;
+import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.state.ParentState;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,7 +40,33 @@ public class BadBeanFilterTest {
     }
 
     @Test
-    public void testExample() throws ArooaPropertyException, ArooaConversionException {
+    public void testBecauseFilterIsStillUsedInSqlJobWithoutBeanBus() {
+
+        List<BadBeanTransfer<String>> bad = new ArrayList<>();
+        List<String> good = new ArrayList<>();
+
+        RottenAppleDetector detector = new RottenAppleDetector();
+        detector.setTo(good::add);
+
+        BadBeanFilter<String> filter = new BadBeanFilter<>();
+        filter.setBadBeanHandler(bad::add);
+        filter.setTo(detector);
+
+        IterableBusDriver<String> iterableBusDriver = new IterableBusDriver<>();
+        iterableBusDriver.setBeans(Arrays.asList("Good Apple", "Rotten Apple", "Good Apple"));
+        iterableBusDriver.setTo(filter);
+
+        SimpleBusConductor simpleBusConductor = new SimpleBusConductor(iterableBusDriver, filter, detector);
+
+        simpleBusConductor.run();
+        simpleBusConductor.close();
+
+        assertThat(good, Matchers.contains("Good Apple", "Good Apple"));
+        assertThat(bad, contains(new BadBeanTransfer<>("Rotten Apple", exception)));
+    }
+
+    @Test
+    public void testThatOldExampleNowFlagsException() throws ArooaPropertyException, ArooaConversionException {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setConfiguration(new XMLConfiguration(
@@ -45,28 +75,14 @@ public class BadBeanFilterTest {
 
         oddjob.run();
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXCEPTION));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         List<?> goodBeans = lookup.lookup(
                 "good.beans", List.class);
 
-        List<?> badBeans = lookup.lookup(
-                "bad.beans", List.class);
-
-        assertThat(goodBeans, contains("Good Apple", "Good Apple"));
-        assertThat(badBeans, contains(new BadBeanTransfer<>("Rotten Apple", exception)));
-
-        Object bus = lookup.lookup("bus");
-        ((Resettable) bus).hardReset();
-        ((Runnable) bus).run();
-
-        int beanCount = lookup.lookup("filter.count", int.class);
-        int badBeanCount = lookup.lookup("filter.badCount", int.class);
-
-        assertThat(beanCount, is(3));
-        assertThat(badBeanCount, is(1));
+        assertThat(goodBeans, contains("Good Apple"));
 
         oddjob.destroy();
     }

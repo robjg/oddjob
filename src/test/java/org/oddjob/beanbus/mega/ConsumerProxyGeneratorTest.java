@@ -2,19 +2,18 @@ package org.oddjob.beanbus.mega;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.beanbus.BasicBeanBus;
-import org.oddjob.beanbus.BusCrashException;
-import org.oddjob.beanbus.BusEvent;
-import org.oddjob.beanbus.BusListenerAdapter;
+import org.oddjob.framework.adapt.Start;
+import org.oddjob.framework.adapt.Stop;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
+import org.oddjob.state.ServiceState;
+import org.oddjob.tools.StateSteps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +23,6 @@ import java.util.function.Consumer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.fail;
 
 public class ConsumerProxyGeneratorTest {
 
@@ -52,101 +50,110 @@ public class ConsumerProxyGeneratorTest {
         }
     }
 
-    OurDestination wrapped;
-
-    Object proxy;
-
-    @Before
-    public void setUp() throws Exception {
-
+    <T> Object proxyFor(Consumer<T> wrapped) {
 
         ArooaSession session = new StandardArooaSession();
 
-        ConsumerProxyGenerator<String> test =
+        ConsumerProxyGenerator<T> test =
                 new ConsumerProxyGenerator<>(session);
 
-        wrapped = new OurDestination();
-
-        proxy = test.generate(wrapped, getClass().getClassLoader());
+        Object proxy = test.generate(wrapped, getClass().getClassLoader());
 
         ((ArooaSessionAware) proxy).setArooaSession(session);
-    }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGeneratedProxyImplementsRunnable() throws BusCrashException {
-
-        assertThat(proxy, instanceOf(Consumer.class));
-
-        BasicBeanBus<String> bus = new BasicBeanBus<>();
-
-        ((BusPart) proxy).prepare(bus.getBusConductor());
-
-        bus.startBus();
-
-        ((Consumer<String>) proxy).accept("apples");
-
-        assertThat(wrapped.received, Matchers.contains("apples"));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testGeneratedProxyImplementsConsumer() throws BusCrashException {
-
-        assertThat(proxy, instanceOf(Consumer.class));
-
-        BasicBeanBus<String> bus = new BasicBeanBus<>();
-
-        ((BusPart) proxy).prepare(bus.getBusConductor());
-
-        bus.startBus();
-
-        ((Consumer<String>) proxy).accept("apples");
-
-        assertThat(wrapped.received, Matchers.contains("apples"));
+        return proxy;
     }
 
     @Test
-    public void givenBusCrashedWhenGeneratedProxyConsumerAcceptThenException() {
+    public void testProxyIsRunnableStoppableAndStateful() throws FailedToStopException {
 
-        BasicBeanBus<String> bus = new BasicBeanBus<>();
-        bus.getBusConductor().addBusListener(new BusListenerAdapter() {
-            @Override
-            public void busStarting(BusEvent event) throws BusCrashException {
-                throw new BusCrashException("Crash");
-            }
-        });
-
-        ((BusPart) proxy).prepare(bus.getBusConductor());
-
-        try {
-            bus.startBus();
-            fail("Should Throw Exception");
-        } catch (BusCrashException e) {
-            assertThat(e.getMessage(), is("Crash"));
-        }
-
-        try {
-            //noinspection unchecked
-            ((Consumer<String>) proxy).accept("apples");
-            fail("Should Throw Exception");
-        } catch (RuntimeException e) {
-            assertThat(e.getCause().getCause().getCause().getMessage(), is("Crash"));
-        }
-    }
-
-    @Test
-    public void testProxyIsRunnableStoppableAndStateful() {
+        OurDestination wrapped = new OurDestination();
+        Object proxy = proxyFor(wrapped);
 
         assertThat(proxy, instanceOf(Runnable.class));
         assertThat(proxy, instanceOf(Stoppable.class));
         assertThat(proxy, instanceOf(Stateful.class));
 
+        StateSteps states = new StateSteps((Stateful) proxy);
+        states.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, ServiceState.STARTED);
+
         ((Runnable) proxy).run();
+
+        states.checkNow();
+
+        states.startCheck(ServiceState.STARTED, ServiceState.STOPPED);
+
+        ((Stoppable) proxy).stop();
+
+        states.checkNow();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGeneratedProxyImplementsConsumer() throws FailedToStopException {
+
+        OurDestination wrapped = new OurDestination();
+        Object proxy = proxyFor(wrapped);
+
+        assertThat(proxy, instanceOf(Consumer.class));
+
+        ((Runnable) proxy).run();
+
+        ((Consumer<String>) proxy).accept("apples");
+
+        assertThat(wrapped.received, Matchers.contains("apples"));
+
+        ((Stoppable) proxy).stop();
+    }
+
+    public static class BadDestination implements Consumer<String>, Runnable, AutoCloseable {
+
+        boolean called;
+
+        @Start
+        @Override
+        public void run() {
+            throw new RuntimeException("Crash");
+        }
+
+        @Stop
+        @Override
+        public void close() throws Exception {
+            throw new RuntimeException("Shouldn't be called");
+        }
+
+        @Override
+        public void accept(String s) {
+            called = true;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void givenBusCrashedWhenGeneratedProxyConsumerAcceptThenConsumerIgnored() throws FailedToStopException {
+
+        BadDestination wrapped = new BadDestination();
+        Object proxy = proxyFor(wrapped);
+
+        StateSteps states = new StateSteps((Stateful) proxy);
+        states.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, ServiceState.EXCEPTION);
+
+        ((Runnable) proxy).run();
+
+        states.checkNow();
+
+        ((Consumer<String>) proxy).accept("apples");
+
+        assertThat(wrapped.called, is(false));
+
+        ((Stoppable) proxy).stop();
     }
 
     @Test
     public void testProxyIsDescribable() {
+
+        OurDestination wrapped = new OurDestination();
+        Object proxy = proxyFor(wrapped);
 
         assertThat(proxy, instanceOf(Describable.class));
 
@@ -159,6 +166,9 @@ public class ConsumerProxyGeneratorTest {
 
     @Test
     public void testDynaBean() {
+
+        OurDestination wrapped = new OurDestination();
+        Object proxy = proxyFor(wrapped);
 
         assertThat(proxy, instanceOf(DynaBean.class));
 
@@ -182,7 +192,10 @@ public class ConsumerProxyGeneratorTest {
     }
 
     @Test
-    public void testIconicBusPart() throws BusCrashException, FailedToStopException {
+    public void testIconicBusPart() throws FailedToStopException {
+
+        OurDestination wrapped = new OurDestination();
+        Object proxy = proxyFor(wrapped);
 
         assertThat(proxy, instanceOf(Iconic.class));
 
@@ -194,21 +207,9 @@ public class ConsumerProxyGeneratorTest {
 
         assertThat(listener.iconId, is(IconHelper.STARTABLE));
 
-        BusPart busPart = (BusPart) proxy;
-
-        BasicBeanBus<String> bus = new BasicBeanBus<>();
-
-        busPart.prepare(bus.getBusConductor());
-
-        assertThat(listener.iconId, is(IconHelper.STARTABLE));
-
-        bus.startBus();
-
         ((Runnable) proxy).run();
 
         assertThat(listener.iconId, is(IconHelper.STARTED));
-
-        bus.stopBus();
 
         ((Stoppable) proxy).stop();
 

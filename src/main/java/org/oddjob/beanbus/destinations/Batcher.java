@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BatcherExample.xml}
  */
-public class Batcher<T> implements Consumer<T>, BusFilter<T, Collection<T>>, Flushable {
+public class Batcher<T> implements Consumer<T>, BusFilter<T, Collection<T>>, Flushable, Runnable, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(Batcher.class);
 
@@ -39,13 +39,17 @@ public class Batcher<T> implements Consumer<T>, BusFilter<T, Collection<T>>, Flu
     private final AtomicInteger count = new AtomicInteger();
 
     @Start
-    public void start() {
+    @Override
+    public void run() {
         batch = new ArrayList<>(batchSize);
     }
 
+    @Override
     @Stop
-    public void stop() {
+    public void close() throws Exception {
+
     }
+
 
     @HardReset
     @SoftReset

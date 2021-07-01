@@ -1,7 +1,10 @@
 package org.oddjob.beanbus.destinations;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.beanbus.*;
+import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.beanbus.BusConductor;
+import org.oddjob.framework.Service;
 
 import javax.inject.Inject;
 
@@ -12,7 +15,7 @@ import javax.inject.Inject;
  *
  * @param <F>
  */
-public class OnlyFilter<F> extends AbstractFilter<F, F>{
+public class OnlyFilter<F> extends AbstractFilter<F, F> implements Service {
 
 	private int only;
 	
@@ -21,15 +24,17 @@ public class OnlyFilter<F> extends AbstractFilter<F, F>{
 	private boolean stopBus;
 	
 	private BusConductor busConductor;
-	
-	private final TrackingBusListener busListener = 
-			new TrackingBusListener() {
-		@Override
-		public void busStarting(BusEvent event) throws BusCrashException {
-			count = 0;
-		}
-	};
-	
+
+	@Override
+	public void stop() throws FailedToStopException {
+
+	}
+
+	@Override
+	public void start() throws Exception {
+		count = 0;
+	}
+
 	@Override
 	protected F filter(F from) {
 		++count;
@@ -62,7 +67,6 @@ public class OnlyFilter<F> extends AbstractFilter<F, F>{
 	public void setBusConductor(BusConductor busConductor) {
 
 		this.busConductor = busConductor;
-		busListener.setBusConductor(busConductor);
 	}
 
 	public boolean isStopBus() {
