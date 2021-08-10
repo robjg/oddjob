@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
+    <job>
+        <oddjob file="${oddjob.dir}/ReflectionConversionExample.xml" id="example">
+            <descriptorFactory>
+                <arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa">
+                    <conversions>
+                        <arooa:conversion className="org.oddjob.arooa.convert.gremlin.GremlinSupplier" methodName="get"/>
+                    </conversions>
+                </arooa:descriptor>
+            </descriptorFactory>
+        </oddjob>
+    </job>
+</oddjob>

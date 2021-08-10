@@ -4,19 +4,19 @@
         <bean class="org.oddjob.arooa.deploy.ArooaDescriptorDescriptorFactory"/>
         <arooa:descriptor>
             <conversions>
-                <value value='org.oddjob.jobs.job.ResetActions$Conversions'/>
-                <value value='org.oddjob.state.StateConditions$Conversions'/>
-                <value value='org.oddjob.state.StateOperators$Conversions'/>
-                <value value='org.oddjob.values.types.DateType$Conversions'/>
-                <value value='org.oddjob.values.types.FormatType$Conversions'/>
-                <value value='org.oddjob.values.types.TokenizerType$Conversions'/>
-                <value value='org.oddjob.script.InvokeType$Conversions'/>
-                <value value='org.oddjob.script.ScriptInvoker$Conversions'/>
-                <value value='org.oddjob.script.MethodInvoker$Conversions'/>
-                <value value='org.oddjob.schedules.ScheduleType$Conversions'/>
-                <value value='org.oddjob.values.types.PropertyType$Conversions'/>
-                <value value='org.oddjob.values.properties.PropertiesType$Conversions'/>
-                <value value='org.oddjob.sql.SQLConversions'/>
+                <arooa:conversion className='org.oddjob.jobs.job.ResetActions$Conversions'/>
+                <arooa:conversion className='org.oddjob.state.StateConditions$Conversions'/>
+                <arooa:conversion className='org.oddjob.state.StateOperators$Conversions'/>
+                <arooa:conversion className='org.oddjob.values.types.DateType$Conversions'/>
+                <arooa:conversion className='org.oddjob.values.types.FormatType$Conversions'/>
+                <arooa:conversion className='org.oddjob.values.types.TokenizerType$Conversions'/>
+                <arooa:conversion className='org.oddjob.script.InvokeType$Conversions'/>
+                <arooa:conversion className='org.oddjob.script.ScriptInvoker$Conversions'/>
+                <arooa:conversion className='org.oddjob.script.MethodInvoker$Conversions'/>
+                <arooa:conversion className='org.oddjob.schedules.ScheduleType$Conversions'/>
+                <arooa:conversion className='org.oddjob.values.types.PropertyType$Conversions'/>
+                <arooa:conversion className='org.oddjob.values.properties.PropertiesType$Conversions'/>
+                <arooa:conversion className='org.oddjob.sql.SQLConversions'/>
             </conversions>
             <components>
                 <is element='archive' className='org.oddjob.persist.ArchiveJob'/>

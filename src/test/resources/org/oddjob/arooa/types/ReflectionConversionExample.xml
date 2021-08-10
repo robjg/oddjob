@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <gremlin>
+                        <bean class="org.oddjob.arooa.convert.gremlin.GremlinSupplier" name="Gizmo"/>
+                    </gremlin>
+                </variables>
+                <bean class="org.oddjob.arooa.convert.gremlin.ThingWithGremlin" id="thing">
+                    <myGremlin>
+                        <value value="${vars.gremlin}"/>
+                    </myGremlin>
+                </bean>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

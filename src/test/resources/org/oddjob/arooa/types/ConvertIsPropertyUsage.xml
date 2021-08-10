@@ -16,11 +16,11 @@
                     </aNumber>
                 </variables>
                 <echo><![CDATA[${vars.aNumber}
-${vars.aNumber.class}
+${vars.aNumber.class.name}
 ${vars.aNumber.value}
-${vars.aNumber.value.class}
+${vars.aNumber.value.class.name}
 ${vars.aNumber.is}
-${vars.aNumber.is.class}]]></echo>
+${vars.aNumber.is.class.name}]]></echo>
             </jobs>
         </sequential>
     </job>

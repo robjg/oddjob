@@ -20,9 +20,9 @@
                 <job>
                   <sequential>
                     <jobs>
-                      <echo id="echo1">${my-bean.class}</echo>
-                      <echo id="echo2">${my-value.class}</echo>
-                      <echo id="echo3">${my-file.class}</echo>
+                      <echo id="echo1">${my-bean.class.name}</echo>
+                      <echo id="echo2">${my-value.class.name}</echo>
+                      <echo id="echo3">${my-file.class.name}</echo>
                       <echo id="echo4">${my-reference}</echo>
                     </jobs>
                   </sequential>

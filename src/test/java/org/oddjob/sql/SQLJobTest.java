@@ -234,8 +234,8 @@ public class SQLJobTest extends OjTestCase {
         assertEquals(Integer.valueOf(1), lookup.lookup(
                 "sql.results.rowSetCount", Integer.class));
 
-        String[] rows = lookup.lookup(
-                "sql.results.rows", String[].class);
+        Object[] rows = lookup.lookup(
+                "sql.results.rows", Object[].class);
 
         assertEquals(6, rows.length);
         assertEquals("01", lookup.lookup(
@@ -265,8 +265,8 @@ public class SQLJobTest extends OjTestCase {
         assertEquals(Integer.valueOf(1), lookup.lookup(
                 "sql-query.results.rowSetCount", Integer.class));
 
-        String[] rows = lookup.lookup(
-                "sql-query.results.rows", String[].class);
+        Object[] rows = lookup.lookup(
+                "sql-query.results.rows", Object[].class);
 
         assertEquals(5, rows.length);
         assertEquals("01", lookup.lookup(
@@ -301,8 +301,8 @@ public class SQLJobTest extends OjTestCase {
         assertEquals(Integer.valueOf(1), lookup.lookup(
                 "sql-query.results.rowSetCount", Integer.class));
 
-        String[] rows = lookup.lookup(
-                "sql-query.results.rows", String[].class);
+        Object[] rows = lookup.lookup(
+                "sql-query.results.rows", Object[].class);
 
         assertEquals(1, rows.length);
         assertEquals("01", lookup.lookup(
@@ -334,8 +334,8 @@ public class SQLJobTest extends OjTestCase {
         assertEquals(Integer.valueOf(1), lookup.lookup(
                 "sql-query.results.rowSetCount", Integer.class));
 
-        String[] rows = lookup.lookup(
-                "sql-query.results.rows", String[].class);
+        Object[] rows = lookup.lookup(
+                "sql-query.results.rows", Object[].class);
 
         assertEquals(0, rows.length);
 
@@ -365,8 +365,8 @@ public class SQLJobTest extends OjTestCase {
         assertEquals(Integer.valueOf(1), lookup.lookup(
                 "sql-query.results.rowSetCount", Integer.class));
 
-        String[] rows = lookup.lookup(
-                "sql-query.results.rows", String[].class);
+        Object[] rows = lookup.lookup(
+                "sql-query.results.rows", Object[].class);
 
         assertEquals(1, rows.length);
         assertEquals("01", lookup.lookup(
