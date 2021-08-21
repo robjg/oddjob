@@ -12,6 +12,7 @@ import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.example.Fruit;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
@@ -42,7 +43,7 @@ public class TransformerScriptTest extends OjTestCase {
         TransformerScript<Object, Object> test =
                 new TransformerScript<>();
 
-        test.setScript("function transform(from) {" +
+        test.setScript("function apply(from) {" +
                 " if (from.get('quantity') > 24) {" +
                 "  return null;" +
                 " }" +
@@ -59,29 +60,6 @@ public class TransformerScriptTest extends OjTestCase {
         test.accept(bean2);
 
         assertEquals(1, results.size());
-    }
-
-    public static class Fruit {
-
-        private String type;
-
-        private int quantity;
-
-        public String getType() {
-            return type;
-        }
-
-        public void setType(String type) {
-            this.type = type;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public void setQuantity(int quantity) {
-            this.quantity = quantity;
-        }
     }
 
     @SuppressWarnings("unchecked")

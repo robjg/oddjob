@@ -18,7 +18,7 @@ import java.util.List;
  * 	<li>{@link Batcher}</li>
  * 	<li>{@link BeanCopy}</li>
  *  <li>{@link BeanQueue}</li>
- *  <li>{@link OnlyFilter}</li>
+ *  <li>{@link BeanLimit}</li>
  * </ul>
  * 
  * 

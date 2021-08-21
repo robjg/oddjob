@@ -13,15 +13,15 @@ import org.oddjob.state.ParentState;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OnlyFilterTest extends OjTestCase {
+public class BeanLimitTest extends OjTestCase {
 
     @Test
     public void testFiltersNoStop() {
 
         List<String> results = new ArrayList<>();
 
-        OnlyFilter<String> test = new OnlyFilter<>();
-        test.setOnly(2);
+        BeanLimit<String> test = new BeanLimit<>();
+        test.setLimit(2);
 
         test.setTo(results::add);
 

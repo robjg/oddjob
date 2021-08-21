@@ -13,7 +13,7 @@
             </list>
           </beans>
         </bus:iterable-driver>
-        <bus:bean-capture id="bus-part" xmlns:bus="oddjob:beanbus" />
+        <bus:capture id="bus-part" xmlns:bus="oddjob:beanbus" />
       </parts>
     </bean-bus>
   </job>

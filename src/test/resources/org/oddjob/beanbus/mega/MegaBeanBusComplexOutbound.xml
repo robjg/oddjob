@@ -19,7 +19,7 @@
                         <is/>
                     </thing>
                 </bean>
-                <bus:bean-capture id="list" xmlns:bus="oddjob:beanbus"/>
+                <bus:capture id="list" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean>
     </job>

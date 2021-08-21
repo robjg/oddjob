@@ -28,7 +28,7 @@
                                 <value value="${queue}"/>
                             </beans>
                         </bus:iterable-driver>
-                        <bus:bean-capture id="results" xmlns:bus="oddjob:beanbus"/>
+                        <bus:capture id="results" xmlns:bus="oddjob:beanbus"/>
                     </parts>
                 </bean-bus>
             </jobs>

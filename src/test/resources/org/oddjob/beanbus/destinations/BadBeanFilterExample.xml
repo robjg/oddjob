@@ -22,7 +22,7 @@
                         <value value="${good}"/>
                     </to>
                 </bean>
-                <bus:bean-capture id="good" name="Good Beans" xmlns:bus="oddjob:beanbus"/>
+                <bus:capture id="good" name="Good Beans" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean-bus>
     </job>

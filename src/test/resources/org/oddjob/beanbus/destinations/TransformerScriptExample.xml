@@ -7,14 +7,14 @@
                     <beans>
                         <list>
                             <values>
-                                <bean class="org.oddjob.beanbus.destinations.TransformerScriptTest$Fruit" quantity="42" type="Apple"/>
-                                <bean class="org.oddjob.beanbus.destinations.TransformerScriptTest$Fruit" quantity="24" type="Banana"/>
-                                <bean class="org.oddjob.beanbus.destinations.TransformerScriptTest$Fruit" quantity="15" type="Pear"/>
+                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="42" type="Apple"/>
+                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="24" type="Banana"/>
+                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="15" type="Pear"/>
                             </values>
                         </list>
                     </beans>
                 </bus:iterable-driver>
-                <bean class="org.oddjob.beanbus.destinations.TransformerScript"><![CDATA[function transform(from) {
+                <bean class="org.oddjob.beanbus.destinations.TransformerScript"><![CDATA[function apply(from) {
   if (from.quantity > 25) {
     return null;
   }
@@ -22,7 +22,7 @@
     return from;
   }
 }]]></bean>
-                <bus:bean-capture id="results" xmlns:bus="oddjob:beanbus"/>
+                <bus:capture id="results" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean-bus>
     </job>

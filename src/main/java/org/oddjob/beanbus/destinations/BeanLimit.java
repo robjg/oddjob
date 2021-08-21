@@ -15,9 +15,9 @@ import javax.inject.Inject;
  *
  * @param <F>
  */
-public class OnlyFilter<F> extends AbstractFilter<F, F> implements Service {
+public class BeanLimit<F> extends AbstractFilter<F, F> implements Service {
 
-	private int only;
+	private int limit;
 	
 	private int count;
 	
@@ -39,7 +39,7 @@ public class OnlyFilter<F> extends AbstractFilter<F, F> implements Service {
 	protected F filter(F from) {
 		++count;
 		
-		if (count > only) {
+		if (count > limit) {
 			if (stopBus) {
 				busConductor.close();
 			}
@@ -50,12 +50,12 @@ public class OnlyFilter<F> extends AbstractFilter<F, F> implements Service {
 		}
 	}
 
-	public int getOnly() {
-		return only;
+	public int getLimit() {
+		return limit;
 	}
 
-	public void setOnly(int only) {
-		this.only = only;
+	public void setLimit(int limit) {
+		this.limit = limit;
 	}
 
 	public int getCount() {

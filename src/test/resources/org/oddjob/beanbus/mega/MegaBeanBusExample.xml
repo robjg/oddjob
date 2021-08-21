@@ -14,7 +14,7 @@
                         </list>
                     </beans>
                 </bus:iterable-driver>
-                <bus:bean-capture id="list" xmlns:bus="oddjob:beanbus"/>
+                <bus:capture id="list" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean>
     </job>

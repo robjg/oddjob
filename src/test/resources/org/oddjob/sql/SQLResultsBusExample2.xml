@@ -35,7 +35,7 @@ INSERT INTO fruit VALUES ('pear');
                                 <buffer><![CDATA[SELECT type FROM fruit]]></buffer>
                             </input>
                         </sql>
-                        <bus:bean-capture id="bean-capture" xmlns:bus="oddjob:beanbus"/>
+                        <bus:capture id="bean-capture" xmlns:bus="oddjob:beanbus"/>
                     </parts>
                 </bean-bus>
             </jobs>

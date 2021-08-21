@@ -17,17 +17,17 @@
                         <value value="${before}"/>
                     </to>
                 </bus:iterable-driver>
-                <bus:bean-capture id="before" name="Beans Before"  xmlns:bus="oddjob:beanbus">
+                <bus:capture id="before" name="Beans Before"  xmlns:bus="oddjob:beanbus">
                     <to>
                         <value value="${only-filter}"/>
                     </to>
-                </bus:bean-capture>
-                <bus:only-filter id="only-filter" only="2" stopBus="true" xmlns:bus="oddjob:beanbus">
+                </bus:capture>
+                <bus:limit id="only-filter" limit="2" stopBus="true" xmlns:bus="oddjob:beanbus">
                     <to>
                         <value value="${results}"/>
                     </to>
-                </bus:only-filter>
-                <bus:bean-capture id="results" name="Beans AFter" xmlns:bus="oddjob:beanbus"/>
+                </bus:limit>
+                <bus:capture id="results" name="Beans AFter" xmlns:bus="oddjob:beanbus"/>
             </parts>
         </bean-bus>
     </job>

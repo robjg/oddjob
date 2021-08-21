@@ -5,13 +5,13 @@ import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.life.Configured;
 import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusFilter;
-import org.oddjob.beanbus.Transformer;
 
 import javax.inject.Inject;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.util.function.Function;
 
 /**
  * @oddjob.description Provide a Script as an {@link BusFilter}.
@@ -31,7 +31,7 @@ public class TransformerScript<F, T> extends AbstractFilter<F, T> {
 
 	private String script;
 	
-	private Transformer<F, T> transformer;
+	private Function<F, T> function;
 	
 	private ClassLoader classLoader;
 	
@@ -59,18 +59,18 @@ public class TransformerScript<F, T> extends AbstractFilter<F, T> {
         
         Invocable invocable = (Invocable) engine;
         
-        transformer = invocable.getInterface(Transformer.class);
+        function = invocable.getInterface(Function.class);
         
-        if (transformer == null) {
+        if (function == null) {
         	throw new IllegalStateException(
-        			"The script does not implement the Transformer interface.");
+        			"The script does not implement the Function interface.");
         }
 	}
 	
 	@Override
 	protected T filter(F from) {
 		
-		return transformer.transform(from);
+		return function.apply(from);
 	}
 
 	public String getScript() {
