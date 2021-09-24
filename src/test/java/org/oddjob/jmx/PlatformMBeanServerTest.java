@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobComponentResolver;
 import org.oddjob.OjTestCase;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jobs.EchoJob;
@@ -26,16 +27,19 @@ public class PlatformMBeanServerTest extends OjTestCase {
     @Test
     public void testClientServer() throws Exception {
 
-        Object echo = new OddjobComponentResolver().resolve(new EchoJob(), null);
+        ArooaSession arooaSession = new StandardArooaSession();
+
+        Object echo = new OddjobComponentResolver()
+                .resolve(new EchoJob(), arooaSession);
 
         JMXServerJob server = new JMXServerJob();
 
         server.setRoot(echo);
-        server.setArooaSession(new StandardArooaSession());
+        server.setArooaSession(arooaSession);
         server.start();
 
         JMXClientJob client = new JMXClientJob();
-        client.setArooaSession(new StandardArooaSession());
+        client.setArooaSession(arooaSession);
         client.run();
 
         Object[] children = OddjobTestHelper.getChildren(client);

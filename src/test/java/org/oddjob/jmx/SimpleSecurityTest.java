@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.jmx.client.UsernamePassword;
 import org.oddjob.jmx.server.SimpleServerSecurity;
@@ -124,6 +125,8 @@ public class SimpleSecurityTest extends OjTestCase {
    @Test
 	public void testReadonlyAccess() throws Exception {
 
+	   ArooaSession arooaSession = new StandardArooaSession();
+
 		try (OddjobConsole.Close close = OddjobConsole.initialise()) {
 			
 			OurDirs dirs = new OurDirs();
@@ -136,7 +139,7 @@ public class SimpleSecurityTest extends OjTestCase {
 			echo.setText("Hello World");
 			
 			Object root = new OddjobComponentResolver(
-					).resolve(echo, null);
+					).resolve(echo, arooaSession);
 			
 			SimpleServerSecurity security = new SimpleServerSecurity();
 			security.setPasswordFile(new File(config, "password.properties"));
@@ -145,7 +148,7 @@ public class SimpleSecurityTest extends OjTestCase {
 			
 			JMXServerJob server = new JMXServerJob();
 			server.setRoot(root);
-			server.setArooaSession(new StandardArooaSession());
+			server.setArooaSession(arooaSession);
 			server.setUrl("service:jmx:rmi://");
 			server.setEnvironment(security.toValue());
 			

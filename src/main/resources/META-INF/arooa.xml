@@ -17,6 +17,7 @@
                 <arooa:conversion className='org.oddjob.values.types.PropertyType$Conversions'/>
                 <arooa:conversion className='org.oddjob.values.properties.PropertiesType$Conversions'/>
                 <arooa:conversion className='org.oddjob.sql.SQLConversions'/>
+                <arooa:conversion className='org.oddjob.logging.slf4j.LogoutType$Conversions'/>
             </conversions>
             <components>
                 <is element='archive' className='org.oddjob.persist.ArchiveJob'/>
