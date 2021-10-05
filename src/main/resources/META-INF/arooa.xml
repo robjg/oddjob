@@ -147,6 +147,7 @@
         <import resource="org/oddjob/state/state.xml"/>
         <import resource="org/oddjob/jmx/jmx.xml"/>
         <import resource="org/oddjob/events/arooa.xml"/>
+        <import resource="META-INF/beanbus.xml"/>
         <bean class="org.oddjob.values.VariablesJobDescriptorFactory"/>
     </descriptors>
 </arooa:descriptors>

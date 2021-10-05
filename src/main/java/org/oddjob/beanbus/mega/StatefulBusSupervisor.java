@@ -138,12 +138,12 @@ public class StatefulBusSupervisor {
         };
     }
 
-    interface BusAction {
+    public interface BusAction {
 
         void run() throws BusCrashException;
     }
 
-    interface BusActionExecutor {
+    public interface BusActionExecutor {
 
         void stopBus();
 

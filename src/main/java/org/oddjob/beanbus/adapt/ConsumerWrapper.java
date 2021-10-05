@@ -1,8 +1,9 @@
 /*
  * Copyright (c) 2005, Rob Gordon.
  */
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.adapt;
 
+import org.oddjob.beanbus.mega.MegaBeanBus;
 import org.oddjob.framework.adapt.service.ServiceAdaptor;
 import org.oddjob.framework.adapt.service.ServiceWrapper;
 import org.oddjob.framework.util.ComponentBoundary;
@@ -13,7 +14,7 @@ import java.util.function.Consumer;
 
 /**
  * Wraps a Collection object so that it can be added to an 
- * {@link MegaBeanBus}. 
+ * {@link MegaBeanBus}.
  * <p>
  * 
  * @author Rob Gordon.

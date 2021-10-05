@@ -1,4 +1,4 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.adapt;
 
 import org.junit.Test;
 import org.oddjob.arooa.ArooaSession;

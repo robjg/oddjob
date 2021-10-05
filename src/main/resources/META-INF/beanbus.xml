@@ -1,0 +1,17 @@
+<arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+                  namespace="oddjob:beanbus" prefix="bus">
+    <components>
+        <arooa:bean-def element='bus'
+                        className='org.oddjob.beanbus.bus.BeanBusJob'/>
+        <arooa:bean-def element='driver'
+                        className='org.oddjob.beanbus.drivers.IterableBusDriver'/>
+        <arooa:bean-def element='collect'
+                        className='org.oddjob.beanbus.destinations.BeanCapture'/>
+        <arooa:bean-def element='filter'
+                        className='org.oddjob.beanbus.destinations.BeanFilter'/>
+        <arooa:bean-def element='limit'
+                        className='org.oddjob.beanbus.destinations.BeanLimit'/>
+        <arooa:bean-def element='map'
+                        className='org.oddjob.beanbus.destinations.BeanTransformer'/>
+    </components>
+</arooa:descriptor>

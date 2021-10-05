@@ -11,6 +11,7 @@ import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.arooa.standard.ExtendedTools;
+import org.oddjob.beanbus.adapt.BusComponentResolver;
 
 /**
  * Constructs an {@link ArooaSession} for a {@link MegaBeanBus}. 
@@ -58,7 +59,7 @@ public class MegaBusSessionFactory {
 				descriptor);
 		
 		componentProxyResolver = 
-				new MegaBusComponentResolver(
+				new BusComponentResolver(
 						existingSession.getComponentProxyResolver());
 		
 		final ArooaDescriptor finalDescriptor = descriptor;

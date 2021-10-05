@@ -1,4 +1,4 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.adapt;
 
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;

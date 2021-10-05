@@ -1,7 +1,7 @@
 /*
  * (c) Rob Gordon 2005
  */
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.adapt;
 
 import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
@@ -18,12 +18,12 @@ import java.util.function.Consumer;
  *
  * @author Rob Gordon.
  */
-public class MegaBusComponentResolver 
+public class BusComponentResolver
 implements ComponentProxyResolver {
 	
 	private final ComponentProxyResolver existing;
 	
-	public MegaBusComponentResolver(ComponentProxyResolver existing) {
+	public BusComponentResolver(ComponentProxyResolver existing) {
 		this.existing = existing;
 	}
 	

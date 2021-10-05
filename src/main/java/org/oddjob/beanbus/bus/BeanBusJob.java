@@ -1,17 +1,16 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.bus;
 
 
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
-import org.oddjob.arooa.design.SerializableGenericDesignFactory;
-import org.oddjob.arooa.parsing.*;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.adapt.OutboundStrategies;
+import org.oddjob.beanbus.mega.BusControls;
+import org.oddjob.beanbus.mega.StatefulBusSupervisor;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.StateOperator;
@@ -19,103 +18,45 @@ import org.oddjob.state.StateOperator;
 import javax.inject.Inject;
 import java.io.Flushable;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 /**
  *
  * @oddjob.description A job that allows the construction of a 
- * {@link BeanBus}.
+ * {@link org.oddjob.beanbus.BeanBus}.
  * <p>
- * A Bean Bus is an assembly of {@link Collection}s.
+ * A Bean Bus is an assembly of {@link Consumer}s.
  * 
  * 
- * @oddjob.example
- * 
- * A simple bus example.
- * 
- * {@oddjob.xml.resource org/oddjob/beanbus/mega/MegaBeanBusExample.xml}
- * 
+ *
  * 
  * @author Rob Gordon
  * 
  */
-@ArooaInterceptor("org.oddjob.beanbus.mega.MegaBeanBusInterceptor")
-public class MegaBeanBus extends StructuralJob<Object>
-implements ConfigurationOwner, BusServiceProvider {
-	
+@ArooaInterceptor("org.oddjob.beanbus.bus.BeanBusInterceptor")
+public class BeanBusJob extends StructuralJob<Object>
+implements BusServiceProvider {
+
     private static final long serialVersionUID = 2012021500L;
-	
-	/** Support for configuration modification. */
-	private transient volatile ConfigurationOwnerSupport configurationOwnerSupport;
-	
+
 	private transient volatile BusConductor busConductor;
 
 	private transient volatile Executor executor;
 
 	private volatile boolean noAutoLink;
-	
+
 	/**
 	 * Only constructor.
 	 */
-	public MegaBeanBus() {
+	public BeanBusJob() {
 		completeConstruction();
 	}
 	
 	private void completeConstruction() {
-		configurationOwnerSupport =
-			new ConfigurationOwnerSupport(this);
 	}
-	
-	@Override
-	@ArooaHidden
-	public void setArooaContext(ArooaContext context) {
-		super.setArooaContext(context);
-		
-		configurationOwnerSupport.setConfigurationSession(
-				new ContextConfigurationSession(context));
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#provideConfigurationSession()
-	 */
-	@Override
-	public ConfigurationSession provideConfigurationSession() {
-		
-		return configurationOwnerSupport.provideConfigurationSession();
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#addOwnerStateListener(org.oddjob.arooa.parsing.OwnerStateListener)
-	 */
-	@Override
-	public void addOwnerStateListener(OwnerStateListener listener) {
-		configurationOwnerSupport.addOwnerStateListener(listener);
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.oddjob.arooa.parsing.ConfigurationOwner#removeOwnerStateListener(org.oddjob.arooa.parsing.OwnerStateListener)
-	 */
-	@Override
-	public void removeOwnerStateListener(OwnerStateListener listener) {
-		configurationOwnerSupport.removeOwnerStateListener(listener);
-	}
-	
-	@Override
-	public SerializableDesignFactory rootDesignFactory() {
-		return new SerializableGenericDesignFactory(
-				this.getClass());
-	}
-	
-	@Override
-	public ArooaElement rootElement() {
-		return null;
-	}
-	
+
+
 	/*
 	 * (non-Javadoc)
 	 * @see org.oddjob.framework.StructuralJob#getStateOp()
@@ -135,7 +76,7 @@ implements ConfigurationOwner, BusServiceProvider {
 	 * @param child A child
 	 */
 	@ArooaComponent
-	public void setParts(int index, Object child) {
+	public void setOf(int index, Object child) {
 		if (child == null) {
 			childHelper.removeChildAt(index);
 		}
@@ -261,7 +202,7 @@ implements ConfigurationOwner, BusServiceProvider {
 			public BusConductor getService(String serviceName)
 					throws IllegalArgumentException {
 				
-				BusConductor busConductor = MegaBeanBus.this.busConductor;
+				BusConductor busConductor = BeanBusJob.this.busConductor;
 				if (busConductor == null) {
 					throw new NullPointerException(
 							"Bus Service Not Available until the Bus is Running.");
@@ -271,7 +212,7 @@ implements ConfigurationOwner, BusServiceProvider {
 			
 			@Override
 			public String toString() {
-				BusConductor busConductor = MegaBeanBus.this.busConductor;
+				BusConductor busConductor = BeanBusJob.this.busConductor;
 				if (busConductor == null) {
 					return "No Bus Service Until Running.";
 				}
