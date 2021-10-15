@@ -20,12 +20,26 @@
 		<is element='resets' 
 			className='org.oddjob.state.Resets'/>
 		<is element='cascade' 
-			className='org.oddjob.state.CascadeJobDepricated'/>
+			className='org.oddjob.state.CascadeJobDeprecated'/>
 		<is element='join' 
 			className='org.oddjob.state.JoinJob'/>
-		<is element='watch'
-			className='org.oddjob.state.expr.StateExpressionNode'/>
 		<is element='evaluate'
 			className='org.oddjob.state.expr.StateExpressionJob'/>
 	</components>
+	<values>
+		<is element='watch'
+			className='org.oddjob.state.expr.StateExpressionType'>
+			<design>
+				<design:form xmlns:design="arooa:design">
+					<formItems>
+						<design:group bordered="true" title="State Expression">
+							<formItems>
+								<design:textarea title="Ignored"/>
+							</formItems>
+						</design:group>
+					</formItems>
+				</design:form>
+			</design>
+		</is>
+	</values>
 </arooa:descriptor>

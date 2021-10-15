@@ -3,7 +3,6 @@
  */
 package org.oddjob.events;
 
-import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -49,10 +48,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 * @oddjob.description The trigger event.
 	 * @oddjob.required Read only.
 	 */
-	private volatile EventOf<T> trigger;
+	private volatile T trigger;
 
 	private volatile transient Restore restore;
-	
+
+	private volatile EventSource<T> eventSource;
+
 	public EventJobBase() {
 		completeConstruction();
 	}
@@ -62,19 +63,17 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 */
 	private void completeConstruction() {
 		asyncSupport = 
-				new AsyncExecutionSupport(new Runnable() {
-					public void run() {
-						stop = false;
-						try {
-							save();
-							EventJobBase.super.startChildStateReflector();
-						} catch (ComponentPersistException e) {
-							stateHandler().waitToWhen(s -> true, 
-									() -> getStateChanger().setStateException(e));
-							onStop();
-						}
+				new AsyncExecutionSupport(() -> {
+					stop = false;
+					try {
+						save();
+						EventJobBase.super.startChildStateReflector();
+					} catch (ComponentPersistException e) {
+						stateHandler().waitToWhen(s -> true,
+								() -> getStateChanger().setStateException(e));
+						onStop();
 					}
-			});		
+				});
 	}
 
 	@ArooaHidden
@@ -96,20 +95,39 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	@Override
 	protected void execute() throws Throwable {
 
-		final Object[] children = childHelper.getChildren();
-		
-		if (children.length < 1) {
-			throw new IllegalArgumentException("No When Node.");
-		}
-		
 		asyncSupport.reset();
 
-		@SuppressWarnings("unchecked")
-		final EventSource<T> eventSource = (EventSource<T>) children[0];
+		final Object[] children = childHelper.getChildren();
+
+		// We can either take the event source as the first child
+		// or as the property.
+		final EventSource<T> eventSource;
+		int jobIndex;
+		if (this.eventSource == null) {
+			if (children.length == 0) {
+				throw new IllegalStateException(
+						"No Event Source provided either as a property or a child component.");
+			}
+			Object firstChild = children[0];
+			if (firstChild instanceof EventSource) {
+				//noinspection unchecked
+				eventSource = (EventSource<T>) firstChild;
+			}
+			else {
+				throw new IllegalStateException("" +
+						"When Event Source provided as a property, " +
+						"the first child component is expected to be an Event Source.");
+			}
+			jobIndex = 1;
+		}
+		else {
+			eventSource = this.eventSource;
+			jobIndex = 0;
+		}
 		
 		final Object job;
-		if (children.length > 1) {
-			job = children[1];
+		if (children.length > jobIndex) {
+			job = children[jobIndex];
 		}
 		else {
 			job = null;
@@ -123,7 +141,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 			}
 		};
 		
-		final AtomicReference<Consumer<? super EventOf<T>>> consumer = new AtomicReference<>();
+		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
 		consumer.set(
 				event -> {
 					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
@@ -133,7 +151,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 				});
 
 		logger().info("Starting event source [{}]", eventSource);
-		Restore close = eventSource.start(event -> consumer.get().accept(event));
+		Restore close = eventSource.subscribe(event -> consumer.get().accept(event));
 
 		if (job == null) {
 			EventJobBase.super.startChildStateReflector();
@@ -165,11 +183,11 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		onSubscriptionStarted(job, executor);
 	}
 
-	abstract void onImmediateEvent(EventOf<T> event);
+	abstract void onImmediateEvent(T event);
 
 	abstract void onSubscriptionStarted(Object job, Executor executor);
 	
-	abstract void onLaterEvent(EventOf<T> event, Object job, Executor executor);
+	abstract void onLaterEvent(T event, Object job, Executor executor);
 
 	
 	@Override
@@ -180,18 +198,26 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	}
 	
 	@Override
-	protected void postStop() throws FailedToStopException {
+	protected void postStop() {
 		super.startChildStateReflector();
 	}
 					
-	protected void setTrigger(EventOf<T> trigger) {
+	protected void setTrigger(T trigger) {
 		this.trigger = trigger;
 	}
 	
-	public EventOf<T> getTrigger() {
+	public T getTrigger() {
 		return trigger;
 	}
-	
+
+	public EventSource<T> getEventSource() {
+		return eventSource;
+	}
+
+	public void setEventSource(EventSource<T> eventSource) {
+		this.eventSource = eventSource;
+	}
+
 	/**
 	 * Add a child job.
 	 * 

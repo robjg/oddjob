@@ -25,7 +25,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
     }
 
     @Override
-    public Restore start(List<? extends EventSource<? extends T>> nodes,
+    public Restore start(List<? extends InstantEventSource<? extends T>> nodes,
                          Consumer<? super CompositeEvent<T>> results)
             throws Exception {
 
@@ -37,7 +37,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         for (int i = 0; i < number; ++i) {
             closes.add(nodes.get(i)
-                    .start(new InputConsumer<>(
+                    .subscribe(new InputConsumer<>(
                             i,
                             theSwitch)));
         }
@@ -49,11 +49,11 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
     static class ValueByIndex<T> {
 
-        private final EventOf<? extends T> value;
+        private final InstantEvent<? extends T> value;
 
         private final int index;
 
-        ValueByIndex(EventOf<? extends T> value, int index) {
+        ValueByIndex(InstantEvent<? extends T> value, int index) {
             this.value = value;
             this.index = index;
         }
@@ -142,7 +142,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
     }
 
-    static class InputConsumer<T> implements Consumer<EventOf<? extends T>> {
+    static class InputConsumer<T> implements Consumer<InstantEvent<? extends T>> {
 
         private final Consumer<? super ValueByIndex<T>> results;
 
@@ -155,14 +155,14 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
 
         @Override
-        public void accept(EventOf<? extends T> t) {
+        public void accept(InstantEvent<? extends T> t) {
             results.accept(new ValueByIndex<>(t, index));
         }
     }
 
     static class EventsArrayImpl<T> implements EventsArray<T> {
 
-        private final List<Optional<EventOf<? extends T>>> elements;
+        private final List<Optional<InstantEvent<? extends T>>> elements;
 
         EventsArrayImpl(int size) {
 
@@ -178,22 +178,22 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
 
         @Override
-        public Optional<EventOf<? extends T>> getEventAt(int index) {
+        public Optional<InstantEvent<? extends T>> getEventAt(int index) {
             return elements.get(index);
         }
 
         @Override
-        public Stream<Optional<EventOf<? extends T>>> toStream() {
+        public Stream<Optional<InstantEvent<? extends T>>> toStream() {
             return elements.stream();
         }
 
-        public void set(int index, EventOf<? extends T> value) {
+        public void set(int index, InstantEvent<? extends T> value) {
             elements.set(index, Optional.of(value));
         }
 
         public CompositeEvent<T> toCompositeEvent() {
 
-            List<EventOf<? extends T>> eventList = elements.stream()
+            List<InstantEvent<? extends T>> eventList = elements.stream()
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .collect(Collectors.toList());

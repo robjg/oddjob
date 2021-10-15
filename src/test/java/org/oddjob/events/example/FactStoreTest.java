@@ -1,9 +1,8 @@
 package org.oddjob.events.example;
 
-import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.oddjob.OurDirs;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
@@ -37,12 +36,12 @@ public class FactStoreTest  {
         bookListSubscriber.setQuery("BookList:GREENGROCERS");
         bookListSubscriber.setFactStore(fileFactStore);
 
-        List<EventOf<BookList>> results = new ArrayList<>();
+        List<InstantEvent<BookList>> results = new ArrayList<>();
 
         StateSteps subscriberState = new StateSteps(bookListSubscriber);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-        Restore restore = bookListSubscriber.start(results::add);
+        Restore restore = bookListSubscriber.subscribe(results::add);
 
         subscriberState.checkNow();
         assertThat(results.size(), is(0));

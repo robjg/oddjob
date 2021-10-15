@@ -30,7 +30,7 @@ public class Trigger<T> extends EventJobBase<T> {
 
 	private final AtomicBoolean ran = new AtomicBoolean();
 
-	private final AtomicReference<EventOf<T>> eventRef = new AtomicReference<>();
+	private final AtomicReference<T> eventRef = new AtomicReference<>();
 	
 	@Override
 	protected void onReset() {
@@ -40,7 +40,7 @@ public class Trigger<T> extends EventJobBase<T> {
 	}
 
 	@Override
-	void onImmediateEvent(EventOf<T> value) {
+	void onImmediateEvent(T value) {
 		if (ran.getAndSet(true)) {
 			return;
 		}
@@ -56,14 +56,14 @@ public class Trigger<T> extends EventJobBase<T> {
 	}
 
 	@Override
-	void onLaterEvent(EventOf<T> value, Object job, Executor executor) {
+	void onLaterEvent(T value, Object job, Executor executor) {
 		if (ran.getAndSet(true)) {
 			return;
 		}		
 		trigger( value, job, executor);
 	}
 	
-	private void trigger(EventOf<T> event, Object job, Executor executor) {
+	private void trigger(T event, Object job, Executor executor) {
 
 		logger().info("Running {} with Trigger Event {}", job, event);
 		onStop();

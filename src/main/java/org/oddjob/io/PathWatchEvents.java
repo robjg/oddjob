@@ -1,7 +1,7 @@
 package org.oddjob.io;
 
-import org.oddjob.events.EventOf;
-import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.InstantEvent;
+import org.oddjob.events.InstantEventSourceBase;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +23,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  *
  * @author rob
  */
-public class PathWatchEvents extends EventSourceBase<Path> {
+public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
     private static final Logger logger = LoggerFactory.getLogger(PathWatchEvents.class);
 
@@ -38,7 +38,7 @@ public class PathWatchEvents extends EventSourceBase<Path> {
     private volatile boolean newOnly;
 
     @Override
-    protected Restore doStart(Consumer<? super EventOf<Path>> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
 
         final Path path = Optional.ofNullable(this.dir)
                 .orElse(Paths.get("."));
@@ -59,7 +59,7 @@ public class PathWatchEvents extends EventSourceBase<Path> {
 
         final Consumer<Path> filterConsumer = p -> {
             if (filter.test(p.getFileName().toString())) {
-                consumer.accept(EventOf.of(p, lastModifiedOf(p)));
+                consumer.accept(InstantEvent.of(p, lastModifiedOf(p)));
             }
         };
 

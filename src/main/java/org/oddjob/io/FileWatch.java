@@ -1,6 +1,6 @@
 package org.oddjob.io;
 
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.util.Restore;
 
 import java.nio.file.Path;
@@ -24,6 +24,6 @@ public interface FileWatch {
      *
      * @return Something that will close resources.
      */
-    Restore subscribe(Path path, Consumer<? super EventOf<Path>> consumer);
+    Restore subscribe(Path path, Consumer<? super InstantEvent<Path>> consumer);
 
 }

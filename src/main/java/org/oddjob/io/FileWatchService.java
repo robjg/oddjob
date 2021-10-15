@@ -1,6 +1,6 @@
 package org.oddjob.io;
 
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
@@ -82,7 +82,7 @@ public class FileWatchService implements FileWatch {
     }
 
     @Override
-    public Restore subscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
+    public Restore subscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
 
         Map<Path, FileSystemSubscriber> subscribers = Optional.ofNullable(this.subscribers)
                 .orElseThrow(() -> new IllegalStateException("Not Started"));
@@ -93,7 +93,7 @@ public class FileWatchService implements FileWatch {
         return () -> unsubscribe(path, consumer);
     }
 
-    void unsubscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
+    void unsubscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
         Path dir = path.getParent();
         subscribers.computeIfPresent(dir,
                 (key, sub) -> {
@@ -117,7 +117,7 @@ public class FileWatchService implements FileWatch {
 
     class FileSystemSubscriber {
 
-        private final Map<Path, List<Consumer<? super EventOf<Path>>>> consumers =
+        private final Map<Path, List<Consumer<? super InstantEvent<Path>>>> consumers =
                 new ConcurrentHashMap<>();
 
         private final Restore restore;
@@ -138,17 +138,17 @@ public class FileWatchService implements FileWatch {
             }
         }
 
-        void subscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
+        void subscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
 
             consumers.computeIfAbsent(path,
                     key -> new CopyOnWriteArrayList<>()).add(consumer);
 
             if (Files.exists(path)) {
-                consumer.accept(EventOf.of(path, PathWatchEvents.lastModifiedOf(path)));
+                consumer.accept(InstantEvent.of(path, PathWatchEvents.lastModifiedOf(path)));
             }
         }
 
-        void unsubscribe(Path path, Consumer<? super EventOf<Path>> consumer) {
+        void unsubscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
 
             Optional.ofNullable(consumers.get(path)).ifPresent(list -> list.remove(consumer));
             consumers.computeIfPresent(path,

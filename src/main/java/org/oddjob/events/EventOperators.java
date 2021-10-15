@@ -8,7 +8,7 @@ import org.oddjob.state.StateOperator;
 import java.util.HashMap;
 
 /**
- * Provide {@link EventOperator}s for Collection {@link EventSource}.
+ * Provide {@link EventOperator}s for Collection {@link InstantEventSource}.
  */
 public class EventOperators {
 

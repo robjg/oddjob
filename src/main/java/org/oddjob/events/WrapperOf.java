@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * @param <T> The type the event is of.
  */
-public class WrapperOf<T> implements EventOf<T> {
+public class WrapperOf<T> implements InstantEvent<T> {
 
     private final T event;
 

@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * The result of combining {@link EventOf} events. This is also an {@link EventOf} the payload of which
+ * The result of combining {@link InstantEvent} events. This is also an {@link InstantEvent} the payload of which
  * may be a new thing or one of the things being combined.
  *
  * @param <T> The type of the events being combined.
  */
-public interface CompositeEvent<T> extends EventOf<T> {
+public interface CompositeEvent<T> extends InstantEvent<T> {
 
     /**
      * Get the event in the combination at the given index.
@@ -18,7 +18,7 @@ public interface CompositeEvent<T> extends EventOf<T> {
      *
      * @return The event.
      */
-    EventOf<? extends T> getEvents(int index);
+    InstantEvent<? extends T> getEvents(int index);
 
     /**
      * Get the number of events that have been combined.
@@ -39,7 +39,7 @@ public interface CompositeEvent<T> extends EventOf<T> {
      * Return the combined events as a stream.
      * @return
      */
-    Stream<EventOf<? extends T>> stream();
+    Stream<InstantEvent<? extends T>> stream();
 
     /**
      * Create a new instance from these events.
@@ -50,7 +50,7 @@ public interface CompositeEvent<T> extends EventOf<T> {
      *
      * @return A new instance.
      */
-    static <T> CompositeEvent<T> of(EventOf<T>... eventOfs) {
+    static <T> CompositeEvent<T> of(InstantEvent<T>... eventOfs) {
         return new CompositeEventList<>(eventOfs);
     }
 }

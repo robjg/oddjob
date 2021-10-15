@@ -9,16 +9,16 @@ import java.util.stream.Stream;
  *
  * @param <T> The type of the event.
  */
-public interface EventsArray<T> extends Iterable<Optional<EventOf<? extends T>>> {
+public interface EventsArray<T> extends Iterable<Optional<InstantEvent<? extends T>>> {
 
     int getSize();
 
-    Optional<EventOf<? extends T>> getEventAt(int index);
+    Optional<InstantEvent<? extends T>> getEventAt(int index);
 
-    Stream<Optional<EventOf<? extends T>>> toStream();
+    Stream<Optional<InstantEvent<? extends T>>> toStream();
 
     @Override
-    default Iterator<Optional<EventOf<? extends T>>> iterator() {
+    default Iterator<Optional<InstantEvent<? extends T>>> iterator() {
         return toStream().iterator();
     }
 }

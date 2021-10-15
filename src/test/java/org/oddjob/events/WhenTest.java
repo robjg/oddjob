@@ -18,24 +18,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class WhenTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(WhenTest.class);
 	
-	private static class OurSubscribable extends EventSourceBase<Integer> {
+	private static class OurSubscribable extends InstantEventSourceBase<Integer> {
 
-		final List<EventOf<Integer>> ints = Arrays.asList(
-				EventOf.of(1), EventOf.of(2), EventOf.of(3));
+		final List<InstantEvent<Integer>> ints = Arrays.asList(
+				InstantEvent.of(1), InstantEvent.of(2), InstantEvent.of(3));
 		
 		final AtomicInteger index = new AtomicInteger();
 		
-		volatile Consumer<? super EventOf<Integer>> consumer;
+		volatile Consumer<? super InstantEvent<Integer>> consumer;
 		
 		@Override
-		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+		protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 			this.consumer = consumer;
 			return () -> this.consumer = null;
 		}
@@ -59,9 +59,9 @@ public class WhenTest {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		When<Number> test = new When<>();
+		When<InstantEvent<Number>> test = new When<>();
 
-		List<EventOf<Number>> results = new ArrayList<>();
+		List<InstantEvent<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
@@ -167,7 +167,7 @@ public class WhenTest {
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		When<Number> test = new When<>();
+		When<InstantEvent<Number>> test = new When<>();
 
 		test.setJobs(0, subscribe);
 		test.setExecutorService(executorService);

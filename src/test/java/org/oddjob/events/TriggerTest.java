@@ -4,12 +4,20 @@
 package org.oddjob.events;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.oddjob.*;
+import org.oddjob.FailedToStopException;
+import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
+import org.oddjob.Stateful;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.events.state.EventState;
 import org.oddjob.framework.extend.SimpleJob;
+import org.oddjob.state.FlagState;
+import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
@@ -20,37 +28,47 @@ import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
 /**
  * 
  */
-public class TriggerTest extends OjTestCase {
+public class TriggerTest {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(TriggerTest.class);
-	
-    @Before
+
+	@Rule
+	public TestName name = new TestName();
+
+	public String getName() {
+		return name.getMethodName();
+	}
+
+	@Before
     public void setUp() throws Exception {
 
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 
-	private static class OurSubscribable extends EventSourceBase<Integer> {
+	private static class OurSubscribable extends InstantEventSourceBase<Integer> {
 
 		final List<Integer> ints = Arrays.asList(1, 2, 3);
 		
 		final AtomicInteger index = new AtomicInteger();
 		
-		volatile Consumer<? super EventOf<Integer>> consumer;
+		volatile Consumer<? super InstantEvent<Integer>> consumer;
 		
 		@Override
-		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+		protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 			this.consumer = consumer;
 			return () -> this.consumer = null;
 		}
@@ -76,9 +94,9 @@ public class TriggerTest extends OjTestCase {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		Trigger<Number> test = new Trigger<>();
+		Trigger<InstantEvent<Number>> test = new Trigger<>();
 
-		List<EventOf<Number>> results = new ArrayList<>();
+		List<InstantEvent<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
@@ -164,7 +182,7 @@ public class TriggerTest extends OjTestCase {
 				
 		ExecutorService executorService = mock(ExecutorService.class);
 		
-		Trigger<Number> test = new Trigger<>();
+		Trigger<InstantEvent<Number>> test = new Trigger<>();
 
 		test.setJobs(0, subscribe);
 		test.setExecutorService(executorService);
@@ -201,10 +219,10 @@ public class TriggerTest extends OjTestCase {
 		Mockito.verifyNoInteractions(executorService);
 	}
 	
-	private static class SendWhenConnecting extends EventSourceBase<Integer> {
+	private static class SendWhenConnecting extends InstantEventSourceBase<Integer> {
 		
 		@Override
-		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+		protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 			consumer.accept(new WrapperOf<>(42, Instant.now()));
 			return () -> {};
 		}
@@ -222,9 +240,9 @@ public class TriggerTest extends OjTestCase {
 			return future;
 			}).when(executorService).submit(Mockito.any(Runnable.class));
 
-		Trigger<Number> test = new Trigger<>();
+		Trigger<InstantEvent<Number>> test = new Trigger<>();
 
-		List<EventOf<Number>> results = new ArrayList<>();
+		List<InstantEvent<Number>> results = new ArrayList<>();
 
 		SimpleJob job = new SimpleJob() {
 
@@ -259,7 +277,48 @@ public class TriggerTest extends OjTestCase {
 		
 		verify(future, times(0)).cancel(true);
 	}
-	
+
+	@Test
+	public void testSimpleStateExpressionAsPropertyExample() throws InterruptedException {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/events/TriggerStateExpressionPropertyExample.xml",
+				getClass().getClassLoader()));
+
+		oddjob.load();
+
+		assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
+
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+
+		Stateful test = (Stateful) lookup.lookup("trigger");
+
+		StateSteps testStates = new StateSteps(test);
+		testStates.startCheck(ParentState.READY,
+				ParentState.EXECUTING, ParentState.ACTIVE);
+
+		oddjob.run();
+
+		assertThat(oddjob.lastStateEvent().getState(),
+				is(ParentState.ACTIVE));
+
+		testStates.checkNow();
+
+		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+
+		Runnable thing1 = (Runnable) lookup.lookup("job1");
+		thing1.run();
+		Runnable thing2 = (Runnable) lookup.lookup("job2");
+		thing2.run();
+
+		testStates.checkWait();
+
+		assertThat(oddjob.lastStateEvent().getState(),
+				is(ParentState.COMPLETE));
+
+		oddjob.destroy();
+	}
 	
     @Test
  	public void testExpressionExample() throws InterruptedException {
@@ -283,7 +342,8 @@ public class TriggerTest extends OjTestCase {
  		
  		oddjob.run();
  		
- 		assertEquals(ParentState.ACTIVE, oddjob.lastStateEvent().getState());
+ 		assertThat(oddjob.lastStateEvent().getState(),
+				is(ParentState.ACTIVE));
 
  		testStates.checkNow();
 
@@ -296,10 +356,46 @@ public class TriggerTest extends OjTestCase {
  		
  		testStates.checkWait();
 
- 		assertEquals(ParentState.COMPLETE, oddjob.lastStateEvent().getState());
+		assertThat(oddjob.lastStateEvent().getState(),
+				is(ParentState.COMPLETE));
  		
  		oddjob.destroy();
  	}
-    
-    
+
+ 	@Test
+ 	public void testEventSourceAsPropertyIsClosed() {
+
+		AtomicReference<Consumer<? super String>> consumerRef = new AtomicReference<>();
+
+		AtomicBoolean stopped = new AtomicBoolean();
+
+		EventSource<String> eventSource = consumer -> {
+			consumerRef.set(consumer);
+			return () -> stopped.set(true);
+		};
+
+		FlagState flagState = new FlagState();
+
+		ExecutorService executorService = mock(ExecutorService.class);
+
+		Trigger<String> test = new Trigger<>();
+		test.setEventSource(eventSource);
+		test.setJobs(0, flagState);
+		test.setExecutorService(executorService);
+
+		test.run();
+
+		assertThat(test.lastStateEvent().getState(), is(ParentState.ACTIVE));
+
+		consumerRef.get().accept("Foo");
+
+		ArgumentCaptor<Runnable> captor = ArgumentCaptor.forClass(Runnable.class);
+		verify(executorService, times(1)).submit(captor.capture());
+
+		captor.getValue().run();
+
+		assertThat(test.lastStateEvent().getState(), is(ParentState.COMPLETE));
+		assertThat(flagState.lastStateEvent().getState(), is(JobState.COMPLETE));
+		assertThat(stopped.get(), is(true));
+	}
 }

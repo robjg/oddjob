@@ -14,5 +14,5 @@ public interface EventOfFactory<T> {
      *
      * @return The event of the thing.
      */
-    EventOf<T> create(T of);
+    InstantEvent<T> create(T of);
 }

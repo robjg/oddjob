@@ -2,7 +2,7 @@ package org.oddjob.state.expr;
 
 import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.utils.Try;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.framework.extend.SimpleJob;
 
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class StateExpressionJob extends SimpleJob {
      * @oddjob.description The event that is the result of the evaluation.
      * @oddjob.required Read only.
      */
-    private EventOf<Boolean> evaluation;
+    private InstantEvent<Boolean> evaluation;
 
 
     @Override
@@ -42,7 +42,7 @@ public class StateExpressionJob extends SimpleJob {
 
         StateExpression expression = expressionParser.parse(nonNullExpr);
 
-        AtomicReference<Try<EventOf<Boolean>>> result =
+        AtomicReference<Try<InstantEvent<Boolean>>> result =
                 new AtomicReference<>();
         expression.evaluate(getArooaSession(), result::set);
 
@@ -61,7 +61,7 @@ public class StateExpressionJob extends SimpleJob {
         this.expression = expression;
     }
 
-    public EventOf<Boolean> getEvaluation() {
+    public InstantEvent<Boolean> getEvaluation() {
         return evaluation;
     }
 }

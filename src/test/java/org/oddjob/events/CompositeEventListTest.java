@@ -14,11 +14,11 @@ public class CompositeEventListTest {
     @Test
     public void createSimpleTwoEventComposite() throws ParseException {
 
-        EventOf<String> event1 = new WrapperOf<>(
+        InstantEvent<String> event1 = new WrapperOf<>(
                 "apple",
                 DateHelper.parseDateTime("2019-02-15 07:00"));
 
-        EventOf<String> event2 = new WrapperOf<>(
+        InstantEvent<String> event2 = new WrapperOf<>(
                 "pear",
                 DateHelper.parseDateTime("2019-02-15 06:30"));
 
@@ -36,11 +36,11 @@ public class CompositeEventListTest {
     @Test
     public void createCompositeOfComposite() throws ParseException {
 
-        EventOf<String> event1 = new WrapperOf<>(
+        InstantEvent<String> event1 = new WrapperOf<>(
                 "apple",
                 DateHelper.parseDateTime("2019-02-15 07:00"));
 
-        EventOf<String> event2 = new WrapperOf<>(
+        InstantEvent<String> event2 = new WrapperOf<>(
                 "pear",
                 DateHelper.parseDateTime("2019-02-15 06:30"));
 
@@ -63,10 +63,10 @@ public class CompositeEventListTest {
     @Test
     public void createCompositeOfGenericHell() {
 
-        EventOf<Integer> event1 = EventOf.of(1,
+        InstantEvent<Integer> event1 = InstantEvent.of(1,
                 Instant.parse("2019-02-15T07:00:00Z"));
 
-        EventOf<Double> event2 = EventOf.of(
+        InstantEvent<Double> event2 = InstantEvent.of(
                 3.421,
                 Instant.parse("2019-02-15T06:30:00Z"));
 

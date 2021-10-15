@@ -15,26 +15,26 @@ import static org.junit.Assert.assertThat;
 
 public class EventOperatorBaseTest {
 
-    class OurSource implements EventSource<String> {
+    class OurSource implements InstantEventSource<String> {
 
         private final List<String> initial;
 
-        private Consumer<? super EventOf<String>> consumer;
+        private Consumer<? super InstantEvent<String>> consumer;
 
         OurSource(String... initial) {
             this.initial = Arrays.asList(initial);
         }
 
         @Override
-        public Restore start(Consumer<? super EventOf<String>> consumer) {
-            initial.forEach(s -> consumer.accept(EventOf.of(s)));
+        public Restore subscribe(Consumer<? super InstantEvent<String>> consumer) {
+            initial.forEach(s -> consumer.accept(InstantEvent.of(s)));
             this.consumer = consumer;
             return () -> {
             };
         }
 
         void send(String s) {
-            consumer.accept(EventOf.of(s));
+            consumer.accept(InstantEvent.of(s));
         }
     }
 
@@ -48,7 +48,7 @@ public class EventOperatorBaseTest {
                             array.toStream()
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .map(EventOf::getOf)
+                                    .map(InstantEvent::getOf)
                                     .collect(Collectors.toList());
 
                     return list.contains("red") && list.contains("blue");
@@ -59,7 +59,7 @@ public class EventOperatorBaseTest {
         List<CompositeEvent<String>> results = new ArrayList<>();
 
         OurSource source = new OurSource();
-        List<EventSource<String>> sources = Arrays.asList(
+        List<InstantEventSource<String>> sources = Arrays.asList(
                 new OurSource("blue"),
                 source,
                 new OurSource("green", "white")
@@ -87,7 +87,7 @@ public class EventOperatorBaseTest {
                             array.toStream()
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .map(EventOf::getOf)
+                                    .map(InstantEvent::getOf)
                                     .collect(Collectors.toList());
                     return list.contains("red") && list.contains("blue");
                 };
@@ -96,7 +96,7 @@ public class EventOperatorBaseTest {
 
         List<CompositeEvent<String>> results = new ArrayList<>();
 
-        List<EventSource<String>> sources = Arrays.asList(
+        List<InstantEventSource<String>> sources = Arrays.asList(
                 new OurSource("yellow", "blue"),
                 new OurSource("red")
         );
@@ -116,7 +116,7 @@ public class EventOperatorBaseTest {
         OurSource source1 = new OurSource("yellow", "blue");
         OurSource source2 = new OurSource("green", "pink");
 
-        List<EventSource<String>> sources = Arrays.asList(source1, source2);
+        List<InstantEventSource<String>> sources = Arrays.asList(source1, source2);
 
         test.start(sources, results::add);
 
@@ -172,14 +172,14 @@ public class EventOperatorBaseTest {
 
         EventOperatorBase.EventsArrayImpl<Number> test = new EventOperatorBase.EventsArrayImpl<>(3);
 
-        test.set(1, EventOf.of(1));
+        test.set(1, InstantEvent.of(1));
 
         List<Number> results = new ArrayList<>();
 
-        for (Optional<EventOf<? extends Number>> e :
+        for (Optional<InstantEvent<? extends Number>> e :
                 test) {
 
-            results.add(e.map(EventOf::getOf).orElse(null));
+            results.add(e.map(InstantEvent::getOf).orElse(null));
         }
 
         assertThat(results.get(0), CoreMatchers.nullValue());

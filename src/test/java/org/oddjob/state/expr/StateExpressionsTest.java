@@ -7,7 +7,7 @@ import org.oddjob.Stateful;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.utils.Try;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateConditions;
@@ -43,7 +43,7 @@ public class StateExpressionsTest {
         StateExpression test = new StateExpressions.Equals(
                 "MyJob", StateConditions.COMPLETE);
 
-        AtomicReference<Try<EventOf<Boolean>>> result = new AtomicReference<>();
+        AtomicReference<Try<InstantEvent<Boolean>>> result = new AtomicReference<>();
 
         Restore restore = test.evaluate(session, result::set);
 
@@ -80,9 +80,9 @@ public class StateExpressionsTest {
 
         ArooaSession session = mock(ArooaSession.class);
 
-        AtomicReference<Consumer<Try<EventOf<Boolean>>>> lhsConsumer =
+        AtomicReference<Consumer<Try<InstantEvent<Boolean>>>> lhsConsumer =
                 new AtomicReference<>();
-        AtomicReference<Consumer<Try<EventOf<Boolean>>>> rhsConsumer =
+        AtomicReference<Consumer<Try<InstantEvent<Boolean>>>> rhsConsumer =
                 new AtomicReference<>();
 
         Restore lhsRestore = mock(Restore.class);
@@ -92,7 +92,7 @@ public class StateExpressionsTest {
         when(lhs.evaluate(Mockito.any(ArooaSession.class),
                           Mockito.any(Consumer.class)))
                 .thenAnswer((Answer<Restore>) invocation -> {
-                    lhsConsumer.set((Consumer<Try<EventOf<Boolean>>>)
+                    lhsConsumer.set((Consumer<Try<InstantEvent<Boolean>>>)
                                             invocation.getArguments()[1]);
                     return lhsRestore;
                 });
@@ -101,12 +101,12 @@ public class StateExpressionsTest {
         when(rhs.evaluate(Mockito.any(ArooaSession.class),
                           Mockito.any(Consumer.class)))
                 .thenAnswer((Answer<Restore>) invocation -> {
-                    rhsConsumer.set((Consumer<Try<EventOf<Boolean>>>)
+                    rhsConsumer.set((Consumer<Try<InstantEvent<Boolean>>>)
                                             invocation.getArguments()[1]);
                     return rhsRestore;
                 });
 
-        AtomicReference<Try<EventOf<Boolean>>> result =
+        AtomicReference<Try<InstantEvent<Boolean>>> result =
                 new AtomicReference<>();
 
         StateExpression test = new StateExpressions.Or(lhs, rhs);
@@ -198,9 +198,9 @@ public class StateExpressionsTest {
 
         ArooaSession session = mock(ArooaSession.class);
 
-        AtomicReference<Consumer<Try<EventOf<Boolean>>>> lhsConsumer =
+        AtomicReference<Consumer<Try<InstantEvent<Boolean>>>> lhsConsumer =
                 new AtomicReference<>();
-        AtomicReference<Consumer<Try<EventOf<Boolean>>>> rhsConsumer =
+        AtomicReference<Consumer<Try<InstantEvent<Boolean>>>> rhsConsumer =
                 new AtomicReference<>();
 
         Restore lhsRestore = mock(Restore.class);
@@ -210,7 +210,7 @@ public class StateExpressionsTest {
         when(lhs.evaluate(Mockito.any(ArooaSession.class),
                           Mockito.any(Consumer.class)))
                 .thenAnswer((Answer<Restore>) invocation -> {
-                    lhsConsumer.set((Consumer<Try<EventOf<Boolean>>>)
+                    lhsConsumer.set((Consumer<Try<InstantEvent<Boolean>>>)
                                             invocation.getArguments()[1]);
                     return lhsRestore;
                 });
@@ -219,12 +219,12 @@ public class StateExpressionsTest {
         when(rhs.evaluate(Mockito.any(ArooaSession.class),
                           Mockito.any(Consumer.class)))
                 .thenAnswer((Answer<Restore>) invocation -> {
-                    rhsConsumer.set((Consumer<Try<EventOf<Boolean>>>)
+                    rhsConsumer.set((Consumer<Try<InstantEvent<Boolean>>>)
                                             invocation.getArguments()[1]);
                     return rhsRestore;
                 });
 
-        AtomicReference<Try<EventOf<Boolean>>> result =
+        AtomicReference<Try<InstantEvent<Boolean>>> result =
                 new AtomicReference<>();
 
         StateExpression test = new StateExpressions.And(lhs, rhs);
@@ -319,7 +319,7 @@ public class StateExpressionsTest {
 
         ArooaSession session = mock(ArooaSession.class);
 
-        AtomicReference<Consumer<Try<EventOf<Boolean>>>> exprConsumer =
+        AtomicReference<Consumer<Try<InstantEvent<Boolean>>>> exprConsumer =
                 new AtomicReference<>();
 
         Restore exprRestore = mock(Restore.class);
@@ -328,12 +328,12 @@ public class StateExpressionsTest {
         when(expr.evaluate(Mockito.any(ArooaSession.class),
                            Mockito.any(Consumer.class)))
                 .thenAnswer((Answer<Restore>) invocation -> {
-                    exprConsumer.set((Consumer<Try<EventOf<Boolean>>>)
+                    exprConsumer.set((Consumer<Try<InstantEvent<Boolean>>>)
                                              invocation.getArguments()[1]);
                     return exprRestore;
                 });
 
-        AtomicReference<Try<EventOf<Boolean>>> result =
+        AtomicReference<Try<InstantEvent<Boolean>>> result =
                 new AtomicReference<>();
 
         StateExpression test = new StateExpressions.Not(expr);

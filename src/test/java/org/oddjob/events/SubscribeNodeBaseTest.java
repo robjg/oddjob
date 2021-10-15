@@ -1,28 +1,28 @@
 package org.oddjob.events;
 
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
-
-import java.util.function.Consumer;
-
 import org.junit.Assert;
 import org.junit.Test;
 import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 
+import java.util.function.Consumer;
+
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
 public class SubscribeNodeBaseTest {
 
-	private class OurSubscriber extends EventSourceBase<Integer> {
+	private class OurSubscriber extends InstantEventSourceBase<Integer> {
 		
-		private Consumer<? super EventOf<Integer>> consumer;
+		private Consumer<? super InstantEvent<Integer>> consumer;
 		
 		void publish(Integer i) {
-			consumer.accept(EventOf.of(i));
+			consumer.accept(InstantEvent.of(i));
 		}
 		
 		@Override
-		protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+		protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 
 			this.consumer = consumer;
 			return () -> this.consumer = null;
@@ -34,14 +34,14 @@ public class SubscribeNodeBaseTest {
 	public void testStatesStartPublishStop() throws Exception {
 		
 		
-		Consumer<EventOf<Integer>> consumer = v -> {};
+		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
 		OurSubscriber test = new OurSubscriber();
 		
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-		Restore close = test.start(consumer);
+		Restore close = test.subscribe(consumer);
 		
 		state.checkNow();
 		state.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
@@ -69,13 +69,13 @@ public class SubscribeNodeBaseTest {
 	public void testStatesPublishStop() throws Exception {
 		
 		
-		Consumer<EventOf<Integer>> consumer = v -> {};
+		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
+		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
-				consumer.accept(EventOf.of(2));
+			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
+				consumer.accept(InstantEvent.of(2));
 				return () -> {};
 			}
 		};
@@ -83,7 +83,7 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.FIRING, EventState.TRIGGERED);
 
-		Restore close = test.start(consumer);
+		Restore close = test.subscribe(consumer);
 		
 		state.checkNow();
 		
@@ -98,12 +98,12 @@ public class SubscribeNodeBaseTest {
 	public void testStatesStop() throws Exception {
 		
 		
-		Consumer<EventOf<Integer>> consumer = v -> {};
+		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
+		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 				return () -> {};
 			}
 		};
@@ -111,7 +111,7 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-		Restore close = test.start(consumer);
+		Restore close = test.subscribe(consumer);
 		
 		state.checkNow();
 		
@@ -125,12 +125,12 @@ public class SubscribeNodeBaseTest {
 	@Test
 	public void testStatesStartException() throws Exception {
 				
-		Consumer<EventOf<Integer>> consumer = v -> {};
+		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		EventSourceBase<Integer> test = new EventSourceBase<Integer>() {
+		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
 			
 			@Override
-			protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
+			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 				throw new RuntimeException("Doh!");
 			}
 		};
@@ -139,7 +139,7 @@ public class SubscribeNodeBaseTest {
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.EXCEPTION);
 
 		try {
-			test.start(consumer);
+			test.subscribe(consumer);
 			Assert.fail("Should fail.");
 		}
 		catch (RuntimeException e) {

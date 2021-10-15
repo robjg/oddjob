@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * Event Sources. Still a work in progress.
  * 
  */
-public class ForEvents<T> extends EventSourceBase<T>
+public class ForEvents<T> extends InstantEventSourceBase<T>
 implements Structural, ConfigurationOwner {
 
     /** Root element for configuration. */
@@ -221,7 +221,7 @@ implements Structural, ConfigurationOwner {
 			return null;
 		}
 		
-	    if (! (root instanceof EventSource<?>)) {
+	    if (! (root instanceof InstantEventSource<?>)) {
 	    	throw new UnsupportedOperationException("Job " + root + 
 	    			" not a SubscribeNode.");
 	    }	    
@@ -310,7 +310,7 @@ implements Structural, ConfigurationOwner {
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception {
+	public Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
@@ -321,11 +321,11 @@ implements Structural, ConfigurationOwner {
 					() -> getStateChanger().setStateException(e));
 		}
 
-		List<EventSource<T>> susbscribeNodes = new ArrayList<>();
+		List<InstantEventSource<T>> susbscribeNodes = new ArrayList<>();
 		
 		for (Object child : childHelper) {
-			if (child instanceof EventSource<?>) {
-				susbscribeNodes.add((EventSource<T>) child);
+			if (child instanceof InstantEventSource<?>) {
+				susbscribeNodes.add((InstantEventSource<T>) child);
 			}
 		}
 

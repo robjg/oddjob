@@ -1,11 +1,11 @@
-<oddjob xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling"
-        xmlns:state="http://rgordon.co.uk/oddjob/state">
+<oddjob
+>
     <job>
         <sequential name="Trigger on Two Things">
             <jobs>
                 <bean class="org.oddjob.events.Trigger" id="trigger">
                     <jobs>
-                        <bean class="org.oddjob.state.expr.StateExpressionNode">
+                        <bean class="org.oddjob.state.expr.StateExpressionType">
 thing1 is success and thing2 is success and not (thing3 is success or thing4 is success)
                         </bean>
                         <echo id="notify"

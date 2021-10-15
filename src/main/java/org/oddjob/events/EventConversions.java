@@ -16,7 +16,7 @@ public class EventConversions {
                 .collect(Collectors.toList());
     }
 
-    static <T> Stream<T> flatten(EventOf<T> eventOf) {
+    static <T> Stream<T> flatten(InstantEvent<T> eventOf) {
         if (eventOf instanceof CompositeEvent) {
             return ((CompositeEvent<T>) eventOf)
                     .stream()

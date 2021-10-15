@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <events:trigger id="trigger" name="Trigger on Jobs" xmlns:events="oddjob:events">
+                    <eventSource>
+                        <state:watch xmlns:state="http://rgordon.co.uk/oddjob/state">
+                            <![CDATA[job1 is COMPLETE 
+AND 
+job2 is COMPLETE
+]]>
+                        </state:watch>
+                    </eventSource>
+                    <jobs>
+                        <echo id="job3" name="Job 3">
+                            <![CDATA[It's Done!]]>
+                        </echo>
+                    </jobs>
+                </events:trigger>
+                <folder>
+                    <jobs>
+                        <echo id="job1" name="Job 1">
+                            <![CDATA[Hello]]>
+                        </echo>
+                        <echo id="job2" name="Job 2">
+                            <![CDATA[World]]>
+                        </echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

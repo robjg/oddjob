@@ -1,9 +1,9 @@
-<arooa:descriptor  xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
-    prefix="events" namespace="oddjob:events">
+<arooa:descriptor xmlns:arooa="http://rgordon.co.uk/oddjob/arooa"
+                  prefix="events" namespace="oddjob:events">
     <conversions>
         <value value='org.oddjob.events.EventOperators$Conversions'/>
     </conversions>
-	<components>
+    <components>
         <arooa:bean-def element='file-watch'
                         className='org.oddjob.io.FileWatchEventSource'/>
         <arooa:bean-def element='file-watch-service'
@@ -14,9 +14,59 @@
                         className='org.oddjob.events.ForEvents'
                         designFactory='org.oddjob.events.ForEventsDesignFactory'/>
         <arooa:bean-def element='trigger'
-                        className='org.oddjob.events.Trigger'/>
+                        className='org.oddjob.events.Trigger'>
+            <design>
+                <design:form xmlns:design="arooa:design">
+                    <formItems>
+                        <design:group bordered="true" title="General">
+                            <formItems>
+                                <design:text property="name" title="Name"/>
+                            </formItems>
+                        </design:group>
+                        <design:radio title="Properties">
+                            <formItems>
+                                <design:single property="eventSource" title="Event Source"/>
+                                <design:indexed property="jobs" title="Jobs"/>
+                            </formItems>
+                        </design:radio>
+                    </formItems>
+                </design:form>
+            </design>
+        </arooa:bean-def>
         <arooa:bean-def element='when'
-                        className='org.oddjob.events.When'/>
-	</components>
-
+                        className='org.oddjob.events.When'>
+            <design>
+                <design:form xmlns:design="arooa:design">
+                    <formItems>
+                        <design:group bordered="true" title="General">
+                            <formItems>
+                                <design:text property="name" title="Name"/>
+                            </formItems>
+                        </design:group>
+                        <design:radio title="Properties">
+                            <formItems>
+                                <design:single property="eventSource" title="Event Source"/>
+                                <design:indexed property="jobs" title="Jobs"/>
+                            </formItems>
+                        </design:radio>
+                    </formItems>
+                </design:form>
+            </design>
+        </arooa:bean-def>
+        <arooa:bean-def element='watch'
+                        className='org.oddjob.events.EventWatchComponent'>
+            <design>
+                <design:form xmlns:design="arooa:design">
+                    <formItems>
+                        <design:group bordered="true" title="General">
+                            <formItems>
+                                <design:text property="name" title="Name"/>
+                                <design:single property="eventSource" title="Event Source"/>
+                            </formItems>
+                        </design:group>
+                    </formItems>
+                </design:form>
+            </design>
+        </arooa:bean-def>
+    </components>
 </arooa:descriptor>

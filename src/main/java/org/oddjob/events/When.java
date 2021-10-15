@@ -27,10 +27,10 @@ public class When<T> extends EventJobBase<T> {
 	
 	private static final long serialVersionUID = 2018060600L; 
 
-	private final AtomicReference<EventOf<T>> eventRef = new AtomicReference<>();
+	private final AtomicReference<T> eventRef = new AtomicReference<>();
 
 	@Override
-	void onImmediateEvent(EventOf<T> event) {
+	void onImmediateEvent(T event) {
 		eventRef.set(event);
 	}
 	
@@ -41,11 +41,11 @@ public class When<T> extends EventJobBase<T> {
 	}
 	
 	@Override
-	synchronized void onLaterEvent(EventOf<T> event, Object job, Executor executor) {
+	synchronized void onLaterEvent(T event, Object job, Executor executor) {
 		trigger(event, job, executor);
 	}
 	
-	void trigger(EventOf<T> event, Object job, Executor executor) {
+	void trigger(T event, Object job, Executor executor) {
 
 		if (job != null) {
 			if (job instanceof Stoppable) {
@@ -53,7 +53,7 @@ public class When<T> extends EventJobBase<T> {
 				try {
 					((Stoppable) job).stop();
 				} catch (FailedToStopException e) {
-					throw new RuntimeException("[" + this.toString() + "] failed to stop child [" +
+					throw new RuntimeException("[" + this + "] failed to stop child [" +
 							job + "] for event " + event, e);
 				}
 			}
@@ -65,10 +65,8 @@ public class When<T> extends EventJobBase<T> {
 
 		setTrigger(event);
 		
-		if (job != null) {
-			if (job != null && job instanceof Runnable) {
+		if (job instanceof Runnable) {
 				executor.execute((Runnable) job);
-			}
 		}
 	}
 }

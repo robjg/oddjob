@@ -6,7 +6,7 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.utils.Try;
 import org.oddjob.events.BinaryEvaluation;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.events.UnaryEvaluation;
 import org.oddjob.state.StateCondition;
 import org.oddjob.state.StateListener;
@@ -37,7 +37,7 @@ public class StateExpressions {
 
         @Override
         public Restore evaluate(ArooaSession session,
-                                Consumer<? super Try<EventOf<Boolean>>> results) {
+                                Consumer<? super Try<InstantEvent<Boolean>>> results) {
 
             Stateful stateful;
             try {
@@ -91,10 +91,10 @@ public class StateExpressions {
 
         private final StateExpression rhs;
 
-        private final BinaryOperator<EventOf<Boolean>> logic;
+        private final BinaryOperator<InstantEvent<Boolean>> logic;
 
         public BinaryLogic(StateExpression lhs, StateExpression rhs,
-                           BinaryOperator<EventOf<Boolean>> logic) {
+                           BinaryOperator<InstantEvent<Boolean>> logic) {
             this.lhs = lhs;
             this.rhs = rhs;
             this.logic = logic;
@@ -102,34 +102,34 @@ public class StateExpressions {
 
         @Override
         public Restore evaluate(ArooaSession session,
-                                Consumer<? super Try<EventOf<Boolean>>> results) {
+                                Consumer<? super Try<InstantEvent<Boolean>>> results) {
 
-            AtomicReference<Try<EventOf<Boolean>>> lResult =
+            AtomicReference<Try<InstantEvent<Boolean>>> lResult =
                     new AtomicReference<>();
-            AtomicReference<Try<EventOf<Boolean>>> rResult =
+            AtomicReference<Try<InstantEvent<Boolean>>> rResult =
                     new AtomicReference<>();
 
-            class Evaluator implements Consumer<Try<EventOf<Boolean>>> {
+            class Evaluator implements Consumer<Try<InstantEvent<Boolean>>> {
 
-                private final AtomicReference<Try<EventOf<Boolean>>> ours;
-                private final AtomicReference<Try<EventOf<Boolean>>> other;
+                private final AtomicReference<Try<InstantEvent<Boolean>>> ours;
+                private final AtomicReference<Try<InstantEvent<Boolean>>> other;
 
-                Evaluator(AtomicReference<Try<EventOf<Boolean>>> ours,
-                          AtomicReference<Try<EventOf<Boolean>>> other) {
+                Evaluator(AtomicReference<Try<InstantEvent<Boolean>>> ours,
+                          AtomicReference<Try<InstantEvent<Boolean>>> other) {
                     this.ours = ours;
                     this.other = other;
                 }
 
                 @Override
-                public void accept(Try<EventOf<Boolean>> t) {
+                public void accept(Try<InstantEvent<Boolean>> t) {
                     ours.set(t);
 
-                    Try<EventOf<Boolean>> otherResult = other.get();
+                    Try<InstantEvent<Boolean>> otherResult = other.get();
                     if (otherResult == null) {
                         return;
                     }
 
-                    Try<EventOf<Boolean>> ourResult =
+                    Try<InstantEvent<Boolean>> ourResult =
                             t.flatMap(ourBool ->
                                               otherResult.map(otherBool ->
                                                                       logic.apply(ourBool, otherBool)));
@@ -159,7 +159,7 @@ public class StateExpressions {
 
         @Override
         public Restore evaluate(ArooaSession session,
-                                Consumer<? super Try<EventOf<Boolean>>> results) {
+                                Consumer<? super Try<InstantEvent<Boolean>>> results) {
 
             return expr.evaluate(
                     session,

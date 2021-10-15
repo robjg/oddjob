@@ -1,6 +1,6 @@
 package org.oddjob.events.state;
 
-import org.oddjob.events.EventSource;
+import org.oddjob.events.InstantEventSource;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.State;
@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * Encapsulate the allowed states for a {@link EventSource}.
+ * Encapsulate the allowed states for a {@link InstantEventSource}.
  * 
  * @author Rob Gordon
  */

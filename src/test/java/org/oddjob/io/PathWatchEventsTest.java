@@ -2,7 +2,7 @@ package org.oddjob.io;
 
 import org.junit.Test;
 import org.oddjob.OurDirs;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.util.Restore;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public class PathWatchEventsTest {
 
         PathWatchEvents test = new PathWatchEvents();
         test.setDir(testPath);
-        BlockingQueue<EventOf<Path>> paths = new LinkedBlockingQueue<>();
+        BlockingQueue<InstantEvent<Path>> paths = new LinkedBlockingQueue<>();
 
         Restore restore = test.doStart(paths::add);
 
@@ -70,11 +70,11 @@ public class PathWatchEventsTest {
 
         Path test0 = Files.createFile(testPath.resolve("test0.txt"));
 
-        BlockingQueue<EventOf<Path>> paths = new LinkedBlockingQueue<>();
+        BlockingQueue<InstantEvent<Path>> paths = new LinkedBlockingQueue<>();
 
         AtomicReference<Path> test1 = new AtomicReference<>();
 
-        Consumer<EventOf<Path>> c = eventOf -> {
+        Consumer<InstantEvent<Path>> c = eventOf -> {
             Path path = eventOf.getOf();
             if (test0.equals(path)) {
                 try {
@@ -108,7 +108,7 @@ public class PathWatchEventsTest {
 
         PathWatchEvents test = new PathWatchEvents();
         test.setDir(testPath);
-        BlockingQueue<EventOf<Path>> paths = new LinkedBlockingQueue<>();
+        BlockingQueue<InstantEvent<Path>> paths = new LinkedBlockingQueue<>();
 
         Restore restore = test.doStart(paths::add);
 
@@ -121,7 +121,7 @@ public class PathWatchEventsTest {
         Set<Instant> modifiedTime = new HashSet<>();
 
         while(true) {
-            EventOf<Path> next = paths.poll(TIMEOUT, TimeUnit.MILLISECONDS);
+            InstantEvent<Path> next = paths.poll(TIMEOUT, TimeUnit.MILLISECONDS);
             if (next == null) {
                 break;
             }

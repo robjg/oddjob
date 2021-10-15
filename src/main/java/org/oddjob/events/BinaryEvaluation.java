@@ -17,11 +17,11 @@ public class BinaryEvaluation<T> implements CompositeEvent<T> {
 
     private final Instant lastTime;
 
-    private final EventOf<T> lhs;
+    private final InstantEvent<T> lhs;
 
-    private final EventOf<T> rhs;
+    private final InstantEvent<T> rhs;
 
-    public BinaryEvaluation(T result, EventOf<T> lhs, EventOf<T> rhs) {
+    public BinaryEvaluation(T result, InstantEvent<T> lhs, InstantEvent<T> rhs) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(lhs);
         Objects.requireNonNull(rhs);
@@ -40,16 +40,16 @@ public class BinaryEvaluation<T> implements CompositeEvent<T> {
         return result;
     }
 
-    public EventOf<T> getLhs() {
+    public InstantEvent<T> getLhs() {
         return lhs;
     }
 
-    public EventOf<T> getRhs() {
+    public InstantEvent<T> getRhs() {
         return rhs;
     }
 
     @Override
-    public EventOf<T> getEvents(int index) {
+    public InstantEvent<T> getEvents(int index) {
         if (index == 0) {
             return getLhs();
         }
@@ -73,7 +73,7 @@ public class BinaryEvaluation<T> implements CompositeEvent<T> {
     }
 
     @Override
-    public Stream<EventOf<? extends T>> stream() {
+    public Stream<InstantEvent<? extends T>> stream() {
         return Stream.of(lhs, rhs);
     }
 

@@ -17,9 +17,9 @@ public class UnaryEvaluation<T> implements CompositeEvent<T> {
 
     private final Instant lastTime;
 
-    private final EventOf<T> operand;
+    private final InstantEvent<T> operand;
 
-    public UnaryEvaluation(T result, EventOf<T> operand) {
+    public UnaryEvaluation(T result, InstantEvent<T> operand) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(operand);
 
@@ -33,12 +33,12 @@ public class UnaryEvaluation<T> implements CompositeEvent<T> {
         return result;
     }
 
-    public EventOf<T> getOperand() {
+    public InstantEvent<T> getOperand() {
         return operand;
     }
 
     @Override
-    public EventOf<T> getEvents(int index) {
+    public InstantEvent<T> getEvents(int index) {
         if (index < 0 || index > 0) {
             throw new IndexOutOfBoundsException("Only 0 allowed.");
         }
@@ -55,7 +55,7 @@ public class UnaryEvaluation<T> implements CompositeEvent<T> {
     }
 
     @Override
-    public Stream<EventOf<? extends T>> stream() {
+    public Stream<InstantEvent<? extends T>> stream() {
         return Stream.of(operand);
     }
 

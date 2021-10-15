@@ -1,8 +1,8 @@
 package org.oddjob.events.example;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.events.EventOf;
-import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.InstantEvent;
+import org.oddjob.events.InstantEventSourceBase;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
-public class FactSubscriber<T> extends EventSourceBase<T> {
+public class FactSubscriber<T> extends InstantEventSourceBase<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(FactSubscriber.class);
 
@@ -26,10 +26,10 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
 
     private volatile FactStore factStore;
 
-    private volatile EventOf<T> last;
+    private volatile InstantEvent<T> last;
 
     @Override
-    public Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception {
+    public Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception {
 
         FactStore factStore = Optional.ofNullable(this.factStore)
                 .orElseThrow(() -> new IllegalArgumentException("No Fact Store"));
@@ -37,10 +37,10 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
         String query = Optional.ofNullable(this.query)
                 .orElseThrow(() -> new IllegalArgumentException("No Query"));
 
-        class FactStoreConsumer implements Consumer<EventOf<T>> {
+        class FactStoreConsumer implements Consumer<InstantEvent<T>> {
 
             @Override
-            public void accept(EventOf<T> t) {
+            public void accept(InstantEvent<T> t) {
                 last = t;
                 logger.info("Received: {}", t);
                 consumer.accept(t);
@@ -63,7 +63,7 @@ public class FactSubscriber<T> extends EventSourceBase<T> {
         this.query = query;
     }
 
-    public EventOf<T> getLast() {
+    public InstantEvent<T> getLast() {
         return last;
     }
 

@@ -1,6 +1,6 @@
 package org.oddjob.state.expr;
 
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
  *
  * @see StateExpression
  */
-public class StateEvaluation implements EventOf<Boolean> {
+public class StateEvaluation implements InstantEvent<Boolean> {
 
     private final Boolean result;
 

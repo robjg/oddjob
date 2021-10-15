@@ -8,16 +8,19 @@ import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 
 import java.io.File;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class StateExpressionExamplesTest {
 
     @Test
     public void testLastTimeExample() throws FailedToStopException, ArooaConversionException, InterruptedException {
 
-        File file = new File(getClass().getResource("StateExpressionTimeExample.xml").getFile());
+        File file = new File(Objects.requireNonNull(getClass()
+                        .getResource("StateExpressionTimeExample.xml"))
+                .getFile());
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(file);

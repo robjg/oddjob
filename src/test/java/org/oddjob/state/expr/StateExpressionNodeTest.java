@@ -1,17 +1,17 @@
 package org.oddjob.state.expr;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.standard.StandardArooaSession;
+import org.oddjob.events.InstantEvent;
+import org.oddjob.state.FlagState;
+import org.oddjob.util.Restore;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Test;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.events.EventOf;
-import org.oddjob.state.FlagState;
-import org.oddjob.util.Restore;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 public class StateExpressionNodeTest {
 
@@ -23,13 +23,13 @@ public class StateExpressionNodeTest {
 		ArooaSession session = new StandardArooaSession();
 		session.getBeanRegistry().register("flag", job);
 		
-		StateExpressionNode test = new StateExpressionNode();
+		StateExpressionType test = new StateExpressionType();
 		test.setArooaSession(session);
 		test.setExpression("flag is success");
 		
-		List<EventOf<Boolean>> results = new ArrayList<>();
+		List<InstantEvent<Boolean>> results = new ArrayList<>();
 		
-		Restore restore = test.start(results::add);
+		Restore restore = test.subscribe(results::add);
 
 		assertThat(results.size(), is(0));		
 

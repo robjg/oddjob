@@ -2,18 +2,15 @@ package org.oddjob.events.example;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.events.EventOf;
-import org.oddjob.io.FileWatch;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.io.FileWatchService;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
@@ -56,7 +53,7 @@ public class FileFactStore implements FactStore {
 
 
     @Override
-    public <T> Restore subscribe(String query, Consumer<? super EventOf<T>> consumer) throws ClassNotFoundException {
+    public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) throws ClassNotFoundException {
         return Optional.ofNullable(service).orElseThrow(() -> new IllegalStateException("Not Started"))
                 .subscribe(query, consumer);
     }
@@ -79,7 +76,7 @@ public class FileFactStore implements FactStore {
         }
 
         @Override
-        public <T> Restore subscribe(String query, Consumer<? super EventOf<T>> consumer) throws ClassNotFoundException {
+        public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) throws ClassNotFoundException {
 
             Query parsedQuery = parseQuery(query);
 
@@ -96,7 +93,7 @@ public class FileFactStore implements FactStore {
                 }
                 T fact = (T) readFact(p.getOf(), parsedQuery.type);
                 Optional.ofNullable(fact)
-                        .ifPresent(f -> consumer.accept(EventOf.of(f, p.getTime())));
+                        .ifPresent(f -> consumer.accept(InstantEvent.of(f, p.getTime())));
             });
 
             return () -> {

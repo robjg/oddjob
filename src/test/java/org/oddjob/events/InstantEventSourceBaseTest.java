@@ -13,18 +13,18 @@ import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class EventSourceBaseTest {
+public class InstantEventSourceBaseTest {
 
-    private static class OurSubscriber extends EventSourceBase<String> {
+    private static class OurSubscriber extends InstantEventSourceBase<String> {
 
         private boolean closed;
 
-        private EventOf<String> initial;
+        private InstantEvent<String> initial;
 
-        private Consumer<? super EventOf<String>> consumer;
+        private Consumer<? super InstantEvent<String>> consumer;
 
         @Override
-        protected Restore doStart(Consumer<? super EventOf<String>> consumer) {
+        protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {
 
             Optional.ofNullable(initial).ifPresent(consumer);
             this.consumer = consumer;
@@ -36,15 +36,15 @@ public class EventSourceBaseTest {
     public void testHappyPathStatesAsExpectedEventThere() throws Exception {
 
         OurSubscriber test = new OurSubscriber();
-        test.initial = EventOf.of("Apple");
+        test.initial = InstantEvent.of("Apple");
 
-        List<EventOf<String>> results = new ArrayList<>();
+        List<InstantEvent<String>> results = new ArrayList<>();
 
         StateSteps subscriberState = new StateSteps(test);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
                 EventState.FIRING, EventState.TRIGGERED);
 
-        Restore restore = test.start(results::add);
+        Restore restore = test.subscribe(results::add);
 
         subscriberState.checkNow();
         assertThat(results.size(), is(1));
@@ -61,13 +61,13 @@ public class EventSourceBaseTest {
 
         OurSubscriber test = new OurSubscriber();
 
-        List<EventOf<String>> results = new ArrayList<>();
+        List<InstantEvent<String>> results = new ArrayList<>();
 
         StateSteps subscriberState = new StateSteps(test);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
                 EventState.WAITING);
 
-        Restore restore = test.start(results::add);
+        Restore restore = test.subscribe(results::add);
 
         subscriberState.checkNow();
 
@@ -75,7 +75,7 @@ public class EventSourceBaseTest {
 
         subscriberState.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 
-        test.consumer.accept(EventOf.of("Apple"));
+        test.consumer.accept(InstantEvent.of("Apple"));
 
         subscriberState.checkNow();
 

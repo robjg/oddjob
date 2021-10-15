@@ -25,10 +25,10 @@ implements EventSource<T>, Resettable {
 
 	/** Handle state. */
 	private transient volatile EventStateHandler stateHandler;
-	
+
 	/** Used to notify clients of an icon change. */
 	private transient volatile IconHelper iconHelper;
-	
+
     /** Changes state */
 	private transient volatile EventStateChanger stateChanger;
 
@@ -61,7 +61,7 @@ implements EventSource<T>, Resettable {
 	}
 	
 	@Override
-	public final Restore start(Consumer<? super EventOf<T>> consumer) throws Exception {
+	public final Restore subscribe(Consumer<? super T> consumer) throws Exception {
 		Objects.requireNonNull(consumer);
 				
 		if (!stateHandler().waitToWhen(new IsExecutable(), 
@@ -70,7 +70,7 @@ implements EventSource<T>, Resettable {
 		}
 
 		final Semaphore barrier = new Semaphore(1);
-		Consumer<EventOf<T>> consumerWrapper = value ->  {
+		Consumer<T> consumerWrapper = value ->  {
 			try (Restore ignored = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
 				barrier.acquire();
 				stateHandler().waitToWhen(s -> true, 
@@ -136,7 +136,7 @@ implements EventSource<T>, Resettable {
 				() -> getStateChanger().setStateException(e));					
 	}
 	
-	protected abstract Restore doStart(Consumer<? super EventOf<T>> consumer) throws Exception;
+	protected abstract Restore doStart(Consumer<? super T> consumer) throws Exception;
 
     @Override
     public boolean softReset() {
@@ -161,7 +161,7 @@ implements EventSource<T>, Resettable {
     }
 
 	/**
-	 * Allow sub classes to do something on a soft reset. Defaults to {@link #onReset()}
+	 * Allow subclasses to do something on a soft reset. Defaults to {@link #onReset()}
 	 */
 	protected void onSoftReset() {
 		onReset();

@@ -1,7 +1,7 @@
 package org.oddjob.io;
 
-import org.oddjob.events.EventOf;
-import org.oddjob.events.EventSourceBase;
+import org.oddjob.events.InstantEvent;
+import org.oddjob.events.InstantEventSourceBase;
 import org.oddjob.events.Trigger;
 import org.oddjob.events.When;
 import org.oddjob.util.Restore;
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * @see Trigger
  * @see When
  */
-public class FileWatchEventSource extends EventSourceBase<Path> {
+public class FileWatchEventSource extends InstantEventSourceBase<Path> {
 
     /**
      * @oddjob.property
@@ -53,7 +53,7 @@ public class FileWatchEventSource extends EventSourceBase<Path> {
     private volatile AtomicReference<Instant> lastModified = new AtomicReference<>();
 
     @Override
-    protected Restore doStart(Consumer<? super EventOf<Path>> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
         Objects.requireNonNull(consumer, "No Consumer");
 
         Path file = Optional.ofNullable(this.file)

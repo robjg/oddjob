@@ -21,10 +21,10 @@ import static org.junit.Assert.assertThat;
 
 public class ListSourceTest {
 
-    private static class IntSource implements EventSource<Integer> {
+    private static class IntSource implements InstantEventSource<Integer> {
 
         @Override
-        public Restore start(Consumer<? super EventOf<Integer>> consumer) {
+        public Restore subscribe(Consumer<? super InstantEvent<Integer>> consumer) {
             consumer.accept(new WrapperOf<>(1, Instant.now()));
             consumer.accept(new WrapperOf<>(2, Instant.now()));
             return () -> {
@@ -41,7 +41,7 @@ public class ListSourceTest {
         test.setChild(0, new IntSource());
         test.setChild(1, new IntSource());
 
-        List<EventOf<Integer>> results = new ArrayList<>();
+        List<InstantEvent<Integer>> results = new ArrayList<>();
 
         StateSteps stateSteps = new StateSteps(test);
         stateSteps.startCheck(EventState.READY, EventState.CONNECTING,
@@ -49,7 +49,7 @@ public class ListSourceTest {
                               EventState.FIRING, EventState.TRIGGERED,
                               EventState.FIRING, EventState.TRIGGERED);
 
-        Restore restore = test.start(results::add);
+        Restore restore = test.subscribe(results::add);
 
         stateSteps.checkNow();
 
@@ -80,7 +80,7 @@ public class ListSourceTest {
                               EventState.FIRING, EventState.TRIGGERED,
                               EventState.FIRING, EventState.TRIGGERED);
 
-        restore = test.start(results::add);
+        restore = test.subscribe(results::add);
 
         stateSteps.checkNow();
 

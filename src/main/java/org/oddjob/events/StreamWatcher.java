@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  *     for the word "Error" or some such.
  * </p>
  */
-public class StreamWatcher extends EventSourceBase<String> {
+public class StreamWatcher extends InstantEventSourceBase<String> {
 
     /**
      * @oddjob.property
@@ -32,9 +32,9 @@ public class StreamWatcher extends EventSourceBase<String> {
     private OutputStream out;
 
     @Override
-    protected Restore doStart(Consumer<? super EventOf<String>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) throws Exception {
 
-         AtomicReference<Consumer<? super EventOf<String>>> consumerRef =
+         AtomicReference<Consumer<? super InstantEvent<String>>> consumerRef =
                  new AtomicReference<>(consumer);
 
 
@@ -56,7 +56,7 @@ public class StreamWatcher extends EventSourceBase<String> {
                 if ( index == watch.length) {
                     index = 0;
                     Optional.ofNullable(consumerRef.get())
-                            .ifPresent(c -> c.accept(EventOf.of(new String(watch))));
+                            .ifPresent(c -> c.accept(InstantEvent.of(new String(watch))));
                 }
             }
 

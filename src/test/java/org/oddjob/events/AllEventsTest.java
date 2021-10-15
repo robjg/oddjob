@@ -14,32 +14,32 @@ import static org.junit.Assert.assertThat;
 
 public class AllEventsTest {
 
-    private class IntEvents implements EventSource<Integer> {
+    private class IntEvents implements InstantEventSource<Integer> {
 
-        Consumer<? super EventOf<Integer>> consumer;
+        Consumer<? super InstantEvent<Integer>> consumer;
 
         void publish(Integer i) {
-            consumer.accept(EventOf.of(i));
+            consumer.accept(InstantEvent.of(i));
         }
 
         @Override
-        public Restore start(Consumer<? super EventOf<Integer>> consumer) {
+        public Restore subscribe(Consumer<? super InstantEvent<Integer>> consumer) {
             this.consumer = consumer;
             return () -> {
             };
         }
     }
 
-    private class DoubleEvents implements EventSource<Double> {
+    private class DoubleEvents implements InstantEventSource<Double> {
 
-        Consumer<? super EventOf<Double>> consumer;
+        Consumer<? super InstantEvent<Double>> consumer;
 
         void publish(Double d) {
-            consumer.accept(EventOf.of(d));
+            consumer.accept(InstantEvent.of(d));
         }
 
         @Override
-        public Restore start(Consumer<? super EventOf<Double>> consumer) {
+        public Restore subscribe(Consumer<? super InstantEvent<Double>> consumer) {
             this.consumer = consumer;
             return () -> {
             };
@@ -57,7 +57,7 @@ public class AllEventsTest {
 
         AllEvents<Number> test = new AllEvents<>();
 
-        List<EventSource<? extends Number>> sources =
+        List<InstantEventSource<? extends Number>> sources =
                 Arrays.asList(ie, de);
 
         test.start(sources,
@@ -82,10 +82,10 @@ public class AllEventsTest {
                 is(Arrays.asList(1, 2.6)));
     }
 
-    private class TwoInitialEvents implements EventSource<Integer> {
+    private class TwoInitialEvents implements InstantEventSource<Integer> {
 
         @Override
-        public Restore start(Consumer<? super EventOf<Integer>> consumer) {
+        public Restore subscribe(Consumer<? super InstantEvent<Integer>> consumer) {
             consumer.accept(new WrapperOf<>(1, Instant.now()));
             consumer.accept(new WrapperOf<>(2, Instant.now()));
             return () -> {
@@ -100,7 +100,7 @@ public class AllEventsTest {
 
         AllEvents<Integer> test = new AllEvents<>();
 
-        List<EventSource<Integer>> eventSources = Arrays.asList(new TwoInitialEvents(),
+        List<InstantEventSource<Integer>> eventSources = Arrays.asList(new TwoInitialEvents(),
                 new TwoInitialEvents());
 
         test.start(eventSources,

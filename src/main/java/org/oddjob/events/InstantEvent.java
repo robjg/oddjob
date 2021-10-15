@@ -1,6 +1,5 @@
 package org.oddjob.events;
 
-import java.awt.*;
 import java.time.Instant;
 
 /**
@@ -9,7 +8,7 @@ import java.time.Instant;
  *
  * @param <T> The type of the event or trigger.
  */
-public interface EventOf<T> {
+public interface InstantEvent<T> {
 
     /**
      * Get the underlying event or trigger. Will not be null.
@@ -26,11 +25,11 @@ public interface EventOf<T> {
     Instant getTime();
 
 
-    static <T> EventOf<T> of(T item, Instant time) {
+    static <T> InstantEvent<T> of(T item, Instant time) {
         return new WrapperOf<>(item, time);
     }
 
-    static <T> EventOf<T> of(T item) {
+    static <T> InstantEvent<T> of(T item) {
         return new WrapperOf<>(item, Instant.now());
     }
 

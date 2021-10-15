@@ -1,11 +1,11 @@
 package org.oddjob.state.expr;
 
-import java.util.function.Consumer;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.utils.Try;
-import org.oddjob.events.EventOf;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.util.Restore;
+
+import java.util.function.Consumer;
 
 /**
  * Something that can evaluate continuously changing state. An example of an
@@ -27,6 +27,6 @@ public interface StateExpression {
 	 * @return Something that can be used to stop and cleanup the evaluation.
 	 */
 	Restore evaluate(ArooaSession session,
-					 Consumer<? super Try<EventOf<Boolean>>> results);
+					 Consumer<? super Try<InstantEvent<Boolean>>> results);
 	
 }

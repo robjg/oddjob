@@ -13,7 +13,7 @@ import java.util.function.Consumer;
  */
 public interface EventOperator<T> {
 
-    Restore start(List<? extends EventSource<? extends T>> nodes,
+    Restore start(List<? extends InstantEventSource<? extends T>> nodes,
                   Consumer<? super CompositeEvent<T>> results)
             throws Exception;
 

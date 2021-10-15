@@ -19,11 +19,11 @@ import static org.junit.Assert.assertThat;
 
 public class ForEventsTest {
 
-    public static class SubscribeInts extends EventSourceBase<Integer> {
+    public static class SubscribeInts extends InstantEventSourceBase<Integer> {
 
         @Override
-        protected Restore doStart(Consumer<? super EventOf<Integer>> consumer) {
-            IntStream.of(1, 2, 3).forEach(i -> consumer.accept(EventOf.of(i)));
+        protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
+            IntStream.of(1, 2, 3).forEach(i -> consumer.accept(InstantEvent.of(i)));
             return () -> {
             };
         }
@@ -45,7 +45,7 @@ public class ForEventsTest {
         test.setValues(Stream.of(10, 20));
         test.setArooaSession(new StandardArooaSession());
 
-        List<EventOf<Integer>> results = new ArrayList<>();
+        List<InstantEvent<Integer>> results = new ArrayList<>();
 
         StateSteps state = new StateSteps(test);
         state.startCheck(EventState.READY, EventState.CONNECTING,
@@ -55,7 +55,7 @@ public class ForEventsTest {
                          EventState.FIRING, EventState.TRIGGERED,
                          EventState.FIRING, EventState.TRIGGERED);
 
-        Restore close = test.start(results::add);
+        Restore close = test.subscribe(results::add);
 
         state.checkNow();
 
@@ -79,18 +79,18 @@ public class ForEventsTest {
         state.checkNow();
     }
 
-    private static Consumer<? super EventOf<String>> stuffConsumer;
+    private static Consumer<? super InstantEvent<String>> stuffConsumer;
 
-    public static class SubscribeStuff extends EventSourceBase<String> {
+    public static class SubscribeStuff extends InstantEventSourceBase<String> {
 
         @Override
-        protected Restore doStart(Consumer<? super EventOf<String>> consumer) {
+        protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {
             stuffConsumer = consumer;
             return () -> stuffConsumer = null;
         }
 
         void send(String stuff) {
-            stuffConsumer.accept(EventOf.of(stuff));
+            stuffConsumer.accept(InstantEvent.of(stuff));
         }
     }
 
@@ -110,19 +110,19 @@ public class ForEventsTest {
         test.setValues(Stream.of("Foo"));
         test.setArooaSession(new StandardArooaSession());
 
-        List<EventOf<String>> results = new ArrayList<>();
+        List<InstantEvent<String>> results = new ArrayList<>();
 
         StateSteps state = new StateSteps(test);
         state.startCheck(EventState.READY, EventState.CONNECTING,
                          EventState.WAITING);
 
-        Restore close = test.start(results::add);
+        Restore close = test.subscribe(results::add);
 
         state.checkNow();
 
         state.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 
-        stuffConsumer.accept(EventOf.of("Hello"));
+        stuffConsumer.accept(InstantEvent.of("Hello"));
 
         state.checkNow();
 
@@ -153,13 +153,13 @@ public class ForEventsTest {
         test.setValues(Stream.of(10, 20));
         test.setArooaSession(new StandardArooaSession());
 
-        List<EventOf<String>> results = new ArrayList<>();
+        List<InstantEvent<String>> results = new ArrayList<>();
 
         StateSteps state = new StateSteps(test);
         state.startCheck(EventState.READY, EventState.CONNECTING,
                          EventState.WAITING);
 
-        Restore close = test.start(results::add);
+        Restore close = test.subscribe(results::add);
 
         state.checkNow();
 
