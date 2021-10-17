@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bus:bus xmlns:bus="oddjob:beanbus" id="beanBus">
+            <of>
+                <bus:driver>
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="Apple"/>
+                                <value value="flush"/>
+                                <value value="Pear"/>
+                            </values>
+                        </list>
+                    </beans>
+                </bus:driver>
+                <bean class="org.oddjob.beanbus.bus.FlushingTest$FlushControl"/>
+                <bean class="org.oddjob.beanbus.bus.FlushingTest$FlushListener"/>
+                <bus:collect id="results"/>
+            </of>
+        </bus:bus>
+    </job>
+</oddjob>
