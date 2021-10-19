@@ -23,12 +23,12 @@
                                 <design:text property="name" title="Name"/>
                             </formItems>
                         </design:group>
-                        <design:radio title="Properties">
+                        <design:group title="Properties" bordered="true">
                             <formItems>
                                 <design:single property="eventSource" title="Event Source"/>
                                 <design:indexed property="jobs" title="Jobs"/>
                             </formItems>
-                        </design:radio>
+                        </design:group>
                     </formItems>
                 </design:form>
             </design>
@@ -43,12 +43,12 @@
                                 <design:text property="name" title="Name"/>
                             </formItems>
                         </design:group>
-                        <design:radio title="Properties">
+                        <design:group bordered="true" title="Properties">
                             <formItems>
                                 <design:single property="eventSource" title="Event Source"/>
                                 <design:indexed property="jobs" title="Jobs"/>
                             </formItems>
-                        </design:radio>
+                        </design:group>
                     </formItems>
                 </design:form>
             </design>

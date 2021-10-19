@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -10,18 +11,27 @@ import org.oddjob.tools.StateSteps;
 
 import java.io.File;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class StreamWatcherTest {
+public class PipelineEventSourceTest {
+
+    public static class OnlyThree implements Predicate<Integer> {
+
+        @Override
+        public boolean test(Integer integer) {
+            return integer != null && integer == 3;
+        }
+    }
 
     @Test
-    public void testExample() throws ArooaConversionException, InterruptedException {
+    public void testInOddjob() throws ArooaConversionException, InterruptedException {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(Objects.requireNonNull(getClass()
-                .getResource("StreamWatcherExample.xml")).getFile()));
+                .getResource("PipelineLinkExample.xml")).getFile()));
 
         oddjob.load();
 
@@ -31,27 +41,16 @@ public class StreamWatcherTest {
 
         StateSteps states = new StateSteps(trigger);
 
-        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE, ParentState.COMPLETE);
 
         oddjob.run();
 
-        states.checkWait();
+        states.checkNow();
 
-        states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+        String result = lookup.lookup("result.text", String.class);
 
-        Runnable job1 = lookup.lookup("job1", Runnable.class);
-        job1.run();
+        assertThat(result, is("Result: 3"));
 
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.ACTIVE));
-
-        Runnable job2 = lookup.lookup("job2", Runnable.class);
-        job2.run();
-
-        states.checkWait();
-
-        String text = lookup.lookup("echo.text", String.class);
-
-        assertThat(text, is("Found Apple"));
+        oddjob.destroy();
     }
-
 }
