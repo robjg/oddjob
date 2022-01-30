@@ -14,13 +14,13 @@
 
 	<dependencies>
 	    <dependency org="uk.co.rgordon" name="arooa" rev="${project.version}"
-	    	conf="default->default" />
+	    	conf="default->default" changing="true" />
 
 		<dependency org="commons-io" name="commons-io" rev="${commons-io.version}"
 			conf="default->default" />
 			
 	    <dependency org="uk.co.rgordon" name="arooa" rev="${project.version}"
-	    	conf="test->test" />
+	    	conf="test->test" changing="true"/>
 	    	
 		<dependency org="org.hsqldb" name="hsqldb" rev="${hsql.version}"
 			conf="test->default" />
