@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
     <job>
-        <exec id="exec" redirectStderr="true">
-            <stdout>
-                <file file="${work.dir}/ExecOutput.log"/>
-            </stdout>
-            <![CDATA[java -jar "${oddjob.test.run.jar}" -h]]>
-        </exec>
+        <sequential>
+            <jobs>
+                <properties/>
+                <exec id="exec" redirectStderr="true">
+                    <stdout>
+                        <file file="${work.dir}/ExecOutput.log"/>
+                    </stdout>
+                    <![CDATA[java -jar "${oddjob.test.run.jar}" -h]]>
+                </exec>
+            </jobs>
+        </sequential>
     </job>
 </oddjob>

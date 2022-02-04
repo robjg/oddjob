@@ -1028,6 +1028,7 @@ public class ForEachJob extends StructuralJob<Object>
         }
     }
 
+    /** Tracks children as they are added and removed to the foreach job. */
     static class ChildTracking {
 
         private final Map<Object, ChildInfo> childInfo = new ConcurrentHashMap<>();
