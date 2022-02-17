@@ -1,15 +1,5 @@
 package org.oddjob.values.properties;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
 import org.oddjob.Describable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -17,6 +7,12 @@ import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.PropertiesOverrideSession;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.*;
 
 /**
  * @oddjob.description Creates properties that can used to configure 
@@ -137,7 +133,12 @@ implements Describable {
 		
 		delegate = new PropertiesBase();		
 	}
-	
+
+	@Override
+	protected void doWhenDeserialized() {
+		setPropertiesWithStrategy();
+	}
+
 	@Override
 	public void setArooaContext(ArooaContext context) {
 		super.setArooaContext(context);
@@ -145,7 +146,7 @@ implements Describable {
 		delegate.setArooaContext(context);
 		
 		session = ((PropertiesOverrideSession)
-				context.getSession()).getOriginal(); 
+				context.getSession()).getOriginal();
 	}
 
 	@Override
@@ -180,24 +181,29 @@ implements Describable {
 
 		setProperties(delegate.toProperties());
 
+		setPropertiesWithStrategy();
+
+		return 0;
+	}
+
+	/** Called on execute and restore. */
+	private void setPropertiesWithStrategy() {
 		if (system) {
 			strategy = new SystemStrategy();
 		}
 		else {
 			strategy = new OddjobStrategy();
 		}
-		
+
 		strategy.set();
-		
-		return 0;
 	}
 
-	
+
 	@Override
 	public Map<String, String> describe() {
 		Properties properties = getProperties();
 		
-		Map<String, String> description = new TreeMap<String, String>();
+		Map<String, String> description = new TreeMap<>();
 		
 		if (properties == null) {
 			return description;
@@ -231,7 +237,10 @@ implements Describable {
 			strategy = null;
 		}
 	}
-	
+
+	/**
+	 * Strategy for setting properties. Set them in Oddjob or in the System.
+	 */
 	interface Strategy {
 		
 		void set();
@@ -310,7 +319,7 @@ implements Describable {
 				PropertySource local = PropertyLookup.SYSTEM_PROPERTY_SOURCE;
 				
 				PropertySource actual = managers.sourceFor(name);
-				if (local != null && !local.equals(actual)) {
+				if (!local.equals(actual)) {
 					value += " *(" + managers.lookup(name) +
 							") [" + actual + "]";
 				}
@@ -524,7 +533,7 @@ implements Describable {
 		
 		@Override
 		public String lookup(String propertyName) {
-			String value = null;
+			String value;
 			value = environment.lookup(propertyName);
 			if (value == null) {
 				value = loaded.lookup(propertyName);
@@ -534,7 +543,7 @@ implements Describable {
 		
 		@Override
 		public Set<String> propertyNames() {
-			Set<String> names = new TreeSet<String>();
+			Set<String> names = new TreeSet<>();
 			names.addAll(environment.propertyNames());
 			names.addAll(loaded.propertyNames());
 			return names;

@@ -76,6 +76,10 @@ public class OddjobArooaTest extends OjTestCase {
 		public void setArooaSession(ArooaSession session) {
 			this.session = session;
 		}
+
+		public ArooaSession getSession() {
+			return session;
+		}
 	}
 	
    @Test

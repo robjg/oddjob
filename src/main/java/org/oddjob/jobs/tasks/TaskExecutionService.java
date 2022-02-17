@@ -160,14 +160,9 @@ implements TaskExecutor, Structural {
 	
 	@Override
 	protected void onStart() throws Throwable {
-		
-		requestArray = requests.stream()
-				.peek(request -> {
-					if (request.getProperty().isEmpty()) {
-						throw new IllegalArgumentException("Invalid property for input " + request);
 
-					}
-				}).toArray(InputRequest[]::new);
+		requestArray = requests.toArray(
+				new InputRequest[0]);
 
 		logger().info("Ready to execute tasks with inputs {}", Arrays.toString(requestArray));
 	}

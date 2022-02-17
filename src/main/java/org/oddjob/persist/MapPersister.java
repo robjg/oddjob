@@ -25,12 +25,12 @@ public class MapPersister extends PersisterBase {
 	 * Create a new instance with a standard {@link HashMap}.
 	 */
 	public MapPersister() {
-		this(new HashMap<Path, Map<String, byte[]>>());
+		this(new HashMap<>());
 	}
 	
 	/**
 	 * Create a new instance with the provided map. Access to this
-	 * map will be sychronized so the map itself need not be. 
+	 * map will be synchronized so the map itself need not be.
 	 * 
 	 * @param store A Map. Must not be null.
 	 */
@@ -43,14 +43,10 @@ public class MapPersister extends PersisterBase {
 	
 	@Override
 	protected void persist(Path path, String id, Object proxy) {
-		logger.info("Saving [" + path + "], [" + id + "]");
+		logger.info("Saving [" + path + "/" + id + "]");
 		
 		synchronized (cache) {
-			Map<String, byte[]> inner = cache.get(path);
-			if (inner == null) {
-				inner = new TreeMap<String, byte[]>();
-				cache.put(path, inner);
-			}
+			Map<String, byte[]> inner = cache.computeIfAbsent(path, k -> new TreeMap<>());
 			inner.put(id, new SerializeWithBytes().toBytes(proxy));
 		}
 	}
@@ -58,22 +54,22 @@ public class MapPersister extends PersisterBase {
 	@Override
 	protected Object restore(Path path, String id, ClassLoader classLoader) {
 		
-		byte[] buffer;;
+		byte[] buffer;
 		synchronized (cache) {
 			Map<String, byte[]> inner = cache.get(path);
 			if (inner == null) {
-				logger.info("Restore Failed. No cache for path [" + path + "],[" + id + "]");
+				logger.info("Restore Failed. No cache for path [" + path + "/" + id + "]");
 				return null;
 			}
 			buffer = inner.get(id);
 		}
 		
 		if (buffer == null) {
-			logger.info("Restore Failed. Nothing saved for [" + path + "], [" + id + "]");
+			logger.info("Restore Failed. Nothing saved for [" + path + "/" + id + "]");
 			return null;
 		}
 		
-		logger.info("Restoring [" + path + "], [" + id + "]");
+		logger.info("Restoring [" + path + "/" + id + "]");
 		
 		return new SerializeWithBytes().fromBytes(buffer, classLoader);
 	}
@@ -86,13 +82,13 @@ public class MapPersister extends PersisterBase {
 			if (inner == null) {
 				return null;
 			}
-			return inner.keySet().toArray(new String[inner.size()]);
+			return inner.keySet().toArray(new String[0]);
 		}
 	}
 	
 	@Override
 	protected void remove(Path path, String id) {
-		logger.info("Removing " + path + ", " + id);
+		logger.info("Removing [" + path + "/" + id + "]");
 		synchronized (cache) {
 			Map<String, byte[]> inner = cache.get(path);
 			if (inner == null) {
