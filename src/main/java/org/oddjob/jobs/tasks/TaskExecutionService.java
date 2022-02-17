@@ -1,11 +1,6 @@
 package org.oddjob.jobs.tasks;
 
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -20,13 +15,15 @@ import org.oddjob.arooa.runtime.ParsedExpression;
 import org.oddjob.arooa.runtime.PropertyLookup;
 import org.oddjob.arooa.runtime.PropertySource;
 import org.oddjob.arooa.utils.ListSetterHelper;
+import org.oddjob.arooa.utils.PropertiesOverrideSession;
 import org.oddjob.framework.extend.SimpleService;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.job.ResetAction;
 import org.oddjob.jobs.job.ResetActions;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
-import org.oddjob.arooa.utils.PropertiesOverrideSession;
+
+import java.util.*;
 
 /**
  * @oddjob.description Provide a very simple task execution service.
@@ -54,12 +51,12 @@ implements TaskExecutor, Structural {
 	
 	/** Track changes to children an notify listeners. */
 	protected final ChildHelper<Object> childHelper =
-			new ChildHelper<Object>(this);
+			new ChildHelper<>(this);
 	
 	private final Properties properties = new Properties();
 
 	private final List<InputRequest> requests =
-		new ArrayList<InputRequest>();
+			new ArrayList<>();
 		
 	private volatile InputRequest[] requestArray;
 	
@@ -73,10 +70,11 @@ implements TaskExecutor, Structural {
 	public void setArooaSession(ArooaSession session) {
 		super.setArooaSession(session);
 		if (! (session instanceof PropertiesOverrideSession)) {
-			throw new IllegalStateException();
+			throw new IllegalStateException("Session must be a " +
+					PropertiesOverrideSession.class.getName());
 		}
-		((PropertiesOverrideSession) session).getPropertyManager(
-				).addPropertyOverride(new TaskPropertyLookup());
+		session.getPropertyManager()
+				.addPropertyOverride(new TaskPropertyLookup());
 	}
 	
 	public InputRequest getRequests(int index) {
@@ -84,7 +82,7 @@ implements TaskExecutor, Structural {
 	}
 
 	public void setRequests(int index, InputRequest request) {
-		new ListSetterHelper<InputRequest>(requests).set(index, request);
+		new ListSetterHelper<>(requests).set(index, request);
 	}
 
 	@Override
@@ -144,7 +142,7 @@ implements TaskExecutor, Structural {
 						return expression.evaluate(session, String.class);
 					}
 					catch (ArooaConversionException e) {
-						return "Failed to evaluate response" + e.toString();
+						return "Failed to evaluate response" + e;
 					}			
 					
 				}
@@ -153,7 +151,7 @@ implements TaskExecutor, Structural {
 			
 			@Override
 			public String toString() {
-				return "TaskView for " + TaskExecutionService.this.toString();
+				return "TaskView for " + TaskExecutionService.this;
 			}
 		};
 		
@@ -163,8 +161,15 @@ implements TaskExecutor, Structural {
 	@Override
 	protected void onStart() throws Throwable {
 		
-		requestArray = requests.toArray(
-				new InputRequest[requests.size()]);
+		requestArray = requests.stream()
+				.peek(request -> {
+					if (request.getProperty().isEmpty()) {
+						throw new IllegalArgumentException("Invalid property for input " + request);
+
+					}
+				}).toArray(InputRequest[]::new);
+
+		logger().info("Ready to execute tasks with inputs {}", Arrays.toString(requestArray));
 	}
 	
 	@Override
@@ -173,7 +178,7 @@ implements TaskExecutor, Structural {
 		requestArray = null;
 		
 		Object job = childHelper.getChild();
-		if (job != null && job instanceof Stoppable) {
+		if (job instanceof Stoppable) {
 			((Stoppable) job).stop();
 		}		
 	}

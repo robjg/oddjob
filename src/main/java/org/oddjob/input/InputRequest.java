@@ -12,7 +12,7 @@ import java.io.Serializable;
  */
 public interface InputRequest extends Serializable {
 
-	public void render(InputMedium medium);
+	void render(InputMedium medium);
 	
-	public String getProperty();
+	String getProperty();
 }
