@@ -12,11 +12,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class FactStoreTest  {
+public class FactStoreTest {
 
     @Test
     public void testSubscribeToFileFactStore() throws Exception {
@@ -24,7 +25,8 @@ public class FactStoreTest  {
         Path workDir = OurDirs.workPathDir(getClass().getSimpleName(), true);
         Files.createDirectory(workDir.resolve("BookList"));
 
-        Path data = new File(getClass().getResource("PricingTriggerExample.xml").getFile())
+        Path data = new File(Objects.requireNonNull(
+                getClass().getResource("PricingTriggerExample.xml")).getFile())
                 .getParentFile().toPath().resolve("data");
 
         FileFactStore fileFactStore = new FileFactStore();

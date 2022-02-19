@@ -111,6 +111,12 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
             }
         });
+        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread t, Throwable e) {
+                logger.error("Unexpected Exception in Thread {} while watching {}", t.getName(), path, e);
+            }
+        });
         thread.start();
 
         if (!newOnly) {

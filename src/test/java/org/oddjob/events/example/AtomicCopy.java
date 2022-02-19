@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.Optional;
 
 public class AtomicCopy implements Runnable {
@@ -23,18 +24,16 @@ public class AtomicCopy implements Runnable {
     @Override
     public void run() {
 
-        Path from = Optional.ofNullable(this.from)
-                .orElseThrow(() -> new IllegalArgumentException("No from."));
+        Path from = Objects.requireNonNull(this.from, "No from.");
 
-        Path to = Optional.ofNullable(this.to)
-                .orElseThrow(() -> new IllegalArgumentException("No from."));
+        Path to = Objects.requireNonNull(this.to, "No from.");
 
         if (!Files.isDirectory(to)) {
             throw new IllegalArgumentException("To not a directory");
         }
 
         String tmpName = from.getFileName() + "_tmp";
-        Path temp = to.resolve(tmpName);
+        Path temp = from.getParent().resolve(tmpName);
 
         logger.info("Copying {} to {}.", from, to);
 
