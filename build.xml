@@ -256,7 +256,7 @@
 	<!-- =================================================================== -->
 	<target name="install" depends="jar">
 
-		<ivy:publish resolver="local" pubrevision="${build.version}" overwrite="true">
+		<ivy:publish resolver="local" pubrevision="${build.version}" overwrite="true" update="true">
 			<artifacts pattern="${build.dir}/[artifact]-[revision].[ext]" />
 		</ivy:publish>
 
