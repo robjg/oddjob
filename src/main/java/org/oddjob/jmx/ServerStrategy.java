@@ -1,9 +1,7 @@
 package org.oddjob.jmx;
 
-import java.io.IOException;
-import java.lang.management.ManagementFactory;
-import java.net.MalformedURLException;
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -12,9 +10,10 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
+import java.util.Map;
 
 /**
  * Used to alter behaviour between having a remote connector
@@ -33,7 +32,11 @@ abstract public class ServerStrategy {
 			return new ConnectorServerStrategy(url);
 		}
 	}
-	
+
+	public static ServerStrategy strategyForPlatform() {
+		return new PlatformMBeanServerStrategy();
+	}
+
 	public abstract MBeanServer findServer();
 	
 	public abstract String serverIdText() throws JMException;
