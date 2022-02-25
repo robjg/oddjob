@@ -1,8 +1,12 @@
 package org.oddjob.beanbus.drivers;
 
 import org.junit.Test;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.io.StdoutType;
+import org.oddjob.tools.ConsoleCapture;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -107,5 +111,23 @@ public class IterableBusDriverTest {
         t.join();
 
         assertThat(beans.interrupted, is(true));
+    }
+
+    @Test
+    public void testStdOutConsumer() throws ArooaConversionException {
+
+        IterableBusDriver test = new IterableBusDriver();
+        test.setBeans(Arrays.asList("apple", "orange", "pear"));
+
+        ConsoleCapture results = new ConsoleCapture();
+        try (ConsoleCapture.Close close = results.captureConsole()) {
+
+            test.setTo(new StdoutType().toConsumer());
+
+            test.run();
+        }
+
+        assertThat(results.getLines(),
+                is(new String[] { "apple", "orange", "pear" }));
     }
 }

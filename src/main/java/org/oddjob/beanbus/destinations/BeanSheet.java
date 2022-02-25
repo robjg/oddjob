@@ -68,7 +68,7 @@ public class BeanSheet implements Consumer<Object>, ArooaSessionAware, Outbound<
 	public void run() {
 		if (output == null) {
 			try {
-				output = new StdoutType().toValue();
+				output = new StdoutType().toOutputStream();
 			} catch (ArooaConversionException e) {
 				throw new RuntimeException(e);
 			}

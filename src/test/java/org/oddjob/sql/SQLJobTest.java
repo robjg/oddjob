@@ -119,7 +119,7 @@ public class SQLJobTest extends OjTestCase {
                 "query.results.rows", List.class);
 
         BeanReportJob rep = new BeanReportJob();
-        rep.setOutput(new StdoutType().toValue());
+        rep.setOutput(new StdoutType().toOutputStream());
         rep.setArooaSession(new StandardArooaSession());
         rep.setBeans(o);
 

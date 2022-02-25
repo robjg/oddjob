@@ -5,6 +5,7 @@
 		<value value='org.oddjob.io.FileType$Conversions'/>
 		<value value='org.oddjob.io.FilesType$Conversions'/>
 		<value value='org.oddjob.io.ResourceType$Conversions'/>
+		<value value='org.oddjob.io.StdoutType$Conversions'/>
         <value value='org.oddjob.io.TeeType$Conversions'/>
 	</conversions>
 	<components>

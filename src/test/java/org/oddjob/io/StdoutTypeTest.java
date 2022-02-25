@@ -1,5 +1,7 @@
 package org.oddjob.io;
 
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -19,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 public class StdoutTypeTest extends OjTestCase {
 
@@ -45,7 +48,7 @@ public class StdoutTypeTest extends OjTestCase {
 			assertEquals(LoggingPrintStream.class.getName(),
 					output.getClass().getName());
 
-			OutputStream test = new StdoutType().toValue();
+			OutputStream test = new StdoutType().toOutputStream();
 
 			test.write(("Hello World." + EOL).getBytes());
 
@@ -138,5 +141,25 @@ public class StdoutTypeTest extends OjTestCase {
 		
 		assertEquals("Test", lines[0].trim());
 		assertEquals(1, lines.length);
+	}
+
+	@Test
+	public void testConsumer() throws ArooaConversionException {
+
+		StdoutType test = new StdoutType();
+
+		ConsoleCapture results = new ConsoleCapture();
+		try (ConsoleCapture.Close close = results.captureConsole()) {
+
+			Consumer<Object> consumer = test.toConsumer();
+
+			consumer.accept("apple");
+
+			MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[] { "apple" }));
+
+			consumer.accept("orange");
+
+			MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[] { "apple", "orange" }));
+		}
 	}
 }

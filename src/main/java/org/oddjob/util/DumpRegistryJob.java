@@ -1,12 +1,5 @@
 package org.oddjob.util;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -17,6 +10,13 @@ import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.io.StdoutType;
 import org.oddjob.jobs.BeanReportJob;
+
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Dumps Oddjob Bean Registry and Component Pools for debugging purposes.
@@ -57,7 +57,7 @@ public class DumpRegistryJob implements Runnable, ArooaSessionAware {
 		
 		if (output == null) {
 			try {
-				output = new StdoutType().toValue();
+				output = new StdoutType().toOutputStream();
 			} catch (ArooaConversionException e) {
 				throw new RuntimeException(e);
 			}

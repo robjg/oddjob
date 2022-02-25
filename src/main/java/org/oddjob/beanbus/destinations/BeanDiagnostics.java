@@ -53,7 +53,7 @@ implements ArooaSessionAware, Runnable, Closeable {
 
 		if (output == null) {
 			try {
-				output = new StdoutType().toValue();
+				output = new StdoutType().toOutputStream();
 			} catch (ArooaConversionException e) {
 				throw new RuntimeException(e);
 			}

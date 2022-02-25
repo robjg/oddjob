@@ -75,7 +75,7 @@ public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 
 		if (output == null) {
 			try {
-				output = new StdoutType().toValue();
+				output = new StdoutType().toOutputStream();
 			} catch (ArooaConversionException e) {
 				throw new RuntimeException(e);
 			}
