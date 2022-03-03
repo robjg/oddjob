@@ -1,6 +1,7 @@
 package org.oddjob.beanbus.bus;
 
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
@@ -12,8 +13,11 @@ import org.oddjob.beanbus.adapt.OutboundStrategies;
 import org.oddjob.beanbus.mega.BusControls;
 import org.oddjob.beanbus.mega.StatefulBusSupervisor;
 import org.oddjob.framework.extend.StructuralJob;
+import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.state.AnyActiveStateOp;
+import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateOperator;
+import org.oddjob.util.Restore;
 
 import javax.inject.Inject;
 import java.io.Flushable;
@@ -36,7 +40,7 @@ import java.util.function.Consumer;
  */
 @ArooaInterceptor("org.oddjob.beanbus.bus.BeanBusInterceptor")
 public class BeanBusJob extends StructuralJob<Object>
-implements BusServiceProvider {
+implements BusServiceProvider, Consumer<Object> {
 
     private static final long serialVersionUID = 2012021500L;
 
@@ -45,6 +49,10 @@ implements BusServiceProvider {
 	private transient volatile Executor executor;
 
 	private volatile boolean noAutoLink;
+
+	private Consumer<Object> to;
+
+	private Consumer<Object> first;
 
 	/**
 	 * Only constructor.
@@ -89,7 +97,7 @@ implements BusServiceProvider {
 	 *  (non-Javadoc)
 	 * @see org.oddjob.jobs.AbstractJob#execute()
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked"})
 	@Override
 	protected void execute() throws Exception {
 		
@@ -101,69 +109,88 @@ implements BusServiceProvider {
 
 		for (Object child: children) {
 
+			if (this.first == null && child instanceof Consumer) {
+				this.first = (Consumer<Object>) child;
+			}
+
 			if (!noAutoLink && previousChild != null &&
 					child instanceof Consumer) {
 
-				final Outbound outbound = new OutboundStrategies()
-						.outboundFor(previousChild, getArooaSession());
-
-				if (outbound != null) {
-
-					RuntimeConfiguration previousRuntime =
-					getArooaSession().getComponentPool().contextFor(previousChild)
-							.getRuntime();
-
-					final Object finalPreviousChild = previousChild;
-
-					previousRuntime.addRuntimeListener(new RuntimeListenerAdapter() {
-						@Override
-						public void afterConfigure(RuntimeEvent event) throws ArooaException {
-							outbound.setTo((Consumer) child);
-
-							logger().info("Automatically Linked Outbound [" +
-									finalPreviousChild + "] to [" + child + "]");
-
-							previousRuntime.removeRuntimeListener(this);
-						}
-					});
-				}
+				maybeSetConsumerOnOutbound(previousChild, (Consumer<?>) child);
 			}
 
 			previousChild = child;
 		}
 
-		try {
-			final SimpleBusConductor busConductor = new SimpleBusConductor(children);
-
-			BusControls busControls = new BusControls() {
-				@Override
-				public void stopBus() {
-					busConductor.close();
-				}
-
-				@Override
-				public void crashBus(Throwable exception)throws BusCrashException {
-					busConductor.actOnBusCrash(exception);
-					if (exception instanceof BusCrashException) {
-						throw (BusCrashException) exception;
-					}
-					else throw new BusCrashException(exception);
-				}
-			};
-
-			StatefulBusSupervisor.BusAction busSupervisor
-					= new StatefulBusSupervisor(busControls, executor)
-					.supervise(children);
-
-			this.busConductor = busConductor;
-
-			busConductor.run();
-			busSupervisor.run();
+		if (to != null && previousChild != null ) {
+			maybeSetConsumerOnOutbound(previousChild, to);
 		}
-		finally {
-			busConductor = null;
-		}		
-	}	
+
+		final SimpleBusConductor busConductor = new SimpleBusConductor(children);
+
+		BusControls busControls = new BusControls() {
+			@Override
+			public void stopBus() {
+				busConductor.close();
+			}
+
+			@Override
+			public void crashBus(Throwable exception) {
+				busConductor.actOnBusCrash(exception);
+			}
+		};
+
+		new StatefulBusSupervisor(busControls, executor)
+				.supervise(children);
+
+		this.busConductor = busConductor;
+
+		busConductor.run();
+	}
+
+	protected void maybeSetConsumerOnOutbound(Object maybeOutbound, Consumer<?> consumer) {
+
+		final Outbound<?> outbound = new OutboundStrategies()
+				.outboundFor(maybeOutbound, getArooaSession());
+
+		if (outbound != null) {
+
+			RuntimeConfiguration previousRuntime =
+					getArooaSession().getComponentPool().contextFor(maybeOutbound)
+							.getRuntime();
+
+			previousRuntime.addRuntimeListener(new RuntimeListenerAdapter() {
+				@SuppressWarnings("unchecked")
+				@Override
+				public void afterConfigure(RuntimeEvent event) throws ArooaException {
+					outbound.setTo((Consumer<Object>) consumer);
+
+					logger().info("Automatically Linked Outbound [" +
+							maybeOutbound + "] to [" + consumer + "]");
+
+					previousRuntime.removeRuntimeListener(this);
+				}
+			});
+		}
+	}
+
+	@Override
+	public void accept(Object bean) {
+
+		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
+
+			if (StateConditions.STARTED.test(stateHandler().getState())) {
+				first.accept(bean);
+			}
+			else {
+				logger().warn("Ignoring because service not started: {}", bean);
+			}
+		}
+		catch (Exception ex) {
+			logger().error("Exception processing bean: {}", bean, ex);
+			stateHandler().runLocked(() -> getStateChanger().setStateException(ex));
+		}
+	}
 
 	static void flushBus(Iterable<Object> children) {
 		for (Object child: children) {
@@ -180,10 +207,14 @@ implements BusServiceProvider {
 
 	@Override
 	protected void onReset() {
-		super.onReset();
-		busConductor = null;
+		this.busConductor = null;
 	}
-	
+
+	@Override
+	protected void onStop() throws FailedToStopException {
+		this.busConductor.close();
+	}
+
 	@Override
 	public BusService getServices() {
 		return new BusService() {
@@ -246,5 +277,14 @@ implements BusServiceProvider {
 	@Inject
 	public void setExecutor(Executor executor) {
 		this.executor = executor;
+	}
+
+	public Consumer<Object> getTo() {
+		return to;
+	}
+
+	@Destination
+	public void setTo(Consumer<Object> to) {
+		this.to = to;
 	}
 }

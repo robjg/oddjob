@@ -201,23 +201,18 @@ implements ConfigurationOwner, BusServiceProvider {
 				}
 
 				@Override
-				public void crashBus(Throwable exception)throws BusCrashException {
+				public void crashBus(Throwable exception) {
 					busConductor.actOnBusCrash(exception);
-					if (exception instanceof BusCrashException) {
-						throw (BusCrashException) exception;
-					}
-					else throw new BusCrashException(exception);
 				}
 			};
 
-			StatefulBusSupervisor.BusAction busSupervisor
-					= new StatefulBusSupervisor(busControls, executor)
+
+			new StatefulBusSupervisor(busControls, executor)
 					.supervise(children);
 
 			this.busConductor = busConductor;
 
 			busConductor.run();
-			busSupervisor.run();
 		}
 		finally {
 			busConductor = null;

@@ -14,17 +14,13 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.*;
 
 public class StatefulBusSupervisorTest {
-
 
     @Test
     public void testStartedAndStopped() throws BusCrashException {
@@ -33,13 +29,10 @@ public class StatefulBusSupervisorTest {
 
         FlagState flag = new FlagState();
 
-        StatefulBusSupervisor.BusAction test =
-                new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls, Runnable::run)
                     .supervise(flag);
 
         flag.run();
-
-        test.run();
 
         verify(busControls, times(1)).stopBus();
 
@@ -61,12 +54,9 @@ public class StatefulBusSupervisorTest {
         StatefulBusSupervisor test =
                 new StatefulBusSupervisor(busControls, Runnable::run);
 
-        StatefulBusSupervisor.BusAction supervisorAction;
-        supervisorAction = test.supervise(flag);
+        test.supervise(flag);
 
         flag.run();
-
-        supervisorAction.run();
 
         verify(busControls, times(1)).crashBus(any(Exception.class));
         verifyNoMoreInteractions(busControls);
@@ -76,11 +66,9 @@ public class StatefulBusSupervisorTest {
 
         flag.hardReset();
 
-        supervisorAction = test.supervise(flag);
+        test.supervise(flag);
 
         flag.run();
-
-        supervisorAction.run();
 
         verify(busControls, times(1)).stopBus();
         verifyNoMoreInteractions(busControls);
@@ -91,17 +79,12 @@ public class StatefulBusSupervisorTest {
 
         FlagState flag = new FlagState();
 
-        CountDownLatch latch = new CountDownLatch(1);
-
         Stateful job1 = mock(Stateful.class);
         Stateful job2 = mock(Stateful.class);
-        doAnswer(invocation -> {latch.countDown();
-            return null; })
-                .when(job2).addStateListener(any(StateListener.class));
+
         BusControls busControls = mock(BusControls.class);
 
-        StatefulBusSupervisor.BusAction test =
-                new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls, Runnable::run)
                         .supervise(job1, job2);
 
         ArgumentCaptor<StateListener> l1ac = ArgumentCaptor.forClass(StateListener.class);
@@ -110,34 +93,18 @@ public class StatefulBusSupervisorTest {
         verify(job1, times(1)).addStateListener(l1ac.capture());
         verify(job2, times(1)).addStateListener(l2ac.capture());
 
-
-        AtomicReference<BusCrashException> er = new AtomicReference<>();
-
-        Thread t = new Thread(() -> {
-            try {
-                test.run();
-            } catch (BusCrashException e) {
-                er.set(e);
-            }
-        });
-        t.start();
-
-        latch.await();
-
         verifyNoMoreInteractions(busControls, job1, job2);
 
         l1ac.getValue().jobStateChange(new StateEvent(job1, JobState.COMPLETE));
 
-        t.join();
-
         verify(busControls, times(1)).stopBus();
+
+        l2ac.getValue().jobStateChange(new StateEvent(job2, JobState.COMPLETE));
 
         verify(job1, times(1)).removeStateListener(eq(l1ac.getValue()));
         verify(job2, times(1)).removeStateListener(eq(l2ac.getValue()));
 
         verifyNoMoreInteractions(busControls, job1, job2);
-
-        assertThat(er.get(), nullValue());
     }
 
     private static class OurJob extends SimpleJob {
@@ -176,14 +143,11 @@ public class StatefulBusSupervisorTest {
         StatefulBusSupervisor test =
                 new StatefulBusSupervisor(busControls, Runnable::run);
 
-        StatefulBusSupervisor.BusAction supervisorAction;
-        supervisorAction = test.supervise(job, batcher, results);
+        test.supervise(job, batcher, results);
 
         busConductor.run();
 
         assertThat(job.lastStateEvent().getState(), is(JobState.COMPLETE));
-
-        supervisorAction.run();
 
         verify(busControls, times(1)).stopBus();
         verifyNoMoreInteractions(busControls);
@@ -198,13 +162,11 @@ public class StatefulBusSupervisorTest {
         job.hardReset();
         batcher.reset();
 
-        supervisorAction = test.supervise(job, batcher, results);
+        test.supervise(job, batcher, results);
 
         busConductor.run();
 
         assertThat(job.lastStateEvent().getState(), is(JobState.COMPLETE));
-
-        supervisorAction.run();
 
         verify(busControls, times(1)).stopBus();
         verifyNoMoreInteractions(busControls);
@@ -236,13 +198,10 @@ public class StatefulBusSupervisorTest {
 
         BusControls busControls = mock(BusControls.class);
 
-        StatefulBusSupervisor.BusAction test =
-                new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls, Runnable::run)
                         .supervise(job, naughty);
 
         busConductor.run();
-
-        test.run();
 
         assertThat(job.lastStateEvent().getState(), is(JobState.EXCEPTION));
 

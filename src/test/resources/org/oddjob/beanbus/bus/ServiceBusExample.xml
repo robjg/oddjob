@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bus:bus xmlns:bus="oddjob:beanbus" id="bus">
+            <of>
+                <bean class="org.oddjob.beanbus.bus.BeanBusTest$AddTwo"/>
+            </of>
+            <to>
+                <list/>
+            </to>
+        </bus:bus>
+    </job>
+</oddjob>
