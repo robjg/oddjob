@@ -1,11 +1,12 @@
 package org.oddjob.state;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Objects;
-
 import org.oddjob.Stateful;
 import org.oddjob.util.IO;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Date;
+import java.util.Objects;
 
 /**
  * An instance of this class is produced when a job state changes. It is
@@ -27,11 +28,35 @@ public final class StateEvent {
     private final State state;
     
     /** The time the state changed. */
-	private final Date time;
+	private final Instant instant;
 	
 	/** Any exception that caused an exception state. */
 	private final Throwable exception;
-	
+
+	/**
+	 * Constructor.
+	 *
+	 * @param source The source of the event.
+	 * @param state The state.
+	 * @param instant the Time of the event.
+	 * @param exception The exception if applicable, or null otherwise.
+	 */
+	public StateEvent(Stateful source, State state, Instant instant, Throwable exception) {
+		this.source = Objects.requireNonNull(source, "No source");
+		this.state = Objects.requireNonNull(state ,"JobState can not be null!");
+		this.instant = Objects.requireNonNull(instant, "No time");
+
+		if (state.isException()) {
+			this.exception = Objects.requireNonNull(exception, "Exception required if state is exception.");
+		}
+		else {
+			if (exception != null) {
+				throw new IllegalStateException("Exception can only be set when state is Exception");
+			}
+			this.exception = null;
+		}
+	}
+
 	/**
 	 * Constructor.
 	 * 
@@ -41,18 +66,7 @@ public final class StateEvent {
 	 * @param exception The exception if applicable, or null otherwise.
 	 */	
 	public StateEvent(Stateful source, State state, Date time, Throwable exception) {
-		Objects.requireNonNull(source, "No source");
-		Objects.requireNonNull(state ,"JobState can not be null!");
-		Objects.requireNonNull(time, "No time");
-
-		if (state.isException()) {
-			Objects.requireNonNull(exception, "Exception required if state is exception.");
-		}
-
-	    this.source = source;
-		this.state = state;
-		this.time = time;
-		this.exception = exception;
+		this (source, state, time.toInstant(), exception);
 	}
 
 	/**
@@ -63,7 +77,7 @@ public final class StateEvent {
 	 * @param exception The exception if applicable, or null otherwise.
 	 */
 	public StateEvent(Stateful job, State jobState, Throwable exception) {
-		this(job, jobState, new Date(), exception);
+		this(job, jobState, Instant.now(), exception);
 	}
 
 	/**
@@ -73,8 +87,20 @@ public final class StateEvent {
 	 * @param jobState The state.
 	 */
 	public StateEvent(Stateful job, State jobState) {
-		this(job, jobState, null);
+		this(job, jobState, Instant.now(), null);
 	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param job The source of the event.
+	 * @param jobState The state.
+	 * @param instant The time.
+	 */
+	public static StateEvent at(Stateful job, State jobState, Instant instant) {
+		return new StateEvent(job, jobState, instant, null);
+	}
+
 
 	public Stateful getSource() {
 		return source;
@@ -99,14 +125,25 @@ public final class StateEvent {
 	}	
 
 	/**
-	 * Get the time of the event..
+	 * Get the time of the event.
 	 * 
 	 * @return The time.
 	 */
 	public Date getTime() {
-		return time;
+		return Date.from(instant);
 	}
-	
+
+	/**
+	 * Get the time of the event as an instant.
+	 *
+	 * @return The time.
+	 */
+	public Instant getInstant() {
+		return instant;
+	}
+
+
+
 	/**
 	 * Provide something that can be serialised. Note the we do not use
 	 * {@code writeReplace} because there would need to be the corresponding
@@ -126,20 +163,20 @@ public final class StateEvent {
 		StateEvent that = (StateEvent) o;
 		return source.equals(that.source) &&
 				state.equals(that.state) &&
-				time.equals(that.time) &&
+				instant.equals(that.instant) &&
 				Objects.equals(exception, that.exception);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(source, state, time, exception);
+		return Objects.hash(source, state, instant, exception);
 	}
 
 	/**
 	 * Override toString.
 	 */
 	public String toString() {
-		return "JobStateEvent, source=" + getSource() + ", " + state;
+		return "JobStateEvent, source=" + getSource() + ", " + state + " at " + instant;
 	}
 	
 	/**

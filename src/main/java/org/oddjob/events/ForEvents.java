@@ -193,7 +193,6 @@ implements Structural, ConfigurationOwner {
 	 * @param value
 	 * @throws ArooaParseException
 	 */
-	@SuppressWarnings("unchecked")
 	protected Object loadConfigFor(Object value) throws ArooaParseException {
 		
 		logger().debug("Creating child for [" + value + "]");
@@ -321,11 +320,11 @@ implements Structural, ConfigurationOwner {
 					() -> getStateChanger().setStateException(e));
 		}
 
-		List<InstantEventSource<T>> susbscribeNodes = new ArrayList<>();
+		List<EventSource<T>> susbscribeNodes = new ArrayList<>();
 		
 		for (Object child : childHelper) {
-			if (child instanceof InstantEventSource<?>) {
-				susbscribeNodes.add((InstantEventSource<T>) child);
+			if (child instanceof EventSource<?>) {
+				susbscribeNodes.add((EventSource<T>) child);
 			}
 		}
 

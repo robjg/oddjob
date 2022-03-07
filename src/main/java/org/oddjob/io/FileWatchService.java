@@ -48,7 +48,9 @@ public class FileWatchService implements FileWatch {
 
     /**
      * @oddjob.property
-     * @oddjob.description Kinds of events to watch.
+     * @oddjob.description Kinds of events to watch, as specified by the
+     * <a link="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/file/StandardWatchEventKinds.html">Standard Watch Event Kinds</a>,
+     * Either ENTRY_CREATE or ENTRY_MODIFY. Note that ENTRY_DELETE will not work in the current implementation.
      * @oddjob.required No.
      */
     private volatile String kinds;
@@ -59,7 +61,9 @@ public class FileWatchService implements FileWatch {
     private volatile Map<Path, FileSystemSubscriber> subscribers;
 
     /**
-     * Provide a filter on the directory to simplify event.
+     * @oddjob.property
+     * @oddjob.description Provide a regular expression filter on the directory to reduce the stream of events.
+     * @oddjob.required No.
      */
     private String filter;
 

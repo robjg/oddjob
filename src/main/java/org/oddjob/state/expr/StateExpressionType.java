@@ -6,7 +6,6 @@ import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.events.InstantEvent;
 import org.oddjob.events.InstantEventSource;
-import org.oddjob.events.Trigger;
 import org.oddjob.util.Restore;
 
 import java.util.Optional;
@@ -14,9 +13,14 @@ import java.util.function.Consumer;
 
 /**
  * @oddjob.description Evaluate a state expression that becomes an event source for triggering other jobs.
+ * used with {@link org.oddjob.events.Trigger} and {@link org.oddjob.events.When}.
  *
- * @see Trigger
- * 
+ * @oddjob.example
+ *
+ * Runs a job when two other jobs complete, but only if one of the jobs hasn't been run
+ *
+ * {@oddjob.xml.resource org/oddjob/state/expr/StateExpressionTimeExample.xml}
+ *
  * @author rob
  *
  */

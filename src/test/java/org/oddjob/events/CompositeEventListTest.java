@@ -7,7 +7,7 @@ import java.text.ParseException;
 import java.time.Instant;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompositeEventListTest {
 
@@ -29,10 +29,12 @@ public class CompositeEventListTest {
         assertThat(test.getTime(),
                    is(DateHelper.parseDateTime("2019-02-15 07:00")
                                 .toInstant()));
+
         assertThat(test.getEvents(0), is(event1));
         assertThat(test.getEvents(1), is(event2));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void createCompositeOfComposite() throws ParseException {
 

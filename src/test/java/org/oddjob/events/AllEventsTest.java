@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.oddjob.util.Restore;
 
@@ -10,11 +11,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class AllEventsTest {
 
-    private class IntEvents implements InstantEventSource<Integer> {
+    private static class IntEvents implements InstantEventSource<Integer> {
 
         Consumer<? super InstantEvent<Integer>> consumer;
 
@@ -30,7 +31,7 @@ public class AllEventsTest {
         }
     }
 
-    private class DoubleEvents implements InstantEventSource<Double> {
+    private static class DoubleEvents implements InstantEventSource<Double> {
 
         Consumer<? super InstantEvent<Double>> consumer;
 
@@ -57,8 +58,9 @@ public class AllEventsTest {
 
         AllEvents<Number> test = new AllEvents<>();
 
-        List<InstantEventSource<? extends Number>> sources =
+        List<EventSource<? extends InstantEvent<? extends Number>>> sources =
                 Arrays.asList(ie, de);
+
 
         test.start(sources,
                 results::add);
@@ -82,7 +84,7 @@ public class AllEventsTest {
                 is(Arrays.asList(1, 2.6)));
     }
 
-    private class TwoInitialEvents implements InstantEventSource<Integer> {
+    private static class TwoInitialEvents implements InstantEventSource<Integer> {
 
         @Override
         public Restore subscribe(Consumer<? super InstantEvent<Integer>> consumer) {
@@ -116,4 +118,28 @@ public class AllEventsTest {
                 is(Arrays.asList(2, 2)));
     }
 
+    public void testSimpleEvents() throws Exception {
+
+        EventSource<String> es1 = consumer ->  {
+            consumer.accept("a");
+            return () -> {};
+        };
+
+        EventSource<String> es2 = consumer ->  {
+            consumer.accept("b");
+            return () -> {};
+        };
+
+        List<CompositeEvent<String>> results = new ArrayList<>();
+
+        AllEvents<String> test = new AllEvents<>();
+
+        AutoCloseable closeable = test.start(Arrays.asList(es1, es2), results::add);
+
+        closeable.close();
+
+        assertThat("Results should be 1 but were: " + results,
+                results.size(), is(1));
+        assertThat(EventConversions.toList(results.get(0)), CoreMatchers.hasItems( "a", "b"));
+    }
 }

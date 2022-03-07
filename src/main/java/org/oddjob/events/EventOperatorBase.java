@@ -18,14 +18,14 @@ import java.util.stream.Stream;
  */
 public class EventOperatorBase<T> implements EventOperator<T> {
 
-    private final Predicate<EventsArray<? extends T>> predicate;
+    private final Predicate<EventsArray<?>> predicate;
 
-    public EventOperatorBase(Predicate<EventsArray<? extends T>> predicate) {
+    public EventOperatorBase(Predicate<EventsArray<?>> predicate) {
         this.predicate = predicate;
     }
 
     @Override
-    public Restore start(List<? extends InstantEventSource<? extends T>> nodes,
+    public Restore start(List<? extends EventSource<?>> nodes,
                          Consumer<? super CompositeEvent<T>> results)
             throws Exception {
 
@@ -47,37 +47,44 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         return () -> closes.forEach(Restore::close);
     }
 
-    static class ValueByIndex<T> {
+    static class EventByIndex {
 
-        private final InstantEvent<? extends T> value;
+        private final InstantEvent<Object> event;
 
         private final int index;
 
-        ValueByIndex(InstantEvent<? extends T> value, int index) {
-            this.value = value;
+        @SuppressWarnings("unchecked")
+        EventByIndex(Object event, int index) {
+            InstantEvent<Object> instantEvent;
+            if (event instanceof InstantEvent) {
+                this.event = (InstantEvent<Object>) event;
+            }
+            else {
+                this.event = InstantEvent.of(event);
+            }
             this.index = index;
         }
     }
 
 
-    static class Switch<T> implements Consumer<ValueByIndex<T>> {
+    static class Switch<T> implements Consumer<EventByIndex> {
 
-        private final Queue<ValueByIndex<T>> queue = new ConcurrentLinkedQueue<>();
+        private final Queue<EventByIndex> queue = new ConcurrentLinkedQueue<>();
 
-        private final Predicate<EventsArray<? extends T>> predicate;
+        private final Predicate<EventsArray<?>> predicate;
 
         private volatile boolean switched;
 
         // create a chain of processing using completable future allow safe publication of our ongoing list
         // otherwise we'd have to synchronise it.
-        private final AtomicReference<CompletableFuture<EventsArrayImpl<T>>>
+        private final AtomicReference<CompletableFuture<EventsArrayImpl>>
                 ref = new AtomicReference<>();
 
         private final Consumer<? super CompositeEvent<T>> resultConsumer;
 
         private final int size;
 
-        Switch(Predicate<EventsArray<? extends T>> predicate,
+        Switch(Predicate<EventsArray<?>> predicate,
                Consumer<? super CompositeEvent<T>> resultConsumer, int size) {
             this.predicate = predicate;
             this.resultConsumer = resultConsumer;
@@ -85,9 +92,9 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
 
         @Override
-        public void accept(ValueByIndex<T> tValueByIndex) {
+        public void accept(EventByIndex tEventByIndex) {
 
-            queue.add(tValueByIndex);
+            queue.add(tEventByIndex);
             if (switched) {
                 process();
             }
@@ -98,20 +105,20 @@ public class EventOperatorBase<T> implements EventOperator<T> {
                     cf.thenApply(this::processQueue));
         }
 
-        EventsArrayImpl<T> processQueue(EventsArrayImpl<T> sofar) {
+        EventsArrayImpl processQueue(EventsArrayImpl sofar) {
             return processOutstanding(sofar, queue);
         }
 
-        EventsArrayImpl<T> processOutstanding(EventsArrayImpl<T> sofar, Queue<ValueByIndex<T>> outStanding) {
+        EventsArrayImpl processOutstanding(EventsArrayImpl sofar, Queue<EventByIndex> outStanding) {
 
-            for (ValueByIndex<T> item = outStanding.poll(); item != null; item = outStanding.poll()) {
-                sofar.set(item.index, item.value);
+            for (EventByIndex item = outStanding.poll(); item != null; item = outStanding.poll()) {
+                sofar.set(item.index, item.event);
                 test(sofar);
             }
             return sofar;
         }
 
-        void test(EventsArrayImpl<T> events) {
+        void test(EventsArrayImpl events) {
             if (predicate.test(events)) {
                 resultConsumer.accept(events.toCompositeEvent());
             }
@@ -119,13 +126,13 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
         void doSwitch() {
 
-            EventsArrayImpl<T> initial = new EventsArrayImpl<>(size);
+            EventsArrayImpl initial = new EventsArrayImpl(size);
 
-            Queue<ValueByIndex<T>> outstanding = new LinkedList<>();
+            Queue<EventByIndex> outstanding = new LinkedList<>();
 
-            for (ValueByIndex<T> item = queue.poll(); item != null; item = queue.poll()) {
+            for (EventByIndex item = queue.poll(); item != null; item = queue.poll()) {
                 if (!initial.getEventAt(item.index).isPresent()) {
-                    initial.set(item.index, item.value);
+                    initial.set(item.index, item.event);
                 } else {
                     outstanding.add(item);
                 }
@@ -142,27 +149,27 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
     }
 
-    static class InputConsumer<T> implements Consumer<InstantEvent<? extends T>> {
+    static class InputConsumer<T> implements Consumer<Object> {
 
-        private final Consumer<? super ValueByIndex<T>> results;
+        private final Consumer<? super EventByIndex> results;
 
         private final int index;
 
         InputConsumer(int index,
-                      Consumer<? super ValueByIndex<T>> results) {
+                      Consumer<? super EventByIndex> results) {
             this.index = index;
             this.results = results;
         }
 
         @Override
-        public void accept(InstantEvent<? extends T> t) {
-            results.accept(new ValueByIndex<>(t, index));
+        public void accept(Object t) {
+            results.accept(new EventByIndex(t, index));
         }
     }
 
-    static class EventsArrayImpl<T> implements EventsArray<T> {
+    static class EventsArrayImpl implements EventsArray<Object> {
 
-        private final List<Optional<InstantEvent<? extends T>>> elements;
+        private final List<Optional<InstantEvent<Object>>> elements;
 
         EventsArrayImpl(int size) {
 
@@ -178,24 +185,26 @@ public class EventOperatorBase<T> implements EventOperator<T> {
         }
 
         @Override
-        public Optional<InstantEvent<? extends T>> getEventAt(int index) {
+        public Optional<InstantEvent<Object>> getEventAt(int index) {
             return elements.get(index);
         }
 
         @Override
-        public Stream<Optional<InstantEvent<? extends T>>> toStream() {
+        public Stream<Optional<InstantEvent<Object>>> toStream() {
             return elements.stream();
         }
 
-        public void set(int index, InstantEvent<? extends T> value) {
-            elements.set(index, Optional.of(value));
+        public void set(int index, InstantEvent<Object> instantEvent) {
+            elements.set(index, Optional.of(instantEvent));
         }
 
-        public CompositeEvent<T> toCompositeEvent() {
+        @SuppressWarnings("unchecked")
+        public <T> CompositeEvent<T> toCompositeEvent() {
 
             List<InstantEvent<? extends T>> eventList = elements.stream()
                     .filter(Optional::isPresent)
                     .map(Optional::get)
+                    .map(event -> (InstantEvent<T>) event)
                     .collect(Collectors.toList());
 
             return new CompositeEventList<>(eventList);

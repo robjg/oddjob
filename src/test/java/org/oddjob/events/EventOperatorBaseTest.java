@@ -11,11 +11,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class EventOperatorBaseTest {
 
-    class OurSource implements InstantEventSource<String> {
+    static class OurSource implements InstantEventSource<String> {
 
         private final List<String> initial;
 
@@ -42,13 +42,13 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerEventArrivesLater() throws Exception {
 
-        Predicate<EventsArray<? extends String>> predicate =
+        Predicate<EventsArray<?>> predicate =
                 array -> {
-                    List<String> list =
+                    List<?> list =
                             array.toStream()
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .map(InstantEvent::getOf)
+                                    .map( e -> ((InstantEvent<?>) e).getOf())
                                     .collect(Collectors.toList());
 
                     return list.contains("red") && list.contains("blue");
@@ -81,13 +81,13 @@ public class EventOperatorBaseTest {
     @Test
     public void testTriggerArrivesBeforeSwitch() throws Exception {
 
-        Predicate<EventsArray<? extends String>> predicate =
+        Predicate<EventsArray<?>> predicate =
                 array -> {
-                    List<String> list =
+                    List<?> list =
                             array.toStream()
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .map(InstantEvent::getOf)
+                                    .map( e -> ((InstantEvent<?>) e).getOf())
                                     .collect(Collectors.toList());
                     return list.contains("red") && list.contains("blue");
                 };
@@ -170,16 +170,15 @@ public class EventOperatorBaseTest {
     @Test
     public void testGenericHeadache() {
 
-        EventOperatorBase.EventsArrayImpl<Number> test = new EventOperatorBase.EventsArrayImpl<>(3);
+        EventOperatorBase.EventsArrayImpl test = new EventOperatorBase.EventsArrayImpl(3);
 
         test.set(1, InstantEvent.of(1));
 
-        List<Number> results = new ArrayList<>();
+        List<Object> results = new ArrayList<>();
 
-        for (Optional<InstantEvent<? extends Number>> e :
-                test) {
+        for (Optional<?> e : test) {
 
-            results.add(e.map(InstantEvent::getOf).orElse(null));
+            results.add(e.map(v -> ((InstantEvent<?>) v).getOf()).orElse(null));
         }
 
         assertThat(results.get(0), CoreMatchers.nullValue());

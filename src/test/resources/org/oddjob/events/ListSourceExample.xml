@@ -7,17 +7,35 @@
                     <jobs>
                         <events:list>
                             <child>
-                                <state:watch name="Is Job 1 Complete" xmlns:state="http://rgordon.co.uk/oddjob/state"><![CDATA[job1 is COMPLETE]]></state:watch>
-                                <state:watch name="Is Job 2 Complete" xmlns:state="http://rgordon.co.uk/oddjob/state"><![CDATA[job2 is COMPLETE]]></state:watch>
+                                <events:watch name="Is Job 1 Complete">
+                                    <eventSource>
+                                        <state:watch xmlns:state="http://rgordon.co.uk/oddjob/state">
+                                            <![CDATA[job1 is COMPLETE]]>
+                                        </state:watch>
+                                    </eventSource>
+                                </events:watch>
+                                <events:watch name="Is Job 2 Complete">
+                                    <eventSource>
+                                        <state:watch xmlns:state="http://rgordon.co.uk/oddjob/state">
+                                            <![CDATA[job2 is COMPLETE]]>
+                                        </state:watch>
+                                    </eventSource>
+                                </events:watch>
                             </child>
                         </events:list>
-                        <echo id="job3" name="Job 3"><![CDATA[It's Done!]]></echo>
+                        <echo id="job3" name="Job 3">
+                            <![CDATA[It's Done on ${when.trigger}]]>
+                        </echo>
                     </jobs>
                 </events:when>
                 <folder>
                     <jobs>
-                        <echo id="job1" name="Job 1"><![CDATA[Hello]]></echo>
-                        <echo id="job2" name="Job 2"><![CDATA[World]]></echo>
+                        <echo id="job1" name="Job 1">
+                            <![CDATA[Hello]]>
+                        </echo>
+                        <echo id="job2" name="Job 2">
+                            <![CDATA[World]]>
+                        </echo>
                     </jobs>
                 </folder>
             </jobs>

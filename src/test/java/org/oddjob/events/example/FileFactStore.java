@@ -71,7 +71,7 @@ public class FileFactStore implements FactStore {
 
             this.fileWatchService = new FileWatchService();
             this.fileWatchService.setKinds(StandardWatchEventKinds.ENTRY_CREATE.name());
-            this.fileWatchService.setFilter("\\.json");
+            this.fileWatchService.setFilter("\\.json$");
             this.fileWatchService.start();
         }
 

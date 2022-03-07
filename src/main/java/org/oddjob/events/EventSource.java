@@ -5,7 +5,7 @@ import org.oddjob.util.Restore;
 import java.util.function.Consumer;
 
 /**
- * A source fo events.
+ * A source for events.
  *
  * @param <T> The type of the event.
  */

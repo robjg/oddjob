@@ -32,12 +32,12 @@ import java.util.function.Consumer;
  *
  * @author Rob Gordon
  */
-public class ListSource<T> extends InstantEventSourceBase<T>
+public class ListSource<T> extends EventSourceBase<CompositeEvent<T>>
 implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
 	/** Track changes to children an notify listeners. */
-	protected transient volatile ChildHelper<InstantEventSource< T >> childHelper;
+	protected transient volatile ChildHelper<EventSource<?>> childHelper;
 
 	/**
 	 * @oddjob.property
@@ -64,12 +64,12 @@ implements Serializable, Structural {
 	}
 
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super CompositeEvent<T>> consumer) throws Exception {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
-        List<InstantEventSource<T>> children = new ArrayList<>();
-        for (InstantEventSource<T> child : this.childHelper) {
+        List<EventSource<?>> children = new ArrayList<>();
+        for (EventSource<?> child : this.childHelper) {
             children.add(child);
         }
 
@@ -121,7 +121,7 @@ implements Serializable, Structural {
 	 * @oddjob.required No, but pointless without.
 	 */
 	@ArooaComponent
-	public void setChild(int index, InstantEventSource<T> child) {
+	public void setChild(int index, EventSource<?> child) {
 	    childHelper.insertOrRemoveChild(index, child);
     }
 

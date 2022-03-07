@@ -1,5 +1,6 @@
 package org.oddjob.events;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -14,10 +15,12 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ListSourceTest {
 
@@ -60,11 +63,11 @@ public class ListSourceTest {
         stateSteps.checkNow();
 
         assertThat(results.size(), is(3));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(0)),
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(0)),
                    is(Arrays.asList(1, 1)));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(1)),
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(1)),
                    is(Arrays.asList(2, 1)));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(2))
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(2))
                 , is(Arrays.asList(2, 2)));
 
         stateSteps.startCheck(EventState.COMPLETE, EventState.READY);
@@ -91,17 +94,129 @@ public class ListSourceTest {
         stateSteps.checkNow();
 
         assertThat(results.size(), is(3));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(0)),
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(0)),
                    is(Arrays.asList(1, 1)));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(1)),
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(1)),
                    is(Arrays.asList(2, 1)));
-        assertThat(EventConversions.toList((CompositeEvent) results.get(2)),
+        assertThat(EventConversions.toList((CompositeEvent<?>) results.get(2)),
                    is(Arrays.asList(2, 2)));
     }
 
+    @Test
+    public void testEventsReceivedAfterSubscribe() throws Exception {
+
+        AtomicReference<Consumer<? super String>> c1 = new AtomicReference<>();
+
+        EventSource<String> es1 = consumer -> {
+            c1.set(consumer);
+            return () -> c1.set(null);
+        };
+
+        AtomicReference<Consumer<? super String>> c2 = new AtomicReference<>();
+
+        EventSource<String> es2 = consumer -> {
+            c2.set(consumer);
+            return () -> c2.set(null);
+        };
+
+        ListSource<String> test = new ListSource<>();
+        test.setChild(0, es1);
+        test.setChild(1, es2);
+
+        StateSteps stateSteps = new StateSteps(test);
+        stateSteps.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
+
+        List<CompositeEvent<String>> results = new ArrayList<>();
+
+        AutoCloseable close = test.subscribe(results::add);
+
+        stateSteps.checkNow();
+
+        stateSteps.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
+
+        c1.get().accept("apple");
+
+        assertThat(results, Matchers.empty());
+
+        Thread.sleep(2L);
+
+        c2.get().accept("orange");
+
+        stateSteps.checkNow();
+
+        CompositeEvent<String> result1  = results.get(0);
+        assertThat(result1.getOfs(), hasItems("apple", "orange"));
+        // the last event received.
+        assertThat(result1.getOf(), is("orange"));
+
+        stateSteps.startCheck(EventState.TRIGGERED, EventState.FIRING, EventState.TRIGGERED);
+
+        c2.get().accept("pear");
+
+        stateSteps.checkNow();
+
+        CompositeEvent<String> result2  = results.get(1);
+        assertThat(result2.getOfs(), hasItems("apple", "pear"));
+
+        c1.get().accept("grape");
+
+        CompositeEvent<String> result3  = results.get(2);
+        assertThat(result3.getOfs(), hasItems("grape", "pear"));
+
+        stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
+
+        close.close();
+
+        stateSteps.checkNow();
+
+        assertThat(c1.get(), nullValue());
+        assertThat(c2.get(), nullValue());
+
+        stateSteps.startCheck(EventState.COMPLETE, EventState.READY);
+
+        test.hardReset();
+
+        stateSteps.checkNow();
+
+        stateSteps.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
+
+        AutoCloseable close2 = test.subscribe(results::add);
+
+        stateSteps.checkNow();
+
+        stateSteps.startCheck(EventState.WAITING);
+
+        c1.get().accept("banana");
+
+        assertThat(results.size(), is(3));
+        stateSteps.checkNow();
+
+        stateSteps.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
+
+        c2.get().accept("kiwi");
+
+        stateSteps.checkNow();
+
+        CompositeEvent<String> result4  = results.get(3);
+        assertThat(result4.getOfs(), hasItems("banana", "kiwi"));
+
+        stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
+
+        close2.close();
+
+        stateSteps.checkNow();
+
+        assertThat(c1.get(), nullValue());
+        assertThat(c2.get(), nullValue());
+    }
+
+
+
+    @Test
     public void testExample() throws ArooaConversionException, InterruptedException, FailedToStopException {
 
-        File file = new File(getClass().getResource("ListSourceExample.xml").getFile());
+        File file = new File(Objects.requireNonNull(
+                getClass().getResource("ListSourceExample.xml")).getFile());
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(file);

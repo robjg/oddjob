@@ -3,21 +3,17 @@
  */
 package org.oddjob.state;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Test;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.util.Date;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.MockStateful;
 import org.oddjob.OddjobException;
+import org.oddjob.OjTestCase;
+
+import java.io.*;
+import java.time.Instant;
+import java.util.Date;
+
+import static org.hamcrest.Matchers.is;
 
 /**
  * 
@@ -26,11 +22,11 @@ public class JobStateEventTest extends OjTestCase {
 
 	String message = "This should serialize.";
 	
-	class NotSerializable {
+	static class NotSerializable {
 		
 	}
 	
-	class OurStateful extends MockStateful {
+	static class OurStateful extends MockStateful {
 		
 		public void addStateListener(StateListener listener) {
 			throw new RuntimeException("Unexpected.");
@@ -38,6 +34,11 @@ public class JobStateEventTest extends OjTestCase {
 		
 		public void removeStateListener(StateListener listener) {
 			throw new RuntimeException("Unexpected.");
+		}
+
+		@Override
+		public String toString() {
+			return OurStateful.class.getSimpleName();
 		}
 	}
 	
@@ -118,5 +119,16 @@ public class JobStateEventTest extends OjTestCase {
 		
 		Object o = oi.readObject();
 		return o;
+	}
+
+	@Test
+	public void testToString() {
+
+		Instant instant = Instant.parse("2022-03-07T07:01:00Z");
+
+		StateEvent test = StateEvent.at(new OurStateful(), JobState.COMPLETE, instant);
+
+		MatcherAssert.assertThat(test.toString(),
+				is("JobStateEvent, source=OurStateful, COMPLETE at 2022-03-07T07:01:00Z"));
 	}
 }
