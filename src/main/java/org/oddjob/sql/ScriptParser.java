@@ -6,7 +6,6 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.runtime.ExpressionParser;
 import org.oddjob.arooa.runtime.ParsedExpression;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.BusDriver;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
@@ -14,6 +13,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.function.Consumer;
@@ -168,20 +168,14 @@ public class ScriptParser implements BusDriver<String>, ArooaSessionAware, Stopp
 
         stop = false;
 
-        try {
-            doProcessing();
-        } catch (Exception e) {
+        try (InputStream input = Objects.requireNonNull(this.input, "No Input")) {
+            doProcessing(input);
+        } catch (IOException e) {
             throw new RuntimeException(e);
-        } finally {
-            try {
-                input.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
         }
     }
 
-    protected void doProcessing() throws Exception {
+    protected void doProcessing(InputStream input) throws IOException {
 
         StringBuilder sql = new StringBuilder();
 
@@ -196,12 +190,7 @@ public class ScriptParser implements BusDriver<String>, ArooaSessionAware, Stopp
         }
 
         while (!stop) {
-            String line;
-            try {
-                line = in.readLine();
-            } catch (IOException e) {
-                throw new BusCrashException(e);
-            }
+            String line = in.readLine();
             if (line == null) {
                 break;
             }
