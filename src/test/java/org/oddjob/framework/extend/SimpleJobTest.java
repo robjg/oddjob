@@ -1,10 +1,5 @@
 package org.oddjob.framework.extend;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import org.junit.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -18,12 +13,16 @@ import org.oddjob.state.JobState;
 import org.oddjob.tools.IconSteps;
 import org.oddjob.tools.StateSteps;
 
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.List;
+
 public class SimpleJobTest extends OjTestCase {
 
 	
 	public static class OurJob extends SimpleJob {
 		
-		List<String> results = new ArrayList<String>();
+		List<String> results = new ArrayList<>();
 		
 		public void setConstantAttribute(String value) {
 			results.add("Set constant attribute: " + value);
@@ -117,12 +116,13 @@ public class SimpleJobTest extends OjTestCase {
 		oddjob.destroy();
 				
 		assertEquals("In onDestroy.", results.get(7));
-		assertEquals("Set element property: null", results.get(8));
+		// destroy no longer set value properties to null.
+//		assertEquals("Set element property: null", results.get(8));
 		
-		assertEquals(9, results.size());
+		assertEquals(8, results.size());
 	}
 	
-	private class SleepyJob extends SimpleJob {
+	private static class SleepyJob extends SimpleJob {
 		
 		long sleep;
 		
@@ -135,7 +135,7 @@ public class SimpleJobTest extends OjTestCase {
 	}
 		
    @Test
-	public void testSleepAndComplete() throws InterruptedException, FailedToStopException {
+	public void testSleepAndComplete() {
 		
 		SleepyJob test = new SleepyJob();
 		test.sleep = 1;
@@ -188,7 +188,7 @@ public class SimpleJobTest extends OjTestCase {
 		SimpleJob test = new SimpleJob() {
 			
 			@Override
-			protected int execute() throws Throwable {
+			protected int execute() {
 				return 0;
 			}
 		};
