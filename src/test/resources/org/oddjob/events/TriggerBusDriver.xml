@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <events:trigger id="trigger" xmlns:events="oddjob:events">
+            <jobs>
+                <bus:driver xmlns:bus="oddjob:beanbus">
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="foo"/>
+                            </values>
+                        </list>
+                    </beans>
+                </bus:driver>
+                <echo id="echo">
+                    <![CDATA[${trigger.trigger}]]>
+                </echo>
+            </jobs>
+        </events:trigger>
+    </job>
+</oddjob>

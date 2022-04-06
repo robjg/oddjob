@@ -2,7 +2,6 @@ package org.oddjob.events;
 
 import org.oddjob.util.Restore;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,7 +31,7 @@ public class StreamWatcher extends InstantEventSourceBase<String> {
     private OutputStream out;
 
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {
 
          AtomicReference<Consumer<? super InstantEvent<String>>> consumerRef =
                  new AtomicReference<>(consumer);
@@ -48,7 +47,7 @@ public class StreamWatcher extends InstantEventSourceBase<String> {
 
             int index = 0;
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 if ( b != watch[index++]) {
                     index = 0;
                 }

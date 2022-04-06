@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class StateExpressionNodeTest {
+public class StateExpressionTypeTest {
 
 	@Test
-	public void testFoo() throws Exception {
+	public void whenExpectedStateThenConsumerNotified() throws Exception {
 		
 		FlagState job = new FlagState();
 		
@@ -39,7 +39,5 @@ public class StateExpressionNodeTest {
 		assertThat(results.get(0).getOf(), is(Boolean.TRUE));
 
 		restore.close();
-		
 	}
-	
 }

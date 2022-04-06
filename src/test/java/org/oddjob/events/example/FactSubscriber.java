@@ -29,7 +29,7 @@ public class FactSubscriber<T> extends InstantEventSourceBase<T> {
     private volatile InstantEvent<T> last;
 
     @Override
-    public Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception {
+    public Restore doStart(Consumer<? super InstantEvent<T>> consumer) {
 
         FactStore factStore = Optional.ofNullable(this.factStore)
                 .orElseThrow(() -> new IllegalArgumentException("No Fact Store"));

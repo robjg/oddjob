@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -53,8 +54,8 @@ public class FileFactStore implements FactStore {
 
 
     @Override
-    public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) throws ClassNotFoundException {
-        return Optional.ofNullable(service).orElseThrow(() -> new IllegalStateException("Not Started"))
+    public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) {
+        return Objects.requireNonNull(service, "Service Not Started")
                 .subscribe(query, consumer);
     }
 
@@ -64,7 +65,7 @@ public class FileFactStore implements FactStore {
 
         private final FileWatchService fileWatchService;
 
-        private Map<Consumer<?>, Instant> lastModified = new ConcurrentHashMap<>();
+        private final Map<Consumer<?>, Instant> lastModified = new ConcurrentHashMap<>();
 
         Service(Path rootDir) {
             this.rootDir = rootDir;
@@ -76,7 +77,7 @@ public class FileFactStore implements FactStore {
         }
 
         @Override
-        public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) throws ClassNotFoundException {
+        public <T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer)  {
 
             Query parsedQuery = parseQuery(query);
 
@@ -91,6 +92,7 @@ public class FileFactStore implements FactStore {
                     logger.debug("Last modified the same. Ignoring");
                     return;
                 }
+                @SuppressWarnings("unchecked")
                 T fact = (T) readFact(p.getOf(), parsedQuery.type);
                 Optional.ofNullable(fact)
                         .ifPresent(f -> consumer.accept(InstantEvent.of(f, p.getTime())));
@@ -132,8 +134,8 @@ public class FileFactStore implements FactStore {
                 }
                 else {
                     logger.error("Failed reading " + path, e);
+                    throw new RuntimeException(e);
                 }
-                throw new RuntimeException(e);
             }
         }
     }
@@ -144,7 +146,7 @@ public class FileFactStore implements FactStore {
                 .resolve(query.getKey() + ".json");
     }
 
-    static Query parseQuery(String query) throws ClassNotFoundException {
+    static Query parseQuery(String query) {
 
         String[] parts = query.split(":");
 
@@ -157,7 +159,12 @@ public class FileFactStore implements FactStore {
 
         String fullClass = FileFactStore.class.getPackage().getName() + "." + type;
 
-        Class<?> factClass = Class.forName(fullClass);
+        Class<?> factClass;
+        try {
+            factClass = Class.forName(fullClass);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException("Failed parsing query " + query, e);
+        }
 
         return new Query(factClass, key);
     }

@@ -7,5 +7,5 @@ import java.util.function.Consumer;
 
 public interface FactStore {
 
-	<T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer) throws Exception;
+	<T> Restore subscribe(String query, Consumer<? super InstantEvent<T>> consumer);
 }

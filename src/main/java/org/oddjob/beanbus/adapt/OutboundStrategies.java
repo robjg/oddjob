@@ -11,6 +11,7 @@ import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.Outbound;
 
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * A collection of different {@link OutboundStrategy}s that are applied to 
@@ -36,7 +37,11 @@ public class OutboundStrategies implements OutboundStrategy {
 		
 		return outbound;
 	}
-	
+
+	public static <T> Optional<Outbound<T>> maybeOutbound(Object maybe, ArooaSession session) {
+		return Optional.ofNullable(new OutboundStrategies().outboundFor(maybe, session));
+	}
+
 	/**
 	 * Provides a strategy that checks to see if the component is a
 	 * {@link Outbound} already.

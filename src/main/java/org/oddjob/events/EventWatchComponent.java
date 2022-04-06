@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  *
  * @param <T> The type of the event.
  */
-public class EventWatchComponent<T> extends EventSourceBase<T> {
+public class EventWatchComponent<T> extends EventServiceBase<T> {
 
     /**
      * @oddjob.property
@@ -31,7 +31,7 @@ public class EventWatchComponent<T> extends EventSourceBase<T> {
     private EventSource<T> eventSource;
 
     @Override
-    protected Restore doStart(Consumer<? super T> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super T> consumer) {
         return Objects.requireNonNull(eventSource, "No Event Source")
                 .subscribe(consumer);
     }

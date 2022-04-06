@@ -26,8 +26,7 @@ public class EventOperatorBase<T> implements EventOperator<T> {
 
     @Override
     public Restore start(List<? extends EventSource<?>> nodes,
-                         Consumer<? super CompositeEvent<T>> results)
-            throws Exception {
+                         Consumer<? super CompositeEvent<T>> results) {
 
         int number = nodes.size();
 

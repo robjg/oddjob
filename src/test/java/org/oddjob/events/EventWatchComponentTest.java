@@ -13,18 +13,18 @@ import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class InstantEventSourceBaseTest {
+public class EventWatchComponentTest {
 
-    private static class OurSubscriber extends InstantEventSourceBase<String> {
+    private static class OurEventSource implements EventSource<String> {
 
         private boolean closed;
 
-        private InstantEvent<String> initial;
+        private String initial;
 
-        private Consumer<? super InstantEvent<String>> consumer;
+        private Consumer<? super String> consumer;
 
         @Override
-        protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {
+        public Restore subscribe(Consumer<? super String> consumer) {
 
             Optional.ofNullable(initial).ifPresent(consumer);
             this.consumer = consumer;
@@ -35,39 +35,48 @@ public class InstantEventSourceBaseTest {
     @Test
     public void testHappyPathStatesAsExpectedEventThere() throws Exception {
 
-        OurSubscriber test = new OurSubscriber();
-        test.initial = InstantEvent.of("Apple");
+        EventWatchComponent<String> test = new EventWatchComponent<>();
 
-        List<InstantEvent<String>> results = new ArrayList<>();
+        OurEventSource eventSource = new OurEventSource();
+        test.setEventSource(eventSource);
+
+        eventSource.initial = "Apple";
+
+        List<String> results = new ArrayList<>();
+        test.setTo(results::add);
 
         StateSteps subscriberState = new StateSteps(test);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
                 EventState.FIRING, EventState.TRIGGERED);
 
-        Restore restore = test.subscribe(results::add);
+        test.run();
 
         subscriberState.checkNow();
         assertThat(results.size(), is(1));
 
-        assertThat(results.get(0).getOf(), is("Apple"));
+        assertThat(results.get(0), is("Apple"));
 
-        restore.close();
+        test.stop();
 
-        assertThat(test.closed, is(true));
+        assertThat(eventSource.closed, is(true));
     }
 
     @Test
     public void testHappyPathStatesAsExpectedNoEventsYet() throws Exception {
 
-        OurSubscriber test = new OurSubscriber();
+        EventWatchComponent<String> test = new EventWatchComponent<>();
 
-        List<InstantEvent<String>> results = new ArrayList<>();
+        OurEventSource eventSource = new OurEventSource();
+        test.setEventSource(eventSource);
+
+        List<String> results = new ArrayList<>();
+        test.setTo(results::add);
 
         StateSteps subscriberState = new StateSteps(test);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
                 EventState.WAITING);
 
-        Restore restore = test.subscribe(results::add);
+        test.run();
 
         subscriberState.checkNow();
 
@@ -75,15 +84,15 @@ public class InstantEventSourceBaseTest {
 
         subscriberState.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 
-        test.consumer.accept(InstantEvent.of("Apple"));
+        eventSource.consumer.accept("Apple");
 
         subscriberState.checkNow();
 
         assertThat(results.size(), is(1));
-        assertThat(results.get(0).getOf(), is("Apple"));
+        assertThat(results.get(0), is("Apple"));
 
-        restore.close();
+        test.stop();
 
-        assertThat(test.closed, is(true));
+        assertThat(eventSource.closed, is(true));
     }
 }

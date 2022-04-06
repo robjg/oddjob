@@ -52,6 +52,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 
 	private volatile transient Restore restore;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The source of events. If this is not set the first child component is assumed
+	 * to be the Event Source.
+	 * @oddjob.required No.
+	 */
 	private volatile EventSource<T> eventSource;
 
 	public EventJobBase() {
@@ -109,15 +115,12 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 						"No Event Source provided either as a property or a child component.");
 			}
 			Object firstChild = children[0];
-			if (firstChild instanceof EventSource) {
-				//noinspection unchecked
-				eventSource = (EventSource<T>) firstChild;
-			}
-			else {
-				throw new IllegalStateException("" +
-						"When Event Source provided as a property, " +
-						"the first child component is expected to be an Event Source.");
-			}
+
+			eventSource = EventSourceAdaptor.<T>maybeEventSourceFrom(firstChild, getArooaSession())
+					.orElseThrow(() -> new IllegalStateException("" +
+							"When Event Source provided as a property, " +
+							"the first child component is expected to be an Event Source."));
+
 			jobIndex = 1;
 		}
 		else {
@@ -142,13 +145,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		};
 		
 		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
-		consumer.set(
-				event -> {
-					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
-						logger().debug("Received immediate event [{}]", event);
-						onImmediateEvent(event);
-					}
-				});
+		consumer.set(new ImmediateEventHandler());
 
 		logger().info("Starting event source [{}]", eventSource);
 		Restore close = eventSource.subscribe(event -> consumer.get().accept(event));
@@ -161,17 +158,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 					() -> getStateChanger().setState(ParentState.ACTIVE));
 		}
 
-		consumer.set(
-				event -> {
-					try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
-						logger().debug("Received event [{}]", event);
-						stopChildStateReflector();
-						onLaterEvent(event, job, executor);
-						if (job == null) {
-							super.startChildStateReflector();
-						}
-					}
-				});
+		consumer.set(new LaterEventHandler(job, executor));
 		
 		restore = () -> {
 			logger().info("Closing event source [{}]", eventSource);
@@ -183,10 +170,73 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 		onSubscriptionStarted(job, executor);
 	}
 
+	class ImmediateEventHandler implements Consumer<T> {
+
+		@Override
+		public void accept(T event) {
+			try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+				logger().debug("Received immediate event [{}]", event);
+				onImmediateEvent(event);
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "ImmediateEventHandler of " + EventJobBase.this;
+		}
+	}
+
+	class LaterEventHandler implements Consumer<T> {
+
+		private final Object job;
+
+		private final Executor executor;
+
+		LaterEventHandler(Object job, Executor executor) {
+			this.job = job;
+			this.executor = executor;
+		}
+
+		@Override
+		public void accept(T event) {
+			try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
+				logger().debug("Received event [{}]", event);
+				stopChildStateReflector();
+				onLaterEvent(event, job, executor);
+				if (job == null) {
+					EventJobBase.super.startChildStateReflector();
+				}
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "EventHandler of " + EventJobBase.this;
+		}
+	}
+
+	/**
+	 * Do something with an event received immediately before the subscribe method has returned.
+	 *
+	 * @param event The event.
+	 */
 	abstract void onImmediateEvent(T event);
 
+	/**
+	 * Called once the subscription has started.
+	 *
+	 * @param job The job to execute if any.
+	 * @param executor The executor to use to execute the job.
+	 */
 	abstract void onSubscriptionStarted(Object job, Executor executor);
-	
+
+	/**
+	 * Called when an event is received after subscription. There is no guarantee that an
+	 * this will be called after the {@link #onSubscriptionStarted(Object, Executor)} method,
+	 * implementors are responsible for their own synchronisation if required.
+	 *
+	 * @param event The event.
+	 */
 	abstract void onLaterEvent(T event, Object job, Executor executor);
 
 	

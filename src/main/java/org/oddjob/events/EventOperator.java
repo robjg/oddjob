@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 public interface EventOperator<T> {
 
     Restore start(List<? extends EventSource<?>> nodes,
-                  Consumer<? super CompositeEvent<T>> results)
-            throws Exception;
+                  Consumer<? super CompositeEvent<T>> results);
 
 }

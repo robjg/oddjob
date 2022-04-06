@@ -6,7 +6,6 @@ import org.oddjob.events.Trigger;
 import org.oddjob.events.When;
 import org.oddjob.util.Restore;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Objects;
@@ -53,7 +52,7 @@ public class FileWatchEventSource extends InstantEventSourceBase<Path> {
     private volatile AtomicReference<Instant> lastModified = new AtomicReference<>();
 
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) {
         Objects.requireNonNull(consumer, "No Consumer");
 
         Path file = Optional.ofNullable(this.file)

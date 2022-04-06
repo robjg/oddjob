@@ -11,5 +11,5 @@ import java.util.function.Consumer;
  */
 public interface EventSource<T> {
 
-    Restore subscribe(Consumer<? super T> consumer) throws Exception;
+    Restore subscribe(Consumer<? super T> consumer);
 }

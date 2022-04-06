@@ -38,7 +38,16 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
     private volatile boolean newOnly;
 
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
+    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) {
+
+        try {
+            return doStartWithException(consumer);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    protected Restore doStartWithException(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
 
         final Path path = Optional.ofNullable(this.dir)
                 .orElse(Paths.get("."));

@@ -13,7 +13,7 @@ abstract public class InstantEventSourceBase<T> extends EventSourceBase<InstantE
 implements InstantEventSource<T> {
 
 	@Override
-	protected abstract Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception;
+	protected abstract Restore doStart(Consumer<? super InstantEvent<T>> consumer);
 
 
 }

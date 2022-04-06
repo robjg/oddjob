@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -46,7 +47,7 @@ implements Structural, ConfigurationOwner {
     public static final ArooaElement FOREACH_ELEMENT = 
     	new ArooaElement("events");
     
-	/** Track changes to children an notify listeners. */
+	/** Track changes to children and notify listeners. */
 	protected transient volatile ChildHelper<Object> childHelper; 
 
 	/**
@@ -98,7 +99,7 @@ implements Structural, ConfigurationOwner {
 	 * values.
 	 * @oddjob.required R/O.
 	 */
-	private transient volatile int index;
+	private transient AtomicInteger index;
 		
     /** Track configuration so they can be destroyed. */
     private transient Map<Object, ConfigurationHandle<ArooaContext>> configurationHandles;
@@ -115,7 +116,8 @@ implements Structural, ConfigurationOwner {
 	private void completeConstruction() {
 		childHelper = new ChildHelper<>(this);
 		configurationOwnerSupport =
-			new ConfigurationOwnerSupport(this);		
+			new ConfigurationOwnerSupport(this);
+		index = new AtomicInteger();
 	}
 
 		
@@ -199,13 +201,13 @@ implements Structural, ConfigurationOwner {
 		
 		ArooaSession existingSession = getArooaSession();
 		
-		BeanRegistry psudoRegistry = new LinkedBeanRegistry(
+		BeanRegistry pseudoRegistry = new LinkedBeanRegistry(
 				existingSession);
 
 		RegistryOverrideSession session = new RegistryOverrideSession(
-				existingSession, psudoRegistry);
+				existingSession, pseudoRegistry);
 		
-		LocalBean seed = new LocalBean(index++, value);
+		LocalBean seed = new LocalBean(index.incrementAndGet(), value);
 		
 		StandardArooaParser parser = new StandardArooaParser(seed,
 				session);
@@ -219,19 +221,14 @@ implements Structural, ConfigurationOwner {
 			logger().info("No child job created.");
 			return null;
 		}
-		
-	    if (! (root instanceof InstantEventSource<?>)) {
-	    	throw new UnsupportedOperationException("Job " + root + 
-	    			" not a SubscribeNode.");
-	    }	    
-	    
+
 		configurationHandles.put(root, handle);			
 		
-		// Configure the root so we can see the name if it 
+		// Configure the root, so we can see the name if it
 	    // uses the current value.
 		seed.session.getComponentPool().configure(root);
 		
-		// Must happen after configure so we see the correct value
+		// Must happen after configure, so we see the correct value
 		// in the job tree.
 		childHelper.addChild(root);
 		
@@ -239,7 +236,7 @@ implements Structural, ConfigurationOwner {
 	}
 
 	/**
-	 * Remove a child and clear up it's configuration.
+	 * Remove a child and clear up its configuration.
 	 * 
 	 * @param child The child.
 	 */
@@ -286,7 +283,9 @@ implements Structural, ConfigurationOwner {
 			iterator = values.iterator();
 		}
 		
-		while (loadNext() != null);
+		while (true) {
+			if (loadNext() == null) break;
+		}
 	}
 	
 	/**
@@ -307,9 +306,8 @@ implements Structural, ConfigurationOwner {
 	}	
 	
 	
-	@SuppressWarnings("unchecked")
 	@Override
-	public Restore doStart(Consumer<? super InstantEvent<T>> consumer) throws Exception {
+	public Restore doStart(Consumer<? super InstantEvent<T>> consumer) {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
@@ -320,15 +318,15 @@ implements Structural, ConfigurationOwner {
 					() -> getStateChanger().setStateException(e));
 		}
 
-		List<EventSource<T>> susbscribeNodes = new ArrayList<>();
+		List<EventSource<?>> subscribeNodes = new ArrayList<>();
 		
 		for (Object child : childHelper) {
-			if (child instanceof EventSource<?>) {
-				susbscribeNodes.add((EventSource<T>) child);
-			}
+			subscribeNodes.add(EventSourceAdaptor.maybeEventSourceFrom(child, getArooaSession())
+					.orElseThrow(() -> new IllegalStateException("Child [" +
+							child + "] is not able to Event Source")));
 		}
 
-		return eventOperator.start(susbscribeNodes,
+		return eventOperator.start(subscribeNodes,
 				list -> {
                     last = list;
                     try {
@@ -344,7 +342,7 @@ implements Structural, ConfigurationOwner {
      * @return Returns the index.
      */
     public int getIndex() {
-        return index;
+        return index.get();
     }
 
     public EventOperator<T> getEventOperator() {
@@ -413,7 +411,7 @@ implements Structural, ConfigurationOwner {
 					// Replacement after edit.
 					if (structuralPosition != -1) {
 
-						// Configure the root so we can see the name if it
+						// Configure the root, so we can see the name if it
 						// uses the current value.
 						session.getComponentPool().configure(child);
 
@@ -445,14 +443,14 @@ implements Structural, ConfigurationOwner {
     	private final PropertyManager propertyManager;
     	
     	public RegistryOverrideSession(
-    			ArooaSession exsitingSession,
+    			ArooaSession existingSession,
     			BeanRegistry registry) {
-    		this.existingSession = exsitingSession;
+    		this.existingSession = existingSession;
     		this.beanDirectory = registry;
     		this.componentPool = new PseudoComponentPool(
-    				exsitingSession.getComponentPool());
+    				existingSession.getComponentPool());
     		this.propertyManager = new StandardPropertyManager(
-    				existingSession.getPropertyManager());
+    				this.existingSession.getPropertyManager());
 		}
     	
     	@Override
@@ -534,7 +532,7 @@ implements Structural, ConfigurationOwner {
 		}
 		
 	    this.configurationHandles = null;
-		this.index = 0;
+		this.index.set(0);
         this.last = null;
 	}
 
@@ -609,7 +607,7 @@ implements Structural, ConfigurationOwner {
 	}
 	
 	/**
-	 * Only the root foreach should result in a drag point..
+	 * Only the root foreach should result in a drag point.
 	 */
 	class ForeachConfigurationSession 
 	extends ListenerSupportBase<SessionStateListener>

@@ -37,7 +37,7 @@ implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
 	/** Track changes to children an notify listeners. */
-	protected transient volatile ChildHelper<EventSource<?>> childHelper;
+	protected transient volatile ChildHelper<Object> childHelper;
 
 	/**
 	 * @oddjob.property
@@ -64,13 +64,15 @@ implements Serializable, Structural {
 	}
 
     @Override
-    protected Restore doStart(Consumer<? super CompositeEvent<T>> consumer) throws Exception {
+    protected Restore doStart(Consumer<? super CompositeEvent<T>> consumer) {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
         List<EventSource<?>> children = new ArrayList<>();
-        for (EventSource<?> child : this.childHelper) {
-            children.add(child);
+        for (Object child : this.childHelper) {
+            children.add(EventSourceAdaptor.maybeEventSourceFrom(child, getArooaSession())
+					.orElseThrow(() -> new IllegalStateException("Child [" +
+							child + "] is not able to Event Source")));
         }
 
         return eventOperator.start(children,
@@ -121,7 +123,7 @@ implements Serializable, Structural {
 	 * @oddjob.required No, but pointless without.
 	 */
 	@ArooaComponent
-	public void setChild(int index, EventSource<?> child) {
+	public void setChild(int index, Object child) {
 	    childHelper.insertOrRemoveChild(index, child);
     }
 

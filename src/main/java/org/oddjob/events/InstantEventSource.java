@@ -17,8 +17,6 @@ public interface InstantEventSource<T> extends EventSource<InstantEvent<T>> {
 	 * @param consumer The consumer to receive events on.
 	 *
 	 * @return Something that will stop events being sent and free any resources that were used to send the events.
-	 *
-	 * @throws Exception If the listening could not be started.
 	 */
-	Restore subscribe(Consumer<? super InstantEvent<T>> consumer) throws Exception;
+	Restore subscribe(Consumer<? super InstantEvent<T>> consumer);
 }

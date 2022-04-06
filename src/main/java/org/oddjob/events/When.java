@@ -12,8 +12,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * @oddjob.description Runs a job when triggered by the arrival of an event.
- * 
+ * @oddjob.description Runs a job when triggered by the arrival of an event. The job will be re-run every time
+ * the event arrives. If the job is still running when a new event arrives, the job will attempt to be stopped
+ * and rerun. A typical use case would be processing a file when it arrives, but which may be re-sent with more
+ * up-to-date information.
+ *
  * @oddjob.example
  * 
  * Evaluating greengrocer portfolios of fruit when data arrives.

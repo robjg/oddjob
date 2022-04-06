@@ -8,6 +8,7 @@ import org.oddjob.events.InstantEvent;
 import org.oddjob.events.InstantEventSource;
 import org.oddjob.util.Restore;
 
+import java.text.ParseException;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -37,17 +38,22 @@ public class StateExpressionType implements InstantEventSource<Boolean>, ArooaSe
 	}
 
 	@Override
-	public Restore subscribe(Consumer<? super InstantEvent<Boolean>> consumer) throws Exception {
+	public Restore subscribe(Consumer<? super InstantEvent<Boolean>> consumer) {
 
 		String nonNullExpr = Optional.ofNullable(this.expression)
 				.orElseThrow(() -> new IllegalStateException("No expression"));
 
 			StateExpressionParser<StateExpression> expressionParser = new StateExpressionParser<>(
 					CaptureToExpression::new);
-			
-			StateExpression expression = expressionParser.parse(nonNullExpr);
 
-			return expression.evaluate(session,
+		StateExpression expression;
+		try {
+			expression = expressionParser.parse(nonNullExpr);
+		} catch (ParseException e) {
+			throw new IllegalArgumentException("Failed Parsing " + nonNullExpr, e);
+		}
+
+		return expression.evaluate(session,
 					v -> v.onSuccess( 
 							b -> {
 								if (b.getOf()) {

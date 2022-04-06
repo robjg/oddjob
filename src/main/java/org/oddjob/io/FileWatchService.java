@@ -3,7 +3,6 @@ package org.oddjob.io;
 import org.oddjob.events.InstantEvent;
 import org.oddjob.util.Restore;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -14,6 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
 /**
+ * @author rob
  * @oddjob.description Provide a service for subscribers to watch a file system for Files existing, being created or being modified.
  * <p/>
  * If the file is created during subscription the consumer may receive a notification for the same file twice. Once
@@ -25,16 +25,12 @@ import java.util.function.Consumer;
  * Consumers will receive creation and modification events on a different thread to the initial event if the
  * file exists.
  * <p>
- *     <em>Implementation Note:</em> This facility is still a work in progress. Requiring this service
- *     in a configuration is messy. In future releases this service should be hidden from users.
+ * <em>Implementation Note:</em> This facility is still a work in progress. Requiring this service
+ * in a configuration is messy. In future releases this service should be hidden from users.
  * </p>
- * @oddjob.example
- *
- * Trigger when two files arrive.
- *
+ * @oddjob.example Trigger when two files arrive.
+ * <p>
  * {@oddjob.xml.resource org/oddjob/io/FileWatchTwoFilesExample.xml}
- *
- * @author rob
  * @see FileWatchEventSource
  */
 public class FileWatchService implements FileWatch {
@@ -133,13 +129,9 @@ public class FileWatchService implements FileWatch {
             watch.setKinds(kinds);
             watch.setFilter(filter);
 
-            try {
-                restore = watch.doStart(eventOf ->
-                        Optional.ofNullable(consumers.get(eventOf.getOf()))
-                                .ifPresent(list -> list.forEach(c -> c.accept(eventOf))));
-            } catch (IOException e) {
-                throw new IllegalArgumentException(e);
-            }
+            restore = watch.doStart(eventOf ->
+                    Optional.ofNullable(consumers.get(eventOf.getOf()))
+                            .ifPresent(list -> list.forEach(c -> c.accept(eventOf))));
         }
 
         void subscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {

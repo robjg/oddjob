@@ -1,6 +1,10 @@
 package org.oddjob.events;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.Resettable;
+import org.oddjob.Stateful;
+import org.oddjob.Stoppable;
+import org.oddjob.beanbus.Outbound;
 import org.oddjob.events.state.EventState;
 import org.oddjob.events.state.EventStateChanger;
 import org.oddjob.events.state.EventStateHandler;
@@ -16,32 +20,39 @@ import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
 /**
- * Base class for sources of events.
+ * Base class for components that want Event Icons because the objects the emmit are in the style of events
+ * rather than streams of data.
  *
- * @param <T>
+ * @param <T> The type of the event.
  */
-abstract public class EventSourceBase<T> extends BasePrimary
-        implements EventSource<T>, Resettable {
+abstract public class EventServiceBase<T> extends BasePrimary
+        implements Outbound<T>, Runnable, Resettable, Stateful, Stoppable {
 
-    /**
-     * Handle state.
-     */
+    /** Handle state. */
     private transient volatile EventStateHandler stateHandler;
 
-    /**
-     * Used to notify clients of an icon change.
-     */
+    /** Used to notify clients of an icon change. */
     private transient volatile IconHelper iconHelper;
 
-    /**
-     * Changes state
-     */
+    /** Changes state */
     private transient volatile EventStateChanger stateChanger;
+
+    /**
+     * @oddjob.property
+     * @oddjob.description The destination events will be sent to.
+     * @oddjob.required Maybe. Set automatically by some parent components.
+     */
+    private Consumer<? super T> to;
+
+    /**
+     * provided by subclasses to clean up on stop.
+     */
+    private Restore restore;
 
     /**
      * Constructor.
      */
-    public EventSourceBase() {
+    public EventServiceBase() {
         completeConstruction();
     }
 
@@ -67,8 +78,9 @@ abstract public class EventSourceBase<T> extends BasePrimary
     }
 
     @Override
-    public final Restore subscribe(Consumer<? super T> consumer) {
-        Objects.requireNonNull(consumer);
+    public void run() {
+
+        Consumer<? super T> consumer = Objects.requireNonNull(this.to);
 
         if (!stateHandler().waitToWhen(new IsExecutable(),
                 () -> getStateChanger().setState(EventState.CONNECTING))) {
@@ -76,8 +88,8 @@ abstract public class EventSourceBase<T> extends BasePrimary
         }
 
         final Semaphore barrier = new Semaphore(1);
-        Consumer<T> consumerWrapper = value -> {
-            try (Restore ignored = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
+        Consumer<T> consumerWrapper = value ->  {
+            try (Restore ignored = ComponentBoundary.push(loggerName(), EventServiceBase.this)) {
                 barrier.acquire();
                 stateHandler().waitToWhen(s -> true,
                         () -> getStateChanger().setState(EventState.FIRING));
@@ -87,7 +99,8 @@ abstract public class EventSourceBase<T> extends BasePrimary
                         () -> getStateChanger().setState(EventState.TRIGGERED));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-            } finally {
+            }
+            finally {
                 barrier.release();
             }
         };
@@ -99,17 +112,17 @@ abstract public class EventSourceBase<T> extends BasePrimary
             try {
                 configure();
 
-
                 Restore restore = doStart(consumerWrapper);
 
                 stateHandler().waitToWhen(s -> s == EventState.CONNECTING,
                         () -> getStateChanger().setState(EventState.WAITING));
 
-                return () -> {
-                    try (Restore ignored2 = ComponentBoundary.push(loggerName(), EventSourceBase.this)) {
+                this.restore = () -> {
+                    try (Restore ignored2 = ComponentBoundary.push(loggerName(), EventServiceBase.this)) {
                         restore.close();
                         logger().info("Stopped");
-                    } catch (RuntimeException e) {
+                    }
+                    catch (RuntimeException e) {
                         stateHandler().waitToWhen(s -> true,
                                 () -> getStateChanger().setStateException(e));
                         throw e;
@@ -119,26 +132,40 @@ abstract public class EventSourceBase<T> extends BasePrimary
                                 State state = stateHandler().lastStateEvent().getState();
                                 if (state == EventState.TRIGGERED || state == EventState.FIRING) {
                                     getStateChanger().setState(EventState.COMPLETE);
-                                } else {
+                                }
+                                else {
                                     getStateChanger().setState(EventState.INCOMPLETE);
                                 }
                             });
                 };
 
-            } catch (RuntimeException e) {
-                stateHandler().waitToWhen(new IsAnyState(),
-                        () -> getStateChanger().setStateException(e));
-                throw e;
+            }
+            catch (Exception e) {
+                logger().error("Exception starting:", e);
+                stateHandler().runLocked(() -> getStateChanger().setStateException(e));
             }
         }
     }
 
     protected void setStateException(Throwable e) {
-        stateHandler().waitToWhen(s -> true,
-                () -> getStateChanger().setStateException(e));
+        stateHandler().runLocked(() -> getStateChanger().setStateException(e));
     }
 
-    protected abstract Restore doStart(Consumer<? super T> consumer);
+    protected abstract Restore doStart(Consumer<? super T> consumer) throws Exception;
+
+
+    /**
+     * Allow subclasses to indicate they are
+     * stopping. The subclass must still implement
+     * Stoppable.
+     *
+     * @throws FailedToStopException
+     */
+    public final void stop() throws FailedToStopException {
+        stateHandler.assertAlive();
+
+        this.restore.close();
+    }
 
     @Override
     public boolean softReset() {
@@ -170,17 +197,23 @@ abstract public class EventSourceBase<T> extends BasePrimary
     }
 
     /**
-     * Allow subclasses to do something on a hard reset. Defaults to {@link #onReset()}
+     * Allow sub classes to do something on a hard reset. Defaults to {@link #onReset()}
      */
     protected void onHardReset() {
         onReset();
     }
 
     /**
-     * Allow subclasses to do something on reset.
+     * Allow sub classes to do something on reset.
      */
     protected void onReset() {
 
+    }
+
+
+    @Override
+    public void setTo(Consumer<? super T> destination) {
+        this.to = destination;
     }
 
     /**

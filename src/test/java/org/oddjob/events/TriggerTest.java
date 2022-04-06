@@ -398,4 +398,23 @@ public class TriggerTest {
 		assertThat(flagState.lastStateEvent().getState(), is(JobState.COMPLETE));
 		assertThat(stopped.get(), is(true));
 	}
+
+	@Test
+	public void testWithBusDriver() throws InterruptedException {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/events/TriggerBusDriver.xml",
+				getClass().getClassLoader()));
+
+		StateSteps testStates = new StateSteps(oddjob);
+		testStates.startCheck(ParentState.READY,
+				ParentState.EXECUTING, ParentState.ACTIVE, ParentState.COMPLETE);
+
+		oddjob.run();
+
+		testStates.checkWait();
+
+		oddjob.destroy();
+	}
 }
