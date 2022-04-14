@@ -6,6 +6,9 @@ package org.oddjob.events;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resettable;
 import org.oddjob.Stoppable;
+import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateListener;
 
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -33,37 +36,35 @@ public class When<T> extends EventJobBase<T> {
 	private final AtomicReference<T> eventRef = new AtomicReference<>();
 
 	@Override
-	void onImmediateEvent(T event) {
+	protected void onImmediateEvent(T event) {
 		eventRef.set(event);
 	}
 	
 	@Override
-	synchronized void onSubscriptionStarted(Object job, Executor executor) {
+	protected synchronized void onSubscriptionStarted(Object job, Executor executor) {
 		Optional.ofNullable(eventRef.getAndSet(null)).ifPresent(
 				e -> trigger(e, job, executor));
 	}
 	
 	@Override
-	synchronized void onLaterEvent(T event, Object job, Executor executor) {
+	synchronized protected void onLaterEvent(T event, Object job, Executor executor) {
 		trigger(event, job, executor);
 	}
 	
 	void trigger(T event, Object job, Executor executor) {
 
-		if (job != null) {
-			if (job instanceof Stoppable) {
+		if (job instanceof Stoppable) {
 
-				try {
-					((Stoppable) job).stop();
-				} catch (FailedToStopException e) {
-					throw new RuntimeException("[" + this + "] failed to stop child [" +
-							job + "] for event " + event, e);
-				}
+			try {
+				((Stoppable) job).stop();
+			} catch (FailedToStopException e) {
+				throw new RuntimeException("[" + this + "] failed to stop child [" +
+						job + "] for event " + event, e);
 			}
-		
-			if (job instanceof Resettable) {
-				((Resettable) job).hardReset();
-			}
+		}
+
+		if (job instanceof Resettable) {
+			((Resettable) job).hardReset();
 		}
 
 		setTrigger(event);
@@ -71,5 +72,19 @@ public class When<T> extends EventJobBase<T> {
 		if (job instanceof Runnable) {
 				executor.execute((Runnable) job);
 		}
+	}
+
+	@Override
+	protected StateListener stateOnChildComplete() {
+
+		return event -> {
+			if (StateConditions.FAILURE.test(event.getState())) {
+				unsubscribe();
+				switchToChildStateReflector();
+			}
+			else if (StateConditions.SUCCESS.test(event.getState())) {
+				stateHandler().runLocked(() -> getStateChanger().setState(ParentState.STARTED));
+			}
+		};
 	}
 }

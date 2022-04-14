@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class PipelineEventSourceTest {
+public class OutboundEventSourceTest {
 
     public static class OnlyThree implements Predicate<Integer> {
 
@@ -31,7 +31,7 @@ public class PipelineEventSourceTest {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(Objects.requireNonNull(getClass()
-                .getResource("PipelineLinkExample.xml")).getFile()));
+                .getResource("OutboundEventSourceExample.xml")).getFile()));
 
         oddjob.load();
 

@@ -1,8 +1,10 @@
 package org.oddjob.events;
 
+import org.oddjob.state.StateConditions;
+import org.oddjob.state.StateListener;
+
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -28,54 +30,56 @@ public class Trigger<T> extends EventJobBase<T> {
 
 	private static final long serialVersionUID = 2018071300L; 
 
-	private final AtomicBoolean ran = new AtomicBoolean();
-
+	/** The first event received. */
 	private final AtomicReference<T> eventRef = new AtomicReference<>();
 	
 	@Override
 	protected void onReset() {
-		ran.set(false);
 		eventRef.set(null);
 		super.onReset();
 	}
 
 	@Override
-	void onImmediateEvent(T value) {
-		if (ran.getAndSet(true)) {
-			return;
-		}
+	protected void onImmediateEvent(T value) {
 
-		logger().info("Will trigger off immediate event {}", value);
-		eventRef.set(value);
+		if (eventRef.compareAndSet(null, value)) {
+			logger().info("Will trigger off immediate event {}", value);
+		}
 	}
 	
 	@Override
-	void onSubscriptionStarted(Object job, Executor executor) {
+	protected void onSubscriptionStarted(Object job, Executor executor) {
 		Optional.ofNullable(eventRef.get()).ifPresent(
 				e -> trigger(e, job, executor));
 	}
 
 	@Override
-	void onLaterEvent(T value, Object job, Executor executor) {
-		if (ran.getAndSet(true)) {
-			return;
-		}		
-		trigger( value, job, executor);
+	protected void onLaterEvent(T value, Object job, Executor executor) {
+		if (eventRef.compareAndSet(null, value)) {
+			trigger( value, job, executor);
+		}
+		else {
+			logger().info("Ignoring event {}", value);
+		}
 	}
 	
 	private void trigger(T event, Object job, Executor executor) {
 
 		logger().info("Running {} with Trigger Event {}", job, event);
-		onStop();
+		unsubscribe();
 		setTrigger(event);
-		if (job != null) {
-			if (job instanceof Runnable) {
-				executor.execute((Runnable) job);
-			}
+		if (job instanceof Runnable) {
+			executor.execute((Runnable) job);
 		}
 	}
-	
-	public AtomicBoolean getRan() {
-		return ran;
+
+	@Override
+	protected StateListener stateOnChildComplete() {
+		return event -> {
+			if (StateConditions.FINISHED.test(event.getState())) {
+				unsubscribe();
+				switchToChildStateReflector();
+			}
+		};
 	}
 }

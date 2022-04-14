@@ -26,6 +26,7 @@
                         <design:group title="Properties" bordered="true">
                             <formItems>
                                 <design:single property="eventSource" title="Event Source"/>
+                                <design:text property="beDestination" title="Be a Destination"/>
                                 <design:indexed property="jobs" title="Jobs"/>
                             </formItems>
                         </design:group>
@@ -46,6 +47,7 @@
                         <design:group bordered="true" title="Properties">
                             <formItems>
                                 <design:single property="eventSource" title="Event Source"/>
+                                <design:text property="beDestination" title="Be a Destination"/>
                                 <design:indexed property="jobs" title="Jobs"/>
                             </formItems>
                         </design:group>

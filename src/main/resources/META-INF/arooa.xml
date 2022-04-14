@@ -86,7 +86,7 @@
                         <design:form>
                             <formItems>
                                 <design:text property="name" title="Name"/>
-                                <design:indexed property="values" title="Values"/>
+                                <design:mapped property="values" title="Values"/>
                             </formItems>
                         </design:form>
                     </design>

@@ -11,7 +11,9 @@ import org.oddjob.beanbus.Destination;
 import org.oddjob.beanbus.Outbound;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * A collection of different {@link OutboundStrategy}s that are applied to 
@@ -81,8 +83,9 @@ public class OutboundStrategies implements OutboundStrategy {
 				// The component may be a proxy so we have to find
 				// the wrapped component.
 				ComponentPool componentPool = session.getComponentPool();
-				ComponentTrinity trinity = componentPool.trinityFor(
-						component);
+				ComponentTrinity trinity = Objects.requireNonNull(
+						componentPool.trinityFor(component),
+						"No component registered [" + component + "]");
 				
 				final Object realComponent = trinity.getTheComponent();
 				
@@ -116,8 +119,18 @@ public class OutboundStrategies implements OutboundStrategy {
 								Destination.class.getName());
 				
 				if (property != null) {
-					return destination -> accessor.setProperty(realComponent,
-							property, destination);
+					return new Outbound<T>() {
+						@Override
+						public void setTo(Consumer<? super T> destination) {
+							accessor.setProperty(realComponent,
+									property, destination);
+						}
+
+						@Override
+						public String toString() {
+							return "Outbound for [" + realComponent + "]";
+						}
+					};
 				}
 				
 				return null;

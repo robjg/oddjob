@@ -3,16 +3,13 @@
  */
 package org.oddjob.events;
 
+import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.life.ComponentPersistException;
+import org.oddjob.beanbus.Outbound;
 import org.oddjob.framework.extend.StructuralJob;
-import org.oddjob.framework.util.AsyncExecutionSupport;
 import org.oddjob.framework.util.ComponentBoundary;
-import org.oddjob.state.AnyActiveStateOp;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.StateOperator;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
 import javax.inject.Inject;
@@ -22,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
@@ -32,13 +30,12 @@ import java.util.function.Consumer;
  *
  * @author Rob Gordon.
  */
-abstract public class EventJobBase<T> extends StructuralJob<Object> {
+abstract public class EventJobBase<T> extends StructuralJob<Object> implements Consumer<T>, Outbound<T> {
 	
 	private static final long serialVersionUID = 2018060600L; 
 	
-	/** Watch execution to start the state reflector when all children
-	 * have finished, and track job threads.  */
-	private volatile transient AsyncExecutionSupport asyncSupport;	
+	/** Unlike other structurals, this is only used to cancel outstanding tasks.  */
+	private volatile transient Future<?> asyncSupport;
 		
 	/** The scheduler to schedule on. */
 	private volatile transient ExecutorService executorService;
@@ -50,7 +47,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 */
 	private volatile T trigger;
 
-	private volatile transient Restore restore;
+	private volatile boolean beDestination;
 
 	/**
 	 * @oddjob.property
@@ -60,6 +57,18 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 */
 	private volatile EventSource<T> eventSource;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Provide the event to a Bean Bus style consumer.
+	 * @oddjob.required No.
+	 */
+	private volatile Consumer<? super T> to;
+
+	/** Used to unsubscribe on stop */
+	private final AtomicReference<Restore> unsubscribe = new AtomicReference<>();
+
+	private final AtomicReference<Runnable> removeListener = new AtomicReference<>();
+
 	public EventJobBase() {
 		completeConstruction();
 	}
@@ -68,18 +77,22 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 * Called once following construction or deserialisation.
 	 */
 	private void completeConstruction() {
-		asyncSupport = 
-				new AsyncExecutionSupport(() -> {
-					stop = false;
-					try {
-						save();
-						EventJobBase.super.startChildStateReflector();
-					} catch (ComponentPersistException e) {
-						stateHandler().waitToWhen(s -> true,
-								() -> getStateChanger().setStateException(e));
-						onStop();
-					}
-				});
+	}
+
+	static class ConsumerEventSource<T> implements EventSource<T> {
+
+		private volatile Consumer<? super T> subscribed;
+
+		@Override
+		public Restore subscribe(Consumer<? super T> consumer) {
+			this.subscribed = consumer;
+			return () -> subscribed = null;
+		}
+
+		@Override
+		public String toString() {
+			return "ConsumerEventSource";
+		}
 	}
 
 	@ArooaHidden
@@ -101,54 +114,68 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	@Override
 	protected void execute() throws Throwable {
 
-		asyncSupport.reset();
-
 		final Object[] children = childHelper.getChildren();
 
 		// We can either take the event source as the first child
 		// or as the property.
 		final EventSource<T> eventSource;
 		int jobIndex;
-		if (this.eventSource == null) {
-			if (children.length == 0) {
-				throw new IllegalStateException(
-						"No Event Source provided either as a property or a child component.");
-			}
-			Object firstChild = children[0];
 
-			eventSource = EventSourceAdaptor.<T>maybeEventSourceFrom(firstChild, getArooaSession())
-					.orElseThrow(() -> new IllegalStateException("" +
-							"When Event Source provided as a property, " +
-							"the first child component is expected to be an Event Source."));
-
-			jobIndex = 1;
-		}
-		else {
-			eventSource = this.eventSource;
+		if (this.beDestination) {
+			eventSource = new ConsumerEventSource<>();
+			this.eventSource = eventSource;
 			jobIndex = 0;
 		}
-		
+		else {
+			if (this.eventSource == null) {
+				if (children.length == 0) {
+					throw new IllegalStateException(
+							"No Event Source provided either as a property or a child component.");
+				}
+				Object firstChild = children[0];
+
+				eventSource = EventSourceAdaptor.<T>maybeEventSourceFrom(firstChild, getArooaSession())
+						.orElseThrow(() -> new IllegalStateException("" +
+								"When Event Source provided as a property, " +
+								"the first child component is expected to be an Event Source."));
+
+				jobIndex = 1;
+			} else {
+				eventSource = this.eventSource;
+				jobIndex = 0;
+			}
+		}
+
 		final Object job;
 		if (children.length > jobIndex) {
 			job = children[jobIndex];
 		}
 		else {
-			job = null;
+			throw new IllegalStateException("A Job to run on receiving the event must be provided.");
 		}
-		
+
+		if (job instanceof Stateful) {
+			StateListener stateListener = stateOnChildComplete();
+			((Stateful) job).addStateListener(stateListener);
+			removeListener.set(() -> {
+				((Stateful) job).removeStateListener(stateListener);
+				removeListener.set(null);
+			} );
+		}
+
 		Executor executor = j -> {
 			try (Restore ignored = ComponentBoundary.push(loggerName(), EventJobBase.this)) {
-				asyncSupport.submitJob(executorService, j);
-				asyncSupport.startWatchingJobs();
+				stateHandler().runLocked(() -> getStateChanger().setState(ParentState.ACTIVE));
+
+				EventJobBase.this.asyncSupport = executorService.submit(j);
 				logger().info("Submitted [" + j + "]");				
 			}
 		};
-		
-		final AtomicReference<Consumer<? super T>> consumer = new AtomicReference<>();
-		consumer.set(new ImmediateEventHandler());
+
+		ConsumerSwitch consumerSwitch = new ConsumerSwitch();
 
 		logger().info("Starting event source [{}]", eventSource);
-		Restore close = eventSource.subscribe(event -> consumer.get().accept(event));
+		Restore close = eventSource.subscribe(consumerSwitch);
 
 		if (job == null) {
 			EventJobBase.super.startChildStateReflector();
@@ -158,16 +185,47 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 					() -> getStateChanger().setState(ParentState.ACTIVE));
 		}
 
-		consumer.set(new LaterEventHandler(job, executor));
-		
-		restore = () -> {
+		consumerSwitch.makeSwitch(job, executor);
+
+		unsubscribe.set(() -> {
 			logger().info("Closing event source [{}]", eventSource);
 			close.close();
-			restore = null;
-		};
+			unsubscribe.set(null);
+		});
 
-		logger().info("Subscription to event source [{}] started.", eventSource);
-		onSubscriptionStarted(job, executor);
+		// unlikely but stop might have happened during startup.
+		if (stop) {
+			unsubscribe();
+			switchToChildStateReflector();
+		}
+		else {
+			logger().info("Subscription to event source [{}] started.", eventSource);
+			onSubscriptionStarted(job, executor);
+		}
+	}
+
+	class ConsumerSwitch implements Consumer<T> {
+
+		final AtomicReference<Consumer<? super T>> consumer;
+
+		ConsumerSwitch() {
+			this.consumer = new AtomicReference<>(new ImmediateEventHandler());
+		}
+
+		@Override
+		public void accept(T t) {
+			this.consumer.get().accept(t);
+			Optional.ofNullable(to).ifPresent(next -> next.accept(t));
+		}
+
+		void makeSwitch(Object job, Executor executor) {
+			this.consumer.set(new LaterEventHandler(job, executor));
+		}
+
+		@Override
+		public String toString() {
+			return "EventHandler of " + EventJobBase.this;
+		}
 	}
 
 	class ImmediateEventHandler implements Consumer<T> {
@@ -220,7 +278,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 *
 	 * @param event The event.
 	 */
-	abstract void onImmediateEvent(T event);
+	abstract protected void onImmediateEvent(T event);
 
 	/**
 	 * Called once the subscription has started.
@@ -228,7 +286,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 * @param job The job to execute if any.
 	 * @param executor The executor to use to execute the job.
 	 */
-	abstract void onSubscriptionStarted(Object job, Executor executor);
+	abstract protected void onSubscriptionStarted(Object job, Executor executor);
 
 	/**
 	 * Called when an event is received after subscription. There is no guarantee that an
@@ -237,21 +295,68 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> {
 	 *
 	 * @param event The event.
 	 */
-	abstract void onLaterEvent(T event, Object job, Executor executor);
+	abstract protected void onLaterEvent(T event, Object job, Executor executor);
 
-	
+	abstract protected StateListener stateOnChildComplete();
+
+	protected void unsubscribe() {
+		Optional.ofNullable(this.unsubscribe.get()).ifPresent(Restore::close);
+	}
+
+	protected void switchToChildStateReflector() {
+
+		Optional.ofNullable(this.removeListener.get()).ifPresent(Runnable::run);
+		super.startChildStateReflector();
+	}
+
 	@Override
 	protected void onStop() {
 
-		asyncSupport.cancelAllPendingJobs();
-		Optional.ofNullable(restore).ifPresent(Restore::close);		
+		unsubscribe();
+		Optional.ofNullable(this.asyncSupport).ifPresent(fut -> fut.cancel(false));
 	}
 	
 	@Override
 	protected void postStop() {
-		super.startChildStateReflector();
+		switchToChildStateReflector();
 	}
-					
+
+	@Override
+	public void accept(T t) {
+		Consumer<? super T> subscribe = Optional.ofNullable(this.eventSource)
+				.map(es -> {
+					if (! (es instanceof ConsumerEventSource)) {
+						throw new IllegalStateException(
+								"Bus operation not supported - using alternative event source" + EventJobBase.this);
+					}
+					ConsumerEventSource<T> ces = (ConsumerEventSource<T>) es;
+
+					return Optional.ofNullable(ces.subscribed)
+							.orElseThrow(() -> new IllegalStateException(
+									"Bus operation not supported - not subscribed" + EventJobBase.this));
+				})
+				.orElseThrow(() -> new IllegalStateException(
+						"Bus operation not support - not started " + EventJobBase.this));
+		subscribe.accept(t);
+	}
+
+	public boolean isBeDestination() {
+		return beDestination;
+	}
+
+	public void setBeDestination(boolean beDestination) {
+		this.beDestination = beDestination;
+	}
+
+	@Override
+	public void setTo(Consumer<? super T> destination) {
+		this.to = destination;
+	}
+
+	public Consumer<? super T> getTo() {
+		return to;
+	}
+
 	protected void setTrigger(T trigger) {
 		this.trigger = trigger;
 	}

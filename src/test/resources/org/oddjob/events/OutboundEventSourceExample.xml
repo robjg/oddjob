@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <events:trigger id="trigger" xmlns:events="oddjob:events">
+                    <eventSource>
+                        <value value="${eventSource}"/>
+                    </eventSource>
+                    <jobs>
+                        <echo id="result">
+                            <![CDATA[Result: ${trigger.trigger}]]>
+                        </echo>
+                    </jobs>
+                </events:trigger>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <beans>
+                                <list>
+                                    <values>
+                                        <value value="1"/>
+                                        <value value="2"/>
+                                        <value value="3"/>
+                                        <value value="4"/>
+                                    </values>
+                                    <elementType>
+                                        <class name="java.lang.Integer"/>
+                                    </elementType>
+                                </list>
+                            </beans>
+                        </bus:driver>
+                        <bus:filter id="filter">
+                            <predicate>
+                                <bean class="org.oddjob.events.OutboundEventSourceTest$OnlyThree"/>
+                            </predicate>
+                        </bus:filter>
+                        <bean class="org.oddjob.events.OutboundEventSource" id="eventSource"/>
+                    </of>
+                </bus:bus>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

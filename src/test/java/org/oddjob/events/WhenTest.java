@@ -1,9 +1,16 @@
 package org.oddjob.events;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.FailedToStopException;
-import org.oddjob.events.state.EventState;
+import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.Destination;
+import org.oddjob.framework.adapt.Start;
+import org.oddjob.framework.adapt.Stop;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
@@ -16,9 +23,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 
 public class WhenTest {
@@ -161,7 +170,7 @@ public class WhenTest {
 	}
 	
 	@Test
-	public void testNoChildJob() throws FailedToStopException {
+	public void testNoChildJob() {
 		
 		OurSubscribable subscribe = new OurSubscribable();
 				
@@ -171,48 +180,103 @@ public class WhenTest {
 
 		test.setJobs(0, subscribe);
 		test.setExecutorService(executorService);
-		
+
 		StateSteps testStates = new StateSteps(test);
-		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
-		StateSteps subscribeStates = new StateSteps(subscribe);
-		subscribeStates.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
-		
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.EXCEPTION);
+
 		test.run();
 
-		subscribeStates.checkNow();
 		testStates.checkNow();
 
-		testStates.startCheck(ParentState.ACTIVE, ParentState.STARTED);
-		subscribeStates.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
-		subscribe.next();
-		
-		assertThat(test.getTrigger().getOf(), is(1));
-		
-		subscribeStates.checkNow();
-		testStates.checkNow();
-		
-		testStates.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
-
-		subscribe.next();
-
-		assertThat(test.getTrigger().getOf(), is(2));
-
-		testStates.checkNow();
-		testStates.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
-
-		subscribe.next();
-
-		assertThat(test.getTrigger().getOf(), is(3));
-
-		testStates.checkNow();
-
-		testStates.startCheck(ParentState.STARTED, ParentState.COMPLETE);
-
-		test.stop();
-		
-		testStates.checkNow();
+		assertThat(test.lastStateEvent().getException().getMessage(),
+				containsString("A Job to run on receiving the event must be provided"));
 
 		Mockito.verifyNoInteractions(executorService);
 	}
-	
+
+	public static class PretendFileWatcher implements Runnable, AutoCloseable {
+
+		private Consumer<? super String> consumer;
+
+		@Stop
+		@Override
+		public void close() throws Exception {
+
+		}
+
+		@Start
+		@Override
+		public void run() {
+
+		}
+
+		@Destination
+		public void setConsumer(Consumer<? super String> consumer) {
+			this.consumer = consumer;
+		}
+
+		public void setSomeFileName(String someFileName) {
+			this.consumer.accept(someFileName);
+		}
+
+		@Override
+		public String toString() {
+			return "PretendFileWatcher";
+		}
+	}
+
+	public static class OnlyTxtFiles implements Predicate<String> {
+
+		@Override
+		public boolean test(String s) {
+			return s.endsWith(".txt");
+		}
+	}
+
+	@Test
+	public void testWhenInBeanBus() throws ArooaConversionException, InterruptedException {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/events/WhenAsDestinationExample.xml",
+				getClass().getClassLoader()));
+
+		StateSteps testStates = new StateSteps(oddjob);
+		testStates.startCheck(ParentState.READY,
+				ParentState.EXECUTING, ParentState.ACTIVE);
+
+		oddjob.run();
+
+		testStates.checkNow();
+
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+
+		testStates.startCheck(ParentState.ACTIVE,
+				ParentState.STARTED);
+
+		lookup.lookup("set1", Runnable.class).run();
+
+		testStates.checkWait();
+
+		testStates.startCheck(
+				ParentState.STARTED);
+
+		assertThat(lookup.lookup("result.text", String.class), Matchers.is("Result: Fruit.txt"));
+
+		lookup.lookup("set2", Runnable.class).run();
+
+		testStates.checkNow();
+
+		testStates.startCheck(
+				ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
+
+		lookup.lookup("set3", Runnable.class).run();
+
+		testStates.checkWait();
+
+		assertThat(lookup.lookup("result.text", String.class), Matchers.is("Result: Prices.txt"));
+
+		oddjob.destroy();
+	}
+
 }

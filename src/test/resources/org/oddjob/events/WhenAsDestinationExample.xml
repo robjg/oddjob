@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bean class="org.oddjob.events.WhenTest$PretendFileWatcher" id="fileWatcher"/>
+                        <bus:filter id="filter">
+                            <predicate>
+                                <bean class="org.oddjob.events.WhenTest$OnlyTxtFiles"/>
+                            </predicate>
+                        </bus:filter>
+                        <events:when beDestination="true" id="when" xmlns:events="oddjob:events">
+                            <jobs>
+                                <echo id="result">
+                                    <![CDATA[Result: ${when.trigger}]]>
+                                </echo>
+                            </jobs>
+                        </events:when>
+                    </of>
+                </bus:bus>
+                <folder>
+                    <jobs>
+                        <set id="set1" name="Set File Name 1">
+                            <values>
+                                <value key="fileWatcher.someFileName" value="Fruit.txt"/>
+                            </values>
+                        </set>
+                        <set id="set2" name="Set File Name 2">
+                            <values>
+                                <value key="fileWatcher.someFileName" value="Names.doc"/>
+                            </values>
+                        </set>
+                        <set id="set3" name="Set File Name 3">
+                            <values>
+                                <value key="fileWatcher.someFileName" value="Prices.txt"/>
+                            </values>
+                        </set>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

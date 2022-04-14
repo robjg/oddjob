@@ -20,17 +20,10 @@
                 </bus:driver>
                 <bus:filter id="filter">
                     <predicate>
-                        <bean class="org.oddjob.events.PipelineEventSourceTest$OnlyThree"/>
+                        <bean class="org.oddjob.events.OutboundEventSourceTest$OnlyThree"/>
                     </predicate>
                 </bus:filter>
-                <events:trigger id="trigger" xmlns:events="oddjob:events">
-                    <eventSource>
-                        <bean class="org.oddjob.events.PipelineEventSource">
-                            <outbound>
-                                <value value="${filter}"/>
-                            </outbound>
-                        </bean>
-                    </eventSource>
+                <events:trigger beDestination="true" id="trigger" xmlns:events="oddjob:events">
                     <jobs>
                         <echo id="result">
                             <![CDATA[Result: ${trigger.trigger}]]>

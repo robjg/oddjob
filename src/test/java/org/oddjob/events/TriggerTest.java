@@ -3,6 +3,7 @@
  */
 package org.oddjob.events;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,8 +14,8 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
+import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.events.state.EventState;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
@@ -36,6 +37,7 @@ import java.util.function.Consumer;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.Mockito.*;
 
 /**
@@ -176,7 +178,7 @@ public class TriggerTest {
 	}
 	
 	@Test
-	public void testNoChildJob() throws FailedToStopException {
+	public void testNoChildJob() {
 		
 		OurSubscribable subscribe = new OurSubscribable();
 				
@@ -189,32 +191,14 @@ public class TriggerTest {
 		test.initialise();
 		
 		StateSteps testStates = new StateSteps(test);
-		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
-		StateSteps subscribeStates = new StateSteps(subscribe);
-		subscribeStates.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
-		
+		testStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.EXCEPTION);
+
 		test.run();
 
-		subscribeStates.checkNow();
 		testStates.checkNow();
 
-		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
-		subscribeStates.startCheck(EventState.WAITING, EventState.FIRING, EventState.COMPLETE);
-		
-		subscribe.next();
-		
-		assertThat(test.getTrigger().getOf(), is(1));
-		
-		subscribeStates.checkNow();
-		testStates.checkNow();
-		
-		assertThat(subscribe.consumer, nullValue());
-		
-		testStates.startCheck(ParentState.COMPLETE);
-
-		test.stop();
-		
-		testStates.checkNow();
+		assertThat(test.lastStateEvent().getException().getMessage(),
+				containsString("A Job to run on receiving the event must be provided"));
 
 		Mockito.verifyNoInteractions(executorService);
 	}
@@ -414,6 +398,29 @@ public class TriggerTest {
 		oddjob.run();
 
 		testStates.checkWait();
+
+		oddjob.destroy();
+	}
+
+	@Test
+	public void testTriggerInBeanBus() throws ArooaConversionException {
+
+		Oddjob oddjob = new Oddjob();
+		oddjob.setConfiguration(new XMLConfiguration(
+				"org/oddjob/events/TriggerAsDestinationExample.xml",
+				getClass().getClassLoader()));
+
+		StateSteps testStates = new StateSteps(oddjob);
+		testStates.startCheck(ParentState.READY,
+				ParentState.EXECUTING, ParentState.COMPLETE);
+
+		oddjob.run();
+
+		testStates.checkNow();
+
+		String result = new OddjobLookup(oddjob).lookup("result.text", String.class);
+
+		assertThat(result, Matchers.is("Result: 3"));
 
 		oddjob.destroy();
 	}

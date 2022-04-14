@@ -51,8 +51,6 @@ public class StateExpressionExamplesTest {
 
         oddjobState.startCheck(ParentState.READY,
                 ParentState.ACTIVE,
-                ParentState.STARTED,
-                ParentState.ACTIVE, // This shouldn't happen.
                 ParentState.STARTED);
         job3State.startCheck(JobState.COMPLETE);
 
