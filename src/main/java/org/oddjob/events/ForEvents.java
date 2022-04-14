@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  * Event Sources. Still a work in progress.
  * 
  */
-public class ForEvents<T> extends InstantEventSourceBase<T>
+public class ForEvents<T> extends EventServiceBase<CompositeEvent<T>>
 implements Structural, ConfigurationOwner {
 
     /** Root element for configuration. */
@@ -307,7 +307,7 @@ implements Structural, ConfigurationOwner {
 	
 	
 	@Override
-	public Restore doStart(Consumer<? super InstantEvent<T>> consumer) {
+	public Restore doStart(Consumer<? super CompositeEvent<T>> consumer) {
 
         EventOperator<T> eventOperator = Optional.ofNullable(this.eventOperator).orElse(new AllEvents<>());
 
@@ -323,7 +323,7 @@ implements Structural, ConfigurationOwner {
 		for (Object child : childHelper) {
 			subscribeNodes.add(EventSourceAdaptor.maybeEventSourceFrom(child, getArooaSession())
 					.orElseThrow(() -> new IllegalStateException("Child [" +
-							child + "] is not able to Event Source")));
+							child + "] is not able to be an Event Source")));
 		}
 
 		return eventOperator.start(subscribeNodes,

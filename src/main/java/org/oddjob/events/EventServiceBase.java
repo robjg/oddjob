@@ -16,6 +16,7 @@ import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 
@@ -164,7 +165,7 @@ abstract public class EventServiceBase<T> extends BasePrimary
     public final void stop() throws FailedToStopException {
         stateHandler.assertAlive();
 
-        this.restore.close();
+        Optional.ofNullable(this.restore).ifPresent(Restore::close);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package org.oddjob.events;
 
 import org.junit.Test;
+import org.oddjob.FailedToStopException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.events.state.EventState;
@@ -9,13 +10,14 @@ import org.oddjob.util.Restore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ForEventsTest {
 
@@ -30,7 +32,7 @@ public class ForEventsTest {
     }
 
     @Test
-    public void givenHappyPathThenWorks() throws Exception {
+    public void givenHappyPathThenWorks() throws FailedToStopException {
 
         String xml = "<events id='x'>" +
                 "<job>"
@@ -55,7 +57,8 @@ public class ForEventsTest {
                          EventState.FIRING, EventState.TRIGGERED,
                          EventState.FIRING, EventState.TRIGGERED);
 
-        Restore close = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         state.checkNow();
 
@@ -74,7 +77,7 @@ public class ForEventsTest {
 
         state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        close.close();
+        test.stop();
 
         state.checkNow();
     }
@@ -95,7 +98,7 @@ public class ForEventsTest {
     }
 
     @Test
-    public void whenTriggeredThenStops() throws Exception {
+    public void whenTriggeredThenStops() throws FailedToStopException {
 
         String xml = "<events id='x'>" +
                 "<job>"
@@ -116,7 +119,8 @@ public class ForEventsTest {
         state.startCheck(EventState.READY, EventState.CONNECTING,
                          EventState.WAITING);
 
-        Restore close = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         state.checkNow();
 
@@ -128,17 +132,17 @@ public class ForEventsTest {
 
         assertThat(results.size(), is(1));
         assertThat(EventConversions.toList((CompositeEvent<String>) results.get(0)),
-                   is(Arrays.asList("Hello")));
+                   is(Collections.singletonList("Hello")));
 
         state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        close.close();
+        test.stop();
 
         state.checkNow();
     }
 
     @Test
-    public void whenNotTriggeredThenStops() throws Exception {
+    public void whenNotTriggeredThenStops() throws FailedToStopException {
 
         String xml = "<events id='x'>" +
                 "<job>"
@@ -159,7 +163,8 @@ public class ForEventsTest {
         state.startCheck(EventState.READY, EventState.CONNECTING,
                          EventState.WAITING);
 
-        Restore close = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         state.checkNow();
 
@@ -167,7 +172,7 @@ public class ForEventsTest {
 
         state.startCheck(EventState.WAITING, EventState.INCOMPLETE);
 
-        close.close();
+        test.stop();
 
         state.checkNow();
     }

@@ -52,13 +52,14 @@ public class ListSourceTest {
                               EventState.FIRING, EventState.TRIGGERED,
                               EventState.FIRING, EventState.TRIGGERED);
 
-        Restore restore = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         stateSteps.checkNow();
 
         stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        restore.close();
+        test.stop();
 
         stateSteps.checkNow();
 
@@ -83,13 +84,14 @@ public class ListSourceTest {
                               EventState.FIRING, EventState.TRIGGERED,
                               EventState.FIRING, EventState.TRIGGERED);
 
-        restore = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         stateSteps.checkNow();
 
         stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        restore.close();
+        test.stop();
 
         stateSteps.checkNow();
 
@@ -128,7 +130,8 @@ public class ListSourceTest {
 
         List<CompositeEvent<String>> results = new ArrayList<>();
 
-        AutoCloseable close = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         stateSteps.checkNow();
 
@@ -165,7 +168,7 @@ public class ListSourceTest {
 
         stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        close.close();
+        test.stop();
 
         stateSteps.checkNow();
 
@@ -180,7 +183,8 @@ public class ListSourceTest {
 
         stateSteps.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-        AutoCloseable close2 = test.subscribe(results::add);
+        test.setTo(results::add);
+        test.run();
 
         stateSteps.checkNow();
 
@@ -202,15 +206,13 @@ public class ListSourceTest {
 
         stateSteps.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 
-        close2.close();
+        test.stop();
 
         stateSteps.checkNow();
 
         assertThat(c1.get(), nullValue());
         assertThat(c2.get(), nullValue());
     }
-
-
 
     @Test
     public void testExample() throws ArooaConversionException, InterruptedException, FailedToStopException {

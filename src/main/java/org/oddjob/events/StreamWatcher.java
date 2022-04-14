@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  *     for the word "Error" or some such.
  * </p>
  */
-public class StreamWatcher extends InstantEventSourceBase<String> {
+public class StreamWatcher extends EventSourceBase<InstantEvent<String>> {
 
     /**
      * @oddjob.property

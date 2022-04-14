@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  *
  * @author Rob Gordon
  */
-public class ListSource<T> extends EventSourceBase<CompositeEvent<T>>
+public class ListSource<T> extends EventServiceBase<CompositeEvent<T>>
 implements Serializable, Structural {
 	private static final long serialVersionUID = 2009031500L;
 
