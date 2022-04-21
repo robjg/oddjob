@@ -1,10 +1,14 @@
 package org.oddjob.io;
 
+import org.oddjob.beanbus.Outbound;
 import org.oddjob.events.InstantEvent;
+import org.oddjob.framework.Service;
 import org.oddjob.util.Restore;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -31,9 +35,10 @@ import java.util.function.Consumer;
  * @oddjob.example Trigger when two files arrive.
  * <p>
  * {@oddjob.xml.resource org/oddjob/io/FileWatchTwoFilesExample.xml}
+ *
  * @see FileWatchEventSource
  */
-public class FileWatchService implements FileWatch {
+public class FileWatchService implements FileWatch, Service, Outbound<Path> {
 
     /**
      * @oddjob.property
@@ -56,6 +61,10 @@ public class FileWatchService implements FileWatch {
      */
     private volatile Map<Path, FileSystemSubscriber> subscribers;
 
+    private volatile Consumer<? super Path> to;
+
+    private volatile List<Path> paths;
+
     /**
      * @oddjob.property
      * @oddjob.description Provide a regular expression filter on the directory to reduce the stream of events.
@@ -69,6 +78,11 @@ public class FileWatchService implements FileWatch {
         }
 
         subscribers = new ConcurrentHashMap<>();
+
+        Optional.ofNullable(this.paths)
+                .ifPresent(paths -> paths.forEach(
+                        path -> subscribers.computeIfAbsent(path, key -> new FileSystemSubscriber(key , to))));
+
     }
 
     public void stop() {
@@ -87,18 +101,34 @@ public class FileWatchService implements FileWatch {
         Map<Path, FileSystemSubscriber> subscribers = Optional.ofNullable(this.subscribers)
                 .orElseThrow(() -> new IllegalStateException("Not Started"));
 
+
+
         Path dir = path.getParent();
+
+        Consumer<Path> pathConsumer = new Consumer<Path>() {
+            @Override
+            public void accept(Path path) {
+                consumer.accept(InstantEvent.of(path, lastModifiedOf(path)));
+            }
+
+            @Override
+            public String toString() {
+                return consumer.toString();
+            }
+        };
+
         subscribers.computeIfAbsent(dir,
-                FileSystemSubscriber::new).subscribe(path, consumer);
-        return () -> unsubscribe(path, consumer);
+                FileSystemSubscriber::new).subscribe(path, pathConsumer);
+
+        return () -> unsubscribe(path, pathConsumer);
     }
 
-    void unsubscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
+    void unsubscribe(Path path, Consumer<? super Path> consumer) {
         Path dir = path.getParent();
         subscribers.computeIfPresent(dir,
                 (key, sub) -> {
                     sub.unsubscribe(path, consumer);
-                    if (sub.consumers.isEmpty()) {
+                    if (sub.consumers.isEmpty() && sub.temporary) {
                         sub.restore.close();
                         return null;
                     } else {
@@ -117,34 +147,45 @@ public class FileWatchService implements FileWatch {
 
     class FileSystemSubscriber {
 
-        private final Map<Path, List<Consumer<? super InstantEvent<Path>>>> consumers =
+        private final Map<Path, List<Consumer<? super Path>>> consumers =
                 new ConcurrentHashMap<>();
 
         private final Restore restore;
 
+        private final boolean temporary;
+
         FileSystemSubscriber(Path dir) {
+            this(dir, null);
+        }
+
+        FileSystemSubscriber(Path dir, Consumer<? super Path>  pathConsumer) {
+
+            this.temporary = pathConsumer == null;
 
             PathWatchEvents watch = new PathWatchEvents();
             watch.setDir(dir);
             watch.setKinds(kinds);
             watch.setFilter(filter);
+            watch.setTo(path -> {
+                        Optional.ofNullable(pathConsumer).ifPresent(pc -> pc.accept(path));
+                        Optional.ofNullable(consumers.get(path)).ifPresent(list -> list.forEach(c -> c.accept(path)));
+                    });
+            watch.start();
 
-            restore = watch.doStart(eventOf ->
-                    Optional.ofNullable(consumers.get(eventOf.getOf()))
-                            .ifPresent(list -> list.forEach(c -> c.accept(eventOf))));
+            this.restore = watch::stop;
         }
 
-        void subscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
+        void subscribe(Path path, Consumer<? super Path> consumer) {
 
             consumers.computeIfAbsent(path,
                     key -> new CopyOnWriteArrayList<>()).add(consumer);
 
             if (Files.exists(path)) {
-                consumer.accept(InstantEvent.of(path, PathWatchEvents.lastModifiedOf(path)));
+                consumer.accept(path);
             }
         }
 
-        void unsubscribe(Path path, Consumer<? super InstantEvent<Path>> consumer) {
+        void unsubscribe(Path path, Consumer<? super Path> consumer) {
 
             Optional.ofNullable(consumers.get(path)).ifPresent(list -> list.remove(consumer));
             consumers.computeIfPresent(path,
@@ -182,8 +223,25 @@ public class FileWatchService implements FileWatch {
         this.kinds = kinds;
     }
 
+    public Consumer<? super Path> getTo() {
+        return to;
+    }
+
+    @Override
+    public void setTo(Consumer<? super Path> to) {
+        this.to = to;
+    }
+
     @Override
     public String toString() {
         return Optional.ofNullable(name).orElseGet(() -> getClass().getSimpleName());
+    }
+
+    static Instant lastModifiedOf(Path path) {
+        try {
+            return Files.getLastModifiedTime( path ).toInstant();
+        } catch (IOException e) {
+            throw new IllegalStateException( "Failed getting last modified time", e );
+        }
     }
 }

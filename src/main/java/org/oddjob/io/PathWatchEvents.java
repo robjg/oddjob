@@ -1,15 +1,15 @@
 package org.oddjob.io;
 
-import org.oddjob.events.InstantEvent;
-import org.oddjob.events.InstantEventSourceBase;
+import org.oddjob.beanbus.Outbound;
+import org.oddjob.framework.Service;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
-import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -23,7 +23,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
  *
  * @author rob
  */
-public class PathWatchEvents extends InstantEventSourceBase<Path> {
+public class PathWatchEvents implements Outbound<Path>, Service {
 
     private static final Logger logger = LoggerFactory.getLogger(PathWatchEvents.class);
 
@@ -33,21 +33,29 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
     private volatile String filter;
 
-    private volatile Consumer<Path> consumer;
+    private volatile Consumer<? super Path> to;
 
     private volatile boolean newOnly;
 
+    private volatile Restore close;
+
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) {
+    public void start() {
 
         try {
-            return doStartWithException(consumer);
+            this.close = doStartWithException(
+                    Objects.requireNonNull(this.to, "No Destination"));
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
     }
 
-    protected Restore doStartWithException(Consumer<? super InstantEvent<Path>> consumer) throws IOException {
+    @Override
+    public void stop() {
+        Optional.ofNullable(this.close).ifPresent(Restore::close);
+    }
+
+    protected Restore doStartWithException(Consumer<? super Path> consumer) throws IOException {
 
         final Path path = Optional.ofNullable(this.dir)
                 .orElse(Paths.get("."));
@@ -68,7 +76,7 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
         final Consumer<Path> filterConsumer = p -> {
             if (filter.test(p.getFileName().toString())) {
-                consumer.accept(InstantEvent.of(p, lastModifiedOf(p)));
+                consumer.accept(p);
             }
         };
 
@@ -103,6 +111,7 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
                     // The filename is the
                     // context of the event.
+                    @SuppressWarnings("unchecked")
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
                     logger.debug("WatchEvent: {}, Path={} (count {})",
                             event.kind(), event.context(), event.count());
@@ -120,12 +129,9 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
 
             }
         });
-        thread.setUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread t, Throwable e) {
-                logger.error("Unexpected Exception in Thread {} while watching {}", t.getName(), path, e);
-            }
-        });
+        thread.setUncaughtExceptionHandler((t, e) ->
+                logger.error("Unexpected Exception in Thread {} while watching {}",
+                        t.getName(), path, e));
         thread.start();
 
         if (!newOnly) {
@@ -192,12 +198,13 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
         this.filter = filter;
     }
 
-    public Consumer<Path> getConsumer() {
-        return consumer;
+    public Consumer<? super Path> getTo() {
+        return to;
     }
 
-    public void setConsumer(Consumer<Path> consumer) {
-        this.consumer = consumer;
+    @Override
+    public void setTo(Consumer<? super Path> to) {
+        this.to = to;
     }
 
     public boolean isNewOnly() {
@@ -208,11 +215,4 @@ public class PathWatchEvents extends InstantEventSourceBase<Path> {
         this.newOnly = newOnly;
     }
 
-    static Instant lastModifiedOf(Path path) {
-        try {
-            return Files.getLastModifiedTime( path ).toInstant();
-        } catch (IOException e) {
-            throw new IllegalStateException( "Failed getting last modified time", e );
-        }
-    }
 }

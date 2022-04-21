@@ -9,22 +9,30 @@
                     <jobs>
                         <events:list eventOperator="ALL">
                             <child>
-                                <events:file-watch name="Watch File 1">
-                                    <fileWatch>
-                                        <value value="${file-watch}"/>
-                                    </fileWatch>
-                                    <file>
-                                        <value value="${some.dir}/file1.txt"/>
-                                    </file>
-                                </events:file-watch>
-                                <events:file-watch name="Watch File 2">
-                                    <fileWatch>
-                                        <value value="${file-watch}"/>
-                                    </fileWatch>
-                                    <file>
-                                        <value value="${some.dir}/file2.txt"/>
-                                    </file>
-                                </events:file-watch>
+                                <events:watch name="Watch File 1">
+                                    <eventSource>
+                                        <events:file-watch>
+                                            <fileWatch>
+                                                <value value="${file-watch}"/>
+                                            </fileWatch>
+                                            <file>
+                                                <value value="${some.dir}/file1.txt"/>
+                                            </file>
+                                        </events:file-watch>
+                                    </eventSource>
+                                </events:watch>
+                                <events:watch name="Watch File 2">
+                                    <eventSource>
+                                        <events:file-watch>
+                                            <fileWatch>
+                                                <value value="${file-watch}"/>
+                                            </fileWatch>
+                                            <file>
+                                                <value value="${some.dir}/file2.txt"/>
+                                            </file>
+                                        </events:file-watch>
+                                    </eventSource>
+                                </events:watch>
                             </child>
                         </events:list>
                         <echo id="task"><![CDATA[${both-files.trigger.ofs}]]></echo>

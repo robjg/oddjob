@@ -126,7 +126,6 @@ abstract public class EventServiceBase<T> extends BasePrimary
                     catch (RuntimeException e) {
                         stateHandler().waitToWhen(s -> true,
                                 () -> getStateChanger().setStateException(e));
-                        throw e;
                     }
                     stateHandler().waitToWhen(new IsStoppable(),
                             () -> {

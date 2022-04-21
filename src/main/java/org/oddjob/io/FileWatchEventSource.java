@@ -1,7 +1,7 @@
 package org.oddjob.io;
 
+import org.oddjob.events.EventSource;
 import org.oddjob.events.InstantEvent;
-import org.oddjob.events.InstantEventSourceBase;
 import org.oddjob.events.Trigger;
 import org.oddjob.events.When;
 import org.oddjob.util.Restore;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
  * @see Trigger
  * @see When
  */
-public class FileWatchEventSource extends InstantEventSourceBase<Path> {
+public class FileWatchEventSource implements EventSource<InstantEvent<Path>> {
 
     /**
      * @oddjob.property
@@ -43,16 +43,9 @@ public class FileWatchEventSource extends InstantEventSourceBase<Path> {
      */
     private volatile Path file;
 
-    /**
-     * @oddjob.property
-     * @oddjob.description The last modified time of the file. Event where the file has the same
-     * last modified time will be ignored.
-     * @oddjob.required R/O.
-     */
-    private volatile AtomicReference<Instant> lastModified = new AtomicReference<>();
-
     @Override
-    protected Restore doStart(Consumer<? super InstantEvent<Path>> consumer) {
+    public Restore subscribe(Consumer<? super InstantEvent<Path>> consumer) {
+
         Objects.requireNonNull(consumer, "No Consumer");
 
         Path file = Optional.ofNullable(this.file)
@@ -61,14 +54,15 @@ public class FileWatchEventSource extends InstantEventSourceBase<Path> {
         FileWatch fileWatch = Optional.ofNullable(this.fileWatch)
                 .orElseThrow(() -> new IllegalArgumentException("No file watch"));
 
+        final AtomicReference<Instant> lastModifiedRef = new AtomicReference<>();
+
         return fileWatch.subscribe(file, pathEvent -> {
             Instant lastModified = pathEvent.getTime();
-            if (!lastModified.equals(this.lastModified.getAndSet(lastModified))) {
+            if (!lastModified.equals(lastModifiedRef.getAndSet(lastModified))) {
                 consumer.accept(pathEvent);
             }
         });
     }
-
 
     public Path getFile() {
         return file;
@@ -86,7 +80,8 @@ public class FileWatchEventSource extends InstantEventSourceBase<Path> {
         this.fileWatch = fileWatch;
     }
 
-    public Instant getLastModified() {
-        return this.lastModified.get();
+    @Override
+    public String toString() {
+        return "FileWatchEventSource: " + file;
     }
 }

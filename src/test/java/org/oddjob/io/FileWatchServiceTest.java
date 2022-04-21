@@ -3,19 +3,67 @@ package org.oddjob.io;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.events.InstantEvent;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
+import org.oddjob.util.Restore;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileWatchServiceTest {
+
+    private static final long TIMEOUT = 1000;
+
+    @Test
+    public void testSubscribe() throws IOException, InterruptedException {
+
+        Path testPath = OurDirs.workPathDir(PathWatchEventsTest.class.getSimpleName(), true);
+
+        FileWatchService test = new FileWatchService();
+
+        BlockingQueue<InstantEvent<Path>> events = new LinkedBlockingQueue<>();
+
+        Path someFile = testPath.resolve("SomeFile.txt");
+
+        test.start();
+
+        Restore restore = test.subscribe(someFile, events::add);
+
+        assertThat(events.poll(), nullValue());
+
+        // Don't want nanos.
+        Instant before = Instant.ofEpochMilli(System.currentTimeMillis());
+
+        Files.createFile(someFile);
+
+        Instant after = Instant.now();
+
+        InstantEvent<Path> event = events.poll(TIMEOUT, TimeUnit.MILLISECONDS);
+        assertThat(event, notNullValue());
+
+        assertThat(event.getOf(), is(someFile));
+
+        Instant modified = event.getTime();
+        assertThat(before + "<=" + modified, modified.equals(before) ||
+                modified.isAfter(before), is(true));
+        assertThat(modified + "<=" + after, modified.equals(after) ||
+                modified.isBefore(after), is(true));
+
+        restore.close();
+    }
 
     @Test
     public void testOddjobExample() throws IOException, ArooaConversionException, FailedToStopException, InterruptedException {
@@ -27,7 +75,8 @@ public class FileWatchServiceTest {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(
-                getClass().getResource("FileWatchTwoFilesExample.xml").getFile()));
+                Objects.requireNonNull(getClass()
+                        .getResource("FileWatchTwoFilesExample.xml")).getFile()));
         oddjob.setProperties(properties);
 
         StateSteps oddjobState = new StateSteps(oddjob);
