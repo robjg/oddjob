@@ -61,7 +61,7 @@ public class TriggerTest {
 		logger.debug("----------------- " + getName() + " -------------");
 	}
 
-	private static class OurSubscribable extends InstantEventSourceBase<Integer> {
+	private static class OurSubscribable extends EventServiceBase<InstantEvent<Integer>> {
 
 		final List<Integer> ints = Arrays.asList(1, 2, 3);
 		
@@ -203,7 +203,7 @@ public class TriggerTest {
 		Mockito.verifyNoInteractions(executorService);
 	}
 	
-	private static class SendWhenConnecting extends InstantEventSourceBase<Integer> {
+	private static class SendWhenConnecting extends EventServiceBase<InstantEvent<Integer>> {
 		
 		@Override
 		protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {

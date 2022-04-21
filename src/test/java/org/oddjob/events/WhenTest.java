@@ -34,7 +34,7 @@ public class WhenTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(WhenTest.class);
 	
-	private static class OurSubscribable extends InstantEventSourceBase<Integer> {
+	private static class OurSubscribable extends EventServiceBase<InstantEvent<Integer>> {
 
 		final List<InstantEvent<Integer>> ints = Arrays.asList(
 				InstantEvent.of(1), InstantEvent.of(2), InstantEvent.of(3));

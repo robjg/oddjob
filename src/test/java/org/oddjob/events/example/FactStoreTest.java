@@ -5,7 +5,6 @@ import org.oddjob.OurDirs;
 import org.oddjob.events.InstantEvent;
 import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
-import org.oddjob.util.Restore;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -43,7 +42,8 @@ public class FactStoreTest {
         StateSteps subscriberState = new StateSteps(bookListSubscriber);
         subscriberState.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-        Restore restore = bookListSubscriber.subscribe(results::add);
+        bookListSubscriber.setTo(results::add);
+        bookListSubscriber.run();
 
         subscriberState.checkNow();
         assertThat(results.size(), is(0));
@@ -59,7 +59,7 @@ public class FactStoreTest {
 
         assertThat(results.size(), is(1));
 
-        restore.close();
+        bookListSubscriber.stop();
 
         fileFactStore.stop();
     }

@@ -1,8 +1,8 @@
 package org.oddjob.events.example;
 
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.events.EventServiceBase;
 import org.oddjob.events.InstantEvent;
-import org.oddjob.events.InstantEventSourceBase;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +16,7 @@ import java.util.function.Consumer;
  *
  * @param <T>
  */
-public class FactSubscriber<T> extends InstantEventSourceBase<T> {
+public class FactSubscriber<T> extends EventServiceBase<InstantEvent<T>> {
 
     private static final Logger logger = LoggerFactory.getLogger(FactSubscriber.class);
 
@@ -48,7 +48,7 @@ public class FactSubscriber<T> extends InstantEventSourceBase<T> {
 
             @Override
             public String toString() {
-                return "Consumer for " + FactSubscriber.this.toString();
+                return "Consumer for " + FactSubscriber.this;
             }
         }
 

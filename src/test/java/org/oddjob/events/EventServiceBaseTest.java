@@ -1,7 +1,7 @@
 package org.oddjob.events;
 
-import org.junit.Assert;
 import org.junit.Test;
+import org.oddjob.FailedToStopException;
 import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
@@ -9,11 +9,11 @@ import org.oddjob.util.Restore;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-public class SubscribeNodeBaseTest {
+public class EventServiceBaseTest {
 
-	private class OurSubscriber extends InstantEventSourceBase<Integer> {
+	private static class OurSubscriber extends EventServiceBase<InstantEvent<Integer>> {
 		
 		private Consumer<? super InstantEvent<Integer>> consumer;
 		
@@ -41,8 +41,9 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-		Restore close = test.subscribe(consumer);
-		
+		test.setTo(consumer);
+		test.run();
+
 		state.checkNow();
 		state.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
 
@@ -58,7 +59,7 @@ public class SubscribeNodeBaseTest {
 		
 		state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 		
-		close.close();
+		test.stop();
 		
 		state.checkNow();
 
@@ -66,13 +67,13 @@ public class SubscribeNodeBaseTest {
 	}
 	
 	@Test
-	public void testStatesPublishStop() throws Exception {
+	public void testStatesPublishStop() throws FailedToStopException {
 		
 		
 		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
-			
+		EventServiceBase<InstantEvent<Integer>> test =
+				new EventServiceBase<InstantEvent<Integer>>() {
 			@Override
 			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 				consumer.accept(InstantEvent.of(2));
@@ -83,25 +84,26 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.FIRING, EventState.TRIGGERED);
 
-		Restore close = test.subscribe(consumer);
-		
+		test.setTo(consumer);
+		test.run();
+
 		state.checkNow();
 		
 		state.startCheck(EventState.TRIGGERED, EventState.COMPLETE);
 		
-		close.close();
+		test.stop();
 		
 		state.checkNow();
 	}
 	
 	@Test
-	public void testStatesStop() throws Exception {
+	public void testStatesStop() throws FailedToStopException {
 		
 		
 		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
-			
+		EventServiceBase<InstantEvent<Integer>> test =
+				new EventServiceBase<InstantEvent<Integer>>() {
 			@Override
 			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 				return () -> {};
@@ -111,24 +113,25 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
-		Restore close = test.subscribe(consumer);
-		
+		test.setTo(consumer);
+		test.run();
+
 		state.checkNow();
 		
 		state.startCheck(EventState.WAITING, EventState.INCOMPLETE);
 		
-		close.close();
+		test.stop();
 		
 		state.checkNow();
 	}
 
 	@Test
-	public void testStatesStartException() throws Exception {
+	public void testStatesStartException() {
 				
 		Consumer<InstantEvent<Integer>> consumer = v -> {};
 		
-		InstantEventSourceBase<Integer> test = new InstantEventSourceBase<Integer>() {
-			
+		EventServiceBase<InstantEvent<Integer>> test =
+				new EventServiceBase<InstantEvent<Integer>>() {
 			@Override
 			protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
 				throw new RuntimeException("Doh!");
@@ -138,14 +141,9 @@ public class SubscribeNodeBaseTest {
 		StateSteps state = new StateSteps(test);
 		state.startCheck(EventState.READY, EventState.CONNECTING, EventState.EXCEPTION);
 
-		try {
-			test.subscribe(consumer);
-			Assert.fail("Should fail.");
-		}
-		catch (RuntimeException e) {
-			// expected
-		}
-		
+		test.setTo(consumer);
+		test.run();
+
 		state.checkNow();
 	}
 }
