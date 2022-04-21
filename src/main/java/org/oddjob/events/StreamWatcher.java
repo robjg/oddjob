@@ -11,11 +11,11 @@ import java.util.function.Consumer;
  * @oddjob.description Watch a stream for an instance of a string. Typically this watcher (and its trigger)
  * will be started before a job that produces some output that needs to be monitored.
  * <p>
- *     A typeical use case would be running an exec job that tails a log file, and this watcher is looking
+ *     A typical use case would be running an exec job that tails a log file, and this watcher is looking
  *     for the word "Error" or some such.
  * </p>
  */
-public class StreamWatcher extends EventSourceBase<InstantEvent<String>> {
+public class StreamWatcher extends EventServiceBase<InstantEvent<String>> {
 
     /**
      * @oddjob.property
