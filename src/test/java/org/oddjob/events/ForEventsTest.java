@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ForEventsTest {
 
-    public static class SubscribeInts extends InstantEventSourceBase<Integer> {
+    public static class SubscribeInts extends EventServiceBase<InstantEvent<Integer>> {
 
         @Override
         protected Restore doStart(Consumer<? super InstantEvent<Integer>> consumer) {
@@ -84,7 +84,7 @@ public class ForEventsTest {
 
     private static Consumer<? super InstantEvent<String>> stuffConsumer;
 
-    public static class SubscribeStuff extends InstantEventSourceBase<String> {
+    public static class SubscribeStuff extends EventServiceBase<InstantEvent<String>> {
 
         @Override
         protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {

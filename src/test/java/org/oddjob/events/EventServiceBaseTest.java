@@ -6,8 +6,12 @@ import org.oddjob.events.state.EventState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -146,4 +150,79 @@ public class EventServiceBaseTest {
 
 		state.checkNow();
 	}
+
+	private static class OurSubscriber2 extends EventServiceBase<InstantEvent<String>> {
+
+		private boolean closed;
+
+		private InstantEvent<String> initial;
+
+		private Consumer<? super InstantEvent<String>> consumer;
+
+		@Override
+		protected Restore doStart(Consumer<? super InstantEvent<String>> consumer) {
+
+			Optional.ofNullable(initial).ifPresent(consumer);
+			this.consumer = consumer;
+			return () -> closed = true;
+		}
+	}
+
+	@Test
+	public void testHappyPathStatesAsExpectedEventThere() throws Exception {
+
+		OurSubscriber2 test = new OurSubscriber2();
+		test.initial = InstantEvent.of("Apple");
+
+		List<InstantEvent<String>> results = new ArrayList<>();
+
+		StateSteps subscriberState = new StateSteps(test);
+		subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
+				EventState.FIRING, EventState.TRIGGERED);
+
+		test.setTo(results::add);
+		test.run();
+
+		subscriberState.checkNow();
+		assertThat(results.size(), is(1));
+
+		assertThat(results.get(0).getOf(), is("Apple"));
+
+		test.stop();
+
+		assertThat(test.closed, is(true));
+	}
+
+	@Test
+	public void testHappyPathStatesAsExpectedNoEventsYet() throws Exception {
+
+		OurSubscriber2 test = new OurSubscriber2();
+
+		List<InstantEvent<String>> results = new ArrayList<>();
+
+		StateSteps subscriberState = new StateSteps(test);
+		subscriberState.startCheck(EventState.READY, EventState.CONNECTING,
+				EventState.WAITING);
+
+		test.setTo(results::add);
+		test.run();
+
+		subscriberState.checkNow();
+
+		assertThat(results.size(), is(0));
+
+		subscriberState.startCheck(EventState.WAITING, EventState.FIRING, EventState.TRIGGERED);
+
+		test.consumer.accept(InstantEvent.of("Apple"));
+
+		subscriberState.checkNow();
+
+		assertThat(results.size(), is(1));
+		assertThat(results.get(0).getOf(), is("Apple"));
+
+		test.stop();
+
+		assertThat(test.closed, is(true));
+	}
+
 }
