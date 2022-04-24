@@ -18,7 +18,9 @@
 		<arooa:bean-def element='exists' 
 		    className='org.oddjob.io.ExistsJob'
 		    designFactory='org.oddjob.designer.components.ExistsDC' />
-        <arooa:bean-def element='grep' 
+		<arooa:bean-def element='file-watch'
+						className='org.oddjob.io.FileWatchService'/>
+        <arooa:bean-def element='grep'
             className='org.oddjob.io.GrepJob'/>
 		<arooa:bean-def element='mkdir' 
 		    className='org.oddjob.io.MkdirJob' 

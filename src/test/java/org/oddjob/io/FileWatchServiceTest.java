@@ -8,6 +8,8 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +26,8 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileWatchServiceTest {
+
+    private static Logger logger = LoggerFactory.getLogger(FileWatchServiceTest.class);
 
     private static final long TIMEOUT = 1000;
 
@@ -66,7 +70,7 @@ public class FileWatchServiceTest {
     }
 
     @Test
-    public void testOddjobExample() throws IOException, ArooaConversionException, FailedToStopException, InterruptedException {
+    public void testOddjobTwoFileEventExample() throws IOException, ArooaConversionException, FailedToStopException, InterruptedException {
 
         Path testPath = OurDirs.workPathDir(PathWatchEventsTest.class.getSimpleName(), true);
 
@@ -126,5 +130,68 @@ public class FileWatchServiceTest {
         assertThat(text.contains("file2"), is(true));
 
         assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
+    }
+
+    @Test
+    public void testOddjobFileWatchInBeanBusExample() throws IOException, ArooaConversionException, FailedToStopException, InterruptedException {
+
+        Path testPath = OurDirs.workPathDir(PathWatchEventsTest.class.getSimpleName(), true);
+
+        Properties properties = new Properties();
+        properties.setProperty("some.dir", testPath.toString());
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setFile(new File(
+                Objects.requireNonNull(getClass()
+                        .getResource("FileWatchBeanBusExample.xml")).getFile()));
+        oddjob.setProperties(properties);
+
+        StateSteps oddjobState = new StateSteps(oddjob);
+        oddjobState.startCheck(ParentState.READY);
+
+        oddjob.load();
+
+        oddjobState.checkNow();
+
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+        Stateful repeatJob = lookup.lookup("repeat", Stateful.class);
+
+        oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING,
+                ParentState.COMPLETE);
+
+        StateSteps repeatState = new StateSteps(repeatJob);
+        repeatState.startCheck(ParentState.READY, ParentState.EXECUTING);
+
+        Thread thread = new Thread(oddjob);
+        thread.start();
+
+        repeatState.checkWait();
+
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.EXECUTING));
+
+        Runnable createFile1 = lookup.lookup("createFile1", Runnable.class);
+
+        createFile1.run();
+
+        Runnable createFile2 = lookup.lookup("createFile2", Runnable.class);
+
+        repeatState.startCheck(ParentState.EXECUTING, ParentState.COMPLETE);
+
+        createFile2.run();
+
+        thread.join();
+
+        repeatState.checkNow();
+
+        oddjobState.checkNow();
+
+        String text = lookup.lookup("vars.results", String.class);
+
+        logger.info("Results: {}", text);
+
+        assertThat(text, is("Test1Test2"));
+
+        oddjob.destroy();
     }
 }

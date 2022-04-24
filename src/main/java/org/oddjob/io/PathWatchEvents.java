@@ -97,6 +97,8 @@ public class PathWatchEvents implements Outbound<Path>, Service {
                     return;
                 }
 
+                WatchEvent<?> lastEvent = null;
+
                 for (WatchEvent<?> event : key.pollEvents()) {
                     WatchEvent.Kind<?> kind = event.kind();
 
@@ -113,10 +115,18 @@ public class PathWatchEvents implements Outbound<Path>, Service {
                     // context of the event.
                     @SuppressWarnings("unchecked")
                     WatchEvent<Path> ev = (WatchEvent<Path>) event;
-                    logger.debug("WatchEvent: {}, Path={} (count {})",
-                            event.kind(), event.context(), event.count());
-                    Path found = path.resolve(ev.context());
-                    filterConsumer.accept(found);
+
+                    if (ev.equals(lastEvent)) {
+                        logger.debug("Ignoring as same as last, WatchEvent: {}, Path={} (count {})",
+                                event.kind(), event.context(), event.count());
+                    }
+                    else {
+                        logger.debug("WatchEvent: {}, Path={} (count {})",
+                                event.kind(), event.context(), event.count());
+                        Path found = path.resolve(ev.context());
+                        filterConsumer.accept(found);
+                    }
+                    lastEvent = ev;
                 }
 
                 // Reset the key -- this step is critical if you want to

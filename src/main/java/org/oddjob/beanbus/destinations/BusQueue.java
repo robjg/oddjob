@@ -24,9 +24,9 @@ import java.util.function.Consumer;
  * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample2.xml}
  */
-public class BeanQueue<E> implements Consumer<E>, Iterable<E>, Service {
+public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
-    private static final Logger logger = LoggerFactory.getLogger(BeanQueue.class);
+    private static final Logger logger = LoggerFactory.getLogger(BusQueue.class);
 
     private final static Object STOP = new Object();
 

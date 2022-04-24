@@ -4,6 +4,7 @@
 package org.oddjob.framework.adapt.service;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
@@ -21,8 +22,10 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListener;
 import org.oddjob.arooa.standard.StandardArooaDescriptor;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.standard.StandardTools;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.framework.Service;
 import org.oddjob.framework.adapt.AcceptExceptionListener;
 import org.oddjob.framework.adapt.Start;
 import org.oddjob.framework.adapt.Stop;
@@ -319,5 +322,48 @@ public class ServiceWrapperTest extends OjTestCase {
 
 		serviceStates.checkNow();
 	}
-    
+
+	static class StopNowService implements Service {
+
+		boolean stopped;
+
+		Runnable stopMe;
+
+		@Override
+		public void stop() throws FailedToStopException {
+			stopped = true;
+		}
+
+		@Override
+		public void start() throws Exception {
+			stopMe.run();
+		}
+	}
+
+	@Test
+	public void whenServiceStoppedBeforeStartedThenServiceComplete() {
+
+		StopNowService stopNowService = new StopNowService();
+
+		ServiceAdaptor service = new ServiceStrategies().serviceFor(
+				stopNowService, new StandardArooaSession());
+
+		Stateful wrapper = (Stateful) new ServiceProxyGenerator().generate(
+				service, getClass().getClassLoader());
+
+		stopNowService.stopMe = () -> {
+			try {
+				((Stoppable) wrapper).stop();
+			} catch (FailedToStopException e) {
+				MatcherAssert.assertThat("Shouldn't happen", false);
+			}
+		};
+
+		StateSteps serviceStates = new StateSteps(wrapper);
+		serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, ServiceState.STOPPED);
+
+		((Runnable) wrapper).run();
+
+		serviceStates.checkNow();
+	}
 }

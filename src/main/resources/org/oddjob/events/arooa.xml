@@ -4,8 +4,6 @@
         <value value='org.oddjob.events.EventOperators$Conversions'/>
     </conversions>
     <components>
-        <arooa:bean-def element='file-watch-service'
-                        className='org.oddjob.io.FileWatchService'/>
         <arooa:bean-def element='list'
                         className='org.oddjob.events.ListSource'/>
         <arooa:bean-def element='for'
@@ -70,7 +68,7 @@
         </arooa:bean-def>
     </components>
     <values>
-        <arooa:bean-def element='file-watch'
+        <arooa:bean-def element='file'
                         className='org.oddjob.io.FileWatchEventSource'/>
     </values>
 </arooa:descriptor>

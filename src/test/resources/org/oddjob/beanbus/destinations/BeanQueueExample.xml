@@ -8,7 +8,7 @@
                         <list/>
                     </results>
                 </variables>
-                <bean class="org.oddjob.beanbus.destinations.BeanQueue" id="queue"/>
+                <bean class="org.oddjob.beanbus.destinations.BusQueue" id="queue"/>
                 <parallel id="parallel">
                     <jobs>
                         <sequential>

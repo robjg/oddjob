@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <results>
+                        <buffer/>
+                    </results>
+                </variables>
+                <mkdir dir="${some.dir}" name="Create Test Dir"/>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <file-watch id="file-watch" kinds="ENTRY_CREATE">
+                            <paths>
+                                <list>
+                                    <values>
+                                        <file file="${some.dir}"/>
+                                    </values>
+                                    <elementType>
+                                        <class name="java.nio.file.Path"/>
+                                    </elementType>
+                                </list>
+                            </paths>
+                        </file-watch>
+                        <bus:limit limit="2"/>
+                        <bus:queue id="queue"/>
+                    </of>
+                </bus:bus>
+                <repeat id="repeat">
+                    <values>
+                        <value value="${queue}"/>
+                    </values>
+                    <job>
+                        <copy>
+                            <from>
+                                <file file="${repeat.current}"/>
+                            </from>
+                            <output>
+                                <value value="${vars.results}"/>
+                            </output>
+                        </copy>
+                    </job>
+                </repeat>
+                <folder>
+                    <jobs>
+                        <copy id="createFile1" name="Create File 1" to="${some.dir}/file1.txt">
+                            <input>
+                                <buffer>
+                                    <![CDATA[Test1]]>
+                                </buffer>
+                            </input>
+                        </copy>
+                        <copy id="createFile2" name="Create File 2" to="${some.dir}/file2.txt">
+                            <input>
+                                <buffer>
+                                    <![CDATA[Test2]]>
+                                </buffer>
+                            </input>
+                        </copy>
+                        <delete name="Delete All Test Files">
+                            <files>
+                                <files files="${some.dir}/*"/>
+                            </files>
+                        </delete>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

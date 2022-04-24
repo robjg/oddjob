@@ -96,6 +96,10 @@ public class RepeatJob extends StructuralJob<Runnable>
      */
     private volatile transient CompletableFuture<?> completableFuture;
 
+    /** Allow blocking iterator to be interrupted. */
+    private final AtomicReference<Runnable> stopAction = new AtomicReference<>(() -> {});
+
+
     @Override
     protected StateOperator getInitialStateOp() {
         return new AnyActiveStateOp();
@@ -181,12 +185,26 @@ public class RepeatJob extends StructuralJob<Runnable>
 
             @Override
             public void run() {
-                if (!stop && !until && (iterator == null || iterator.hasNext())) {
+                boolean run = !stop && !until;
 
-                    count.incrementAndGet();
-                    if (iterator != null) {
+                if (run && iterator != null) {
+                    Thread thread = Thread.currentThread();
+                    stopAction.set(() -> thread.interrupt());
+
+                    if (iterator.hasNext()) {
                         current = iterator.next();
                     }
+                    else {
+                        if (Thread.interrupted()) {
+                            logger().info("Blocking iterator interrupted.");
+                        }
+                        run = false;
+                    }
+                    stopAction.set(() -> {});
+                }
+
+                if (run) {
+                    count.incrementAndGet();
 
                     ResetActions.AUTO.doWith(job);
 
@@ -270,7 +288,7 @@ public class RepeatJob extends StructuralJob<Runnable>
         Optional.ofNullable(this.completableFuture)
                 .ifPresent(cf ->
                         completableFuture.cancel(false));
-
+        stopAction.get().run();
         super.onStop();
     }
 

@@ -130,7 +130,7 @@ public class ServiceWrapper extends BaseWrapper
             return;
         }
 
-        logger().info("Starting.");
+        logger().info("Service Starting.");
 
         try {
             if (Thread.interrupted()) {
@@ -146,10 +146,13 @@ public class ServiceWrapper extends BaseWrapper
 
             service.start();
 
-            logger().info("Started.");
-
-            stateHandler.waitToWhen(new IsAnyState(),
-                    () -> getStateChanger().setState(ServiceState.STARTED));
+            if (stateHandler.waitToWhen(StateConditions.RUNNING,
+                    () -> getStateChanger().setState(ServiceState.STARTED))) {
+                logger().info("Service Started.");
+            }
+            else {
+                logger().info("Service Stopped before Started.");
+            }
         } catch (final Throwable t) {
             logger().error("Exception starting service:", t);
 
@@ -164,7 +167,7 @@ public class ServiceWrapper extends BaseWrapper
      * @param e
      */
     protected void exceptionFromComponent(final Exception e) {
-        logger().error("Exception starting service:", e);
+        logger().error("Exception From service:", e);
 
         if (!stateHandler.waitToWhen(new IsStoppable(),
                 () -> getStateChanger().setStateException(e))) {

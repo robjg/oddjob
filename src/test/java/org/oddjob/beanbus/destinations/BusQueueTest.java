@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class BeanQueueTest extends Assert {
+public class BusQueueTest extends Assert {
 
-	private static final Logger logger = LoggerFactory.getLogger(BeanQueueTest.class);
+	private static final Logger logger = LoggerFactory.getLogger(BusQueueTest.class);
 	
 	@Rule public TestName name = new TestName();
 
@@ -43,7 +43,7 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testQueueStop() throws InterruptedException, BusCrashException {
 
-		final BeanQueue<String> test = new BeanQueue<>();
+		final BusQueue<String> test = new BusQueue<>();
 
 
 		test.start();
@@ -82,7 +82,7 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testStopBeforeEmpty() throws InterruptedException {
 		
-		final BeanQueue<String> test = new BeanQueue<>();
+		final BusQueue<String> test = new BusQueue<>();
 		test.start();
 		
 		test.accept("apple");
@@ -110,7 +110,7 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testStartConsumingFirst() throws InterruptedException {
 		
-		final BeanQueue<String> test = new BeanQueue<>();
+		final BusQueue<String> test = new BusQueue<>();
 		test.start();
 		
 		final List<String> results = new ArrayList<>();
@@ -139,7 +139,7 @@ public class BeanQueueTest extends Assert {
     @Test
 	public void testMultipleConsumers() throws InterruptedException {
 
-		final BeanQueue<Integer> test = new BeanQueue<>();
+		final BusQueue<Integer> test = new BusQueue<>();
 		test.start();
 		
 		class Consumer implements Runnable {

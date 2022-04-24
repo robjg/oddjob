@@ -10,8 +10,10 @@
         <arooa:bean-def element='filter'
                         className='org.oddjob.beanbus.destinations.BeanFilter'/>
         <arooa:bean-def element='limit'
-                        className='org.oddjob.beanbus.destinations.BeanLimit'/>
+                        className='org.oddjob.beanbus.destinations.BusLimit'/>
         <arooa:bean-def element='map'
-                        className='org.oddjob.beanbus.destinations.BeanTransformer'/>
+                        className='org.oddjob.beanbus.destinations.BusMap'/>
+        <arooa:bean-def element='queue'
+                        className='org.oddjob.beanbus.destinations.BusQueue'/>
     </components>
 </arooa:descriptor>

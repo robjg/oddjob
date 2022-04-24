@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
+            <of>
+                <bus:driver xmlns:bus="oddjob:beanbus">
+                    <beans>
+                        <list>
+                            <values>
+                                <value value="Apple"/>
+                                <value value="Orange"/>
+                                <value value="Banana"/>
+                            </values>
+                        </list>
+                    </beans>
+                    <to>
+                        <value value="${before}"/>
+                    </to>
+                </bus:driver>
+                <bus:collect id="before" name="Beans Before"  xmlns:bus="oddjob:beanbus">
+                    <to>
+                        <value value="${only-filter}"/>
+                    </to>
+                </bus:collect>
+                <bus:limit id="only-filter" limit="2" xmlns:bus="oddjob:beanbus">
+                    <to>
+                        <value value="${results}"/>
+                    </to>
+                </bus:limit>
+                <bus:collect id="results" name="Beans After" xmlns:bus="oddjob:beanbus"/>
+            </of>
+        </bus:bus>
+    </job>
+</oddjob>

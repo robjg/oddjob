@@ -223,6 +223,14 @@ public class FileWatchService implements FileWatch, Service, Outbound<Path> {
         this.kinds = kinds;
     }
 
+    public List<Path> getPaths() {
+        return paths;
+    }
+
+    public void setPaths(List<Path> paths) {
+        this.paths = paths;
+    }
+
     public Consumer<? super Path> getTo() {
         return to;
     }

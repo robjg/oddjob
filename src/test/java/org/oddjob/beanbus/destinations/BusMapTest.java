@@ -16,7 +16,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BeanTransformerTest {
+public class BusMapTest {
 
 
     @SuppressWarnings("unchecked")

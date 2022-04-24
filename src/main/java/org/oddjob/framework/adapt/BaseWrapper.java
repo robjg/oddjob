@@ -197,9 +197,17 @@ abstract public class BaseWrapper extends BaseComponent
 
         if (failedToStopException != null) {
 
-            stateHandler().waitToWhen(
+            if (!stateHandler().waitToWhen(
                     new IsStoppable(),
-                    () -> iconHelper().changeIcon(icon.get()));
+                    () -> {
+                        logger().info("Failed to stop, setting ion back to {}", icon.get());
+                        iconHelper().changeIcon(icon.get());
+                    })) {
+
+                logger().info("Failed to stop Exception thrown but state is now {}, this shouldn't happen.",
+                        stateHandler().getState());
+            }
+
             throw failedToStopException;
         }
     }

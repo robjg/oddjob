@@ -8,14 +8,14 @@
         <arooa:bean-def element='bean-copy'
                         className='org.oddjob.beanbus.destinations.BeanCopy'/>
         <arooa:bean-def element='bean-queue'
-                        className='org.oddjob.beanbus.destinations.BeanQueue'/>
+                        className='org.oddjob.beanbus.destinations.BusQueue'/>
         <arooa:bean-def element='bean-sheet'
                         className='org.oddjob.beanbus.destinations.BeanSheet'/>
         <arooa:bean-def element='filter'
                         className='org.oddjob.beanbus.destinations.BeanFilter'/>
         <arooa:bean-def element='limit'
-                        className='org.oddjob.beanbus.destinations.BeanLimit'/>
+                        className='org.oddjob.beanbus.destinations.BusLimit'/>
         <arooa:bean-def element='transformer'
-                        className='org.oddjob.beanbus.destinations.BeanTransformer'/>
+                        className='org.oddjob.beanbus.destinations.BusMap'/>
     </components>
 </arooa:descriptor>

@@ -4,12 +4,14 @@
 package org.oddjob.jobs.structural;
 
 import org.apache.commons.beanutils.PropertyUtils;
+import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.framework.util.StopWait;
+import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
@@ -20,6 +22,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.is;
 
@@ -79,7 +85,7 @@ public class RepeatJobTest extends OjTestCase {
         Runnable childJob = new SimpleJob() {
 
             @Override
-            protected int execute() throws Throwable {
+            protected int execute() {
                 job.setUntil(true);
                 return 0;
             }
@@ -160,7 +166,7 @@ public class RepeatJobTest extends OjTestCase {
         oj.run();
 
         Object c = new OddjobLookup(oj).lookup("c");
-        assertEquals(new Integer(10), PropertyUtils.getProperty(c, "count"));
+        assertEquals(10, PropertyUtils.getProperty(c, "count"));
     }
 
     public static class ExceptionJob implements Runnable {
@@ -293,7 +299,7 @@ public class RepeatJobTest extends OjTestCase {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(new File(
-                getClass().getResource("RepeatWithParallel.xml").getFile()));
+                Objects.requireNonNull(getClass().getResource("RepeatWithParallel.xml")).getFile()));
 
 
         StateSteps stateSteps = new StateSteps(oddjob);
@@ -305,7 +311,7 @@ public class RepeatJobTest extends OjTestCase {
         stateSteps.checkWait();
 
         Object c = new OddjobLookup(oddjob).lookup("c");
-        assertEquals(new Integer(10), PropertyUtils.getProperty(c, "count"));
+        assertEquals(10, PropertyUtils.getProperty(c, "count"));
     }
 
     public static class BadCounter extends SimpleJob {
@@ -315,7 +321,7 @@ public class RepeatJobTest extends OjTestCase {
         protected int execute() throws Throwable {
             if (++count > 2) {
                 throw new Exception("Can't count past 2!");
-            };
+            }
             return 0;
         }
 
@@ -356,7 +362,56 @@ public class RepeatJobTest extends OjTestCase {
                 is("Can't count past 2!"));
 
         Object c = new OddjobLookup(oddjob).lookup("c");
-        assertEquals(new Integer(3), PropertyUtils.getProperty(c, "count"));
+        assertEquals(3, PropertyUtils.getProperty(c, "count"));
+    }
+
+    @Test
+    public void testStopOnBlockingIterable() throws InterruptedException, FailedToStopException {
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Iterable<String> iterable = () -> new Iterator<String>() {
+            @Override
+            public boolean hasNext() {
+                try {
+                    latch.countDown();
+                    Thread.sleep(5000L);
+                    MatcherAssert.assertThat("Should interrupt", false);
+                } catch (InterruptedException e) {
+                    // expected
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
+            public String next() {
+                throw new RuntimeException("Unexpected");
+            }
+        };
+
+        FlagState flagState = new FlagState();
+        flagState.setState(JobState.EXCEPTION);
+
+        RepeatJob repeatJob = new RepeatJob();
+        repeatJob.setJob(flagState);
+        repeatJob.setValues(iterable);
+
+        StateSteps states = new StateSteps(repeatJob);
+        states.startCheck(ParentState.READY, ParentState.EXECUTING);
+
+        Thread t = new Thread(repeatJob);
+        t.start();
+
+        MatcherAssert.assertThat("Failed to start somehow", latch.await(5, TimeUnit.SECONDS));
+
+        states.checkNow();
+
+        states.startCheck(ParentState.EXECUTING, ParentState.READY);
+
+        repeatJob.stop();
+
+        states.checkWait();
     }
 }
 

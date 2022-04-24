@@ -13,7 +13,7 @@ import java.util.function.Function;
  * @param <F>
  * @param <T>
  */
-public class BeanTransformer<F, T> extends AbstractFilter<F, T>
+public class BusMap<F, T> extends AbstractFilter<F, T>
 implements BusFilter<F, T> {
 
 	private Function<? super F, ? extends T> function;

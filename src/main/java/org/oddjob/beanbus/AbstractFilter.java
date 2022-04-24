@@ -10,11 +10,11 @@ import java.util.function.Consumer;
  * @param <F> From Type
  * @param <T> To Type
  */
-abstract public class AbstractFilter<F, T> implements Consumer<F>, BusFilter<F, T> {
+abstract public class AbstractFilter<F, T> implements BusFilter<F, T> {
 
-	private Consumer<? super T> to;
+	private volatile Consumer<? super T> to;
 	
-	private String name;
+	private volatile String name;
 
 	@Override
 	public void accept(F bean) {

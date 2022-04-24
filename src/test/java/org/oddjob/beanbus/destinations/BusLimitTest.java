@@ -8,28 +8,36 @@ import org.oddjob.Resettable;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.BusConductor;
 import org.oddjob.state.ParentState;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class BeanLimitTest extends OjTestCase {
+import static org.mockito.Mockito.*;
+
+public class BusLimitTest extends OjTestCase {
 
     @Test
     public void testFiltersNoStop() {
 
         List<String> results = new ArrayList<>();
 
-        BeanLimit<String> test = new BeanLimit<>();
+        BusLimit<String> test = new BusLimit<>();
         test.setLimit(2);
 
         test.setTo(results::add);
+
+        BusConductor busConductor = mock(BusConductor.class);
+        test.setBusConductor(busConductor);
 
         test.accept("Apple");
         test.accept("Orange");
         test.accept("Pear");
 
         assertEquals(2, results.size());
+
+        verify(busConductor, times(1)).close();
     }
 
     @Test
@@ -37,7 +45,7 @@ public class BeanLimitTest extends OjTestCase {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setConfiguration(new XMLConfiguration(
-                "org/oddjob/beanbus/destinations/OnlyFilterExample.xml",
+                "org/oddjob/beanbus/destinations/BusLimitExample.xml",
                 getClass().getClassLoader()));
 
         oddjob.run();
