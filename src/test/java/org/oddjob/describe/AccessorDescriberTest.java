@@ -1,13 +1,9 @@
 package org.oddjob.describe;
 
-import org.junit.Test;
-
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.LazyDynaMap;
+import org.junit.Test;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.beanutils.MagicBeanDefinition;
 import org.oddjob.arooa.beanutils.MagicBeanDescriptorProperty;
@@ -15,13 +11,19 @@ import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 
+import java.util.Map;
+
 public class AccessorDescriberTest extends OjTestCase {
 	
 	public static class SimpleBean {
 		public String getFruit() {
 			return "apples";
 		}
-		
+
+		public String[] getGreengrocers() {
+			return new String[] { "Alice", "Bob" };
+		}
+
 		@NoDescribe
 		public String getColour() {
 			return "red";
@@ -37,8 +39,10 @@ public class AccessorDescriberTest extends OjTestCase {
 		
 		Map<String, String> description = test.describe(new SimpleBean());
 		
-		assertEquals(2, description.size());
+		assertEquals(3, description.size());
 		assertEquals("apples", description.get("fruit"));
+	   assertEquals(SimpleBean.class.toString(), description.get("class"));
+	   assertEquals("[Alice, Bob]", description.get("greengrocers"));
 	}
 
 	public static class SetterOnlyBean {

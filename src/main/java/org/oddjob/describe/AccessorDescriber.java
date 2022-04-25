@@ -1,14 +1,15 @@
 package org.oddjob.describe;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.ArooaAnnotation;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Describe the properties of an object using a {@link PropertyAccessor}.
@@ -52,7 +53,7 @@ public class AccessorDescriber implements Describer {
 				session.getArooaDescriptor().getBeanDescriptor(
 						arooaClass, accessor).getAnnotations();
 		
-		Map<String, String> description = new TreeMap<String, String>();
+		Map<String, String> description = new TreeMap<>();
 
 		String[] properties = overview.getProperties();
 		
@@ -73,6 +74,10 @@ public class AccessorDescriber implements Describer {
 				
 				if (value == null) {
 					description.put(property, null);
+				}
+				else if (value.getClass().isArray()) {
+					description.put(property,
+							Arrays.toString((Object[]) value));
 				}
 				else {
 					description.put(property, value.toString());
