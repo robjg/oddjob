@@ -93,7 +93,7 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 		sheet.setNoHeaders(noHeaders);
 		sheet.setBeanViews(arooaClass -> beanView);
 
-		iterableBusDriver.setBeans(beans);
+		iterableBusDriver.setValues(beans);
 		iterableBusDriver.setTo(sheet);
 
 		SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, sheet);

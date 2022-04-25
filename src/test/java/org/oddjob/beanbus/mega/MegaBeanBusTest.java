@@ -62,7 +62,7 @@ public class MegaBeanBusTest {
         List<String> destination = new ArrayList<>();
 
         IterableBusDriver<String> driver = new IterableBusDriver<>();
-        driver.setBeans(Arrays.asList("apple", "pear", "banana"));
+        driver.setValues(Arrays.asList("apple", "pear", "banana"));
 
         Object driverProxy = session.getComponentProxyResolver().resolve(driver, session);
         session.getComponentPool().registerComponent(
@@ -211,15 +211,15 @@ public class MegaBeanBusTest {
         String xml =
                 "<oddjob>" +
                         " <job>" +
-                        "  <bean-bus id='test'>" +
-                        "   <parts>" +
+                        "  <bus:bus id='test' xmlns:bus=\"oddjob:beanbus\">" +
+                        "   <of>" +
                         "    <bean class='" + NumberGenerator.class.getName() + "'>" +
                         "     <to><value value='${results}'/></to>" +
                         "    </bean>" +
                         "    <bean class='" + OurDestination.class.getName() + "' " +
                         "          id='results'/>" +
-                        "   </parts>" +
-                        "  </bean-bus>" +
+                        "   </of>" +
+                        "  </bus:bus>" +
                         " </job>" +
                         "</oddjob>";
 
@@ -296,15 +296,15 @@ public class MegaBeanBusTest {
         String xml =
                 "<oddjob>" +
                         " <job>" +
-                        "  <bean-bus id='test'>" +
-                        "   <parts>" +
+                        "  <bus:bus id='test' xmlns:bus=\"oddjob:beanbus\">" +
+                        "   <of>" +
                         "    <bean class='" + NumberGenerator.class.getName() + "'>" +
                         "     <to><value value='${results}'/></to>" +
                         "    </bean>" +
                         "    <bean class='" + OurSlipperyDestination.class.getName() + "' " +
                         "          id='results'/>" +
-                        "   </parts>" +
-                        "  </bean-bus>" +
+                        "   </of>" +
+                        "  </bus:bus>" +
                         " </job>" +
                         "</oddjob>";
 

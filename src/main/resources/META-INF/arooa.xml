@@ -22,8 +22,6 @@
             <components>
                 <is element='archive' className='org.oddjob.persist.ArchiveJob'/>
                 <is element='archive-browser' className='org.oddjob.persist.ArchiveBrowserJob'/>
-                <is element='bean-bus' className='org.oddjob.beanbus.mega.MegaBeanBus'
-                    designFactory='org.oddjob.arooa.design.etc.UnknownComponentDF'/>
                 <is element='bean-report' className='org.oddjob.jobs.BeanReportJob'/>
                 <is element='cascade' 
                   className='org.oddjob.state.CascadeJob'

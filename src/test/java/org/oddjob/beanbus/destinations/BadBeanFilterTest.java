@@ -53,7 +53,7 @@ public class BadBeanFilterTest {
         filter.setTo(detector);
 
         IterableBusDriver<String> iterableBusDriver = new IterableBusDriver<>();
-        iterableBusDriver.setBeans(Arrays.asList("Good Apple", "Rotten Apple", "Good Apple"));
+        iterableBusDriver.setValues(Arrays.asList("Good Apple", "Rotten Apple", "Good Apple"));
         iterableBusDriver.setTo(filter);
 
         SimpleBusConductor simpleBusConductor = new SimpleBusConductor(iterableBusDriver, filter, detector);

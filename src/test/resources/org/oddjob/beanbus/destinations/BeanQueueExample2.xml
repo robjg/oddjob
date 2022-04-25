@@ -3,10 +3,10 @@
     <job>
         <parallel id="parallel" join="true">
             <jobs>
-                <bean-bus>
-                    <parts>
-                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                            <beans>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver xmlns:bus="oddjob:beanbus">
+                            <values>
                                 <list>
                                     <values>
                                         <value value="Apple"/>
@@ -16,21 +16,21 @@
                                         <value value="Kiwi"/>
                                     </values>
                                 </list>
-                            </beans>
-                        </bus:iterable-driver>
-                        <bus:bean-queue id="queue" xmlns:bus="oddjob:beanbus"/>
-                    </parts>
-                </bean-bus>
-                <bean-bus>
-                    <parts>
-                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                            <beans>
+                            </values>
+                        </bus:driver>
+                        <bus:queue id="queue" xmlns:bus="oddjob:beanbus"/>
+                    </of>
+                </bus:bus>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver xmlns:bus="oddjob:beanbus">
+                            <values>
                                 <value value="${queue}"/>
-                            </beans>
-                        </bus:iterable-driver>
-                        <bus:capture id="results" xmlns:bus="oddjob:beanbus"/>
-                    </parts>
-                </bean-bus>
+                            </values>
+                        </bus:driver>
+                        <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+                    </of>
+                </bus:bus>
             </jobs>
         </parallel>
     </job>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bean-bus id="bean-bus">
-            <parts>
-                <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                    <beans>
+        <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
+            <of>
+                <bus:driver xmlns:bus="oddjob:beanbus">
+                    <values>
                         <list>
                             <values>
                                 <bean class="org.oddjob.beanbus.example.Fruit" quantity="42" type="Apple"/>
@@ -12,8 +12,8 @@
                                 <bean class="org.oddjob.beanbus.example.Fruit" quantity="15" type="Pear"/>
                             </values>
                         </list>
-                    </beans>
-                </bus:iterable-driver>
+                    </values>
+                </bus:driver>
                 <bean class="org.oddjob.beanbus.destinations.TransformerScript"><![CDATA[function apply(from) {
   if (from.quantity > 25) {
     return null;
@@ -22,8 +22,8 @@
     return from;
   }
 }]]></bean>
-                <bus:capture id="results" xmlns:bus="oddjob:beanbus"/>
-            </parts>
-        </bean-bus>
+                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+            </of>
+        </bus:bus>
     </job>
 </oddjob>

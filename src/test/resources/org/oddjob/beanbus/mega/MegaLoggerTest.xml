@@ -3,31 +3,31 @@
     <job>
         <sequential>
             <jobs>
-                <bean-bus>
-                    <parts>
-                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                            <beans>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver xmlns:bus="oddjob:beanbus">
+                            <values>
                                 <list>
                                     <values>
                                         <value value="Apples"/>
                                         <value value="crash-the-bus"/>
                                     </values>
                                 </list>
-                            </beans>
-                        </bus:iterable-driver>
-                        <bus:bean-queue id="bean-queue" xmlns:bus="oddjob:beanbus"/>
-                    </parts>
-                </bean-bus>
-                <bean-bus id="second-bus">
-                    <parts>
-                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                            <beans>
+                            </values>
+                        </bus:driver>
+                        <bus:queue id="bean-queue" xmlns:bus="oddjob:beanbus"/>
+                    </of>
+                </bus:bus>
+                <bus:bus id="second-bus" xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver xmlns:bus="oddjob:beanbus">
+                            <values>
                                 <value value="${bean-queue}"/>
-                            </beans>
-                        </bus:iterable-driver>
+                            </values>
+                        </bus:driver>
                         <bean class="org.oddjob.beanbus.mega.MegaBeanBusTest$DestinationWithLogger" id="thing-with-logging"/>
-                    </parts>
-                </bean-bus>
+                    </of>
+                </bus:bus>
             </jobs>
         </sequential>
     </job>

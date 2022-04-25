@@ -4,7 +4,7 @@
         <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
             <of>
                 <bus:driver xmlns:bus="oddjob:beanbus">
-                    <beans>
+                    <values>
                         <list>
                             <values>
                                 <value value="Apple"/>
@@ -12,7 +12,7 @@
                                 <value value="Banana"/>
                             </values>
                         </list>
-                    </beans>
+                    </values>
                     <to>
                         <value value="${before}"/>
                     </to>

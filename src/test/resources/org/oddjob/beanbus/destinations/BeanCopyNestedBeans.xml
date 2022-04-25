@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bean-bus>
-            <parts>
-                <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                    <beans>
+        <bus:bus xmlns:bus="oddjob:beanbus">
+            <of>
+                <bus:driver xmlns:bus="oddjob:beanbus">
+                    <values>
                         <value value="${list-of-beans}"/>
-                    </beans>
-                </bus:iterable-driver>
-                <bus:bean-copy xmlns:bus="oddjob:beanbus">
+                    </values>
+                </bus:driver>
+                <bean class="org.oddjob.beanbus.destinations.BeanCopy">
                     <arooaClass>
                         <class name="org.oddjob.beanbus.destinations.BeanCopyTest$Snack"/>
                     </arooaClass>
@@ -17,9 +17,9 @@
                         <value key="fruit.quantity" value="bean.number"/>
                         <value key="fruit.price" value="bean.COST"/>
                     </mappings>
-                </bus:bean-copy>
-                <bus:capture id="results" xmlns:bus="oddjob:beanbus"/>
-            </parts>
-        </bean-bus>
+                </bean>
+                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+            </of>
+        </bus:bus>
     </job>
 </oddjob>

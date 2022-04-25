@@ -2,9 +2,9 @@
 <oddjob>
     <job>
         <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="bus">
-            <beans>
+            <values>
                 <value value="${iterable}"/>
-            </beans>
+            </values>
             <to>
                 <bean class="org.oddjob.beanbus.destinations.BeanCopy">
                     <to>

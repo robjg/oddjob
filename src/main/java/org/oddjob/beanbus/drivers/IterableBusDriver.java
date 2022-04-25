@@ -27,7 +27,7 @@ public class IterableBusDriver<T>
 
     private static final Logger logger = LoggerFactory.getLogger(IterableBusDriver.class);
 
-    private Iterable<? extends T> beans;
+    private Iterable<? extends T> values;
 
     private Consumer<? super T> to;
 
@@ -48,7 +48,7 @@ public class IterableBusDriver<T>
     @Override
     public void run() {
 
-        Iterable<? extends T> beans = Objects.requireNonNull(this.beans, "No beans.");
+        Iterable<? extends T> beans = Objects.requireNonNull(this.values, "No beans.");
         Consumer<? super T> to = Objects.requireNonNull(this.to, "No to.");
 
         stop = false;
@@ -69,7 +69,9 @@ public class IterableBusDriver<T>
         } finally {
             executionThread.set(null);
             // Clear the interrupt flag just in case it's set by stop.
-            Thread.interrupted();
+            if (Thread.interrupted()) {
+                logger.debug("Thread interrupted.");
+            }
         }
 
         logger.info("Accepted " + count + " beans.");
@@ -84,17 +86,17 @@ public class IterableBusDriver<T>
         });
     }
 
-    public Iterable<? extends T> getBeans() {
-        return beans;
+    public Iterable<? extends T> getValues() {
+        return values;
     }
 
     /**
-     * The beans to iterate over.
+     * The data to iterate over.
      *
-     * @param iterable
+     * @param iterable The iterable.
      */
-    public void setBeans(Iterable<? extends T> iterable) {
-        this.beans = iterable;
+    public void setValues(Iterable<? extends T> iterable) {
+        this.values = iterable;
     }
 
     public String getName() {

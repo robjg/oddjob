@@ -14,7 +14,7 @@
                         <sequential>
                             <jobs>
                                 <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="producer" name="Producer">
-                                    <beans>
+                                    <values>
                                         <list>
                                             <values>
                                                 <value value="apple"/>
@@ -22,7 +22,7 @@
                                                 <value value="pear"/>
                                             </values>
                                         </list>
-                                    </beans>
+                                    </values>
                                     <to>
                                         <value value="${queue}"/>
                                     </to>
@@ -31,9 +31,9 @@
                             </jobs>
                         </sequential>
                         <bean class="org.oddjob.beanbus.drivers.IterableBusDriver" id="consumer" name="Consumer">
-                            <beans>
+                            <values>
                                 <value value="${queue}"/>
-                            </beans>
+                            </values>
                             <to>
                                 <value value="${vars.results}"/>
                             </to>

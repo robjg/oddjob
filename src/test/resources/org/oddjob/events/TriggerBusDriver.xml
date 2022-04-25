@@ -4,13 +4,13 @@
         <events:trigger id="trigger" xmlns:events="oddjob:events">
             <jobs>
                 <bus:driver xmlns:bus="oddjob:beanbus">
-                    <beans>
+                    <values>
                         <list>
                             <values>
                                 <value value="foo"/>
                             </values>
                         </list>
-                    </beans>
+                    </values>
                 </bus:driver>
                 <echo id="echo">
                     <![CDATA[${trigger.trigger}]]>

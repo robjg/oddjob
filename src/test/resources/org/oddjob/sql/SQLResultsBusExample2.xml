@@ -25,8 +25,8 @@ INSERT INTO fruit VALUES ('pear');
 ]]></buffer>
                     </input>
                 </sql>
-                <bean-bus id="bean-bus">
-                    <parts>
+                <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
+                    <of>
                         <sql>
                             <connection>
                                 <value value="${vars.connection}"/>
@@ -35,9 +35,9 @@ INSERT INTO fruit VALUES ('pear');
                                 <buffer><![CDATA[SELECT type FROM fruit]]></buffer>
                             </input>
                         </sql>
-                        <bus:capture id="bean-capture" xmlns:bus="oddjob:beanbus"/>
-                    </parts>
-                </bean-bus>
+                        <bus:collect id="bean-capture" xmlns:bus="oddjob:beanbus"/>
+                    </of>
+                </bus:bus>
             </jobs>
         </sequential>
     </job>

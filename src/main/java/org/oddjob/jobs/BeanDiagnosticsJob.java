@@ -88,7 +88,7 @@ public class BeanDiagnosticsJob implements Runnable, ArooaSessionAware {
 		diagnostics.setArooaSession(session);
 		diagnostics.setOutput(output);
 
-		iterableBusDriver.setBeans(beans);
+		iterableBusDriver.setValues(beans);
 		iterableBusDriver.setTo(diagnostics);
 
 		SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, diagnostics);

@@ -13,10 +13,10 @@
                         </magic-class>
                     </ourClass>
                 </variables>
-                <bean-bus>
-                    <parts>
-                        <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                            <beans>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver xmlns:bus="oddjob:beanbus">
+                            <values>
                                 <list>
                                     <values>
                                         <bean class="org.oddjob.values.types.MagicBeanType">
@@ -36,11 +36,11 @@
                                         </bean>
                                     </values>
                                 </list>
-                            </beans>
-                        </bus:iterable-driver>
+                            </values>
+                        </bus:driver>
                         <bean class="org.oddjob.beanbus.destinations.BeanDiagnostics"/>
-                    </parts>
-                </bean-bus>
+                    </of>
+                </bus:bus>
             </jobs>
         </sequential>
     </job>

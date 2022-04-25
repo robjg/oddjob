@@ -4,7 +4,7 @@
         <bus:bus xmlns:bus="oddjob:beanbus" id="beanBus">
             <of>
                 <bus:driver>
-                    <beans>
+                    <values>
                         <list>
                             <values>
                                 <value value="Apple"/>
@@ -12,7 +12,7 @@
                                 <value value="Pear"/>
                             </values>
                         </list>
-                    </beans>
+                    </values>
                 </bus:driver>
                 <bean class="org.oddjob.beanbus.bus.FlushingTest$FlushControl"/>
                 <bean class="org.oddjob.beanbus.bus.FlushingTest$FlushListener"/>

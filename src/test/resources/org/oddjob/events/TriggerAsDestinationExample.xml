@@ -4,7 +4,7 @@
         <bus:bus xmlns:bus="oddjob:beanbus">
             <of>
                 <bus:driver>
-                    <beans>
+                    <values>
                         <list>
                             <values>
                                 <value value="1"/>
@@ -16,7 +16,7 @@
                                 <class name="java.lang.Integer"/>
                             </elementType>
                         </list>
-                    </beans>
+                    </values>
                 </bus:driver>
                 <bus:filter id="filter">
                     <predicate>

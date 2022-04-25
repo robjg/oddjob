@@ -4,7 +4,7 @@
         <bean class="org.oddjob.beanbus.mega.MegaBeanBus" id="bus" noAutoLink="true">
             <parts>
                 <bus:iterable-driver xmlns:bus="oddjob:beanbus">
-                    <beans>
+                    <values>
                         <list>
                             <values>
                                 <value value="Apple"/>
@@ -12,7 +12,7 @@
                                 <value value="Pear"/>
                             </values>
                         </list>
-                    </beans>
+                    </values>
                     <to>
                         <value value="${capture}"/>
                     </to>

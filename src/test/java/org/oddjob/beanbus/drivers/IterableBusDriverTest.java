@@ -38,7 +38,7 @@ public class IterableBusDriverTest {
         fruit.add(new Apple());
 
         IterableBusDriver<Apple> test = new IterableBusDriver<Apple>();
-        test.setBeans(fruit);
+        test.setValues(fruit);
 
         List<Food> results = new ArrayList<Food>();
 
@@ -91,7 +91,7 @@ public class IterableBusDriverTest {
 
         BlockingIterable beans = new BlockingIterable();
         IterableBusDriver<String> test = new IterableBusDriver<>();
-        test.setBeans(beans);
+        test.setValues(beans);
         test.setTo(b -> {
         });
 
@@ -117,7 +117,7 @@ public class IterableBusDriverTest {
     public void testStdOutConsumer() throws ArooaConversionException {
 
         IterableBusDriver test = new IterableBusDriver();
-        test.setBeans(Arrays.asList("apple", "orange", "pear"));
+        test.setValues(Arrays.asList("apple", "orange", "pear"));
 
         ConsoleCapture results = new ConsoleCapture();
         try (ConsoleCapture.Close close = results.captureConsole()) {
