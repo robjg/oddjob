@@ -1,8 +1,6 @@
 package org.oddjob.sql;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.beanbus.BeanBus;
-import org.oddjob.beanbus.mega.MegaBeanBus;
 
 import java.io.Flushable;
 import java.io.IOException;
@@ -11,8 +9,8 @@ import java.util.function.Consumer;
 /**
  * @oddjob.description 
  * 
- * A {@link SQLResultHandler} that attaches to 
- * {@link BeanBus} components.
+ * A {@link SQLResultHandler} that attaches to a {@link Consumer} so
+ * that results can be used with Bean Bus.
  * 
  * @oddjob.example 
  * 
@@ -22,7 +20,7 @@ import java.util.function.Consumer;
  * 
  * @oddjob.example 
  * 
- * Within a {@link MegaBeanBus}.
+ * Within a {@link org.oddjob.beanbus.bus.BeanBusJob}.
  * 
  * {@oddjob.xml.resource org/oddjob/sql/SQLResultsBusExample2.xml}
  * 

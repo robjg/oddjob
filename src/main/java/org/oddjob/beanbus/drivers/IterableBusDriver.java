@@ -1,7 +1,6 @@
 package org.oddjob.beanbus.drivers;
 
 import org.oddjob.Stoppable;
-import org.oddjob.beanbus.BeanBus;
 import org.oddjob.beanbus.Outbound;
 import org.oddjob.framework.adapt.HardReset;
 import org.oddjob.framework.adapt.SoftReset;
@@ -16,8 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * A Runnable that can be used as an Oddjob job to take beans from an
- * iterable (collection) and drive them into an {@link BeanBus}.
+ * A Runnable that can be used as an Oddjob job to take data from an
+ * iterable (collection) and push them to a Consumer such as in Bean Bus.
  *
  * @param <T>
  * @author rob

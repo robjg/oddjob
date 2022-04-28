@@ -25,8 +25,7 @@ import java.util.function.Consumer;
 
 /**
  *
- * @oddjob.description A job that allows the construction of a 
- * {@link BeanBus}.
+ * @oddjob.description A job that allows the construction of a Bean Bus.
  * <p>
  * A Bean Bus is an assembly of {@link Collection}s.
  * 
@@ -43,7 +42,7 @@ import java.util.function.Consumer;
  */
 @ArooaInterceptor("org.oddjob.beanbus.mega.MegaBeanBusInterceptor")
 public class MegaBeanBus extends StructuralJob<Object>
-implements ConfigurationOwner, BusServiceProvider {
+implements ConfigurationOwner, ConductorServiceProvider {
 	
     private static final long serialVersionUID = 2012021500L;
 	
@@ -239,13 +238,13 @@ implements ConfigurationOwner, BusServiceProvider {
 	}
 	
 	@Override
-	public BusService getServices() {
-		return new BusService() {
+	public ConductorService getServices() {
+		return new ConductorService() {
 			
 			@Override
 			public String serviceNameFor(Class<?> theClass, String flavour) {
 				if (theClass.isAssignableFrom(BusConductor.class)) {
-					return BEAN_BUS_SERVICE_NAME;
+					return CONDUCTOR_SERVICE_NAME;
 				}
 				else {
 					return null;

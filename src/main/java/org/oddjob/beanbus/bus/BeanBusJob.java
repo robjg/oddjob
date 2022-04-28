@@ -27,12 +27,37 @@ import java.util.function.Consumer;
 
 /**
  *
- * @oddjob.description A job that allows the construction of a 
- * {@link org.oddjob.beanbus.BeanBus}.
+ * @oddjob.description Links components in a data pipeline. Components
+ * provide data by accepting an {@link Consumer} either by
+ * being an {@link Outbound} or by marking a setter with the {@link Destination}
+ * annotation. Components accept data by being a {@link Consumer}. Components
+ * can be both.
  * <p>
- * A Bean Bus is an assembly of {@link Consumer}s.
- * 
- * 
+ * This component parent provides the following features over other component parents
+ * such as {@link org.oddjob.jobs.structural.SequentialJob}:
+ * <ul>
+ *     <li>Components will be automatically linked to the next component
+ *     unless this is disabled.</li>
+ *     <li>Any plain {@link Consumer} will appear in the bus as a service with
+ *     appropriate icons and state.</li>
+ *     <li>Components will be run (or started) in reverse order so destinations
+ *     are ready to receive data before it is sent by the previous components.</li>
+ *     <li>Components will be stopped in order so components that send data are
+ *     stopped before the destinations that receive the data.</li>
+ *     <li>If a component has a property setter of type {@link AutoCloseable} then
+ *     one will be set automatically allowing the component to stop the bus.</li>
+ *     <li>If a component has a property setter of type {@link Flushable} then
+ *     one will be set automatically allowing the component to flush the bus.</li>
+ *     <li>Any component that is {@link Flushable} will be flushed when a
+ *     component flushes the bus. Flush will be called in component order.
+ *     Flush will always be called when the bus stops, unless it crashes.</li>
+ *     <li>If a component wishes to both stop and flush the bus, and doesn't mind
+ *     a dependency on this framework it can provide a property setter of
+ *     type {@link BusConductor} and one will be set automatically</li>
+ *     <li>If a component enters an Exception state the bus will crash.
+ *     Other components will be stopped in order.</li>
+ * </ul>
+ * </p>
  *
  * 
  * @author Rob Gordon
@@ -40,7 +65,7 @@ import java.util.function.Consumer;
  */
 @ArooaInterceptor("org.oddjob.beanbus.bus.BeanBusInterceptor")
 public class BeanBusJob extends StructuralJob<Object>
-implements BusServiceProvider, Consumer<Object> {
+implements ConductorServiceProvider, Consumer<Object> {
 
     private static final long serialVersionUID = 2012021500L;
 
@@ -216,13 +241,13 @@ implements BusServiceProvider, Consumer<Object> {
 	}
 
 	@Override
-	public BusService getServices() {
-		return new BusService() {
+	public ConductorService getServices() {
+		return new ConductorService() {
 			
 			@Override
 			public String serviceNameFor(Class<?> theClass, String flavour) {
 				if (theClass.isAssignableFrom(BusConductor.class)) {
-					return BEAN_BUS_SERVICE_NAME;
+					return CONDUCTOR_SERVICE_NAME;
 				}
 				else {
 					return null;

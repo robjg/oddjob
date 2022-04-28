@@ -76,7 +76,7 @@ public class SQLResultsBusTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        List<?> results = lookup.lookup("select.results.beans", List.class);
+        List<?> results = lookup.lookup("select.results", List.class);
 
         assertEquals(2, results.size());
 

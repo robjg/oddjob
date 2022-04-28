@@ -5,7 +5,7 @@ import org.oddjob.beanbus.destinations.Batcher;
 import java.io.Flushable;
 
 /**
- * Provides co-ordination for a {@link BeanBus}.
+ * Provides co-ordination for a Bean Bus.
  * <p>
  * 
  * @author rob

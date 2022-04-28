@@ -38,7 +38,7 @@ select * from FRUIT;
 				]]></buffer>
                     </input>
                     <results>
-                        <bean class="org.oddjob.beanbus.destinations.BeanCapture"/>
+                        <list/>
                     </results>
                 </sql>
                 <sql name="Shutdown">
