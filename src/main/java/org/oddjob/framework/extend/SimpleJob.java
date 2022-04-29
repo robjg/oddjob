@@ -5,12 +5,10 @@ import org.oddjob.FailedToStopException;
 import org.oddjob.Forceable;
 import org.oddjob.Resettable;
 import org.oddjob.Stateful;
-import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.persist.Persistable;
 import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
@@ -47,13 +45,8 @@ implements  Runnable, Resettable, Stateful, Forceable {
 		stateHandler = new JobStateHandler(this);
 		iconHelper = new IconHelper(this, 
 				StateIcons.iconFor(stateHandler.getState()));
-		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
-				new Persistable() {					
-					@Override
-					public void persist() throws ComponentPersistException {
-						save();
-					}
-				});
+		stateChanger = new JobStateChanger(stateHandler, iconHelper,
+				this::save);
 	}
 	
 	@Override
@@ -84,19 +77,16 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	 */
 	public final void run() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(JobState.EXECUTING);
-				}
-			})) {
+			if (!stateHandler.waitToWhen(new IsExecutable(),
+					() -> getStateChanger().setState(JobState.EXECUTING))) {
 				return;			
 			}
 			
 			logger().info("Executing.");
 
 			final AtomicInteger result = new AtomicInteger();
-			final AtomicReference<Throwable> exception = 
-				new AtomicReference<Throwable>();
+			final AtomicReference<Throwable> exception =
+					new AtomicReference<>();
 			
 			try {			
 				configure();
@@ -111,17 +101,15 @@ implements  Runnable, Resettable, Stateful, Forceable {
 				exception.set(e);
 			}
 			
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					if (exception.get() != null) {
-						getStateChanger().setStateException(exception.get());
-					}
-					else if (result.get() == 0) {
-		            	getStateChanger().setState(JobState.COMPLETE);
-					}
-					else {						
-		            	getStateChanger().setState(JobState.INCOMPLETE);
-					}
+			stateHandler.waitToWhen(new IsStoppable(), () -> {
+				if (exception.get() != null) {
+					getStateChanger().setStateException(exception.get());
+				}
+				else if (result.get() == 0) {
+					getStateChanger().setState(JobState.COMPLETE);
+				}
+				else {
+					getStateChanger().setState(JobState.INCOMPLETE);
 				}
 			});
 		}
@@ -135,30 +123,27 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	protected void sleep(final long waitTime) {
 		stateHandler().assertAlive();
 		
-		if (!stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				if (stop) {
-					logger().debug("Stop request detected. Not sleeping.");
-					
-					return;
-				}
-				
-				logger().debug("Sleeping for " + ( 
-						waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
-				
-				iconHelper.changeIcon(IconHelper.SLEEPING);
-					
-				try {
-					stateHandler().sleep(waitTime);
-				} catch (InterruptedException e) {
-					logger().debug("Sleep interupted.");
-					Thread.currentThread().interrupt();
-				}
-				
-				// Stop should already have set Icon to Stopping.
-				if (!stop) {
-					iconHelper.changeIcon(IconHelper.EXECUTING);
-				}
+		if (!stateHandler().waitToWhen(new IsStoppable(), () -> {
+			if (stop) {
+				logger().debug("Stop request detected. Not sleeping.");
+
+				return;
+			}
+
+			logger().debug("Sleeping for " + (
+					waitTime == 0 ? "ever" : "[" + waitTime + "] milli seconds") + ".");
+
+			iconHelper.changeIcon(IconHelper.SLEEPING);
+
+			try {
+				stateHandler().sleep(waitTime);
+			} catch (InterruptedException e) {
+				logger().debug("Sleep interrupted.");
+			}
+
+			// Stop should already have set Icon to Stopping.
+			if (!stop) {
+				iconHelper.changeIcon(IconHelper.EXECUTING);
 			}
 		})) {
 			throw new IllegalStateException("Can't sleep unless EXECUTING.");
@@ -176,15 +161,14 @@ implements  Runnable, Resettable, Stateful, Forceable {
 		stateHandler.assertAlive();
 
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					logger().info("Stopping.");
-					
-					stop = true;
-					stateHandler.wake();
-					iconHelper.changeIcon(IconHelper.STOPPING);
-				}
+			if (!stateHandler.waitToWhen(new IsStoppable(), () -> {
+				logger().info("Stopping.");
+
+				stop = true;
+				stateHandler.wake();
+				iconHelper.changeIcon(IconHelper.STOPPING);
 			})) {
+				logger().debug("Stop request ignored as not running.");
 				return;
 			}
 			
@@ -192,10 +176,6 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	    	
 			try {
 				onStop();
-				
-				new StopWait(this).run();
-				
-				logger().info("Stopped.");
 				
 			} catch (RuntimeException e) {
 				failedToStopException = new FailedToStopException(this, e);
@@ -206,11 +186,8 @@ implements  Runnable, Resettable, Stateful, Forceable {
 			
 			if (failedToStopException != null) {
 				
-				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {    			
-						iconHelper.changeIcon(IconHelper.EXECUTING);
-					}
-				});
+				stateHandler().waitToWhen(new IsStoppable(),
+						() -> iconHelper.changeIcon(IconHelper.EXECUTING));
 				
 				throw failedToStopException;
 			}
@@ -237,16 +214,14 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	@Override
 	public boolean softReset() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
-					onReset();
-					
-					getStateChanger().setState(JobState.READY);
-					
-					stop = false;
-					
-					logger().info("Soft Reset complete.");
-				}
+			return stateHandler.waitToWhen(new IsSoftResetable(), () -> {
+				onReset();
+
+				getStateChanger().setState(JobState.READY);
+
+				stop = false;
+
+				logger().info("Soft Reset complete.");
 			});
 		}
 	}
@@ -257,16 +232,14 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	@Override
 	public boolean hardReset() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-				public void run() {
-					onReset();
-					
-					getStateChanger().setState(JobState.READY);
-			
-					stop = false;
-					
-					logger().info("Hard Reset complete.");
-				}
+			return stateHandler.waitToWhen(new IsHardResetable(), () -> {
+				onReset();
+
+				getStateChanger().setState(JobState.READY);
+
+				stop = false;
+
+				logger().info("Hard Reset complete.");
 			});
 		}
 	}
@@ -285,12 +258,10 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	public void force() {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			stateHandler.waitToWhen(new IsForceable(), new Runnable() {
-				public void run() {
-					logger().info("Forcing complete.");			
-					
-					getStateChanger().setState(JobState.COMPLETE);
-				}
+			stateHandler.waitToWhen(new IsForceable(), () -> {
+				logger().info("Forcing complete.");
+
+				getStateChanger().setState(JobState.COMPLETE);
 			});
 		} 
 	}
@@ -301,6 +272,7 @@ implements  Runnable, Resettable, Stateful, Forceable {
 		
 		try {
 			stop();
+			new StopWait(this).run();
 		} catch (FailedToStopException e) {
 			logger().warn("Failed to stop.", e);
 		}
@@ -311,11 +283,9 @@ implements  Runnable, Resettable, Stateful, Forceable {
 	 */
 	protected void fireDestroyedState() {
 		
-		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stateHandler().setState(JobState.DESTROYED);
-				stateHandler().fireEvent();
-			}
+		if (!stateHandler().waitToWhen(new IsAnyState(), () -> {
+			stateHandler().setState(JobState.DESTROYED);
+			stateHandler().fireEvent();
 		})) {
 			throw new IllegalStateException("[" + SimpleJob.this + "] Failed set state DESTROYED");
 		}

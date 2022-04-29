@@ -111,6 +111,7 @@ implements
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
 				public void run() {
+					stop = false;
 					// it's possible to reset children and then execute again so this
 					// is just in case there was no reset.
 					stopChildStateReflector();
@@ -164,7 +165,11 @@ implements
 		logger().debug("Stopping Child State Reflector.");
 		childStateReflector.stop();
 	}
-	
+
+	protected boolean waitForChildrenOnStop() {
+		return false;
+	}
+
 	/**
 	 * Implementation for a typical stop. 
 	 * <p>
@@ -192,16 +197,14 @@ implements
 				// Order is here for SimultaneousStructural to cancel jobs first.
 				
 				onStop();
-				
-				childHelper.stopChildren();
+
+				childHelper.stopChildren(waitForChildrenOnStop());
 				
 				postStop();
 				
 				new StopWait(this).run();
 				
-				stop = false;
-				
-				logger().info("Stopped.");		
+				logger().info("Stopped.");
 			}
 			else {
 				

@@ -1,18 +1,18 @@
 package org.oddjob.framework.util;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Stateful;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.state.IsStoppable;
-import org.oddjob.state.StateListener;
 import org.oddjob.state.State;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A utility class to provide wait until stopped functionality.
@@ -74,7 +74,7 @@ public class StopWait {
 	
 	private void doWait() throws FailedToStopException {		
 		
-		final BlockingQueue<State> handoff = new LinkedBlockingQueue<State>();
+		final BlockingQueue<State> handoff = new LinkedBlockingQueue<>();
 		
 		class StopListener implements StateListener {
 			
@@ -82,8 +82,8 @@ public class StopWait {
 			public void jobStateChange(StateEvent event) {
 				handoff.add(event.getState());
 			}
-		};
-		
+		}
+
 		StopListener listener = new StopListener();
 				
 		stateful.addStateListener(listener);
@@ -93,20 +93,18 @@ public class StopWait {
 
 				State state = handoff.poll(timeout, TimeUnit.MILLISECONDS);
 				if (state == null) {
-					logger.debug("[" + stateful + "]  stop wait timed out. Exception is on it's way...");
+					logger.debug("[{}} stop wait timed out. Exception is on it's way...", stateful);
 					throw new FailedToStopException(stateful);
 				}
 				if (!state.isStoppable()) {
-					logger.debug("[" + stateful + "] is " + 
-							state + ", waiting to stop is over.");
+					logger.debug("[{}] is {}, waiting to stop is over.", stateful, state);
 					return;
 				}
-				logger.debug("[" + stateful + "] is " + 
-						state + ", waiting to stop...");
+				logger.debug("[{}] is {}, waiting to stop...", stateful, state);
 			}
 		}
 		catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			throw new FailedToStopException(stateful, "[" + stateful + "] stop wait failed due to interrupt");
 		}
 		finally {
 			stateful.removeStateListener(listener);

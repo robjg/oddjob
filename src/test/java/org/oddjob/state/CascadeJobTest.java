@@ -570,7 +570,7 @@ public class CascadeJobTest extends OjTestCase {
 
         test.stop();
 
-        testState.checkNow();
+        testState.checkWait();
 
         assertThat(wait1.lastStateEvent().getState(), is(JobState.COMPLETE));
         assertThat(wait2.lastStateEvent().getState(), is(JobState.READY));
@@ -598,7 +598,7 @@ public class CascadeJobTest extends OjTestCase {
 
         test.stop();
 
-        testState.checkNow();
+        testState.checkWait();
 
         assertThat(wait1.lastStateEvent().getState(), is(JobState.COMPLETE));
         assertThat(wait2.lastStateEvent().getState(), is(JobState.COMPLETE));

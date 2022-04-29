@@ -23,8 +23,7 @@ public interface BusConductor extends Flushable, AutoCloseable {
 	void flush();
 
 	/**
-	 * Request that the bus stop. This may, and probably will,
-	 * be called asynchronously.
+	 * Request that the bus stop.
 	 */
 	@Override
 	void close();

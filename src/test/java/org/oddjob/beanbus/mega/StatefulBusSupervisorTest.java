@@ -75,7 +75,7 @@ public class StatefulBusSupervisorTest {
     }
 
     @Test
-    public void testWhenListenersAddedAndRemovedWhenStartingAndStopping() throws BusCrashException, InterruptedException {
+    public void testWhenListenersAddedAndRemovedWhenStartingAndStopping() throws BusCrashException {
 
         FlagState flag = new FlagState();
 

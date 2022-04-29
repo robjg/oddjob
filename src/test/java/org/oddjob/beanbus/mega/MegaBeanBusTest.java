@@ -2,13 +2,15 @@ package org.oddjob.beanbus.mega;
 
 import org.junit.Test;
 import org.oddjob.*;
-import org.oddjob.arooa.*;
+import org.oddjob.arooa.ArooaParseException;
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.life.InstantiationContext;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.logging.LoggerAdapter;
-import org.oddjob.arooa.parsing.*;
-import org.oddjob.arooa.reflect.ArooaClass;
+import org.oddjob.arooa.parsing.ArooaContext;
+import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
@@ -16,6 +18,7 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.Destination;
+import org.oddjob.beanbus.bus.BeanBusJob;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.framework.Service;
 import org.oddjob.images.IconHelper;
@@ -34,9 +37,10 @@ import javax.inject.Inject;
 import java.beans.ExceptionListener;
 import java.io.Flushable;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -77,11 +81,11 @@ public class MegaBeanBusTest {
 
         Object destinationProxy = session.getComponentProxyResolver().resolve(consumer, session);
 
-        MegaBeanBus test = new MegaBeanBus();
+        BeanBusJob test = new BeanBusJob();
         test.setArooaSession(session);
         test.setExecutor(Runnable::run);
-        test.setParts(0, driverProxy);
-        test.setParts(1, destinationProxy);
+        test.setOf(0, driverProxy);
+        test.setOf(1, destinationProxy);
 
         StateSteps destinationSteps = new StateSteps((Stateful) destinationProxy);
         destinationSteps.startCheck(ServiceState.STARTABLE, ServiceState.STARTING,
@@ -95,61 +99,6 @@ public class MegaBeanBusTest {
         assertThat(destination, contains("apple", "pear", "banana"));
     }
 
-    @Test
-    public void testExample() throws ArooaPropertyException, ArooaConversionException {
-
-        Oddjob oddjob = new Oddjob();
-        oddjob.setConfiguration(new XMLConfiguration(
-                "org/oddjob/beanbus/mega/MegaBeanBusExample.xml",
-                getClass().getClassLoader()));
-
-        oddjob.run();
-
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
-
-        OddjobLookup lookup = new OddjobLookup(oddjob);
-
-        @SuppressWarnings("unchecked")
-        List<String> results = lookup.lookup("list.beans", List.class);
-
-        assertThat(results.get(0), is("Apple"));
-        assertThat(results.get(1), is("Orange"));
-        assertThat(results.get(2), is("Pear"));
-        assertThat(results.size(), is(3));
-
-        oddjob.destroy();
-    }
-
-    @Test
-    public void testConfigurationSession() throws URISyntaxException {
-
-        Oddjob oddjob = new Oddjob();
-        oddjob.setConfiguration(new XMLConfiguration(
-                "org/oddjob/beanbus/mega/MegaBeanBusExample.xml",
-                getClass().getClassLoader()));
-        oddjob.setExport("beans", new ArooaObject(
-                Collections.EMPTY_LIST));
-
-        oddjob.run();
-
-        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
-
-        OddjobLookup lookup = new OddjobLookup(oddjob);
-
-        ConfigurationOwner test = (ConfigurationOwner) lookup.lookup("bus");
-
-        ConfigurationSession session = test.provideConfigurationSession();
-
-        ArooaDescriptor descriptor = session.getArooaDescriptor();
-
-        ArooaClass cl = descriptor.getElementMappings().mappingFor(
-                new ArooaElement(new URI("oddjob:beanbus"), "bean-copy"),
-                new InstantiationContext(ArooaType.COMPONENT, null));
-
-        assertThat(cl, notNullValue());
-
-        oddjob.destroy();
-    }
 
     public static class NumberGenerator implements Runnable {
 

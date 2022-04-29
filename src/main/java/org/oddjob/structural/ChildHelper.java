@@ -1,9 +1,7 @@
 package org.oddjob.structural;
 
-import org.oddjob.FailedToStopException;
-import org.oddjob.Resettable;
-import org.oddjob.Stoppable;
-import org.oddjob.Structural;
+import org.oddjob.*;
+import org.oddjob.framework.util.StopWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,9 +189,16 @@ implements Structural, Iterable<E>, ChildList<E> {
 	}
 
 	/**
-	 * Stops all the child jobs. Jobs are stopped in reverse order. 
+	 * Stops all the child jobs. Jobs are stopped in reverse order.
 	 */
 	public void stopChildren() throws FailedToStopException {
+		stopChildren(false);
+	}
+
+	/**
+	 * Stops all the child jobs. Jobs are stopped in reverse order. 
+	 */
+	public void stopChildren(boolean wait) throws FailedToStopException {
 		Object [] children = getChildren();
 		FailedToStopException failed = null;
 		for (int i = children.length - 1; i > -1; --i) {
@@ -201,6 +206,9 @@ implements Structural, Iterable<E>, ChildList<E> {
 			if (child instanceof Stoppable) {
 				try {
 					((Stoppable) child).stop();
+					if (wait && child instanceof Stateful) {
+						new StopWait((Stateful) child).run();
+					}
 				} 
 				catch (FailedToStopException e) {
 					failed = e;

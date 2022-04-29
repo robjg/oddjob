@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bean class="org.oddjob.beanbus.mega.MegaBeanBus" id="bus" noAutoLink="false">
-            <parts>
-                <bus:iterable-driver xmlns:bus="oddjob:beanbus">
+        <bus:bus xmlns:bus="oddjob:beanbus" id="bus" noAutoLink="false">
+            <of>
+                <bus:driver xmlns:bus="oddjob:beanbus">
                     <values>
                         <list>
                             <values>
@@ -13,14 +13,14 @@
                             </values>
                         </list>
                     </values>
-                </bus:iterable-driver>
+                </bus:driver>
                 <bean class="org.oddjob.beanbus.mega.MegaBeanBusTest$ComplicatedOutbound" id="capture">
                     <thing>
                         <is/>
                     </thing>
                 </bean>
-                <bus:capture id="list" xmlns:bus="oddjob:beanbus"/>
-            </parts>
-        </bean>
+                <bus:collect id="list" xmlns:bus="oddjob:beanbus"/>
+            </of>
+        </bus:bus>
     </job>
 </oddjob>

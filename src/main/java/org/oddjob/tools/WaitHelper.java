@@ -66,7 +66,7 @@ abstract public class WaitHelper implements Runnable {
 			try {
 				Thread.sleep(interval);
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				// Should we throw an exception?
 				break;
 			}
 		}

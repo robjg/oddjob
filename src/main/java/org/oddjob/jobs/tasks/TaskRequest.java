@@ -1,8 +1,5 @@
 package org.oddjob.jobs.tasks;
 
-import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
-
 import org.oddjob.FailedToStopException;
 import org.oddjob.OddjobException;
 import org.oddjob.Stoppable;
@@ -10,9 +7,10 @@ import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.extend.SerializableJob;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.util.OddjobConfigException;
+
+import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * @oddjob.description This job requests a task be performed
@@ -22,7 +20,7 @@ import org.oddjob.util.OddjobConfigException;
  * @oddjob.example
  * 
  * Greeting people by name. Three Task Requests call the 
- * {@link TaskService} with different names.
+ * {@link TaskExecutionService} with different names.
  *
  * {@oddjob.xml.resource org/oddjob/jobs/tasks/TaskRequestSimple.xml} 
  * 
@@ -91,16 +89,12 @@ implements Stoppable {
 		if (join) {
 			final CountDownLatch countDown = new CountDownLatch(1);
 			
-			taskView.addStateListener(new StateListener() {
-				
-				@Override
-				public void jobStateChange(StateEvent event) {
-					logger().debug("Received State [" + event.getState() + 
-							"]");
-					
-					if (StateConditions.FINISHED.test(event.getState())) {
-						countDown.countDown();
-					}
+			taskView.addStateListener(event -> {
+				logger().debug("Received State [" + event.getState() +
+						"]");
+
+				if (StateConditions.FINISHED.test(event.getState())) {
+					countDown.countDown();
 				}
 			});
 			
@@ -134,7 +128,15 @@ implements Stoppable {
 			thread.interrupt();
 		}
 	}
-	
+
+	public boolean isJoin() {
+		return join;
+	}
+
+	public void setJoin(boolean join) {
+		this.join = join;
+	}
+
 	public Properties getProperties() {
 		return properties;
 	}

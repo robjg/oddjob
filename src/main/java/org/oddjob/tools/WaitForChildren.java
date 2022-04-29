@@ -3,15 +3,15 @@
  */
 package org.oddjob.tools;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Structural;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Utility class to wait for a certain number of children to be
@@ -24,14 +24,19 @@ public class WaitForChildren implements StructuralListener {
 	private final Structural structural; 
 	private List<Object> children;
 	
-	private final int retry = 3;
-	
-	public WaitForChildren(Object o) {
+	private final int retry;
+
+	public WaitForChildren(Object o, int retry) {
 		structural = (Structural) o;
+		this.retry = retry;
+	}
+
+	public WaitForChildren(Object o) {
+		this(o, 3);
 	}
 	
 	public void waitFor(int count) {
-		children = new ArrayList<Object>();
+		children = new ArrayList<>();
 		structural.addStructuralListener(this);
 		try {
 			synchronized (this) {
@@ -45,12 +50,11 @@ public class WaitForChildren implements StructuralListener {
 					throw new RuntimeException("Giving up waiting for [ + " +
 						structural + "] to have [" + count + 
 						"] children. Children so far: " + 
-						Arrays.toString(children.toArray(
-								new Object[children.size()])));
+						Arrays.toString(children.toArray(new Object[0])));
 				}
 			}
 		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			logger.info("Thread was interrupted.");
 		} finally {
 			structural.removeStructuralListener(this);
 		}

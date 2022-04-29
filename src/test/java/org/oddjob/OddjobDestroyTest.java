@@ -1,12 +1,7 @@
 package org.oddjob;
+
 import org.junit.Before;
-
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
@@ -18,13 +13,10 @@ import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.SimpleJob;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.ParentState;
-import org.oddjob.state.ParentStateHandler;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
+import org.oddjob.state.*;
 import org.oddjob.tools.StateSteps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class OddjobDestroyTest extends OjTestCase {
 
@@ -73,7 +65,7 @@ public class OddjobDestroyTest extends OjTestCase {
 		
 		oddjob.destroy();
 		
-		waitStates.checkNow();
+		waitStates.checkWait();
 		oddjobStates.checkNow();
 	}
 	
@@ -131,12 +123,9 @@ public class OddjobDestroyTest extends OjTestCase {
 		
 		@Override
 		public void run() {
-			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-				@Override
-				public void run() {
-					stateHandler.setState(ParentState.ACTIVE);
-					stateHandler.fireEvent();
-				}
+			stateHandler.waitToWhen(new IsAnyState(), () -> {
+				stateHandler.setState(ParentState.ACTIVE);
+				stateHandler.fireEvent();
 			});
 		}
 		
@@ -163,23 +152,17 @@ public class OddjobDestroyTest extends OjTestCase {
 			context.getRuntime().addRuntimeListener(new RuntimeListenerAdapter() {
 				@Override
 				public void beforeDestroy(RuntimeEvent event) throws ArooaException {
-					stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-						@Override
-						public void run() {
-							stateHandler.setState(ParentState.COMPLETE);
-							stateHandler.fireEvent();
-						}
+					stateHandler.waitToWhen(new IsAnyState(), () -> {
+						stateHandler.setState(ParentState.COMPLETE);
+						stateHandler.fireEvent();
 					});
 				}
 				
 				@Override
 				public void afterDestroy(RuntimeEvent event) throws ArooaException {
-					stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-						@Override
-						public void run() {
-							stateHandler.setState(ParentState.DESTROYED);
-							stateHandler.fireEvent();
-						}
+					stateHandler.waitToWhen(new IsAnyState(), () -> {
+						stateHandler.setState(ParentState.DESTROYED);
+						stateHandler.fireEvent();
 					});
 				}
 			});
@@ -188,7 +171,7 @@ public class OddjobDestroyTest extends OjTestCase {
 	}
 	
    @Test
-	public void testDestroyWhileAsyncJobActive() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+	public void testDestroyWhileAsyncJobActive() throws ArooaPropertyException, ArooaConversionException {
 		
 		String xml = 
 				"<oddjob>" +

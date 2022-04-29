@@ -108,6 +108,7 @@ abstract public class BaseWrapper extends BaseComponent
      * to this wrapper so just let the native hash code provide the contract
      * as there is one to one between this wrapper and its proxy.
      */
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override
     public boolean equals(Object other) {
         return other == getProxy();
@@ -186,9 +187,6 @@ abstract public class BaseWrapper extends BaseComponent
         try {
             onStop();
 
-            new StopWait(this).run();
-
-            logger().info("Stopped.");
         } catch (RuntimeException e) {
             failedToStopException = new FailedToStopException(this, e);
         } catch (FailedToStopException e) {
@@ -276,6 +274,7 @@ abstract public class BaseWrapper extends BaseComponent
 
         try {
             stop();
+            new StopWait(this).run();
         } catch (FailedToStopException e) {
             logger().warn("Failed to stop during destroy.", e);
         }

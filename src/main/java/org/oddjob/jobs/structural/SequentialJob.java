@@ -194,7 +194,12 @@ public class SequentialJob extends StructuralJob<Object>
 			}
 		}
 	}
-	
+
+	@Override
+	protected boolean waitForChildrenOnStop() {
+		return true;
+	}
+
 	public boolean isIndependent() {
 		return independent;
 	}
