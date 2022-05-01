@@ -1,4 +1,4 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.bus;
 
 import org.oddjob.Stateful;
 import org.oddjob.beanbus.BusCrashException;

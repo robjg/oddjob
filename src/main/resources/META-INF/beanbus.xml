@@ -2,7 +2,7 @@
                   namespace="oddjob:beanbus" prefix="bus">
     <components>
         <arooa:bean-def element='bus'
-                        className='org.oddjob.beanbus.bus.BeanBusJob'/>
+                        className='org.oddjob.beanbus.bus.BasicBusService'/>
         <arooa:bean-def element='driver'
                         className='org.oddjob.beanbus.drivers.IterableBusDriver'/>
         <arooa:bean-def element='collect'

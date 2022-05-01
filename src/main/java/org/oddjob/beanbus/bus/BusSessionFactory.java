@@ -9,10 +9,9 @@ import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.arooa.runtime.PropertyManager;
 import org.oddjob.beanbus.adapt.BusComponentResolver;
-import org.oddjob.beanbus.mega.MegaBeanBus;
 
 /**
- * Constructs an {@link ArooaSession} for a {@link MegaBeanBus}.
+ * Constructs an {@link ArooaSession} for a {@link BasicBusService}.
  * 
  * @author rob
  *

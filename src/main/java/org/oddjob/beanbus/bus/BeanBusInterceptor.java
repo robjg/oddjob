@@ -6,12 +6,11 @@ import org.oddjob.arooa.ParsingInterceptor;
 import org.oddjob.arooa.life.ClassResolverClassLoader;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.SessionOverrideContext;
-import org.oddjob.beanbus.mega.MegaBeanBus;
 
 /**
- * A {@link ParsingInterceptor} provided by a {@link MegaBeanBus} to
- * provide specialised parsing of the configuration to
- * allow bean bus elements to be used.
+ * A {@link ParsingInterceptor} provided by a {@link BasicBusService}.
+ * Applies a {@link org.oddjob.beanbus.adapt.ConsumerWrapper} to a Consumer
+ * that isn't already a Service.
  *
  * @author rob
  */

@@ -1,4 +1,4 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.bus;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;

@@ -10,8 +10,6 @@ import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
 import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.adapt.OutboundStrategies;
-import org.oddjob.beanbus.mega.BusControls;
-import org.oddjob.beanbus.mega.StatefulBusSupervisor;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.state.AnyActiveStateOp;
@@ -59,12 +57,17 @@ import java.util.function.Consumer;
  * </ul>
  * </p>
  *
- * 
+ * @oddjob.example
+ *
+ * A simple bus example.
+ *
+ * {@oddjob.xml.resource org/oddjob/beanbus/mega/MegaBeanBusExample.xml}
+ *
  * @author Rob Gordon
  * 
  */
 @ArooaInterceptor("org.oddjob.beanbus.bus.BeanBusInterceptor")
-public class BeanBusJob extends StructuralJob<Object>
+public class BasicBusService extends StructuralJob<Object>
 implements ConductorServiceProvider, Consumer<Object> {
 
     private static final long serialVersionUID = 2012021500L;
@@ -82,7 +85,7 @@ implements ConductorServiceProvider, Consumer<Object> {
 	/**
 	 * Only constructor.
 	 */
-	public BeanBusJob() {
+	public BasicBusService() {
 		completeConstruction();
 	}
 	
@@ -258,7 +261,7 @@ implements ConductorServiceProvider, Consumer<Object> {
 			public BusConductor getService(String serviceName)
 					throws IllegalArgumentException {
 				
-				BusConductor busConductor = BeanBusJob.this.busConductor;
+				BusConductor busConductor = BasicBusService.this.busConductor;
 				if (busConductor == null) {
 					throw new NullPointerException(
 							"Bus Service Not Available until the Bus is Running.");
@@ -268,7 +271,7 @@ implements ConductorServiceProvider, Consumer<Object> {
 			
 			@Override
 			public String toString() {
-				BusConductor busConductor = BeanBusJob.this.busConductor;
+				BusConductor busConductor = BasicBusService.this.busConductor;
 				if (busConductor == null) {
 					return "No Bus Service Until Running.";
 				}

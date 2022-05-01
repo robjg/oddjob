@@ -18,7 +18,8 @@ import org.oddjob.arooa.types.ArooaObject;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.Destination;
-import org.oddjob.beanbus.bus.BeanBusJob;
+import org.oddjob.beanbus.bus.BasicBusService;
+import org.oddjob.beanbus.bus.BusSessionFactory;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.framework.Service;
 import org.oddjob.images.IconHelper;
@@ -60,7 +61,7 @@ public class MegaBeanBusTest {
         ArooaContext arooaContext = mock(ArooaContext.class);
         when(arooaContext.getRuntime()).thenReturn(runtimeConfiguration);
 
-        ArooaSession session = new MegaBusSessionFactory()
+        ArooaSession session = new BusSessionFactory()
                 .createSession(new OddjobSessionFactory().createSession(),
                         getClass().getClassLoader());
         List<String> destination = new ArrayList<>();
@@ -81,7 +82,7 @@ public class MegaBeanBusTest {
 
         Object destinationProxy = session.getComponentProxyResolver().resolve(consumer, session);
 
-        BeanBusJob test = new BeanBusJob();
+        BasicBusService test = new BasicBusService();
         test.setArooaSession(session);
         test.setExecutor(Runnable::run);
         test.setOf(0, driverProxy);

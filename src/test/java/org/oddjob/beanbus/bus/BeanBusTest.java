@@ -46,23 +46,23 @@ public class BeanBusTest {
     @Test
     public void testSingleServiceStarted() throws FailedToStopException {
 
-        BeanBusJob beanBusJob = new BeanBusJob();
+        BasicBusService basicBusService = new BasicBusService();
 
         Executor executor = mock(Executor.class);
-        beanBusJob.setExecutor(executor);
+        basicBusService.setExecutor(executor);
 
         OurService ourService = new OurService();
 
-        beanBusJob.setOf(0, ourService);
+        basicBusService.setOf(0, ourService);
 
-        beanBusJob.run();
+        basicBusService.run();
 
-        assertThat(beanBusJob,
+        assertThat(basicBusService,
                 OddjobMatchers.statefulIs(StateConditions.STARTED));
 
         ourService.stop();
 
-        assertThat(beanBusJob,
+        assertThat(basicBusService,
                 OddjobMatchers.statefulIs(StateConditions.COMPLETE));
 
         assertThat(ourService.stopCount.get(), is(1));
@@ -71,22 +71,22 @@ public class BeanBusTest {
     @Test
     public void testServiceStoppedMidStart() throws InterruptedException, FailedToStopException {
 
-        BeanBusJob beanBusJob = new BeanBusJob();
+        BasicBusService basicBusService = new BasicBusService();
 
         Executor executor = mock(Executor.class);
-        beanBusJob.setExecutor(executor);
+        basicBusService.setExecutor(executor);
 
         OurService ourService = new OurService();
 
         WaitJob waitJob = new WaitJob();
 
-        beanBusJob.setOf(0, waitJob);
-        beanBusJob.setOf(1, ourService);
+        basicBusService.setOf(0, waitJob);
+        basicBusService.setOf(1, ourService);
 
         StateSteps waitState = new StateSteps(waitJob);
         waitState.startCheck(StateConditions.READY, StateConditions.EXECUTING);
 
-        Thread t = new Thread(beanBusJob);
+        Thread t = new Thread(basicBusService);
         t.start();
 
         waitState.checkWait();
@@ -95,7 +95,7 @@ public class BeanBusTest {
 
         t.join(5000L);
 
-        assertThat(beanBusJob,
+        assertThat(basicBusService,
                 OddjobMatchers.statefulIs(StateConditions.COMPLETE));
     }
 

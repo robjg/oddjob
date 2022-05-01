@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.BlockingQueue;
@@ -27,7 +28,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class FileWatchServiceTest {
 
-    private static Logger logger = LoggerFactory.getLogger(FileWatchServiceTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(FileWatchServiceTest.class);
 
     private static final long TIMEOUT = 1000;
 
@@ -49,18 +50,19 @@ public class FileWatchServiceTest {
         assertThat(events.poll(), nullValue());
 
         // Don't want nanos.
-        Instant before = Instant.ofEpochMilli(System.currentTimeMillis());
+        Instant before = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         Files.createFile(someFile);
 
-        Instant after = Instant.now();
+        Instant after = Instant.now().truncatedTo(ChronoUnit.MILLIS);
 
         InstantEvent<Path> event = events.poll(TIMEOUT, TimeUnit.MILLISECONDS);
         assertThat(event, notNullValue());
 
         assertThat(event.getOf(), is(someFile));
 
-        Instant modified = event.getTime();
+        Instant modified = event.getTime().truncatedTo(ChronoUnit.MILLIS);
+
         assertThat(before + "<=" + modified, modified.equals(before) ||
                 modified.isAfter(before), is(true));
         assertThat(modified + "<=" + after, modified.equals(after) ||
@@ -133,7 +135,7 @@ public class FileWatchServiceTest {
     }
 
     @Test
-    public void testOddjobFileWatchInBeanBusExample() throws IOException, ArooaConversionException, FailedToStopException, InterruptedException {
+    public void testOddjobFileWatchInBeanBusExample() throws IOException, ArooaConversionException, InterruptedException {
 
         Path testPath = OurDirs.workPathDir(PathWatchEventsTest.class.getSimpleName(), true);
 

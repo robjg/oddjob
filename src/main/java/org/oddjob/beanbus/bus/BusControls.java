@@ -1,4 +1,4 @@
-package org.oddjob.beanbus.mega;
+package org.oddjob.beanbus.bus;
 
 /**
  * Internal class passed from the Bus component to something that will decide when

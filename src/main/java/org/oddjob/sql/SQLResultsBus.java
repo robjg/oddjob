@@ -1,6 +1,7 @@
 package org.oddjob.sql;
 
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.beanbus.bus.BasicBusService;
 
 import java.io.Flushable;
 import java.io.IOException;
@@ -20,7 +21,7 @@ import java.util.function.Consumer;
  * 
  * @oddjob.example 
  * 
- * Within a {@link org.oddjob.beanbus.bus.BeanBusJob}.
+ * Within a {@link BasicBusService}.
  * 
  * {@oddjob.xml.resource org/oddjob/sql/SQLResultsBusExample2.xml}
  * 
