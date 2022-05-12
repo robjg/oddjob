@@ -49,6 +49,9 @@ public enum ResetActions implements ResetAction {
 			if (job instanceof Resettable) {
 			    ((Resettable) job).hardReset();
 			}
+			else {
+				throw new IllegalStateException("Job is not Resettable.");
+			}
 		}
 	},
 	
@@ -60,6 +63,9 @@ public enum ResetActions implements ResetAction {
 			if (job instanceof Resettable) {
 			    ((Resettable) job).softReset();
 			}
+			else {
+				throw new IllegalStateException("Job is not Resettable.");
+			}
 		}
 	},
 		
@@ -70,6 +76,9 @@ public enum ResetActions implements ResetAction {
 		public void doWith(Object job) {
 			if (job instanceof Forceable) {
 				((Forceable) job).force();
+			}
+			else {
+				throw new IllegalStateException("Job is not Forceable.");
 			}
 		}
 	},

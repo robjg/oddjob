@@ -87,10 +87,6 @@ public class ResetJob extends SimpleJob {
 			throw new NullPointerException("No Job");
 		}
 		
-		if (! (job instanceof Forceable)) {
-			throw new IllegalStateException("Job is not Resetable.");
-		}
-		
     	ResetAction level = this.level;
         if (level == null) {
             level = ResetActions.AUTO;

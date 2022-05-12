@@ -16,5 +16,5 @@ public interface ResetAction {
 	 * 
 	 * @param job The job being reset.
 	 */
-	public void doWith(Object job);
+	void doWith(Object job);
 }
