@@ -4,7 +4,6 @@ import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
-import org.oddjob.arooa.deploy.ArooaAnnotationsUtil;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.registry.ComponentPool;
 import org.oddjob.beanbus.Destination;
@@ -114,9 +113,7 @@ public class OutboundStrategies implements OutboundStrategy {
 					};
 				}
 				
-				final String property = new ArooaAnnotationsUtil(
-						annotations).findSingleAnnotatedProperty(
-								Destination.class.getName());
+				final String property = annotations.propertyFor(Destination.class.getName());
 				
 				if (property != null) {
 					return new Outbound<T>() {

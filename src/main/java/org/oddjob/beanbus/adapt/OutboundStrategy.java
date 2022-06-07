@@ -9,6 +9,7 @@ import org.oddjob.beanbus.Outbound;
  * @author rob
  *
  */
+@FunctionalInterface
 public interface OutboundStrategy {
 
 	/**
