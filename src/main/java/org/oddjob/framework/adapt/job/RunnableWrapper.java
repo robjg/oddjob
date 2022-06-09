@@ -227,26 +227,31 @@ public class RunnableWrapper extends BaseWrapper
             });
         }
 
-        if (asyncAdaptor == null) {
-            logger().info("Finished.");
+        Throwable throwable = exception.get();
+        if (asyncAdaptor == null || throwable != null) {
+            int result;
+            try {
+                result = getResult(callableResult.get());
+            } catch (Exception e) {
+                // Reflection of result failed.
+                throwable = e;
+                result = -1;
+            }
 
+            logger().info("Finished {}.", throwable != null ? "EXCEPTION"
+                    : result == 0 ? "COMPLETE" : "INCOMPLETE");
+
+            final Throwable finalThrowable = throwable;
+            final int finalResult = result;
             stateHandler.waitToWhen(new IsStoppable(), () -> {
-                if (exception.get() != null) {
+                if (finalThrowable != null) {
                     getStateChanger().setStateException(exception.get());
                 } else {
-                    int result;
-                    try {
-                        result = getResult(callableResult.get());
-
-                        if (result == 0) {
+                        if (finalResult == 0) {
                             getStateChanger().setState(JobState.COMPLETE);
                         } else {
                             getStateChanger().setState(JobState.INCOMPLETE);
                         }
-                    } catch (Exception e) {
-                        // When will this ever happen?
-                        getStateChanger().setStateException(e);
-                    }
                 }
             });
         }

@@ -152,7 +152,7 @@ public class AsyncJobTest {
     }
 
     @Test
-    public void testAsyncJobWithException() throws InterruptedException, FailedToStopException {
+    public void testAsyncJobWithExceptionViaExceptionListener() throws InterruptedException, FailedToStopException {
 
         String xml = "<oddjob>" +
                 "<job>" +
@@ -330,4 +330,41 @@ public class AsyncJobTest {
         assertThat(ep.getCause().getMessage(), is("Uh Oh"));
     }
 
+    public static class MyFailsImmediatelyJob implements Runnable {
+
+        @Override
+        public void run() {
+
+                throw new RuntimeException("Uh Oh");
+        }
+
+        @AcceptCompletionHandle
+        public void acceptCompletion(IntConsumer handler) {
+
+        }
+    }
+
+    @Test
+    public void testJobFailsImmediately() {
+
+        String xml = "<oddjob>" +
+                "<job>" +
+                "<bean class='" + MyFailsImmediatelyJob.class.getName() + "'/>" +
+                "</job>" +
+                "</oddjob>";
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+
+        StateSteps states = new StateSteps(oddjob);
+        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.EXCEPTION);
+
+        oddjob.run();
+
+        states.checkNow();
+
+        OddjobChildException ep = (OddjobChildException) oddjob.lastStateEvent().getException();
+
+        assertThat(ep.getCause().getMessage(), is("Uh Oh"));
+    }
 }
