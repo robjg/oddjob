@@ -14,7 +14,7 @@ import java.util.function.IntConsumer;
  * @author rob
  *
  */
-public interface AsyncJob extends FallibleComponent {
+public interface AsyncJob extends FallibleComponent, Runnable {
 
 	/**
 	 * Accept a stop handle. The framework will use this method to

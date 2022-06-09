@@ -2,6 +2,8 @@ package org.oddjob.framework.adapt;
 
 import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.utils.AnnotationFinder;
 import org.oddjob.framework.AsyncJob;
 import org.oddjob.util.OddjobWrapperException;
@@ -9,7 +11,12 @@ import org.oddjob.util.OddjobWrapperException;
 import java.beans.ExceptionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.IntConsumer;
 
 /**
@@ -37,6 +44,19 @@ public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 			return Optional.of((AsyncJob) component);
 		}
 
+		if (component instanceof Callable
+				&& CompletableFuture.class.isAssignableFrom(getCallableType((Callable<?>) component))) {
+
+			//noinspection unchecked
+			return Optional.of(new AsyncCallableAdaptor((Callable<CompletableFuture<?>>) component,
+					session.getTools().getArooaConverter()));
+		}
+
+		if (!(component instanceof Runnable)) {
+			// should this just be an exception?
+			return Optional.empty();
+		}
+
 		ArooaAnnotations annotations = AnnotationFinder.forSession(session)
 				.findFor(component.getClass());
 
@@ -50,6 +70,11 @@ public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 		}
 
 		return Optional.of(new AsyncJob() {
+
+			@Override
+			public void run() {
+				((Runnable) component).run();
+									}
 
 			@Override
 			public void acceptCompletionHandle(IntConsumer stopWithState) {
@@ -75,5 +100,76 @@ public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 			throw new OddjobWrapperException(e);
 		}
 	}
-	
+
+	static class AsyncCallableAdaptor implements AsyncJob {
+
+		private final Callable<CompletableFuture<?>> callable;
+
+		private final ArooaConverter converter;
+
+		private IntConsumer stopWithState;
+
+		private ExceptionListener exceptionListener;
+
+		AsyncCallableAdaptor(Callable<CompletableFuture<?>> callable, ArooaConverter converter) {
+			this.callable = callable;
+			this.converter = converter;
+		}
+
+		@Override
+		public void run() {
+			try {
+				CompletableFuture<?> completableFuture = callable.call();
+
+				completableFuture.whenComplete((v, t) -> {
+					if (t == null) {
+						try {
+							stopWithState.accept(converter.convert(v, Integer.class));
+						}
+						catch (ArooaConversionException e) {
+							exceptionListener.exceptionThrown(e);
+						}
+					}
+					else {
+						exceptionListener.exceptionThrown((Exception) t);
+					}
+				});
+			} catch (Exception e) {
+				exceptionListener.exceptionThrown(e);
+			}
+		}
+
+		@Override
+		public void acceptCompletionHandle(IntConsumer stopWithState) {
+			this.stopWithState = stopWithState;
+		}
+
+		@Override
+		public void acceptExceptionListener(ExceptionListener exceptionListener) {
+			this.exceptionListener = exceptionListener;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	static <T> Class<T> getCallableType(Callable<T> callable) {
+		Type callableInterfaceType = Arrays.stream(callable.getClass()
+				.getGenericInterfaces())
+				.filter(c -> Callable.class == rawType(c))
+				.findFirst()
+				.orElseThrow(() -> new IllegalStateException("Callable not found???"));
+		Type t = ((ParameterizedType) callableInterfaceType).getActualTypeArguments()[0];
+		return (Class<T>) rawType(t);
+	}
+
+	static Class<?> rawType(Type type) {
+		if (type instanceof Class) {
+			return (Class<?>) type;
+		}
+		else if (type instanceof ParameterizedType){
+			return (Class<?>) ((ParameterizedType) type).getRawType();
+		}
+		else {
+			throw new IllegalArgumentException("Can't work out raw type of [" + type + "]");
+		}
+	}
 }

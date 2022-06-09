@@ -195,7 +195,11 @@ public class RunnableWrapper extends BaseWrapper
         try {
             configure();
 
-            if (asyncAdaptor != null) {
+            Object wrapped;
+            if (asyncAdaptor == null) {
+                wrapped = this.wrapped;
+            }
+            else {
                 asyncAdaptor.acceptCompletionHandle(result ->
                         stateHandler.waitToWhen(new IsStoppable(), () -> {
                     if (result == 0) {
@@ -207,6 +211,7 @@ public class RunnableWrapper extends BaseWrapper
                 asyncAdaptor.acceptExceptionListener(e ->
                         stateHandler.waitToWhen(new IsStoppable(), () ->
                                 getStateChanger().setStateException(e)));
+                wrapped = asyncAdaptor;
             }
 
             if (wrapped instanceof Callable<?>) {
