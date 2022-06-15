@@ -4,9 +4,12 @@
 package org.oddjob.framework.adapt.service;
 
 import org.oddjob.FailedToStopException;
+import org.oddjob.framework.AsyncService;
+import org.oddjob.framework.adapt.async.MethodAsyncHelper;
 
 import java.beans.ExceptionListener;
 import java.lang.reflect.Method;
+import java.util.Optional;
 
 /**
  * A {@link ServiceAdaptor} that uses a start and stop method.
@@ -83,5 +86,10 @@ public class ServiceMethodAdaptor implements ServiceAdaptor {
 	public Object getComponent() {
 		return component;
 	}
-	
+
+	@Override
+	public Optional<AsyncService> asAsync() {
+
+		return MethodAsyncHelper.adaptService(component, startMethod);
+	}
 }

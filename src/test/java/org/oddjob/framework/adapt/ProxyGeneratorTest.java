@@ -11,7 +11,7 @@ public class ProxyGeneratorTest extends OjTestCase {
 		String getType();
 	}
 	
-	class Apple implements Fruit {
+	static class Apple implements Fruit {
 
 		@Override
 		public String getType() {
@@ -21,11 +21,11 @@ public class ProxyGeneratorTest extends OjTestCase {
 	
 	// We proxy this.
 	interface Snack {
-		public void eat();
+		void eat();
 	}
 	
 	// Invocations for Snack
-	class FruitWrapper implements ComponentWrapper, Snack {
+	static class FruitWrapper implements ComponentWrapper, Snack {
 		
 		final Fruit fruit;
 
@@ -51,7 +51,7 @@ public class ProxyGeneratorTest extends OjTestCase {
    @Test
 	public void testGenerate() {
 		
-		ProxyGenerator<Fruit> test = new ProxyGenerator<Fruit>();
+		ProxyGenerator<Fruit> test = new ProxyGenerator<>();
 		
 		final Fruit fruit = new Apple();
 		
@@ -87,7 +87,7 @@ public class ProxyGeneratorTest extends OjTestCase {
 		String getColour();
 	}
 	
-	class Tomato implements Vegetable {
+	static class Tomato implements Vegetable {
 		
 		@Override
 		public String getColour() {
@@ -95,7 +95,7 @@ public class ProxyGeneratorTest extends OjTestCase {
 		}
 	}
 	
-	class VegetableAdaptor implements Fruit, ComponentAdapter {
+	static class VegetableAdaptor implements Fruit, ComponentAdapter {
 		final Vegetable vegetable;
 		
 		public VegetableAdaptor(Vegetable vegetable) {
@@ -117,7 +117,7 @@ public class ProxyGeneratorTest extends OjTestCase {
     @Test
 	public void testGenerateAdaptor() {
 		
-		ProxyGenerator<Fruit> test = new ProxyGenerator<Fruit>();
+		ProxyGenerator<Fruit> test = new ProxyGenerator<>();
 		
 		final Fruit fruit = new VegetableAdaptor(new Tomato());
 		

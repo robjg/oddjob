@@ -5,6 +5,7 @@ import org.oddjob.arooa.ArooaAnnotations;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.framework.AsyncService;
 import org.oddjob.framework.FallibleComponent;
 import org.oddjob.framework.Service;
 import org.oddjob.framework.adapt.AcceptExceptionListener;
@@ -90,6 +91,10 @@ public class ServiceStrategies implements ServiceStrategy, AdaptorFactory<Servic
                         }
                     }
 
+                    @Override
+                    public Optional<AsyncService> asAsync() {
+                        return Optional.empty();
+                    }
                 };
             } else {
                 return null;

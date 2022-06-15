@@ -5,6 +5,7 @@ import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ArooaContextAware;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.oddjob.framework.AsyncService;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.ProxyGenerator;
 import org.oddjob.framework.adapt.WrapperFactory;
@@ -14,6 +15,7 @@ import org.oddjob.logging.LogEnabled;
 
 import java.beans.ExceptionListener;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -81,6 +83,11 @@ public class ConsumerProxyGenerator<E> extends ProxyGenerator<Consumer<E>> {
 							@Override
 							public Object getComponent() {
 								return wrapped;
+							}
+
+							@Override
+							public Optional<AsyncService> asAsync() {
+								return Optional.empty();
 							}
 						});
 

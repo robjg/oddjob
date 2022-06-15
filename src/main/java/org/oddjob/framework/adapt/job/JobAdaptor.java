@@ -20,7 +20,7 @@ extends Callable<Integer>, ComponentAdapter, ArooaSessionAware, Serializable {
     /**
      * Possibly create an {@link AsyncJob}.
      **
-     * @return Possibly a AsyncJob.
+     * @return Possibly an AsyncJob.
      */
     Optional<AsyncJob> asAsync();
 }

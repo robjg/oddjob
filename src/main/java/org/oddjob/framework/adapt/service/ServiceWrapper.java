@@ -7,6 +7,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.framework.AsyncService;
 import org.oddjob.framework.adapt.BaseWrapper;
 import org.oddjob.framework.adapt.ComponentWrapper;
 import org.oddjob.framework.adapt.ResettableAdaptorFactory;
@@ -14,6 +15,8 @@ import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
 import org.oddjob.state.*;
+
+import java.util.Optional;
 
 /**
  * Wraps a Service object and adds state to it.
@@ -39,7 +42,7 @@ public class ServiceWrapper extends BaseWrapper
      */
     private final ServiceStateChanger stateChanger;
 
-    private final ServiceAdaptor service;
+    private final ServiceAdaptor serviceAdaptor;
 
     private final Object wrapped;
 
@@ -55,13 +58,13 @@ public class ServiceWrapper extends BaseWrapper
     /**
      * Create a new instance wrapping a service.
      *
-     * @param service The Service, via its adapter.
+     * @param serviceAdaptor The Service, via its adapter.
      * @param proxy   The proxy generated for it.
      */
-    public ServiceWrapper(ServiceAdaptor service, Object proxy) {
-        this.service = service;
+    public ServiceWrapper(ServiceAdaptor serviceAdaptor, Object proxy) {
+        this.serviceAdaptor = serviceAdaptor;
         this.proxy = proxy;
-        this.wrapped = service.getComponent();
+        this.wrapped = serviceAdaptor.getComponent();
         this.dynaBean = new WrapDynaBean(wrapped);
 
         stateHandler = new ServiceStateHandler(this);
@@ -132,6 +135,8 @@ public class ServiceWrapper extends BaseWrapper
 
         logger().info("Service Starting.");
 
+        Optional<AsyncService> possiblyAsync = serviceAdaptor.asAsync();
+
         try {
             if (Thread.interrupted()) {
                 throw new InterruptedException(
@@ -140,24 +145,33 @@ public class ServiceWrapper extends BaseWrapper
                                 "themselves to guarantee consistent behaviour.");
             }
 
-            service.acceptExceptionListener(this::exceptionFromComponent);
+            serviceAdaptor.acceptExceptionListener(this::exceptionFromComponent);
 
             configure();
 
-            service.start();
-
-            if (stateHandler.waitToWhen(StateConditions.RUNNING,
-                    () -> getStateChanger().setState(ServiceState.STARTED))) {
-                logger().info("Service Started.");
+            if (possiblyAsync.isPresent()) {
+                AsyncService async = possiblyAsync.get();
+                async.acceptCompletionHandle(() -> setStateStarted());
+                async.run();
             }
             else {
-                logger().info("Service Stopped before Started.");
+                serviceAdaptor.start();
+                setStateStarted();
             }
         } catch (final Throwable t) {
             logger().error("Exception starting service:", t);
 
             stateHandler.waitToWhen(new IsAnyState(),
                     () -> getStateChanger().setStateException(t));
+        }
+    }
+
+    protected void setStateStarted() {
+        if (stateHandler.waitToWhen(StateConditions.RUNNING,
+                () -> getStateChanger().setState(ServiceState.STARTED))) {
+            logger().info("Service Started.");
+        } else {
+            logger().info("Service Stopped before Started.");
         }
     }
 
@@ -179,12 +193,12 @@ public class ServiceWrapper extends BaseWrapper
     protected void onStop() throws FailedToStopException {
 
         try {
-            service.stop();
+            serviceAdaptor.stop();
 
             stateHandler.waitToWhen(new IsAnyState(),
                     () -> getStateChanger().setState(ServiceState.STOPPED));
         } catch (Exception e) {
-            throw new FailedToStopException(service, e);
+            throw new FailedToStopException(serviceAdaptor, e);
         }
     }
 

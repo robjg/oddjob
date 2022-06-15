@@ -42,328 +42,332 @@ import java.util.Map;
 
 public class ServiceWrapperTest extends OjTestCase {
 
-	private static final Logger logger = LoggerFactory.getLogger(ServiceWrapperTest.class);
-	
+    private static final Logger logger = LoggerFactory.getLogger(ServiceWrapperTest.class);
+
     @Before
     public void setUp() throws Exception {
 
-		
-		logger.info("-------------------------  " + getName() + 
-				"  ------------------------");
-	}
-	
-	private class OurContext extends MockArooaContext {
-		OurSession session;
-		
-		RuntimeListener listener;
-		
-		@Override
-		public ArooaSession getSession() {
-			return session;
-		}
-		
-		@Override
-		public RuntimeConfiguration getRuntime() {
-			return new MockRuntimeConfiguration() {
-				@Override
-				public void addRuntimeListener(RuntimeListener listener) {
-					if (OurContext.this.listener != null) {
-						throw new IllegalStateException();
-					}
-					
-					OurContext.this.listener = listener;
-				}
-			};
-		}
-	}
-	
-	private class OurSession extends MockArooaSession {
-		Object configured;
-		Object saved;
-		
-		ArooaDescriptor descriptor = new StandardArooaDescriptor();
-		
-		@Override
-		public ArooaDescriptor getArooaDescriptor() {
-			return descriptor;
-		}
-		
-		@Override
-		public ComponentPool getComponentPool() {
-			return new MockComponentPool() {
-				@Override
-				public void configure(Object component) {
-					configured = component;
-				}
-				@Override
-				public void save(Object component) {
-					saved = component;
-				}
-			};
-		}
-		
-		@Override
-		public ArooaTools getTools() {
-			return new StandardTools();
-		}
-	}
-	
-	public static class MyService {
-		boolean started;
-		boolean stopped;
-		
-		public void start() {
-			started = true;
-		}
-		public void stop() {
-			stopped = true;
-		}
-		public boolean isStarted() {
-			return started;
-		}
-		public boolean isStopped() {
-			return stopped;
-		}
-	}
-	
-   @Test
-	public void testStartStop() throws Exception {
-		MyService myService = new MyService();
-		
-		OurSession session = new OurSession();
-		
-		ServiceAdaptor service = new ServiceStrategies().serviceFor(
-				myService, session);
-		
-		OurContext context = new OurContext();
-		context.session = session;
-		
-		Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
-				service, getClass().getClassLoader());
 
-		((ArooaSessionAware) wrapper).setArooaSession(session);
-		((ArooaContextAware) wrapper).setArooaContext(context);
-		
-		wrapper.run();
+        logger.info("-------------------------  " + getName() +
+                "  ------------------------");
+    }
 
-		assertEquals(wrapper, session.configured);
-		
-		assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
-		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "started"));
-		
-		((Stoppable) wrapper).stop();
+    private static class OurContext extends MockArooaContext {
+        OurSession session;
 
-		assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(wrapper));
-		assertEquals(new Boolean(true), PropertyUtils.getProperty(wrapper, "stopped"));
+        RuntimeListener listener;
 
-		((Resettable) wrapper).hardReset();
+        @Override
+        public ArooaSession getSession() {
+            return session;
+        }
 
-		// Service don't persist.
-		assertNull(session.saved);
-		
-		assertEquals(ServiceState.STARTABLE, OddjobTestHelper.getJobState(wrapper));
-	}
+        @Override
+        public RuntimeConfiguration getRuntime() {
+            return new MockRuntimeConfiguration() {
+                @Override
+                public void addRuntimeListener(RuntimeListener listener) {
+                    if (OurContext.this.listener != null) {
+                        throw new IllegalStateException();
+                    }
 
-   @Test
+                    OurContext.this.listener = listener;
+                }
+            };
+        }
+    }
+
+    private static class OurSession extends MockArooaSession {
+        Object configured;
+        Object saved;
+
+        ArooaDescriptor descriptor = new StandardArooaDescriptor();
+
+        @Override
+        public ArooaDescriptor getArooaDescriptor() {
+            return descriptor;
+        }
+
+        @Override
+        public ComponentPool getComponentPool() {
+            return new MockComponentPool() {
+                @Override
+                public void configure(Object component) {
+                    configured = component;
+                }
+
+                @Override
+                public void save(Object component) {
+                    saved = component;
+                }
+            };
+        }
+
+        @Override
+        public ArooaTools getTools() {
+            return new StandardTools();
+        }
+    }
+
+    public static class MyService {
+        boolean started;
+        boolean stopped;
+
+        public void start() {
+            started = true;
+        }
+
+        public void stop() {
+            stopped = true;
+        }
+
+        public boolean isStarted() {
+            return started;
+        }
+
+        public boolean isStopped() {
+            return stopped;
+        }
+    }
+
+    @Test
+    public void testStartStop() throws Exception {
+        MyService myService = new MyService();
+
+        OurSession session = new OurSession();
+
+        ServiceAdaptor service = new ServiceStrategies().serviceFor(
+                myService, session);
+
+        OurContext context = new OurContext();
+        context.session = session;
+
+        Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
+                service, getClass().getClassLoader());
+
+        ((ArooaSessionAware) wrapper).setArooaSession(session);
+        ((ArooaContextAware) wrapper).setArooaContext(context);
+
+        wrapper.run();
+
+        assertEquals(wrapper, session.configured);
+
+        assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
+        assertEquals(Boolean.TRUE, PropertyUtils.getProperty(wrapper, "started"));
+
+        ((Stoppable) wrapper).stop();
+
+        assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(wrapper));
+        assertEquals(Boolean.TRUE, PropertyUtils.getProperty(wrapper, "stopped"));
+
+        ((Resettable) wrapper).hardReset();
+
+        // Service don't persist.
+        assertNull(session.saved);
+
+        assertEquals(ServiceState.STARTABLE, OddjobTestHelper.getJobState(wrapper));
+    }
+
+    @Test
     public void testInOddjob() throws Exception {
-    	String xml = "<oddjob>" +
-    			" <job>" +
-    			"  <bean class='" + MyService.class.getName() + "' id='s' />" +
-    			" </job>" +
-    			"</oddjob>";
+        String xml = "<oddjob>" +
+                " <job>" +
+                "  <bean class='" + MyService.class.getName() + "' id='s' />" +
+                " </job>" +
+                "</oddjob>";
 
-    	Oddjob oj = new Oddjob();
-    	oj.setConfiguration(new XMLConfiguration("XML", xml));
-    	
-    	oj.run();
-    	
-    	Object test = new OddjobLookup(oj).lookup("s");
-    	assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(test));
-    	assertEquals(new Boolean(true), 
-    			PropertyUtils.getProperty(test, "started"));
-    	
-    	oj.stop();
-    	
-    	assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(test));
-    	assertEquals(new Boolean(true), 
-    			PropertyUtils.getProperty(test, "stopped"));
+        Oddjob oj = new Oddjob();
+        oj.setConfiguration(new XMLConfiguration("XML", xml));
 
-    	Map<String, String> description = ((Describable) test).describe();
-    	assertEquals("true", description.get("started"));
-    	assertEquals("true", description.get("stopped"));
-    	
-    	oj.destroy();
+        oj.run();
+
+        Object test = new OddjobLookup(oj).lookup("s");
+        assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(test));
+        assertEquals(Boolean.TRUE,
+                PropertyUtils.getProperty(test, "started"));
+
+        oj.stop();
+
+        assertEquals(ServiceState.STOPPED, OddjobTestHelper.getJobState(test));
+        assertEquals(Boolean.TRUE,
+                PropertyUtils.getProperty(test, "stopped"));
+
+        Map<String, String> description = ((Describable) test).describe();
+        assertEquals("true", description.get("started"));
+        assertEquals("true", description.get("stopped"));
+
+        oj.destroy();
     }
-        
+
     public interface FruitService {
-    	String getFruit();
+        String getFruit();
     }
-    
+
     public static class FruitJob implements Runnable {
-    	private FruitService fruitService;
-    	
-    	public void setFruitService(FruitService service) {
-    		this.fruitService = service;
-    	}
-    	
-    	@Override
-    	public void run() {
-    		fruitService.getFruit();
-    	}
+        private FruitService fruitService;
+
+        public void setFruitService(FruitService service) {
+            this.fruitService = service;
+        }
+
+        @Override
+        public void run() {
+            fruitService.getFruit();
+        }
     }
-    
+
     public static class MyFallibleService implements FruitService {
 
-    	ExceptionListener exceptionListener;
-    	
-    	@Start
-    	public void myStart() {	
-    		
-    	}
-    	
-    	@Stop
-    	public void myStop() {
-    		
-    	}
-    	
-    	@AcceptExceptionListener
-    	public void handler(ExceptionListener exceptionListener) {
-    		this.exceptionListener = exceptionListener;
-    	}
-    	
-    	@Override
-    	public String getFruit() {
-    		exceptionListener.exceptionThrown(new Exception("No More Fruit!"));
-    		return "Apple";
-    	}
-    }    
+        ExceptionListener exceptionListener;
 
-   @Test
-    public void testExceptionCallbackInOddjob() throws Exception {
-    	
-    	String xml = 
-    		"<oddjob>" +
-    		" <job>" +
-    		"  <sequential>" +
-    		"   <jobs>" +
-    		"    <bean id='fruit-service' class='" + MyFallibleService.class.getName() + "'/>" +
-    		"    <bean id='fruit-job' class='" + FruitJob.class.getName() + "'>" +
-    		"     <fruitService>" +
-    		"      <value value='${fruit-service}'/>" +
-    		"     </fruitService>" +
-    		"    </bean>" +
-    		"   </jobs>" +
-    		"  </sequential>" +
-    		" </job>" +
-    		"</oddjob>";
-     	
-    	Oddjob oddjob = new Oddjob();
-    	oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-    	
-    	oddjob.load();
-    	
-    	OddjobLookup lookup = new OddjobLookup(oddjob);
-    	
-    	Stateful service = lookup.lookup("fruit-service", Stateful.class);
-    	    	
-    	StateSteps serviceStates = new StateSteps(service);
-    	
-    	serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, 
-    			ServiceState.STARTED, ServiceState.EXCEPTION);
-    	
-    	oddjob.run();
-    	
-    	serviceStates.checkNow();
-    	
-    	Stateful job = lookup.lookup("fruit-job", Stateful.class);
-    	
-    	assertEquals(JobState.COMPLETE, 
-    			job.lastStateEvent().getState());
-    	
-    	assertEquals(ParentState.EXCEPTION, 
-    			oddjob.lastStateEvent().getState());
-    	
-    	oddjob.destroy();    	
+        @Start
+        public void myStart() {
+
+        }
+
+        @Stop
+        public void myStop() {
+
+        }
+
+        @AcceptExceptionListener
+        public void handler(ExceptionListener exceptionListener) {
+            this.exceptionListener = exceptionListener;
+        }
+
+        @Override
+        public String getFruit() {
+            exceptionListener.exceptionThrown(new Exception("No More Fruit!"));
+            return "Apple";
+        }
     }
-    
-   @Test
-	public void testServiceDestroyedWhileRunningStates() throws Exception {
-		
-		MyService myService = new MyService();
-		
-		OurSession session = new OurSession();
-		
-		ServiceAdaptor service = new ServiceStrategies().serviceFor(
-				myService, session);
-		
-		OurContext context = new OurContext();
-		context.session = session;
-		
-		Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
-				service, getClass().getClassLoader());
 
-		((ArooaSessionAware) wrapper).setArooaSession(session);
-		((ArooaContextAware) wrapper).setArooaContext(context);
-		
-		wrapper.run();
+    @Test
+    public void testExceptionCallbackInOddjob() throws Exception {
 
-		assertEquals(wrapper, session.configured);
-		
-		assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
-		
-		StateSteps serviceStates = new StateSteps((Stateful) wrapper);
-		serviceStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED, 
-				ServiceState.DESTROYED);
-		
-		RuntimeEvent event = new RuntimeEvent(new MockRuntimeConfiguration());
-		
-		context.listener.beforeDestroy(event);
-		context.listener.afterDestroy(event);
+        String xml =
+                "<oddjob>" +
+                        " <job>" +
+                        "  <sequential>" +
+                        "   <jobs>" +
+                        "    <bean id='fruit-service' class='" + MyFallibleService.class.getName() + "'/>" +
+                        "    <bean id='fruit-job' class='" + FruitJob.class.getName() + "'>" +
+                        "     <fruitService>" +
+                        "      <value value='${fruit-service}'/>" +
+                        "     </fruitService>" +
+                        "    </bean>" +
+                        "   </jobs>" +
+                        "  </sequential>" +
+                        " </job>" +
+                        "</oddjob>";
 
-		serviceStates.checkNow();
-	}
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 
-	static class StopNowService implements Service {
+        oddjob.load();
 
-		boolean stopped;
+        OddjobLookup lookup = new OddjobLookup(oddjob);
 
-		Runnable stopMe;
+        Stateful service = lookup.lookup("fruit-service", Stateful.class);
 
-		@Override
-		public void stop() throws FailedToStopException {
-			stopped = true;
-		}
+        StateSteps serviceStates = new StateSteps(service);
 
-		@Override
-		public void start() throws Exception {
-			stopMe.run();
-		}
-	}
+        serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING,
+                ServiceState.STARTED, ServiceState.EXCEPTION);
 
-	@Test
-	public void whenServiceStoppedBeforeStartedThenServiceComplete() {
+        oddjob.run();
 
-		StopNowService stopNowService = new StopNowService();
+        serviceStates.checkNow();
 
-		ServiceAdaptor service = new ServiceStrategies().serviceFor(
-				stopNowService, new StandardArooaSession());
+        Stateful job = lookup.lookup("fruit-job", Stateful.class);
 
-		Stateful wrapper = (Stateful) new ServiceProxyGenerator().generate(
-				service, getClass().getClassLoader());
+        assertEquals(JobState.COMPLETE,
+                job.lastStateEvent().getState());
 
-		stopNowService.stopMe = () -> {
-			try {
-				((Stoppable) wrapper).stop();
-			} catch (FailedToStopException e) {
-				MatcherAssert.assertThat("Shouldn't happen", false);
-			}
-		};
+        assertEquals(ParentState.EXCEPTION,
+                oddjob.lastStateEvent().getState());
 
-		StateSteps serviceStates = new StateSteps(wrapper);
-		serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, ServiceState.STOPPED);
+        oddjob.destroy();
+    }
 
-		((Runnable) wrapper).run();
+    @Test
+    public void testServiceDestroyedWhileRunningStates() {
 
-		serviceStates.checkNow();
-	}
+        MyService myService = new MyService();
+
+        OurSession session = new OurSession();
+
+        ServiceAdaptor service = new ServiceStrategies().serviceFor(
+                myService, session);
+
+        OurContext context = new OurContext();
+        context.session = session;
+
+        Runnable wrapper = (Runnable) new ServiceProxyGenerator().generate(
+                service, getClass().getClassLoader());
+
+        ((ArooaSessionAware) wrapper).setArooaSession(session);
+        ((ArooaContextAware) wrapper).setArooaContext(context);
+
+        wrapper.run();
+
+        assertEquals(wrapper, session.configured);
+
+        assertEquals(ServiceState.STARTED, OddjobTestHelper.getJobState(wrapper));
+
+        StateSteps serviceStates = new StateSteps((Stateful) wrapper);
+        serviceStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED,
+                ServiceState.DESTROYED);
+
+        RuntimeEvent event = new RuntimeEvent(new MockRuntimeConfiguration());
+
+        context.listener.beforeDestroy(event);
+        context.listener.afterDestroy(event);
+
+        serviceStates.checkNow();
+    }
+
+    static class StopNowService implements Service {
+
+        boolean stopped;
+
+        Runnable stopMe;
+
+        @Override
+        public void stop() throws FailedToStopException {
+            stopped = true;
+        }
+
+        @Override
+        public void start() throws Exception {
+            stopMe.run();
+        }
+    }
+
+    @Test
+    public void whenServiceStoppedBeforeStartedThenServiceComplete() {
+
+        StopNowService stopNowService = new StopNowService();
+
+        ServiceAdaptor service = new ServiceStrategies().serviceFor(
+                stopNowService, new StandardArooaSession());
+
+        Stateful wrapper = (Stateful) new ServiceProxyGenerator().generate(
+                service, getClass().getClassLoader());
+
+        stopNowService.stopMe = () -> {
+            try {
+                ((Stoppable) wrapper).stop();
+            } catch (FailedToStopException e) {
+                MatcherAssert.assertThat("Shouldn't happen", false);
+            }
+        };
+
+        StateSteps serviceStates = new StateSteps(wrapper);
+        serviceStates.startCheck(ServiceState.STARTABLE, ServiceState.STARTING, ServiceState.STOPPED);
+
+        ((Runnable) wrapper).run();
+
+        serviceStates.checkNow();
+    }
 }

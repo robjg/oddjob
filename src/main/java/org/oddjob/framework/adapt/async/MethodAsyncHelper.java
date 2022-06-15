@@ -4,6 +4,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.framework.AsyncJob;
+import org.oddjob.framework.AsyncService;
 
 import java.beans.ExceptionListener;
 import java.lang.reflect.Method;
@@ -16,18 +17,29 @@ import java.util.function.IntConsumer;
  */
 public class MethodAsyncHelper {
 
-    public static Optional<AsyncJob> adapt(Object component, Method method, ArooaSession session) {
+    public static Optional<AsyncJob> adaptJob(Object component, Method method, ArooaSession session) {
 
         if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
 
-            return Optional.of(new AsyncMethodAdaptor(component, method,
+            return Optional.of(new AsyncMethodJobAdaptor(component, method,
                     session.getTools().getArooaConverter()));
         } else {
             return Optional.empty();
         }
     }
 
-    static class AsyncMethodAdaptor implements AsyncJob {
+    public static Optional<AsyncService> adaptService(Object component, Method method) {
+
+        if (CompletableFuture.class.isAssignableFrom(method.getReturnType())) {
+
+            return Optional.of(new AsyncMethodServiceAdaptor(component, method));
+        } else {
+            return Optional.empty();
+        }
+    }
+
+
+    static class AsyncMethodJobAdaptor implements AsyncJob {
 
         private final Object component;
         private final Method method;
@@ -38,7 +50,7 @@ public class MethodAsyncHelper {
 
         private ExceptionListener exceptionListener;
 
-        AsyncMethodAdaptor(Object component, Method method, ArooaConverter converter) {
+        AsyncMethodJobAdaptor(Object component, Method method, ArooaConverter converter) {
             this.component = component;
             this.method = method;
             this.converter = converter;
@@ -76,4 +88,45 @@ public class MethodAsyncHelper {
         }
     }
 
+    static class AsyncMethodServiceAdaptor implements AsyncService {
+
+        private final Object component;
+        private final Method method;
+
+        private Runnable flagStarted;
+
+        private ExceptionListener exceptionListener;
+
+        AsyncMethodServiceAdaptor(Object component, Method method) {
+            this.component = component;
+            this.method = method;
+        }
+
+        @Override
+        public void run() {
+            try {
+                CompletableFuture<?> completableFuture = (CompletableFuture<?>) method.invoke(component);
+
+                completableFuture.whenComplete((v, t) -> {
+                    if (t == null) {
+                        flagStarted.run();
+                    } else {
+                        exceptionListener.exceptionThrown((Exception) t);
+                    }
+                });
+            } catch (Exception e) {
+                exceptionListener.exceptionThrown(e);
+            }
+        }
+
+        @Override
+        public void acceptCompletionHandle(Runnable flagStarted) {
+            this.flagStarted = flagStarted;
+        }
+
+        @Override
+        public void acceptExceptionListener(ExceptionListener exceptionListener) {
+            this.exceptionListener = exceptionListener;
+        }
+    }
 }

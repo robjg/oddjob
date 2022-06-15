@@ -80,7 +80,7 @@ public class RunAnnotationHelper {
         @Override
         public Optional<AsyncJob> asAsync() {
 
-            Optional<AsyncJob> maybeAsync = MethodAsyncHelper.adapt(component, method, session);
+            Optional<AsyncJob> maybeAsync = MethodAsyncHelper.adaptJob(component, method, session);
             if (maybeAsync.isPresent())  {
                 return maybeAsync;
             }

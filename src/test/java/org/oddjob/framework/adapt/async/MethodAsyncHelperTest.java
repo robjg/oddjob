@@ -31,7 +31,7 @@ public class MethodAsyncHelperTest {
 
         MyAsyncTask task = new MyAsyncTask();
 
-        AsyncJob asyncJob = MethodAsyncHelper.adapt(task,
+        AsyncJob asyncJob = MethodAsyncHelper.adaptJob(task,
                 task.getClass().getMethod("go"),
                 new StandardArooaSession())
                 .orElseThrow(() -> new IllegalStateException("Shouldn't fail"));
@@ -63,7 +63,7 @@ public class MethodAsyncHelperTest {
 
         MyNaughtyAsyncTask task = new MyNaughtyAsyncTask();
 
-        AsyncJob asyncJob = MethodAsyncHelper.adapt(task,
+        AsyncJob asyncJob = MethodAsyncHelper.adaptJob(task,
                         task.getClass().getMethod("go"),
                         new StandardArooaSession())
                 .orElseThrow(() -> new IllegalStateException("Shouldn't fail"));
