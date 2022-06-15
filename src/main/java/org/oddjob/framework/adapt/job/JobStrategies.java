@@ -5,7 +5,9 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.framework.AsyncJob;
 import org.oddjob.framework.adapt.AdaptorFactory;
+import org.oddjob.framework.adapt.async.AnnotationAsyncAdaptor;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -29,9 +31,8 @@ public class JobStrategies implements AdaptorFactory<JobAdaptor> {
             return Optional.of(new CallableAdaptor((Callable<?>) component));
         }
         else {
-            return Optional.empty();
+            return RunAnnotationHelper.jobFromAnnotation(component, session);
         }
-
     }
 
     static class RunnableAdaptor implements JobAdaptor {
@@ -72,6 +73,18 @@ public class JobStrategies implements AdaptorFactory<JobAdaptor> {
         public Object getComponent() {
             return component;
         }
+
+        @Override
+        public Optional<AsyncJob> asAsync() {
+
+            if (component instanceof AsyncJob) {
+                return Optional.of((AsyncJob) component);
+            }
+
+
+            return new AnnotationAsyncAdaptor(component)
+                    .adapt(component, session);
+        }
     }
 
     static class CallableAdaptor implements JobAdaptor {
@@ -102,6 +115,12 @@ public class JobStrategies implements AdaptorFactory<JobAdaptor> {
         @Override
         public Object getComponent() {
             return component;
+        }
+
+        @Override
+        public Optional<AsyncJob> asAsync() {
+
+            return CallableAsyncHelper.adapt(component, session);
         }
     }
 }

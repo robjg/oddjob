@@ -561,6 +561,8 @@ public class JobWrapperTest extends OjTestCase {
         Object proxy = new JobProxyGenerator().generate(
                 jobAdaptor.get(),
                 getClass().getClassLoader());
+        ((ArooaSessionAware) proxy).setArooaSession(session);
+
 
         LoggerAdapter.appenderAdapterFor("AnyLogger").setLevel(LogLevel.DEBUG);
 
@@ -611,6 +613,7 @@ public class JobWrapperTest extends OjTestCase {
         Object proxy = new JobProxyGenerator().generate(
                 jobAdaptor.get(),
                 getClass().getClassLoader());
+        ((ArooaSessionAware) proxy).setArooaSession(session);
 
         assertEquals("MyLogger", ((LogEnabled) proxy).loggerName());
         LoggerAdapter.appenderAdapterFor(((LogEnabled) proxy).loggerName()).setLevel(LogLevel.DEBUG);

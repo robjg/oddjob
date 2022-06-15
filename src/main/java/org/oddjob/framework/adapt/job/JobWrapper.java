@@ -7,7 +7,10 @@ import org.apache.commons.beanutils.DynaBean;
 import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.framework.AsyncJob;
-import org.oddjob.framework.adapt.*;
+import org.oddjob.framework.adapt.BaseWrapper;
+import org.oddjob.framework.adapt.ComponentWrapper;
+import org.oddjob.framework.adapt.ResettableAdaptorFactory;
+import org.oddjob.framework.adapt.StoppableAdaptorFactory;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
@@ -17,7 +20,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.concurrent.Callable;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -76,11 +79,6 @@ public class JobWrapper extends BaseWrapper
     private transient volatile Stoppable stoppableAdaptor;
 
     /**
-     * Async with Interface or Annotations adaptor.
-     */
-    private transient volatile AsyncJob asyncAdaptor;
-
-    /**
      * Constructor.
      */
     public JobWrapper(JobAdaptor adaptor, Object proxy) {
@@ -137,10 +135,6 @@ public class JobWrapper extends BaseWrapper
                             }
                         })
                 );
-
-        asyncAdaptor = new AsyncAdaptorFactory()
-                .adapt(adaptor.getComponent(), session)
-                .orElse(null);
     }
 
     @Override
@@ -194,34 +188,29 @@ public class JobWrapper extends BaseWrapper
                 new AtomicReference<>();
 
         thread = Thread.currentThread();
+        Optional<AsyncJob> possiblyAsync = adaptor.asAsync();
+
         try {
             configure();
 
-            Object wrapped;
-            if (asyncAdaptor == null) {
-                wrapped = this.adaptor;
-            }
-            else {
-                asyncAdaptor.acceptCompletionHandle(result ->
+            if (possiblyAsync.isPresent()) {
+                AsyncJob async = possiblyAsync.get();
+                async.acceptCompletionHandle(result ->
                         stateHandler.waitToWhen(new IsStoppable(), () -> {
-                    if (result == 0) {
-                        getStateChanger().setState(JobState.COMPLETE);
-                    } else {
-                        getStateChanger().setState(JobState.INCOMPLETE);
-                    }
-                }));
-                asyncAdaptor.acceptExceptionListener(e ->
+                            if (result == 0) {
+                                getStateChanger().setState(JobState.COMPLETE);
+                            } else {
+                                getStateChanger().setState(JobState.INCOMPLETE);
+                            }
+                        }));
+                async.acceptExceptionListener(e ->
                         stateHandler.waitToWhen(new IsStoppable(), () ->
                                 getStateChanger().setStateException(e)));
-                wrapped = asyncAdaptor;
+                async.run();
             }
-
-            if (wrapped instanceof Callable) {
-                callableResult.set(((Callable<Integer>) wrapped).call());
-            } else {
-                ((Runnable) wrapped).run();
+            else {
+                callableResult.set(this.adaptor.call());
             }
-
         } catch (Throwable t) {
             logger().error("Exception:", t);
             exception.set(t);
@@ -235,7 +224,7 @@ public class JobWrapper extends BaseWrapper
         }
 
         Throwable throwable = exception.get();
-        if (asyncAdaptor == null || throwable != null) {
+        if (!possiblyAsync.isPresent() || throwable != null) {
             Integer resultO = callableResult.get();
             final int result = resultO == null ? 0 : resultO;
 

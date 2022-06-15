@@ -7,6 +7,7 @@ import org.apache.commons.beanutils.DynaBean;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.life.ComponentPersister;
 import org.oddjob.arooa.life.MockComponentPersister;
 import org.oddjob.arooa.standard.StandardArooaSession;
@@ -74,6 +75,7 @@ public class SerializableWrapperTest extends OjTestCase {
         Object proxy = new JobProxyGenerator().generate(
                 jobAdaptor.get(),
                 getClass().getClassLoader());
+        ((ArooaSessionAware) proxy).setArooaSession(session);
 
         ((Runnable) proxy).run();
 

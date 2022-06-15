@@ -1,4 +1,4 @@
-package org.oddjob.framework.adapt;
+package org.oddjob.framework.adapt.job;
 
 
 import org.junit.Test;
@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class AsyncAdaptorFactoryTest {
+public class CallableAsyncHelperTest {
 
     static class OurCallable implements Callable<String> {
 
@@ -67,10 +67,10 @@ public class AsyncAdaptorFactoryTest {
     @Test
     public void testParameterisedType() {
 
-        assertThat(AsyncAdaptorFactory.getCallableType(new OurCallable()),
+        assertThat(CallableAsyncHelper.getCallableType(new OurCallable()),
                 is(String.class));
 
-        assertThat(AsyncAdaptorFactory.getCallableType(new OurOtherThingsAndCallable()),
+        assertThat(CallableAsyncHelper.getCallableType(new OurOtherThingsAndCallable()),
                 is(CompletableFuture.class));
     }
 
@@ -81,7 +81,7 @@ public class AsyncAdaptorFactoryTest {
     @Test
     public void testSubclassCallableTypeResolved() {
 
-        assertThat(AsyncAdaptorFactory.getCallableType(new OurSubClass()),
+        assertThat(CallableAsyncHelper.getCallableType(new OurSubClass()),
                 is(String.class));
     }
 }
