@@ -2,18 +2,13 @@
  * (c) Rob Gordon 2005.
  */
 package org.oddjob.designer.components;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaType;
@@ -24,79 +19,84 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.JMXClientJob;
 import org.oddjob.tools.OddjobTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  *
  */
 public class ClientDCTest extends OjTestCase {
-	private static final Logger logger = LoggerFactory.getLogger(ClientDCTest.class);
-	
-	@Rule public TestName name = new TestName();
+    private static final Logger logger = LoggerFactory.getLogger(ClientDCTest.class);
 
-	public String getName() {
+    @Rule
+    public TestName name = new TestName();
+
+    public String getName() {
         return name.getMethodName();
     }
 
-	@Before
-   public void setUp() {
-		logger.debug("========================== " + getName() + "===================" );
-	}
+    @Before
+    public void setUp() {
+        logger.debug("========================== " + getName() + "===================");
+    }
 
-	DesignInstance design;
-	
-   @Test
-	public void testCreate() throws ArooaParseException {
-		
-		String xml =  
-				"<jmx:client xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " +
-				"  name='Test'" +
-				"  connection='localhost:2012'" +
-				"  heartbeat='5000' logPollingInterval='3000'" +
-				"  maxConsoleLines='200' maxLoggerLines='300'>" +
-				"  <environment>" +
-				"   <jmx:client-credentials username='username' password='password'/>" +
-				"  </environment>" +
-				"</jmx:client>";
-	
-    	ArooaDescriptor descriptor = 
-    		new OddjobDescriptorFactory().createDescriptor(
-    				getClass().getClassLoader());
-		
-		DesignParser parser = new DesignParser(
-				new StandardArooaSession(descriptor));
-		parser.setArooaType(ArooaType.COMPONENT);
-		
-		parser.parse(new XMLConfiguration("TEST", xml));
-		
-		design = parser.getDesign();
-		
-		assertEquals(ClientDesign.class, design.getClass());
-		
-		JMXClientJob test = (JMXClientJob) OddjobTestHelper.createComponentFromConfiguration(
-				design.getArooaContext().getConfigurationNode());
-		
-		assertEquals("Test", test.getName());
-		assertEquals("localhost:2012", test.getConnection());
-		assertEquals(5000, test.getHeartbeat());
-		assertEquals(3000, test.getLogPollingInterval());
-		assertEquals(200, test.getMaxConsoleLines());
-		assertEquals(300, test.getMaxLoggerLines());
-		
-		Map<String, ?> env = test.getEnvironment();
-		String[] credentials = (String[]) env.get("jmx.remote.credentials");
-		
-		assertEquals("username", credentials[0]);
-		assertEquals("password", credentials[1]);
-	}
+    DesignInstance design;
 
-	public static void main(String args[]) throws ArooaParseException {
+    @Test
+    public void testCreate() throws ArooaParseException {
 
-		ClientDCTest test = new ClientDCTest();
-		test.testCreate();
-		
-		ViewMainHelper view = new ViewMainHelper(test.design);
-		view.run();
-		
-	}
+        String xml =
+                "<jmx:client xmlns:jmx='http://rgordon.co.uk/oddjob/jmx' " +
+                        "  name='Test'" +
+                        "  connection='localhost:2012'" +
+                        "  heartbeat='5000' logPollingInterval='3000'" +
+                        "  maxConsoleLines='200' maxLoggerLines='300'>" +
+                        "  <environment>" +
+                        "   <jmx:client-credentials username='username' password='password'/>" +
+                        "  </environment>" +
+                        "</jmx:client>";
+
+        ArooaDescriptor descriptor =
+                new OddjobDescriptorFactory().createDescriptor(
+                        getClass().getClassLoader());
+
+        DesignParser parser = new DesignParser(
+                new StandardArooaSession(descriptor));
+        parser.setArooaType(ArooaType.COMPONENT);
+
+        parser.parse(new XMLConfiguration("TEST", xml));
+
+        design = parser.getDesign();
+
+        assertEquals(ClientDesign.class, design.getClass());
+
+        JMXClientJob test = (JMXClientJob) OddjobTestHelper.createComponentFromConfiguration(
+                design.getArooaContext().getConfigurationNode());
+
+        assertEquals("Test", test.getName());
+        assertEquals("localhost:2012", test.getConnection());
+        assertEquals(5000, test.getHeartbeat());
+        assertEquals(3000, test.getLogPollingInterval());
+        assertEquals(200, test.getMaxConsoleLines());
+        assertEquals(300, test.getMaxLoggerLines());
+
+        Map<String, ?> env = test.getEnvironment();
+        String[] credentials = (String[]) env.get("jmx.remote.credentials");
+
+        assertEquals("username", credentials[0]);
+        assertEquals("password", credentials[1]);
+    }
+
+    public static void main(String[] args) throws ArooaParseException {
+
+        ClientDCTest test = new ClientDCTest();
+        test.testCreate();
+
+        ViewMainHelper view = new ViewMainHelper(test.design);
+        view.run();
+
+    }
 
 }

@@ -4,8 +4,11 @@
 package org.oddjob.structural;
 
 import org.junit.Before;
-
 import org.junit.Test;
+import org.oddjob.MockStructural;
+import org.oddjob.OjTestCase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,12 +17,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.MockStructural;
 
 
 /**
@@ -86,11 +83,11 @@ public class ChildHelperTest extends OjTestCase {
 
         class LoopbackListener implements StructuralListener {
 
-            ChildHelper<Object> copies = new ChildHelper<>(new MockStructural());
+            final ChildHelper<Object> copies = new ChildHelper<>(new MockStructural());
 
-            AtomicInteger events = new AtomicInteger();
+            final AtomicInteger events = new AtomicInteger();
 
-            CountDownLatch finished = new CountDownLatch(74);
+            final CountDownLatch finished = new CountDownLatch(74);
 
             public void childAdded(StructuralEvent event) {
                 copies.insertChild(event.getIndex(), event.getChild());
@@ -181,8 +178,8 @@ public class ChildHelperTest extends OjTestCase {
 
     private static class SimpleListener implements StructuralListener {
 
-        private List<Type> types = new ArrayList<>();
-        private List<StructuralEvent> events = new ArrayList<>();
+        private final List<Type> types = new ArrayList<>();
+        private final List<StructuralEvent> events = new ArrayList<>();
 
         @Override
         public void childAdded(StructuralEvent event) {

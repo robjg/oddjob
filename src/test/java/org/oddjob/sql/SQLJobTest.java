@@ -25,6 +25,9 @@ import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.util.List;
 
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+
 public class SQLJobTest extends OjTestCase {
     private static final Logger logger = LoggerFactory.getLogger(SQLJobTest.class);
 
@@ -99,7 +102,7 @@ public class SQLJobTest extends OjTestCase {
         test.setInput(buffer.toInputStream());
         test.run();
 
-        assertArrayEquals(null, beans.getRows());
+        assertThat(beans.getRows(), nullValue());
     }
 
     @Test
@@ -128,7 +131,7 @@ public class SQLJobTest extends OjTestCase {
         Integer result = new OddjobLookup(oddjob).lookup(
                 "query.results.row.count", Integer.class);
 
-        assertEquals(Integer.valueOf(10), result);
+        assertThat(result, is(10));
 
         oddjob.destroy();
     }
@@ -231,8 +234,8 @@ public class SQLJobTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "sql.results.rowSetCount", Integer.class));
+        assertThat(lookup.lookup(
+                "sql.results.rowSetCount", Integer.class), is(1));
 
         Object[] rows = lookup.lookup(
                 "sql.results.rows", Object[].class);
@@ -262,8 +265,8 @@ public class SQLJobTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "sql-query.results.rowSetCount", Integer.class));
+        assertThat(lookup.lookup(
+                "sql-query.results.rowSetCount", Integer.class), is(1));
 
         Object[] rows = lookup.lookup(
                 "sql-query.results.rows", Object[].class);
@@ -298,8 +301,8 @@ public class SQLJobTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "sql-query.results.rowSetCount", Integer.class));
+        assertThat(lookup.lookup(
+                "sql-query.results.rowSetCount", Integer.class), is(1));
 
         Object[] rows = lookup.lookup(
                 "sql-query.results.rows", Object[].class);
@@ -331,8 +334,8 @@ public class SQLJobTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "sql-query.results.rowSetCount", Integer.class));
+        assertThat(lookup.lookup(
+                "sql-query.results.rowSetCount", Integer.class), is(1));
 
         Object[] rows = lookup.lookup(
                 "sql-query.results.rows", Object[].class);
@@ -362,8 +365,8 @@ public class SQLJobTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        assertEquals(Integer.valueOf(1), lookup.lookup(
-                "sql-query.results.rowSetCount", Integer.class));
+        assertThat(lookup.lookup(
+                "sql-query.results.rowSetCount", Integer.class), is(1));
 
         Object[] rows = lookup.lookup(
                 "sql-query.results.rows", Object[].class);
