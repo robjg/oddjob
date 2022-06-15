@@ -1,21 +1,20 @@
 package org.oddjob;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Array;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.function.Supplier;
-
 import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.utils.Try;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Supplier;
 
 
 /**
@@ -42,7 +41,7 @@ public class Main {
 	 * @return A configured and ready to run Oddjob.
 	 * @throws FileNotFoundException 
 	 */
-    public Supplier<Try<Oddjob>> init(String args[]) throws IOException {
+    public Supplier<Try<Oddjob>> init(String[] args) throws IOException {
 	    
     	OddjobBuilder oddjobBuilder = new OddjobBuilder();
     	
@@ -56,40 +55,55 @@ public class Main {
 		int startArg = 0;
 		
 		// cycle through given args
+		label:
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
 
-			if (arg.equals("-h") || arg.equals("-help")) {
-			    usage();
-			    return () -> Try.of(null);
-			} else if (arg.equals("-v") || arg.equals("-version")) {
-			    version();
-			    return () -> Try.of(null);
-			}
-			else if (arg.equals("-n") || arg.equals("-name")) {
-				oddjobBuilder.setName(args[++i]);
-				startArg += 2;
-			} else if (arg.equals("-l") || arg.equals("-log")) {
-			    logConfig = args[++i];
-				startArg += 2;
-			} else if (arg.equals("-f") || arg.equals("-file")) {
-				oddjobBuilder.setOddjobFile(args[++i]);
-				startArg += 2;
-			} else if (arg.equals("-nb") || arg.equals("-noballs")) {
-				oddjobBuilder.setNoOddballs(true);
-				startArg += 1;
-			} else if (arg.equals("-ob") || arg.equals("-oddballs")) {
-				oddjobBuilder.setOddballsDir(new File(args[++i]));
-				startArg += 2;
-			} else if (arg.equals("-op") || arg.equals("-obpath")) {
-				oddjobBuilder.setOddballsPath(args[++i]);
-				startArg += 2;
-			} else if (arg.equals("--")) {
-				startArg += 1;
-				break;
-			} else {
-				// unrecognised arg, so also pass though to oddjob;
-				break;
+			switch (arg) {
+				case "-h":
+				case "-help":
+					usage();
+					return () -> Try.of(null);
+				case "-v":
+				case "-version":
+					version();
+					return () -> Try.of(null);
+				case "-n":
+				case "-name":
+					oddjobBuilder.setName(args[++i]);
+					startArg += 2;
+					break;
+				case "-l":
+				case "-log":
+					logConfig = args[++i];
+					startArg += 2;
+					break;
+				case "-f":
+				case "-file":
+					oddjobBuilder.setOddjobFile(args[++i]);
+					startArg += 2;
+					break;
+				case "-nb":
+				case "-noballs":
+					oddjobBuilder.setNoOddballs(true);
+					startArg += 1;
+					break;
+				case "-ob":
+				case "-oddballs":
+					oddjobBuilder.setOddballsDir(new File(args[++i]));
+					startArg += 2;
+					break;
+				case "-op":
+				case "-obpath":
+					oddjobBuilder.setOddballsPath(args[++i]);
+					startArg += 2;
+					break;
+				case "--":
+					startArg += 1;
+					break label;
+				default:
+					// unrecognised arg, so also pass though to oddjob;
+					break label;
 			}
 		}
 
@@ -98,7 +112,7 @@ public class Main {
 		}
 				
 		// pass remaining args into Oddjob.
-		Object newArray = Array.newInstance(String.class, args.length - startArg);
+		String[] newArray = new String[args.length - startArg];
 	    System.arraycopy(args, startArg, newArray, 0, args.length - startArg);
 
 	    return () -> {
@@ -108,7 +122,7 @@ public class Main {
 			oddjob.map(oj -> {
 				oj.setProperties(props);
 	
-			    oj.setArgs((String[]) newArray);
+			    oj.setArgs(newArray);
 	
 			    return oj;
 			});
@@ -169,17 +183,21 @@ public class Main {
 		String homeDir = System.getProperty("user.home");		
 		
 		if (homeDir == null) {
+			logger().debug("No user.home System property. Not attempting to find User Properties.");
 			return null;
 		}
 			
 		File userProperties = new File(homeDir, USER_PROPERTIES);
 		
 		if (!userProperties.exists()) {
+			logger().debug("No User Property File: {}", userProperties);
 			return null;
 		}
-			
+
+		logger().debug("Loading User Properties from: {}", userProperties);
+
 		Properties props = new Properties();
-		InputStream input = new FileInputStream(userProperties);
+		InputStream input = Files.newInputStream(userProperties.toPath());
 		
 		props.load(input);
 		input.close();
@@ -204,7 +222,7 @@ public class Main {
 
 			Try<Oddjob> tryOj = sup.get();
 			
-			Optional<Oddjob> optOj = tryOj.map(oj -> Optional.ofNullable(oj))
+			Optional<Oddjob> optOj = tryOj.map(Optional::ofNullable)
 					.orElseThrow();
 			
 					

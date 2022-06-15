@@ -45,7 +45,7 @@ public class OutboundEventSourceTest {
 
         oddjob.run();
 
-        states.checkNow();
+        states.checkWait();
 
         String result = lookup.lookup("result.text", String.class);
 
