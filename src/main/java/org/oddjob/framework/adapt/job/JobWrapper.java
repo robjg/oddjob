@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Rob Gordon.
  */
-public class RunnableWrapper extends BaseWrapper
+public class JobWrapper extends BaseWrapper
         implements ComponentWrapper, Serializable, Forceable {
     private static final long serialVersionUID = 20012052320051231L;
 
@@ -46,9 +46,9 @@ public class RunnableWrapper extends BaseWrapper
     private transient volatile JobStateChanger stateChanger;
 
     /**
-     * The wrapped Runnable.
+     * The Job Adaptor.
      */
-    private final Object wrapped;
+    private final JobAdaptor adaptor;
 
     /**
      * The DynaBean that takes its properties of the wrapped Runnable.
@@ -83,8 +83,8 @@ public class RunnableWrapper extends BaseWrapper
     /**
      * Constructor.
      */
-    public RunnableWrapper(Object wrapped, Object proxy) {
-        this.wrapped = wrapped;
+    public JobWrapper(JobAdaptor adaptor, Object proxy) {
+        this.adaptor = adaptor;
         this.proxy = proxy;
         completeConstruction();
     }
@@ -94,7 +94,7 @@ public class RunnableWrapper extends BaseWrapper
      * deserialisation.
      */
     private void completeConstruction() {
-        this.dynaBean = new WrapDynaBean(wrapped);
+        this.dynaBean = new WrapDynaBean(adaptor.getComponent());
         stateHandler = new JobStateHandler((Stateful) proxy);
         iconHelper = new IconHelper(this,
                 StateIcons.iconFor(stateHandler.getState()));
@@ -107,8 +107,10 @@ public class RunnableWrapper extends BaseWrapper
     public void setArooaSession(ArooaSession session) {
         super.setArooaSession(session);
 
+        adaptor.setArooaSession(session);
+
         resettableAdaptor = new ResettableAdaptorFactory().adapt(
-                wrapped, session)
+                adaptor.getComponent(), session)
                 .orElseGet(() -> new Resettable() {
                     @Override
                     public boolean softReset() {
@@ -122,7 +124,7 @@ public class RunnableWrapper extends BaseWrapper
                 });
 
         stoppableAdaptor = new StoppableAdaptorFactory().adapt(
-                wrapped, session)
+                adaptor.getComponent(), session)
                 .orElseGet(() ->
                         () -> stateHandler.runLocked(() -> {
                             Thread t = thread;
@@ -137,7 +139,7 @@ public class RunnableWrapper extends BaseWrapper
                 );
 
         asyncAdaptor = new AsyncAdaptorFactory()
-                .adapt(wrapped, session)
+                .adapt(adaptor.getComponent(), session)
                 .orElse(null);
     }
 
@@ -157,7 +159,7 @@ public class RunnableWrapper extends BaseWrapper
 
     @Override
     protected Object getWrapped() {
-        return wrapped;
+        return adaptor.getComponent();
     }
 
     @Override
@@ -188,7 +190,7 @@ public class RunnableWrapper extends BaseWrapper
 
         final AtomicReference<Throwable> exception =
                 new AtomicReference<>();
-        final AtomicReference<Object> callableResult =
+        final AtomicReference<Integer> callableResult =
                 new AtomicReference<>();
 
         thread = Thread.currentThread();
@@ -197,7 +199,7 @@ public class RunnableWrapper extends BaseWrapper
 
             Object wrapped;
             if (asyncAdaptor == null) {
-                wrapped = this.wrapped;
+                wrapped = this.adaptor;
             }
             else {
                 asyncAdaptor.acceptCompletionHandle(result ->
@@ -214,8 +216,8 @@ public class RunnableWrapper extends BaseWrapper
                 wrapped = asyncAdaptor;
             }
 
-            if (wrapped instanceof Callable<?>) {
-                callableResult.set(((Callable<?>) wrapped).call());
+            if (wrapped instanceof Callable) {
+                callableResult.set(((Callable<Integer>) wrapped).call());
             } else {
                 ((Runnable) wrapped).run();
             }
@@ -234,25 +236,18 @@ public class RunnableWrapper extends BaseWrapper
 
         Throwable throwable = exception.get();
         if (asyncAdaptor == null || throwable != null) {
-            int result;
-            try {
-                result = getResult(callableResult.get());
-            } catch (Exception e) {
-                // Reflection of result failed.
-                throwable = e;
-                result = -1;
-            }
+            Integer resultO = callableResult.get();
+            final int result = resultO == null ? 0 : resultO;
 
             logger().info("Finished {}.", throwable != null ? "EXCEPTION"
                     : result == 0 ? "COMPLETE" : "INCOMPLETE");
 
             final Throwable finalThrowable = throwable;
-            final int finalResult = result;
             stateHandler.waitToWhen(new IsStoppable(), () -> {
                 if (finalThrowable != null) {
                     getStateChanger().setStateException(exception.get());
                 } else {
-                        if (finalResult == 0) {
+                        if (result == 0) {
                             getStateChanger().setState(JobState.COMPLETE);
                         } else {
                             getStateChanger().setState(JobState.INCOMPLETE);
@@ -361,7 +356,7 @@ public class RunnableWrapper extends BaseWrapper
             stateHandler().setState(JobState.DESTROYED);
             stateHandler().fireEvent();
         })) {
-            throw new IllegalStateException("[" + RunnableWrapper.this + "] Failed set state DESTROYED");
+            throw new IllegalStateException("[" + JobWrapper.this + "] Failed set state DESTROYED");
         }
 
         logger().debug("[" + this + "] Destroyed.");

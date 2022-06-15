@@ -6,15 +6,14 @@ package org.oddjob;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.life.ComponentProxyResolver;
 import org.oddjob.framework.adapt.WrapperInvocationHandler;
-import org.oddjob.framework.adapt.job.CallableProxyGenerator;
-import org.oddjob.framework.adapt.job.RunnableProxyGenerator;
-import org.oddjob.framework.adapt.service.ServiceAdaptor;
+import org.oddjob.framework.adapt.job.JobProxyGenerator;
+import org.oddjob.framework.adapt.job.JobStrategies;
 import org.oddjob.framework.adapt.service.ServiceProxyGenerator;
 import org.oddjob.framework.adapt.service.ServiceStrategies;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
-import java.util.concurrent.Callable;
+import java.util.Optional;
 
 /**
  * Possibly provide a proxy to use as the component. The proxy will provide
@@ -40,26 +39,21 @@ public class OddjobComponentResolver
             return component;
         }
 
-        ServiceAdaptor service =
-                new ServiceStrategies().serviceFor(component, session);
-        if (service != null) {
-            return new ServiceProxyGenerator().generate(service,
-                    component.getClass().getClassLoader());
+        Optional<Object> proxy;
+
+        proxy = new ServiceStrategies().adapt(component, session)
+                        .map(serviceAdaptor -> new ServiceProxyGenerator().generate(serviceAdaptor,
+                                component.getClass().getClassLoader()));
+
+        if (proxy.isPresent()) {
+            return proxy.get();
         }
 
-        if (component instanceof Callable) {
-            return new CallableProxyGenerator().generate(
-                    (Callable<?>) component,
-                    component.getClass().getClassLoader());
-        }
+        proxy = new JobStrategies().adapt(component, session)
+                .map(jobAdaptor -> new JobProxyGenerator().generate(jobAdaptor,
+                        component.getClass().getClassLoader()));
 
-        if (component instanceof Runnable) {
-            return new RunnableProxyGenerator().generate(
-                    (Runnable) component,
-                    component.getClass().getClassLoader());
-        }
-
-        return component;
+        return proxy.orElse(component);
     }
 
     @Override

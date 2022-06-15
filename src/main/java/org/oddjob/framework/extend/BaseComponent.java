@@ -164,15 +164,14 @@ implements Iconic, Stateful,
 	}
 	
 	/**
-	 * Save this job. If there is no runtime for this
-	 * component then true is returned.
-	 * 
-	 * @return true if successful. False if not.
-	 * @throws ComponentPersistException 
+	 * Save this job. This given component is normally this component or a proxy.
+	 *
+	 * @param component The component to save.
+	 * @throws ComponentPersistException
 	 */
-	protected void save(final Object o) throws ComponentPersistException {
+	protected void save(final Object component) throws ComponentPersistException {
 		if (session != null) {
-			session.getComponentPool().save(o);
+			session.getComponentPool().save(component);
 		}
 	}
 

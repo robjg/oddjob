@@ -6,6 +6,7 @@ import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.parsing.ArooaContext;
@@ -58,18 +59,22 @@ public class MegaBeanBusTest {
 
         RuntimeConfiguration runtimeConfiguration = mock(RuntimeConfiguration.class);
 
-        ArooaContext arooaContext = mock(ArooaContext.class);
-        when(arooaContext.getRuntime()).thenReturn(runtimeConfiguration);
-
         ArooaSession session = new BusSessionFactory()
                 .createSession(new OddjobSessionFactory().createSession(),
                         getClass().getClassLoader());
+
+        ArooaContext arooaContext = mock(ArooaContext.class);
+        when(arooaContext.getRuntime()).thenReturn(runtimeConfiguration);
+        when(arooaContext.getSession()).thenReturn(session);
+
         List<String> destination = new ArrayList<>();
 
         IterableBusDriver<String> driver = new IterableBusDriver<>();
         driver.setValues(Arrays.asList("apple", "pear", "banana"));
 
         Object driverProxy = session.getComponentProxyResolver().resolve(driver, session);
+        ((ArooaSessionAware) driverProxy).setArooaSession(session);
+
         session.getComponentPool().registerComponent(
                 ComponentTrinity.withComponent(driver)
                         .andProxy(driverProxy)

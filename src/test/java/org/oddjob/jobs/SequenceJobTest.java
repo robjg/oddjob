@@ -3,16 +3,19 @@
  */
 package org.oddjob.jobs;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.describe.UniversalDescriber;
-import org.oddjob.framework.adapt.job.RunnableProxyGenerator;
+import org.oddjob.framework.adapt.job.JobAdaptor;
+import org.oddjob.framework.adapt.job.JobProxyGenerator;
+import org.oddjob.framework.adapt.job.JobStrategies;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
@@ -23,7 +26,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+
+import static org.hamcrest.Matchers.is;
 
 public class SequenceJobTest extends OjTestCase {
 
@@ -41,21 +47,29 @@ public class SequenceJobTest extends OjTestCase {
 
         test.run();
 
-        assertEquals(new Integer(22), test.getCurrent());
+        assertEquals(Integer.valueOf(22), test.getCurrent());
 
-        SequenceJob copy = (SequenceJob) OddjobTestHelper.copy(test);
+        SequenceJob copy = OddjobTestHelper.copy(test);
 
-        assertEquals(new Integer(22), copy.getCurrent());
+        assertEquals(Integer.valueOf(22), copy.getCurrent());
     }
 
     @Test
     public void testSerializedByWrapper() throws Exception {
+
+        ArooaSession session = new StandardArooaSession();
+
         SequenceJob test = new SequenceJob();
         test.setFrom(22);
 
-        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
-                (Runnable) test,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(test, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Runnable proxy = (Runnable) new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
+
+        ((ArooaSessionAware) proxy).setArooaSession(session);
 
         proxy.run();
 
@@ -76,7 +90,7 @@ public class SequenceJobTest extends OjTestCase {
         Map<String, String> m = new UniversalDescriber(
                 new StandardArooaSession()).describe(test);
 
-        String current = (String) m.get("current");
+        String current = m.get("current");
         assertEquals("0", current);
     }
 
@@ -99,7 +113,7 @@ public class SequenceJobTest extends OjTestCase {
 
         Date now = new Date(new Date().getTime() + 1);
         while (true) {
-            Date next = (Date) new OddjobLookup(oddjob).lookup(
+            Date next = new OddjobLookup(oddjob).lookup(
                     "daily.nextDue", Date.class);
 
             if (next.after(now)) {
@@ -108,6 +122,7 @@ public class SequenceJobTest extends OjTestCase {
 
             logger.info("Waiting for daily to move forward.");
 
+            //noinspection BusyWait
             Thread.sleep(100);
         }
 

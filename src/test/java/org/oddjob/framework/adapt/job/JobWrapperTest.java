@@ -41,13 +41,16 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+
+import static org.hamcrest.Matchers.is;
 
 /**
  * @author Rob Gordon.
  */
-public class RunnableWrapperTest extends OjTestCase {
+public class JobWrapperTest extends OjTestCase {
 
     private static class OurContext extends MockArooaContext {
 
@@ -126,6 +129,7 @@ public class RunnableWrapperTest extends OjTestCase {
      */
     @Test
     public void testGoodRunnable() {
+
         OurSession session = new OurSession();
 
         OurContext context = new OurContext();
@@ -133,8 +137,11 @@ public class RunnableWrapperTest extends OjTestCase {
 
         OurRunnable test = new OurRunnable();
 
-        Object proxy = new RunnableProxyGenerator().generate(
-				test,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(test, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
         ((ArooaSessionAware) proxy).setArooaSession(session);
@@ -179,11 +186,14 @@ public class RunnableWrapperTest extends OjTestCase {
 			throw new RuntimeException("How bad is this!");
 		};
 
-        Object proxy = new RunnableProxyGenerator().generate(
-				test,
-                getClass().getClassLoader());
-
         ArooaSession session = new StandardArooaSession();
+
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(test, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
+                getClass().getClassLoader());
 
         ((ArooaSessionAware) proxy).setArooaSession(session);
 
@@ -212,6 +222,8 @@ public class RunnableWrapperTest extends OjTestCase {
     @Test
     public void testStop() throws InterruptedException, FailedToStopException {
 
+        ArooaSession session = new StandardArooaSession();
+
         final CountDownLatch latch = new CountDownLatch(1);
 
         Runnable test = new Runnable() {
@@ -233,25 +245,28 @@ public class RunnableWrapperTest extends OjTestCase {
             }
         };
 
-        Runnable wrapper = (Runnable) new RunnableProxyGenerator().generate(
-				test,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(test, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
-        ((ArooaSessionAware) wrapper).setArooaSession(new StandardArooaSession());
+        ((ArooaSessionAware) proxy).setArooaSession(new StandardArooaSession());
 
-        Stateful stateful = (Stateful) wrapper;
+        Stateful stateful = (Stateful) proxy;
 
         StateSteps states = new StateSteps(stateful);
 
         states.startCheck(JobState.READY, JobState.EXECUTING);
 
-        Thread t = new Thread(wrapper);
+        Thread t = new Thread((Runnable) proxy);
         t.start();
 
         states.checkWait();
         latch.await();
 
-        Stoppable stoppable = (Stoppable) wrapper;
+        Stoppable stoppable = (Stoppable) proxy;
 
         states.startCheck(JobState.EXECUTING, JobState.COMPLETE);
 
@@ -268,11 +283,16 @@ public class RunnableWrapperTest extends OjTestCase {
      */
     @Test
     public void testHashCode() {
+        ArooaSession session = new StandardArooaSession();
+
         Runnable wrapped = () -> {
 		};
 
-        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
-				wrapped,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(wrapped, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object test = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
         HashMap<Object, String> hashMap = new HashMap<>();
@@ -287,11 +307,17 @@ public class RunnableWrapperTest extends OjTestCase {
      */
     @Test
     public void testEquals() {
+
+        ArooaSession session = new StandardArooaSession();
+
         Runnable wrapped = () -> {
 		};
 
-        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
-				wrapped,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(wrapped, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object test = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
 		assertEquals(test, test);
@@ -405,10 +431,16 @@ public class RunnableWrapperTest extends OjTestCase {
      */
     @Test
     public void testPropertiesInProxy() throws Exception {
+
+        ArooaSession session = new StandardArooaSession();
+
         LotsOfProperties bean = new LotsOfProperties();
 
-        Runnable test = (Runnable) new RunnableProxyGenerator().generate(
-				bean,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(bean, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object test = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
         DynaBean db = (DynaBean) test;
@@ -510,6 +542,9 @@ public class RunnableWrapperTest extends OjTestCase {
 	 */
     @Test
     public void testDefaultLogger() {
+
+        ArooaSession session = new StandardArooaSession();
+
         class MyL implements LogListener {
             final StringBuffer messages = new StringBuffer();
 
@@ -520,8 +555,11 @@ public class RunnableWrapperTest extends OjTestCase {
 
         AnyLogger l = new AnyLogger();
 
-        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
-				l,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(l, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
         LoggerAdapter.appenderAdapterFor("AnyLogger").setLevel(LogLevel.DEBUG);
@@ -538,7 +576,7 @@ public class RunnableWrapperTest extends OjTestCase {
         MyL ll = new MyL();
         archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);
 
-        proxy.run();
+        ((Runnable) proxy).run();
 
         assertTrue(ll.messages.indexOf("FINDME") > 0);
     }
@@ -556,6 +594,7 @@ public class RunnableWrapperTest extends OjTestCase {
     @Test
     public void testSpecificLogger() {
 
+        ArooaSession session = new StandardArooaSession();
         class MyL implements LogListener {
             final StringBuffer messages = new StringBuffer();
 
@@ -566,8 +605,11 @@ public class RunnableWrapperTest extends OjTestCase {
 
         MyLogger l = new MyLogger();
 
-        Runnable proxy = (Runnable) new RunnableProxyGenerator().generate(
-				l,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(l, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
         assertEquals("MyLogger", ((LogEnabled) proxy).loggerName());
@@ -578,7 +620,7 @@ public class RunnableWrapperTest extends OjTestCase {
         MyL ll = new MyL();
         archiver.addLogListener(ll, proxy, LogLevel.DEBUG, 0, 1000);
 
-        proxy.run();
+        ((Runnable) proxy).run();
 
         assertTrue(ll.messages.indexOf("FINDME") > 0);
     }
@@ -594,14 +636,17 @@ public class RunnableWrapperTest extends OjTestCase {
         Job j = new Job();
         j.setResult("Hello");
 
-        Runnable wrapper = (Runnable) new RunnableProxyGenerator().generate(
-				j,
+        Optional<JobAdaptor> jobAdaptor = new JobStrategies().adapt(j, session);
+        assertThat(jobAdaptor.isPresent(), is(true));
+
+        Object proxy = new JobProxyGenerator().generate(
+                jobAdaptor.get(),
                 getClass().getClassLoader());
 
-        ((ArooaSessionAware) wrapper).setArooaSession(session);
+        ((ArooaSessionAware) proxy).setArooaSession(session);
 
         Map<String, String> m = new UniversalDescriber(
-                session).describe(wrapper);
+                session).describe(proxy);
 
         assertEquals("Hello", m.get("result"));
     }

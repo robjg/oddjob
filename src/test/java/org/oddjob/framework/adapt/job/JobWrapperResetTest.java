@@ -16,7 +16,7 @@ import org.oddjob.state.ParentState;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RunnableWrapperResetTest extends OjTestCase {
+public class JobWrapperResetTest extends OjTestCase {
 
 	public static class Bean1 implements Runnable {
 
