@@ -150,15 +150,29 @@ public class AsyncAdaptorFactory implements AdaptorFactory<AsyncJob> {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	static <T> Class<T> getCallableType(Callable<T> callable) {
-		Type callableInterfaceType = Arrays.stream(callable.getClass()
-				.getGenericInterfaces())
+
+		return getCallableTypeOf(callable.getClass());
+	}
+
+	@SuppressWarnings("rawtypes")
+	static <T> Class<T> getCallableTypeOf(Class<? extends Callable> callableClass) {
+
+		Optional<Type> callableInterfaceType = Arrays.stream(callableClass.getGenericInterfaces())
 				.filter(c -> Callable.class == rawType(c))
-				.findFirst()
-				.orElseThrow(() -> new IllegalStateException("Callable not found???"));
-		Type t = ((ParameterizedType) callableInterfaceType).getActualTypeArguments()[0];
-		return (Class<T>) rawType(t);
+				.findFirst();
+
+		if (callableInterfaceType.isPresent()) {
+
+			Type t = ((ParameterizedType) callableInterfaceType.get()).getActualTypeArguments()[0];
+
+			//noinspection unchecked
+			return (Class<T>) rawType(t);
+		}
+		else {
+
+			return getCallableTypeOf((Class<Callable>)callableClass.getSuperclass());
+		}
 	}
 
 	static Class<?> rawType(Type type) {

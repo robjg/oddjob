@@ -73,4 +73,15 @@ public class AsyncAdaptorFactoryTest {
         assertThat(AsyncAdaptorFactory.getCallableType(new OurOtherThingsAndCallable()),
                 is(CompletableFuture.class));
     }
+
+    static class OurSubClass extends OurCallable {
+
+    }
+
+    @Test
+    public void testSubclassCallableTypeResolved() {
+
+        assertThat(AsyncAdaptorFactory.getCallableType(new OurSubClass()),
+                is(String.class));
+    }
 }
