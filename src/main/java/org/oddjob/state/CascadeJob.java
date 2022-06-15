@@ -63,7 +63,7 @@ public class CascadeJob extends StructuralJob<Object> {
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The state to continue the cascade on.
-	 * @oddjob.required No, defaults to DONE.
+	 * @oddjob.required No, defaults to COMPLETE.
 	 */
 	private volatile StateCondition cascadeOn;
 
@@ -117,7 +117,7 @@ public class CascadeJob extends StructuralJob<Object> {
 		}
 		
 		final StateCondition cascadeOn = Optional.ofNullable(this.cascadeOn)
-				.orElse(StateConditions.DONE);
+				.orElse(StateConditions.COMPLETE);
 		
 		final StateCondition haltOn = Optional.ofNullable(this.haltOn)
 				.orElse(StateConditions.FAILURE);

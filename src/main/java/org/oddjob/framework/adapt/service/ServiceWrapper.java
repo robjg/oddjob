@@ -128,14 +128,15 @@ public class ServiceWrapper extends BaseWrapper
     }
 
     public void run() {
+        Optional<AsyncService> possiblyAsync = serviceAdaptor.asAsync();
+        boolean isAsync = possiblyAsync.isPresent();
+
         if (!stateHandler.waitToWhen(new IsExecutable(),
-                () -> getStateChanger().setState(ServiceState.STARTING))) {
+                () -> getStateChanger().setState(isAsync ? ServiceState.INITIALISING : ServiceState.STARTING))) {
             return;
         }
 
         logger().info("Service Starting.");
-
-        Optional<AsyncService> possiblyAsync = serviceAdaptor.asAsync();
 
         try {
             if (Thread.interrupted()) {
@@ -151,7 +152,7 @@ public class ServiceWrapper extends BaseWrapper
 
             if (possiblyAsync.isPresent()) {
                 AsyncService async = possiblyAsync.get();
-                async.acceptCompletionHandle(() -> setStateStarted());
+                async.acceptCompletionHandle(this::setStateStarted);
                 async.run();
             }
             else {

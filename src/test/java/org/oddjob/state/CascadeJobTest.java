@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.oddjob.*;
+import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.framework.Service;
@@ -27,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.oddjob.state.JoinJobTest.TIMEOUT;
 
 /**
  *
@@ -793,6 +796,94 @@ public class CascadeJobTest extends OjTestCase {
                 jobs[2]).lastStateEvent().getState());
         assertEquals(JobState.READY, ((Stateful)
                 jobs[3]).lastStateEvent().getState());
+
+        oddjob.destroy();
+    }
+
+    @Test
+    public void testCascadeJoinExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration(
+                "org/oddjob/state/CascadeJoinExample.xml",
+                getClass().getClassLoader()));
+
+        oddjob.load();
+
+        assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+        StateSteps oddjobState = new StateSteps(oddjob);
+
+        Stateful parallel = lookup.lookup("parallel", Stateful.class);
+        Stateful lastJob = lookup.lookup("last-job", Stateful.class);
+
+        StateSteps parallelState = new StateSteps(parallel);
+        StateSteps lastState = new StateSteps(lastJob);
+
+        Thread t = new Thread(oddjob);
+
+        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+        oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+
+        logger.info("** starting first run");
+
+        t.start();
+
+        parallelState.checkWait();
+
+        t.join(TIMEOUT);
+
+        oddjobState.checkWait();
+
+        assertEquals(JobState.READY,
+                lastJob.lastStateEvent().getState());
+
+        Object applesFlag = lookup.lookup("apples");
+        Object orangesFlag = lookup.lookup("oranges");
+
+        oddjobState.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+        lastState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+
+        ((Runnable) applesFlag).run();
+        ((Runnable) orangesFlag).run();
+
+        logger.info("** first run done.");
+
+        lastState.checkWait();
+        oddjobState.checkWait();
+
+        logger.info("** resetting");
+
+        ((Resettable) parallel).hardReset();
+        ((Resettable) lastJob).hardReset();
+        ((Resettable) applesFlag).hardReset();
+        ((Resettable) orangesFlag).hardReset();
+
+        Thread t2 = new Thread(oddjob);
+
+        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING);
+
+        logger.info("** starting second run");
+
+        t2.start();
+
+        parallelState.checkWait();
+
+        assertEquals(JobState.READY,
+                lastJob.lastStateEvent().getState());
+
+        lastState.startCheck(JobState.READY, JobState.EXECUTING, JobState.COMPLETE);
+
+        ((Runnable) applesFlag).run();
+        ((Runnable) orangesFlag).run();
+
+        t2.join(TIMEOUT);
+
+        logger.info("** second run done.");
+
+        lastState.checkWait();
 
         oddjob.destroy();
     }

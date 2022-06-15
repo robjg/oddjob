@@ -87,6 +87,41 @@ public enum ServiceState implements State {
 	},
 
 	/**
+	 * Indicates the service is starting. The execution thread is
+	 * still in the start method.
+	 */
+	INITIALISING() {
+		@Override
+		public boolean isReady() {
+			return false;
+		}
+		@Override
+		public boolean isExecuting() {
+			return false;
+		}
+		@Override
+		public boolean isStoppable() {
+			return true;
+		}
+		@Override
+		public boolean isComplete() {
+			return false;
+		}
+		@Override
+		public boolean isIncomplete() {
+			return false;
+		}
+		@Override
+		public boolean isException() {
+			return false;
+		}
+		@Override
+		public boolean isDestroyed() {
+			return false;
+		}
+	},
+
+	/**
 	 * Indicates the service has started and is now available to service
 	 * requests.
 	 */	
@@ -240,6 +275,7 @@ public enum ServiceState implements State {
 
 		StateIcons.register(ServiceState.STARTABLE, IconHelper.STARTABLE);
 		StateIcons.register(ServiceState.STARTING, IconHelper.EXECUTING);
+		StateIcons.register(ServiceState.INITIALISING, IconHelper.ACTIVE);
 		StateIcons.register(ServiceState.STARTED, IconHelper.STARTED);
 		StateIcons.register(ServiceState.STOPPED, IconHelper.STOPPED);
 		StateIcons.register(ServiceState.EXCEPTION, IconHelper.EXCEPTION);

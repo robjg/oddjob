@@ -1,14 +1,10 @@
 package org.oddjob.beanbus.destinations;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.oddjob.Oddjob;
-import org.oddjob.OddjobLookup;
-import org.oddjob.Resettable;
-import org.oddjob.Stateful;
+import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -21,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-public class BusQueueTest extends Assert {
+public class BusQueueTest extends OjTestCase {
 
     private static final Logger logger = LoggerFactory.getLogger(BusQueueTest.class);
 

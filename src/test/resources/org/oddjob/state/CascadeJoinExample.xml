@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <cascade cascadeOn="DONE">
+            <jobs>
+                <folder>
+                    <jobs>
+                        <state:flag id="apples" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                        <state:flag id="oranges" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                    </jobs>
+                </folder>
+                <parallel id="parallel">
+                    <jobs>
+                        <scheduling:trigger newOnly="true" on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <job>
+                                <echo>
+                                    <![CDATA[Apples]]>
+                                </echo>
+                            </job>
+                        </scheduling:trigger>
+                        <scheduling:trigger newOnly="true" on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <job>
+                                <echo>
+                                    <![CDATA[Oranges]]>
+                                </echo>
+                            </job>
+                        </scheduling:trigger>
+                    </jobs>
+                </parallel>
+                <echo id="last-job">
+                    <![CDATA[And that's that!]]>
+                </echo>
+            </jobs>
+        </cascade>
+    </job>
+</oddjob>

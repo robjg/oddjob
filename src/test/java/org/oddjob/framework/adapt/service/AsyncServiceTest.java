@@ -62,7 +62,7 @@ public class AsyncServiceTest {
         oddjob.run();
 
         Object test = new OddjobLookup(oddjob).lookup("s");
-        assertThat(((Stateful) test).lastStateEvent().getState(), is(ServiceState.STARTING));
+        assertThat(((Stateful) test).lastStateEvent().getState(), is(ServiceState.INITIALISING));
 
         ((Completable) test).complete();
 

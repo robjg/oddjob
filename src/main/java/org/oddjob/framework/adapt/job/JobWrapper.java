@@ -174,9 +174,12 @@ public class JobWrapper extends BaseWrapper
     @Override
     public void run() {
 
+        Optional<AsyncJob> possiblyAsync = adaptor.asAsync();
+        boolean isAsync = possiblyAsync.isPresent();
+
         if (!stateHandler.waitToWhen(
                 new IsExecutable(),
-                () -> getStateChanger().setState(JobState.EXECUTING))) {
+                () -> getStateChanger().setState(isAsync ? JobState.ACTIVE : JobState.EXECUTING))) {
             return;
         }
 
@@ -188,12 +191,11 @@ public class JobWrapper extends BaseWrapper
                 new AtomicReference<>();
 
         thread = Thread.currentThread();
-        Optional<AsyncJob> possiblyAsync = adaptor.asAsync();
 
         try {
             configure();
 
-            if (possiblyAsync.isPresent()) {
+            if (isAsync) {
                 AsyncJob async = possiblyAsync.get();
                 async.acceptCompletionHandle(result ->
                         stateHandler.waitToWhen(new IsStoppable(), () -> {
@@ -224,7 +226,7 @@ public class JobWrapper extends BaseWrapper
         }
 
         Throwable throwable = exception.get();
-        if (!possiblyAsync.isPresent() || throwable != null) {
+        if (!isAsync || throwable != null) {
             Integer resultO = callableResult.get();
             final int result = resultO == null ? 0 : resultO;
 
@@ -246,9 +248,6 @@ public class JobWrapper extends BaseWrapper
         }
         else {
             logger().info("Started async.");
-
-            stateHandler.waitToWhen(new IsStoppable(), () ->
-                    getStateChanger().setState(JobState.ACTIVE));
         }
     }
 
