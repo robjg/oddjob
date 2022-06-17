@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -770,8 +771,8 @@ public class CascadeJobTest extends OjTestCase {
     @Test
     public void testCascadeOnHaltOnExample() throws InterruptedException {
 
-        File file = new File(getClass().getResource(
-                "CascadeOnHaltOnExample.xml").getFile());
+        File file = new File(Objects.requireNonNull(getClass().getResource(
+                "CascadeOnHaltOnExample.xml")).getFile());
 
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(file);
@@ -863,7 +864,7 @@ public class CascadeJobTest extends OjTestCase {
 
         Thread t2 = new Thread(oddjob);
 
-        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING);
+        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 
         logger.info("** starting second run");
 

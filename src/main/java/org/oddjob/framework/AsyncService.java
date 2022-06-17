@@ -9,7 +9,14 @@ package org.oddjob.framework;
  * @author rob
  *
  */
-public interface AsyncService extends FallibleComponent, Runnable {
+public interface AsyncService extends FallibleComponent {
+
+	/**
+	 * Start the service.
+	 *
+	 * @throws Exception If the service can't be started.
+	 */
+	void start() throws Exception;
 
 	/**
 	 * Accept a stop handle. The framework will use this method to

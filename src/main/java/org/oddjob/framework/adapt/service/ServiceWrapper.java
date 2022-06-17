@@ -146,16 +146,16 @@ public class ServiceWrapper extends BaseWrapper
                                 "themselves to guarantee consistent behaviour.");
             }
 
-            serviceAdaptor.acceptExceptionListener(this::exceptionFromComponent);
-
             configure();
 
-            if (possiblyAsync.isPresent()) {
+            if (isAsync) {
                 AsyncService async = possiblyAsync.get();
+                async.acceptExceptionListener(this::exceptionFromComponent);
                 async.acceptCompletionHandle(this::setStateStarted);
-                async.run();
+                async.start();
             }
             else {
+                serviceAdaptor.acceptExceptionListener(this::exceptionFromComponent);
                 serviceAdaptor.start();
                 setStateStarted();
             }

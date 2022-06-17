@@ -103,20 +103,16 @@ public class MethodAsyncHelper {
         }
 
         @Override
-        public void run() {
-            try {
-                CompletableFuture<?> completableFuture = (CompletableFuture<?>) method.invoke(component);
+        public void start() throws Exception {
+            CompletableFuture<?> completableFuture = (CompletableFuture<?>) method.invoke(component);
 
-                completableFuture.whenComplete((v, t) -> {
-                    if (t == null) {
-                        flagStarted.run();
-                    } else {
-                        exceptionListener.exceptionThrown((Exception) t);
-                    }
-                });
-            } catch (Exception e) {
-                exceptionListener.exceptionThrown(e);
-            }
+            completableFuture.whenComplete((v, t) -> {
+                if (t == null) {
+                    flagStarted.run();
+                } else {
+                    exceptionListener.exceptionThrown((Exception) t);
+                }
+            });
         }
 
         @Override
