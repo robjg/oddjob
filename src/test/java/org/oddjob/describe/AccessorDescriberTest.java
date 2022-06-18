@@ -2,6 +2,7 @@ package org.oddjob.describe;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.LazyDynaMap;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaBeanDescriptor;
@@ -13,7 +14,10 @@ import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.utils.Pair;
 import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import static org.hamcrest.Matchers.is;
 
 public class AccessorDescriberTest extends OjTestCase {
 
@@ -26,6 +30,7 @@ public class AccessorDescriberTest extends OjTestCase {
             return new String[]{"Alice", "Bob"};
         }
 
+        public byte[] getPassword() { return "secret".getBytes(StandardCharsets.UTF_8); }
         @NoDescribe
         public String getColour() {
             return "red";
@@ -41,10 +46,11 @@ public class AccessorDescriberTest extends OjTestCase {
 
         Map<String, String> description = test.describe(new SimpleBean());
 
-        assertEquals(3, description.size());
+        assertThat(description.size(), is(4));
         assertEquals("apples", description.get("fruit"));
         assertEquals(SimpleBean.class.toString(), description.get("class"));
         assertEquals("[Alice, Bob]", description.get("greengrocers"));
+        assertThat(description.get("password"), Matchers.startsWith("[B"));
     }
 
     public static class SetterOnlyBean {

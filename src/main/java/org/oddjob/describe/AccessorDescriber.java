@@ -75,9 +75,9 @@ public class AccessorDescriber implements Describer {
 				if (value == null) {
 					description.put(property, null);
 				}
-				else if (value.getClass().isArray()) {
-					description.put(property,
-							Arrays.toString((Object[]) value));
+				else if (value.getClass().isArray() && !value.getClass().getComponentType().isPrimitive()) {
+						description.put(property,
+								Arrays.toString((Object[]) value));
 				}
 				else {
 					description.put(property, value.toString());

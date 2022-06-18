@@ -1,14 +1,5 @@
 package org.oddjob.logging.appender;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 import org.oddjob.arooa.logging.AppenderAdapter;
 import org.oddjob.arooa.logging.LogLevel;
@@ -20,14 +11,21 @@ import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+
 public class ArchiveAppenderTest {
 
 	private static final Logger logger = 
 		LoggerFactory.getLogger(ArchiveAppenderTest.class);
 	
-	private class OurArchiver extends MockLogArchiverCache {
+	private static class OurArchiver extends MockLogArchiverCache {
 
-		Map<LogLevel, String> messages = new HashMap<LogLevel,String>();
+		Map<LogLevel, String> messages = new HashMap<>();
 		
 		@Override
 		public void addEvent(String archive, LogLevel level, String message) {
@@ -76,7 +74,7 @@ public class ArchiveAppenderTest {
 	}
     
     @Test
-	public void testAppenderCapturesMessagesToNestedLoggerOnSeparteThead() throws InterruptedException {
+	public void testAppenderCapturesMessagesToNestedLoggerOnSeparateThread() throws InterruptedException {
 
     	Logger nestedLogger = LoggerFactory.getLogger(ArchiveAppenderTest.class.getName() + ".Nested");
     	

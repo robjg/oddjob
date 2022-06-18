@@ -231,7 +231,7 @@ public class MainTest extends OjTestCase {
 		
 		Main test = new Main();
 		
-		Properties props = test.processUserProperties();
+		Properties props = test.loadUserProperties();
 		
 		assertEquals("apples", props.getProperty("test.fruit"));
 		assertEquals("fruit", props.getProperty("test.snack"));

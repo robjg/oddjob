@@ -45,7 +45,7 @@ public class Main {
 	    
     	OddjobBuilder oddjobBuilder = new OddjobBuilder();
     	
-    	Properties props = processUserProperties();
+    	Properties props = loadUserProperties();
     	
 		String logConfig = null;
 		
@@ -173,22 +173,30 @@ public class Main {
 	/**
 	 * Process the properties in oddjob.properties in the users
 	 * home directory.
-	 * 
+	 *
 	 * @return The properties. Null if there aren't any.
-	 * 
+	 *
 	 * @throws IOException
 	 */
-	protected Properties processUserProperties() throws IOException {
-		
-		String homeDir = System.getProperty("user.home");		
-		
-		if (homeDir == null) {
-			logger().debug("No user.home System property. Not attempting to find User Properties.");
-			return null;
+	public static Properties loadUserProperties() throws IOException {
+
+		String override = System.getProperty("oddjob.user.properties");
+
+		File userProperties;
+		if (override == null) {
+			String homeDir = System.getProperty("user.home");
+
+			if (homeDir == null) {
+				logger().debug("No user.home System property. Not attempting to find User Properties.");
+				return null;
+			}
+
+			userProperties = new File(homeDir, USER_PROPERTIES);
 		}
-			
-		File userProperties = new File(homeDir, USER_PROPERTIES);
-		
+		else {
+			userProperties = new File(override);
+		}
+
 		if (!userProperties.exists()) {
 			logger().debug("No User Property File: {}", userProperties);
 			return null;
@@ -198,36 +206,36 @@ public class Main {
 
 		Properties props = new Properties();
 		InputStream input = Files.newInputStream(userProperties.toPath());
-		
+
 		props.load(input);
 		input.close();
-		
+
 		return props;
 	}
-	
+
 	/**
 	 * The main.
-	 * 
+	 *
 	 * @param args The command line args.
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException
 	 */
 	public static void main(String[] args) throws Exception {
 
 		Main ojm = new Main();
-		
+
 		Supplier<Try<Oddjob>> sup = ojm.init(args);
-		
+
 		try (Restore restore = OddjobNDC.push(logger().getName(), Main.class.getSimpleName())) {
-		
+
 
 			Try<Oddjob> tryOj = sup.get();
-			
+
 			Optional<Oddjob> optOj = tryOj.map(Optional::ofNullable)
 					.orElseThrow();
-			
-					
-					
-			optOj.ifPresent(oj -> { OddjobRunner runner = new OddjobRunner(oj);					                    
+
+
+
+			optOj.ifPresent(oj -> { OddjobRunner runner = new OddjobRunner(oj);
 						            runner.initShutdownHook();
 						            runner.run();
 						          });
