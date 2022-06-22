@@ -8,9 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PricingTriggerExampleTest {
 
@@ -20,7 +21,8 @@ public class PricingTriggerExampleTest {
     public void testInOddjob() throws InterruptedException {
 
         Oddjob oddjob = new Oddjob();
-        oddjob.setFile(new File(getClass().getResource("PricingTriggerExample.xml").getFile()));
+        oddjob.setFile(new File(Objects.requireNonNull(
+                getClass().getResource("PricingTriggerExample.xml")).getFile()));
 
         logger.info("** Loading.");
 

@@ -2,16 +2,13 @@ package org.oddjob.beanbus.pipeline;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class BatcherTest {
 
@@ -34,7 +31,7 @@ public class BatcherTest {
         assertThat(results.size(), is(3));
         assertThat(results.get(0), is(Arrays.asList(1, 2)));
         assertThat(results.get(1), is(Arrays.asList(3, 4)));
-        assertThat(results.get(2), is(Arrays.asList(5)));
+        assertThat(results.get(2), is(Collections.singletonList(5)));
     }
 
     @Test

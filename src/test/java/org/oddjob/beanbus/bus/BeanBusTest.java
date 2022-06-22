@@ -16,13 +16,11 @@ import org.oddjob.tools.StateSteps;
 import java.io.File;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
 
 public class BeanBusTest {
 
@@ -48,9 +46,6 @@ public class BeanBusTest {
 
         BasicBusService basicBusService = new BasicBusService();
 
-        Executor executor = mock(Executor.class);
-        basicBusService.setExecutor(executor);
-
         OurService ourService = new OurService();
 
         basicBusService.setOf(0, ourService);
@@ -72,9 +67,6 @@ public class BeanBusTest {
     public void testServiceStoppedMidStart() throws InterruptedException, FailedToStopException {
 
         BasicBusService basicBusService = new BasicBusService();
-
-        Executor executor = mock(Executor.class);
-        basicBusService.setExecutor(executor);
 
         OurService ourService = new OurService();
 
@@ -134,6 +126,7 @@ public class BeanBusTest {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
+        @SuppressWarnings("unchecked")
         Consumer<Object> consumer = lookup.lookup("bus", Consumer.class);
 
         consumer.accept(2);

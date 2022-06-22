@@ -5,7 +5,7 @@ import org.junit.Test;
 import java.util.*;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CapturesTest {
 
@@ -22,7 +22,7 @@ public class CapturesTest {
 
         pipe.flush();
 
-        assertThat(results, is(Arrays.asList(Arrays.asList(1, 2, 3))));
+        assertThat(results, is(Collections.singletonList(Arrays.asList(1, 2, 3))));
     }
 
     @Test
@@ -38,6 +38,6 @@ public class CapturesTest {
 
         pipe.flush();
 
-        assertThat(results, is(Arrays.asList(new HashSet<>(Arrays.asList(1, 2, 3)))));
+        assertThat(results, is(Collections.singletonList(new HashSet<>(Arrays.asList(1, 2, 3)))));
     }
 }

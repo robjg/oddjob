@@ -17,10 +17,8 @@ import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateOperator;
 import org.oddjob.util.Restore;
 
-import javax.inject.Inject;
 import java.io.Flushable;
 import java.io.IOException;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 /**
@@ -59,9 +57,9 @@ import java.util.function.Consumer;
  *
  * @oddjob.example
  *
- * A simple bus example.
+ * A simple bus of 3 components.
  *
- * {@oddjob.xml.resource org/oddjob/beanbus/mega/MegaBeanBusExample.xml}
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanTransformerExample.xml}
  *
  * @author Rob Gordon
  * 
@@ -72,12 +70,26 @@ implements ConductorServiceProvider, Consumer<Object> {
 
     private static final long serialVersionUID = 2012021500L;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Provides coordination facilities to the components of a bus. Set automatically
+	 * and exposed for advance use only.
+	 * @oddjob.required No.
+	 */
 	private transient volatile BusConductor busConductor;
 
-	private transient volatile Executor executor;
-
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Bus components will automatically be linked unless this is true.
+	 * @oddjob.required No, defaults to false.
+	 */
 	private volatile boolean noAutoLink;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description An onward consumer so that bus services may be nested.
+	 * @oddjob.required No.
+	 */
 	private Consumer<Object> to;
 
 	private Consumer<Object> first;
@@ -105,8 +117,8 @@ implements ConductorServiceProvider, Consumer<Object> {
 	/**
 	 * Add a child.
 	 * 
-	 * @oddjob.property jobs
-	 * @oddjob.description The child jobs.
+	 * @oddjob.property of
+	 * @oddjob.description The components of a Bus.
 	 * @oddjob.required No, but pointless if missing.
 	 * 
 	 * @param child A child
@@ -168,7 +180,7 @@ implements ConductorServiceProvider, Consumer<Object> {
 			}
 		};
 
-		new StatefulBusSupervisor(busControls, executor)
+		new StatefulBusSupervisor(busControls)
 				.supervise(children);
 
 		this.busConductor = busConductor;
@@ -243,6 +255,11 @@ implements ConductorServiceProvider, Consumer<Object> {
 		this.busConductor.close();
 	}
 
+	/**
+	 * @oddjob.property services
+	 * @oddjob.description Provides services to other components of a bus. Exposed for advance use only.
+	 * @oddjob.required Read Only.
+	 */
 	@Override
 	public ConductorService getServices() {
 		return new ConductorService() {
@@ -296,15 +313,6 @@ implements ConductorServiceProvider, Consumer<Object> {
 
 	public void setNoAutoLink(boolean noAutoLink) {
 		this.noAutoLink = noAutoLink;
-	}
-
-	public Executor getExecutor() {
-		return this.executor;
-	}
-
-	@Inject
-	public void setExecutor(Executor executor) {
-		this.executor = executor;
 	}
 
 	public Consumer<Object> getTo() {

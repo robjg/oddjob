@@ -12,8 +12,19 @@ import java.util.function.Consumer;
  */
 abstract public class AbstractFilter<F, T> implements BusFilter<F, T> {
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The next component in a bus. Set automatically in a
+	 * {@link org.oddjob.beanbus.bus.BasicBusService}.
+	 * @oddjob.required No.
+	 */
 	private volatile Consumer<? super T> to;
-	
+
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The name of this component.
+	 * @oddjob.required No.
+	 */
 	private volatile String name;
 
 	@Override

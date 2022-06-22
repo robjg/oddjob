@@ -15,11 +15,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
- * A Runnable that can be used as an Oddjob job to take data from an
- * iterable (collection) and push them to a Consumer such as in Bean Bus.
+ * @oddjob.description Drives data from  an iterable (such as a {@link org.oddjob.arooa.types.ListType})
+ * through a Bean Bus. It can also be used outside Bean Bus to push data to any {@link Consumer}.
  *
- * @param <T>
- * @author rob
+ * @oddjob.example Drive 3 Beans through a Bean Bus.
+ *
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanTransformerExample.xml}
+ *
+ * @param <T> The generic type of the Iterable.
+ *
+ * @author Rob
  */
 public class IterableBusDriver<T>
         implements Runnable, Stoppable, Outbound<T> {

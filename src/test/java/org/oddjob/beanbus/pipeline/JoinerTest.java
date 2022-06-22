@@ -9,11 +9,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JoinerTest {
 
-    private AtomicInteger flushCount = new AtomicInteger();
+    private final AtomicInteger flushCount = new AtomicInteger();
 
     class Tester<T> implements Section<T, T> {
 

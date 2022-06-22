@@ -3,7 +3,6 @@ package org.oddjob.events.example;
 import org.junit.Test;
 import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.events.state.EventState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
@@ -12,10 +11,11 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Properties;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PricingWhenExampleTest {
 
@@ -24,7 +24,8 @@ public class PricingWhenExampleTest {
     @Test
     public void testAllFilesExists() throws InterruptedException, FailedToStopException {
 
-        File configFile = new File(getClass().getResource("PricingWhenExample.xml").getFile());
+        File configFile = new File(Objects.requireNonNull(
+                getClass().getResource("PricingWhenExample.xml")).getFile());
 
         Properties properties = new Properties();
         properties.setProperty("some.dir", new File(configFile.getParent(), "data").getAbsolutePath());
@@ -61,8 +62,10 @@ public class PricingWhenExampleTest {
 
         Path workDir = OurDirs.workPathDir(getClass().getSimpleName(), true);
 
-        File configFile = new File(getClass().getResource("PricingWhenExample.xml").getFile());
-        File replayFile = new File(getClass().getResource("DataReplay.xml").getFile());
+        File configFile = new File(Objects.requireNonNull(
+                getClass().getResource("PricingWhenExample.xml")).getFile());
+        File replayFile = new File(Objects.requireNonNull(
+                getClass().getResource("DataReplay.xml")).getFile());
         File dataDir = new File(workDir.toFile(), "data");
 
         Properties properties = new Properties();

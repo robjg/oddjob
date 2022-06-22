@@ -1,7 +1,6 @@
 package org.oddjob.beanbus.bus;
 
 import org.oddjob.Stateful;
-import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.state.State;
 import org.oddjob.state.StateConditions;
 import org.oddjob.state.StateEvent;
@@ -10,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -51,11 +49,11 @@ public class StatefulBusSupervisor {
         }
     }
 
-    public StatefulBusSupervisor(BusControls busControls, Executor executor) {
+    public StatefulBusSupervisor(BusControls busControls) {
         this.busControls = Objects.requireNonNull(busControls);
     }
 
-    public void supervise(Object... components) throws BusCrashException {
+    public void supervise(Object... components) {
 
         SupervisorStateListener listener = new SupervisorStateListener();
 

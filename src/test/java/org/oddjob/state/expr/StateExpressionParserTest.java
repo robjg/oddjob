@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 public class StateExpressionParserTest {
@@ -27,7 +27,7 @@ public class StateExpressionParserTest {
 		session.getBeanRegistry().register("job1", job1);
 		
 		StateExpressionParser<StateExpression> test = 
-				new StateExpressionParser<>(() -> new CaptureToExpression());
+				new StateExpressionParser<>(CaptureToExpression::new);
 		
 		StateExpression expression = test.parse("job1 is success");
 		
@@ -65,7 +65,7 @@ public class StateExpressionParserTest {
 		session.getBeanRegistry().register("job3", job3);
 		
 		StateExpressionParser<StateExpression> test = new StateExpressionParser<>(
-				() -> new CaptureToExpression());
+				CaptureToExpression::new);
 		
 		StateExpression expression = test.parse(
 		        "job1 is success or ( job2 is success and job3 is success)");
@@ -91,10 +91,10 @@ public class StateExpressionParserTest {
 	}
 
 	@Test
-	public void testBadGrammer() throws Exception {
+	public void testBadGrammer() {
 	
 		StateExpressionParser<StateExpression> test = 
-				new StateExpressionParser<>(() -> new CaptureToExpression());
+				new StateExpressionParser<>(CaptureToExpression::new);
 		
 		try {
 			test.parse("This wont work");

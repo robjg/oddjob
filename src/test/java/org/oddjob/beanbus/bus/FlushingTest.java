@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.Flushable;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -74,11 +75,13 @@ public class FlushingTest {
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testFlushExample() throws ArooaConversionException {
 
         Oddjob oddjob = new Oddjob();
-        oddjob.setFile(new File(getClass().getResource("FlushExample.xml").getFile()));
+        oddjob.setFile(new File(Objects.requireNonNull(
+                getClass().getResource("FlushExample.xml")).getFile()));
 
         StateSteps states = new StateSteps(oddjob);
         states.startCheck(ParentState.READY,

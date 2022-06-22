@@ -89,7 +89,6 @@ public class MegaBeanBusTest {
 
         BasicBusService test = new BasicBusService();
         test.setArooaSession(session);
-        test.setExecutor(Runnable::run);
         test.setOf(0, driverProxy);
         test.setOf(1, destinationProxy);
 

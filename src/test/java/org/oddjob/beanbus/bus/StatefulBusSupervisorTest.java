@@ -29,7 +29,7 @@ public class StatefulBusSupervisorTest {
 
         FlagState flag = new FlagState();
 
-        new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls)
                     .supervise(flag);
 
         flag.run();
@@ -52,7 +52,7 @@ public class StatefulBusSupervisorTest {
         FlagState flag = new FlagState(JobState.EXCEPTION);
 
         StatefulBusSupervisor test =
-                new StatefulBusSupervisor(busControls, Runnable::run);
+                new StatefulBusSupervisor(busControls);
 
         test.supervise(flag);
 
@@ -84,7 +84,7 @@ public class StatefulBusSupervisorTest {
 
         BusControls busControls = mock(BusControls.class);
 
-        new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls)
                         .supervise(job1, job2);
 
         ArgumentCaptor<StateListener> l1ac = ArgumentCaptor.forClass(StateListener.class);
@@ -141,7 +141,7 @@ public class StatefulBusSupervisorTest {
         BusControls busControls = mock(BusControls.class);
 
         StatefulBusSupervisor test =
-                new StatefulBusSupervisor(busControls, Runnable::run);
+                new StatefulBusSupervisor(busControls);
 
         test.supervise(job, batcher, results);
 
@@ -198,7 +198,7 @@ public class StatefulBusSupervisorTest {
 
         BusControls busControls = mock(BusControls.class);
 
-        new StatefulBusSupervisor(busControls, Runnable::run)
+        new StatefulBusSupervisor(busControls)
                         .supervise(job, naughty);
 
         busConductor.run();

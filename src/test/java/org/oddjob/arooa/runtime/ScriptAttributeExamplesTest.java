@@ -10,9 +10,10 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class ScriptAttributeExamplesTest {
 
@@ -21,7 +22,7 @@ public class ScriptAttributeExamplesTest {
 
     public static class SomeBean implements Runnable {
 
-        private List<Integer> list = Arrays.asList(1,2,3,4,5);
+        private final List<Integer> list = Arrays.asList(1,2,3,4,5);
 
         private List<Integer> out;
 
@@ -47,7 +48,8 @@ public class ScriptAttributeExamplesTest {
     @Test
     public void testPropertyAndMethods() {
 
-        File config = new File(getClass().getResource("ScriptAttributesExamplesTest.xml").getFile());
+        File config = new File(Objects.requireNonNull(
+                getClass().getResource("ScriptAttributesExamplesTest.xml")).getFile());
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(config);
 

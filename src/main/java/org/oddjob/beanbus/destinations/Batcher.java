@@ -17,12 +17,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
- * @param <T> The type of bean being batched.
- * @author rob
  * @oddjob.description Provide batching of beans.
+ *
  * @oddjob.example Create Batches of 2 beans.
  * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BatcherExample.xml}
+ *
+ * @author Rob
+ *
+ * @param <T> The type of bean being batched.
  */
 public class Batcher<T> implements Consumer<T>, BusFilter<T, Collection<T>>, Flushable, Runnable, AutoCloseable {
 

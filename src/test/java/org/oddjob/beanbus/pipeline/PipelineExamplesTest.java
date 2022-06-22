@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PipelineExamplesTest {
 
@@ -39,7 +39,7 @@ public class PipelineExamplesTest {
 
         Processor<Integer, String> processor = pipeline
                 .to(Pipes.map((i -> i + 1)))
-                .to(Pipes.fold(0, ((i, r) -> r + i)))
+                .to(Pipes.fold(0, (Integer::sum)))
                 .to(Pipes.map(Object::toString))
                 .create();
 

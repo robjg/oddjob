@@ -1,7 +1,6 @@
 package org.oddjob.beanbus.destinations;
 
 import org.oddjob.beanbus.AbstractFilter;
-import org.oddjob.beanbus.BusFilter;
 import org.oddjob.framework.adapt.Start;
 import org.oddjob.framework.adapt.Stop;
 
@@ -9,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A {@link BusFilter} that collects beans in a list.
+ * @oddjob.description A component that collects beans in a list. Additionally, this component may
+ * be used in the middle of a {@link org.oddjob.beanbus.bus.BasicBusService} so can act as a Wire Tap.
  * 
  * @oddjob.example
  * 
@@ -28,6 +28,11 @@ import java.util.List;
  */
 public class BeanCapture<T> extends AbstractFilter<T, T> implements Runnable, AutoCloseable {
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The captured beans.
+	 * @oddjob.required Read only.
+	 */
 	private final List<T> beans = new ArrayList<>();
 
 	@Stop

@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PhasedWorkTest {
 
@@ -77,7 +77,7 @@ public class PhasedWorkTest {
                 es);
 
         for (int i = 0; i < 1_000_000; ++i) {
-            test.execute(() -> count.incrementAndGet());
+            test.execute(count::incrementAndGet);
         }
 
         test.complete().join();
