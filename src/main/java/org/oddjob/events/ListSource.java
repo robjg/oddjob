@@ -49,6 +49,7 @@ implements Serializable, Structural {
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The last event to be passed to a consumer.
+	 * @oddjob.required Read only.
 	 */
     private volatile CompositeEvent<T> last;
 

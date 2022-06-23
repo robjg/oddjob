@@ -51,8 +51,8 @@ implements Structural, ConfigurationOwner {
 	protected transient volatile ChildHelper<Object> childHelper; 
 
 	/**
-     * @oddjob.property values
-     * @oddjob.description Any value.
+     * @oddjob.property
+     * @oddjob.description Any stream of values.
      * @oddjob.required No.
      */
 	private transient Stream<?> values;
@@ -60,10 +60,19 @@ implements Structural, ConfigurationOwner {
 	/** The current iterator. */
 	private transient Iterator<?> iterator;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description Event Operator to filter events. ANY/ALL.
+	 * @oddjob.required No, default to ALL.
+	 */
 	private volatile EventOperator<T> eventOperator;
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The last event to be passed to a consumer.
+	 * @oddjob.required Read only.
+	 */
 	private volatile CompositeEvent<T> last;
-
 
 	/**
      * @oddjob.property 

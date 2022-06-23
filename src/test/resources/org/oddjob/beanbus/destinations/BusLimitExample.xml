@@ -13,20 +13,9 @@
                             </values>
                         </list>
                     </values>
-                    <to>
-                        <value value="${before}"/>
-                    </to>
                 </bus:driver>
-                <bus:collect id="before" name="Beans Before"  xmlns:bus="oddjob:beanbus">
-                    <to>
-                        <value value="${only-filter}"/>
-                    </to>
-                </bus:collect>
-                <bus:limit id="only-filter" limit="2" xmlns:bus="oddjob:beanbus">
-                    <to>
-                        <value value="${results}"/>
-                    </to>
-                </bus:limit>
+                <bus:collect id="before" name="Beans Before"  xmlns:bus="oddjob:beanbus"/>
+                <bus:limit id="only-filter" limit="2" xmlns:bus="oddjob:beanbus"/>
                 <bus:collect id="results" name="Beans After" xmlns:bus="oddjob:beanbus"/>
             </of>
         </bus:bus>

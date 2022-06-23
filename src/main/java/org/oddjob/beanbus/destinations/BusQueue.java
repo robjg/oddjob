@@ -14,15 +14,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
- * @param <E> The type of element on the queue.
- * @author rob
  * @oddjob.description A Queue for beans. A work in progress.
+ *
  * @oddjob.example A simple example.
  * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample.xml}
+ *
  * @oddjob.example An example in BeanBus.
  * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanQueueExample2.xml}
+ *
+ * @author rob
+ *
+ * @param <E> The type of element on the queue.
  */
 public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
@@ -30,14 +34,34 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
     private final static Object STOP = new Object();
 
+    /**
+     * @oddjob.property
+     * @oddjob.description Capacity of the queue before it blocks.
+     * @oddjob.required No, defaults to no limit.
+     */
     private volatile int capacity;
 
     private volatile BlockingQueue<Object> queue;
 
+    /**
+     * @oddjob.property
+     * @oddjob.description The name of this component.
+     * @oddjob.required No.
+     */
     private volatile String name;
 
+    /**
+     * @oddjob.property
+     * @oddjob.description The number of items taken from the queue.
+     * @oddjob.required Read only.
+     */
     private final AtomicInteger taken = new AtomicInteger();
 
+    /**
+     * @oddjob.property
+     * @oddjob.description The number of consumers waiting.
+     * @oddjob.required Read only.
+     */
     private final  AtomicInteger waitingConsumers = new AtomicInteger();
 
     @Override
@@ -165,6 +189,11 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
         }
     }
 
+    /**
+     * @oddjob.property
+     * @oddjob.description The size of the queue.
+     * @oddjob.required Read only.
+     */
     public int getSize() {
         Queue<?> queue = this.queue;
         return (queue == null ? 0 : queue.size());
