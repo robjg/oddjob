@@ -1,9 +1,9 @@
 package org.oddjob;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.state.StateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Wrapper for running Oddjob that ensures a smooth shutdown.
@@ -14,7 +14,7 @@ import org.oddjob.state.StateEvent;
  * @author rob
  *
  */
-public class OddjobRunner implements Runnable {
+public class OddjobRunner implements Runnable, AutoCloseable {
 	private static final Logger logger = LoggerFactory.getLogger(OddjobRunner.class);
 		
 	public static final String KILLER_TIMEOUT_PROPERTY = 
@@ -35,17 +35,14 @@ public class OddjobRunner implements Runnable {
 	
 	@FunctionalInterface
 	public interface ExitHandler {
-		public void exit(int exitStatus);
+		void exit(int exitStatus);
 	}
 	
 	public OddjobRunner(Oddjob oddjob) {
-		this(oddjob, new ExitHandler() {
-			@Override
-			public void exit(int exitStatus) {
-				// uses halt, not exit as we don't want to invoke the 
-				// shutdown hook
-				Runtime.getRuntime().halt(exitStatus);
-			}
+		this(oddjob, exitStatus -> {
+			// uses halt, not exit as we don't want to invoke the
+			// shutdown hook
+			Runtime.getRuntime().halt(exitStatus);
 		});
 	}
 	
@@ -189,5 +186,10 @@ public class OddjobRunner implements Runnable {
 
 			logger.debug("Shutdown hook complete.");
 		}
+	}
+
+	@Override
+	public void close() throws Exception {
+		oddjob.stop();
 	}
 }

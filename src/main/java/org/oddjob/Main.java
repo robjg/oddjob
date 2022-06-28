@@ -12,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
@@ -24,6 +25,8 @@ import java.util.function.Supplier;
  */
 public class Main {
 	private static Logger logger;
+
+	private static volatile OddjobRunner oddjobRunner;
 
 	private static Logger logger() {
 		if (logger == null) {
@@ -235,10 +238,15 @@ public class Main {
 
 
 
-			optOj.ifPresent(oj -> { OddjobRunner runner = new OddjobRunner(oj);
-						            runner.initShutdownHook();
-						            runner.run();
+			optOj.ifPresent(oj -> { oddjobRunner = new OddjobRunner(oj);
+						            oddjobRunner.initShutdownHook();
+						            oddjobRunner.run();
 						          });
 		}
+	}
+
+	public static void stop() throws Exception {
+		Objects.requireNonNull(oddjobRunner, "Oddjob not running.")
+				.close();
 	}
 }
