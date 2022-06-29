@@ -109,7 +109,7 @@ public class CopyJobTest extends OjTestCase {
     }
 
     @Test
-    public void testCopyDirectory2() throws Exception {
+    public void testCopyDirectory2() {
         // directory doesn't exist this time.
         // dir.mkdir();
 

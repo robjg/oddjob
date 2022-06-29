@@ -1,19 +1,14 @@
 package org.oddjob.io;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.util.OddjobConfigException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.file.Files;
 
 
 /**
@@ -59,29 +54,29 @@ public class CopyJob implements Runnable, Serializable {
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The from file.
+	 * @oddjob.description The file to read from.
 	 * @oddjob.required Yes unless input supplied.
 	 */
 	private File[] from;
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The from file.
+	 * @oddjob.description The file to write to.
 	 * @oddjob.required Yes unless output supplied.
 	 */
 	private File to;
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description An input.
+	 * @oddjob.description An input stream.
 	 * @oddjob.required Yes unless from supplied.
 	 */
 	private transient InputStream input;
 	
 	/** 
 	 * @oddjob.property
-	 * @oddjob.description The output.
-	 * @oddjob.required Yes unless to supplied.
+	 * @oddjob.description An output stream.
+	 * @oddjob.required Yes unless to is supplied.
 	 */
 	private transient OutputStream output;
 	
@@ -127,9 +122,9 @@ public class CopyJob implements Runnable, Serializable {
 	}
 	
 	/**
-	 * Set the from file.
+	 * Set the From file.
 	 * 
-	 * @param The from file.
+	 * @param file The from file.
 	 */
 	synchronized public void setFrom(File[] file) {
 		this.from = file;
@@ -147,7 +142,7 @@ public class CopyJob implements Runnable, Serializable {
 	/**
 	 * Set the to file.
 	 * 
-	 * @param The to file.
+	 * @param file The to file.
 	 */
 	@ArooaAttribute
 	synchronized public void setTo(File file) {
@@ -157,7 +152,7 @@ public class CopyJob implements Runnable, Serializable {
 	/**
 	 * Set the InputStream.
 	 * 
-	 * @param The InputStream.
+	 * @param in The InputStream.
 	 */
 	synchronized public void setInput(InputStream in) {
 		this.input = in;
@@ -166,7 +161,7 @@ public class CopyJob implements Runnable, Serializable {
 	/**
 	 * Set the OutputStream.
 	 * 
-	 * @param The OutputStream.
+	 * @param out The OutputStream.
 	 */
 	synchronized public void setOutput(OutputStream out) {
 		this.output = out;
@@ -181,22 +176,15 @@ public class CopyJob implements Runnable, Serializable {
 	}
 	
 	public void run() {
-		try {
-			CopyCommand command = command();
-			if (command == null) {
-				throw new NullPointerException(
-						"Failed to find anything to copy.");
-			}
-			
-			logger.info("Performing " + command.toString());
+		try (CopyCommand command = command()) {
+
+			logger.info("Performing {}", command);
 			
 			CopyStats stats = new CopyStats();
 			command.copy(stats);
-			logger.info("Copied " + stats.files + " files, " 
-					+ stats.directories + " directories.");
+			logger.info("Copied {} files, {} directories.", stats.files, stats.directories );
 			this.filesCopied = stats.files;
 			this.directoriesCopied = stats.directories;
-			
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -268,9 +256,9 @@ public class CopyJob implements Runnable, Serializable {
 	 * 
 	 *
 	 */
-	interface CopyCommand {
+	interface CopyCommand extends Closeable {
 	
-		public void copy(CopyStats stats) throws IOException;
+		void copy(CopyStats stats) throws IOException;
 	}
 	
 	static class StreamCopy implements CopyCommand {
@@ -290,11 +278,11 @@ public class CopyJob implements Runnable, Serializable {
 	    	if (to.isDirectory()) {
 	    		throw new OddjobConfigException("Can copy stream to a directory.");	    		
 	    	}
-	    	this.out = new FileOutputStream(to);
+	    	this.out = Files.newOutputStream(to.toPath());
 		}
 		
 		StreamCopy(File from, OutputStream out) throws IOException {
-			this.in = new FileInputStream(from);
+			this.in = Files.newInputStream(from.toPath());
 			this.out = out; 
 		}
 		
@@ -302,12 +290,19 @@ public class CopyJob implements Runnable, Serializable {
 		public void copy(CopyStats stats) throws IOException {
 			IOUtils.copy(in, out);
 
-			in.close();
-			out.close();
-			
 			stats.files++;
 		}
-		
+
+		@Override
+		public void close() throws IOException {
+			try {
+				in.close();
+			} catch (Exception e) {
+				// ignore.
+			}
+			out.close();
+		}
+
 		@Override
 		public String toString() {
 			return "Copy between to binary streams.";
@@ -333,7 +328,12 @@ public class CopyJob implements Runnable, Serializable {
 			}
 			stats.files++;
 		}
-		
+
+		@Override
+		public void close() throws IOException {
+			// Close performed by file copy.
+		}
+
 		@Override
 		public String toString() {
 			return "File copy from " + from + " to " + to;
@@ -365,7 +365,12 @@ public class CopyJob implements Runnable, Serializable {
 			FileUtils.copyDirectory(fromDir, toDir);
 			stats.directories++;
 		}
-		
+
+		@Override
+		public void close() throws IOException {
+			// Close performed by file copy.
+		}
+
 		@Override
 		public String toString() {
 			return "Directory copy from " + fromDir + " to " +
@@ -390,17 +395,19 @@ public class CopyJob implements Runnable, Serializable {
 		
 		@Override
 		public void copy(CopyStats stats) throws IOException {
-			for (int i = 0; i < files.length; ++i) {
-				CopyCommand command;
-				if (files[i].isDirectory()) {
-					command = new DirectoryCopy(files[i], toDir);
-				} else {
-					command = new FileCopy(files[i], toDir);
+			for (File file : files) {
+				try (CopyCommand command = file.isDirectory()
+						? new DirectoryCopy(file, toDir) : new FileCopy(file, toDir)) {
+					command.copy(stats);
 				}
-				command.copy(stats);
 			}
 		}
-		
+
+		@Override
+		public void close() throws IOException {
+			// Close performed by file copy.
+		}
+
 		@Override
 		public String toString() {
 			return "Multiple file copy of " + files.length +
@@ -408,7 +415,7 @@ public class CopyJob implements Runnable, Serializable {
 		}
 	}
 
-	class CopyStats {
+	static class CopyStats {
 		int files;
 		int directories;
 	}

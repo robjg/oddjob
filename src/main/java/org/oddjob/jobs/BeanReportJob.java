@@ -1,7 +1,6 @@
 package org.oddjob.jobs;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.BeanView;
@@ -10,12 +9,13 @@ import org.oddjob.beanbus.destinations.BeanSheet;
 import org.oddjob.beanbus.drivers.IterableBusDriver;
 import org.oddjob.io.StdoutType;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
- * @oddjob.description Create a simple listing of the properties of 
- * of beans.
+ * @oddjob.description Create a simple listing of the properties of beans.
  * 
  * @author rob
  *
@@ -75,30 +75,29 @@ public class BeanReportJob implements Runnable, ArooaSessionAware {
 	public void run() {
 
 		Iterable<?> beans = Objects.requireNonNull(this.beans, "No beans.");
-		
-		if (output == null) {
-			try {
-				output = new StdoutType().toOutputStream();
-			} catch (ArooaConversionException e) {
-				throw new RuntimeException(e);
-			}
+
+		try (OutputStream out = Optional.ofNullable(this.output)
+				.orElseGet(() -> new StdoutType().toOutputStream())) {
+
+			IterableBusDriver<Object> iterableBusDriver =
+					new IterableBusDriver<>();
+
+			final BeanSheet sheet = new BeanSheet();
+			sheet.setArooaSession(session);
+			sheet.setOutput(output);
+			sheet.setNoHeaders(noHeaders);
+			sheet.setBeanViews(arooaClass -> beanView);
+
+			iterableBusDriver.setValues(beans);
+			iterableBusDriver.setTo(sheet);
+
+			SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, sheet);
+			busConductor.run();
+			busConductor.close();
 		}
-
-		IterableBusDriver<Object> iterableBusDriver =
-				new IterableBusDriver<>();
-	
-		final BeanSheet sheet = new BeanSheet();
-		sheet.setArooaSession(session);
-		sheet.setOutput(output);
-		sheet.setNoHeaders(noHeaders);
-		sheet.setBeanViews(arooaClass -> beanView);
-
-		iterableBusDriver.setValues(beans);
-		iterableBusDriver.setTo(sheet);
-
-		SimpleBusConductor busConductor = new SimpleBusConductor(iterableBusDriver, sheet);
-		busConductor.run();
-		busConductor.close();
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	
