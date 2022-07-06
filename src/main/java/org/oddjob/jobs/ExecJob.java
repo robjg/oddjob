@@ -5,8 +5,9 @@ import org.oddjob.arooa.deploy.annotations.ArooaText;
 
 /**
  * @oddjob.description Execute an external program. This job will
- * flag complete if the return state of the external program is 0,
- * otherwise it will flag not complete.
+ * wait for the process to terminate and be
+ * COMPLETE if the return state of the external program is 0,
+ * otherwise it will be NOT COMPLETE.
  * <p>
  * Processes may behave differently on different operating systems - for
  * instance stop doesn't always kill the process. Please see

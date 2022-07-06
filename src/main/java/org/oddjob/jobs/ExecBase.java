@@ -3,7 +3,6 @@ package org.oddjob.jobs;
 
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
-import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.arooa.types.MapType;
 import org.oddjob.arooa.utils.ArooaTokenizer;
@@ -287,9 +286,7 @@ implements Stoppable, ConsoleOwner {
 		}
 		
 		if (environment != null) {
-			for (Map.Entry<String, String> entry: environment.entrySet()) {
-				env.put(entry.getKey(), entry.getValue());
-			}
+			env.putAll(environment);
 		}
 
 		processBuilder.redirectErrorStream(redirectStderr);
@@ -319,7 +316,7 @@ implements Stoppable, ConsoleOwner {
 		try {
 			logger().debug("Waiting for process.");
 			exitValue = proc.waitFor();
-			logger().debug("Process completed with exit value " + exitValue);
+			logger().info("Process completed with exit value " + exitValue);
 		}
 		finally {
 			thread = null;
@@ -330,7 +327,7 @@ implements Stoppable, ConsoleOwner {
 			}
 			outThread.join(3000L);
 			
-			// A destroy is required even if the process has terminated
+			// Destroy is required even if the process has terminated
 			// because otherwise file descriptors are left open.
 			// This must happen after the stream readers have finished
 			// otherwise it causes Stream Closed exceptions.
