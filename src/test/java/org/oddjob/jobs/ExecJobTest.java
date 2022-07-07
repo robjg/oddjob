@@ -3,6 +3,8 @@
  */
 package org.oddjob.jobs;
 
+import org.hamcrest.MatcherAssert;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -297,6 +299,10 @@ public class ExecJobTest extends OjTestCase {
 
         result = tokenizer.parse("\"Hello\"\n\"World\"");
         assertArray(new String[]{"Hello", "World"}, result);
+
+        // We should fix this
+        MatcherAssert.assertThat(tokenizer.parse("greeting=\"Hello World\""),
+                Matchers.is(new String[]{"greeting=\"Hello",  "World\""}));
     }
 
     private void assertArray(String[] expected, String[] result) {
