@@ -53,7 +53,10 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws Throwable {
 		Objects.requireNonNull(remote);
 
+		logger.trace("Invoking {} on remote {}", remote, remoteId);
+
 		Object[] exported = Utils.export(args);
+
 
 		Object result;
 		try {
@@ -102,25 +105,18 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	/**
 	 * Destroy this node. Clean up resources, remove remote connections.
 	 */
-	@SuppressWarnings({"unchecked", "rawtypes"})
 	void destroy() {
-		// beware the order here.
-		// notifications removed first
-		listeners.forEach(pair -> removeInferType((Pair) pair));
-		logger.debug("Destroyed client for [" + toString() + "]");
+		try {
+			remoteBridge.destroy(remoteId);
+		} catch (RemoteException e) {
+			logger.warn("Failed destroying [{}]", remoteId, e);
+		}
+		logger.debug("Destroyed client for [{}]", remoteId);
 	}
 
 	@Override
 	public String toString() {
 		return "Client: " + objectName;
-	}
-
-	<T> void removeInferType(Pair<NotificationType<T>, NotificationListener<T>> pair) {
-		try {
-			remoteBridge.removeNotificationListener(remoteId, pair.getLeft(), pair.getRight());
-		} catch (RemoteException e) {
-			logger.debug("Client destroy.", e);
-		}
 	}
 
 }

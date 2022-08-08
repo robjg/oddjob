@@ -3,17 +3,11 @@
  */
 package org.oddjob.monitor.action;
 
-import javax.swing.KeyStroke;
-
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ConfigurationHandle;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.design.DesignParser;
 import org.oddjob.arooa.design.designer.ArooaDesignerForm;
 import org.oddjob.arooa.design.screem.Form;
+import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ConfigurationSession;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.monitor.Standards;
@@ -21,18 +15,24 @@ import org.oddjob.monitor.actions.FormAction;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.ConfigContextSearch;
 import org.oddjob.monitor.model.JobFormAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
 
 /**
  * The action that corresponds to the Oddjob Designer action.
  *
  */
 public class DesignerAction extends JobFormAction implements FormAction {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(DesignerAction.class);
+
 	private ArooaConfiguration config;
 
 	private ArooaDescriptor descriptor;
 	
-	private ConfigurationHandle configHandle;
+	private ConfigurationHandle<ArooaContext> configHandle;
 	
 	public String getName() {
 		return "Designer";
@@ -54,6 +54,9 @@ public class DesignerAction extends JobFormAction implements FormAction {
 	protected void doPrepare(ExplorerContext explorerContext) {
 		
 		if (explorerContext.getParent() == null) {
+			logger.trace("No Parent for {}, no design menu will be visible.",
+					explorerContext.getThisComponent());
+
 			setVisible(false);
 			setEnabled(false);
 		}
@@ -64,6 +67,9 @@ public class DesignerAction extends JobFormAction implements FormAction {
 			
 			ConfigurationSession configSession = search.sessionFor(explorerContext);
 			if (configSession == null) {
+				logger.trace("No Configuration Session for {}, design menu disabled.",
+						explorerContext.getThisComponent());
+
 				setEnabled(false);
 			}
 			else {
@@ -72,9 +78,15 @@ public class DesignerAction extends JobFormAction implements FormAction {
 						explorerContext.getThisComponent());
 				
 				if (config == null) {
+					logger.trace("No Drag Point for {}, design menu disabled.",
+							explorerContext.getThisComponent());
+
 					setEnabled(false);
 				}
 				else {
+					logger.trace("Drag Point found for {}, design menu enabled.",
+							explorerContext.getThisComponent());
+
 					descriptor = configSession.getArooaDescriptor();
 					
 					setEnabled(true);

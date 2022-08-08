@@ -6,6 +6,7 @@ import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.Destroyable;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
@@ -19,6 +20,8 @@ import org.oddjob.remote.things.ConfigOperationInfoFlags;
 import org.oddjob.remote.things.ConfigPoint;
 import org.oddjob.remote.util.NotifierListener;
 import org.oddjob.remote.util.NotifierListenerEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
@@ -36,6 +39,8 @@ import java.util.function.Consumer;
  */
 public class ConfigPointHandlerFactory
         implements ServerInterfaceHandlerFactory<Object, ConfigPoint> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ConfigPointHandlerFactory.class);
 
     public static final HandlerVersion VERSION = new HandlerVersion(1, 0);
 
@@ -153,7 +158,7 @@ public class ConfigPointHandlerFactory
     /**
      * This needs to made thread safe.
      */
-    static class ClientDragPointHandler implements ConfigPoint, NotificationListener<Integer> {
+    static class ClientDragPointHandler implements ConfigPoint, NotificationListener<Integer>, Destroyable {
 
         private final ClientSideToolkit clientToolkit;
 
@@ -281,6 +286,17 @@ public class ConfigPointHandlerFactory
             return Arrays.stream(possibleChildren.tags)
                     .map(prefixMapping::qTagFor)
                     .toArray(QTag[]::new);
+        }
+
+        @Override
+        public void destroy() {
+            logger.trace("Being destroyed so removing all {} for {}.", consumers, clientToolkit);
+            if (!consumers.isEmpty()) {
+                List<Consumer<? super ConfigOperationInfo>> copy = new ArrayList<>(consumers);
+                for (Consumer<? super ConfigOperationInfo> consumer : copy) {
+                    removeConfigurationSupportsConsumer(consumer);
+                }
+            }
         }
     }
 

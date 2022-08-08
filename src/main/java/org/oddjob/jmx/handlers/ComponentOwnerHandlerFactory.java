@@ -13,6 +13,7 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
 import org.oddjob.jmx.client.ClientSideToolkit;
+import org.oddjob.jmx.client.Destroyable;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
@@ -244,7 +245,7 @@ public class ComponentOwnerHandlerFactory
     /**
      * The Client {@link ConfigurationOwner}
      */
-    static class ClientComponentOwnerHandler implements ConfigurationOwner {
+    static class ClientComponentOwnerHandler implements ConfigurationOwner, Destroyable {
 
         private final ClientSideToolkit clientToolkit;
 
@@ -353,6 +354,11 @@ public class ComponentOwnerHandlerFactory
         @Override
         public ArooaElement rootElement() {
             return rootElement;
+        }
+
+        @Override
+        public void destroy() {
+            ownerSupport.destroy();
         }
     }
 
@@ -774,7 +780,7 @@ public class ComponentOwnerHandlerFactory
                         configurationSession.getArooaDescriptor());
 
                 XMLConfiguration xmlConfiguration = new XMLConfiguration(
-                        "XML Configuration for " + dragPoint.toString(),
+                        "XML Configuration for " + dragPoint,
                         dragPoint.copy());
 
                 ArooaConfiguration configuration;

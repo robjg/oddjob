@@ -284,12 +284,23 @@ public class JMXClientJob extends ClientBase
 
         // if not destroyed by remote peer
         if (why == WhyStop.STOP_REQUEST) {
-            clientSession.destroy(serverView.getProxy());
+            logger().trace("Destroying Server View.");
+            try {
+                clientSession.destroy(serverView.getProxy());
+            }
+            catch (Exception e) {
+                logger().error("Failed destroying Server View cleanly.", e);
+            }
         }
 
         childHelper.removeAllChildren();
 
-        clientSession.destroyAll();
+        try {
+            clientSession.destroyAll();
+        }
+        catch (Exception e) {
+            logger().error("Failed destroying Client Session cleanly.", e);
+        }
 
         logPoller = null;
     }

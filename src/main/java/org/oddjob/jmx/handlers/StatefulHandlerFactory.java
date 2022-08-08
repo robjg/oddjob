@@ -14,17 +14,18 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.state.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class StatefulHandlerFactory
         implements ServerInterfaceHandlerFactory<Stateful, Stateful> {
+
+    private static final Logger logger = LoggerFactory.getLogger(StatefulHandlerFactory.class);
 
     public static final HandlerVersion VERSION = new HandlerVersion(4, 0);
 
@@ -128,8 +129,8 @@ public class StatefulHandlerFactory
         /**
          * State listeners
          */
-        private final List<StateListener> listeners =
-                new ArrayList<>();
+        private final Set<StateListener> listeners =
+                new HashSet<>();
 
         private final ClientSideToolkit toolkit;
 
@@ -188,6 +189,8 @@ public class StatefulHandlerFactory
                     toolkit.registerNotificationListener(
                             STATE_CHANGE_NOTIF_TYPE, synchronizer);
 
+                    logger.trace("Created new Synchronizer for {}, toolkit {}", STATE_CHANGE_NOTIF_TYPE, toolkit);
+
                     Notification<StateData>[] lastNotifications;
                     try {
                         lastNotifications = toolkit.invoke(SYNCHRONIZE);
@@ -206,7 +209,12 @@ public class StatefulHandlerFactory
 
                 StateEvent nowEvent = lastEvent;
                 listener.jobStateChange(nowEvent);
-                listeners.add(listener);
+                if (listeners.add(listener)) {
+                    logger.trace("Added new State Listener {}, toolkit {}", listener, toolkit);
+                } else {
+                    logger.trace("State Listener {} notified but not added as it exists already, toolkit {}",
+                            listener, toolkit);
+                }
             }
         }
 
@@ -217,10 +225,19 @@ public class StatefulHandlerFactory
          */
         public void removeStateListener(StateListener listener) {
             synchronized (this) {
-                listeners.remove(listener);
-                if (listeners.size() == 0) {
-                    toolkit.removeNotificationListener(STATE_CHANGE_NOTIF_TYPE, synchronizer);
-                    synchronizer = null;
+                if (listeners.remove(listener)) {
+                    int num = listeners.size();
+                    if (num == 0) {
+                        toolkit.removeNotificationListener(STATE_CHANGE_NOTIF_TYPE, synchronizer);
+                        synchronizer = null;
+                        logger.trace("Removed last State Listener {}, toolkit {}", listener, toolkit);
+                    } else {
+                        logger.trace("Removed State Listener {}, toolkit {}, {} remain", listener, toolkit, num);
+                    }
+                }
+                else {
+                    logger.trace("State Listener {} not removed from toolkit {}, as it was not registered.",
+                            listener, toolkit);
                 }
             }
         }
@@ -243,9 +260,17 @@ public class StatefulHandlerFactory
         public void destroy() {
             jobStateChange(new StateData(
                     new ClientDestroyed(), new Date(), null));
+            logger.trace("Being destroyed so removing all {} listeners for {}.", listeners, toolkit);
+            synchronized (this) {
+                if (!listeners.isEmpty()) {
+                    Set<StateListener> copy = new HashSet<>(listeners);
+                    for (StateListener listener : copy) {
+                        removeStateListener(listener);
+                    }
+                }
+            }
         }
     }
-
 
     static class ServerStateHandler implements StateListener, ServerInterfaceHandler {
 

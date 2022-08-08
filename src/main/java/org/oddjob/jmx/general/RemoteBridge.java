@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.*;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,14 +28,11 @@ public class RemoteBridge implements RemoteConnection {
     /** Key for Listeners. So the JMX Listener can be removed. The JMX Listener must be the exact same
      * one. Object equality with Equals is not supported when removing listeners in the
      * {@code MBeanServerConnection} implementation. */
-    static class Key {
-        private final long remoteId;
-        private final NotificationType<?> notificationType;
-        private final org.oddjob.remote.NotificationListener<?> listener;
+    static class Key<T> {
+        private final NotificationType<T> notificationType;
+        private final org.oddjob.remote.NotificationListener<T> listener;
 
-
-        Key(long remoteId, NotificationType<?> notificationType, NotificationListener<?> listener) {
-            this.remoteId = remoteId;
+        Key(NotificationType<T> notificationType, NotificationListener<T> listener) {
             this.notificationType = Objects.requireNonNull(notificationType);
             this.listener = Objects.requireNonNull(listener);
         }
@@ -43,17 +41,24 @@ public class RemoteBridge implements RemoteConnection {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Key key = (Key) o;
-            return remoteId == key.remoteId && notificationType.equals(key.notificationType) && listener.equals(key.listener);
+            Key<?> key = (Key<?>) o;
+            return notificationType.equals(key.notificationType) && listener.equals(key.listener);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(remoteId, notificationType, listener);
+            return Objects.hash(notificationType, listener);
+        }
+
+        @Override
+        public String toString() {
+            return "Key{" +
+                    "notificationType=" + notificationType +
+                    ", listener=" + listener +
+                    '}';
         }
     }
-
-    private final ConcurrentMap<Key, javax.management.NotificationListener> jmxListeners =
+    private final ConcurrentMap<Long, ConcurrentMap<Key<?>, javax.management.NotificationListener>> jmxListeners =
             new ConcurrentHashMap<>();
 
     public RemoteBridge(MBeanServerConnection mbsc) {
@@ -71,8 +76,9 @@ public class RemoteBridge implements RemoteConnection {
 
         NotificationFilter filter = createTypeFilterFor(notificationType);
 
+        ObjectName objectName = OddjobMBeanFactory.objectName(remoteId);
         try {
-            mbsc.addNotificationListener(OddjobMBeanFactory.objectName(remoteId),
+            mbsc.addNotificationListener(objectName,
                     jmxListener,
                     filter,
                     null);
@@ -80,7 +86,24 @@ public class RemoteBridge implements RemoteConnection {
             throw new RemoteIdException(remoteId, e);
         }
 
-        jmxListeners.put(new Key(remoteId, notificationType, notificationListener), jmxListener);
+        Key<T> key = new Key<>(notificationType, notificationListener);
+
+        javax.management.NotificationListener previous = jmxListeners.computeIfAbsent(
+                remoteId, k -> new ConcurrentHashMap<>())
+                .put(key, jmxListener);
+
+        if (previous == null) {
+            logger.trace("Added Listener for remoteId, {}, {}", remoteId, key);
+        }
+        else {
+            try {
+                mbsc.removeNotificationListener(objectName, previous);
+            } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
+                logger.error("Failed removing overridden listener {}", previous, e);
+            }
+            throw new RemoteIdException(remoteId, "Listener already existed for remote id [" +
+                    remoteId + "], type [" + notificationType + "], listener [" + notificationListener + "]");
+        }
     }
 
     @Override
@@ -89,26 +112,25 @@ public class RemoteBridge implements RemoteConnection {
                                                NotificationListener<T> notificationListener)
             throws RemoteException {
 
-        javax.management.NotificationListener jmxListener =
-                jmxListeners.remove(new Key(remoteId, notificationType, notificationListener));
+        Key<T> key = new Key<>(notificationType, notificationListener);
+
+        Map<Key<?>, javax.management.NotificationListener> listenerMap = jmxListeners.get(remoteId);
+
+        if (listenerMap == null) {
+            throw new RemoteIdException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
+        }
+
+        javax.management.NotificationListener jmxListener = listenerMap.remove(key);
 
         if (jmxListener ==  null) {
-            throw new RemoteIdException(remoteId, "No Listener");
+            throw new RemoteIdException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
         }
 
-        ObjectName objectName = OddjobMBeanFactory.objectName(remoteId);
-        try {
-            // A client may be trying to remove notification listeners from a destroyed component.
-            if (mbsc.isRegistered(objectName)) {
-                mbsc.removeNotificationListener(objectName, jmxListener);
-            }
-            else {
-                logger.debug("Not removing listener for {}, {} as MBean {} has already been removed",
-                        remoteId, notificationType.getName(), objectName);
-            }
-        } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
-            throw new RemoteIdException(remoteId, e);
+        if (listenerMap.isEmpty()) {
+            jmxListeners.remove(remoteId);
         }
+
+        removeListenerInferType(remoteId, jmxListener);
     }
 
     @Override
@@ -118,6 +140,8 @@ public class RemoteBridge implements RemoteConnection {
 
         Object result;
         try {
+            logger.trace("Invoking {} on {}", operationType, remoteId);
+
             result = mbsc.invoke(OddjobMBeanFactory.objectName(remoteId),
                     operationType.getName(),
                     args,
@@ -127,6 +151,39 @@ public class RemoteBridge implements RemoteConnection {
         }
 
         return ClassUtils.cast(operationType.getReturnType(), result);
+    }
+
+    @Override
+    public void destroy(long remoteId) throws RemoteException {
+
+        Map<Key<?>, javax.management.NotificationListener> listenerMap = jmxListeners.remove(remoteId);
+
+        if (listenerMap == null) {
+            logger.trace("Destroy {}, all cleanup already.", remoteId);
+        }
+        else {
+            logger.warn("Destroy {}, cleanup required for {}. This needs fixing!", remoteId, listenerMap);
+            for (javax.management.NotificationListener jmxListener : listenerMap.values()) {
+                removeListenerInferType(remoteId, jmxListener);
+            }
+        }
+    }
+
+    <T> void  removeListenerInferType(long remoteId, javax.management.NotificationListener jmxListener) throws RemoteException {
+        ObjectName objectName = OddjobMBeanFactory.objectName(remoteId);
+        try {
+            // A client may be trying to remove notification listeners from a destroyed component.
+            if (mbsc.isRegistered(objectName)) {
+                mbsc.removeNotificationListener(objectName, jmxListener);
+                logger.trace("Removed JMX Listener {}", jmxListener);
+            }
+            else {
+                logger.debug("Not removing JMX Listener {} as MBean {} has already been removed",
+                        jmxListener, objectName);
+            }
+        } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
+            throw new RemoteIdException(remoteId, e);
+        }
     }
 
     /**
@@ -145,7 +202,7 @@ public class RemoteBridge implements RemoteConnection {
     /**
      * Convert a JMX Notification into a Remote Notification.
      *
-     * @param remoteId The Remote Id this is a Notification for.
+     * @param remoteId The Remote id this is a Notification for.
      * @param dataType The type of the Notification.
      * @param notification The Notification.
      *
@@ -207,7 +264,7 @@ public class RemoteBridge implements RemoteConnection {
      *
      * @param remoteId The id this remote listener is for.
      * @param remoteListener The Remote Listener.
-     * @param dataType The class name of the Notificaiton type.
+     * @param dataType The class name of the Notification type.
      *
      * @param <T> The type The Notification Type.
      *
@@ -349,5 +406,13 @@ public class RemoteBridge implements RemoteConnection {
             return Objects.hash(listener);
         }
 
+        @Override
+        public String toString() {
+            return "JmxListenerAdaptor{" +
+                    "remoteId=" + remoteId +
+                    ", listener=" + listener +
+                    ", dataType=" + dataType +
+                    '}';
+        }
     }
 }

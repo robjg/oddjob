@@ -198,10 +198,9 @@ public class OddjobMBean implements
 	 */
 	public Object invoke(final String actionName, final Object[] params, String[] signature)
 			throws MBeanException, ReflectionException {
-		if (logger.isDebugEnabled()) {
+		if (logger.isTraceEnabled()) {
 			String methodDescription = methodDescription(actionName, signature);
-			logger.debug("Invoking [" + 
-					methodDescription + "] on [" + node + "]");
+			logger.trace("Invoking [{}] on [{}]", methodDescription, node);
 		}
 		
 		////////////////////////////////////////////////////////////

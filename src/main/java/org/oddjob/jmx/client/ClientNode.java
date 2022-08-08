@@ -134,7 +134,7 @@ public class ClientNode implements InvocationHandler, Exportable {
 	 */
 	public Transportable exportTransportable() {
 		
-		logger.debug("[" + proxy + "] exported with remote Id [" + remoteId + "]");
+		logger.trace("[{}] exported with remote Id [{}]",  proxy, remoteId);
 		return new ComponentTransportable(remoteId);
 	}
 	

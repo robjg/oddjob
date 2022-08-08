@@ -95,14 +95,14 @@ public class ClientInterfaceManagerFactoryBuilder {
 
                 if (implType == null) {
 
-                    logger.debug("No class for {}", implementation.getType());
+                    logger.debug("No Class for remote supported {} so ignoring.", implementation.getType());
                     continue;
                 }
 
                 if (clientHandlerFactories.containsKey(implType)) {
                     implementationMap.put(implType, implementation);
                 } else {
-                    logger.debug("No factory for {}", implType.getName());
+                    logger.debug("No Client Handler Factory for remote supported {} so ignoring.", implType.getName());
                 }
             }
 

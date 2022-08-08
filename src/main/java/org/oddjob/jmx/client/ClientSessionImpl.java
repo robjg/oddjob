@@ -71,6 +71,7 @@ public class ClientSessionImpl implements ClientSession {
 			childProxy = handle.getProxy();
 			Destroyable nodeDestroyer = handle.getDestroyer();
 			Destroyable allDestroyer = () -> {
+					logger.trace("Destroying {}", remoteId);
 					nodeDestroyer.destroy();
 					toolkit.destroy();
 			};
@@ -78,8 +79,7 @@ public class ClientSessionImpl implements ClientSession {
 			destroyers.put(childProxy, allDestroyer);
 		} 
 		catch (Exception e) {
-			logger.error("Failed creating client node for [" + remoteId +
-					"].", e);
+			logger.error("Failed creating client node for [{}].",  remoteId, e);
 			
 			// Must return something.
 			return new NodeCreationFailed(e);

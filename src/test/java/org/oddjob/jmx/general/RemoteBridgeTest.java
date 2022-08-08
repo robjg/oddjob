@@ -302,4 +302,40 @@ public class RemoteBridgeTest {
         assertThat(removeArg2.getAllValues().get(0), is(jmxListener1));
         assertThat(removeArg2.getAllValues().get(1), is(jmxListener2));
     }
+
+    @Test
+    public void whenDestroyThenListenersRemoved() throws IOException, RemoteException,
+            InstanceNotFoundException, ListenerNotFoundException {
+
+        MBeanServerConnection mBeanServerConnection = mock(MBeanServerConnection.class);
+        when(mBeanServerConnection.isRegistered(OddjobMBeanFactory.objectName(42)))
+                .thenReturn(true);
+
+        RemoteBridge remoteBridge = new RemoteBridge(mBeanServerConnection);
+
+        NotificationType<String> notificationType1 = NotificationType.ofName("foo")
+                .andDataType(String.class);
+        NotificationType<String> notificationType2 = NotificationType.ofName("bar")
+                .andDataType(String.class);
+
+        NotificationListener<String> listener1 = mock(NotificationListener.class);
+
+        // Add
+
+        remoteBridge.addNotificationListener(42L, notificationType1, listener1);
+
+        ArgumentCaptor<javax.management.NotificationListener> arg2 =
+                ArgumentCaptor.forClass(javax.management.NotificationListener.class);
+
+        verify(mBeanServerConnection, times(1)).addNotificationListener(
+                any(ObjectName.class), arg2.capture(),
+                any(javax.management.NotificationFilter.class), Mockito.isNull());
+
+        // When
+
+        remoteBridge.destroy(42L);
+
+        verify(mBeanServerConnection, times(1)).removeNotificationListener(
+                any(ObjectName.class), eq(arg2.getValue()));
+    }
 }

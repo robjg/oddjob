@@ -3,11 +3,6 @@
  */
 package org.oddjob.monitor.model;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
-import java.util.Observable;
-
 import org.oddjob.Stateful;
 import org.oddjob.arooa.logging.LogLevel;
 import org.oddjob.framework.JobDestroyedException;
@@ -17,6 +12,11 @@ import org.oddjob.logging.LogArchiver;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
+
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+import java.util.Observable;
 
 /**
  * Model for controlling the detail views.
@@ -47,7 +47,7 @@ public class DetailModel implements PropertyChangeNotifier {
 	private final LogModel logModel = new LogModel();
 
 	/** Property model */
-	private PropertyModel propertyModel = new PropertyModel();
+	private final PropertyModel propertyModel = new PropertyModel();
 
 	/** State model */
 	private final StateModel stateModel = new StateModel();
@@ -57,11 +57,13 @@ public class DetailModel implements PropertyChangeNotifier {
 		public void jobStateChange(StateEvent event) {
 			stateModel.change(event);
 		}
+
+		@Override
+		public String toString() {
+			return "DetailModel.StateListener";
+		}
 	};
 
-	
-	
-	
 	private final PropertyChangeSupport propertySupport =
 		new PropertyChangeSupport(this);
 	
@@ -108,8 +110,8 @@ public class DetailModel implements PropertyChangeNotifier {
 		}
 		
 		PropertyChangeEvent event = new PropertyChangeEvent(
-				this, TAB_SELECTED_PROPERTY, 
-				new Integer(this.tabSelected), new Integer(tabSelected));
+				this, TAB_SELECTED_PROPERTY,
+				this.tabSelected, tabSelected);
 		
 		this.tabSelected = tabSelected;
 		
