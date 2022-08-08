@@ -23,143 +23,144 @@ import java.io.OutputStream;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import static org.hamcrest.Matchers.instanceOf;
+
 public class StdoutTypeTest extends OjTestCase {
 
-	private static final Logger logger = LoggerFactory.getLogger(StdoutTypeTest.class);
-	
-   @Before
-   public void setUp() throws Exception {
-		logger.debug("-------------------  " + getName() + "  --------------");
-	}
-	
-	
-	String EOL = System.getProperty("line.separator");
-	
+    private static final Logger logger = LoggerFactory.getLogger(StdoutTypeTest.class);
+
+    @Before
+    public void setUp() throws Exception {
+        logger.debug("-------------------  " + getName() + "  --------------");
+    }
+
+
+    String EOL = System.lineSeparator();
+
     @Test
-	public void testSimple() throws ArooaConversionException, IOException {
-		
-		ConsoleCapture results = new ConsoleCapture();
-		try (ConsoleCapture.Close close = results.captureConsole()) {
+    public void testSimple() throws ArooaConversionException, IOException {
 
-			OutputStream output = System.out;
+        ConsoleCapture results = new ConsoleCapture();
+        try (ConsoleCapture.Close close = results.captureConsole()) {
 
-			// Note that depending on order of test different class loader
-			// could be capturing console.
-			assertEquals(LoggingPrintStream.class.getName(),
-					output.getClass().getName());
+            OutputStream output = System.out;
 
-			OutputStream test = new StdoutType().toOutputStream();
+            // Note that depending on order of test different class loader
+            // could be capturing console.
+            assertThat(output, instanceOf(LoggingPrintStream.class));
 
-			test.write(("Hello World." + EOL).getBytes());
+            OutputStream test = new StdoutType().toOutputStream();
 
-			test.close();
+            test.write(("Hello World." + EOL).getBytes());
 
-		}
-		
-		results.dump(logger);
-		
-		assertEquals("Hello World.", results.getAll());
-	}
-	
-   @Test
-	public void testStdoutInOddjob() throws ArooaPropertyException, ArooaConversionException {
-		
-		String xml =
-			"<oddjob>" +
-			" <job>" +
-			"  <sequential>" +
-			"   <jobs>" +
-			"    <copy>" +
-			"     <input>" +
-			"      <identify id='hello'>" +
-			"       <value>" +
-			"        <buffer>Hello" + EOL + "</buffer>" +
-			"       </value>" + 
-			"      </identify>" + 
-			"     </input>" + 
-			"     <output>" +
-			"      <stdout/>" +
-			"     </output>" +
-			"    </copy>" +
-			"    <copy>" +
-			"     <input>" +
-			"      <buffer>World" + EOL + "</buffer>" + 
-			"     </input>" + 
-			"     <output>" +
-			"      <stdout/>" +
-			"     </output>" +
-			"    </copy>" +
-			"   </jobs>" +
-			"  </sequential>" +
-			" </job>" +
-			"</oddjob>";
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		
-		ConsoleCapture results = new ConsoleCapture();
-		try (ConsoleCapture.Close close = results.captureConsole()) {
-			
-			oddjob.run();
-		}
-		
-		String sanityCheck = new OddjobLookup(oddjob).lookup("hello", String.class);
-		assertEquals("Hello", sanityCheck.trim());
-		
-		oddjob.destroy();
-		
-		results.dump(logger);
-		
-		String[] lines = results.getLines();
-		
-		assertEquals("Hello", lines[0]);
-		assertEquals("World", lines[1]);
-	}
-	
-   @Test
-	public void testExample() throws ArooaParseException {
+            test.close();
 
-		OurDirs dirs = new OurDirs();
-		
-		Properties properties = new Properties();
-		properties.setProperty("my.file", dirs.relative(
-				"test/io/TestFile.txt").getPath());
-		
-		FragmentHelper helper = new FragmentHelper();
-		helper.setProperties(properties);
-		
-		Runnable copy = (Runnable) helper.createComponentFromResource(
-				"org/oddjob/io/StdoutTypeExample.xml");
-		
-		ConsoleCapture results = new ConsoleCapture();
-		try (ConsoleCapture.Close close = results.captureConsole()) {
-			
-			copy.run();
-		}
-		
-		String[] lines = results.getLines();
-		
-		assertEquals("Test", lines[0].trim());
-		assertEquals(1, lines.length);
-	}
+        }
 
-	@Test
-	public void testConsumer() throws ArooaConversionException {
+        results.dump(logger);
 
-		StdoutType test = new StdoutType();
+        assertEquals("Hello World.", results.getAll());
+    }
 
-		ConsoleCapture results = new ConsoleCapture();
-		try (ConsoleCapture.Close close = results.captureConsole()) {
+    @Test
+    public void testStdoutInOddjob() throws ArooaPropertyException, ArooaConversionException {
 
-			Consumer<Object> consumer = test.toConsumer();
+        String xml =
+                "<oddjob>" +
+                        " <job>" +
+                        "  <sequential>" +
+                        "   <jobs>" +
+                        "    <copy>" +
+                        "     <input>" +
+                        "      <identify id='hello'>" +
+                        "       <value>" +
+                        "        <buffer>Hello" + EOL + "</buffer>" +
+                        "       </value>" +
+                        "      </identify>" +
+                        "     </input>" +
+                        "     <output>" +
+                        "      <stdout/>" +
+                        "     </output>" +
+                        "    </copy>" +
+                        "    <copy>" +
+                        "     <input>" +
+                        "      <buffer>World" + EOL + "</buffer>" +
+                        "     </input>" +
+                        "     <output>" +
+                        "      <stdout/>" +
+                        "     </output>" +
+                        "    </copy>" +
+                        "   </jobs>" +
+                        "  </sequential>" +
+                        " </job>" +
+                        "</oddjob>";
 
-			consumer.accept("apple");
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
 
-			MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[] { "apple" }));
+        ConsoleCapture results = new ConsoleCapture();
+        try (ConsoleCapture.Close close = results.captureConsole()) {
 
-			consumer.accept("orange");
+            oddjob.run();
+        }
 
-			MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[] { "apple", "orange" }));
-		}
-	}
+        String sanityCheck = new OddjobLookup(oddjob).lookup("hello", String.class);
+        assertEquals("Hello", sanityCheck.trim());
+
+        oddjob.destroy();
+
+        results.dump(logger);
+
+        String[] lines = results.getLines();
+
+        assertEquals("Hello", lines[0]);
+        assertEquals("World", lines[1]);
+    }
+
+    @Test
+    public void testExample() throws ArooaParseException {
+
+        OurDirs dirs = new OurDirs();
+
+        Properties properties = new Properties();
+        properties.setProperty("my.file", dirs.relative(
+                "test/io/TestFile.txt").getPath());
+
+        FragmentHelper helper = new FragmentHelper();
+        helper.setProperties(properties);
+
+        Runnable copy = (Runnable) helper.createComponentFromResource(
+                "org/oddjob/io/StdoutTypeExample.xml");
+
+        ConsoleCapture results = new ConsoleCapture();
+        try (ConsoleCapture.Close close = results.captureConsole()) {
+
+            copy.run();
+        }
+
+        String[] lines = results.getLines();
+
+        assertEquals("Test", lines[0].trim());
+        assertEquals(1, lines.length);
+    }
+
+    @Test
+    public void testConsumer() {
+
+        StdoutType test = new StdoutType();
+
+        ConsoleCapture results = new ConsoleCapture();
+        try (ConsoleCapture.Close close = results.captureConsole()) {
+
+            Consumer<Object> consumer = test.toConsumer();
+
+            consumer.accept("apple");
+
+            MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[]{"apple"}));
+
+            consumer.accept("orange");
+
+            MatcherAssert.assertThat(results.getLines(), Matchers.is(new String[]{"apple", "orange"}));
+        }
+    }
 }

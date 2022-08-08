@@ -4,11 +4,8 @@ import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.io.PrintStream;
 import java.util.function.Consumer;
 
 /**
@@ -35,30 +32,14 @@ public class StdoutType implements ArooaValue {
     }
 
     public OutputStream toOutputStream() {
-        return new FilterOutputStream(System.out) {
-            @Override
-            public void close() throws IOException {
-                super.flush();
-            }
-
-            @Override
-            public String toString() {
-                return NAME;
-            }
-        };
+        return new NoCloseOutputStream(System.out, NAME);
     }
 
     public Consumer<Object> toConsumer() {
 
-        return o -> {
-            try (OutputStream outputStream = toOutputStream()) {
-                outputStream.write(Objects.toString(o).getBytes(StandardCharsets.UTF_8));
-                outputStream.write('\n');
-                outputStream.flush();
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed writing [" + o + "] to " + NAME);
-            }
-        };
+        PrintStream printStream = System.out;
+
+        return printStream::println;
     }
 
     @Override

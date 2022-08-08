@@ -3,10 +3,10 @@
  */
 package org.oddjob.logging;
 
+import org.oddjob.arooa.logging.LogLevel;
+
 import java.io.OutputStream;
 import java.io.PrintStream;
-
-import org.oddjob.arooa.logging.LogLevel;
 
 /**
  * Provide a PrintStream that logs to a logger.

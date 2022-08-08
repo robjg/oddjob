@@ -17,7 +17,7 @@ public interface LogArchive {
 	 * 
 	 * @return The last message number.
 	 */
-	public long getLastMessageNumber();
+	long getLastMessageNumber();
 
 	/**
 	 * Retrieve events from the archive. The most recent events are retrieved
@@ -28,7 +28,7 @@ public interface LogArchive {
 	 * 
 	 * @return The events.
 	 */
-	public LogEvent[] retrieveEvents(long from, int max);
+	LogEvent[] retrieveEvents(long from, int max);
 	
 	/**
 	 * Add a listener.
@@ -38,7 +38,7 @@ public interface LogArchive {
 	 * @param last The last message number this listener requires.
 	 * @param history The maximum lines this listener requires.
 	 */
-	public void addListener(LogListener logListener,  
+	void addListener(LogListener logListener,
 			LogLevel level, long last, int history);
 	
 	/**
@@ -46,20 +46,20 @@ public interface LogArchive {
 	 * 
 	 * @param l The listener.
 	 */
-	public boolean removeListener(LogListener l);
+	boolean removeListener(LogListener l);
 
 	/**
 	 * Get the archive name.
 	 * 
 	 * @return The archive name. Never null.
 	 */
-	public String getArchive();
+	String getArchive();
 	
 	/**
 	 * Get the maximum number archive history lines supported.
 	 * 
 	 * @return The number of lines.
 	 */
-	public int getMaxHistory();
+	int getMaxHistory();
 
 }

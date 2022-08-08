@@ -1,11 +1,12 @@
 package org.oddjob.io;
 
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.convert.ConversionProvider;
+import org.oddjob.arooa.convert.ConversionRegistry;
 
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.types.ValueFactory;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.function.Consumer;
 
 /**
  * @oddjob.description Provide an output to the stderr stream of 
@@ -17,20 +18,33 @@ import org.oddjob.arooa.types.ValueFactory;
  * 
  * {@oddjob.xml.resource org/oddjob/io/StderrTypeExample.xml}
  */
-public class StderrType implements ValueFactory<OutputStream> {
+public class StderrType implements ArooaValue {
 
 	public static final String NAME = "stderr";
-	
-	@Override
-	public OutputStream toValue() throws ArooaConversionException {
-		return new FilterOutputStream(System.err) {
-			@Override
-			public void close() throws IOException {
-				super.flush();
-			}
-		};
+
+	public static class Conversions implements ConversionProvider {
+
+		public void registerWith(ConversionRegistry registry) {
+
+			registry.register(StderrType.class, OutputStream.class,
+					StderrType::toOutputStream);
+
+			registry.register(StderrType.class, Consumer.class,
+					StderrType::toConsumer);
+		}
 	}
-	
+
+	public OutputStream toOutputStream() {
+		return new NoCloseOutputStream(System.err, NAME);
+	}
+
+	public Consumer<Object> toConsumer() {
+
+		PrintStream printStream = System.err;
+
+		return printStream::println;
+	}
+
 	@Override
 	public String toString() {
 		return NAME;

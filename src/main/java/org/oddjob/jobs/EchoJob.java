@@ -1,7 +1,6 @@
 package org.oddjob.jobs;
 
 import org.oddjob.arooa.deploy.annotations.ArooaText;
-import org.oddjob.io.StdoutType;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -115,9 +114,11 @@ public class EchoJob
      */
     public void run() {
 
-        try (PrintStream out = Optional.ofNullable(this.output)
+        PrintStream out = Optional.ofNullable(this.output)
                 .map(PrintStream::new)
-                .orElseGet(() -> new PrintStream(new StdoutType().toOutputStream()))) {
+                .orElse(System.out);
+
+        try {
 
             if (text != null) {
                 out.println(text);
@@ -127,6 +128,11 @@ public class EchoJob
                 }
             } else {
                 out.println();
+            }
+        }
+        finally {
+            if (out != System.out) {
+                out.close();
             }
         }
     }

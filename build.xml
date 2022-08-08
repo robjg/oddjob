@@ -56,7 +56,7 @@
         <property name="test.resources"   		value="${src.dir}/test/resources"/>
 		<property name="packages"     			value="org.oddjob"/>
 		
-		<property name="build.dir"      		value="./build"/>
+		<property name="build.dir"      		location="build"/>
 		<property name="build.src"      		value="${build.dir}/src"/>
 		<property name="build.classes"     		value="${build.dir}/classes"/>
 		<property name="build.test"      		value="${build.dir}/test"/>
@@ -362,6 +362,8 @@
 			<sysproperty key="basedir" value="${basedir}"/>
 			<sysproperty key="oddjob.home" value="${oddjob.home}"/>
 			<sysproperty key="ant.file" value="${ant.file}"/>
+			<sysproperty key="logback.configurationFile" value="logback-maven.xml"></sysproperty>
+			<sysproperty key="build.directory" value="${build.dir}"></sysproperty>
 		</junit>
 		
 		<junitreport todir="${test.reports}">

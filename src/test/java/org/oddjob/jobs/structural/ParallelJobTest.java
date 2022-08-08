@@ -1,5 +1,6 @@
 package org.oddjob.jobs.structural;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
@@ -18,9 +19,10 @@ import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 public class ParallelJobTest extends OjTestCase {
 
@@ -345,17 +347,12 @@ public class ParallelJobTest extends OjTestCase {
 
         console.dump(logger);
 
-        String[] lines = console.getLines();
+        Set<String> results = Arrays.stream(console.getLines())
+                .map(l -> l.trim())
+                .collect(Collectors.toSet());
 
-        assertEquals(2, lines.length);
-
-        Set<String> results = new HashSet<>();
-
-        results.add(lines[0].trim());
-        results.add(lines[1].trim());
-
-        assertTrue(results.contains("This runs in parallel"));
-        assertTrue(results.contains("With this which could be displayed first!"));
+        assertThat(results, Matchers.containsInAnyOrder("This runs in parallel",
+                "With this which could be displayed first!"));
 
         oddjob.destroy();
     }

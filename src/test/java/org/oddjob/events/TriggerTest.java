@@ -403,7 +403,7 @@ public class TriggerTest {
 	}
 
 	@Test
-	public void testTriggerInBeanBus() throws ArooaConversionException {
+	public void testTriggerInBeanBus() throws ArooaConversionException, InterruptedException {
 
 		Oddjob oddjob = new Oddjob();
 		oddjob.setConfiguration(new XMLConfiguration(
@@ -416,7 +416,7 @@ public class TriggerTest {
 
 		oddjob.run();
 
-		testStates.checkNow();
+		testStates.checkWait();
 
 		String result = new OddjobLookup(oddjob).lookup("result.text", String.class);
 

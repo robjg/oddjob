@@ -16,7 +16,7 @@ import java.io.OutputStream;
  */
 abstract public class AbstractLoggingOutput extends OutputStream {
 	
-	private ByteArrayOutputStream buffer;
+	private final ByteArrayOutputStream buffer;
 	
 	/** The existing OutputStream to also write to. */
 	private final OutputStream existing;
@@ -25,8 +25,6 @@ abstract public class AbstractLoggingOutput extends OutputStream {
 	 * Constructor.
 	 * 
 	 * @param existing The output stream to also write to. May be null.
-	 * @param level The level to use when logging.
-	 * @param consoleArchiver The logger to write to.
 	 */
 	public AbstractLoggingOutput(OutputStream existing) {
 		this.buffer = new ByteArrayOutputStream();
@@ -82,11 +80,11 @@ abstract public class AbstractLoggingOutput extends OutputStream {
 	}
 
 	/**
-	 * Called when a line is ready to be written to the LoagArchive.
+	 * Called when a line is ready to be written to the {@link LogArchive}.
 	 *
 	 */
 	void next() {
-		String message = null;
+		String message;
 		synchronized (buffer) {
 			if (buffer.size() == 0) {
 				return;

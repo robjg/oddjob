@@ -1,6 +1,9 @@
 package org.oddjob;
 
 import org.apache.commons.io.IOUtils;
+import org.hamcrest.Matchers;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.arooa.convert.ConversionFailedException;
 import org.oddjob.arooa.convert.NoConversionAvailableException;
@@ -17,19 +20,42 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+public class OddjobConsoleTest extends OjTestCase {
 
-public class OddjobConsoleTest {
+    private static final Logger logger = LoggerFactory.getLogger(OddjobConsoleTest.class);
+
+    PrintStream saveOut;
+
+
+
+    @Before
+    public void setUp() {
+
+        logger.info("-----------------  " + getName() + "  --------------------");
+
+        saveOut = System.out;
+    }
+
+    @After
+    public void tearDown() {
+
+        System.setOut(saveOut);
+    }
 
     static class Console implements LogListener {
         List<String> lines = new ArrayList<>();
 
         public synchronized void logEvent(LogEvent logEvent) {
-            lines.add(logEvent.getMessage());
+            lines.add(logEvent.getMessage().trim());
         }
     }
 
+    /*
+     * Understanding how sometimes Log4j messages appeared in the Oddjob console and sometime didn't, and
+     * the use of log4j.appender.stdout.follow=true. Moving to Logback made all messages appear in the console.
+     *
+     * This test is fragile and depends on settings logback-test.xml.
+     */
     @Test
     public void testLoggingBehaviour() throws IOException, NoConversionAvailableException, ConversionFailedException {
 
@@ -37,8 +63,6 @@ public class OddjobConsoleTest {
         Console console1 = new Console();
 
         ByteArrayOutputStream ourOut1 = new ByteArrayOutputStream();
-
-        PrintStream saveOut = System.out;
 
         System.setOut(new PrintStream(ourOut1) {
             @Override
@@ -50,8 +74,6 @@ public class OddjobConsoleTest {
         OddjobConsole.Close close1 = OddjobConsole.initialise();
 
         OddjobConsole.console().addListener(console1, LogLevel.DEBUG, -1, 0);
-
-        Logger logger = LoggerFactory.getLogger(OddjobConsoleTest.class);
 
         System.out.println("Console message 1");
 
@@ -90,13 +112,17 @@ public class OddjobConsoleTest {
 
         close2.close();
 
+        // Won't appear in 2
+
         System.out.println("Console message 4");
 
         close1.close();
 
+        // Won't appear in 1
+
         System.out.println("Console message 5");
 
-        System.setOut(saveOut);
+        // Then
 
         String consoleText1 = ourOut1.toString();
 
@@ -106,14 +132,13 @@ public class OddjobConsoleTest {
 
         console1.lines.forEach(l -> logger.info("** {}", l.trim()));
 
-        assertThat(consoleLines1.size(), is(9));
+        assertThat(consoleLines1, Matchers.contains(
+                "Console message 1", "Console message 2", "Console message 3",
+                "Console message 4", "Console message 5"));
 
-        assertThat(console1.lines.size(), is(7));
-
-        assertThat(console1.lines.get(0).trim(), is("Console message 1"));
-        assertThat(console1.lines.get(2).trim(), is("Console message 2"));
-        assertThat(console1.lines.get(4).trim(), is("Console message 3"));
-        assertThat(console1.lines.get(5).trim(), is("Console message 4"));
+        assertThat(console1.lines, Matchers.contains(
+                "Console message 1", "Console message 2", "Console message 3",
+                "Console message 4"));
 
         String consoleText2 = ourOut2.toString();
 
@@ -123,13 +148,11 @@ public class OddjobConsoleTest {
 
         console2.lines.forEach(l -> logger.info("** {}", l.trim()));
 
-        assertThat(consoleLines2.size(), is(5));
+        assertThat(consoleLines2, Matchers.contains(
+                "Console message 2", "Console message 3", "Console message 4"));
 
-        assertThat(console2.lines.size(), is(1));
-
-        assertThat(console2.lines.get(0).trim(), is("Console message 3"));
-
+        assertThat(console2.lines, Matchers.contains(
+                "Console message 3"));
 
     }
-
 }
