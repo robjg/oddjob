@@ -64,7 +64,7 @@ public class OddjobMBeanFactory implements ServerSession {
 
 		long objectId = serial.getAndIncrement();
 
-		OddjobMBean ojmb = new OddjobMBean(object, objectId, this, context);
+		OddjobMBean ojmb = OddjobMBean.create(object, objectId, this, context);
 		ObjectName objName = ojmb.getObjectName();
 
 		server.registerMBean(ojmb, objName);
@@ -74,7 +74,7 @@ public class OddjobMBeanFactory implements ServerSession {
 			mBeans.put(objectId, ojmb);
 		}
 		
-		logger.debug("Created and registered [" + object + "] as OddjobMBean [" + objName.toString() + "]");
+		logger.debug("Created and registered [{}] as OddjobMBean [{}]", object, objName);
 
 		return objectId;
 	}

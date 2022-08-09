@@ -48,6 +48,12 @@ public class DesignerActionTest extends OjTestCase {
         test.setSelectedContext(null);
     }
 
+
+
+
+
+
+
     private static class ParentContext extends MockExplorerContext {
 
         ConfigurationOwner configOwner;

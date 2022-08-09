@@ -3,6 +3,7 @@ package org.oddjob.jmx.server;
 import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.util.NotificationNotifier;
 import org.oddjob.remote.util.NotifierListener;
 
 /**
@@ -12,7 +13,7 @@ import org.oddjob.remote.util.NotifierListener;
  * @author Rob Gordon.
  */
 
-public interface ServerSideToolkit {
+public interface ServerSideToolkit extends NotificationNotifier {
 
 	/**
 	 * Send a notification. This can be provided by
@@ -22,6 +23,12 @@ public interface ServerSideToolkit {
 	 */
 	void sendNotification(Notification<?> notification);
 
+	/**
+	 *
+	 * @param type
+	 * @param notifierListener
+	 * @param <T>
+	 */
 	<T> void setNotifierListener(NotificationType<T> type,  NotifierListener<T> notifierListener);
 
 	/**

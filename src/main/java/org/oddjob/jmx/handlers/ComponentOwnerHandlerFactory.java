@@ -22,6 +22,8 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanException;
@@ -41,6 +43,8 @@ import java.util.*;
  */
 public class ComponentOwnerHandlerFactory
         implements ServerInterfaceHandlerFactory<ConfigurationOwner, ConfigurationOwner> {
+
+    private static final Logger logger = LoggerFactory.getLogger(ComponentOwnerHandlerFactory.class);
 
     public static final HandlerVersion VERSION = new HandlerVersion(5, 0);
 
@@ -214,7 +218,7 @@ public class ComponentOwnerHandlerFactory
 
     @Override
     public List<NotificationType<?>> getNotificationTypes() {
-        return Arrays.asList(MODIFIED_NOTIF_TYPE);
+        return Arrays.asList(CHANGE_NOTIF_TYPE, MODIFIED_NOTIF_TYPE);
     }
 
     @Override
@@ -258,7 +262,10 @@ public class ComponentOwnerHandlerFactory
         private volatile boolean listening;
 
         private final NotificationListener<ConfigOwnerEvent.Change> listener =
-                notification -> updateSession(notification.getData());
+                notification -> {
+                    logger.trace("Received {}", notification);
+                    updateSession(notification.getData());
+                };
 
         ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
             this.clientToolkit = toolkit;
@@ -267,6 +274,9 @@ public class ComponentOwnerHandlerFactory
             updateSession(null);
 
             ownerSupport.setOnFirst(() -> {
+
+                // TODO: Why?
+
                 updateSession(null);
                 toolkit.registerNotificationListener(
                         CHANGE_NOTIF_TYPE, listener);
@@ -313,7 +323,8 @@ public class ComponentOwnerHandlerFactory
                     newId = clientToolkit.invoke(SESSION_AVAILABLE);
                 } catch (Throwable e) {
                     // need to rethink this. Fails when client has been stopped.
-                    // but why is it being being called at all?
+                    // but why is it being called at all?
+                    logger.warn("Failed invoking {} on {}", SESSION_AVAILABLE, clientToolkit, e);
                     newId = null;
                 }
 
@@ -663,6 +674,7 @@ public class ComponentOwnerHandlerFactory
 
             @Override
             public void sessionChanged(final ConfigOwnerEvent event) {
+                logger.trace("ConfigurationListener, SessionChanged: {}", event);
                 configurationSession = configurationOwner.provideConfigurationSession();
                 if (configurationSession != null) {
                     configurationSession.addSessionStateListener(modifiedListener);
@@ -681,6 +693,10 @@ public class ComponentOwnerHandlerFactory
             this.toolkit = serverToolkit;
             configurationOwner.addOwnerStateListener(configurationListener);
             configurationSession = configurationOwner.provideConfigurationSession();
+
+            logger.trace("Creating Handler for [{}] with existing session {}",
+                    configurationOwner, configurationSession);
+
             if (configurationSession != null) {
                 configurationSession.addSessionStateListener(modifiedListener);
             }

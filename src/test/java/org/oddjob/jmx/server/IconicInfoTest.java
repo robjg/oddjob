@@ -82,7 +82,7 @@ public class IconicInfoTest extends OjTestCase {
         ServerContext serverContext = new ServerContextImpl(
                 iconic, sm, parentContext);
 
-        OddjobMBean ojmb = new OddjobMBean(
+        OddjobMBean ojmb = OddjobMBean.create(
                 iconic, 0L,
                 new OurServerSession(),
                 serverContext);

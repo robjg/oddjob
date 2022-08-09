@@ -507,7 +507,7 @@ public class ClientNodeTest {
             ServerContext srvcon = new ServerContextImpl(o, sm,
                     parentContext);
 
-            Object mb = new OddjobMBean(o, 0L,
+            Object mb = OddjobMBean.create(o, 0L,
                     new OurServerSession(), srvcon);
 
             MBeanServer mbs = MBeanServerFactory.createMBeanServer();

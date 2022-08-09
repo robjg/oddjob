@@ -80,7 +80,7 @@ public class ObjectMBeanServerInfoTest {
         ServerContext serverContext = new ServerContextImpl(
                 myJob, sm, parentContext);
 
-        final OddjobMBean ojmb = new OddjobMBean(
+        final OddjobMBean ojmb = OddjobMBean.create(
                 myJob, 0L,
                 new OurServerSession(),
                 serverContext);

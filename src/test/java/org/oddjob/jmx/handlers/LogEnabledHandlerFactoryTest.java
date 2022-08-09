@@ -66,7 +66,7 @@ public class LogEnabledHandlerFactoryTest {
         ServerContext serverContext = new ServerContextImpl(
                 target, sm, parentContext);
 
-        OddjobMBean ojmb = new OddjobMBean(
+        OddjobMBean ojmb = OddjobMBean.create(
                 target, 0,
                 new OurServerSession(),
                 serverContext);

@@ -117,7 +117,7 @@ abstract public class ClientBase extends SimpleService {
 	protected void doStop(final WhyStop why, final Exception cause) {
 
 		// There is a small possibility that the SERVER_STOPPED and 
-		// HEARTBEAT_FAIURE happen simultaneously. 
+		// HEARTBEAT_FAILURE happen simultaneously.
 		ExecutorService notificationProcessor;
 		synchronized (this) {
 			notificationProcessor = this.notificationProcessor;

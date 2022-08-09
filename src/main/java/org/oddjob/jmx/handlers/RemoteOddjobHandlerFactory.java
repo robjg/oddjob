@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Handler for being a Remote Component which all remote components provide.
  */
 public class RemoteOddjobHandlerFactory 
 implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {

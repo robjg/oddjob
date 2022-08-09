@@ -247,7 +247,7 @@ public class RemoteLogPollerTest extends OjTestCase {
         MyServerContext serverContext = new MyServerContext();
         serverContext.simf = imf;
 
-        OddjobMBean mb = new OddjobMBean(
+        OddjobMBean mb = OddjobMBean.create(
                 component, 0,
                 new OurServerSession(),
                 serverContext);
@@ -306,7 +306,7 @@ public class RemoteLogPollerTest extends OjTestCase {
         MyServerContext serverContext = new MyServerContext();
         serverContext.simf = imf;
 
-        OddjobMBean mb = new OddjobMBean(
+        OddjobMBean mb = OddjobMBean.create(
                 component, 0L,
                 new OurServerSession(),
                 serverContext);

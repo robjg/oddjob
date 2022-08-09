@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Holds information about an Implementation supported ny the Server. Passed to
+ * Holds information about an Implementation supported by the Server. Passed to
  * the client as part of {@link org.oddjob.jmx.server.ServerInfo}.
  *
  * @param <T> The type of the Initialisation, if any.

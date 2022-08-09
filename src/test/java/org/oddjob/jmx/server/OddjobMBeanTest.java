@@ -107,7 +107,7 @@ public class OddjobMBeanTest extends OjTestCase {
         ServerContext serverContext = new ServerContextImpl(
                 myJob, sm, parentContext);
 
-        OddjobMBean ojmb = new OddjobMBean(
+        OddjobMBean ojmb = OddjobMBean.create(
                 myJob, 0L,
                 new OurServerSession(),
                 serverContext);
@@ -155,7 +155,7 @@ public class OddjobMBeanTest extends OjTestCase {
                 myJob, sm, parentContext);
 
         // create and register MBean.
-        OddjobMBean ojmb = new OddjobMBean(
+        OddjobMBean ojmb = OddjobMBean.create(
                 myJob,
                 0L,
                 new OurServerSession(),
@@ -286,7 +286,7 @@ public class OddjobMBeanTest extends OjTestCase {
         ServerContext serverContext = new ServerContextImpl(
                 sampleBean, sm, parentContext);
 
-        OddjobMBean test = new OddjobMBean(
+        OddjobMBean test = OddjobMBean.create(
                 sampleBean, 0L,
                 new OurServerSession(),
                 serverContext);
@@ -321,7 +321,7 @@ public class OddjobMBeanTest extends OjTestCase {
         ServerContext serverContext = new ServerContextImpl(
                 bean, sm, parentContext);
 
-        OddjobMBean ojmb = new OddjobMBean(
+        OddjobMBean ojmb = OddjobMBean.create(
                 bean, 0L,
                 new OurServerSession(),
                 serverContext);

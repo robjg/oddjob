@@ -33,4 +33,12 @@ public class Initialisation<T extends Serializable> implements Serializable {
     public T getData() {
         return data;
     }
+
+    @Override
+    public String toString() {
+        return "Initialisation{" +
+                "type=" + type +
+                ", data=" + data +
+                '}';
+    }
 }

@@ -17,7 +17,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Manage JMX listeners on behalf of an {@link OddjobMBean}. When a listener is added or removed any set
  * {@link NotifierListener} of that type is notified.
  */
-public class JmxListenerHelper implements NotificationEmitter {
+public class JmxListenerHelper implements NotificationEmitter, org.oddjob.remote.util.NotificationControl {
 
     private static final Logger logger = LoggerFactory.getLogger(JmxListenerHelper.class);
 
@@ -69,6 +69,7 @@ public class JmxListenerHelper implements NotificationEmitter {
     @Override
     public void addNotificationListener(NotificationListener listener, NotificationFilter filter, Object handback) throws IllegalArgumentException {
 
+        // Why do we support multiple types here?
         List<NotificationType<?>> addedTo = new LinkedList<>();
 
         listeners.forEach( (t, ls) -> {
@@ -80,10 +81,10 @@ public class JmxListenerHelper implements NotificationEmitter {
         });
 
         if (addedTo.isEmpty()) {
-            logger.warn("{} Listener not enabled for any types: {}", objectName, listener);
+            logger.warn("{} Listener ignored as not enabled for any types: {}, filter={}", objectName, listener, filter);
         }
         else {
-            logger.debug("{} Listener {} added for types {}", objectName, listener, addedTo);
+            logger.debug("{} Listener {} added for types {}, filter={}", objectName, listener, addedTo, filter);
         }
     }
 
@@ -140,17 +141,15 @@ public class JmxListenerHelper implements NotificationEmitter {
                                 RemoteBridge.toRemoteListener(objectName, listener))));
     }
 
-    /**
-     * Sets an {@link NotifierListener}. This might happen before types are know so we can't check.
-     *
-     * @param type The notification type.
-     * @param notifierListener The listener.
-     * @param <T> The type of the notification and listener.
-     */
+    @Override
     public <T> void setNotifierListener(NotificationType<T> type, NotifierListener<T> notifierListener) {
         if (notifierListeners.containsKey(type)) {
             throw new IllegalArgumentException("NotifierListener already set");
         }
+
+        // Would be good to check type is enabled but this call might happen before types are known,
+        // so we can't do that check. TODO is this still the case?
+
         notifierListeners.put(type, notifierListener);
     }
 
@@ -159,21 +158,25 @@ public class JmxListenerHelper implements NotificationEmitter {
      *
      * @param notification The notification.
      */
+    @Override
     public void sendNotification(org.oddjob.remote.Notification<?> notification) {
 
-        Optional.ofNullable(listeners.get(notification.getType()))
-                .ifPresent(ll -> {
-                    logger.debug("Sending {} to {} listeners", notification, ll.size());
-                    Notification jmxNotification = RemoteBridge.toJmxNotification(objectName, notification);
-                    ll.forEach(listenerAndHandback -> {
-                        try {
-                            listenerAndHandback.notificationListener
-                                    .handleNotification(jmxNotification, listenerAndHandback.handback);
-                        } catch (Throwable t) {
-                            logger.error("Notification Listener " + listenerAndHandback.notificationListener +
-                                            ", threw exception.", t);
-                        }
-                    });
-                });
+        List<ListenerAndHandback> ll = listeners.get(notification.getType());
+        if (ll == null) {
+            logger.trace("No listeners for {}, not sending anything.", notification);
+        }
+        else {
+            logger.debug("Sending {} to {} listeners", notification, ll.size());
+            Notification jmxNotification = RemoteBridge.toJmxNotification(objectName, notification);
+            ll.forEach(listenerAndHandback -> {
+                try {
+                    listenerAndHandback.notificationListener
+                            .handleNotification(jmxNotification, listenerAndHandback.handback);
+                } catch (Throwable t) {
+                    logger.error("Notification Listener " + listenerAndHandback.notificationListener +
+                            ", threw exception.", t);
+                }
+            });
+        }
     }
 }

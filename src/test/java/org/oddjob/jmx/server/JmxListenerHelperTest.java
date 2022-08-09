@@ -2,6 +2,7 @@ package org.oddjob.jmx.server;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.oddjob.jmx.JMXAssumptionsTest;
 import org.oddjob.jmx.general.RemoteBridge;
 import org.oddjob.remote.Notification;
@@ -12,6 +13,7 @@ import org.oddjob.remote.util.NotifierListenerEvent;
 import javax.management.*;
 import javax.management.remote.*;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -207,5 +209,54 @@ public class JmxListenerHelperTest {
 
         cntor.close();
         cntorServer.stop();
+    }
+
+    @Test
+    public void whenTypeNotInInfoThenCheckWhatHappens() throws MalformedObjectNameException {
+
+        NotificationType<String> type1 =
+                NotificationType.ofName("some.string.event")
+                        .andDataType(String.class);
+
+        ObjectName objectName = new ObjectName("foo:name=foo");
+
+        JmxListenerHelper test = new JmxListenerHelper(objectName);
+
+        NotificationListener jmxListener = mock(NotificationListener.class);
+
+        // Add
+
+        test.addNotificationListener(jmxListener, RemoteBridge.createTypeFilterFor(type1), null);
+
+        // Send
+
+        Notification<String> notification = new Notification<>(
+                42L, type1, 1000L, "Apple");
+
+        test.sendNotification(notification);
+
+        verifyNoInteractions(jmxListener);
+
+        // Register Type
+
+        test.setNotificationTypes(new HashSet<>(Collections.singletonList(type1)));
+
+        // Add again
+
+        test.addNotificationListener(jmxListener, RemoteBridge.createTypeFilterFor(type1), null);
+
+        // And send again
+
+        test.sendNotification(notification);
+
+        // Verify
+
+        ArgumentCaptor<javax.management.Notification> notificationArgumentCaptor
+                = ArgumentCaptor.forClass(javax.management.Notification.class);
+
+        verify(jmxListener, times(1)).handleNotification(
+                notificationArgumentCaptor.capture(), ArgumentMatchers.nullable(Object.class));
+
+        assertThat(notificationArgumentCaptor.getValue().getUserData(), is("Apple"));
     }
 }

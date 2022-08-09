@@ -2,6 +2,7 @@ package org.oddjob.jmx.server;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.tools.OddjobTestHelper;
@@ -60,12 +61,17 @@ public class OddjobMBeanToolkitTest {
 
         Object node = new Object();
 
+        // Create MBean and Register
+
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
 
-        OddjobMBean oddjobMBean = new OddjobMBean(node, 0L, null, serverContext);
+        OddjobMBean oddjobMBean = OddjobMBean.create(node, 0L,
+                Mockito.mock(ServerSession.class), serverContext);
         ObjectName objectName = oddjobMBean.getObjectName();
 
         mbs.registerMBean(oddjobMBean, objectName);
+
+        // Capture Toolkit
 
         ArgumentCaptor<ServerSideToolkit> captor = ArgumentCaptor.forClass(ServerSideToolkit.class);
 
@@ -79,8 +85,13 @@ public class OddjobMBeanToolkitTest {
                 (notification, handback) -> jmxNotifications.add(notification),
                 null, null);
 
+        /// When
+
         Notification<SomeData> n = toolkit.createNotification(notificationType, new SomeData());
+
         toolkit.sendNotification(n);
+
+        // Then
 
         assertThat(jmxNotifications.size(), is(1));
         javax.management.Notification n2 = jmxNotifications.get(0);

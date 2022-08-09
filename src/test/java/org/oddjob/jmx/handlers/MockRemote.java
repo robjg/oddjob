@@ -1,5 +1,6 @@
 package org.oddjob.jmx.handlers;
 
+import org.mockito.Mockito;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.life.ArooaSessionAware;
@@ -90,7 +91,11 @@ public class MockRemote<S, T> implements ArooaSessionAware, Runnable {
 
         MBeanServer mbs = MBeanServerFactory.createMBeanServer();
 
-        OddjobMBean oddjobMBean = new OddjobMBean(serverObject, REMOTE_ID, null, serverContext);
+        OddjobMBean oddjobMBean = OddjobMBean.create(serverObject,
+                REMOTE_ID,
+                Mockito.mock(ServerSession.class),
+                serverContext);
+
         ObjectName objectName = oddjobMBean.getObjectName();
 
         mbs.registerMBean(oddjobMBean, objectName);

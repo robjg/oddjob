@@ -20,14 +20,14 @@ public interface ServerInterfaceManager {
 
 	/**
 	 * Return the client interfaces supported.
-	 * 
+	 *
 	 * @return The interfaces.
 	 */
 	Implementation<?>[] allClientInfo();
 
 	/**
 	 * Get the MBeanInfo based on all the interfaces.
-	 * 
+	 *
 	 * @return
 	 */
 	MBeanInfo getMBeanInfo();

@@ -5,6 +5,7 @@ package org.oddjob.jmx.client;
 
 import org.oddjob.arooa.ClassResolver;
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.Initialisation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,10 +171,18 @@ public class ClientInterfaceManagerFactoryBuilder {
             T sourceCast = cl.cast(source);
 
             if (implementation.getInitialisation() == null) {
+
+                logger.trace("Creating client handler for [{}] from factory {} without initialisation.",
+                        csToolkit, factory);
                 return factory.createClientHandler(sourceCast, csToolkit);
+
             } else {
+
+                Initialisation<?> initialisation  = implementation.getInitialisation();
+                logger.trace("Creating client handler for [{}] from factory {} with initialisation [{}].",
+                        csToolkit, factory, initialisation);
                 return factory.createClientHandler(sourceCast,
-                        csToolkit, implementation.getInitialisation());
+                        csToolkit, initialisation);
             }
         }
 

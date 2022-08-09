@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,10 +54,7 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws Throwable {
 		Objects.requireNonNull(remote);
 
-		logger.trace("Invoking {} on remote {}", remote, remoteId);
-
 		Object[] exported = Utils.export(args);
-
 
 		Object result;
 		try {
@@ -65,11 +63,29 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 					remote.getActionName(), 
 					exported,
 					remote.getSignature());
+
+			logger.trace("Invoked {} on remote {}, args {}, result {}", remote, remoteId,
+					Arrays.toString(args), result);
+
 		} catch (ReflectionException e) {
+
+			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
+					Arrays.toString(args), e);
+
 			throw e.getTargetException();
 		} catch (MBeanException e) {
+
+			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
+					Arrays.toString(args), e);
+
 			throw e.getTargetException();
+		} catch (Throwable t) {
+
+			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
+					Arrays.toString(args), t);
+			throw t;
 		}
+
 		return (T) Utils.importResolve(result, clientSession);
 
 	}

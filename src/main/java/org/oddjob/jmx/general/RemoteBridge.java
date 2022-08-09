@@ -92,6 +92,8 @@ public class RemoteBridge implements RemoteConnection {
                 remoteId, k -> new ConcurrentHashMap<>())
                 .put(key, jmxListener);
 
+        // There should only be one listener per type in the client, and the client should manage it.
+        // Try and tidy up and complain if the client hasn't done this.
         if (previous == null) {
             logger.trace("Added Listener for remoteId, {}, {}", remoteId, key);
         }
@@ -328,6 +330,13 @@ public class RemoteBridge implements RemoteConnection {
         @Override
         public boolean isNotificationEnabled(javax.management.Notification notification) {
             return notificationType.getName().equals(notification.getType());
+        }
+
+        @Override
+        public String toString() {
+            return "FilterAdaptor{" +
+                    "notificationType=" + notificationType +
+                    '}';
         }
     }
 

@@ -56,6 +56,8 @@ public class ClientNode implements InvocationHandler, Exportable {
 	private ClientNode(long remoteId,
 			ClientSideToolkit toolkit) {
 
+		logger.trace("Creating Client Node for remoteId={}", remoteId);
+
 		this.remoteId = remoteId;
 
 		RemoteOddjobBean remote =
@@ -89,26 +91,27 @@ public class ClientNode implements InvocationHandler, Exportable {
 				proxy, 
 				toolkit);
 		
-		logger.debug("Client Node creation complete [" +
-				proxy.toString() + "], objectName=" + remoteId);
+		logger.debug("Client Node creation complete [{}], remoteId={}", proxy, remoteId);
 	}
 
 	/**
 	 * Static factory method.
 	 * 
-	 * @param objectName
-	 *            The remote node.
+	 * @param remoteId
+	 *            The remote node id.
 	 * @param toolkit
 	 *            The server connection.
-	 * @return A proxy object that implements it's interfaces.
+	 *
+	 * @return A {@link Handle}  that contains the proxy object that implements its interfaces and
+	 * a means of destroying this node.
 	 * 
 	 * @throws RemoteException
 	 */
-	public static Handle createProxyFor(long objectName,
+	public static Handle createProxyFor(long remoteId,
 			ClientSideToolkit toolkit) {
 		
 		ClientNode client = new ClientNode(
-				objectName,
+				remoteId,
 				toolkit);
 				
 		return client.new Handle();
