@@ -258,32 +258,37 @@ public class ComponentOwnerHandlerFactory
         private final SerializableDesignFactory rootDesignFactory;
 
         private final ArooaElement rootElement;
-
         private volatile boolean listening;
-
-        private final NotificationListener<ConfigOwnerEvent.Change> listener =
-                notification -> {
-                    logger.trace("Received {}", notification);
-                    updateSession(notification.getData());
-                };
-
         ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
             this.clientToolkit = toolkit;
 
             ownerSupport = new ConfigurationOwnerSupport(proxy);
-            updateSession(null);
+
+            NotificationListener<ConfigOwnerEvent.Change> listener = notification -> {
+                logger.trace("Received {}", notification);
+                switch (notification.getData()) {
+                    case SESSION_CREATED:
+                        updateSession();
+                        break;
+                    case SESSION_DESTROYED:
+                        ownerSupport.setConfigurationSession(null);
+                        break;
+                    default:
+                        logger.error("Unexpected {}", notification.getData());
+                }
+            };
 
             ownerSupport.setOnFirst(() -> {
 
-                // TODO: Why?
-
-                updateSession(null);
+                // This is a bit rubbish... we need to track Configuration Sessions in a better way.
+                updateSession();
                 toolkit.registerNotificationListener(
                         CHANGE_NOTIF_TYPE, listener);
                 listening = true;
             });
 
             ownerSupport.setOnEmpty(() -> {
+
                 listening = false;
                 toolkit.removeNotificationListener(
                         CHANGE_NOTIF_TYPE, listener);
@@ -299,11 +304,10 @@ public class ComponentOwnerHandlerFactory
                 throw new UndeclaredThrowableException(e);
             }
         }
-
         @Override
         public ConfigurationSession provideConfigurationSession() {
             if (!listening) {
-                updateSession(null);
+                updateSession();
             }
             return ownerSupport.provideConfigurationSession();
         }
@@ -312,11 +316,8 @@ public class ComponentOwnerHandlerFactory
          * Lots of complicated logic to see if the server
          * configuration session has changed.
          *
-         * @param change
          */
-        private void updateSession(ConfigOwnerEvent.Change change) {
-            if (change == null ||
-                    change == ConfigOwnerEvent.Change.SESSION_CREATED) {
+        private void updateSession() {
 
                 Integer newId;
                 try {
@@ -342,11 +343,7 @@ public class ComponentOwnerHandlerFactory
                                         clientToolkit, newId));
                     }
                 }
-            } else {
-                ownerSupport.setConfigurationSession(null);
-            }
         }
-
         @Override
         public void addOwnerStateListener(OwnerStateListener listener) {
             ownerSupport.addOwnerStateListener(listener);
