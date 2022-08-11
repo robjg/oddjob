@@ -1,5 +1,6 @@
 package org.oddjob.beanbus.destinations;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -247,7 +248,7 @@ public class BusQueueTest extends OjTestCase {
     }
 
     @Test
-    public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException {
+    public void testBeanBusExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setConfiguration(new XMLConfiguration(
@@ -270,12 +271,7 @@ public class BusQueueTest extends OjTestCase {
         List<?> results = lookup.lookup(
                 "results.beans", List.class);
 
-        assertEquals("Apple", results.get(0));
-        assertEquals("Orange", results.get(1));
-        assertEquals("Banana", results.get(2));
-        assertEquals("Pear", results.get(3));
-        assertEquals("Kiwi", results.get(4));
-
+        assertThat(results, Matchers.contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
 
         Object parallel = lookup.lookup("parallel");
 
@@ -293,19 +289,14 @@ public class BusQueueTest extends OjTestCase {
 
         ((Runnable) parallel).run();
 
-        states.checkNow();
+        states.checkWait();
 
         logger.info("** Complete.");
 
         results = lookup.lookup(
                 "results.beans", List.class);
 
-
-        assertEquals("Apple", results.get(0));
-        assertEquals("Orange", results.get(1));
-        assertEquals("Banana", results.get(2));
-        assertEquals("Pear", results.get(3));
-        assertEquals("Kiwi", results.get(4));
+        assertThat(results, Matchers.contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
 
         oddjob.destroy();
     }
