@@ -66,7 +66,7 @@ import java.util.function.Consumer;
  */
 @ArooaInterceptor("org.oddjob.beanbus.bus.BeanBusInterceptor")
 public class BasicBusService extends StructuralJob<Object>
-implements ConductorServiceProvider, Consumer<Object> {
+implements ConductorServiceProvider, Consumer<Object>, Flushable {
 
     private static final long serialVersionUID = 2012021500L;
 
@@ -253,6 +253,11 @@ implements ConductorServiceProvider, Consumer<Object> {
 	@Override
 	protected void onStop() throws FailedToStopException {
 		this.busConductor.close();
+	}
+
+	@Override
+	public void flush() {
+		this.busConductor.flush();
 	}
 
 	/**
