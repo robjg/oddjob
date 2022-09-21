@@ -23,6 +23,20 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * {@oddjob.xml.resource org/oddjob/events/TriggerExpressionExample.xml}
  *
+ * @oddjob.example
+ *
+ * A trigger as a destination in Bean Bus. The queue is required to keep the bus open while the triggered
+ * job completes. Using just a bus driver would cause the bus to be closed when the driver completes and this
+ * might not give time for the triggered job to complete because it happens asynchronously. The solution is to
+ * make Trigger flushable and not let flush complete until the triggered job completes.
+ *
+ * {@oddjob.xml.resource org/oddjob/events/TriggerAsDestinationExample.xml}
+ *
+ * @oddjob.example
+ *
+ * Trigger with the first result of a Bean Bus pipeline.
+ *
+ * {@oddjob.xml.resource org/oddjob/events/TriggerBusDriver.xml}
  *
  * @author Rob Gordon.
  */

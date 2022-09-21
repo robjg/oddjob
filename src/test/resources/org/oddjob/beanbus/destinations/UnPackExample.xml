@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
+            <of>
+                <bus:driver xmlns:bus="oddjob:beanbus">
+                    <values>
+                        <list>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="Apple"/>
+                                        <value value="Orange"/>
+                                    </values>
+                                </list>
+                                <list>
+                                    <values>
+                                        <value value="Pear"/>
+                                        <value value="Kiwi"/>
+                                        <value value="Banana"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </list>
+                    </values>
+                </bus:driver>
+                <bean id="unbatch" class="org.oddjob.beanbus.destinations.UnPack"/>
+                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+            </of>
+        </bus:bus>
+    </job>
+</oddjob>

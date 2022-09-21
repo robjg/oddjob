@@ -1,36 +1,50 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <bus:bus xmlns:bus="oddjob:beanbus">
-            <of>
-                <bus:driver>
-                    <values>
-                        <list>
+        <parallel>
+            <jobs>
+                <bus:queue id="queue" xmlns:bus="oddjob:beanbus"/>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
                             <values>
-                                <value value="1"/>
-                                <value value="2"/>
-                                <value value="3"/>
-                                <value value="4"/>
+                                <value value="${queue}"/>
                             </values>
-                            <elementType>
-                                <class name="java.lang.Integer"/>
-                            </elementType>
-                        </list>
-                    </values>
-                </bus:driver>
-                <bus:filter id="filter">
-                    <predicate>
-                        <bean class="org.oddjob.events.OutboundEventSourceTest$OnlyThree"/>
-                    </predicate>
-                </bus:filter>
-                <events:trigger beDestination="true" id="trigger" xmlns:events="oddjob:events">
+                        </bus:driver>
+                        <bus:filter id="filter">
+                            <predicate>
+                                <bean class="org.oddjob.events.TriggerTest$OnlyApple"/>
+                            </predicate>
+                        </bus:filter>
+                        <events:trigger beDestination="true" id="trigger" xmlns:events="oddjob:events">
+                            <jobs>
+                                <sequential>
+                                    <jobs>
+                                        <echo id="result">
+                                            <![CDATA[Result: ${trigger.trigger}]]>
+                                        </echo>
+                                        <stop job="${queue}" name="Stop Queue"/>
+                                    </jobs>
+                                </sequential>
+                            </jobs>
+                        </events:trigger>
+                    </of>
+                </bus:bus>
+                <folder>
                     <jobs>
-                        <echo id="result">
-                            <![CDATA[Result: ${trigger.trigger}]]>
-                        </echo>
+                        <set id="put1" name="Put Banana">
+                            <values>
+                                <value key="queue.put" value="banana"/>
+                            </values>
+                        </set>
+                        <set id="put2" name="Put Apple">
+                            <values>
+                                <value key="queue.put" value="Apple"/>
+                            </values>
+                        </set>
                     </jobs>
-                </events:trigger>
-            </of>
-        </bus:bus>
+                </folder>
+            </jobs>
+        </parallel>
     </job>
 </oddjob>

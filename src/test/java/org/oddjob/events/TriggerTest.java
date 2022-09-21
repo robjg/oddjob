@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -412,16 +413,41 @@ public class TriggerTest {
 
 		StateSteps testStates = new StateSteps(oddjob);
 		testStates.startCheck(ParentState.READY,
-				ParentState.EXECUTING, ParentState.COMPLETE);
+				ParentState.EXECUTING, ParentState.ACTIVE);
 
 		oddjob.run();
 
 		testStates.checkWait();
 
-		String result = new OddjobLookup(oddjob).lookup("result.text", String.class);
+		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 
-		assertThat(result, Matchers.is("Result: 3"));
+		OddjobLookup lookup = new OddjobLookup(oddjob);
+
+		Runnable set1 = lookup.lookup("put1", Runnable.class);
+		set1.run();
+
+		assertThat(((Stateful) set1).lastStateEvent().getState(), is(JobState.COMPLETE));
+
+		assertThat(oddjob.lastStateEvent().getState(), is(ParentState.ACTIVE));
+
+		Runnable set2 = lookup.lookup("put2", Runnable.class);
+		set2.run();
+
+		testStates.checkWait();
+
+		String result = lookup.lookup("result.text", String.class);
+
+		assertThat(result, Matchers.is("Result: Apple"));
 
 		oddjob.destroy();
 	}
+
+	public static class OnlyApple implements Predicate<String> {
+
+		@Override
+		public boolean test(String s) {
+			return "Apple".equals(s);
+		}
+	}
+
 }

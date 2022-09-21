@@ -211,6 +211,15 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
         return taken.get();
     }
 
+    /**
+     * Allows an item to be place on the queue with set property.
+     *
+     * @param item An item.
+     */
+    public void setPut(E item) {
+        accept(item);
+    }
+
     public int getCapacity() {
         return capacity;
     }

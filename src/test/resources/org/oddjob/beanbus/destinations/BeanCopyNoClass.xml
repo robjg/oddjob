@@ -8,7 +8,7 @@
             <to>
                 <bean class="org.oddjob.beanbus.destinations.BeanCopy">
                     <to>
-                        <bean class="org.oddjob.beanbus.destinations.BeanCapture"/>
+                        <list/>
                     </to>
                     <mappings>
                         <value key="fruit" value="snack"/>

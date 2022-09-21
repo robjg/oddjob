@@ -6,7 +6,7 @@ import org.oddjob.Stateful;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.SimpleBusConductor;
 import org.oddjob.beanbus.destinations.Batcher;
-import org.oddjob.beanbus.destinations.BeanCapture;
+import org.oddjob.beanbus.destinations.BusCollect;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
@@ -126,10 +126,8 @@ public class StatefulBusSupervisorTest {
         Batcher<String> batcher = new Batcher<>();
         batcher.setBatchSize(2);
 
-        BeanCapture<Collection<String>> results =
-                new BeanCapture<>();
-
-        results.run();
+        BusCollect<Collection<String>> results =
+                new BusCollect<>();
 
         OurJob job = new OurJob();
 
@@ -161,6 +159,7 @@ public class StatefulBusSupervisorTest {
 
         job.hardReset();
         batcher.reset();
+        results.hardReset();
 
         test.supervise(job, batcher, results);
 
