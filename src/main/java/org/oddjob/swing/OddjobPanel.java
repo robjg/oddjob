@@ -6,12 +6,8 @@ import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
 import org.oddjob.framework.extend.SimpleService;
-import org.oddjob.images.IconEvent;
-import org.oddjob.images.IconListener;
 import org.oddjob.input.InputHandler;
 import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
@@ -65,12 +61,12 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	public OddjobPanel() {
 		completeConstruction();
 		
-		ScreenPresence whole = ScreenPresence.wholeScreen();
-		screen = whole.smaller(0.33);		
+		ScreenPresence whole = ScreenPresence.defaultSize();
+		screen = whole.smaller(0.66);
 	}
 	
 	private void completeConstruction() {
-		childHelper = new ChildHelper<Object>(this);
+		childHelper = new ChildHelper<>(this);
 	}
 		
 	/**
@@ -81,7 +77,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	 * be automatically set by Oddjob.
 	 * @oddjob.required No.
 	 * 
-	 * @param child A child
+	 * @param executorService Executor Service.
 	 */
 	@Inject
 	public void setExecutorService(ExecutorService executorService) {
@@ -90,7 +86,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 	
 	protected JComponent createPanel() {
 		
-		actions = new ArrayList<JobButtonAction>();
+		actions = new ArrayList<>();
 		
 		Object[] jobs = childHelper.getChildren();
 		
@@ -117,21 +113,17 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 			panel.add(button);
 			
 			if (job instanceof Stateful) {
-				((Stateful) job).addStateListener(new StateListener() {
-					
-					@Override
-					public void jobStateChange(StateEvent event) {
-						if (StateConditions.FINISHED.test(
-								event.getState())) {
-							
-							String status = job.toString() + ": " +
-									event.getState();
-							if (event.getException() != null) {
-								status += " " + event.getException();
-							}
-							
-							frame.setStatus(status);
+				((Stateful) job).addStateListener(event -> {
+					if (StateConditions.FINISHED.test(
+							event.getState())) {
+
+						String status = job + ": " +
+								event.getState();
+						if (event.getException() != null) {
+							status += " " + event.getException();
 						}
+
+						frame.setStatus(status);
 					}
 				});
 			}
@@ -175,7 +167,7 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 				try {
 					stop();
 				} catch (FailedToStopException e1) {
-					logger().error("Failed to stop.", e);
+					logger().error("Failed to stop.", e1);
 				}
 			}
 
@@ -303,14 +295,8 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 			
 			if (job instanceof Iconic) {
 				
-				((Iconic) job).addIconListener(new IconListener() {
-					
-					@Override
-					public void iconEvent(IconEvent e) {
-						putValue(SMALL_ICON, 
-								e.getSource().iconForId(e.getIconId()));
-					}
-				});
+				((Iconic) job).addIconListener(e -> putValue(SMALL_ICON,
+						e.getSource().iconForId(e.getIconId())));
 			}			
 			
 			resetActions();
@@ -339,21 +325,17 @@ implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 			public void run() {
 				
 				future = executorService.submit(
-				new Runnable() {
-					
-					@Override
-					public void run() {
-						if (job instanceof Resettable) {
-							((Resettable) job).hardReset();
-						}
-						
-						job.run();
-						
-						synchronized (RunAction.this) {
-							resetActions();
-						}
-					}
-				});
+						() -> {
+							if (job instanceof Resettable) {
+								((Resettable) job).hardReset();
+							}
+
+							job.run();
+
+							synchronized (RunAction.this) {
+								resetActions();
+							}
+						});
 				
 				synchronized (this) {
 					if (clickTask == this) {

@@ -125,11 +125,6 @@ public class ExecutionWatcher {
 	 * @return
 	 */
 	private boolean checkIfAllJobsExecuted() {
-		if (started && jobsWatchingCount.get() == jobsExecutedCount.get()) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return started && jobsWatchingCount.get() == jobsExecutedCount.get();
 	}	
 }

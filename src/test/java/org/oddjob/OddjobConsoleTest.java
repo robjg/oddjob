@@ -1,7 +1,6 @@
 package org.oddjob;
 
 import org.apache.commons.io.IOUtils;
-import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +18,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.hamcrest.Matchers.contains;
 
 public class OddjobConsoleTest extends OjTestCase {
 
@@ -61,8 +63,10 @@ public class OddjobConsoleTest extends OjTestCase {
 
 
         Console console1 = new Console();
+        Console console2 = new Console();
 
         ByteArrayOutputStream ourOut1 = new ByteArrayOutputStream();
+        ByteArrayOutputStream ourOut2 = new ByteArrayOutputStream();
 
         System.setOut(new PrintStream(ourOut1) {
             @Override
@@ -71,52 +75,44 @@ public class OddjobConsoleTest extends OjTestCase {
             }
         });
 
-        OddjobConsole.Close close1 = OddjobConsole.initialise();
+        try (OddjobConsole.Close close1 = OddjobConsole.initialise()) {
 
-        OddjobConsole.console().addListener(console1, LogLevel.DEBUG, -1, 0);
+            OddjobConsole.console().addListener(console1, LogLevel.DEBUG, -1, 0);
 
-        System.out.println("Console message 1");
+            System.out.println("Console message 1");
 
-        // This will work in a tests because we use follow on the console appender.
-        logger.info("Log message 1");
+            // Add another stream
 
-        // Add another stream
+            TeeType teeType = new TeeType();
+            teeType.setArooaSession(new StandardArooaSession());
+            teeType.setOutputs(0, new ArooaObject(System.out));
+            teeType.setOutputs(1, new ArooaObject(ourOut2));
 
-        ByteArrayOutputStream ourOut2 = new ByteArrayOutputStream();
+            OutputStream anotherOut = teeType.toOutputStream();
 
-        TeeType teeType = new TeeType();
-        teeType.setArooaSession(new StandardArooaSession());
-        teeType.setOutputs(0, new ArooaObject(System.out));
-        teeType.setOutputs(1, new ArooaObject(ourOut2));
+            System.setOut(new PrintStream(anotherOut) {
+                @Override
+                public String toString() {
+                    return "AnotherOut";
+                }
+            });
 
-        OutputStream anotherOut = teeType.toOutputStream();
+            System.out.println("Console message 2");
 
-        System.setOut(new PrintStream(anotherOut) {
-            @Override
-            public String toString() {
-                return "AnotherOut";
+            try (OddjobConsole.Close close2 = OddjobConsole.initialise()) {
+
+                OddjobConsole.console().addListener(console2, LogLevel.DEBUG, -1, 0);
+
+                System.out.println("Console message 3");
+
             }
-        });
 
-        System.out.println("Console message 2");
 
-        OddjobConsole.Close close2 = OddjobConsole.initialise();
+            // Won't appear in 2
 
-        Console console2 = new Console();
+            System.out.println("Console message 4");
 
-        OddjobConsole.console().addListener(console2, LogLevel.DEBUG, -1, 0);
-
-        System.out.println("Console message 3");
-
-        // Clean up.
-
-        close2.close();
-
-        // Won't appear in 2
-
-        System.out.println("Console message 4");
-
-        close1.close();
+        }
 
         // Won't appear in 1
 
@@ -128,15 +124,23 @@ public class OddjobConsoleTest extends OjTestCase {
 
         logger.info("Console 1 ** >>\n" + consoleText1 + "<< **");
 
-        List<String> consoleLines1 = IOUtils.readLines(new StringReader(consoleText1));
+        List<String> consoleLinesWritten1 = IOUtils.readLines(new StringReader(consoleText1))
+                .stream()
+                .filter(line -> !line.startsWith("DEBUG"))
+                .collect(Collectors.toList());
+
+        List<String> consoleLinesCaptured1 = console1.lines
+                .stream()
+                .filter(line -> !line.startsWith("DEBUG"))
+                .collect(Collectors.toList());
 
         console1.lines.forEach(l -> logger.info("** {}", l.trim()));
 
-        assertThat(consoleLines1, Matchers.contains(
+        assertThat(consoleLinesWritten1, contains(
                 "Console message 1", "Console message 2", "Console message 3",
                 "Console message 4", "Console message 5"));
 
-        assertThat(console1.lines, Matchers.contains(
+        assertThat(consoleLinesCaptured1, contains(
                 "Console message 1", "Console message 2", "Console message 3",
                 "Console message 4"));
 
@@ -144,14 +148,22 @@ public class OddjobConsoleTest extends OjTestCase {
 
         logger.info("Console 2 ** >>\n" + consoleText2 + "<< **");
 
-        List<String> consoleLines2 = IOUtils.readLines(new StringReader(consoleText2));
+        List<String> consoleLinesWritten2 = IOUtils.readLines(new StringReader(consoleText2))
+                .stream()
+                .filter(line -> !line.startsWith("DEBUG"))
+                .collect(Collectors.toList());
 
         console2.lines.forEach(l -> logger.info("** {}", l.trim()));
 
-        assertThat(consoleLines2, Matchers.contains(
+        List<String> consoleLinesCaptured2 = console2.lines
+                .stream()
+                .filter(line -> !line.startsWith("DEBUG"))
+                .collect(Collectors.toList());
+
+        assertThat(consoleLinesWritten2, contains(
                 "Console message 2", "Console message 3", "Console message 4"));
 
-        assertThat(console2.lines, Matchers.contains(
+        assertThat(consoleLinesCaptured2, contains(
                 "Console message 3"));
 
     }

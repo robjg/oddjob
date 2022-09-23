@@ -1,14 +1,10 @@
 package org.oddjob.framework.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.extend.SimultaneousStructural;
+
+import java.util.Collection;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 /**
  * Helper class for things that execute jobs in parallel. This class
@@ -24,28 +20,27 @@ import org.oddjob.framework.extend.SimultaneousStructural;
  */
 public class AsyncExecutionSupport {
 	
-	/** The job threads. */
-	private final List<Future<?>> futures = Collections.synchronizedList(
-			new ArrayList<Future<?>>());
-	
-	/** Watch execution to start the state reflector when all children
-	 * have finished. */
-	private final ExecutionWatcher executionWatcher;
+	/** The completable futures. Needs to be thread safe as clear may happen on a different thread
+	 * to the adding. */
+	private final Collection<CompletableFuture<?>> futures = new ConcurrentLinkedQueue<>();
+
+	private final Runnable onCompleteAction;
+
+	private final Consumer<? super Throwable> exceptionHandler;
 
 	/**
 	 * Create a new instance.
 	 * 
 	 * @param onCompleteAction
 	 */
-	public AsyncExecutionSupport(Runnable onCompleteAction) {
-		executionWatcher = new ExecutionWatcher(onCompleteAction);
+	public AsyncExecutionSupport(Runnable onCompleteAction, Consumer<? super Throwable> exceptionHandler) {
+		this.onCompleteAction = onCompleteAction;
+		this.exceptionHandler = exceptionHandler;
 	}
 	
-	public void submitJob(ExecutorService executorService, Runnable job) {
+	public void submitJob(Executor executor, Runnable job) {
 		
-		Future<?> future = executorService.submit(
-				executionWatcher.addJob(job));
-		futures.add(future);		
+		futures.add(CompletableFuture.runAsync(job, executor));
 	}
 	
 	public void joinOnAllJobs() throws InterruptedException, ExecutionException {
@@ -58,7 +53,17 @@ public class AsyncExecutionSupport {
 	 * Start watching jobs for them to finish executing.
 	 */
 	public void startWatchingJobs() {
-		executionWatcher.start();
+		CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]))
+				.whenComplete((v, t) -> {
+					// We don't want to report cancellation exceptions because we want to run the
+					// child state reflector as normal when cancelled.
+					if (t == null || (t.getCause() != null && t.getCause() instanceof CancellationException)) {
+						onCompleteAction.run();
+					}
+					else {
+						exceptionHandler.accept(t);
+					}
+				});
 	}
 	
 	/**
@@ -73,8 +78,6 @@ public class AsyncExecutionSupport {
 		for (Future<?> future : futures) {
 			future.cancel(false);
 		}
-		
-		executionWatcher.stop();
 	}
 	
 	/**
@@ -83,7 +86,6 @@ public class AsyncExecutionSupport {
 	 */
 	public void reset() {
 		
-		executionWatcher.reset();
 		futures.clear();
 	}
 

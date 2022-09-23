@@ -2,37 +2,34 @@ package org.oddjob.framework.util;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
-import org.oddjob.scheduling.MockExecutorService;
-import org.oddjob.scheduling.MockFuture;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+
 public class AsyncExecutionSupportTest extends OjTestCase {
-
-    private static class OurExecutor extends MockExecutorService {
-
-        List<Runnable> submitted = new ArrayList<>();
-
-        @Override
-        public Future<?> submit(Runnable task) {
-            submitted.add(task);
-            return new MockFuture<Object>() {
-            };
-        }
-    }
-
 
     @Test
     public void testAddTwoJobs() {
 
-        OurExecutor executor = new OurExecutor();
+        List<Runnable> submitted = new ArrayList<>();
+
+        Executor executor = mock(Executor.class);
+        doAnswer(invocationOnMock -> {
+            submitted.add(invocationOnMock.getArgument(0));
+            return null;
+        }).when(executor).execute(any(Runnable.class));
 
         final AtomicBoolean done = new AtomicBoolean();
 
-        AsyncExecutionSupport test = new AsyncExecutionSupport(() -> done.set(true));
+        AsyncExecutionSupport test = new AsyncExecutionSupport(
+                () -> done.set(true),
+                t -> { throw new RuntimeException(t); });
 
         test.submitJob(executor, () -> {
         });
@@ -44,11 +41,11 @@ public class AsyncExecutionSupportTest extends OjTestCase {
 
         assertFalse(done.get());
 
-        executor.submitted.get(1).run();
+        submitted.get(1).run();
 
         assertFalse(done.get());
 
-        executor.submitted.get(0).run();
+        submitted.get(0).run();
 
         assertTrue(done.get());
     }
@@ -58,7 +55,9 @@ public class AsyncExecutionSupportTest extends OjTestCase {
 
         final AtomicBoolean done = new AtomicBoolean();
 
-        AsyncExecutionSupport test = new AsyncExecutionSupport(() -> done.set(true));
+        AsyncExecutionSupport test = new AsyncExecutionSupport(
+                () -> done.set(true),
+                t -> { throw new RuntimeException(t); });
 
         test.startWatchingJobs();
 

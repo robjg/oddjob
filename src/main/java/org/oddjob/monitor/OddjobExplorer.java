@@ -58,7 +58,7 @@ implements Stoppable {
     public static final String ODDJOB_PROPERTY ="oddjob";
     
     public static final String DEFAULT_TITLE = "Oddjob Explorer";
-    
+
     protected transient VetoableChangeSupport vetoableChangeSupport;
     
     /** 
@@ -136,10 +136,10 @@ implements Stoppable {
 	 */
 	private transient OddjobServices oddjobServices;
 	
-	private FileHistory fileHistory;
+	private final FileHistory fileHistory;
 
 	// These will be serialzed so frame settings are preserved.
-	private ScreenPresence screen;
+	private final ScreenPresence screen;
 	
 	/** Used to track modification changes. */
 	transient private Set<ConfigurationOwner> owners;
@@ -149,11 +149,10 @@ implements Stoppable {
 	 * Typically used from code to aid debugging an Oddjob.
 	 */
 	public OddjobExplorer() {
+
 		fileHistory = new FileHistory();
-		
-		ScreenPresence whole = ScreenPresence.wholeScreen();
-		screen = whole.smaller(0.66);		
-		
+		screen = ScreenPresence.defaultSize();
+
 		completeConstruction();
 	}
 	
@@ -182,7 +181,7 @@ implements Stoppable {
 		
 		vetoableChangeSupport = 
 			new VetoableChangeSupport(this);
-		owners = new LinkedHashSet<ConfigurationOwner>();
+		owners = new LinkedHashSet<>();
 		 
 		newAction = new NewAction();
 		openAction = new OpenAction();
@@ -199,13 +198,7 @@ implements Stoppable {
 					fileHistory.removeChangeAction(this);
 				}
 				else {
-					SwingUtilities.invokeLater(new Runnable() {
-						
-						@Override
-						public void run() {
-							updateFileMenu();
-						}
-					});
+					SwingUtilities.invokeLater(() -> updateFileMenu());
 				}
 			}
 		});
@@ -315,15 +308,15 @@ implements Stoppable {
 		fileMenu.add(new JMenuItem(closeAction));
 		fileMenu.add(new JSeparator());
 		
-		Action a[] = new Action[fileHistory.size()];
+		Action[] a = new Action[fileHistory.size()];
 		// reverse for recent first
 		for (int i = 0; i < fileHistory.size(); ++i) {
-			a[fileHistory.size() - i - 1] = new HistoryAction(fileHistory.size() - i, (File) fileHistory.get(i));
+			a[fileHistory.size() - i - 1] = new HistoryAction(fileHistory.size() - i, fileHistory.get(i));
 		}
 		boolean hasHistory = false;
-		for (int i = 0; i < a.length; ++i) {
+		for (Action action : a) {
 			hasHistory = true;
-			fileMenu.add(new JMenuItem(a[i]));
+			fileMenu.add(new JMenuItem(action));
 		}
 		if (hasHistory) {
 			fileMenu.add(new JSeparator());
@@ -366,8 +359,8 @@ implements Stoppable {
 			if (active.length > 0) {
 				StringBuilder message = new StringBuilder();
 				message.append("The following are still running:\n\n");
-				for (int i = 0; i < active.length; ++i) {
-					message.append(active[i]);
+				for (String s : active) {
+					message.append(s);
 					message.append('\n');
 				}
 				message.append('\n');
@@ -398,7 +391,7 @@ implements Stoppable {
 		
 		public void treeNodesRemoved(TreeModelEvent event) {
 			for (Object child : event.getChildren()) {
-				Object component = ((JobTreeNode) child).getComponent();
+				ConfigurationOwner component = (ConfigurationOwner) ((JobTreeNode) child).getComponent();
 				owners.remove(component);
 			}
 		}
@@ -424,7 +417,7 @@ implements Stoppable {
 			Oddjob oldOddjob = (Oddjob) evt.getOldValue();
 			
 			if (oldOddjob != null) {
-				List<ConfigurationOwner> modified = new ArrayList<ConfigurationOwner>();
+				List<ConfigurationOwner> modified = new ArrayList<>();
 				for (ConfigurationOwner owner : owners) {
 					
 					if (saveAs && owner == oldOddjob) {
@@ -464,13 +457,8 @@ implements Stoppable {
 					"Unsaved Modifications",
 					JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.WARNING_MESSAGE);
-			
-			if (option == JOptionPane.OK_OPTION) {
-				return true;
-			}
-			else {
-				return false;
-			}
+
+			return option == JOptionPane.OK_OPTION;
 		}
 	}
 	
@@ -709,27 +697,24 @@ implements Stoppable {
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
-				screen = new ScreenPresence(e.getComponent());
+				screen.adjustTo(e.getComponent());
 			}
 			@Override
 			public void componentResized(ComponentEvent e) {
-				screen = new ScreenPresence(e.getComponent());
+				screen.adjustTo(e.getComponent());
 			}
 		});
 		
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					if(oddjob != null) {
-						setOddjob(oddjob);
-					} else if(getFile() != null) {
-						open(getFile());
-					}
-				} catch (PropertyVetoException e) {
-					// Ignore
+		SwingUtilities.invokeLater(() -> {
+			try {
+				if(oddjob != null) {
+					setOddjob(oddjob);
+				} else if(getFile() != null) {
+					open(getFile());
 				}
+			} catch (PropertyVetoException e) {
+				// Ignore
 			}
 		});
 		
@@ -888,10 +873,11 @@ implements Stoppable {
 						return new ConfigurationHandle<P>() {
 							public P getDocumentContext() {
 								return handle.getDocumentContext();
-							};
-							public void save() throws ArooaParseException {
+							}
+
+							public void save() {
 								saveAsAction.actionPerformed(e);
-							};
+							}
 						};
 					}
 				};
@@ -920,11 +906,7 @@ implements Stoppable {
 			putValue(Action.MNEMONIC_KEY, Standards.SAVE_MNEMONIC_KEY); 
 			putValue(Action.ACCELERATOR_KEY, Standards.SAVE_ACCELERATOR_KEY);
 			
-			OddjobExplorer.this.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					setEnabled(oddjob != null);
-				}
-			});
+			OddjobExplorer.this.addPropertyChangeListener(evt -> setEnabled(oddjob != null));
 		}
 
 		/*
@@ -950,7 +932,6 @@ implements Stoppable {
 						"Error",
 						JOptionPane.ERROR_MESSAGE);
 
-				return;
 			}
 		}
 	}
@@ -964,11 +945,7 @@ implements Stoppable {
 			putValue(Action.MNEMONIC_KEY, Standards.SAVEAS_MNEMONIC_KEY); 
 			putValue(Action.ACCELERATOR_KEY, Standards.SAVEAS_ACCELERATOR_KEY);
 			
-			OddjobExplorer.this.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					setEnabled(oddjob != null);
-				}
-			});
+			OddjobExplorer.this.addPropertyChangeListener(evt -> setEnabled(oddjob != null));
 		}
 
 		/*
@@ -1040,7 +1017,6 @@ implements Stoppable {
 						"Error",
 						JOptionPane.ERROR_MESSAGE);
 
-				return;
 			}
 			finally {
 				saveAs = false;
@@ -1086,11 +1062,7 @@ implements Stoppable {
 			putValue(Action.MNEMONIC_KEY, Standards.CLOSE_MNEMONIC_KEY); 
 			putValue(Action.ACCELERATOR_KEY, Standards.CLOSE_ACCELERATOR_KEY);
 			
-			OddjobExplorer.this.addPropertyChangeListener(new PropertyChangeListener() {
-				public void propertyChange(PropertyChangeEvent evt) {
-					setEnabled(oddjob != null);
-				}
-			});
+			OddjobExplorer.this.addPropertyChangeListener(evt -> setEnabled(oddjob != null));
 		}
 	
 		/*
@@ -1137,7 +1109,7 @@ implements Stoppable {
 		HistoryAction(int number, File file) {
 			putValue(Action.NAME, "" + number + " " + file.getName() + " ["
 					+ file.getAbsoluteFile().getParent() + "]");
-			putValue(Action.MNEMONIC_KEY, new Integer(48 + number));
+			putValue(Action.MNEMONIC_KEY, 48 + number);
 			this.file = file;
 		}
 
@@ -1166,7 +1138,7 @@ implements Stoppable {
 	}
 
 	/**
-	 * Custom serialsation.
+	 * Custom serialisation.
 	 */
 	private void writeObject(ObjectOutputStream s) 
 	throws IOException {
@@ -1208,10 +1180,6 @@ implements Stoppable {
      */
 	public void setFileHistorySize(int fileHistorySize) {
 		this.fileHistory.setListSize(fileHistorySize);
-	}
-
-	public ScreenPresence getScreen() {
-		return screen;
 	}
 
 	public String getLogFormat() {

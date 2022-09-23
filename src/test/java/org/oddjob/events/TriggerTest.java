@@ -20,6 +20,7 @@ import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.state.StateConditions;
 import org.oddjob.tools.StateSteps;
 import org.oddjob.util.Restore;
 import org.slf4j.Logger;
@@ -412,8 +413,9 @@ public class TriggerTest {
 				getClass().getClassLoader()));
 
 		StateSteps testStates = new StateSteps(oddjob);
-		testStates.startCheck(ParentState.READY,
-				ParentState.EXECUTING, ParentState.ACTIVE);
+		// Could be end up started or active depending on parallel
+		testStates.startCheck(StateConditions.READY,
+				StateConditions.EXECUTING, StateConditions.ACTIVE);
 
 		oddjob.run();
 

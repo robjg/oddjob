@@ -11,8 +11,6 @@ import org.oddjob.framework.Service;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.jobs.WaitJob;
 import org.oddjob.scheduling.DefaultExecutors;
-import org.oddjob.scheduling.MockScheduledExecutorService;
-import org.oddjob.scheduling.MockScheduledFuture;
 import org.oddjob.state.*;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.StateSteps;
@@ -21,8 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Set;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class ParallelJobTest extends OjTestCase {
 
@@ -254,14 +255,6 @@ public class ParallelJobTest extends OjTestCase {
         defaultServices.stop();
     }
 
-    private static class NowExecutor extends MockScheduledExecutorService {
-
-        public Future<?> submit(Runnable runnable) {
-            runnable.run();
-            return new MockScheduledFuture<Void>();
-        }
-    }
-
     private static class DestroyJob extends MockStateful
             implements Runnable {
 
@@ -298,7 +291,14 @@ public class ParallelJobTest extends OjTestCase {
     public void testChildDestroyed() {
 
         ParallelJob test = new ParallelJob();
-        test.setExecutorService(new NowExecutor());
+
+        ExecutorService executorService = mock(ExecutorService.class);
+        doAnswer(invocationOnMock -> {
+            ((Runnable) invocationOnMock.getArgument(0)).run();
+            return null;
+        }).when(executorService).execute(any(Runnable.class));
+
+        test.setExecutorService(executorService);
 
         DestroyJob destroy = new DestroyJob();
 
@@ -310,6 +310,8 @@ public class ParallelJobTest extends OjTestCase {
                 ParentState.COMPLETE);
 
         test.run();
+
+        verify(executorService, timeout(1)).execute(any(Runnable.class));
 
         steps.checkNow();
 
@@ -324,6 +326,7 @@ public class ParallelJobTest extends OjTestCase {
 
         steps.checkNow();
 
+        verifyNoMoreInteractions(executorService);
     }
 
     @Test
@@ -348,7 +351,7 @@ public class ParallelJobTest extends OjTestCase {
         console.dump(logger);
 
         Set<String> results = Arrays.stream(console.getLines())
-                .map(l -> l.trim())
+                .map(String::trim)
                 .collect(Collectors.toSet());
 
         assertThat(results, Matchers.containsInAnyOrder("This runs in parallel",
@@ -523,7 +526,10 @@ public class ParallelJobTest extends OjTestCase {
     public void testEmpty() throws InterruptedException {
 
         ParallelJob test = new ParallelJob();
-        test.setExecutorService(new NowExecutor());
+
+        ExecutorService executorService = mock(ExecutorService.class);
+
+        test.setExecutorService(executorService);
 
         StateSteps steps = new StateSteps(test);
         steps.startCheck(ParentState.READY,
@@ -533,6 +539,8 @@ public class ParallelJobTest extends OjTestCase {
         test.run();
 
         steps.checkWait();
+
+        verifyNoInteractions(executorService);
 
         test.destroy();
     }

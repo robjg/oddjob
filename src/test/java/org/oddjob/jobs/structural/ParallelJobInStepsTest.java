@@ -1,41 +1,28 @@
 package org.oddjob.jobs.structural;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.oddjob.FailedToStopException;
 import org.oddjob.OjTestCase;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.SimpleJob;
-import org.oddjob.scheduling.MockScheduledExecutorService;
-import org.oddjob.scheduling.MockScheduledFuture;
 import org.oddjob.state.*;
 import org.oddjob.tools.StateSteps;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
+
+import static org.mockito.Mockito.*;
 
 public class ParallelJobInStepsTest extends OjTestCase {
-
-    private static class ManualExecutor1 extends MockScheduledExecutorService {
-
-        private Runnable runnable;
-
-        @Override
-        public Future<?> submit(Runnable runnable) {
-            if (this.runnable != null) {
-                throw new IllegalStateException();
-            }
-            this.runnable = runnable;
-            return new MockScheduledFuture<Void>();
-        }
-    }
 
     @Test
     public void testStatesExecutingAndCompletingOneJob() {
 
         FlagState job1 = new FlagState(JobState.COMPLETE);
 
-        ManualExecutor1 executor = new ManualExecutor1();
+        ExecutorService executorService = mock(ExecutorService.class);
 
         ParallelJob test = new ParallelJob();
 
@@ -43,7 +30,7 @@ public class ParallelJobInStepsTest extends OjTestCase {
         steps.startCheck(ParentState.READY,
                 ParentState.EXECUTING, ParentState.ACTIVE);
 
-        test.setExecutorService(executor);
+        test.setExecutorService(executorService);
 
         test.setJobs(0, job1);
 
@@ -51,12 +38,14 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         steps.checkNow();
 
-        assertNotNull(executor.runnable);
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executorService, times(1)).execute(runnableCaptor.capture());
+        Runnable runnable = runnableCaptor.getValue();
 
         steps.startCheck(ParentState.ACTIVE,
                 ParentState.COMPLETE);
 
-        executor.runnable.run();
+        runnable.run();
 
         steps.checkNow();
 
@@ -65,23 +54,8 @@ public class ParallelJobInStepsTest extends OjTestCase {
         test.destroy();
 
         steps.checkNow();
-    }
 
-    private static class ManualExecutor2 extends MockScheduledExecutorService {
-
-        boolean cancelled;
-
-        @Override
-        public Future<?> submit(Runnable runnable) {
-            return new MockScheduledFuture<Void>() {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    assertFalse(mayInterruptIfRunning);
-                    cancelled = true;
-                    return true;
-                }
-            };
-        }
+        verifyNoMoreInteractions(executorService);
     }
 
     private static class CaptureStoppedJob extends SimpleJob
@@ -93,13 +67,12 @@ public class ParallelJobInStepsTest extends OjTestCase {
         }
     }
 
-
     @Test
     public void testStatesWhenStoppingJobThatHasntExecuted() throws FailedToStopException {
 
         CaptureStoppedJob job1 = new CaptureStoppedJob();
 
-        ManualExecutor2 executor = new ManualExecutor2();
+        ExecutorService executor = mock(ExecutorService.class);
 
         ParallelJob test = new ParallelJob();
 
@@ -124,7 +97,13 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         assertFalse(job1.isStop());
 
-        assertTrue(executor.cancelled);
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executor, times(1)).execute(runnableCaptor.capture());
+        Runnable runnable = runnableCaptor.getValue();
+
+        runnable.run();
+
+        verifyNoMoreInteractions(executor);
 
         steps.startCheck(ParentState.READY, ParentState.DESTROYED);
 
@@ -138,7 +117,7 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         CaptureStoppedJob job1 = new CaptureStoppedJob();
 
-        ManualExecutor2 executor = new ManualExecutor2();
+        ExecutorService executor = mock(ExecutorService.class);
 
         ParallelJob test = new ParallelJob();
 
@@ -161,28 +140,10 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         assertFalse(job1.isStop());
 
-        assertTrue(executor.cancelled);
+        verify(executor, times(1)).execute(any(Runnable.class));
+        verifyNoMoreInteractions(executor);
 
         steps.checkNow();
-    }
-
-    private static class ManualExecutor3 extends MockScheduledExecutorService {
-
-        boolean cancelled;
-
-        Runnable runnable;
-
-        public Future<?> submit(Runnable runnable) {
-            this.runnable = runnable;
-            return new MockScheduledFuture<Void>() {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    assertFalse(mayInterruptIfRunning);
-                    cancelled = true;
-                    return false;
-                }
-            };
-        }
     }
 
     private static class AsyncJob implements Stateful, Runnable, Stoppable {
@@ -229,7 +190,7 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         AsyncJob job1 = new AsyncJob();
 
-        ManualExecutor3 executor = new ManualExecutor3();
+        ExecutorService executorService = mock(ExecutorService.class);
 
         ParallelJob test = new ParallelJob();
 
@@ -237,13 +198,17 @@ public class ParallelJobInStepsTest extends OjTestCase {
         steps.startCheck(ParentState.READY,
                 ParentState.EXECUTING, ParentState.ACTIVE);
 
-        test.setExecutorService(executor);
+        test.setExecutorService(executorService);
 
         test.setJobs(0, job1);
 
         test.run();
 
-        executor.runnable.run();
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executorService, times(1)).execute(runnableCaptor.capture());
+        Runnable runnable = runnableCaptor.getValue();
+
+        runnable.run();
 
         steps.checkNow();
 
@@ -256,13 +221,14 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         assertEquals(JobState.COMPLETE, job1.lastStateEvent().getState());
 
-        assertTrue(executor.cancelled);
-
         steps.startCheck(ParentState.COMPLETE, ParentState.DESTROYED);
 
         test.destroy();
 
         steps.checkNow();
+
+        verifyNoMoreInteractions(executorService);
+
     }
 
     @Test
@@ -270,7 +236,7 @@ public class ParallelJobInStepsTest extends OjTestCase {
 
         AsyncJob job1 = new AsyncJob();
 
-        ManualExecutor3 executor = new ManualExecutor3();
+        ExecutorService executorService = mock(ExecutorService.class);
 
         ParallelJob test = new ParallelJob();
 
@@ -278,13 +244,17 @@ public class ParallelJobInStepsTest extends OjTestCase {
         steps.startCheck(ParentState.READY,
                 ParentState.EXECUTING, ParentState.ACTIVE);
 
-        test.setExecutorService(executor);
+        test.setExecutorService(executorService);
 
         test.setJobs(0, job1);
 
         test.run();
 
-        executor.runnable.run();
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executorService, times(1)).execute(runnableCaptor.capture());
+        Runnable runnable = runnableCaptor.getValue();
+
+        runnable.run();
 
         steps.checkNow();
 
@@ -296,8 +266,6 @@ public class ParallelJobInStepsTest extends OjTestCase {
         steps.checkNow();
 
         assertEquals(JobState.EXECUTING, job1.lastStateEvent().getState());
-
-        assertTrue(executor.cancelled);
 
     }
 }

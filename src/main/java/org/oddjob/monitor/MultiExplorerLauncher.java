@@ -1,9 +1,5 @@
 package org.oddjob.monitor;
 
-import java.io.File;
-
-import javax.inject.Inject;
-
 import org.oddjob.OddjobServices;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
@@ -11,10 +7,13 @@ import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.framework.ExecutionWatcher;
 import org.oddjob.framework.extend.StructuralJob;
 import org.oddjob.monitor.model.FileHistory;
+import org.oddjob.state.AnyActiveStateOp;
 import org.oddjob.state.IsStoppable;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateOperator;
-import org.oddjob.state.AnyActiveStateOp;
+
+import javax.inject.Inject;
+import java.io.File;
 
 /**
  * @oddjob.description A container that allows multiple {@link OddjobExplorer}s to run.
@@ -71,19 +70,18 @@ implements Stoppable  {
 	 */
 	private transient String logFormat;
 	
-	private FileHistory fileHistory;
+	private final FileHistory fileHistory;
 
 	// These will be serialized so frame settings are preserved.
-	private ScreenPresence screen;
+	private final ScreenPresence screen;
 	
 	/**
 	 * Default constructor.
 	 */
 	public MultiExplorerLauncher() {
-		fileHistory = new FileHistory();
-		
-		ScreenPresence whole = ScreenPresence.wholeScreen();
-		screen = whole.smaller(0.66);		
+
+		this.fileHistory = new FileHistory();
+		this.screen = ScreenPresence.defaultSize();
 	}
 				
 	@Inject
@@ -101,12 +99,10 @@ implements Stoppable  {
 		}
 		
 		final ExecutionWatcher executionWatcher = 
-				new ExecutionWatcher(new Runnable() {
-					public void run() {
-						stop = false;
-						MultiExplorerLauncher.super.startChildStateReflector();
-					}
-			});
+				new ExecutionWatcher(() -> {
+					stop = false;
+					MultiExplorerLauncher.super.startChildStateReflector();
+				});
 		
 		MultiViewController controller = new MultiViewController() {
 			
@@ -115,7 +111,6 @@ implements Stoppable  {
 				
 				if (original != null) {
 					dir = original.getDir();
-					screen = original.getScreen();
 				}
 				
 				OddjobExplorer explorer = new OddjobExplorer(this, screen, fileHistory);
@@ -139,11 +134,7 @@ implements Stoppable  {
 		
 		controller.launchNewExplorer(null);
 		
-		stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-			public void run() {
-				getStateChanger().setState(ParentState.ACTIVE);
-			}
-		});
+		stateHandler().waitToWhen(new IsStoppable(), () -> getStateChanger().setState(ParentState.ACTIVE));
 		
 		executionWatcher.start();
 
