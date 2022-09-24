@@ -391,8 +391,10 @@ implements Stoppable {
 		
 		public void treeNodesRemoved(TreeModelEvent event) {
 			for (Object child : event.getChildren()) {
-				ConfigurationOwner component = (ConfigurationOwner) ((JobTreeNode) child).getComponent();
-				owners.remove(component);
+				Object component = ((JobTreeNode) child).getComponent();
+				if (component instanceof ConfigurationOwner) {
+					owners.remove(component);
+				}
 			}
 		}
 	}
