@@ -37,7 +37,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable {
      */
     private final ListContainer<T> list = new ListContainer<>();
 
-    private volatile MapContainer<Object, T> map = new MapContainer<>();
+    private final MapContainer<Object, T> map = new MapContainer<>();
 
     private volatile Function<? super T, Object> mappingFunction;
 
@@ -90,8 +90,8 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable {
         @Override
         public void registerWith(ConversionRegistry registry) {
 
-            registry.register(ListContainer.class, List.class, ListContainer::toList);
-			registry.register(MapContainer.class, Map.class, MapContainer::toMap);
+            registry.register(ListContainer.class, List.class, ListContainer::getList);
+			registry.register(MapContainer.class, Map.class, MapContainer::getMap);
         }
     }
 
@@ -128,7 +128,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable {
             return super.toString();
         }
 
-        public List<E> toList() {
+        public List<E> getList() {
             return new ArrayList<>(items);
         }
 
@@ -189,7 +189,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable {
             return super.toString();
         }
 
-        public Map<K, E> toMap() {
+        public Map<K, E> getMap() {
             return new HashMap<>(items);
         }
 

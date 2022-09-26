@@ -28,7 +28,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(1, stmts.size());
         assertEquals("SIMPLE TEXT", stmts.get(0));
@@ -50,7 +50,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(2, stmts.size());
         assertEquals("LINE ONE", stmts.get(0));
@@ -73,7 +73,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(2, stmts.size());
         assertEquals("LINE ONE", stmts.get(0));
@@ -96,7 +96,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(2, stmts.size());
         assertEquals("LINE ONE", stmts.get(0));
@@ -119,7 +119,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(1, stmts.size());
         assertEquals("LINE TWO", stmts.get(0));
@@ -141,7 +141,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(3, stmts.size());
         assertEquals("ONE", stmts.get(0));
@@ -168,7 +168,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(3, stmts.size());
         assertEquals("ONE", stmts.get(0));
@@ -194,7 +194,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(3, stmts.size());
         assertEquals("ONE", stmts.get(0));
@@ -220,7 +220,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(3, stmts.size());
         assertEquals("ONE", stmts.get(0));
@@ -246,7 +246,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals("ONE", stmts.get(0));
         assertEquals("TWO", stmts.get(1));
@@ -288,7 +288,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals("ONE BANANA", stmts.get(0));
         assertEquals("TWO  BANANAS", stmts.get(1));
@@ -318,7 +318,7 @@ public class SQLScriptParserTest extends OjTestCase {
 
         test.run();
 
-        List<String> stmts = results.getList().toList();
+        List<String> stmts = results.getList().getList();
 
         assertEquals(1, stmts.size());
         assertEquals("THIS IS OK", stmts.get(0));
