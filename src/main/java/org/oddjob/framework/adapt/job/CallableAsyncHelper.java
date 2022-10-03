@@ -3,6 +3,7 @@ package org.oddjob.framework.adapt.job;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.framework.AsyncJob;
 
 import java.beans.ExceptionListener;
@@ -90,7 +91,7 @@ public class CallableAsyncHelper {
     static <T> Class<T> getCallableTypeOf(Class<? extends Callable> callableClass) {
 
         Optional<Type> callableInterfaceType = Arrays.stream(callableClass.getGenericInterfaces())
-                .filter(c -> Callable.class == rawType(c))
+                .filter(c -> Callable.class == ClassUtils.rawType(c))
                 .findFirst();
 
         if (callableInterfaceType.isPresent()) {
@@ -98,7 +99,7 @@ public class CallableAsyncHelper {
             Type t = ((ParameterizedType) callableInterfaceType.get()).getActualTypeArguments()[0];
 
             //noinspection unchecked
-            return (Class<T>) rawType(t);
+            return (Class<T>) ClassUtils.rawType(t);
         }
         else {
 
@@ -106,15 +107,4 @@ public class CallableAsyncHelper {
         }
     }
 
-    static Class<?> rawType(Type type) {
-        if (type instanceof Class) {
-            return (Class<?>) type;
-        }
-        else if (type instanceof ParameterizedType){
-            return (Class<?>) ((ParameterizedType) type).getRawType();
-        }
-        else {
-            throw new IllegalArgumentException("Can't work out raw type of [" + type + "]");
-        }
-    }
 }
