@@ -14,6 +14,8 @@ import org.oddjob.state.StateOperator;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @oddjob.description A container that allows multiple {@link OddjobExplorer}s to run.
@@ -24,7 +26,8 @@ import java.io.File;
  */
 public class MultiExplorerLauncher extends StructuralJob<Runnable> 
 implements Stoppable  {
-	private static final long serialVersionUID = 2011101400L;
+
+	private static final long serialVersionUID = 2022111600L;
 	
 	@Override
 	protected StateOperator getInitialStateOp() {
@@ -73,17 +76,26 @@ implements Stoppable  {
 	private final FileHistory fileHistory;
 
 	// These will be serialized so frame settings are preserved.
-	private final ScreenPresence screen;
+	private final AtomicReference<ScreenPresence> screen;
 	
 	/**
 	 * Default constructor.
 	 */
 	public MultiExplorerLauncher() {
 
-		this.fileHistory = new FileHistory();
-		this.screen = ScreenPresence.defaultSize();
+		this(new FileHistory(), ScreenPresence.defaultSize());
 	}
-				
+
+	/**
+	 * Used by custom deserialization.
+	 */
+	protected MultiExplorerLauncher(FileHistory fileHistory,
+									ScreenPresence screen) {
+
+		this.fileHistory = fileHistory;
+		this.screen = new AtomicReference<>(screen);
+	}
+
 	@Inject
 	public void setOddjobServices(OddjobServices oddjobServices) {
 		this.oddjobServices = oddjobServices;
@@ -200,6 +212,21 @@ implements Stoppable  {
 
 	public void setLogFormat(String logFormat) {
 		this.logFormat = logFormat;
+	}
+
+	/**
+	 * Custom de-serialisation. Ensure the resolved screen presence fits on any screen on
+	 * the current device.
+	 */
+	private Object readResolve()
+			throws IOException, ClassNotFoundException {
+
+		if (screen.get().isOnAnyScreen()) {
+			return this;
+		}
+		else {
+			return new MultiExplorerLauncher(this.fileHistory, ScreenPresence.defaultSize());
+		}
 	}
 
 }

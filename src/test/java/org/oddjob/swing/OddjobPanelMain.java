@@ -62,7 +62,7 @@ public class OddjobPanelMain {
 				OddjobPanelMain.class.getClassLoader()));
 
 		StateSteps states = new StateSteps(oddjob);
-		states.setTimeout(0);
+		states.setTimeout(Long.MAX_VALUE);
 		
 		states.startCheck(ParentState.READY, ParentState.EXECUTING, 
 				ParentState.ACTIVE, ParentState.COMPLETE);

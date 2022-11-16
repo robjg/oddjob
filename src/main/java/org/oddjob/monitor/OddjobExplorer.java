@@ -32,8 +32,12 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @oddjob.description Runs Oddjob Explorer.
@@ -138,11 +142,11 @@ implements Stoppable {
 	
 	private final FileHistory fileHistory;
 
-	// These will be serialzed so frame settings are preserved.
-	private final ScreenPresence screen;
+	// These will be serialized so frame settings are preserved.
+	private final AtomicReference<ScreenPresence> screen;
 	
 	/** Used to track modification changes. */
-	transient private Set<ConfigurationOwner> owners;
+	private transient Set<ConfigurationOwner> owners;
 		
 	/**
 	 * Constructor to be used to create a single instance of this explorer.
@@ -150,24 +154,33 @@ implements Stoppable {
 	 */
 	public OddjobExplorer() {
 
-		fileHistory = new FileHistory();
-		screen = ScreenPresence.defaultSize();
+		this(new FileHistory(), ScreenPresence.defaultSize());
+	}
+
+	/**
+	 * Used by custom deserialization.
+	 */
+	protected OddjobExplorer(FileHistory fileHistory,
+							 ScreenPresence screen) {
+
+		this.fileHistory = fileHistory;
+		this.screen = new AtomicReference<>(screen);
 
 		completeConstruction();
 	}
-	
+
 	/**
 	 * Constructor when this explorer is being created as one of many.
-	 * 
+	 *
 	 * @param controller
 	 * @param screen
 	 * @param sharedFileHistory
 	 */
 	public OddjobExplorer(MultiViewController controller, 
-			ScreenPresence screen,
+			AtomicReference<ScreenPresence> screen,
 			FileHistory sharedFileHistory) {
-		this.screen = screen;
-		this.fileHistory = sharedFileHistory;
+		this.screen = Objects.requireNonNull(screen);
+		this.fileHistory = Objects.requireNonNull(sharedFileHistory);
 		this.newExplorerAction = new NewExplorerAction(controller);
 		
 		completeConstruction();
@@ -650,7 +663,7 @@ implements Stoppable {
 		updateFileMenu();					
 		
 		frame = new JFrame();
-		screen.fit(frame);
+		screen.get().resize(frame);
 		 
 		frame.addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent e) {
@@ -699,11 +712,11 @@ implements Stoppable {
 		frame.addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentMoved(ComponentEvent e) {
-				screen.adjustTo(e.getComponent());
+				screen.set(ScreenPresence.of(e.getComponent()));
 			}
 			@Override
 			public void componentResized(ComponentEvent e) {
-				screen.adjustTo(e.getComponent());
+				screen.set(ScreenPresence.of(e.getComponent()));
 			}
 		});
 		
@@ -1140,20 +1153,18 @@ implements Stoppable {
 	}
 
 	/**
-	 * Custom serialisation.
+	 * Custom de-serialisation. Ensure the resolved screen presence fits on any screen on
+	 * the current device.
 	 */
-	private void writeObject(ObjectOutputStream s) 
-	throws IOException {
-		s.defaultWriteObject();
-	}
+	private Object readResolve()
+			throws IOException, ClassNotFoundException {
 
-	/**
-	 * Custom serialisation.
-	 */
-	private void readObject(ObjectInputStream s) 
-	throws IOException, ClassNotFoundException {
-		s.defaultReadObject();
-		completeConstruction();
+		if (screen.get().isOnAnyScreen()) {
+			return this;
+		}
+		else {
+			return new OddjobExplorer(this.fileHistory, ScreenPresence.defaultSize());
+		}
 	}
 
 	/**
