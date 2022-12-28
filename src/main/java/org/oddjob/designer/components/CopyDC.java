@@ -39,6 +39,7 @@ class CopyDesign extends BaseDC {
 
 	private final SimpleDesignProperty output;
 
+	private final SimpleDesignProperty consumer;
 
 	public CopyDesign(ArooaElement element, ArooaContext parentContext) {
 		super(element, parentContext);
@@ -53,10 +54,13 @@ class CopyDesign extends BaseDC {
 		
 		output = new SimpleDesignProperty(
 				"output", this);
+
+		consumer = new SimpleDesignProperty(
+				"consumer", this);
 	}
 	
 	public DesignProperty[] children() {
-		return new DesignProperty[] { name, from, to, input, output };
+		return new DesignProperty[] { name, from, to, input, output, consumer };
 	}
 	
 	public Form detail() {
@@ -70,7 +74,8 @@ class CopyDesign extends BaseDC {
 			.addFormItem(new BorderedGroup("To")
 					.add(new FieldSelection()
 							.add(to.view().setTitle("File/Dir"))
-							.add(output.view().setTitle("Output"))));
+							.add(output.view().setTitle("Output"))
+							.add(consumer.view().setTitle("Consumer"))));
 	}
 	
 }

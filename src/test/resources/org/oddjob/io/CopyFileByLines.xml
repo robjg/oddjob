@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="work.dir" value="${java.io.tmpdir}"/>
+                    </values>
+                </properties>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <copy name="Copy from a file to lines">
+                            <from>
+                                <file file="${oddjob.dir}/files/Lines.txt"/>
+                            </from>
+                        </copy>
+                        <bus:map>
+                            <function>
+                                <value value="#{function(x) { return x + 'Foo' }}"/>
+                            </function>
+                        </bus:map>
+                        <bus:collect>
+                            <output>
+                                <file file="${work.dir}/LinesFoo.txt"/>
+                            </output>
+                        </bus:collect>
+                    </of>
+                </bus:bus>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -20,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.is;
+
 /**
  *
  */
@@ -260,13 +262,13 @@ public class JoinJobTest extends OjTestCase {
 
         StateSteps testState = new StateSteps(test);
 
-        Thread t = new Thread(oddjob);
+        Thread t1 = new Thread(oddjob);
 
         testState.startCheck(ParentState.READY, ParentState.EXECUTING);
 
         logger.info("** starting first run");
 
-        t.start();
+        t1.start();
 
         testState.checkWait();
 
@@ -284,7 +286,8 @@ public class JoinJobTest extends OjTestCase {
         ((Runnable) applesFlag).run();
         ((Runnable) orangesFlag).run();
 
-        t.join(TIMEOUT);
+        t1.join(TIMEOUT);
+        assertThat("Join timeout", t1.isAlive(), is(false));
 
         logger.info("** first run done.");
 
@@ -318,6 +321,7 @@ public class JoinJobTest extends OjTestCase {
         ((Runnable) orangesFlag).run();
 
         t2.join(TIMEOUT);
+        assertThat("Join timeout", t2.isAlive(), is(false));
 
         logger.info("** second run done.");
 

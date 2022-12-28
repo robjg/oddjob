@@ -3,19 +3,21 @@ package org.oddjob.sql;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.beanbus.destinations.BusCollect;
 import org.oddjob.io.BufferType;
 import org.oddjob.sql.SQLJob.DelimiterType;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import static org.hamcrest.Matchers.contains;
 
 public class SQLScriptParserTest extends OjTestCase {
 
     @Test
     public void testNoDelimiter() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -24,20 +26,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(1, stmts.size());
-        assertEquals("SIMPLE TEXT", stmts.get(0));
+        assertThat(results, contains("SIMPLE TEXT"));
     }
 
     @Test
     public void testOneEmptyLine() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -46,21 +45,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(2, stmts.size());
-        assertEquals("LINE ONE", stmts.get(0));
-        assertEquals("LINE TWO", stmts.get(1));
+        assertThat(results, contains("LINE ONE", "LINE TWO"));
     }
 
     @Test
     public void testLotsOfEmptyLines() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -69,21 +64,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(2, stmts.size());
-        assertEquals("LINE ONE", stmts.get(0));
-        assertEquals("LINE TWO", stmts.get(1));
+        assertThat(results, contains("LINE ONE", "LINE TWO"));
     }
 
     @Test
     public void testWindowsLines() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -92,21 +83,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(2, stmts.size());
-        assertEquals("LINE ONE", stmts.get(0));
-        assertEquals("LINE TWO", stmts.get(1));
+        assertThat(results, contains("LINE ONE", "LINE TWO"));
     }
 
     @Test
     public void testComments() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -115,20 +102,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(1, stmts.size());
-        assertEquals("LINE TWO", stmts.get(0));
+        assertThat(results, contains("LINE TWO"));
     }
 
     @Test
     public void testDefaultDelimited() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
 
@@ -137,22 +121,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(3, stmts.size());
-        assertEquals("ONE", stmts.get(0));
-        assertEquals("TWO", stmts.get(1));
-        assertEquals("THREE", stmts.get(2));
+        assertThat(results, contains("ONE", "TWO", "THREE"));
     }
 
     @Test
     public void testNonRowDelimiterOnSeperateLine() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setDelimiter("@");
@@ -164,22 +143,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(3, stmts.size());
-        assertEquals("ONE", stmts.get(0));
-        assertEquals("TWO", stmts.get(1));
-        assertEquals("THREE", stmts.get(2));
+        assertThat(results, contains("ONE", "TWO", "THREE"));
     }
 
     @Test
     public void testGoDelimiter() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setDelimiter("GO");
@@ -190,22 +164,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(3, stmts.size());
-        assertEquals("ONE", stmts.get(0));
-        assertEquals("TWO", stmts.get(1));
-        assertEquals("THREE", stmts.get(2));
+        assertThat(results, contains("ONE", "TWO", "THREE"));
     }
 
     @Test
     public void testGoDelimiterWithBlankLines() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setDelimiter("GO");
@@ -216,22 +185,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(3, stmts.size());
-        assertEquals("ONE", stmts.get(0));
-        assertEquals("TWO", stmts.get(1));
-        assertEquals("THREE", stmts.get(2));
+        assertThat(results, contains("ONE", "TWO", "THREE"));
     }
 
     @Test
     public void testGoDelimiterWithBlankLines2() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setDelimiter("GO");
@@ -242,22 +206,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals("ONE", stmts.get(0));
-        assertEquals("TWO", stmts.get(1));
-        assertEquals("THREE", stmts.get(2));
-        assertEquals(3, stmts.size());
+        assertThat(results, contains("ONE", "TWO", "THREE"));
     }
 
     @Test
     public void testGoDelimiterWithMultipleLines() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setDelimiter("GO");
@@ -284,22 +243,17 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals("ONE BANANA", stmts.get(0));
-        assertEquals("TWO  BANANAS", stmts.get(1));
-        assertEquals("THREE BANANAS FOUR", stmts.get(2));
-        assertEquals(3, stmts.size());
+        assertThat(results, contains("ONE BANANA", "TWO  BANANAS", "THREE BANANAS FOUR"));
     }
 
     @Test
     public void testReplaceProperties() throws IOException {
 
-        BusCollect<String> results = new BusCollect<>();
+        List<String> results = new ArrayList<>();
 
         ScriptParser test = new ScriptParser();
         test.setExpandProperties(true);
@@ -314,13 +268,10 @@ public class SQLScriptParserTest extends OjTestCase {
         buffer.configured();
 
         test.setInput(buffer.toInputStream());
-        test.setTo(results);
+        test.setTo(results::add);
 
         test.run();
 
-        List<String> stmts = results.getList().getList();
-
-        assertEquals(1, stmts.size());
-        assertEquals("THIS IS OK", stmts.get(0));
+        assertThat(results, contains("THIS IS OK"));
     }
 }

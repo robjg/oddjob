@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
-        <sequential name="Sequantial Server and Jobs">
+        <sequential name="Sequential Server and Jobs">
             <jobs>
                 <rmireg/>
                 <jmx:server name="Management MBean Server" root="${jobs}" url="service:jmx:rmi://ignored/jndi/rmi://localhost/my-queue-server" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>

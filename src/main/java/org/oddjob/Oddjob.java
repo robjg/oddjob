@@ -227,7 +227,7 @@ implements Loadable,
 	 * <p>
 	 * See also {@link XMLConfigurationType}
 	 * 
-	 * @oddjb.required Either this or file is required.
+	 * @oddjob.required Either this or file is required.
 	 */
 	private transient volatile ArooaConfiguration configuration;
 	

@@ -13,12 +13,12 @@
                     <job>
                         <sequential>
                             <jobs>
-                                <scheduling:trigger newOnly="true" on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                                <scheduling:trigger on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                                     <job>
                                         <echo>Apples</echo>
                                     </job>
                                 </scheduling:trigger>
-                                <scheduling:trigger newOnly="true" on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                                <scheduling:trigger on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                                     <job>
                                         <echo>Oranges</echo>
                                     </job>

@@ -4,6 +4,7 @@
 package org.oddjob.io;
 
 import org.apache.commons.io.FileUtils;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -16,8 +17,20 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.OddjobTestHelper;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.hamcrest.Matchers.contains;
 
 public class CopyJobTest extends OjTestCase {
 
@@ -152,7 +165,7 @@ public class CopyJobTest extends OjTestCase {
                 "org/oddjob/io/CopyFileToBuffer.xml",
                 getClass().getClassLoader()));
 
-        oddjob.setArgs(new String[] { baseDir.toString() } );
+        oddjob.setArgs(new String[]{baseDir.toString()});
 
         oddjob.run();
 
@@ -165,4 +178,70 @@ public class CopyJobTest extends OjTestCase {
 
         oddjob.destroy();
     }
+
+    @Test
+    public void testCopyToConsumer() {
+
+        AtomicBoolean closed = new AtomicBoolean();
+
+        InputStream in = new ByteArrayInputStream("A\nB\nC\n".getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                closed.set(true);
+            }
+
+            @Override
+            public String toString() {
+                return "Our-Input";
+            }
+        };
+
+        CopyJob copyJob = new CopyJob();
+        copyJob.setInput(in);
+
+        List<String> results = new ArrayList<>();
+
+        copyJob.setConsumer(results::add);
+
+        copyJob.run();
+
+        assertThat(results, contains("A", "B", "C"));
+        assertThat(closed.get(), Matchers.is(true));
+    }
+
+    @Test
+    public void copyFileLinesInBeanBusExample() throws ArooaPropertyException, IOException {
+
+        Path workDir = OurDirs.workPathDir(CopyJobTest.class, true);
+
+        Properties properties = new Properties();
+        properties.setProperty("work.dir", workDir.toString());
+
+        Oddjob oddjob = new Oddjob();
+
+        File config = new File(Objects.requireNonNull(getClass().getResource(
+                "CopyFileByLines.xml")).getFile());
+
+        oddjob.setFile(config);
+        oddjob.setProperties(properties);
+
+        oddjob.run();
+
+        assertEquals(ParentState.COMPLETE,
+                oddjob.lastStateEvent().getState());
+
+        List<String> results = Files.readAllLines(workDir.resolve("LinesFoo.txt"));
+
+        assertThat(results, contains(
+                "orangesFoo",
+                "applesFoo",
+                "pearsFoo",
+                "bananasFoo",
+                "kiwisFoo"
+        ));
+
+        oddjob.destroy();
+    }
+
 }

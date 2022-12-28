@@ -3,6 +3,7 @@ package org.oddjob.beanbus.destinations;
 import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusFilter;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
@@ -29,7 +30,8 @@ implements BusFilter<F, T> {
 
 	@Override
 	protected T filter(F from) {
-		return function.apply(from);
+		return Objects.requireNonNull(function, "Function Required")
+				.apply(from);
 	}
 	
 		

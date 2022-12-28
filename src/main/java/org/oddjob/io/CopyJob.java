@@ -3,12 +3,16 @@ package org.oddjob.io;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
+import org.oddjob.beanbus.Destination;
 import org.oddjob.util.OddjobConfigException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 
 /**
@@ -38,7 +42,15 @@ import java.nio.file.Files;
  * Copy from a file to a buffer.
  * 
  * {@oddjob.xml.resource org/oddjob/io/CopyFileToBuffer.xml}
- * 
+ *
+ * @oddjob.example
+ *
+ * Copy into a Bean Bus. The lines from the file are copied into
+ * the bus where they are mapped with a function that appends 'Foo' before writing
+ * them out in another file.
+ *
+ * {@oddjob.xml.resource org/oddjob/io/CopyFileByLines.xml}
+ *
  */
 public class CopyJob implements Runnable, Serializable {
     private static final long serialVersionUID = 20050806;
@@ -79,8 +91,16 @@ public class CopyJob implements Runnable, Serializable {
 	 * @oddjob.required Yes unless to is supplied.
 	 */
 	private transient OutputStream output;
-	
-	/** 
+
+	/**
+	 * @oddjob.property
+	 * @oddjob.description A consumer of strings. Intended for use as the driver in a
+	 * {@link org.oddjob.beanbus.bus.BasicBusService}.
+	 * @oddjob.required No. Will be set automatically in a Bean Bus.
+	 */
+	private transient Consumer<? super String> consumer;
+
+	/**
 	 * @oddjob.property
 	 * @oddjob.description The number of files copied.
 	 * @oddjob.required Read Only.
@@ -191,8 +211,12 @@ public class CopyJob implements Runnable, Serializable {
 	}
 		
 	private CopyCommand command() throws IOException {
-			
+
+
 		if (input != null) {
+			if (consumer != null) {
+				return new ConsumerCopy(input, consumer);
+			}
 			if (output != null) {
 				return new StreamCopy(input, output); 
 			}
@@ -218,7 +242,10 @@ public class CopyJob implements Runnable, Serializable {
 	    }
 
 		if (singleFrom != null) {
-			if (output != null) {
+			if (consumer != null) {
+				return new ConsumerCopy(singleFrom, consumer);
+			}
+			else if (output != null) {
 				return new StreamCopy(singleFrom, output);
 			}
 			else if (singleFrom.isDirectory()) {
@@ -250,8 +277,16 @@ public class CopyJob implements Runnable, Serializable {
 		}
 		return name;
 	}
-	
-	
+
+	@Destination
+	public void setConsumer(Consumer<? super String> consumer) {
+		this.consumer = consumer;
+	}
+
+	public Consumer<? super String> getConsumer() {
+		return consumer;
+	}
+
 	/**
 	 * 
 	 *
@@ -273,10 +308,10 @@ public class CopyJob implements Runnable, Serializable {
 		StreamCopy(InputStream in, File to) throws IOException {
 			this.in = in;
 	    	if (to == null) {
-	    		throw new RuntimeException("To file is not specified.");
+				throw new NullPointerException("Nothing to copy the input to.");
 	    	}
 	    	if (to.isDirectory()) {
-	    		throw new OddjobConfigException("Can copy stream to a directory.");	    		
+	    		throw new OddjobConfigException("Can't copy stream to a directory.");
 	    	}
 	    	this.out = Files.newOutputStream(to.toPath());
 		}
@@ -315,7 +350,7 @@ public class CopyJob implements Runnable, Serializable {
 		
 		FileCopy(File from, File to) {
 			this.from = from;
-			this.to = to;
+			this.to = Objects.requireNonNull(to, "Nothing to copy the file to.");
 		}
 		
 		@Override
@@ -412,6 +447,44 @@ public class CopyJob implements Runnable, Serializable {
 		public String toString() {
 			return "Multiple file copy of " + files.length +
 					" files to " + toDir;
+		}
+	}
+
+	static class ConsumerCopy implements CopyCommand {
+
+		private final InputStream in;
+
+		private final Consumer<? super String> out;
+
+		ConsumerCopy(InputStream in, Consumer<? super String> out) {
+			this.in = in;
+			this.out = out;
+		}
+
+		ConsumerCopy(File from, Consumer<? super String> out) throws IOException {
+			this.in = Files.newInputStream(from.toPath());
+			this.out = out;
+		}
+
+		@Override
+		public void copy(CopyStats stats) throws IOException {
+
+			new BufferedReader(
+					new InputStreamReader(in, StandardCharsets.UTF_8))
+					.lines()
+					.forEach(out);
+
+			stats.files++;
+		}
+
+		@Override
+		public void close() throws IOException {
+			in.close();
+		}
+
+		@Override
+		public String toString() {
+			return "Copy from " + in + " to Consumer " + out;
 		}
 	}
 

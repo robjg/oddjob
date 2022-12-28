@@ -6,14 +6,15 @@ import org.oddjob.Stateful;
 import org.oddjob.beanbus.BusCrashException;
 import org.oddjob.beanbus.SimpleBusConductor;
 import org.oddjob.beanbus.destinations.Batcher;
-import org.oddjob.beanbus.destinations.BusCollect;
 import org.oddjob.framework.extend.SimpleJob;
 import org.oddjob.state.FlagState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.function.Consumer;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -126,13 +127,13 @@ public class StatefulBusSupervisorTest {
         Batcher<String> batcher = new Batcher<>();
         batcher.setBatchSize(2);
 
-        BusCollect<Collection<String>> results =
-                new BusCollect<>();
+        List<Collection<String>> results =
+                new ArrayList<>();
 
         OurJob job = new OurJob();
 
         job.to = batcher;
-        batcher.setTo(results);
+        batcher.setTo(results::add);
 
         SimpleBusConductor busConductor = new SimpleBusConductor(job, batcher, results);
 
@@ -153,13 +154,13 @@ public class StatefulBusSupervisorTest {
         busConductor.close();
 
         assertThat(batcher.getCount(), is(3));
-        assertThat(results.getCount(), is(2));
+        assertThat(results.size(), is(2));
 
         reset(busControls);
 
         job.hardReset();
         batcher.reset();
-        results.hardReset();
+        results.clear();
 
         test.supervise(job, batcher, results);
 
@@ -173,7 +174,7 @@ public class StatefulBusSupervisorTest {
         busConductor.close();
 
         assertThat(batcher.getCount(), is(3));
-        assertThat(results.getCount(), is(2));
+        assertThat(results.size(), is(2));
     }
 
     private static class NaughtyDestination implements Consumer<String> {
