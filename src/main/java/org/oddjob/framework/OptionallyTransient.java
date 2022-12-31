@@ -11,5 +11,5 @@ public interface OptionallyTransient {
 	 * 
 	 * @return true if transient, false otherwise.
 	 */
-	public boolean isTransient();
+	boolean isTransient();
 }

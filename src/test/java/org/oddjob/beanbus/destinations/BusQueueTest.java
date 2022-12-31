@@ -1,14 +1,22 @@
 package org.oddjob.beanbus.destinations;
 
-import org.hamcrest.Matchers;
+import org.apache.commons.beanutils.DynaBean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-import org.oddjob.*;
+import org.oddjob.Oddjob;
+import org.oddjob.OddjobLookup;
+import org.oddjob.Resettable;
+import org.oddjob.Stateful;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
+import org.oddjob.beanbus.adapt.ConsumerProxyGenerator;
+import org.oddjob.framework.Service;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
@@ -17,8 +25,13 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
-public class BusQueueTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
+
+public class BusQueueTest {
 
     private static final Logger logger = LoggerFactory.getLogger(BusQueueTest.class);
 
@@ -71,9 +84,7 @@ public class BusQueueTest extends OjTestCase {
 
         t.join();
 
-        assertEquals("apple", results.get(0));
-        assertEquals("pear", results.get(1));
-
+        assertThat(results, contains("apple", "pear"));
     }
 
     @Test
@@ -85,7 +96,6 @@ public class BusQueueTest extends OjTestCase {
         test.accept("apple");
         test.accept("pear");
 
-
         test.stop();
 
         final List<String> results = new ArrayList<>();
@@ -95,13 +105,12 @@ public class BusQueueTest extends OjTestCase {
                 results.add(s);
             }
         });
+
         t.start();
 
         t.join();
 
-        assertEquals("apple", results.get(0));
-        assertEquals("pear", results.get(1));
-
+        assertThat(results, contains("apple", "pear"));
     }
 
     @Test
@@ -128,9 +137,7 @@ public class BusQueueTest extends OjTestCase {
 
         t.join();
 
-        assertEquals("apple", results.get(0));
-        assertEquals("pear", results.get(1));
-
+        assertThat(results, contains("apple", "pear"));
     }
 
     @Test
@@ -180,9 +187,8 @@ public class BusQueueTest extends OjTestCase {
                 ", c2: " + consumer2.results.size() +
                 ", c3: " + consumer3.results.size());
 
-        assertEquals(100000, consumer1.results.size() +
-                consumer2.results.size()
-                + consumer3.results.size());
+        assertThat(consumer1.results.size() + consumer2.results.size() + consumer3.results.size(),
+                is(100000));
     }
 
     @Test
@@ -213,9 +219,7 @@ public class BusQueueTest extends OjTestCase {
 
         logger.info("** Got " + results.size() + " results.");
 
-        assertEquals("apple", results.get(0));
-        assertEquals("orange", results.get(1));
-        assertEquals("pear", results.get(2));
+        assertThat(results, contains("apple", "orange", "pear"));
 
         // We must guarantee producer runs first because it must
         // clear the queue.
@@ -240,9 +244,7 @@ public class BusQueueTest extends OjTestCase {
 
         logger.info("** Got " + results.size() + " results.");
 
-        assertEquals("apple", results.get(0));
-        assertEquals("orange", results.get(1));
-        assertEquals("pear", results.get(2));
+        assertThat(results, contains("apple", "orange", "pear"));
 
         oddjob.destroy();
     }
@@ -271,7 +273,7 @@ public class BusQueueTest extends OjTestCase {
         List<?> results = lookup.lookup(
                 "results.beans", List.class);
 
-        assertThat(results, Matchers.contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
+        assertThat(results, contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
 
         Object parallel = lookup.lookup("parallel");
 
@@ -279,7 +281,7 @@ public class BusQueueTest extends OjTestCase {
 
         ((Resettable) parallel).hardReset();
 
-        assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.READY));
 
         states.startCheck(ParentState.READY,
                 ParentState.ACTIVE,
@@ -296,8 +298,74 @@ public class BusQueueTest extends OjTestCase {
         results = lookup.lookup(
                 "results.beans", List.class);
 
-        assertThat(results, Matchers.contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
+        assertThat(results, contains("Apple", "Orange", "Banana", "Pear", "Kiwi"));
 
         oddjob.destroy();
     }
+
+    @Test
+    public void testStartConsumingBeforeStarted() throws Exception {
+
+        ArooaSession session = new StandardArooaSession();
+
+        final Object test = new ConsumerProxyGenerator<>(session)
+                .generate(new BusQueue<>(), getClass().getClassLoader());
+        ((ArooaSessionAware) test).setArooaSession(session);
+
+        assertThat(((DynaBean) test).get("size"), is(0));
+
+        final List<String> results1 = new ArrayList<>();
+
+        Thread t1 = new Thread(() -> {
+            for (String s : (Iterable<? extends String>) test) {
+                results1.add(s);
+            }
+        });
+
+        t1.start();
+
+        Thread.sleep(100);
+
+        ((Runnable) test).run();
+
+        ((Consumer<String>) test).accept("apple");
+        ((Consumer<String>) test).accept("pear");
+
+
+        ((Service) test).stop();
+
+        t1.join(5000L);
+
+        assertThat(results1, contains("apple", "pear"));
+
+        assertThat(((DynaBean) test).get("size"), is(1));
+        assertThat(((DynaBean) test).get("taken"), is(2));
+
+        ((Resettable) test).hardReset();
+
+        assertThat(((DynaBean) test).get("size"), is(0));
+        assertThat(((DynaBean) test).get("taken"), is(0));
+
+        final List<String> results2 = new ArrayList<>();
+
+        Thread t2 = new Thread(() -> {
+            for (String s : (Iterable<? extends String>) test) {
+                results2.add(s);
+            }
+        });
+
+        t2.start();
+
+        ((Runnable) test).run();
+
+        ((Consumer<String>) test).accept("orange");
+        ((Consumer<String>) test).accept("banana");
+
+        ((Service) test).stop();
+
+        t2.join(5000L);
+
+        assertThat(results2, contains("orange", "banana"));
+    }
+
 }

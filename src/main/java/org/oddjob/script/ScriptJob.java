@@ -41,30 +41,40 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
- * @author Rob Gordon - Based on the original from Ant.
  * @oddjob.description Execute a script. The script can be in any
  * language that supports the Java Scripting Framework.
  * <p>
  * The named beans property allow values to be passed to and from the
  * script.
  * <p>
+ * Script output is captured in a console that is visible from Oddjob Explorer
+ * in addition to any output properties.
+ *
  * @oddjob.example Hello World.
- * <p>
  * {@oddjob.xml.resource org/oddjob/script/ScriptHelloWorld.xml}
+ *
  * @oddjob.example Variables from and to Oddjob.
- * <p>
  * {@oddjob.xml.resource org/oddjob/script/VariablesFromAndToOddjob.xml}
+ *
  * @oddjob.example Using a script to set a property on a Job elsewhere in Oddjob.
- * <p>
  * {@oddjob.xml.resource org/oddjob/script/ScriptSettingProperty.xml}
+ *
  * @oddjob.example Invoking a script to provide a substring function.
- * <p>
  * {@oddjob.xml.resource org/oddjob/script/InvokeScriptFunction.xml}
+ *
  * @oddjob.example Setting the script job to not complete.
- * <p>
  * {@oddjob.xml.resource org/oddjob/script/ScriptResult.xml}
+ *
+ * @oddjob.example Setting the script job to not complete.
+ * {@oddjob.xml.resource org/oddjob/script/ScriptResult.xml}
+ *
+ * @oddjob.example Defining Java Functions in JavaScript.
+ * {@oddjob.xml.resource org/oddjob/script/ScriptFunctions.xml}
+ *
+ * @author Rob Gordon - Based on the original from Ant.
  */
 public class ScriptJob extends SerializableJob implements ConsoleOwner {
 
@@ -177,7 +187,7 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
      * @oddjob.description Allow a scripted function to be evaluated
      * from elsewhere in Oddjob.
      */
-    private transient Invocable invocable;
+    private transient volatile Invocable invocable;
 
     /**
      * So values can be retrieved.
@@ -369,6 +379,26 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
 	public Invocable getInvocable() {
         return invocable;
     }
+
+    public Function<Object, Object> getFunction(String name) {
+
+        return new Function<Object, Object>() {
+            @Override
+            public Object apply(Object o) {
+                try {
+                    return getInvocable().invokeFunction(name, o);
+                } catch (ScriptException | NoSuchMethodException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+
+            @Override
+            public String toString() {
+                return "Function " + name + " on " + ScriptJob.this;
+            }
+        };
+    }
+
 
     public boolean isRedirectStderr() {
         return redirectStderr;

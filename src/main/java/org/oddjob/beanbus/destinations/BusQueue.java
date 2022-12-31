@@ -1,15 +1,15 @@
 package org.oddjob.beanbus.destinations;
 
 import org.oddjob.framework.Service;
+import org.oddjob.framework.adapt.HardReset;
+import org.oddjob.framework.adapt.SoftReset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -41,7 +41,7 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
      */
     private volatile int capacity;
 
-    private volatile BlockingQueue<Object> queue;
+    private volatile CompletableFuture<BlockingQueue<Object>> queueFuture = new CompletableFuture<>();
 
     /**
      * @oddjob.property
@@ -67,12 +67,10 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
     @Override
     public void start() {
         if (capacity == 0) {
-            queue = new LinkedBlockingDeque<>();
+            queueFuture.complete(new LinkedBlockingDeque<>());
         } else {
-            queue = new ArrayBlockingQueue<>(capacity);
+            queueFuture.complete(new ArrayBlockingQueue<>(capacity));
         }
-
-        this.taken.set(0);
     }
 
 
@@ -80,16 +78,18 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
     public void stop() {
         logger.debug("Stopping Queue.");
         try {
-            queue.put(STOP);
+            queueFuture.get().put(STOP);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void accept(E bean) {
         try {
-            queue.put(bean);
+            queueFuture.getNow(null).put(bean);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -97,7 +97,14 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
     @Override
     public Iterator<E> iterator() {
-        return new BlockerIterator<>(queue, waitingConsumers, taken, toString() );
+        return new BlockerIterator<>(queueFuture, waitingConsumers, taken, toString() );
+    }
+
+    @HardReset
+    @SoftReset
+    public void onReset() {
+        this.queueFuture = new CompletableFuture<>();
+        this.taken.set(0);
     }
 
     /**
@@ -109,7 +116,7 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
         private int taken;
 
-        private final BlockingQueue<Object> queue;
+        private final Future<BlockingQueue<Object>> queue;
 
         private final AtomicInteger waitingConsumers;
 
@@ -117,7 +124,7 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
         private final String name;
 
-        BlockerIterator(BlockingQueue<Object> queue, AtomicInteger waitingConsumers,
+        BlockerIterator(Future<BlockingQueue<Object>> queue, AtomicInteger waitingConsumers,
                 AtomicInteger queueTaken, String name) {
             this.queue = Objects.requireNonNull(queue, "Queue Not Started");
             this.waitingConsumers = waitingConsumers;
@@ -131,6 +138,16 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
 
             if (next != null) {
                 return true;
+            }
+
+            BlockingQueue<Object> queue = null;
+            try {
+                queue = this.queue.get();
+            } catch (InterruptedException e) {
+                logger.info("Interrupted waiting for queue.");
+                Thread.currentThread().interrupt();
+            } catch (ExecutionException e) {
+                throw new RuntimeException(e);
             }
 
             Object first = queue.poll();
@@ -189,13 +206,14 @@ public class BusQueue<E> implements Consumer<E>, Iterable<E>, Service {
         }
     }
 
+
     /**
      * @oddjob.property
      * @oddjob.description The size of the queue.
      * @oddjob.required Read only.
      */
     public int getSize() {
-        Queue<?> queue = this.queue;
+        Queue<?> queue = this.queueFuture.getNow(null);
         return (queue == null ? 0 : queue.size());
     }
 

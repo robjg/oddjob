@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <script id="funcs"><![CDATA[function addTwo(x) { return new java.lang.Integer(x + 2)}
+function multiplyByTwo(x) { return new java.lang.Integer(x * 2)}
+]]></script>
+                <echo id="add"><![CDATA[#{funcs.getFunction('addTwo').apply(5)}]]></echo>
+                <echo id="multiply"><![CDATA[#{funcs.getFunction('multiplyByTwo').apply(3)}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

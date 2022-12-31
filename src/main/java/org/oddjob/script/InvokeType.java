@@ -1,22 +1,16 @@
 package org.oddjob.script;
 
+import org.oddjob.arooa.ArooaSession;
+import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.convert.*;
+import org.oddjob.arooa.deploy.annotations.ArooaHidden;
+import org.oddjob.arooa.life.ArooaSessionAware;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.convert.ArooaConverter;
-import org.oddjob.arooa.convert.ConversionLookup;
-import org.oddjob.arooa.convert.ConversionProvider;
-import org.oddjob.arooa.convert.ConversionRegistry;
-import org.oddjob.arooa.convert.ConversionStep;
-import org.oddjob.arooa.convert.Joker;
-import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.life.ArooaSessionAware;
 
 /**
  * @oddjob.description Invoke a java method or script snippet, 
@@ -89,7 +83,7 @@ implements ArooaValue, ArooaSessionAware {
 	 * <code>args</code> property may be more convenient for simple arguments.
 	 * @oddjob.required Must match the expected arguments.
 	 */
-	private List<ArooaValue> parameters = new ArrayList<ArooaValue>();
+	private final List<ArooaValue> parameters = new ArrayList<>();
 
 	/**
 	 * @oddjob.property

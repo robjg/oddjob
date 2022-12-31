@@ -23,6 +23,7 @@ import java.util.function.Consumer;
  *   <li>An input (from another job) to a file.</li>
  *   <li>A file to an output.</li>
  *   <li>An input to an output.</li>
+ *   <li>A file or input by lines to a Consumer such as a Bean Bus Destination</li>
  * </ul>
  * 
  * @oddjob.example

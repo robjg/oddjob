@@ -2,8 +2,11 @@ package org.oddjob.beanbus.destinations;
 
 import org.oddjob.beanbus.AbstractFilter;
 import org.oddjob.beanbus.BusFilter;
+import org.oddjob.framework.adapt.HardReset;
+import org.oddjob.framework.adapt.SoftReset;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
@@ -28,12 +31,21 @@ implements BusFilter<F, T> {
 	 */
 	private Function<? super F, ? extends T> function;
 
+	private final AtomicInteger count = new AtomicInteger();
+
 	@Override
 	protected T filter(F from) {
-		return Objects.requireNonNull(function, "Function Required")
+		T result =  Objects.requireNonNull(function, "Function Required")
 				.apply(from);
+		count.incrementAndGet();
+		return result;
 	}
-	
+
+	@HardReset
+	@SoftReset
+	public void reset() {
+		count.set(0);
+	}
 		
 	public Function<? super F, ? extends T> getFunction() {
 		return function;
@@ -41,5 +53,9 @@ implements BusFilter<F, T> {
 
 	public void setFunction(Function<? super F, ? extends T> filter) {
 		this.function = filter;
-	}	
+	}
+
+	public int getCount() {
+		return count.get();
+	}
 }

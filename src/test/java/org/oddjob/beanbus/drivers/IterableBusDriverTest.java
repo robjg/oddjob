@@ -1,7 +1,7 @@
 package org.oddjob.beanbus.drivers;
 
 import org.junit.Test;
-import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.FailedToStopException;
 import org.oddjob.io.StdoutType;
 import org.oddjob.tools.ConsoleCapture;
 
@@ -25,22 +25,22 @@ public class IterableBusDriverTest {
 
     }
 
-    private class Apple implements Fruit {
+    private static class Apple implements Fruit {
 
     }
 
     @Test
     public void testSimpleRun() {
 
-        List<Apple> fruit = new ArrayList<Apple>();
+        List<Apple> fruit = new ArrayList<>();
 
         fruit.add(new Apple());
         fruit.add(new Apple());
 
-        IterableBusDriver<Apple> test = new IterableBusDriver<Apple>();
+        IterableBusDriver<Apple> test = new IterableBusDriver<>();
         test.setValues(fruit);
 
-        List<Food> results = new ArrayList<Food>();
+        List<Food> results = new ArrayList<>();
 
         test.setTo(results::add);
 
@@ -77,19 +77,15 @@ public class IterableBusDriverTest {
                 public String next() {
                     throw new RuntimeException("Unexpected!");
                 }
-
-                @Override
-                public void remove() {
-                    throw new RuntimeException("Unexpected!");
-                }
             };
         }
     }
 
     @Test
-    public void testBlockedIterator() throws InterruptedException {
+    public void testBlockedIterator() throws InterruptedException, FailedToStopException {
 
         BlockingIterable beans = new BlockingIterable();
+
         IterableBusDriver<String> test = new IterableBusDriver<>();
         test.setValues(beans);
         test.setTo(b -> {
@@ -102,10 +98,6 @@ public class IterableBusDriverTest {
             throw new IllegalStateException("Should finish by now");
         }
 
-        synchronized (IterableBusDriverTest.this) {
-            // Iterator must now be blocking
-        }
-
         test.stop();
 
         t.join();
@@ -114,9 +106,9 @@ public class IterableBusDriverTest {
     }
 
     @Test
-    public void testStdOutConsumer() throws ArooaConversionException {
+    public void testStdOutConsumer() {
 
-        IterableBusDriver test = new IterableBusDriver();
+        IterableBusDriver<String> test = new IterableBusDriver<>();
         test.setValues(Arrays.asList("apple", "orange", "pear"));
 
         ConsoleCapture results = new ConsoleCapture();

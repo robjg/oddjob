@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <script id="funcs"><![CDATA[function fibonacci(x) {
+	if (x<1) return new java.lang.Integer(0)
+	if (x==1) return new java.lang.Integer(1)
+	return new java.lang.Integer(fibonacci(x-1) + fibonacci(x-2))
+}
+
+function factorial(x) {
+	if (x<1) return new java.lang.Integer(0)
+	if (x==1) return new java.lang.Integer(1)
+	return new java.lang.Integer(factorial(x-1) *x)
+}
+
+]]></script>
+                <parallel id="parallel">
+                    <jobs>
+                        <bus:bus name="Fibonacci Bus" xmlns:bus="oddjob:beanbus">
+                            <of>
+                                <bus:driver>
+                                    <values>
+                                        <value value="${fibonacciQueue}"/>
+                                    </values>
+                                </bus:driver>
+                                <bus:map name="Fibonacci">
+                                    <function>
+                                        <value value="${funcs.function(fibonacci)}"/>
+                                    </function>
+                                </bus:map>
+                                <bus:collect id="fibonacci"/>
+                            </of>
+                        </bus:bus>
+                        <bus:bus name="Factorial Bus" xmlns:bus="oddjob:beanbus">
+                            <of>
+                                <bus:driver>
+                                    <values>
+                                        <value value="${factorialQueue}"/>
+                                    </values>
+                                </bus:driver>
+                                <bus:map name="Factorial">
+                                    <function>
+                                        <value value="${funcs.function(factorial)}"/>
+                                    </function>
+                                </bus:map>
+                                <bus:collect id="factorial"/>
+                            </of>
+                        </bus:bus>
+                        <bus:bus xmlns:bus="oddjob:beanbus">
+                            <of>
+                                <bus:driver>
+                                    <values>
+                                        <sequence from="1" to="5"/>
+                                    </values>
+                                </bus:driver>
+                                <bean class="org.oddjob.beanbus.destinations.SplitDestinations">
+                                    <strategy>
+                                        <bean class="org.oddjob.beanbus.destinations.SplitDestinations$All"/>
+                                    </strategy>
+                                    <of>
+                                        <bus:queue id="fibonacciQueue" name="FibonacciQueue"/>
+                                        <bus:queue id="factorialQueue" name="FactorialQueue"/>
+                                    </of>
+                                </bean>
+                            </of>
+                        </bus:bus>
+                    </jobs>
+                </parallel>
+                <folder name="Test the Funcs">
+                    <jobs>
+                        <echo name="Test Fibonacci"><![CDATA[#{funcs.getFunction('fibonacci').apply(3)}]]></echo>
+                        <echo name="Test Factorial"><![CDATA[#{funcs.getFunction('factorial').apply(6)}]]></echo>
+                    </jobs>
+                </folder>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

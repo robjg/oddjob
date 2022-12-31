@@ -33,7 +33,7 @@ import java.util.function.Function;
  */
 public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, Service {
 
-	private static final Logger logger = LoggerFactory.getLogger(BusCollect.class);
+    private static final Logger logger = LoggerFactory.getLogger(BusCollect.class);
 
     /**
      * @oddjob.property
@@ -90,8 +90,8 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
     @Override
     public boolean hardReset() {
-        map.items.clear();
-        list.items.clear();
+        map.clear();
+        list.clear();
         count.set(0);
         return true;
     }
@@ -101,16 +101,13 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         if (output != null) {
             this.strategy = new OutputStrategy<>(output);
-        }
-        else if (keyMapper != null) {
+        } else if (keyMapper != null) {
             if (valueMapper == null) {
                 this.strategy = new KeyMapperStrategy<>(map, keyMapper);
-            }
-            else {
+            } else {
                 this.strategy = new KeyValueMapperStrategy<>(map, keyMapper, valueMapper);
             }
-        }
-        else {
+        } else {
             strategy = new ListStrategy<>(list);
         }
     }
@@ -129,7 +126,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
     protected T filter(T from) {
         strategy.accept(from);
 
-		count.incrementAndGet();
+        count.incrementAndGet();
 
         return from;
     }
@@ -167,7 +164,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         @Override
         public void accept(T t) {
-            listContainer.items.add(t);
+            listContainer.add(t);
         }
 
         @Override
@@ -181,7 +178,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         private final MapContainer<Object, Object> mapContainer;
 
-        private final  Function<? super T, Object> keyMapper;
+        private final Function<? super T, Object> keyMapper;
 
         KeyMapperStrategy(MapContainer<Object, Object> mapContainer, Function<? super T, Object> keyMapper) {
             this.mapContainer = mapContainer;
@@ -191,7 +188,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         @Override
         public void accept(T t) {
-            mapContainer.items.put(keyMapper.apply(t), t);
+            mapContainer.put(keyMapper.apply(t), t);
         }
 
         @Override
@@ -218,7 +215,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         @Override
         public void accept(T t) {
-            mapContainer.items.put(keyMapper.apply(t), valueMapper.apply(t));
+            mapContainer.put(keyMapper.apply(t), valueMapper.apply(t));
         }
 
         @Override
@@ -229,28 +226,26 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
     }
 
 
-
     /**
+     * @return A list container.
      * @oddjob.property beans
      * @oddjob.description The same as list. Prefer list, will be deprecated in future versions.
      * @oddjob.required Read only.
-     *
-     * @return A list container.
      */
     public ListContainer<T> getBeans() {
-		return list;
+        return list;
     }
 
-	public ListContainer<T> getList() {
-		return list;
-	}
+    public ListContainer<T> getList() {
+        return list;
+    }
 
-	public MapContainer<Object, Object> getMap() {
-		return map;
-	}
+    public MapContainer<Object, Object> getMap() {
+        return map;
+    }
 
     public int getCount() {
-		return count.get();
+        return count.get();
     }
 
     public Function<? super T, Object> getKeyMapper() {
@@ -283,7 +278,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
         public void registerWith(ConversionRegistry registry) {
 
             registry.register(ListContainer.class, List.class, ListContainer::getList);
-			registry.register(MapContainer.class, Map.class, MapContainer::getMap);
+            registry.register(MapContainer.class, Map.class, MapContainer::getMap);
         }
     }
 
@@ -291,33 +286,38 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         private final ConcurrentLinkedQueue<E> items = new ConcurrentLinkedQueue<>();
 
+        private final AtomicInteger count = new AtomicInteger();
+
         private volatile String lastString;
 
         @Override
         public String toString() {
             if (lastString == null) {
                 Iterator<E> it = items.iterator();
-                if (!it.hasNext())
-                    return "[]";
+                if (!it.hasNext()) {
+                    lastString = "[]";
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append('[');
 
-                StringBuilder sb = new StringBuilder();
-                sb.append('[');
-
-                int count = 0;
-                for (; ; ) {
-                    E e = it.next();
-                    sb.append(e);
-                    if (++count == 6) {
-                        lastString = sb.append("...]").toString();
-                        return lastString;
+                    int count = 0;
+                    for (; ; ) {
+                        E e = it.next();
+                        if (++count > 5) {
+                            lastString = sb.append("...]").toString();
+                            break;
+                        } else {
+                            sb.append(e);
+                        }
+                        if (!it.hasNext()) {
+                            lastString = sb.append(']').toString();
+                            break;
+                        }
+                        sb.append(',').append(' ');
                     }
-                    if (!it.hasNext()) {
-                        return sb.append(']').toString();
-                    }
-                    sb.append(',').append(' ');
                 }
             }
-            return super.toString();
+            return lastString;
         }
 
         public List<E> getList() {
@@ -344,6 +344,19 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
                 return null;
             }
         }
+
+        void clear() {
+            items.clear();
+            count.set(0);
+            lastString = null;
+        }
+
+        void add(E t) {
+            items.add(t);
+            if (count.incrementAndGet() <= 6) {
+                lastString = null;
+            }
+        }
     }
 
     public static class MapContainer<K, E> {
@@ -356,29 +369,33 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
         public String toString() {
             if (lastString == null) {
                 Iterator<Map.Entry<K, E>> it = items.entrySet().iterator();
-                if (!it.hasNext())
-                    return "{}";
+                if (!it.hasNext()) {
+                    lastString = "{}";
+                } else {
 
-                StringBuilder sb = new StringBuilder();
-                sb.append('{');
+                    StringBuilder sb = new StringBuilder();
+                    sb.append('{');
 
-                int count = 0;
-                for (; ; ) {
-                    Map.Entry<K, E> e = it.next();
-                    sb.append(e.getKey());
-                    sb.append('=');
-                    sb.append(e.getValue());
-                    if (++count == 6) {
-                        lastString = sb.append("...}").toString();
-                        return lastString;
+                    int count = 0;
+                    for (; ; ) {
+                        Map.Entry<K, E> e = it.next();
+                        if (++count == 6) {
+                            lastString = sb.append("...}").toString();
+                            break;
+                        } else {
+                            sb.append(e.getKey());
+                            sb.append('=');
+                            sb.append(e.getValue());
+                        }
+                        if (!it.hasNext()) {
+                            lastString = sb.append('}').toString();
+                            break;
+                        }
+                        sb.append(',').append(' ');
                     }
-                    if (!it.hasNext()) {
-                        return sb.append('}').toString();
-                    }
-                    sb.append(',').append(' ');
                 }
             }
-            return super.toString();
+            return lastString;
         }
 
         public Map<K, E> getMap() {
@@ -391,6 +408,18 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         public int getSize() {
             return items.size();
+        }
+
+        void clear() {
+            items.clear();
+            lastString = null;
+        }
+
+        public void put(K key, E value) {
+            items.put(key, value);
+            if (items.size() <= 6) {
+                lastString = null;
+            }
         }
     }
 }

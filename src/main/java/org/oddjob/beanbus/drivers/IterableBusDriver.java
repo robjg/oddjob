@@ -1,15 +1,16 @@
 package org.oddjob.beanbus.drivers;
 
+import org.oddjob.FailedToStopException;
 import org.oddjob.Stoppable;
 import org.oddjob.beanbus.Outbound;
 import org.oddjob.framework.adapt.HardReset;
 import org.oddjob.framework.adapt.SoftReset;
+import org.oddjob.util.Etc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -78,16 +79,33 @@ public class IterableBusDriver<T>
             }
         }
 
-        logger.info("Accepted " + count + " beans.");
+        logger.info("Stopping after delivering {} items.", count);
     }
 
     @Override
-    public void stop() {
+    public void stop() throws FailedToStopException{
         this.stop = true;
-        Optional.ofNullable(executionThread.get()).ifPresent(t -> {
+        Thread t = executionThread.get();
+        if (t != null) {
+            if (t == Thread.currentThread()) {
+                logger.debug("Stop called from execution thread, not interrupting.");
+                return;
+            }
+
             logger.debug("Interrupting execution thread.");
             t.interrupt();
-        });
+            try {
+                t.join(5000);
+            } catch (InterruptedException e) {
+                logger.debug("Unexpectedly Interrupted in stop.", e);
+                Thread.currentThread().interrupt();
+            }
+        }
+        t = executionThread.get();
+        if (t != null) {
+            throw new FailedToStopException(this, "Bus Driver Failed to Stop. Thread is stuck at:"
+                    + System.lineSeparator() + Etc.toTabbedString(t.getStackTrace()));
+        }
     }
 
     public Iterable<? extends T> getValues() {

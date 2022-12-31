@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.oddjob.FailedToStopException;
 
 import java.io.ByteArrayOutputStream;
+import java.util.function.Function;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -106,4 +107,80 @@ public class BusCollectTest {
 
         assertThat(collect.getMap().getMap(), anEmptyMap());
     }
+
+    @Test
+    public void whenListContainerToStringTheAsExpected() throws FailedToStopException {
+
+        BusCollect<Integer> collect = new BusCollect<>();
+
+        assertThat(collect.getList().toString(), is("[]"));
+
+        collect.start();
+
+        collect.accept(1);
+
+        assertThat(collect.getList().toString(), is("[1]"));
+
+        collect.accept(2);
+
+        assertThat(collect.getList().toString(), is("[1, 2]"));
+
+        collect.accept(3);
+        collect.accept(4);
+        collect.accept(5);
+
+        assertThat(collect.getList().toString(), is("[1, 2, 3, 4, 5]"));
+        assertThat(collect.getList().toString(), is("[1, 2, 3, 4, 5]"));
+
+        collect.accept(6);
+
+        assertThat(collect.getList().toString(), is("[1, 2, 3, 4, 5, ...]"));
+        assertThat(collect.getList().toString(), is("[1, 2, 3, 4, 5, ...]"));
+
+        collect.accept(7);
+
+        assertThat(collect.getList().toString(), is("[1, 2, 3, 4, 5, ...]"));
+
+        collect.stop();
+    }
+
+    @Test
+    public void whenMapContainerToStringTheAsExpected() throws FailedToStopException {
+
+        BusCollect<Integer> collect = new BusCollect<>();
+
+        assertThat(collect.getMap().toString(), is("{}"));
+
+        collect.setKeyMapper(Function.identity());
+        collect.setValueMapper(Function.identity());
+
+        collect.start();
+
+        collect.accept(1);
+
+        assertThat(collect.getMap().toString(), is("{1=1}"));
+
+        collect.accept(2);
+
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2}"));
+
+        collect.accept(3);
+        collect.accept(4);
+        collect.accept(5);
+
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2, 3=3, 4=4, 5=5}"));
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2, 3=3, 4=4, 5=5}"));
+
+        collect.accept(6);
+
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2, 3=3, 4=4, 5=5, ...}"));
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2, 3=3, 4=4, 5=5, ...}"));
+
+        collect.accept(7);
+
+        assertThat(collect.getMap().toString(), is("{1=1, 2=2, 3=3, 4=4, 5=5, ...}"));
+
+        collect.stop();
+    }
+
 }

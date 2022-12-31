@@ -1,9 +1,5 @@
 <oddjob>
     <job>
-        <script id='s' language='JavaScript'>
-            <input>
-                <buffer>print ("hello world\n");</buffer>
-            </input>
-        </script>
+        <script id='s' language='JavaScript'>print ("hello world\n");</script>
     </job>
 </oddjob>
