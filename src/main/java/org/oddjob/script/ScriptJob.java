@@ -214,12 +214,26 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
                 uniqueConsoleId(), LogArchiver.MAX_HISTORY);
     }
 
-
     /*
      *  (non-Javadoc)
      * @see org.oddjob.framework.SimpleJob#execute()
      */
     protected int execute() throws IOException {
+
+        // Nashorn seems to use the Thread Context Classloader so set it for
+        // the duration of the execution.
+        ClassLoader existing = Thread.currentThread().getContextClassLoader();
+        Optional.ofNullable(this.classLoader)
+                .ifPresent(Thread.currentThread()::setContextClassLoader);
+        try {
+            return _execute();
+        }
+        finally {
+            Thread.currentThread().setContextClassLoader(existing);
+        }
+    }
+
+    protected int _execute() throws IOException {
         ScriptCompiler compiler = new ScriptCompiler(language,
                 classLoader);
 
