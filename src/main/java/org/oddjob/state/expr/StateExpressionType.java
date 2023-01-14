@@ -15,10 +15,24 @@ import java.util.function.Consumer;
 /**
  * @oddjob.description Evaluate a state expression that becomes an event source for triggering other jobs.
  * used with {@link org.oddjob.events.Trigger} and {@link org.oddjob.events.When}.
+ * <p>
+ *     Expressions are of the form:
+ * </p>
+ * <pre>
+ * [NOT] job-id IS job-condition
+ * </pre>
+ * <p>
+ *     And can be chained with AND and OR and nested with parenthesis. Examples are:
+ * </p>
+ * <pre>
+ * 		job1 is success
+ * 		not job1 is success
+ * 		job1 is success or ( job2 is success and job3 is success)
+ * </pre>
  *
  * @oddjob.example
  *
- * Runs a job when two other jobs complete, but only if one of the jobs hasn't been run
+ * Runs a job when two other jobs complete, but only if one of the jobs hasn't been run.
  *
  * {@oddjob.xml.resource org/oddjob/state/expr/StateExpressionTimeExample.xml}
  *
@@ -27,6 +41,11 @@ import java.util.function.Consumer;
  */
 public class StateExpressionType implements InstantEventSource<Boolean>, ArooaSessionAware {
 
+	/**
+	 * @oddjob.property
+	 * @oddjob.description The state expression to evaluate.
+	 * @oddjob.required Yes.
+	 */
 	private String expression;
 
 	private ArooaSession session;

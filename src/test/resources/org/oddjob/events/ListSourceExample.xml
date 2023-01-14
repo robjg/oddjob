@@ -6,7 +6,7 @@
                 <events:when id="when" xmlns:events="oddjob:events">
                     <jobs>
                         <events:list>
-                            <child>
+                            <of>
                                 <events:watch name="Is Job 1 Complete">
                                     <eventSource>
                                         <state:watch xmlns:state="http://rgordon.co.uk/oddjob/state">
@@ -21,7 +21,7 @@
                                         </state:watch>
                                     </eventSource>
                                 </events:watch>
-                            </child>
+                            </of>
                         </events:list>
                         <echo id="job3" name="Job 3">
                             <![CDATA[It's Done on ${when.trigger}]]>

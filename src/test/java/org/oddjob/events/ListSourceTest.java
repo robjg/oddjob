@@ -41,8 +41,8 @@ public class ListSourceTest {
 
         ListSource<Integer> test = new ListSource<>();
 
-        test.setChild(0, new IntSource());
-        test.setChild(1, new IntSource());
+        test.setOf(0, new IntSource());
+        test.setOf(1, new IntSource());
 
         List<InstantEvent<Integer>> results = new ArrayList<>();
 
@@ -122,8 +122,8 @@ public class ListSourceTest {
         };
 
         ListSource<String> test = new ListSource<>();
-        test.setChild(0, es1);
-        test.setChild(1, es2);
+        test.setOf(0, es1);
+        test.setOf(1, es2);
 
         StateSteps stateSteps = new StateSteps(test);
         stateSteps.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);

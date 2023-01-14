@@ -52,6 +52,40 @@ public class StateExpressionParserTest {
 	}
 
 	@Test
+	public void testParseNotExpression() throws Exception {
+
+		ArooaSession session = new StandardArooaSession();
+
+		FlagState job1 = new FlagState();
+
+		session.getBeanRegistry().register("job1", job1);
+
+		StateExpressionParser<StateExpression> test =
+				new StateExpressionParser<>(CaptureToExpression::new);
+
+		StateExpression expression = test.parse("not job1 is ready");
+
+		AtomicReference<Try<InstantEvent<Boolean>>> result =
+				new AtomicReference<>();
+
+		try (Restore restore = expression.evaluate(session, result::set)) {
+
+			assertThat(result.get().orElseThrow().getOf(),
+					is(false));
+
+			job1.run();
+
+			assertThat(result.get().orElseThrow().getOf(),
+					is(true));
+
+			job1.hardReset();
+
+			assertThat(result.get().orElseThrow().getOf(),
+					is(false));
+		}
+	}
+
+	@Test
 	public void testExpressionWithAndsAndOrs() throws Exception {
 	
 		ArooaSession session = new StandardArooaSession();

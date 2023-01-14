@@ -8,7 +8,7 @@
                 <events:when id="both-files" name="When Both Files" xmlns:events="oddjob:events">
                     <jobs>
                         <events:list eventOperator="ALL">
-                            <child>
+                            <of>
                                 <events:watch name="Watch File 1">
                                     <eventSource>
                                         <events:file>
@@ -33,7 +33,7 @@
                                         </events:file>
                                     </eventSource>
                                 </events:watch>
-                            </child>
+                            </of>
                         </events:list>
                         <echo id="task">
                             <![CDATA[${both-files.trigger.ofs}]]>

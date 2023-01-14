@@ -34,7 +34,7 @@ import java.util.function.Consumer;
  */
 public class ListSource<T> extends EventServiceBase<CompositeEvent<T>>
 implements Serializable, Structural {
-	private static final long serialVersionUID = 2009031500L;
+	private static final long serialVersionUID = 2023011400L;
 
 	/** Track changes to children an notify listeners. */
 	protected transient volatile ChildHelper<Object> childHelper;
@@ -119,12 +119,12 @@ implements Serializable, Structural {
 	}
 
 	/**
-	 * @oddjob.property
-	 * @oddjob.description The child event sources.
+	 * @oddjob.property of
+	 * @oddjob.description The event sources to combine.
 	 * @oddjob.required No, but pointless without.
 	 */
 	@ArooaComponent
-	public void setChild(int index, Object child) {
+	public void setOf(int index, Object child) {
 	    childHelper.insertOrRemoveChild(index, child);
     }
 

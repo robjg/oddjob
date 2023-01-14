@@ -37,8 +37,16 @@ import java.util.stream.Stream;
 
 /**
  * @oddjob.description An Event Source For a variable set of child
- * Event Sources. Still a work in progress.
- * 
+ * Event Sources. Required when the list of events to wait for changes dynamically - such as the set of files
+ * required to run a job.
+ *
+ * @oddjob.example
+ *
+ * Wait for prices to be available to price some fruit trades. This resulted as an experiment in turning Oddjob
+ * into a rules engine.
+ *
+ * {@oddjob.xml.resource org/oddjob/events/example/PricingWhenExample.xml}
+ *
  */
 public class ForEvents<T> extends EventServiceBase<CompositeEvent<T>>
 implements Structural, ConfigurationOwner {

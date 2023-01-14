@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -413,6 +414,26 @@ public class RepeatJobTest extends OjTestCase {
 
         states.checkWait();
     }
+
+    @Test
+    public void testSerialize() throws IOException, ClassNotFoundException {
+
+        RepeatJob test = new RepeatJob();
+        test.setTimes(1);
+
+        RepeatJob copy = OddjobTestHelper.copy(test);
+
+        assertNotNull(copy);
+
+        FlagState flagState = new FlagState();
+
+        copy.setJob(flagState);
+
+        copy.run();
+
+        assertThat(flagState.lastStateEvent().getState(), is(JobState.COMPLETE));
+    }
+
 }
 
 

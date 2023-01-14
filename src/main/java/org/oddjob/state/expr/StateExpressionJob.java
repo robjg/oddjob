@@ -10,6 +10,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @oddjob.description Evaluate a state expression and become COMPLETE if it is true or INCOMPLETE otherwise.
+ * <p>
+ *     Can be useful with an {@link org.oddjob.state.IfJob}. The expression is the same as that described
+ *     in {@link StateExpressionType}.
+ * </p>
  *
  */
 public class StateExpressionJob extends SimpleJob {
