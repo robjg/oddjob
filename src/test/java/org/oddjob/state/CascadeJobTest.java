@@ -589,6 +589,9 @@ public class CascadeJobTest extends OjTestCase {
 
         logger.info("** Running cascade again");
 
+        // Fast computer will see events as being the same.
+        Thread.sleep(2L);
+
         test.run();
 
         wait2State.checkWait();

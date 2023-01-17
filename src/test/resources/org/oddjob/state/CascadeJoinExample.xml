@@ -5,20 +5,20 @@
             <jobs>
                 <folder>
                     <jobs>
-                        <state:flag id="apples" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
-                        <state:flag id="oranges" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                        <state:flag name="Flag Apples Complete" id="apples" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+                        <state:flag name="Flag Oranges Complete" id="oranges" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
                     </jobs>
                 </folder>
                 <parallel id="parallel">
                     <jobs>
-                        <scheduling:trigger newOnly="true" on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                        <scheduling:trigger name="Trigger on Apples" newOnly="true" on="${apples}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                             <job>
                                 <echo>
                                     <![CDATA[Apples]]>
                                 </echo>
                             </job>
                         </scheduling:trigger>
-                        <scheduling:trigger newOnly="true" on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                        <scheduling:trigger name="Trigger on Oranges" newOnly="true" on="${oranges}" xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
                             <job>
                                 <echo>
                                     <![CDATA[Oranges]]>

@@ -39,7 +39,7 @@ public class TimerStopTest extends OjTestCase {
         logger.info("----------------  " + getName() + "  ---------------");
     }
 
-    private class NeverRan extends SimpleJob {
+    private static class NeverRan extends SimpleJob {
         @Override
         protected int execute() throws Throwable {
             throw new RuntimeException("Unexpected.");
@@ -47,18 +47,13 @@ public class TimerStopTest extends OjTestCase {
     }
 
     @Test
-    public void testStopBeforeRunning() throws InterruptedException, FailedToStopException {
+    public void testStopBeforeRunning() throws FailedToStopException {
         DefaultExecutors services = new DefaultExecutors();
 
         Timer test = new Timer();
         test.setScheduleExecutorService(
                 services.getScheduledExecutor());
-        test.setSchedule(new Schedule() {
-
-            public IntervalTo nextDue(ScheduleContext context) {
-                return new IntervalTo(Interval.END_OF_TIME);
-            }
-        });
+        test.setSchedule(context -> new IntervalTo(Interval.END_OF_TIME));
 
         NeverRan job = new NeverRan();
 
@@ -87,7 +82,7 @@ public class TimerStopTest extends OjTestCase {
     private static class RunningJob extends SimpleJob
             implements Stoppable {
 
-        final Exchanger<Void> running = new Exchanger<Void>();
+        final Exchanger<Void> running = new Exchanger<>();
 
         final AtomicReference<Thread> threadRef = new AtomicReference<>();
 
@@ -103,7 +98,6 @@ public class TimerStopTest extends OjTestCase {
                     logger.info("Running job interrupted.");
                 }
             }
-            ;
             return 0;
         }
 
@@ -123,12 +117,7 @@ public class TimerStopTest extends OjTestCase {
         Timer test = new Timer();
         test.setScheduleExecutorService(
                 services.getScheduledExecutor());
-        test.setSchedule(new Schedule() {
-
-            public IntervalTo nextDue(ScheduleContext context) {
-                return new IntervalTo(new Date());
-            }
-        });
+        test.setSchedule(context -> new IntervalTo(new Date()));
 
         RunningJob job = new RunningJob();
 
@@ -170,22 +159,19 @@ public class TimerStopTest extends OjTestCase {
     }
 
     @Test
-    public void testStopBetweenSchedules() throws InterruptedException, Throwable {
+    public void testStopBetweenSchedules() throws Throwable {
         DefaultExecutors services = new DefaultExecutors();
         services.setPoolSize(5);
 
         final Timer test = new Timer();
         test.setScheduleExecutorService(
                 services.getScheduledExecutor());
-        test.setSchedule(new Schedule() {
-
-            public IntervalTo nextDue(ScheduleContext context) {
-                if (context.getData("done") == null) {
-                    context.putData("done", new Object());
-                    return new IntervalTo(new Date());
-                } else {
-                    return new IntervalTo(Interval.END_OF_TIME);
-                }
+        test.setSchedule(context -> {
+            if (context.getData("done") == null) {
+                context.putData("done", new Object());
+                return new IntervalTo(new Date());
+            } else {
+                return new IntervalTo(Interval.END_OF_TIME);
             }
         });
 
@@ -247,9 +233,9 @@ public class TimerStopTest extends OjTestCase {
                 Mockito.mock(ScheduledExecutorService.class);
 
         CapturingMatcher<Runnable> runnable =
-                new CapturingMatcher<Runnable>();
+                new CapturingMatcher<>(Runnable.class);
 
-        CapturingMatcher<Long> delay = new CapturingMatcher<Long>();
+        CapturingMatcher<Long> delay = new CapturingMatcher<>(Long.class);
 
         Mockito.when(executor.schedule(
                 Mockito.argThat(runnable),
@@ -343,7 +329,7 @@ public class TimerStopTest extends OjTestCase {
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testWhenScheduledChildGoesToReady() throws ParseException, FailedToStopException, InterruptedException {
+    public void testWhenScheduledChildGoesToReady() throws ParseException, FailedToStopException {
 
         final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
 
@@ -351,9 +337,9 @@ public class TimerStopTest extends OjTestCase {
                 Mockito.mock(ScheduledExecutorService.class);
 
         CapturingMatcher<Runnable> runnable =
-                new CapturingMatcher<Runnable>();
+                new CapturingMatcher<>(Runnable.class);
 
-        CapturingMatcher<Long> delay = new CapturingMatcher<Long>();
+        CapturingMatcher<Long> delay = new CapturingMatcher<>(Long.class);
 
         Mockito.when(executor.schedule(
                 Mockito.argThat(runnable),
