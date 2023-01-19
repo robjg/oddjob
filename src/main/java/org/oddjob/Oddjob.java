@@ -336,7 +336,7 @@ implements Loadable,
 	 */
 	enum Reset {
 		SOFT,
-		HARD;
+		HARD
 	}
 
 	/**
@@ -410,8 +410,11 @@ implements Loadable,
 		
 	/** 
 	 * @oddjob.property classLoader 
-	 * @oddjob.description The classLoader to use when loading
-	 * the configuration.
+	 * @oddjob.description The classLoader to use when loading the configuration. This classloader
+	 * will also be made available to child components that inject a classloader. This
+	 * might not always be what is required as this classloader defaults to the application classloader
+	 * not the Oddball classloader that will have loaded an Oddball component. This might be
+	 * changed in future versions of Oddjob.
 	 * <p>
 	 * See also {@link URLClassLoaderType}
 	 * 
@@ -597,7 +600,7 @@ implements Loadable,
         		ODDJOB_ELEMENT);
 
         try {
-	        ConfigurationHandle configHandle = parser.parse(configuration);
+	        ConfigurationHandle<ArooaContext> configHandle = parser.parse(configuration);
 	        
 	        configurationOwnerSupport.setConfigurationSession(
 	        		new OddjobConfigurationSession(
@@ -638,26 +641,24 @@ implements Loadable,
 	@Override
 	public void load() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING), 
-					new Runnable() {
-				public void run() {
-				    try {
-						if (ourSession != null) {
-							return;
+			stateHandler().waitToWhen(new IsNot(StateConditions.RUNNING),
+					() -> {
+						try {
+							if (ourSession != null) {
+								return;
+							}
+
+							configure();
+
+							OddjobServices services = preLoadInitialisation();
+
+							doLoad(services);
 						}
-	
-				    	configure();
-				    	
-						OddjobServices services = preLoadInitialisation();
-						
-						doLoad(services);
-				    } 
-				    catch (Exception e) {
-						logger().error("Exception executing job.", e);
-						getStateChanger().setStateException(e);
-				    }
-				}
-			});
+						catch (Exception e) {
+							logger().error("Exception executing job.", e);
+							getStateChanger().setStateException(e);
+						}
+					});
 		}
 	}
 	
@@ -691,7 +692,7 @@ implements Loadable,
 		Object child = childHelper.getChild();
 
 		// if there is something to execute, execute it.
-		if (child != null && child instanceof Runnable && !stop) {
+		if (child instanceof Runnable && !stop) {
 			((Runnable) child).run();
 		}
 	}
@@ -763,25 +764,22 @@ implements Loadable,
 	public boolean softReset() {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
-
-					logger().debug("Soft reset requested.");
-					if (ourSession == null) {					
-						if (lastReset == null) {
-							lastReset = Reset.SOFT;
-							if (!saveLastReset()) {
-								return;
-							}
+			return stateHandler().waitToWhen(new IsSoftResetable(), () -> {
+				logger().debug("Soft reset requested.");
+				if (ourSession == null) {
+					if (lastReset == null) {
+						lastReset = Reset.SOFT;
+						if (!saveLastReset()) {
+							return;
 						}
 					}
-					else {
-						lastReset = null;
-					}
-
-					superSoftReset();
-					restored = false;
 				}
+				else {
+					lastReset = null;
+				}
+
+				superSoftReset();
+				restored = false;
 			});
 		}
 	}
@@ -821,29 +819,26 @@ implements Loadable,
 	 */
 	public boolean hardReset() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
-				public void run() {
+			return stateHandler().waitToWhen(new IsHardResetable(), () -> {
+				logger().debug("Hard Reset requested.");
 
-					logger().debug("Hard Reset requested.");
-
-					if (ourSession == null) {
-						lastReset = Reset.HARD;
-						if (!saveLastReset()) {
-							return;
-						}
+				if (ourSession == null) {
+					lastReset = Reset.HARD;
+					if (!saveLastReset()) {
+						return;
 					}
-					else {
-						lastReset = null;
-					}	
-
-					stopChildStateReflector();
-					childHelper.hardResetChildren();
-					reset();
-					stop = false;
-					restored = false;
-					getStateChanger().setState(ParentState.READY);
-					logger().info("Hard Reset complete.");
 				}
+				else {
+					lastReset = null;
+				}
+
+				stopChildStateReflector();
+				childHelper.hardResetChildren();
+				reset();
+				stop = false;
+				restored = false;
+				getStateChanger().setState(ParentState.READY);
+				logger().info("Hard Reset complete.");
 			});
 		}
 	}
@@ -955,7 +950,7 @@ implements Loadable,
 	 */
 	public void setExport(String key, ArooaValue value) {
 		if (export == null) {
-			export = new LinkedHashMap<String, ArooaValue>();
+			export = new LinkedHashMap<>();
 		}
 		if (value == null && export.containsKey(key)) {
 			export.remove(key);
