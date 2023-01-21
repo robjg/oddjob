@@ -415,13 +415,13 @@ public class TriggerTest {
 		StateSteps testStates = new StateSteps(oddjob);
 		// Could be end up started or active depending on parallel
 		testStates.startCheck(StateConditions.READY,
-				StateConditions.EXECUTING, StateConditions.ACTIVE);
+				StateConditions.EXECUTING, StateConditions.LIVE);
 
 		oddjob.run();
 
 		testStates.checkWait();
 
-		testStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+		testStates.startCheck(StateConditions.LIVE, StateConditions.COMPLETE);
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 
