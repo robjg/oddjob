@@ -5,16 +5,30 @@
   <parent>
     <groupId>uk.co.rgordon</groupId>
     <artifactId>oj-parent</artifactId>
-    <version>1.6-SNAPSHOT</version>
+    <version>1.6.0</version>
   </parent>
 
   <artifactId>oddjob</artifactId>
   <packaging>jar</packaging>
 
-  <description>Job Scheduling and Task Automation.</description>
-
   <name>Oddjob</name>
+  <description>Job Scheduling and Task Automation.</description>
   <url>http://rgordon.co.uk/oddjob</url>
+
+  <licenses>
+    <license>
+      <name>The Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>rob</id>
+      <name>Rob</name>
+      <email>contact@rgordon.co.uk</email>
+    </developer>
+  </developers>
 
   <scm>
     <url>https://github.com/robjg/oddjob</url>
