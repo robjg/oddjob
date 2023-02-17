@@ -1,7 +1,6 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
-import org.oddjob.OjTestCase;
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.jobs.structural.JobFolder;
@@ -10,7 +9,10 @@ import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
-public class OddjobMBeanFactoryTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class OddjobMBeanFactoryTest {
 
     private static class OurServerContext extends MockServerContext {
 
@@ -63,15 +65,15 @@ public class OddjobMBeanFactoryTest extends OjTestCase {
 
         long root = test.createMBeanFor(folder, context);
 
-        assertEquals(new Integer(4), server.getMBeanCount());
+        assertThat(server.getMBeanCount(), is(4));
 
-        assertEquals(folder, test.objectFor(0L));
-        assertEquals(c1, test.objectFor(1L));
-        assertEquals(c2, test.objectFor(2));
+        assertThat(test.objectFor(0L), is(folder));
+        assertThat(test.objectFor(1L), is(c1));
+        assertThat(test.objectFor(2), is(c2));
 
         test.destroy(root);
 
-        assertEquals(new Integer(1), server.getMBeanCount());
+        assertThat(server.getMBeanCount(), is(1));
     }
 
 }

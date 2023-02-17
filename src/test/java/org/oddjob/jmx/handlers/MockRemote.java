@@ -22,8 +22,8 @@ import static org.mockito.Mockito.when;
 /**
  * Provide a Mock for testing remoting between client and serer without using RMI.
  *
- * @param <S>
- * @param <T>
+ * @param <S> Server type
+ * @param <T> Client type
  */
 public class MockRemote<S, T> implements ArooaSessionAware, Runnable {
     private static final Logger logger = LoggerFactory.getLogger(MockRemote.class);

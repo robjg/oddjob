@@ -1,11 +1,9 @@
 package org.oddjob.sql;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -31,10 +29,10 @@ public class MySQLTest extends OjTestCase {
 
 		OddjobLookup lookup = new OddjobLookup(oddjob);
 		
-		assertEquals(new Integer(0), lookup.lookup(
+		assertEquals(Integer.valueOf(0), lookup.lookup(
 				"sp-result1", Integer.class));
 		
-		assertEquals(new Integer(0), lookup.lookup(
+		assertEquals(Integer.valueOf(0), lookup.lookup(
 				"sp-result2", Integer.class));
 				
 		oddjob.destroy();
