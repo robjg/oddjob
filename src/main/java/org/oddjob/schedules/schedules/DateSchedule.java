@@ -1,19 +1,12 @@
 package org.oddjob.schedules.schedules;
 
+import org.oddjob.arooa.utils.DateHelper;
+import org.oddjob.schedules.*;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.TimeZone;
-
-import org.oddjob.arooa.utils.DateHelper;
-import org.oddjob.schedules.AbstractSchedule;
-import org.oddjob.schedules.DateUtils;
-import org.oddjob.schedules.Interval;
-import org.oddjob.schedules.IntervalTo;
-import org.oddjob.schedules.Schedule;
-import org.oddjob.schedules.ScheduleContext;
-import org.oddjob.schedules.ScheduleResult;
-import org.oddjob.util.OddjobConfigException;
 
 /**
  * @oddjob.description Provide a schedule for a 
@@ -88,7 +81,7 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	 * @oddjob.description A specific date on which to schedule something.
 	 * @oddjob.required No.
 	 * 
-	 * @param in The on text.
+	 * @param on The on text.
 	 * @throws ParseException If the string isn't a date.
 	 */
 	public void setOn(String on) {		
@@ -109,13 +102,8 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	    
 	    TimeZone timeZone = context.getTimeZone();
 	    
-	    try {
-	    	return DateHelper.parseDate(startDate, timeZone);
-	    } catch (ParseException e) {
-	    	throw new OddjobConfigException("Failed to parse start date ["
-	    			+ startDate + "]");
-	    }
-	    
+		return DateHelper.parseDate(startDate, timeZone);
+
 	}
 
 	/**
@@ -130,13 +118,8 @@ final public class DateSchedule extends AbstractSchedule implements Serializable
 	    
 	    TimeZone timeZone = context.getTimeZone();
 	    
-	    try {
-	    	return DateUtils.endOfDay(DateHelper.parseDate(endDate, timeZone),
+		return DateUtils.endOfDay(DateHelper.parseDate(endDate, timeZone),
 	    			timeZone);
-	    } catch (ParseException e) {
-	    	throw new OddjobConfigException("Failed to parse end date [" 
-	    			+ endDate + "]");
-	    }
 	}
 
 	class ThisSchedule implements Schedule {

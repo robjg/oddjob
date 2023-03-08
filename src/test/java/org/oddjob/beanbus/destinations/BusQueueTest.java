@@ -303,6 +303,7 @@ public class BusQueueTest {
         oddjob.destroy();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testStartConsumingBeforeStarted() throws Exception {
 

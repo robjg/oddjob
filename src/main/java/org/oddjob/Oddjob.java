@@ -46,10 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Read a configuration, creates child jobs and executes them. 
@@ -1022,7 +1019,7 @@ implements Loadable,
 	 * @return The version.
 	 */
 	public String getVersion() {
-		return Version.getCurrentVersionAndBuildDate();
+		return Version.current().toString();
 	}
 	
 	/**
@@ -1109,15 +1106,10 @@ implements Loadable,
 		 * @return Returns the args.
 		 */
 		public Object[] getArgs() {
-			if (args == null) {
-				// Oddjob Main will always set an empty String array when
-				// no args are passed in. We want the same behaviour when 
-				// Oddjob is used embedded.
-				return new String[0];
-			}
-			else {
-				return args;
-			}
+			// Oddjob Main will always set an empty String array when
+			// no args are passed in. We want the same behaviour when
+			// Oddjob is used embedded.
+			return Objects.requireNonNullElseGet(args, () -> new String[0]);
 		}
 
 		public Services getServices() {

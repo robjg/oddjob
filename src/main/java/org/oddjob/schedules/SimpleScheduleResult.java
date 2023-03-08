@@ -1,9 +1,9 @@
 package org.oddjob.schedules;
 
+import org.oddjob.arooa.utils.DateHelper;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * A simple {@link ScheduleResult}
@@ -96,9 +96,9 @@ public class SimpleScheduleResult implements ScheduleResult, Serializable {
 		String useNextText = "";
 		if (!interval.getToDate().equals(useNext)) {
 			useNextText = ", use next " + 
-			DateHelper.formatDateTimeInteligently(useNext);
+			DateHelper.formatDateTimeIntelligently(useNext);
 		}
 		
-		return interval.toString() + useNextText;
+		return interval + useNextText;
 	}
 }

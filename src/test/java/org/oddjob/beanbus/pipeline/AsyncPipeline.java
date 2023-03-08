@@ -111,11 +111,11 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         @Override
         public CompletableFuture<?> complete() {
             return CompletableFuture.allOf(
-                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+                    nexts.stream().map(Dispatch::complete).toArray(CompletableFuture[]::new));
         }
     }
 
-    protected abstract class BaseDispatch<P, T> implements Dispatch<P> {
+    protected abstract static class BaseDispatch<P, T> implements Dispatch<P> {
 
         private final String name;
 
@@ -151,15 +151,15 @@ public class AsyncPipeline<F> implements Pipeline<F> {
                 root.rootPipe.useBlocking();
                 useExecutor = new MaxWork(executor,
                         maxWork,
-                        () -> gate.block(),
-                        () -> gate.unblock());
+                        gate::block,
+                        gate::unblock);
             }
             else {
                 useExecutor = executor;
             }
 
             work = new PhasedWork(
-                    () -> tos.flush(),
+                    tos::flush,
                     useExecutor);
         }
 
@@ -171,11 +171,11 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         @Override
         public CompletableFuture<?> complete() {
             return work.complete().thenCompose(ignored -> CompletableFuture.allOf(
-                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new)));
+                    nexts.stream().map(Dispatch::complete).toArray(CompletableFuture[]::new)));
         }
     }
 
-    protected class SyncDispatch<P, T> extends BaseDispatch<P, T> {
+    protected static class SyncDispatch<P, T> extends BaseDispatch<P, T> {
 
         protected SyncDispatch(Internal.Onwards<P, T> tos, String name) {
             super(tos, name);
@@ -190,7 +190,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         public CompletableFuture<?> complete() {
             tos.flush();
             return CompletableFuture.allOf(
-                    nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+                    nexts.stream().map(Dispatch::complete).toArray(CompletableFuture[]::new));
         }
     }
 
@@ -244,7 +244,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
             return next -> {
 
-                Dispatch<T> onwards = new Dispatch<T>() {
+                Dispatch<T> onwards = new Dispatch<>() {
                     @Override
                     public void accept(T t) {
                         next.accept(t);
@@ -258,7 +258,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
                 Dispatch<I> start = linkForward(onwards);
 
-                return new Pipe<I>() {
+                return new Pipe<>() {
                     @Override
                     public void accept(I data) {
                         start.accept(data);
@@ -277,7 +277,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         public Processor<I, T> create() {
             final AtomicReference<T> result = new AtomicReference<>();
 
-            Dispatch<T> pipe = new Dispatch<T>() {
+            Dispatch<T> pipe = new Dispatch<>() {
                 @Override
                 public void accept(T data) {
                     result.set(data);
@@ -291,7 +291,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
 
             Dispatch<I> start = linkForward(pipe);
 
-            return new Processor<I, T>() {
+            return new Processor<>() {
                 @Override
                 public T complete() {
                     CompletableFuture<?> cf = start.complete();
@@ -336,6 +336,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
             nexts.add(next);
         }
 
+        @SuppressWarnings("unchecked")
         protected Dispatch<I> maybeInitialise(Set<Connector<I, T>> joins ) {
 
             if (previous != null) {
@@ -366,7 +367,7 @@ public class AsyncPipeline<F> implements Pipeline<F> {
         public CompletableFuture<?> complete() {
             if (count.decrementAndGet() == 0) {
                 return CompletableFuture.allOf(
-                        nexts.stream().map(next -> next.complete()).toArray(CompletableFuture[]::new));
+                        nexts.stream().map(Dispatch::complete).toArray(CompletableFuture[]::new));
             }
             else {
                 return CompletableFuture.completedFuture(null);

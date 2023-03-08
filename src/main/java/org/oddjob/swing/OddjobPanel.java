@@ -418,7 +418,7 @@ public class OddjobPanel extends SimpleService
     static class FrameWithStatus extends JFrame {
         private static final long serialVersionUID = 2012092800L;
 
-        private final JLabel status = new JLabel(Version.getCurrentFullBuildMessage());
+        private final JLabel status = new JLabel(Version.current().toString());
 
         public FrameWithStatus() {
             Container container = getContentPane();

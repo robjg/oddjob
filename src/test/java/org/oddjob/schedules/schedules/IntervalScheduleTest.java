@@ -4,23 +4,17 @@
 package org.oddjob.schedules.schedules;
 
 import org.junit.Test;
-
-import java.text.ParseException;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.OddjobDescriptorFactory;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.standard.StandardFragmentParser;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
-import org.oddjob.schedules.Interval;
-import org.oddjob.schedules.IntervalTo;
-import org.oddjob.schedules.Schedule;
-import org.oddjob.schedules.ScheduleContext;
-import org.oddjob.schedules.ScheduleRoller;
+import org.oddjob.schedules.*;
 import org.oddjob.schedules.units.DayOfWeek;
+
+import java.text.ParseException;
 
 public class IntervalScheduleTest extends OjTestCase {
 
@@ -248,7 +242,7 @@ public class IntervalScheduleTest extends OjTestCase {
 		date.setRefinement(test);
 
 		ScheduleContext scheduleContext = new ScheduleContext(
-				DateHelper.parseDateTime("2009-03-03 11:17:04:999"));
+				DateHelper.parseDateTime("2009-03-03 11:17:04.999"));
 		
 		IntervalTo expected = new IntervalTo(
 				DateHelper.parseDateTime("2009-03-03 11:17:00"),

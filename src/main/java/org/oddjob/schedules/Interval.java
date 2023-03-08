@@ -14,10 +14,10 @@ import java.util.Date;
 public interface Interval {
 
     /** The end of time. 31st December 9999 GMT */
-    public static final Date END_OF_TIME = new Date(253402214400000L);
+	Date END_OF_TIME = new Date(253402214400000L);
     
     /** The start of time. 1st January -9999 GMT */
-    public static final Date START_OF_TIME = new Date(-377711769600000L);
+	Date START_OF_TIME = new Date(-377711769600000L);
     
     
     /**
@@ -26,7 +26,7 @@ public interface Interval {
      * @return A date. Never null and always less than or equal to the 
      * to date.
      */
-	public Date getFromDate();
+	Date getFromDate();
 	
 	/**
 	 * The date the interval is up to but excluding.
@@ -34,5 +34,5 @@ public interface Interval {
 	 * @return A date. Never null and always greater than or equal to the 
 	 * from date.
 	 */
-	public Date getToDate();
+	Date getToDate();
 }

@@ -21,7 +21,6 @@ import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Exchanger;
@@ -124,7 +123,7 @@ public class TimerStopTest extends OjTestCase {
         test.setJob(job);
 
         StateSteps jobState = new StateSteps(job);
-		jobState.startCheck(JobState.READY, JobState.EXECUTING);
+        jobState.startCheck(JobState.READY, JobState.EXECUTING);
 
         test.run();
 
@@ -220,12 +219,11 @@ public class TimerStopTest extends OjTestCase {
      * Tracking down a bug with MissedSkipped when stop and started in
      * the current interval re-runs the current interval.
      *
-     * @throws ParseException
      * @throws FailedToStopException
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
     @Test
-    public void testStopBetweenScheduleWithSkippedRuns() throws ParseException, FailedToStopException {
+    public void testStopBetweenScheduleWithSkippedRuns() throws FailedToStopException {
 
         final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
 
@@ -259,7 +257,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-01-24 00:00"),
                         DateHelper.parseDateTime("2012-01-25 00:00")));
 
-        assertEquals(new Long(0), delay.getLastValue());
+        assertEquals(Long.valueOf(0), delay.getLastValue());
         assertEquals(expectedCurrent1, test.getCurrent());
 
         runnable.getLastValue().run();
@@ -270,7 +268,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-01-26 00:00")));
 
         assertEquals(expectedCurrent2, test.getCurrent());
-        assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
+        assertEquals(Long.valueOf(23 * 60 * 60 * 1000L), delay.getLastValue());
 
         test.stop();
 
@@ -281,7 +279,7 @@ public class TimerStopTest extends OjTestCase {
         assertEquals(TimerState.STARTED, test.lastStateEvent().getState());
 
         assertEquals(expectedCurrent2, test.getCurrent());
-        assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
+        assertEquals(Long.valueOf(23 * 60 * 60 * 1000L), delay.getLastValue());
 
         test.stop();
 
@@ -300,7 +298,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-01-28 00:00"),
                         DateHelper.parseDateTime("2012-01-29 00:00")));
 
-        assertEquals(new Long(0), delay.getLastValue());
+        assertEquals(Long.valueOf(0), delay.getLastValue());
         assertEquals(expectedCurrent3, test.getCurrent());
 
         runnable.getLastValue().run();
@@ -311,7 +309,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-01-30 00:00")));
 
         assertEquals(expectedCurrent4, test.getCurrent());
-        assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
+        assertEquals(Long.valueOf(23 * 60 * 60 * 1000L), delay.getLastValue());
 
         test.stop();
 
@@ -323,13 +321,12 @@ public class TimerStopTest extends OjTestCase {
      * This is what happens when a Retry or an unfinished sequential
      * is stopped.
      *
-     * @throws ParseException
      * @throws FailedToStopException
      * @throws InterruptedException
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     @Test
-    public void testWhenScheduledChildGoesToReady() throws ParseException, FailedToStopException {
+    public void testWhenScheduledChildGoesToReady() throws FailedToStopException {
 
         final ScheduledFuture<?> future = Mockito.mock(ScheduledFuture.class);
 
@@ -369,7 +366,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-07-11 00:00"),
                         DateHelper.parseDateTime("2012-07-12 00:00")));
 
-        assertEquals(new Long(0), delay.getLastValue());
+        assertEquals(Long.valueOf(0), delay.getLastValue());
         assertEquals(expectedCurrent1, test.getCurrent());
 
         runnable.getLastValue().run();
@@ -396,7 +393,7 @@ public class TimerStopTest extends OjTestCase {
                         DateHelper.parseDateTime("2012-07-13 00:00")));
 
         assertEquals(expectedCurrent2, test.getCurrent());
-        assertEquals(new Long(23 * 60 * 60 * 1000L), delay.getLastValue());
+        assertEquals(Long.valueOf(23 * 60 * 60 * 1000L), delay.getLastValue());
 
         test.stop();
 

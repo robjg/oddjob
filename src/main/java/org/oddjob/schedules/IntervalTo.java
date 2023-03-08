@@ -1,8 +1,8 @@
 package org.oddjob.schedules;
 
-import java.util.Date;
-
 import org.oddjob.arooa.utils.DateHelper;
+
+import java.util.Date;
 
 /**
  * An Interval that extends to, but does not include the to date.
@@ -70,7 +70,7 @@ public class IntervalTo extends IntervalBase implements ScheduleResult {
 	 * <li>Disjointed - null</li>
 	 * </ul>
 	 * 
-	 * @param other The other interval. may be null.
+	 * @param limit The other interval. may be null.
 	 * @return The new interval.
 	 */
 
@@ -142,12 +142,12 @@ public class IntervalTo extends IntervalBase implements ScheduleResult {
 
 		if (getFromDate().equals(getEndDate())) {
 			return "at " + 
-				DateHelper.formatDateTimeInteligently(getFromDate());
+				DateHelper.formatDateTimeIntelligently(getFromDate());
 		}
 		else {
-			return DateHelper.formatDateTimeInteligently(getFromDate()) + 
+			return DateHelper.formatDateTimeIntelligently(getFromDate()) +
 				" up to " + 
-				DateHelper.formatDateTimeInteligently(getToDate());	
+				DateHelper.formatDateTimeIntelligently(getToDate());
 		}		
 	}
 	

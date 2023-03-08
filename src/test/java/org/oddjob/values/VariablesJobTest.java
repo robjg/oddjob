@@ -2,28 +2,16 @@
  * Copyright (c) 2005, Rob Gordon.
  */
 package org.oddjob.values;
-import org.junit.Before;
-
-import org.junit.Test;
-
-import java.util.Map;
-
-import org.oddjob.OjTestCase;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Before;
+import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobDescriptorFactory;
 import org.oddjob.OddjobLookup;
-import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.ConfiguredHow;
-import org.oddjob.arooa.ElementMappings;
+import org.oddjob.OjTestCase;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.beandocs.MappingsContents;
 import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -45,296 +33,301 @@ import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * Test for Variables Job.
- * 
+ *
  * @author Rob Gordon.
  */
 public class VariablesJobTest extends OjTestCase {
-	private static final Logger logger = LoggerFactory.getLogger(VariablesJobTest.class);
-   @Before
-   public void setUp() {
-		logger.debug("-------------- " + getName() + " -------------");
-	}
-	
-	// test set and get
-   @Test
-	public void testSimple() throws Exception {
-		ValueType vt = new ValueType();
-		vt.setValue(new ArooaObject("fred"));
-		
-		VariablesJob test = new VariablesJob();
-		
-		PropertyUtils.setProperty(test, "test", vt);
-		//try to cause concurrent modification exception on reset.
-		PropertyUtils.setProperty(test, "another", vt); 
-		
-		ArooaValue result = (ArooaValue) PropertyUtils.getProperty(test, "test");
-		
-		assertNotNull(result);
-		
-		Map<String, String> description = new UniversalDescriber(
-				new StandardArooaSession()).describe(test);
-		assertTrue(description.containsKey("test"));
-		
-    	ArooaDescriptor descriptor = new OddjobDescriptorFactory(
-			).createDescriptor(null);
-    	
-		ArooaSession session = new StandardArooaSession(
-				descriptor);
-		
-		ArooaConverter converter = session.getTools().getArooaConverter();
-		
-		assertEquals("fred", converter.convert(result, Object.class));
-		
-		assertTrue(test.hardReset());
-		
-		assertNull(PropertyUtils.getProperty(test, "test"));
-		
-		description = new UniversalDescriber(
-				new StandardArooaSession()).describe(test);
-		assertFalse(description.containsKey("test"));
-	}
-	
-	/**
-	 *  test the type property when setting a variables job.
-	 */
-   @Test
-	public void testTypesForSetting() {
-		
-		ArooaDescriptor descriptor = new VariablesJobDescriptorFactory(
-				).createDescriptor(null);
+    private static final Logger logger = LoggerFactory.getLogger(VariablesJobTest.class);
 
-		InstantiationContext instantiationContext = 
-			new InstantiationContext(ArooaType.COMPONENT, null);
-		
-		ArooaClass arooaClass = descriptor.getElementMappings(
-				).mappingFor(new ArooaElement("variables"), 
-						instantiationContext);
-		
-		VariablesJob vj = (VariablesJob) arooaClass.newInstance();
-		
-		vj.set("fruit", new ValueType());
+    @Before
+    public void setUp() {
+        logger.debug("-------------- " + getName() + " -------------");
+    }
 
-		PropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
+    // test set and get
+    @Test
+    public void testSimple() throws Exception {
+        ValueType vt = new ValueType();
+        vt.setValue(new ArooaObject("fred"));
 
-		BeanOverview beanOverview = arooaClass.getBeanOverview(
-				propertyAccessor);
-		
-		// set or unset - they're all ArooaValues.
-		assertEquals(ArooaValue.class, 
-				beanOverview.getPropertyType("fruit"));
-		assertEquals(ArooaValue.class, 
-				beanOverview.getPropertyType("vegtables"));		
-	}	
-	
-	public static class SessionCapture implements ArooaSessionAware {
-	
-		ArooaSession arooaSession;
-		
-		public void setArooaSession(ArooaSession session) {
-			this.arooaSession = session;
-		}
-		
-		public ArooaSession getArooaSession() {
-			return arooaSession;
-		}
-	}
-	
-   @Test
-	public void testArooaDescriptor() throws ArooaConversionException {
+        VariablesJob test = new VariablesJob();
 
-		String xml = 
-			"<oddjob>" +
-			" <job>" +
-			"  <bean id='sc' class='" + SessionCapture.class.getName() + "'/>" +
-			" </job>" +
-			"</oddjob>";
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setConfiguration(new XMLConfiguration("XML", xml));
-		oddjob.run();
-		
-		ArooaSession session = new OddjobLookup(
-				oddjob).lookup("sc.arooaSession", ArooaSession.class);
+        PropertyUtils.setProperty(test, "test", vt);
+        //try to cause concurrent modification exception on reset.
+        PropertyUtils.setProperty(test, "another", vt);
 
-		InstantiationContext instantiationContext = 
-			new InstantiationContext(ArooaType.COMPONENT, null);
-		
-		ArooaClass classId = session.getArooaDescriptor().getElementMappings(
-				).mappingFor(
-						VariablesJobDescriptorFactory.VARIABLES, 
-						instantiationContext);
-		
-		// Maybe these should be the same.
+        ArooaValue result = (ArooaValue) PropertyUtils.getProperty(test, "test");
+
+        assertNotNull(result);
+
+        Map<String, String> description = new UniversalDescriber(
+                new StandardArooaSession()).describe(test);
+        assertTrue(description.containsKey("test"));
+
+        ArooaDescriptor descriptor = new OddjobDescriptorFactory(
+        ).createDescriptor(null);
+
+        ArooaSession session = new StandardArooaSession(
+                descriptor);
+
+        ArooaConverter converter = session.getTools().getArooaConverter();
+
+        assertEquals("fred", converter.convert(result, Object.class));
+
+        assertTrue(test.hardReset());
+
+        assertNull(PropertyUtils.getProperty(test, "test"));
+
+        description = new UniversalDescriber(
+                new StandardArooaSession()).describe(test);
+        assertFalse(description.containsKey("test"));
+    }
+
+    /**
+     * test the type property when setting a variables job.
+     */
+    @Test
+    public void testTypesForSetting() {
+
+        ArooaDescriptor descriptor = new VariablesJobDescriptorFactory(
+        ).createDescriptor(null);
+
+        InstantiationContext instantiationContext =
+                new InstantiationContext(ArooaType.COMPONENT, null);
+
+        ArooaClass arooaClass = descriptor.getElementMappings(
+        ).mappingFor(new ArooaElement("variables"),
+                instantiationContext);
+
+        VariablesJob vj = (VariablesJob) arooaClass.newInstance();
+
+        vj.set("fruit", new ValueType());
+
+        PropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
+
+        BeanOverview beanOverview = arooaClass.getBeanOverview(
+                propertyAccessor);
+
+        // set or unset - they're all ArooaValues.
+        assertEquals(ArooaValue.class,
+                beanOverview.getPropertyType("fruit"));
+        assertEquals(ArooaValue.class,
+                beanOverview.getPropertyType("vegtables"));
+    }
+
+    public static class SessionCapture implements ArooaSessionAware {
+
+        ArooaSession arooaSession;
+
+        public void setArooaSession(ArooaSession session) {
+            this.arooaSession = session;
+        }
+
+        public ArooaSession getArooaSession() {
+            return arooaSession;
+        }
+    }
+
+    @Test
+    public void testArooaDescriptor() throws ArooaConversionException {
+
+        String xml =
+                "<oddjob>" +
+                        " <job>" +
+                        "  <bean id='sc' class='" + SessionCapture.class.getName() + "'/>" +
+                        " </job>" +
+                        "</oddjob>";
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+        oddjob.run();
+
+        ArooaSession session = new OddjobLookup(
+                oddjob).lookup("sc.arooaSession", ArooaSession.class);
+
+        InstantiationContext instantiationContext =
+                new InstantiationContext(ArooaType.COMPONENT, null);
+
+        ArooaClass classId = session.getArooaDescriptor().getElementMappings(
+        ).mappingFor(
+                VariablesJobDescriptorFactory.VARIABLES,
+                instantiationContext);
+
+        // Maybe these should be the same.
 //		ArooaClass classId session.getTools().getPropertyAccessor().getClassName(
 //				new VariablesJob());
-		
-		ArooaBeanDescriptor beanDescriptor = 
-			session.getArooaDescriptor().getBeanDescriptor(classId,
-					session.getTools().getPropertyAccessor());
 
-		assertEquals(ConfiguredHow.ELEMENT, 
-				beanDescriptor.getConfiguredHow("apples"));
-		
-		assertEquals(ConfiguredHow.ATTRIBUTE, 
-				beanDescriptor.getConfiguredHow("id"));
-		
-		Object instance = classId.newInstance();
-		
-		assertEquals(VariablesJob.class, instance.getClass());
-	}
-	
-   @Test
-	public void testDescriptorBeanDoc() {
-		
-		VariablesJobDescriptorFactory test = 
-			new VariablesJobDescriptorFactory();
-		
-		ArooaDescriptor descriptor = test.createDescriptor(
-				getClass().getClassLoader());
-		
-		ElementMappings mappings = descriptor.getElementMappings();
-		
-		MappingsContents contents = mappings.getBeanDoc(ArooaType.COMPONENT);
-		
-		ArooaElement[] elements  = contents.allElements();
-		assertEquals(1, elements.length);
-		
-		assertEquals(VariablesJobDescriptorFactory.VARIABLES,
-				elements[0]);
-		
-		ArooaClass arooaClass = contents.documentClass(elements[0]);
-		
-		BeanOverview overview = arooaClass.getBeanOverview(new BeanUtilsPropertyAccessor());
+        ArooaBeanDescriptor beanDescriptor =
+                session.getArooaDescriptor().getBeanDescriptor(classId,
+                        session.getTools().getPropertyAccessor());
 
-		String[] properties = overview.getProperties();
-		
-		assertEquals(0, properties.length);
-	}
-	
-	/**
-	 * Check getting the values back with bean methods.
-	 */
-   @Test
-	public void testGetValues() throws Exception {
-		PropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
-		
-		// create 
-		SimpleBeanRegistry cr = new SimpleBeanRegistry();
+        assertEquals(ConfiguredHow.ELEMENT,
+                beanDescriptor.getConfiguredHow("apples"));
 
-		VariablesJob j = new VariablesJob();
-		cr.register("myj", j);
-		
-		propertyAccessor.setSimpleProperty(j, "test", new Boolean(true));		
-		propertyAccessor.setSimpleProperty(j, "next", new Short((short) 1234));
-		
-		Object o1 = cr.lookup("myj.test");
-		Object r1 = new DefaultConverter().convert(
-				o1, Boolean.TYPE);
-		assertEquals(Boolean.class, r1.getClass());
-		assertEquals(new Boolean(true), r1);
+        assertEquals(ConfiguredHow.ATTRIBUTE,
+                beanDescriptor.getConfiguredHow("id"));
 
-		Object o2 = cr.lookup("myj.next");
-		Object r2 = new DefaultConverter().convert(
-				o2, Short.TYPE);
-		assertEquals(Short.class, r2.getClass());
-		assertEquals(new Short((short) 1234), r2);
-	}
-	
-   @Test
-	public void testNullValue() throws Exception {
-		String xml=
-			"<oddjob>" +
-			" <job>" +
-			"  <variables id='v'>" +
-			"    <rubbish>" +
-			"      <value value='${nosuchid}'/>" +
-			"    </rubbish>" +
-			"  </variables>" +
-			" </job>" +
-			"</oddjob>";
-		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		oj.run();
-		
-		DynaBean b = (DynaBean) new OddjobLookup(oj).lookup("v");
-		assertNotNull(b);		
-		
-		ValueType result = (ValueType) b.get("rubbish");
-		
-		assertNotNull(result);
-		assertNull(result.getValue());
-				
-	}
+        Object instance = classId.newInstance();
 
-   @Test
-	public void testSelfUse() throws Exception {
-			
-		String xml = 
-			"<oddjob>" +
-			" <job>" +
-			"  <variables id='v'>" +
-			"   <today>" +
-			"  	 <date date='2005-12-25' timeZone='GMT'/>" +
-			"   </today>" +
-			"   <yyyymmdd_today>" +
-			"    <format date='${v.today}' format='yyyyMMdd'/>" +
-			"   </yyyymmdd_today>" +
-			"  </variables>" +
-			" </job>" +
-			"</oddjob>";
-		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("XML", xml));
-		oj.run();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
-		
-		assertEquals("20051225", 
-				new OddjobLookup(oj).lookup(
-						"v.yyyymmdd_today", String.class));
-		
-		oj.destroy();
-	}
+        assertEquals(VariablesJob.class, instance.getClass());
+    }
 
-	
-   @Test
+    @Test
+    public void testDescriptorBeanDoc() {
+
+        VariablesJobDescriptorFactory test =
+                new VariablesJobDescriptorFactory();
+
+        ArooaDescriptor descriptor = test.createDescriptor(
+                getClass().getClassLoader());
+
+        ElementMappings mappings = descriptor.getElementMappings();
+
+        MappingsContents contents = mappings.getBeanDoc(ArooaType.COMPONENT);
+
+        ArooaElement[] elements = contents.allElements();
+        assertEquals(1, elements.length);
+
+        assertEquals(VariablesJobDescriptorFactory.VARIABLES,
+                elements[0]);
+
+        ArooaClass arooaClass = contents.documentClass(elements[0]);
+
+        BeanOverview overview = arooaClass.getBeanOverview(new BeanUtilsPropertyAccessor());
+
+        String[] properties = overview.getProperties();
+
+        assertEquals(0, properties.length);
+    }
+
+    /**
+     * Check getting the values back with bean methods.
+     */
+    @Test
+    public void testGetValues() throws Exception {
+        PropertyAccessor propertyAccessor = new BeanUtilsPropertyAccessor();
+
+        // create
+        SimpleBeanRegistry cr = new SimpleBeanRegistry();
+
+        VariablesJob j = new VariablesJob();
+        cr.register("myj", j);
+
+        propertyAccessor.setSimpleProperty(j, "test", Boolean.TRUE);
+        propertyAccessor.setSimpleProperty(j, "next", (short) 1234);
+
+        Object o1 = cr.lookup("myj.test");
+        Object r1 = new DefaultConverter().convert(
+                o1, Boolean.TYPE);
+        assertEquals(Boolean.class, r1.getClass());
+        assertEquals(Boolean.TRUE, r1);
+
+        Object o2 = cr.lookup("myj.next");
+        Object r2 = new DefaultConverter().convert(
+                o2, Short.TYPE);
+        assertEquals(Short.class, r2.getClass());
+        assertEquals((short) 1234, r2);
+    }
+
+    @Test
+    public void testNullValue() {
+        String xml =
+                "<oddjob>" +
+                        " <job>" +
+                        "  <variables id='v'>" +
+                        "    <rubbish>" +
+                        "      <value value='${nosuchid}'/>" +
+                        "    </rubbish>" +
+                        "  </variables>" +
+                        " </job>" +
+                        "</oddjob>";
+
+        Oddjob oj = new Oddjob();
+        oj.setConfiguration(new XMLConfiguration("TEST", xml));
+        oj.run();
+
+        DynaBean b = (DynaBean) new OddjobLookup(oj).lookup("v");
+        assertNotNull(b);
+
+        ValueType result = (ValueType) b.get("rubbish");
+
+        assertNotNull(result);
+        assertNull(result.getValue());
+
+    }
+
+    @Test
+    public void testSelfUse() throws Exception {
+
+        String xml =
+                "<oddjob>" +
+                        " <job>" +
+                        "  <variables id='v'>" +
+                        "   <today>" +
+                        "  	 <date date='2005-12-25' timeZone='GMT'/>" +
+                        "   </today>" +
+                        "   <yyyymmdd_today>" +
+                        "    <format date='${v.today}' format='yyyyMMdd'/>" +
+                        "   </yyyymmdd_today>" +
+                        "  </variables>" +
+                        " </job>" +
+                        "</oddjob>";
+
+        Oddjob oj = new Oddjob();
+        oj.setConfiguration(new XMLConfiguration("XML", xml));
+        oj.run();
+
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+
+        assertEquals("20051225",
+                new OddjobLookup(oj).lookup(
+                        "v.yyyymmdd_today", String.class));
+
+        oj.destroy();
+    }
+
+
+    @Test
     public void testInOddjob() {
         Oddjob oj = new Oddjob();
         oj.setConfiguration(new XMLConfiguration("Resource",
-        		getClass().getResourceAsStream("variables-test.xml")));
+                getClass().getResourceAsStream("variables-test.xml")));
         oj.run();
-        
+
         CheckBasicSetters check = (CheckBasicSetters) new OddjobLookup(
-        		oj).lookup("check");
-        
+                oj).lookup("check");
+
         assertEquals("Job state", JobState.COMPLETE, OddjobTestHelper.getJobState(check));
     }
-    
-   @Test
+
+    @Test
     public void testExample() {
-    	
-    	Oddjob oddjob = new Oddjob();
-    	oddjob.setConfiguration(new XMLConfiguration(
-    			"org/oddjob/values/VariablesExample.xml",
-    			getClass().getClassLoader()));
-    	
-    	ConsoleCapture console = new ConsoleCapture();
-    	try (ConsoleCapture.Close close = console.captureConsole()) {
-        	
-        	oddjob.run();
-    	}
-    	
-    	console.dump(logger);
-    	
-    	String[] lines = console.getLines();
-    	
-    	assertEquals("Hello World", lines[0].trim());    	
-    	assertEquals(1, lines.length);
-    	
-    	oddjob.destroy();
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration(
+                "org/oddjob/values/VariablesExample.xml",
+                getClass().getClassLoader()));
+
+        ConsoleCapture console = new ConsoleCapture();
+        try (ConsoleCapture.Close close = console.captureConsole()) {
+
+            oddjob.run();
+        }
+
+        console.dump(logger);
+
+        String[] lines = console.getLines();
+
+        assertEquals("Hello World", lines[0].trim());
+        assertEquals(1, lines.length);
+
+        oddjob.destroy();
     }
 }

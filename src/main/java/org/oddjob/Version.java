@@ -1,12 +1,17 @@
 package org.oddjob;
 
-import java.text.ParseException;
-import java.util.Date;
+import org.oddjob.arooa.ArooaConstants;
+import org.oddjob.arooa.utils.DateTimeHelper;
+
+import java.io.IOException;
+import java.net.URL;
+import java.time.Instant;
+import java.util.Enumeration;
+import java.util.Objects;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.oddjob.arooa.ArooaConstants;
-import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * Oddjob's version. Comparison and Equality are only based on the 
@@ -17,16 +22,16 @@ import org.oddjob.arooa.utils.DateHelper;
  */
 public class Version implements Comparable<Version>{
 
-    /** Oddjob version. Set by Ant during build. */
-	private static final String VERSION = "@version@";
-	
-    /** Build date. Set by Ant during build. */
-	private static final String DATE = "@date@";
-	
+
 	private static final Version current;
 	
 	static {
-		Version version = versionFor(VERSION, DATE);
+		Version version;
+		try {
+			version = versionFromManifest();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 		if (version == null) {
 			current = new Version(0, 0, 0);
 		}
@@ -43,7 +48,7 @@ public class Version implements Comparable<Version>{
 	
 	private final boolean snapshot;
 	
-	private final Date buildDate;
+	private final Instant buildDate;
 	
 	private final String versionAsText;
 	
@@ -69,18 +74,17 @@ public class Version implements Comparable<Version>{
 	 * @param buildDate
 	 */
 	public Version(int major, int minor, int patch,
-			boolean snapshot, Date buildDate) {
+			boolean snapshot, Instant buildDate) {
 		
 		this.major = major;
 		this.minor = minor;
 		this.patch = patch;
 		this.snapshot = snapshot;
 		this.buildDate = buildDate;
-		
-		this.versionAsText =  "" + major + "." + minor + "." + patch + 
-			(snapshot ? "-SNAPSHOT" : "") +
-			(buildDate == null ? "" : " " + 
-					DateHelper.formatDateTimeInteligently(buildDate));
+
+		this.versionAsText = "" + major + "." + minor + "." + patch +
+				(snapshot ? "-SNAPSHOT" : "") +
+				(buildDate == null ? "" : " " + buildDate);
 	}
 	
 	/**
@@ -123,25 +127,22 @@ public class Version implements Comparable<Version>{
 	 * 
 	 * @return A date or null.
 	 */
-	public Date getBuildDate() {
+	public Instant getBuildDate() {
 		return buildDate;
 	}
 	
 	@Override
 	public int compareTo(Version o) {
-		int comparison = new Integer(this.major).compareTo(
-				new Integer(o.major));
+		int comparison = Integer.compare(this.major, o.major);
 		if (comparison == 0) {
 			return 0;
 		}
-		comparison = new Integer(this.minor).compareTo(
-				new Integer(o.minor));
+		comparison = Integer.compare(this.minor, o.minor);
 		if (comparison == 0) {
 			return 0;
 		}
 
-		return new Integer(this.patch).compareTo(
-				new Integer(o.patch));
+		return Integer.compare(this.patch, o.patch);
 	}
 	
 	@Override
@@ -206,31 +207,48 @@ public class Version implements Comparable<Version>{
 		int patch = Integer.parseInt(matcher.group(3));
 		boolean snapshot = matcher.group(4) != null;
 
-		Date buildDate = null;
-		if (date != null) {
-			try {
-				buildDate = DateHelper.parseDateTime(date);
-			} catch (ParseException e) {
-				// ignore
-			}
-		}		
-		
+		Instant buildDate = date == null ? null : DateTimeHelper.parseDateTime(date);
+
 		return new Version(major, minor, patch, snapshot, buildDate);
 	}
-	
-	public static String getCurrentVersionText() {
-		return VERSION;
+
+	public static Version versionFromManifest() throws IOException {
+		Manifest manifest = manifestFor(Version.class);
+		if (manifest == null) {
+			return null;
+		}
+		else {
+			Manifest mf = Objects.requireNonNull(
+					Version.manifestFor(Version.class), "Failed to Load Manifest for Version");
+			Attributes attributes = mf.getMainAttributes();
+			String version = attributes.getValue("Implementation-Version");
+			if (version == null) {
+				return null;
+			}
+			String buildTime = Objects.requireNonNullElse(
+					attributes.getValue("Build-Time"), "Build Time Unknown");
+
+			return Version.versionFor(version, buildTime);
+		}
 	}
-	
-	public static String getCurrentVersionAndBuildDate() {
-		return VERSION + " " + DATE;
+
+	public static Manifest manifestFor(Class<?> aClass) throws IOException {
+
+		String location = aClass.getProtectionDomain().getCodeSource().getLocation().toString();
+
+		Enumeration<URL> manifests = aClass.getClassLoader().getResources("META-INF/MANIFEST.MF");
+		while (manifests.hasMoreElements()) {
+			URL url = manifests.nextElement();
+			if (url.toString().startsWith(location)) {
+				return new Manifest(url.openStream());
+			}
+		}
+
+		return null;
 	}
-	
-	public static String getCurrentFullBuildMessage() {
-		return "Oddjob " + VERSION + " built" + DATE;
-	}
-	
-	public static void main(Object... args) {
-		System.out.println(getCurrentFullBuildMessage());
+
+
+	public static void main(String... args) {
+		System.out.println(current.toString());
 	}
 }

@@ -120,12 +120,12 @@ public class SQLScriptJobTest extends OjTestCase {
 
         test.run();
 
-        assertEquals(new Long(10), PropertyUtils.getProperty(
+        assertEquals(10L, PropertyUtils.getProperty(
                 test, "results.row.count"));
     }
 
     @Test
-    public void testSqlResultsSheet() throws Exception {
+    public void testSqlResultsSheet() {
 
         StdoutType out = new StdoutType();
 

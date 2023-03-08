@@ -47,10 +47,10 @@ public class TriggerTest extends OjTestCase {
         logger.debug("----------------- " + getName() + " -------------");
     }
 
-    private class OurDependant extends SimpleJob {
+    private static class OurDependant extends SimpleJob {
         private StateListener listenerCheck;
 
-        private JobState state;
+        private final JobState state;
 
         public OurDependant() {
             this(JobState.COMPLETE);
@@ -93,7 +93,7 @@ public class TriggerTest extends OjTestCase {
         }
     }
 
-    private class OurJob extends SimpleJob {
+    private static class OurJob extends SimpleJob {
         private StateListener listenerCheck;
 
         AtomicInteger ran = new AtomicInteger();
@@ -330,7 +330,7 @@ public class TriggerTest extends OjTestCase {
         testStates.checkNow();
     }
 
-    private class OurOddjobServices extends MockScheduledExecutorService {
+    private static class OurOddjobServices extends MockScheduledExecutorService {
 
         public Future<?> submit(Runnable runnable) {
             runnable.run();
@@ -339,9 +339,7 @@ public class TriggerTest extends OjTestCase {
         }
     }
 
-    ;
-
-    private class SerializeSession extends MockArooaSession {
+    private static class SerializeSession extends MockArooaSession {
 
         Object saved;
 
@@ -392,7 +390,7 @@ public class TriggerTest extends OjTestCase {
 
         assertEquals(test, session.saved);
 
-        Trigger copy = (Trigger) OddjobTestHelper.copy(test);
+        Trigger copy = OddjobTestHelper.copy(test);
 
         assertEquals(TimerState.COMPLETE, copy.lastStateEvent().getState());
 
@@ -461,7 +459,7 @@ public class TriggerTest extends OjTestCase {
 
         testStates.checkWait();
 
-        assertEquals(new Integer(1), sequence.getCurrent());
+        assertEquals(Integer.valueOf(1), sequence.getCurrent());
 
         assertEquals(TimerState.COMPLETE, test.lastStateEvent().getState());
 
@@ -488,13 +486,13 @@ public class TriggerTest extends OjTestCase {
 
         testStates.checkWait();
 
-        assertEquals(new Integer(2), sequence.getCurrent());
+        assertEquals(Integer.valueOf(2), sequence.getCurrent());
 
         assertEquals(TimerState.COMPLETE, test.lastStateEvent().getState());
     }
 
     @Test
-    public void testNoChild() throws Exception {
+    public void testNoChild() {
 
         FlagState on = new FlagState();
         on.setState(JobState.INCOMPLETE);
@@ -581,7 +579,7 @@ public class TriggerTest extends OjTestCase {
     }
 
     @Test
-    public void testCuttingTriggerJob() throws InterruptedException, ArooaParseException {
+    public void testCuttingTriggerJob() throws ArooaParseException {
 
         String xml =
                 "<oddjob xmlns:si='http://rgordon.co.uk/oddjob/scheduling'" +

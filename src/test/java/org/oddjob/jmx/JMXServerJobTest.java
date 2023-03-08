@@ -31,465 +31,487 @@ import javax.management.remote.JMXServiceURL;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  *
  */
 public class JMXServerJobTest extends OjTestCase {
-	private static final Logger logger = LoggerFactory.getLogger(JMXServerJobTest.class);
-	
-	int unique;
-	
-	OddjobConsole.Close close;
-	
-	Map<Object, String> ids = new HashMap<>();
-	
-   @Before
-   public void setUp() {
-		logger.debug("================= " + getName() + " ==================");
-		close = OddjobConsole.initialise();
-	}
-	
-   @After
-   public void tearDown() {
+    private static final Logger logger = LoggerFactory.getLogger(JMXServerJobTest.class);
 
-		close.close();
-	}
-	
-	private class OurEmptyRegistrySession extends StandardArooaSession {
+    int unique;
 
-		@Override
-		public BeanRegistry getBeanRegistry() {
-			return new MockBeanRegistry() {
-				@Override
-				public String getIdFor(Object component) {
-					assertNotNull(component);
-					String id = ids.get(component);
-					if (id == null) {
-						id = "x" + unique++;
-						ids.put(component, id);
-					}
-					return id;
-				}
-			};
-		}
-		
-	} 
-	
-   @Test
-	public void testServerMBeans() throws Exception {
-		
-		Object root = new Object() {
-			public String toString() {
-				return "test";
-			}
-		};
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(root);
-		server.setArooaSession(new StandardArooaSession());
-		server.setUrl("service:jmx:rmi://");
-		
-		server.start();
+    OddjobConsole.Close close;
 
-		JMXServiceURL address = new JMXServiceURL(server.getAddress());
+    Map<Object, String> ids = new HashMap<>();
 
-		JMXConnector cntor = JMXConnectorFactory.connect(address);
+    @Before
+    public void setUp() {
+        logger.debug("================= " + getName() + " ==================");
+        close = OddjobConsole.initialise();
+    }
 
-		MBeanServerConnection mBeanServer = cntor.getMBeanServerConnection();
+    @After
+    public void tearDown() {
 
-		assertEquals(new Integer(3), mBeanServer.getMBeanCount());
-		
-		cntor.close();
-		
-		server.stop();
-		
-	}
-	
-	/** Test the Server job starts runs OK. */
-   @Test
-	public void testRun() throws Exception {
-		Object root = new Object() {
-			public String toString() {
-				return "test";
-			}
-		};
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(root);
-		server.setArooaSession(new StandardArooaSession());
-		server.setUrl("service:jmx:rmi://");
-		
-		server.start();
-		
-		JMXClientJob client = new JMXClientJob();
-		client.setConnection(server.getAddress());
-		client.setArooaSession(new StandardArooaSession());
-	
-		client.run();
-		
-		Object[] children = OddjobTestHelper.getChildren(client);
-		
-		assertEquals(1, children.length);
-		assertEquals("test", children[0].toString()); 
-		
-		client.stop();
-		
-		server.stop();
-	}
-	
-	public static class Component {
-		public String getFruit() {
-			return "apples";
-		}
-	}
-	
-	private static class OurSession extends StandardArooaSession {
-		SimpleBeanRegistry registry = new SimpleBeanRegistry();
-		
-		@Override
-		public BeanRegistry getBeanRegistry() {
-			return registry;
-		}		
-	}
-	
-	/** Test a nested client. */
-   @Test
-	public void testLinkedServers() throws Exception {
-		
-		// server2
-		ArooaSession server2Session = new OurSession();
-		
-		Component comp1 = new Component();
-		server2Session.getBeanRegistry().register("fred", comp1);
-		
-		
-		JMXServerJob server2 = new JMXServerJob();
-		server2.setRoot(comp1);
-		server2.setArooaSession(server2Session);
-		server2.setUrl("service:jmx:rmi://");
-		server2.start();
-		
-		// server 1 and client context
-		OurSession server1Session = new OurSession();
+        close.close();
+    }
 
-		// client
-		JMXClientJob client = new JMXClientJob();
-		server1Session.registry.register("client", client);
-		client.setArooaSession(server1Session);
-		client.setConnection(server2.getAddress());
-		client.run();
+    private class OurEmptyRegistrySession extends StandardArooaSession {
 
-		// server1
-		JMXServerJob server1 = new JMXServerJob();
-		
-		server1.setRoot(client);		
-		server1.setUrl("service:jmx:rmi://");
-		server1.setArooaSession(new OurEmptyRegistrySession());
-		server1.start();
-		
-		Object o = server1Session.registry.lookup("client/fred");
-		assertNotNull(o);
-		DynaBean db = (DynaBean) o;
-		assertEquals("apples", db.get("fruit"));
-		
-		client.stop();
-		server1.stop();
-		server2.stop();
-	}
-	
-	/** Test a nested oddjob. 
-	 * The sever exports and oddjob which has a node. If the oddjob has id
-	 * 'oj' and the node has id 'test' the client should be able to look
-	 * up oj/test
-	 * */
-   @Test
-	public void testNestedOddjob() throws Exception {
+        @Override
+        public BeanRegistry getBeanRegistry() {
+            return new MockBeanRegistry() {
+                @Override
+                public String getIdFor(Object component) {
+                    assertNotNull(component);
+                    String id = ids.get(component);
+                    if (id == null) {
+                        id = "x" + unique++;
+                        ids.put(component, id);
+                    }
+                    return id;
+                }
+            };
+        }
 
-		String EOL = System.getProperty("line.separator");
-		
-		final String xml = 
-			"<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" + EOL + 
-			" <job>" + EOL +
-			"  <sequential>" + EOL +
-			"   <jobs>" + EOL +
-			"    <jmx:server id='server' root='${oj}' url='service:jmx:rmi://'/>" + EOL +
-			"    <oddjob id='oj'>" + EOL +
-			"     <configuration>" + EOL +
-			"        <xml>" + EOL +
-			"         <oddjob>" + EOL +
-			"          <job>" + EOL +
-			"           <echo name='Test' id='echo'>Hello</echo>" + EOL +
-			"          </job>" + EOL +
-			"         </oddjob>" + EOL +
-			"        </xml>" + EOL +
-			"     </configuration>" + EOL +
-			"    </oddjob>" + EOL +
-			"   </jobs>" + EOL +
-			"  </sequential>" + EOL +
-			" </job>" + EOL +
-			"</oddjob>" + EOL;
-		
-		final Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("XML", xml));
-		
-		oj.run();
-		
+    }
+
+    @Test
+    public void testServerMBeans() throws Exception {
+
+        Object root = new Object() {
+            public String toString() {
+                return "test";
+            }
+        };
+
+        JMXServerJob server = new JMXServerJob();
+        server.setRoot(root);
+        server.setArooaSession(new StandardArooaSession());
+        server.setUrl("service:jmx:rmi://");
+
+        server.start();
+
+        JMXServiceURL address = new JMXServiceURL(server.getAddress());
+
+        JMXConnector cntor = JMXConnectorFactory.connect(address);
+
+        MBeanServerConnection mBeanServer = cntor.getMBeanServerConnection();
+
+        assertEquals(Integer.valueOf(3), mBeanServer.getMBeanCount());
+
+        cntor.close();
+
+        server.stop();
+
+    }
+
+    /**
+     * Test the Server job starts runs OK.
+     */
+    @Test
+    public void testRun() throws Exception {
+        Object root = new Object() {
+            public String toString() {
+                return "test";
+            }
+        };
+
+        JMXServerJob server = new JMXServerJob();
+        server.setRoot(root);
+        server.setArooaSession(new StandardArooaSession());
+        server.setUrl("service:jmx:rmi://");
+
+        server.start();
+
+        JMXClientJob client = new JMXClientJob();
+        client.setConnection(server.getAddress());
+        client.setArooaSession(new StandardArooaSession());
+
+        client.run();
+
+        Object[] children = OddjobTestHelper.getChildren(client);
+
+        assertEquals(1, children.length);
+        assertEquals("test", children[0].toString());
+
+        client.stop();
+
+        server.stop();
+    }
+
+    public static class Component {
+        public String getFruit() {
+            return "apples";
+        }
+    }
+
+    private static class OurSession extends StandardArooaSession {
+        SimpleBeanRegistry registry = new SimpleBeanRegistry();
+
+        @Override
+        public BeanRegistry getBeanRegistry() {
+            return registry;
+        }
+    }
+
+    /**
+     * Test a nested client.
+     */
+    @Test
+    public void testLinkedServers() throws Exception {
+
+        // server2
+        ArooaSession server2Session = new OurSession();
+
+        Component comp1 = new Component();
+        server2Session.getBeanRegistry().register("fred", comp1);
+
+
+        JMXServerJob server2 = new JMXServerJob();
+        server2.setRoot(comp1);
+        server2.setArooaSession(server2Session);
+        server2.setUrl("service:jmx:rmi://");
+        server2.start();
+
+        // server 1 and client context
+        OurSession server1Session = new OurSession();
+
+        // client
+        JMXClientJob client = new JMXClientJob();
+        server1Session.registry.register("client", client);
+        client.setArooaSession(server1Session);
+        client.setConnection(server2.getAddress());
+        client.run();
+
+        // server1
+        JMXServerJob server1 = new JMXServerJob();
+
+        server1.setRoot(client);
+        server1.setUrl("service:jmx:rmi://");
+        server1.setArooaSession(new OurEmptyRegistrySession());
+        server1.start();
+
+        Object o = server1Session.registry.lookup("client/fred");
+        assertNotNull(o);
+        DynaBean db = (DynaBean) o;
+        assertEquals("apples", db.get("fruit"));
+
+        client.stop();
+        server1.stop();
+        server2.stop();
+    }
+
+    /**
+     * Test a nested oddjob.
+     * The sever exports and oddjob which has a node. If the oddjob has id
+     * 'oj' and the node has id 'test' the client should be able to look
+     * up oj/test
+     */
+    @Test
+    public void testNestedOddjob() throws Exception {
+
+        String EOL = System.getProperty("line.separator");
+
+        final String xml =
+                "<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" + EOL +
+                        " <job>" + EOL +
+                        "  <sequential>" + EOL +
+                        "   <jobs>" + EOL +
+                        "    <jmx:server id='server' root='${oj}' url='service:jmx:rmi://'/>" + EOL +
+                        "    <oddjob id='oj'>" + EOL +
+                        "     <configuration>" + EOL +
+                        "        <xml>" + EOL +
+                        "         <oddjob>" + EOL +
+                        "          <job>" + EOL +
+                        "           <echo name='Test' id='echo'>Hello</echo>" + EOL +
+                        "          </job>" + EOL +
+                        "         </oddjob>" + EOL +
+                        "        </xml>" + EOL +
+                        "     </configuration>" + EOL +
+                        "    </oddjob>" + EOL +
+                        "   </jobs>" + EOL +
+                        "  </sequential>" + EOL +
+                        " </job>" + EOL +
+                        "</oddjob>" + EOL;
+
+        final Oddjob oj = new Oddjob();
+        oj.setConfiguration(new XMLConfiguration("XML", xml));
+
+        oj.run();
+
 //		OddjobExplorer explorer = new OddjobExplorer();
 //		explorer.setOddjob(oj);
 //		explorer.run();
 
-		// sanity check what we'll find via the client.
-		assertNotNull(new OddjobLookup(oj).lookup("oj/echo"));
-		
-		// client
-		JMXClientJob client = new JMXClientJob();
-		client.setArooaSession(new StandardArooaSession());
-		client.setConnection((String) new OddjobLookup(oj).lookup("server.address"));
-		client.run();
+        // sanity check what we'll find via the client.
+        assertNotNull(new OddjobLookup(oj).lookup("oj/echo"));
 
-		oj.setConfiguration(new XMLConfiguration("TEST", xml));
-		
-		oj.run();
-				
-		Object o = new OddjobLookup(client).lookup("oj");
-		assertNotNull(o);
-				
-		// will takes time to process child added notifications.
-		while (new OddjobLookup(client).lookup("oj/echo") == null) {
-			Thread.sleep(10000);
-			Thread.yield();
-		}
-				
-		// check we found the right thing.
-		assertNotNull("Test", new OddjobLookup(client).lookup("oj/echo").toString());
-		
-		client.stop();
-		oj.stop();
-		
-	}
+        // client
+        JMXClientJob client = new JMXClientJob();
+        client.setArooaSession(new StandardArooaSession());
+        client.setConnection((String) new OddjobLookup(oj).lookup("server.address"));
+        client.run();
 
-	private class MyFolder implements Structural {
-		final int level;
-		final int number;
-		final BeanRegistry registry;
-		
-		MyFolder(int number, int level, BeanRegistry registry) {
-			this.number = number;
-			this.level = level;
-			this.registry = registry;
-			
-			registry.register("x" + unique++, this);
-		}
-		
-		ChildHelper<MyFolder> childHelper = new ChildHelper<>(this);
-		
-		public void addStructuralListener(StructuralListener listener) {
-			childHelper.addStructuralListener(listener);
-		}
-		public void removeStructuralListener(StructuralListener listener) {
-			childHelper.removeStructuralListener(listener);
-			
-		}
-		private void addChildren(final int number, final int levels, final int level) {
-			if (levels == 0) {
-				return;
-			}
-			for (int i = 0; i < number; ++i) {
-				final MyFolder child = new MyFolder(i, level, registry);
-				childHelper.insertChild(i, child);
-				child.addChildren(number, levels - 1, level + 1);
-			}
-		}
-		
-		void addChildren(int number, int levels) {
-			addChildren(number, levels, level);
-		}
-		
-		void removeChildren() {
-			for (MyFolder child : childHelper.getChildren(new MyFolder[0])) {
-				child.removeChildren();
-			}
-			childHelper.removeAllChildren();
-		}
-		public String toString() {
-			return ("[" + number + ", " + level + "]");
-		}
-	}
-	
-	/** Big Structural Test. */
-   @Test
-	public void testLotsOfStructural() throws Exception {
-		
-		OurSession session = new OurSession();
-		
-		MyFolder folder = new MyFolder(0, 0, session.registry);
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(folder);
-		server.setUrl("service:jmx:rmi://");
-		server.setArooaSession(session);
-		server.start();
+        oj.setConfiguration(new XMLConfiguration("TEST", xml));
 
-		// client
-		JMXClientJob client = new JMXClientJob();
-		client.setArooaSession(new StandardArooaSession());
-		client.setConnection(server.getAddress());
-		client.run();
+        oj.run();
 
-		Object proxy = ChildHelper.getChildren(client)[0];
-				
-		folder.addChildren(5, 3);
-		
-		WaitForChildren w = new WaitForChildren(proxy);
-		w.waitFor(5);
-		
-		folder.removeChildren();
+        OddjobLookup clientLookup = new OddjobLookup(client);
 
-		w.waitFor(0);
-		
-		client.stop();
-		server.stop();		
-	}
-	
-	/** Test destroying server sets client to incomplete. */
-   @Test
-	public void testDestroyServer() throws Exception {
-		
-		OurSession session = new OurSession();
-		
-		MyFolder folder = new MyFolder(0, 0, session.registry);		
-		folder.addChildren(3, 2);
-				
-		logger.info("**** Starting Server ****");
-		
-		JMXServerJob server = new JMXServerJob();
-		server.setRoot(folder);
-		server.setUrl("service:jmx:rmi://");
-		server.setArooaSession(session);
-		server.start();
-		
-		logger.info("**** Starting Client ****");
-		
-		// client
-		JMXClientJob client = new JMXClientJob();
-		client.setArooaSession(new StandardArooaSession());
-		client.setConnection(server.getAddress());
-		client.run();
-		
-		Object proxy = ChildHelper.getChildren(client)[0];
-				
-		WaitForChildren w = new WaitForChildren(proxy);
-		w.waitFor(3);
-		
-		logger.info("**** Stopping Server ****");
-		
-		server.stop();
+        Object o = clientLookup.lookup("oj");
+        assertNotNull(o);
 
-		logger.info("**** Waiting For Client to Stop ****");
-		
-		WaitJob wj = new WaitJob();
-		wj.setState(new IsNot(StateConditions.RUNNING));
-		wj.setFor(client);
-		wj.run();
+        // will takes time to process child added notifications.
+        Object clientEcho = null;
+        for (int i = 0; i < 10; ++i) {
+            clientEcho = clientLookup.lookup("oj/echo");
+            if (clientEcho != null) {
+                break;
+            }
+            Thread.sleep(1000);
+        }
 
-		State last = client.lastStateEvent().getState();
-		logger.info("Client State: " + last);
-		
-		if (last.isException()) {
-			Throwable e = client.lastStateEvent().getException();
-			if ("Server Stopped.".equals(e.getMessage())) {
-				logger.info(e.getMessage());
-			}
-			else {
-				// Heart beat failure could happen first. Just log this.
-				// would be nice to guarantee that it didn't but I can't
-				// work that out.
-				logger.info("Client Exception is:", e);
-			}
-		}
-		else {
-			fail("Unexpected state: " + 
-					client.lastStateEvent().getState());
-		}
-	}
-	
-	// test for a bug where the server didn't clear down it's registry so
-	// bouncing a nested Oddjob caused an 'component with that id already exists'
-	// exception.
-   @Test
-	public void testBounceOddjob() throws Exception {
-		
-		String EOL = System.getProperty("line.separator");
-		
-		final String xml = 
-			"<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" + EOL +
-			" <job>" + EOL +
-			"  <sequential>" + EOL +
-			"   <jobs>" + EOL +
-			"    <jmx:server id='server' root='${oj}'" +
-			"            url='service:jmx:rmi://'/>" + EOL +
-			"    <oddjob id='oj'>" + EOL +
-			"     <configuration>" + EOL +
-			"        <xml>" + EOL +
-			"         <oddjob>" + EOL +
-			"          <job>" + EOL +
-			"           <echo name='Test' id='echo'>Hello</echo>" + EOL +
-			"          </job>" + EOL +
-			"         </oddjob>" + EOL +
-			"        </xml>" + EOL +
-			"     </configuration>" + EOL +
-			"    </oddjob>" + EOL +
-			"   </jobs>" + EOL +
-			"  </sequential>" + EOL +
-			" </job>" + EOL +
-			"</oddjob>" + EOL;
-		
-		Oddjob oj = new Oddjob();
-		oj.setConfiguration(new XMLConfiguration("XML", xml));
-		oj.run();
-		
-		Oddjob innerOddjob = (Oddjob) new OddjobLookup(oj).lookup("oj");
-		innerOddjob.hardReset();
+        assertThat(clientEcho, notNullValue());
 
-		innerOddjob.run();
-		
-		oj.stop();
-		
-		assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
-	}
-	
-	/**
-	 * Tracking down a problem where the server doesn't stop when oddjob
-	 * is destroyed.
-	 */
-   @Test
-	public void testServerCopesWhenItsOddjobIsDestroyed() throws Exception {
-		
-		File file = new File(getClass().getResource(
-				"JMXServerJobDestroyTest.xml").getFile());
-		
-		Oddjob oddjob = new Oddjob();
-		oddjob.setFile(file);
-		
-		oddjob.run();
-		
-		assertEquals(ParentState.STARTED, 
-				oddjob.lastStateEvent().getState());
-		
-		Stateful server = new OddjobLookup(oddjob).lookup("server", 
-				Stateful.class);
-		
-		StateSteps serverStates = new StateSteps(server);
-		serverStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED,
-				ServiceState.DESTROYED);
-		
-		oddjob.destroy();
-		
-		assertEquals(ParentState.DESTROYED, 
-				oddjob.lastStateEvent().getState());
-		
-		serverStates.checkNow();
-	}
-	
+        // check we found the right thing.
+        assertThat(clientLookup.lookup("oj/echo.text"), is("Hello"));
+
+        client.stop();
+        oj.stop();
+
+    }
+
+    private class MyFolder implements Structural {
+        final int level;
+        final int number;
+        final BeanRegistry registry;
+
+        MyFolder(int number, int level, BeanRegistry registry) {
+            this.number = number;
+            this.level = level;
+            this.registry = registry;
+
+            registry.register("x" + unique++, this);
+        }
+
+        ChildHelper<MyFolder> childHelper = new ChildHelper<>(this);
+
+        public void addStructuralListener(StructuralListener listener) {
+            childHelper.addStructuralListener(listener);
+        }
+
+        public void removeStructuralListener(StructuralListener listener) {
+            childHelper.removeStructuralListener(listener);
+
+        }
+
+        private void addChildren(final int number, final int levels, final int level) {
+            if (levels == 0) {
+                return;
+            }
+            for (int i = 0; i < number; ++i) {
+                final MyFolder child = new MyFolder(i, level, registry);
+                childHelper.insertChild(i, child);
+                child.addChildren(number, levels - 1, level + 1);
+            }
+        }
+
+        void addChildren(int number, int levels) {
+            addChildren(number, levels, level);
+        }
+
+        void removeChildren() {
+            for (MyFolder child : childHelper.getChildren(new MyFolder[0])) {
+                child.removeChildren();
+            }
+            childHelper.removeAllChildren();
+        }
+
+        public String toString() {
+            return ("[" + number + ", " + level + "]");
+        }
+    }
+
+    /**
+     * Big Structural Test.
+     */
+    @Test
+    public void testLotsOfStructural() throws Exception {
+
+        OurSession session = new OurSession();
+
+        MyFolder folder = new MyFolder(0, 0, session.registry);
+
+        JMXServerJob server = new JMXServerJob();
+        server.setRoot(folder);
+        server.setUrl("service:jmx:rmi://");
+        server.setArooaSession(session);
+        server.start();
+
+        // client
+        JMXClientJob client = new JMXClientJob();
+        client.setArooaSession(new StandardArooaSession());
+        client.setConnection(server.getAddress());
+        client.run();
+
+        Object proxy = ChildHelper.getChildren(client)[0];
+
+        folder.addChildren(5, 3);
+
+        WaitForChildren w = new WaitForChildren(proxy);
+        w.waitFor(5);
+
+        folder.removeChildren();
+
+        w.waitFor(0);
+
+        client.stop();
+        server.stop();
+    }
+
+    /**
+     * Test destroying server sets client to incomplete.
+     */
+    @Test
+    public void testDestroyServer() throws Exception {
+
+        OurSession session = new OurSession();
+
+        MyFolder folder = new MyFolder(0, 0, session.registry);
+        folder.addChildren(3, 2);
+
+        logger.info("**** Starting Server ****");
+
+        JMXServerJob server = new JMXServerJob();
+        server.setRoot(folder);
+        server.setUrl("service:jmx:rmi://");
+        server.setArooaSession(session);
+        server.start();
+
+        logger.info("**** Starting Client ****");
+
+        // client
+        JMXClientJob client = new JMXClientJob();
+        client.setArooaSession(new StandardArooaSession());
+        client.setConnection(server.getAddress());
+        client.run();
+
+        Object proxy = ChildHelper.getChildren(client)[0];
+
+        WaitForChildren w = new WaitForChildren(proxy);
+        w.waitFor(3);
+
+        logger.info("**** Stopping Server ****");
+
+        server.stop();
+
+        logger.info("**** Waiting For Client to Stop ****");
+
+        WaitJob wj = new WaitJob();
+        wj.setState(new IsNot(StateConditions.RUNNING));
+        wj.setFor(client);
+        wj.run();
+
+        State last = client.lastStateEvent().getState();
+        logger.info("Client State: " + last);
+
+        if (last.isException()) {
+            Throwable e = client.lastStateEvent().getException();
+            if ("Server Stopped.".equals(e.getMessage())) {
+                logger.info(e.getMessage());
+            } else {
+                // Heart beat failure could happen first. Just log this.
+                // would be nice to guarantee that it didn't but I can't
+                // work that out.
+                logger.info("Client Exception is:", e);
+            }
+        } else {
+            fail("Unexpected state: " +
+                    client.lastStateEvent().getState());
+        }
+    }
+
+    // test for a bug where the server didn't clear down it's registry so
+    // bouncing a nested Oddjob caused an 'component with that id already exists'
+    // exception.
+    @Test
+    public void testBounceOddjob() throws Exception {
+
+        String EOL = System.getProperty("line.separator");
+
+        final String xml =
+                "<oddjob xmlns:jmx='http://rgordon.co.uk/oddjob/jmx'>" + EOL +
+                        " <job>" + EOL +
+                        "  <sequential>" + EOL +
+                        "   <jobs>" + EOL +
+                        "    <jmx:server id='server' root='${oj}'" +
+                        "            url='service:jmx:rmi://'/>" + EOL +
+                        "    <oddjob id='oj'>" + EOL +
+                        "     <configuration>" + EOL +
+                        "        <xml>" + EOL +
+                        "         <oddjob>" + EOL +
+                        "          <job>" + EOL +
+                        "           <echo name='Test' id='echo'>Hello</echo>" + EOL +
+                        "          </job>" + EOL +
+                        "         </oddjob>" + EOL +
+                        "        </xml>" + EOL +
+                        "     </configuration>" + EOL +
+                        "    </oddjob>" + EOL +
+                        "   </jobs>" + EOL +
+                        "  </sequential>" + EOL +
+                        " </job>" + EOL +
+                        "</oddjob>" + EOL;
+
+        Oddjob oj = new Oddjob();
+        oj.setConfiguration(new XMLConfiguration("XML", xml));
+        oj.run();
+
+        Oddjob innerOddjob = (Oddjob) new OddjobLookup(oj).lookup("oj");
+        innerOddjob.hardReset();
+
+        innerOddjob.run();
+
+        oj.stop();
+
+        assertEquals(ParentState.COMPLETE, oj.lastStateEvent().getState());
+    }
+
+    /**
+     * Tracking down a problem where the server doesn't stop when oddjob
+     * is destroyed.
+     */
+    @Test
+    public void testServerCopesWhenItsOddjobIsDestroyed() throws Exception {
+
+        File file = new File(Objects.requireNonNull(getClass().getResource(
+                "JMXServerJobDestroyTest.xml")).getFile());
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setFile(file);
+
+        oddjob.run();
+
+        assertEquals(ParentState.STARTED,
+                oddjob.lastStateEvent().getState());
+
+        Stateful server = new OddjobLookup(oddjob).lookup("server",
+                Stateful.class);
+
+        StateSteps serverStates = new StateSteps(server);
+        serverStates.startCheck(ServiceState.STARTED, ServiceState.STOPPED,
+                ServiceState.DESTROYED);
+
+        oddjob.destroy();
+
+        assertEquals(ParentState.DESTROYED,
+                oddjob.lastStateEvent().getState());
+
+        serverStates.checkNow();
+    }
+
 }

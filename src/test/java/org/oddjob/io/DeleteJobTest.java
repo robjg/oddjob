@@ -189,7 +189,7 @@ public class DeleteJobTest extends OjTestCase {
 
         Integer result = test.call();
 
-        assertEquals(new Integer(0), result);
+        assertEquals(Integer.valueOf(0), result);
 
         assertEquals(0, test.getFileCount());
         assertEquals(0, test.getDirCount());
@@ -255,7 +255,7 @@ public class DeleteJobTest extends OjTestCase {
         test.reset();
 
         File aRootPath = new File("/a/../" + aRootFile.getName());
-        test.setFiles(new File[] { aRootPath });
+        test.setFiles(new File[]{aRootPath});
 
         assertThat(aRootPath.getCanonicalFile(), is(aRootFile));
         assertThat(aRootPath.getCanonicalFile().getParentFile().getParentFile(),

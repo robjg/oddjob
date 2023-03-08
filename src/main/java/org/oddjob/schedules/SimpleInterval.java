@@ -1,9 +1,9 @@
 package org.oddjob.schedules;
 
+import org.oddjob.arooa.utils.DateHelper;
+
 import java.io.Serializable;
 import java.util.Date;
-
-import org.oddjob.arooa.utils.DateHelper;
 
 /**
  * A Simple implementation of an {@link Interval).
@@ -109,12 +109,12 @@ public class SimpleInterval implements Interval, Serializable {
 
 		if (toDate.getTime() - fromDate.getTime() == 1) {
 			return "at " + 
-				DateHelper.formatDateTimeInteligently(getFromDate());
+				DateHelper.formatDateTimeIntelligently(getFromDate());
 		}
 		else {
-			return DateHelper.formatDateTimeInteligently(getFromDate()) + 
+			return DateHelper.formatDateTimeIntelligently(getFromDate()) +
 				" up to " + 
-				DateHelper.formatDateTimeInteligently(getToDate());	
+				DateHelper.formatDateTimeIntelligently(getToDate());
 		}		
 	}
 	

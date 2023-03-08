@@ -8,7 +8,6 @@ import org.oddjob.util.Clock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -42,12 +41,7 @@ public class ManualClock extends java.time.Clock implements Clock {
 
     public void setDateText(String time) {
         logger.debug("Setting date [" + time + "]");
-        try {
-        	setDate(DateHelper.parseDateTime(time));
-        }
-        catch (ParseException e) {
-        	throw new RuntimeException(e);
-        }
+        setDate(DateHelper.parseDateTime(time));
     }
 
     public void setDate(Date date) {

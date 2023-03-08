@@ -1,16 +1,15 @@
 package org.oddjob.schedules;
 
-import java.util.Date;
-import java.util.TimeZone;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
-import org.oddjob.arooa.convert.Convertlet;
 import org.oddjob.arooa.life.ArooaLifeAware;
 import org.oddjob.arooa.utils.DateHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * 
@@ -65,20 +64,14 @@ public class ScheduleType implements ArooaValue, ArooaLifeAware {
 	
 	public static class Conversions implements ConversionProvider {
 		public void registerWith(ConversionRegistry registry) {
-			registry.register(ScheduleType.class, Interval.class, new Convertlet<ScheduleType, Interval>() {
-				public Interval convert(ScheduleType from) {
-					return from.result;
+			registry.register(ScheduleType.class, Interval.class, from -> from.result);
+			registry.register(ScheduleType.class, Date.class, from -> {
+				Interval interval = from.result;
+				if (interval == null) {
+					return null;
 				}
-			});
-			registry.register(ScheduleType.class, Date.class, new Convertlet<ScheduleType, Date>() {
-				public Date convert(ScheduleType from) {
-					Interval interval = from.result;
-					if (interval == null) {
-						return null;
-					}
-					else {
-						return interval.getFromDate();
-					}
+				else {
+					return interval.getFromDate();
 				}
 			});
 		}
@@ -193,7 +186,7 @@ public class ScheduleType implements ArooaValue, ArooaLifeAware {
 	public String toString() {
 		String interval = "";
 		if (result != null) {
-			interval = " date is " + DateHelper.formatDateTimeInteligently(
+			interval = " date is " + DateHelper.formatDateTimeIntelligently(
 					result.getFromDate());
 		}
 			

@@ -75,7 +75,7 @@ public class OddjobPersistTest extends OjTestCase {
         Integer current = new OddjobLookup(oj).lookup(
                 "oj2/sequence.current", Integer.class);
 
-        assertEquals(new Integer(1), current);
+        assertEquals(Integer.valueOf(1), current);
 
         sanityLoad();
     }
@@ -130,7 +130,7 @@ public class OddjobPersistTest extends OjTestCase {
         assertEquals("Persisted state should be complete", JobState.COMPLETE,
                 OddjobTestHelper.getJobState(seqJob));
 
-        assertEquals("Just loaded sequence wrong.", new Integer(1),
+        assertEquals("Just loaded sequence wrong.", 1,
                 ((DynaBean) seqJob).get("current"));
 
         Object[] children = ChildHelper.getChildren(oj);
@@ -144,7 +144,7 @@ public class OddjobPersistTest extends OjTestCase {
 
         ((Runnable) seqJob).run();
 
-        assertEquals("Second execute sequence wrong.", new Integer(2),
+        assertEquals("Second execute sequence wrong.", 2,
                 PropertyUtils.getProperty(seqJob, "current"));
         assertEquals("State should be complete", JobState.COMPLETE,
                 OddjobTestHelper.getJobState(seqJob));
