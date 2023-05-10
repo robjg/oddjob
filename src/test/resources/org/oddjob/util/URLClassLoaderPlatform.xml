@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
+    <job>
+        <sequential>
+            <jobs>
+                <script id="script">
+                    <classLoader>
+                        <url-class-loader>
+                            <parent>
+                                <value value="#{java.lang.ClassLoader.getPlatformClassLoader()}"/>
+                            </parent>
+                        </url-class-loader>
+                    </classLoader>
+                    <![CDATA[var message = "I can "
+
+try {
+	var date = Java.type("java.sql.Date");
+	message = message + "find " + date;
+
+}
+catch (err) {
+	message = message + "not find java.sql.Date"
+}
+
+message = message + " and "
+
+try {
+	var oddjob = Java.type("org.oddjob.Oddjob")
+	message = message + "find " + oddjob;
+}
+catch (err) {
+	message = message + "not find org.oddjob.Oddjob";
+}
+]]>
+                </script>
+                <echo id="echo">
+                    <![CDATA[${script.variables(message)}]]>
+                </echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -1,10 +1,10 @@
-<oddjob id="this">
+<oddjob id="oddjob">
     <job>
-        <oddjob id='nested' file="${this.dir}/URLClassLoaderInner.xml">
+        <oddjob id='nested' file="${oddjob.dir}/URLClassLoaderInner.xml">
             <classLoader>
                 <url-class-loader>
                     <files>
-                        <file file='${this.args[0]}/test/classloader'/>
+                        <file file='${oddjob.args[0]}/test/classloader'/>
                     </files>
                 </url-class-loader>
             </classLoader>

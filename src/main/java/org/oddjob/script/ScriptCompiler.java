@@ -65,6 +65,10 @@ public class ScriptCompiler {
 
             ScriptEngine engine = manager.getEngineByName(language);
 
+            if (engine == null) {
+                throw new IllegalArgumentException("No Script Engine for " + language);
+            }
+
             if (engine instanceof Invocable) {
             	invocable = (Invocable) engine;
             }

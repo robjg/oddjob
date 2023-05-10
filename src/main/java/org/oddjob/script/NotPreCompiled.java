@@ -19,8 +19,8 @@ public class NotPreCompiled implements Evaluatable {
 	private final Reader reader;
 	
 	public NotPreCompiled(ScriptEngine engine, Reader reader) {
-		this.engine = Objects.requireNonNull(engine);
-		this.reader = Objects.requireNonNull(reader);
+		this.engine = Objects.requireNonNull(engine, "ScriptEngine");
+		this.reader = Objects.requireNonNull(reader, "Reader");
 	}
 
 	@Override

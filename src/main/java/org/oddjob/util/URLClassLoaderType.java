@@ -1,5 +1,12 @@
 package org.oddjob.util;
 
+import org.oddjob.arooa.life.ArooaLifeAware;
+import org.oddjob.arooa.types.ValueFactory;
+import org.oddjob.values.VariablesJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -8,30 +15,33 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.life.ArooaLifeAware;
-import org.oddjob.arooa.types.ValueFactory;
-import org.oddjob.values.VariablesJob;
-
 /**
  * @oddjob.description A simple wrapper for URLClassloader. 
  * <p>
  * The class loader is created when this type is configured, and the same
  * class loader is then shared with all jobs that reference this type.
  * Because creating numerous class loader can use up the permgen heap space
- * it is best to avoid creating the type in a loop. Instead add it to
+ * it is best to avoid creating the type in a loop. Instead, add it to
  * {@link VariablesJob} outside the loop and only reference it inside the
  * loop.
- * 
+ * <p>
+ * The parent class loader will be set to Oddjob's classloader by default. To avoid this use the {@code noInherit}
+ * property.
+ * </p>
+ *
  * @oddjob.example
  * 
  * A simple example. A single directory is added to the class path.
  * 
  * {@oddjob.xml.resource org/oddjob/util/URLClassLoader.xml}
- * 
+ *
+ * @oddjob.example
+ *
+ * Forcing the platform class loader as a parent. When migrating to Java 9 classes such as {@code java.sql.date}
+ * will no longer load with the no parent class loader. See
+ * <a href="https://docs.oracle.com/javase/9/migrate/toc.htm#JSMIG-GUID-D867DCCC-CEB5-4AFA-9D11-9C62B7A3FAB1">
+ *     Migrating to JDK 9</a> for more information.
+ *
  * @author rob
  *
  */
@@ -61,14 +71,15 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 		
 		final StringBuilder toString = new StringBuilder();
 		
-		List<URL> allUrls = new ArrayList<URL>();
+		List<URL> allUrls = new ArrayList<>();
 		
 		if (urls != null) {
 			logger.debug("Creating Classloader for URLs:");
 			for (URL url: urls) {
 				logger.debug(" " + url);
-				toString.append((toString.length() == 0 ? 
-						"" : ";") + url);
+				toString.append(toString.length() == 0 ?
+						"" : ";")
+						.append(url);
 				allUrls.add(url);
 			}
 		}
@@ -77,8 +88,9 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 			logger.debug("Creating Classloader for Files:");
 			for (File file: files) {
 				logger.debug(" " + file);
-				toString.append((toString.length() == 0 ? 
-						"" : ";") + file);
+				toString.append(toString.length() == 0 ?
+						"" : ";")
+						.append(file);
 				try {
 					allUrls.add(file.toURI().toURL());
 				} catch (MalformedURLException e) {
@@ -93,10 +105,10 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 		}
 		
 		return new URLClassLoader(
-				allUrls.toArray(new URL[allUrls.size()]), 
+				allUrls.toArray(new URL[0]),
 				parentLoader) {
 			public String toString() {
-				return "URLClassLoader: " + toString.toString();
+				return "URLClassLoader: " + toString;
 			}
 		};
 	}

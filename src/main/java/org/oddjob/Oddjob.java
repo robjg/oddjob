@@ -82,7 +82,7 @@ import java.util.*;
  * As can be seen from the examples, the author uses the id '<code>this</code>'
  * but the choice is arbitrary.</p>
  * 
- * <h4>Nesting Oddjobs</h4>
+ * <b>Nesting Oddjobs</b>
  * 
  * <p>
  * An Oddjob job allows an Oddjob instance to be created within an existing Oddjob
@@ -93,7 +93,7 @@ import java.util.*;
  * <i>${nested-oddjob-id/job-id.property}</i> where nested-oddjob-id is the id in
  * the outer configuration, not the inner one.
  * 
- * <h4>Saving Oddjob's State</h4>
+ * <b>Saving Oddjob's State</b>
  * 
  * <p>
  * The <code>persister</code> property on a nested Oddjob will allow it's state to
@@ -101,7 +101,7 @@ import java.util.*;
  * <a href="http://rgordon.co.uk/projects/oddjob/userguide/saving.html">User Guide</a>
  * for more information on how to set a persister.
  * 
- * <h4>Customising Oddjob</h4>
+ * <b>Customising Oddjob</b>
  * 
  * <p>
  * Oddjob's <code>descriptorFactory</code> and <code>classLoader</code> properties 
@@ -371,7 +371,7 @@ implements Loadable,
 	 * to configure this oddjob.
 	 * @oddjob.required No.
 	 * 
-	 * @return The file name.
+	 * @param file The file name.
 	 */
 	@ArooaAttribute
 	public void setFile(File file) {

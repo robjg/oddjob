@@ -325,7 +325,7 @@
         <echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
 
 		<!-- Compile tests -->
-		<javac source="1.8" target="1.8" srcdir="${test.java}"
+		<javac srcdir="${test.java}"
             destdir="${build.tests}"
             debug="${debug}"
             optimize="${optimize}"
