@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
+    <job>
+        <sequential>
+            <jobs>
+                <jmx:server root="${jobs}" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+                <oddjob id="jobs">
+                    <configuration>
+                        <inline>
+                            <oddjob>
+                                <job>
+                                    <sequential id="sequential">
+                                        <jobs>
+                                            <echo id="foo"/>
+                                        </jobs>
+                                    </sequential>
+                                </job>
+                            </oddjob>
+                        </inline>
+                    </configuration>
+                </oddjob>
+                <jmx:client id="client" xmlns:jmx="http://rgordon.co.uk/oddjob/jmx"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

@@ -46,7 +46,7 @@ public class ComponentOwnerHandlerFactory
 
     private static final Logger logger = LoggerFactory.getLogger(ComponentOwnerHandlerFactory.class);
 
-    public static final HandlerVersion VERSION = new HandlerVersion(5, 0);
+    public static final HandlerVersion VERSION = new HandlerVersion(6, 0);
 
     public static final NotificationType<Boolean> MODIFIED_NOTIF_TYPE =
             NotificationType.ofName("oddjob.config.modified")
@@ -88,24 +88,16 @@ public class ComponentOwnerHandlerFactory
                     MBeanOperationInfo.ACTION_INFO
             ).addParam("component", Object.class, "The Component");
 
-    private static final JMXOperationPlus<Void> DELETE =
+    private static final JMXOperationPlus<Void> DELETE_PASTE =
             new JMXOperationPlus<>(
-                    "configDelete",
-                    "",
-                    Void.TYPE,
-                    MBeanOperationInfo.ACTION_INFO
-            ).addParam("component", Object.class, "The Component");
-
-    private static final JMXOperationPlus<String> PASTE =
-            new JMXOperationPlus<>(
-                    "configPaste",
-                    "",
-                    String.class,
-                    MBeanOperationInfo.ACTION
-            ).addParam("component", Object.class, "The Component")
-                    .addParam("index", Integer.TYPE, "The Index")
+                    "configCutPaste",
+                    "Delete and/or Paste",
+                    Void.class,
+                    MBeanOperationInfo.ACTION)
+                    .addParam("delete", Object.class, "The Delete Component")
+                    .addParam("paste", Object.class, "The Paste Onto Component")
+                    .addParam("index", Integer.TYPE, "The Index of Paste")
                     .addParam("config", String.class, "The XML Configuration");
-
 
     private static final JMXOperationPlus<PossibleChildren> POSSIBLE_CHILDREN =
             new JMXOperationPlus<>(
@@ -204,8 +196,7 @@ public class ComponentOwnerHandlerFactory
                 DRAG_POINT_INFO.getOpInfo(),
                 CUT.getOpInfo(),
                 COPY.getOpInfo(),
-                PASTE.getOpInfo(),
-                DELETE.getOpInfo(),
+                DELETE_PASTE.getOpInfo(),
                 POSSIBLE_CHILDREN.getOpInfo(),
                 SAVE.getOpInfo(),
                 IS_MODIFIED.getOpInfo(),
@@ -376,6 +367,8 @@ public class ComponentOwnerHandlerFactory
     static class ClientConfigurationSessionHandler
             implements ConfigurationSession {
 
+        private final DragTransactionManager<ClientSideTransaction> transactionManager
+                = new DragTransactionManager<>(ClientSideTransaction::new);
         private final ClientSideToolkit clientToolkit;
 
         private final ConfigurationSessionSupport sessionSupport;
@@ -388,7 +381,7 @@ public class ComponentOwnerHandlerFactory
         private volatile ClientDragPoint lastDragPoint;
 
         private final NotificationListener<Boolean> listener =
-                new NotificationListener<Boolean>() {
+                new NotificationListener<>() {
                     @Override
                     public void handleNotification(Notification<Boolean> notification) {
                         Boolean modified = notification.getData();
@@ -436,18 +429,7 @@ public class ComponentOwnerHandlerFactory
 
             @Override
             public DragTransaction beginChange(ChangeHow how) {
-                // Only create a fake client DragTransaction. The server will
-                // create a real one.
-                return new DragTransaction() {
-
-                    @Override
-                    public void rollback() {
-                    }
-
-                    @Override
-                    public void commit() {
-                    }
-                };
+                return transactionManager.createTransaction(how);
             }
 
             @Override
@@ -472,12 +454,8 @@ public class ComponentOwnerHandlerFactory
 
             @Override
             public void delete() {
-                try {
-                    clientToolkit.invoke(
-                            DELETE, component);
-                } catch (Throwable e) {
-                    throw new UndeclaredThrowableException(e);
-                }
+                transactionManager.withTransaction(
+                        transaction ->  transaction.delete = component);
             }
 
             @Override
@@ -493,7 +471,7 @@ public class ComponentOwnerHandlerFactory
                     final ConfigurationHandle<P> handle =
                             config.parse(parentContext);
 
-                    return new ConfigurationHandle<P>() {
+                    return new ConfigurationHandle<>() {
                         @Override
                         public P getDocumentContext() {
                             return handle.getDocumentContext();
@@ -527,15 +505,11 @@ public class ComponentOwnerHandlerFactory
 
             @Override
             public void paste(int index, String config) {
-                try {
-                    clientToolkit.invoke(
-                            PASTE,
-                            component,
-                            index,
-                            config);
-                } catch (Throwable e) {
-                    throw new UndeclaredThrowableException(e);
-                }
+                transactionManager.withTransaction(transaction -> {
+                    transaction.pasteOnto = component;
+                    transaction.pasteIndex = index;
+                    transaction.pasteConfig = config;
+                });
             }
 
             @Override
@@ -634,8 +608,43 @@ public class ComponentOwnerHandlerFactory
             return clientToolkit.getClientSession().getArooaSession().getArooaDescriptor();
         }
 
+        class ClientSideTransaction implements DragTransaction {
 
+            Object delete;
+
+            Object pasteOnto;
+
+            int pasteIndex;
+
+            String pasteConfig;
+
+            @Override
+            public void commit() {
+
+                // Will this ever happen?
+                if (delete == null && pasteOnto == null) {
+                    return;
+                }
+
+                try {
+                    clientToolkit.invoke(
+                            DELETE_PASTE,
+                            delete,
+                            pasteOnto,
+                            pasteIndex,
+                            pasteConfig);
+                } catch (Throwable e) {
+                    throw new UndeclaredThrowableException(e);
+                }
+            }
+
+            @Override
+            public void rollback() {
+                // Do we need to do more here?
+            }
+        }
     }
+
 
     static class ServerComponentOwnerHandler implements ServerInterfaceHandler {
 
@@ -763,7 +772,50 @@ public class ComponentOwnerHandlerFactory
                 return json.toString();
             }
 
-            // Operations below here require a drag point.
+            if (DELETE_PASTE.equals(operation)) {
+
+                DragTransaction deleteTransaction = null;
+
+                Object delete = params[0];
+                if (delete != null) {
+                    DragPoint dragPoint = configurationSession.dragPointFor(delete);
+                    deleteTransaction = dragPoint.beginChange(ChangeHow.FRESH);
+                    dragPoint.delete();
+                }
+
+                Object paste = params[1];
+                if (paste != null) {
+
+                    Integer index = (Integer) params[2];
+                    String config = (String) params[3];
+
+                    DragPoint dragPoint = configurationSession.dragPointFor(paste);
+                    DragTransaction pasteTransaction = dragPoint.beginChange(ChangeHow.EITHER);
+                    try {
+                        dragPoint.paste(index, config);
+                        pasteTransaction.commit();
+                    } catch (ArooaParseException e) {
+                        if (deleteTransaction != null) {
+                            deleteTransaction.rollback();
+                        }
+                        pasteTransaction.rollback();
+                        throw new MBeanException(e);
+                    }
+                }
+
+                if (deleteTransaction != null) {
+                    try {
+                        deleteTransaction.commit();
+                    } catch (ArooaParseException e) {
+                        deleteTransaction.rollback();
+                        throw new MBeanException(e);
+                    }
+                }
+
+                return null;
+            }
+
+            // Operations below here require a single drag point.
 
             DragPoint dragPoint = null;
             Object component = null;
@@ -832,33 +884,8 @@ public class ComponentOwnerHandlerFactory
                 }
 
                 return copy;
-            } else if (DELETE.equals(operation)) {
-
-                DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-                dragPoint.delete();
-                try {
-                    trn.commit();
-                } catch (ArooaParseException e) {
-                    trn.rollback();
-                    throw new MBeanException(e);
-                }
-
-                return null;
-            } else if (PASTE.equals(operation)) {
-
-                Integer index = (Integer) params[1];
-                String config = (String) params[2];
-
-                DragTransaction trn = dragPoint.beginChange(ChangeHow.FRESH);
-                try {
-                    dragPoint.paste(index, config);
-                    trn.commit();
-                } catch (Exception e) {
-                    trn.rollback();
-                    throw new MBeanException(e);
-                }
-                return null;
-            } else if (REPLACE.equals(operation)) {
+            }
+            else if (REPLACE.equals(operation)) {
 
                 String config = (String) params[1];
 

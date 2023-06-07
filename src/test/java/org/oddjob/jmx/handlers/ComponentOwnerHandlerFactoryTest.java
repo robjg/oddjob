@@ -133,10 +133,10 @@ public class ComponentOwnerHandlerFactoryTest {
 
     private static class MyComponentOwner extends MockConfigurationOwner {
 
-        MySessionLite sess = new MySessionLite();
+        MySessionLite session = new MySessionLite();
 
         public ConfigurationSession provideConfigurationSession() {
-            return sess;
+            return session;
         }
 
         @Override
@@ -229,24 +229,26 @@ public class ComponentOwnerHandlerFactoryTest {
         assertTrue(local.supportsCut());
         assertTrue(local.supportsPaste());
 
-        assertSame(ourComponent, compO.sess.component);
+        assertSame(ourComponent, compO.session.component);
 
         DragTransaction trn = local.beginChange(ChangeHow.FRESH);
         local.delete();
         trn.commit();
 
-        assertTrue(compO.sess.committed);
-        assertTrue(compO.sess.cut);
+        assertTrue(compO.session.committed);
+        assertTrue(compO.session.cut);
 
         assertEquals("apples", local.copy());
 
+        DragTransaction trn2 = local.beginChange(ChangeHow.FRESH);
         local.paste(2, "oranges");
+        trn2.commit();
 
-        assertEquals(2, compO.sess.pasteIndex);
-        assertEquals("oranges", compO.sess.pasteText);
+        assertEquals(2, compO.session.pasteIndex);
+        assertEquals("oranges", compO.session.pasteText);
 
         clientHandler.provideConfigurationSession().save();
-        assertTrue(compO.sess.saved);
+        assertTrue(compO.session.saved);
 
     }
 

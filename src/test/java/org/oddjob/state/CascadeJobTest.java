@@ -805,7 +805,7 @@ public class CascadeJobTest extends OjTestCase {
     }
 
     @Test
-    public void testCascadeJoinExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException {
+    public void testCascadeJoinExample() throws InterruptedException, ArooaPropertyException, ArooaConversionException, FailedToStopException {
 
         Oddjob oddjob = new Oddjob();
         oddjob.setConfiguration(new XMLConfiguration(
@@ -889,6 +889,7 @@ public class CascadeJobTest extends OjTestCase {
 
         lastState.checkWait();
 
+        oddjob.stop();
         oddjob.destroy();
     }
 }
