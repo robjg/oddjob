@@ -1,6 +1,6 @@
 package org.oddjob.state;
 
-import java.util.Date;
+import java.time.Instant;
 
 
 public class MockStateChanger implements StateChanger<ParentState> {
@@ -9,7 +9,7 @@ public class MockStateChanger implements StateChanger<ParentState> {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
-	public void setState(ParentState state, Date date) {
+	public void setState(ParentState state, Instant date) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
@@ -17,7 +17,7 @@ public class MockStateChanger implements StateChanger<ParentState> {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 	
-	public void setStateException(Throwable t, Date date) {
+	public void setStateException(Throwable t, Instant date) {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 }

@@ -95,9 +95,7 @@ class ServerDrag2Test {
 
         PretendDragDrop dragDrop = new PretendDragDrop();
 
-        ConfigurationOwner configurationOwner = oddjob;
-
-        dragDrop.moveFrom(configurationOwner, lookup.lookup("foo"));
+        dragDrop.moveFrom(oddjob, lookup.lookup("foo"));
 
         ConfigurationOwner serverOwner = lookup.lookup("client/jobs",
                 ConfigurationOwner.class);
@@ -142,7 +140,7 @@ class ServerDrag2Test {
         PretendDragDrop dragDrop = new PretendDragDrop();
 
         ConfigurationOwner configurationOwner = lookup.lookup("client/jobs",
-                ConfigurationOwner.class);;
+                ConfigurationOwner.class);
 
         dragDrop.moveFrom(configurationOwner, lookup.lookup("client/jobs/foo"));
 

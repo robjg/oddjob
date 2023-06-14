@@ -3,38 +3,29 @@
  */
 package org.oddjob.scheduling;
 
-import java.util.Date;
-import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-
-import javax.inject.Inject;
-
 import org.oddjob.Stateful;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
-import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.scheduling.state.TimerState;
-import org.oddjob.state.AnyActiveStateOp;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.IsStoppable;
-import org.oddjob.state.StateCondition;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.StateOperator;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
+import javax.inject.Inject;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+
 /**
- * @oddjob.description A trigger runs it's job when the job being triggered
+ * @oddjob.description A trigger runs its job when the job being triggered
  * on enters the state specified.
  * <p>
- * Once the trigger's job runs the trigger
- * will reflect the state of the it's job. The trigger will continue to 
- * reflect it's job's state until it is reset. 
+ * Once the trigger's job runs, the trigger
+ * will reflect the state of the job. The trigger will continue to
+ * reflect its job's state until it is reset.
  * <p>Subsequent state changes in
  * the triggering job are ignored until the trigger is reset and re-run.
  * <p>
@@ -100,7 +91,7 @@ public class Trigger extends ScheduleBase {
 	private StateCondition cancelWhen;
 	
 	/** The last time on the event that caused the trigger. */
-	private Date lastTime;
+	private Instant lastTime;
 
 	/**
 	 * @oddjob.property
@@ -154,7 +145,7 @@ public class Trigger extends ScheduleBase {
 	@Override
 	protected void onStop() {
 		
-		Future<?> future = null;
+		Future<?> future;
 		synchronized (this) {
 			future = this.future;
 			this.future = null;
@@ -245,12 +236,8 @@ public class Trigger extends ScheduleBase {
 				// state listeners have been notified.
 				on.lastStateEvent();
 
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					@Override
-					public void run() {
-						getStateChanger().setState(TimerState.ACTIVE);
-					}
-				});
+				stateHandler.waitToWhen(new IsAnyState(),
+						() -> getStateChanger().setState(TimerState.ACTIVE));
 				
 				Runnable job = childHelper.getChild();
 
@@ -281,17 +268,12 @@ public class Trigger extends ScheduleBase {
 		public synchronized void jobStateChange(StateEvent event) {
 			logger().debug("Trigger on [" + on + "] has state [" + 
 					event.getState() + "] at [" +
-					DateHelper.formatDateTime(event.getTime()) + "]");
+					event.getInstant() + "]");
 			
 			if (event.getState().isDestroyed()) {
-				stateHandler().waitToWhen(new IsStoppable(), 
-						new Runnable() {
-					@Override
-					public void run() {
-						getStateChanger().setStateException(
-								new JobDestroyedException(on));
-					}
-				});
+				stateHandler().waitToWhen(new IsStoppable(),
+						() -> getStateChanger().setStateException(
+								new JobDestroyedException(on)));
 				on = null;
 			}
 				
@@ -304,14 +286,13 @@ public class Trigger extends ScheduleBase {
 			}
 			
 			// don't fire if event time hasn't changed.
-			if (newOnly && event.getTime().equals(lastTime)) {
+			if (newOnly && event.getInstant().equals(lastTime)) {
 				logger().info("Already had event for time [" +
-						DateHelper.formatDateTime(lastTime) + 
-						"], not triggering.");
+						lastTime + "], not triggering.");
 				return;
 			}
 			
-			lastTime = event.getTime();
+			lastTime = event.getInstant();
 			
 			// We won't fire again until run again.
 			removeListener();
@@ -325,13 +306,10 @@ public class Trigger extends ScheduleBase {
 			}
 			else {
 				
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(TimerState.COMPLETE);
-					}
-				});
+				stateHandler.waitToWhen(new IsAnyState(),
+						() -> getStateChanger().setState(TimerState.COMPLETE));
 			}
 					
-		};
+		}
 	}
 }

@@ -1,16 +1,14 @@
 package org.oddjob.state;
 
 import org.junit.Test;
-
-import java.util.Date;
-
+import org.oddjob.MockStateful;
 import org.oddjob.OjTestCase;
 
-import org.oddjob.MockStateful;
+import java.time.Instant;
 
 public class StateExchangeTest extends OjTestCase {
 
-	private class OurStateful extends MockStateful {
+	private static class OurStateful extends MockStateful {
 		
 		StateListener listener;
 		
@@ -27,12 +25,12 @@ public class StateExchangeTest extends OjTestCase {
 		
 	}
 
-	private class OurChanger extends MockStateChanger {
+	private static class OurChanger extends MockStateChanger {
 
 		ParentState state;
 		
 		@Override
-		public void setState(ParentState state, Date date) {
+		public void setState(ParentState state, Instant date) {
 			this.state = state;
 		}
 	}
@@ -48,8 +46,8 @@ public class StateExchangeTest extends OjTestCase {
 
 		OurChanger changer = new OurChanger();
 		
-		StateExchange<ParentState> test = 
-				new StateExchange<ParentState>(stateful, changer);
+		StateExchange<ParentState> test =
+				new StateExchange<>(stateful, changer);
 		
 		assertNull(stateful.listener);
 		

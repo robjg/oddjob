@@ -126,9 +126,11 @@ public final class StateEvent {
 
 	/**
 	 * Get the time of the event.
-	 * 
+	 * Deprecated - used {@link #getInstant()}.
+	 *
 	 * @return The time.
 	 */
+	@Deprecated(since="1.7", forRemoval=true)
 	public Date getTime() {
 		return Date.from(instant);
 	}

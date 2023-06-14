@@ -3,7 +3,7 @@ package org.oddjob.state;
 import org.oddjob.Structural;
 import org.oddjob.structural.OddjobChildException;
 
-import java.util.Date;
+import java.time.Instant;
 
 /**
  * An operation that provides the result of evaluating many states. These
@@ -43,7 +43,7 @@ public interface StateOperator {
 		return new StateEvent(
 				childEvent.getSource(),
 				parentStateConverter.toStructuralState(childEvent.getState()),
-				new Date(),
+				Instant.now(),
 				exception);
 	}
 
