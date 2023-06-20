@@ -134,7 +134,7 @@ public class IfJob extends StructuralJob<Object>
                 }
             }
 
-            return new StateEvent(IfJob.this, ParentState.COMPLETE);
+            return StateEvent.now(IfJob.this, ParentState.COMPLETE);
         };
 
     }

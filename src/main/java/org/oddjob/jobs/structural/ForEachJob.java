@@ -271,7 +271,7 @@ public class ForEachJob extends StructuralJob<Object>
             @Override
             public StateEvent evaluate(StateEvent... states) {
                 if (states.length == 0) {
-                    return new StateEvent(ForEachJob.this,
+                    return StateEvent.now(ForEachJob.this,
                             ParentState.COMPLETE);
                 } else {
                     return anyStateOp.evaluate(states);

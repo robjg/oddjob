@@ -1,10 +1,9 @@
 package org.oddjob.state;
 
-import java.util.Date;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Pass on state. Generally used to reflect the state of children.
@@ -27,8 +26,8 @@ public class StateExchange<T extends State> {
 		public void jobStateChange(StateEvent event) {
 			@SuppressWarnings("unchecked")
 			T state = (T) event.getState();
-			Date time = event.getTime();
-		
+			StateInstant time = event.getStateInstant();
+
 			if (state.isDestroyed()) {
 				throw new IllegalStateException(
 						"A StateOperator should never return a DESTROYED state.");
@@ -36,11 +35,11 @@ public class StateExchange<T extends State> {
 			else if (state.isException()) {
 				Throwable throwable = event.getException();
 				recipient.setStateException(throwable, time);
-				
+
 			}
 			else {
 				recipient.setState(state, time);
-			}			
+			}
 		}
 	};
 	

@@ -3,8 +3,6 @@ package org.oddjob.state;
 import org.oddjob.Structural;
 import org.oddjob.structural.OddjobChildException;
 
-import java.time.Instant;
-
 /**
  * An operation that provides the result of evaluating many states. These
  * are used by {@link Structural} jobs to decide their own state.
@@ -40,10 +38,9 @@ public interface StateOperator {
 					childEvent.getSource().toString());
 		}
 
-		return new StateEvent(
+		return StateEvent.exceptionNow(
 				childEvent.getSource(),
 				parentStateConverter.toStructuralState(childEvent.getState()),
-				Instant.now(),
 				exception);
 	}
 

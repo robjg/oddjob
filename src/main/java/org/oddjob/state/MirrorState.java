@@ -120,7 +120,7 @@ implements Runnable, Stoppable, Resettable {
 		public synchronized void jobStateChange(
 				final StateEvent event) {
 			logger().info("Mirroring [" + event.getState() + "], time [" +
-					event.getTime() + "]");
+					event.getInstant() + "]");
 			
 			stateHandler.waitToWhen(new IsAnyState(), 
 					new Runnable() {
@@ -136,16 +136,16 @@ implements Runnable, Stoppable, Resettable {
 						stop();
 					}
 					else {
-						if (state.isException()){
+						if (state.isException()) {
 							
 							getStateChanger().setStateException(
-									event.getException(), event.getTime());
+									event.getException(), event.getStateInstant());
 						}
 						else {
 						
 							getStateChanger().setState(
 									new JobStateConverter().toJobState(
-											state), event.getTime());
+											state), event.getStateInstant());
 						}
 						
 					}

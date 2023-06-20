@@ -8,14 +8,9 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanRegistry;
 import org.oddjob.arooa.utils.Try;
 import org.oddjob.events.InstantEvent;
-import org.oddjob.state.FlagState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.StateConditions;
-import org.oddjob.state.StateEvent;
+import org.oddjob.state.*;
 import org.oddjob.util.Restore;
 
-import java.time.Instant;
-import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -48,7 +43,7 @@ public class StateExpressionsTest {
         Restore restore = test.evaluate(session, result::set);
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
 
         job.run();
 
@@ -57,21 +52,21 @@ public class StateExpressionsTest {
 
         StateEvent stateEvent = job.lastStateEvent();
         assertThat(result.get().orElseThrow().getTime(),
-                   is(stateEvent.getTime().toInstant()));
+                   is(stateEvent.getInstant()));
         assertThat(((StateEvaluation) result.get().orElseThrow()).getState(),
                    is(stateEvent.getState()));
 
         job.hardReset();
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
 
         restore.close();
 
         job.run();
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
     }
 
     @SuppressWarnings("unchecked")
@@ -118,15 +113,16 @@ public class StateExpressionsTest {
 
         assertThat(result.get(), nullValue());
 
-        StateEvent lhsEvent = new StateEvent(mock(Stateful.class),
-                                             JobState.READY,
-                                             new Date(2L),
-                                             null);
+        StateInstant stateInstant1 = StateInstant.parse("2023-06-19T08:55:00Z");
+        StateInstant stateInstant2 = StateInstant.parse("2023-06-19T08:55:01Z");
 
-        StateEvent rhsEvent = new StateEvent(mock(Stateful.class),
+        StateEvent lhsEvent = StateEvent.atInstant(mock(Stateful.class),
                                              JobState.READY,
-                                             new Date(5L),
-                                             null);
+                                             stateInstant1);
+
+        StateEvent rhsEvent = StateEvent.atInstant(mock(Stateful.class),
+                                             JobState.READY,
+                                             stateInstant2);
 
 
         lhsConsumer.get().accept(Try.of(
@@ -138,9 +134,9 @@ public class StateExpressionsTest {
                 new StateEvaluation(false, rhsEvent)));
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
         assertThat(result.get().orElseThrow().getTime(),
-                is(Instant.ofEpochMilli(5L)));
+                is(stateInstant2.getInstant()));
 
         lhsConsumer.get().accept(Try.of(
                 new StateEvaluation(true, lhsEvent)));
@@ -152,7 +148,7 @@ public class StateExpressionsTest {
                 new StateEvaluation(false, lhsEvent)));
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
 
         rhsConsumer.get().accept(Try.of(
                 new StateEvaluation(true, rhsEvent)));
@@ -236,15 +232,16 @@ public class StateExpressionsTest {
 
         assertThat(result.get(), nullValue());
 
-        StateEvent lhsEvent = new StateEvent(mock(Stateful.class),
-                                             JobState.READY,
-                                             new Date(2L),
-                                             null);
+        StateInstant stateInstant1 = StateInstant.parse("2023-06-19T08:55:00Z");
+        StateInstant stateInstant2 = StateInstant.parse("2023-06-19T08:55:01Z");
 
-        StateEvent rhsEvent = new StateEvent(mock(Stateful.class),
+        StateEvent lhsEvent = StateEvent.atInstant(mock(Stateful.class),
                                              JobState.READY,
-                                             new Date(5L),
-                                             null);
+                                             stateInstant1);
+
+        StateEvent rhsEvent = StateEvent.atInstant(mock(Stateful.class),
+                                             JobState.READY,
+                                             stateInstant2);
 
         lhsConsumer.get().accept(Try.of(
                 new StateEvaluation(false, lhsEvent)));
@@ -255,7 +252,7 @@ public class StateExpressionsTest {
                 new StateEvaluation(false, rhsEvent)));
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
 
         lhsConsumer.get().accept(Try.of(
                 new StateEvaluation(true, lhsEvent)));
@@ -348,10 +345,8 @@ public class StateExpressionsTest {
 
         assertThat(result.get(), nullValue());
 
-        StateEvent stateEvent = new StateEvent(mock(Stateful.class),
-                                             JobState.READY,
-                                             new Date(5L),
-                                             null);
+        StateEvent stateEvent = StateEvent.now(mock(Stateful.class),
+                                             JobState.READY);
 
         exprConsumer.get().accept(Try.of(
                 new StateEvaluation(false, stateEvent)));
@@ -363,7 +358,7 @@ public class StateExpressionsTest {
                 new StateEvaluation(true, stateEvent)));
 
         assertThat(result.get().orElseThrow().getOf(),
-                   is(false));
+                   is(Boolean.FALSE));
 
         exprConsumer.get().accept(Try.of(
                 new StateEvaluation(false, stateEvent)));

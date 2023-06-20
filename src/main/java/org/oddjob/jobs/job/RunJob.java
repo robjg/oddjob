@@ -14,8 +14,6 @@ import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.OddjobConfigException;
 import org.oddjob.util.Restore;
 
-import java.util.Date;
-
 /**
  * @oddjob.description A job which runs another job. The other job can be
  * local or on a server.
@@ -68,7 +66,7 @@ implements Structural, Stoppable {
 	private volatile boolean showJob;
 	
 	/** Helper to ensure consistent states. */
-	private volatile AsyncJobWait jobWait = new AsyncJobWait() {
+	private final AsyncJobWait jobWait = new AsyncJobWait() {
 		private static final long serialVersionUID = 2015041600L;
 		protected void childDestroyed() {
 			childHelper.removeAllChildren();
@@ -92,22 +90,19 @@ implements Structural, Stoppable {
 			try (Restore ignored = ComponentBoundary.push(loggerName(), RunJob.this)) {
 				stopChildStateReflector();
 				childHelper.removeAllChildren();
-				stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-					@Override
-					public void run() {
-						if (stateHandler().lastStateEvent().getState().isStoppable()) {
-							logger().info("Job Destroyed while active, setting state to COMPLETE");
-							getStateChanger().setStateException(
-									new RuntimeException("Child Job has been destroyed."));
-						}
-						else {
-							logger().info("Job Destroyed, leaving job in previous state.");
-						}
+				stateHandler().waitToWhen(new IsAnyState(), () -> {
+					if (stateHandler().lastStateEvent().getState().isStoppable()) {
+						logger().info("Job Destroyed while active, setting state to COMPLETE");
+						getStateChanger().setStateException(
+								new RuntimeException("Child Job has been destroyed."));
+					}
+					else {
+						logger().info("Job Destroyed, leaving job in previous state.");
 					}
 				});
 			}
 			// This will be unused as we've stopped the child state reflector.
-			return new StateEvent(RunJob.this, ParentState.EXCEPTION, new Date(),
+			return StateEvent.exceptionNow(RunJob.this, ParentState.EXCEPTION,
 					new RuntimeException("Child Destroyed"));
 		}
 	}
@@ -220,11 +215,7 @@ implements Structural, Stoppable {
 		// Ensure an asynchronous job always goes to active for the benefit
 		// of consistent state transitions even if it is already complete.
 		if (asynchronous) {
-				stateHandler().waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(ParentState.ACTIVE);
-				}
-			});
+				stateHandler().waitToWhen(new IsStoppable(), () -> getStateChanger().setState(ParentState.ACTIVE));
 		}
 	}
 
@@ -233,19 +224,17 @@ implements Structural, Stoppable {
 	 */
 	public boolean softReset() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler().waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
-				
-					logger().debug("Propagating Soft Reset to children.");			
-					
-					stopChildStateReflector();
-					childHelper.removeAllChildren();
-					stop = false;
-					getStateChanger().setState(ParentState.READY);
-					
-					logger().info("Soft Reset complete.");
-				}
-			});	
+			return stateHandler().waitToWhen(new IsSoftResetable(), () -> {
+
+				logger().debug("Propagating Soft Reset to children.");
+
+				stopChildStateReflector();
+				childHelper.removeAllChildren();
+				stop = false;
+				getStateChanger().setState(ParentState.READY);
+
+				logger().info("Soft Reset complete.");
+			});
 		} 
 	}
 	
@@ -255,17 +244,15 @@ implements Structural, Stoppable {
 	public boolean hardReset() {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
-			return stateHandler().waitToWhen(new IsHardResetable(), new Runnable() {
-				public void run() {
-					logger().debug("Propagating Hard Reset to children.");			
-					
-					stopChildStateReflector();
-					childHelper.removeAllChildren();
-					stop = false;
-					getStateChanger().setState(ParentState.READY);
-					
-					logger().info("Hard Reset complete.");
-				}
+			return stateHandler().waitToWhen(new IsHardResetable(), () -> {
+				logger().debug("Propagating Hard Reset to children.");
+
+				stopChildStateReflector();
+				childHelper.removeAllChildren();
+				stop = false;
+				getStateChanger().setState(ParentState.READY);
+
+				logger().info("Hard Reset complete.");
 			});
 		}
 	}

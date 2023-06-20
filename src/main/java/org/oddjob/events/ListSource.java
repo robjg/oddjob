@@ -5,7 +5,6 @@ import org.oddjob.Structural;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentPersistException;
-import org.oddjob.state.StateEvent;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 import org.oddjob.util.Restore;
@@ -164,9 +163,7 @@ implements Serializable, Structural {
 		s.defaultReadObject();
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		StateEvent.SerializableNoSource savedEvent = 
-				(StateEvent.SerializableNoSource) s.readObject();
-		
+
 		completeConstruction();
 		
 		setName(name);

@@ -41,7 +41,7 @@ public class StateEvaluation implements InstantEvent<Boolean> {
 
     @Override
     public Instant getTime() {
-        return stateEvent.getTime().toInstant();
+        return stateEvent.getInstant();
     }
 
     @Override

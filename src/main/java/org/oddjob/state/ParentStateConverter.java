@@ -20,5 +20,5 @@ public interface ParentStateConverter {
 	 * @param state Any state.
 	 * @return A Parent State.
 	 */
-	public ParentState toStructuralState(State state);
+	ParentState toStructuralState(State state);
 }

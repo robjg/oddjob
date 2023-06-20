@@ -328,8 +328,8 @@ public class JobWrapper extends BaseWrapper
     private void readObject(ObjectInputStream s) throws IOException,
             ClassNotFoundException {
         s.defaultReadObject();
-        StateEvent.SerializableNoSource savedEvent =
-                (StateEvent.SerializableNoSource) s.readObject();
+        StateDetail savedEvent =
+                (StateDetail) s.readObject();
         completeConstruction();
         stateHandler.restoreLastJobStateEvent(savedEvent);
         iconHelper.changeIcon(StateIcons.iconFor(stateHandler.getState()));

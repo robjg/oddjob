@@ -3,10 +3,10 @@ package org.oddjob.state;
 
 import org.junit.jupiter.api.Test;
 
-import java.time.Clock;
 import java.time.Instant;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Set;
 import java.util.concurrent.*;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -14,41 +14,6 @@ import static org.hamcrest.Matchers.is;
 
 class StateInstantTest {
 
-    @Test
-    void whenInstantTheSame() {
-
-        List<Long> nanos = List.of(10L, 20L, 30L, 40L);
-        Iterator<Long> it = nanos.iterator();
-
-        StateInstant test = new StateInstant(
-                Clock.fixed(Instant.ofEpochSecond(100L), ZoneOffset.UTC),
-                it::next);
-
-        Instant one = test._now();
-        Instant two = test._now();
-        Instant three = test._now();
-
-        assertThat(one.toString(), is("1970-01-01T00:01:40.000000010Z"));
-        assertThat(two.toString(), is("1970-01-01T00:01:40.000000020Z"));
-        assertThat(three.toString(), is("1970-01-01T00:01:40.000000030Z"));
-    }
-
-
-    @Test
-    void whenInstantAndNanosTheSame() {
-
-        StateInstant test = new StateInstant(
-                Clock.fixed(Instant.ofEpochSecond(100L), ZoneOffset.UTC),
-                () -> 0L);
-
-        Instant one = test._now();
-        Instant two = test._now();
-        Instant three = test._now();
-
-        assertThat(one.toString(), is("1970-01-01T00:01:40.000000001Z"));
-        assertThat(two.toString(), is("1970-01-01T00:01:40.000000002Z"));
-        assertThat(three.toString(), is("1970-01-01T00:01:40.000000003Z"));
-    }
 
     @Test
     void lotsOfRealClockCalls() throws ExecutionException, InterruptedException {
@@ -64,14 +29,14 @@ class StateInstantTest {
         for (int i = 0; i < sample; i++) {
             futures.add(executorService.submit(() -> {
                 synchronized (results1) {
-                    results1.add(StateInstant.now());
+                    results1.add(StateInstant.now().getInstant());
                 }
             }));
         }
         for (int i = 0; i < sample; i++) {
             futures.add(executorService.submit(() -> {
                 synchronized (results2) {
-                    results2.add(StateInstant.now());
+                    results2.add(StateInstant.now().getInstant());
                 }
             }));
         }

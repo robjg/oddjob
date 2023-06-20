@@ -1,10 +1,9 @@
 package org.oddjob.jobs.tasks;
 
-import java.util.Date;
-
 import org.oddjob.state.State;
 import org.oddjob.state.StateChanger;
 import org.oddjob.state.StateEvent;
+import org.oddjob.state.StateInstant;
 
 /**
  * Fire appropriate Task states.
@@ -23,7 +22,7 @@ public class TaskStateChanger {
 	public void propergate(StateEvent event) {
 		
 		State state = event.getState();
-		Date time = event.getTime();
+		StateInstant time = event.getStateInstant();
 		
 		if (state.isDestroyed()) {
 			stateChanger.setStateException(

@@ -4,8 +4,6 @@ import org.junit.Test;
 import org.oddjob.MockStateful;
 import org.oddjob.OjTestCase;
 
-import java.time.Instant;
-
 public class StateExchangeTest extends OjTestCase {
 
 	private static class OurStateful extends MockStateful {
@@ -30,7 +28,7 @@ public class StateExchangeTest extends OjTestCase {
 		ParentState state;
 		
 		@Override
-		public void setState(ParentState state, Instant date) {
+		public void setState(ParentState state, StateInstant date) {
 			this.state = state;
 		}
 	}
@@ -56,12 +54,12 @@ public class StateExchangeTest extends OjTestCase {
 		assertNotNull(stateful.listener);
 		assertNull(changer.state);
 		
-		stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.COMPLETE));
+		stateful.listener.jobStateChange(StateEvent.now(stateful, ParentState.COMPLETE));
 		
 		assertEquals(ParentState.COMPLETE, changer.state);
 		
 		try {
-			stateful.listener.jobStateChange(new StateEvent(stateful, ParentState.DESTROYED));
+			stateful.listener.jobStateChange(StateEvent.now(stateful, ParentState.DESTROYED));
 			fail("Should throw an Exception.");
 		}
 		catch (IllegalStateException e) {

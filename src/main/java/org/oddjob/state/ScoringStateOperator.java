@@ -2,8 +2,6 @@ package org.oddjob.state;
 
 import org.oddjob.structural.OddjobChildException;
 
-import java.util.Date;
-
 /**
  * A base state operator for state evaluation using scores for
  * different states.
@@ -50,24 +48,26 @@ abstract public class ScoringStateOperator implements StateOperator {
 
     StateEvent processEvent(StateEvent childEvent) {
 
+        ParentState parentState = getParentStateConverter().toStructuralState(childEvent.getState());
+
         Throwable childException = childEvent.getException();
         OddjobChildException exception;
 
         if (childException == null) {
-            exception = null;
+            return childEvent.copy()
+                    .withState(parentState)
+                    .create();
         }
         else if (childException instanceof OddjobChildException) {
-            exception = (OddjobChildException) childException;
+            return childEvent.copy()
+                    .withExceptionState(parentState, childException)
+                    .create();
         }
         else {
-            exception = new OddjobChildException(childException,
-                    childEvent.getSource().toString());
+            return childEvent.copy()
+                    .withExceptionState(parentState,
+                    new OddjobChildException(childException, childEvent.getSource().toString()))
+                    .create();
         }
-
-        return new StateEvent(
-                childEvent.getSource(),
-                getParentStateConverter().toStructuralState(childEvent.getState()),
-                new Date(),
-                exception);
     }
 }

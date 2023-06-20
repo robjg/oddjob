@@ -362,8 +362,8 @@ implements
 		s.defaultReadObject();
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		StateEvent.SerializableNoSource savedEvent = 
-				(StateEvent.SerializableNoSource) s.readObject();
+		StateDetail savedEvent =
+				(StateDetail) s.readObject();
 		
 		completeConstruction();
 		

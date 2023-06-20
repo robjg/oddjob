@@ -9,6 +9,7 @@ import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.ImageData;
+import org.oddjob.state.StateDetail;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
@@ -28,7 +29,7 @@ import java.util.Map;
 /**
  * Capture as much serializable information about a job 
  * hierarchy as possible. This serialized form of the hierarchy
- * is know as it's silhouette.
+ * is known as its silhouette.
  * 
  * @author rob
  *
@@ -92,11 +93,9 @@ public class SilhouetteFactory {
 				silhouette);
 		
 		if (lastJobStateEvent != null) {
-			silhouette.setLastStateEvent(new StateEvent(
-					(Stateful) proxy, 
-					lastJobStateEvent.getState(),
-					lastJobStateEvent.getTime(),
-					lastJobStateEvent.getException()));
+			silhouette.setLastStateEvent(lastJobStateEvent.copy()
+					.withSource((Stateful) proxy)
+					.create());
 		}
 		
 		if (children != null) {
@@ -240,14 +239,13 @@ class Silhouette implements InvocationHandler, Serializable,
 	private void readObject(ObjectInputStream s) 
 	throws IOException, ClassNotFoundException {
 		s.defaultReadObject();
-		StateEvent.SerializableNoSource savedEvent = 
-				(StateEvent.SerializableNoSource) s.readObject();
+		StateDetail savedEvent =
+				(StateDetail) s.readObject();
 		if (savedEvent == null) {
 			this.lastStateEvent = null;
 		}
 		else {
-			this.lastStateEvent = new StateEvent(this, savedEvent.getState(), 
-					savedEvent.getTime(), savedEvent.getException());
+			this.lastStateEvent = savedEvent.toEvent(this);
 		}
 	}
 

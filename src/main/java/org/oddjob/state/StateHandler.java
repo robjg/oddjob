@@ -6,7 +6,6 @@ import org.oddjob.util.OddjobLockedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -98,7 +97,7 @@ public class StateHandler<S extends State>
      */
     public StateHandler(Stateful source, S readyState) {
         this.source = source;
-        lastEvent = new StateEvent(source, readyState, null);
+        lastEvent = StateEvent.now(source, readyState);
         this.readyState = readyState;
     }
 
@@ -117,25 +116,24 @@ public class StateHandler<S extends State>
      *
      * @param savedEvent The last serialised event.
      */
-    public void restoreLastJobStateEvent(StateEvent.SerializableNoSource savedEvent) {
+    public void restoreLastJobStateEvent(StateDetail savedEvent) {
 
         // If state was saved when executing it now has to
         // be ready, because oddjob must have crashed last time.
         if (savedEvent.getState().isStoppable()) {
-            lastEvent = new StateEvent(source, readyState);
+            lastEvent = StateEvent.now(source, readyState);
         } else {
-            lastEvent = new StateEvent(source, savedEvent.getState(),
-                    savedEvent.getTime(), savedEvent.getException());
+            lastEvent = savedEvent.toEvent(source);
         }
     }
 
     /**
-     * Deprecated - use {@link #setState(State, Instant)}.
+     * Deprecated - use {@link #setState(State, StateInstant)}.
      *
      */
     @Deprecated(since="1.7", forRemoval=true)
     public void setState(S state, Date date) throws JobDestroyedException {
-        setLastJobStateEvent(new StateEvent(source, state, date, null));
+        setLastJobStateEvent(StateEvent.atInstant(source, state, StateInstant.forOneVersionOnly(date.toInstant())));
     }
 
     /**
@@ -146,10 +144,10 @@ public class StateHandler<S extends State>
      * 
      * @throws JobDestroyedException If the current state is DESTROYED.
      *
-     * @see org.oddjob.state.StateChanger#setState(State, Instant).
+     * @see org.oddjob.state.StateChanger#setState(State, StateInstant).
      */
-    public void setState(S state, Instant instant) throws JobDestroyedException {
-        setLastJobStateEvent(new StateEvent(source, state, instant, null));
+    public void setState(S state, StateInstant instant) throws JobDestroyedException {
+        setLastJobStateEvent(StateEvent.atInstant(source, state, instant));
     }
 
     /**
@@ -162,7 +160,7 @@ public class StateHandler<S extends State>
      * @see org.oddjob.state.StateChanger#setStateException(Throwable).
      */
     public void setState(S state) throws JobDestroyedException {
-        setLastJobStateEvent(new StateEvent(source, state));
+        setLastJobStateEvent(StateEvent.now(source, state));
     }
 
     /**
@@ -174,30 +172,26 @@ public class StateHandler<S extends State>
      *
      * @throws JobDestroyedException If the current state is DESTROYED.
      *
-     * @see org.oddjob.state.StateChanger#setStateException(Throwable, Instant).
+     * @see org.oddjob.state.StateChanger#setStateException(Throwable, StateInstant).
      */
-    public void setStateException(S state, Throwable t, Instant instant) throws JobDestroyedException {
+    public void setStateException(S state, Throwable t, StateInstant instant) throws JobDestroyedException {
         Objects.requireNonNull(state);
         Objects.requireNonNull(t);
         Objects.requireNonNull(instant);
 
         setLastJobStateEvent(
-                new StateEvent(source, state, instant, t));
+                StateEvent.exceptionAtInstant(source, state, instant, t));
     }
 
     /**
-     * Deprecated - use {@link #setStateException(State, Throwable, Instant)}.
+     * Deprecated - use {@link #setStateException(State, Throwable, StateInstant)}.
      *
      */
-    @Deprecated(since="1.7", forRemoval=true)
-    public void setStateException(S state, Throwable t, Date date) throws JobDestroyedException {
-        Objects.requireNonNull(state);
-        Objects.requireNonNull(t);
-        Objects.requireNonNull(date);
-
-        setLastJobStateEvent(
-                new StateEvent(source, state, date, t));
-    }
+//    @Deprecated(since="1.7", forRemoval=true)
+//    public void setStateException(S state, Throwable t, Date date) throws JobDestroyedException {
+//        setLastJobStateEvent(
+//                new StateEvent(source, state, date, t));
+//    }
 
     /**
      * Set the exception state.
@@ -210,7 +204,7 @@ public class StateHandler<S extends State>
      * @see StateChanger#setStateException(Throwable)
      */
     public void setStateException(State state, Throwable ex) throws JobDestroyedException {
-        setLastJobStateEvent(new StateEvent(source, state, ex));
+        setLastJobStateEvent(StateEvent.exceptionNow(source, state, ex));
     }
 
     private void setLastJobStateEvent(StateEvent event) throws JobDestroyedException {

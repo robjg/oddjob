@@ -2,14 +2,12 @@ package org.oddjob.jobs;
 
 import org.oddjob.*;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
-import org.oddjob.arooa.life.ComponentPersistException;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.framework.extend.BasePrimary;
 import org.oddjob.framework.util.ComponentBoundary;
 import org.oddjob.framework.util.StopWait;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.persist.Persistable;
 import org.oddjob.scheduling.Keeper;
 import org.oddjob.scheduling.LoosingOutcome;
 import org.oddjob.scheduling.Outcome;
@@ -23,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * @oddjob.description Grab work to do. By competing for work with
@@ -101,7 +98,7 @@ implements
 	/**
      * @oddjob.property
      * @oddjob.description The instance of identifier for a single grab. 
-     * This is an identifier for each run of the grab jobb and will be
+     * This is an identifier for each run of the grab job and will be
      * something like the scheduled date/time.
      * @oddjob.required Yes.
 	 */
@@ -110,7 +107,7 @@ implements
 	/**
      * @oddjob.property
      * @oddjob.description The identifier of the winner. Will be equal
-     * to this jobs identifier if this job has won.
+     * to this job's identifier if this job has won.
      * @oddjob.required R/O.
 	 */
 	private String winner;
@@ -128,16 +125,11 @@ implements
 	
 	private void completeConstruction() {
 		stateHandler = new JobStateHandler(this);
-		childHelper = new ChildHelper<Runnable>(this);
+		childHelper = new ChildHelper<>(this);
 		iconHelper = new IconHelper(this, 
 				StateIcons.iconFor(stateHandler.getState()));
-		stateChanger = new JobStateChanger(stateHandler, iconHelper, 
-				new Persistable() {					
-			@Override
-			public void persist() throws ComponentPersistException {
-				save();
-			}
-		});
+		stateChanger = new JobStateChanger(stateHandler, iconHelper,
+				this::save);
 	}
 
 	@Override
@@ -161,13 +153,11 @@ implements
 	public final void run() {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
-			if (!stateHandler.waitToWhen(new IsExecutable(), new Runnable() {
-				public void run() {
-					if (listener != null) {
-						listener.stop();
-					}
-					getStateChanger().setState(JobState.EXECUTING);
-				}					
+			if (!stateHandler.waitToWhen(new IsExecutable(), () -> {
+				if (listener != null) {
+					listener.stop();
+				}
+				getStateChanger().setState(JobState.EXECUTING);
 			})) {
 				return;
 			}
@@ -182,11 +172,7 @@ implements
 			catch (final Throwable e) {
 				logger().error("Job Exception.", e);
 				
-				stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						getStateChanger().setStateException(e);
-					}
-				});
+				stateHandler.waitToWhen(new IsAnyState(), () -> getStateChanger().setStateException(e));
 			}	
 			logger().info("Execution finished.");
 		}
@@ -225,18 +211,10 @@ implements
 			}
 			switch (loosingAction) {
 			case COMPLETE:
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(JobState.COMPLETE);
-					}
-				});
+				stateHandler.waitToWhen(new IsStoppable(), () -> getStateChanger().setState(JobState.COMPLETE));
 				break;
 			case INCOMPLETE:
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(JobState.INCOMPLETE);
-					}
-				});
+				stateHandler.waitToWhen(new IsStoppable(), () -> getStateChanger().setState(JobState.INCOMPLETE));
 				break;
 			case WAIT:
 				listener = new StandBackAndWatch((LoosingOutcome) outcome);
@@ -268,22 +246,14 @@ implements
 			if (finishedCondition.test(state)) {
 				outcome.removeStateListener(this);
 				listener = null;			
-				stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-					public void run() {
-						getStateChanger().setState(
-								new JobStateConverter().toJobState(state));
-					}
-				});
+				stateHandler.waitToWhen(new IsStoppable(), () -> getStateChanger().setState(
+						new JobStateConverter().toJobState(state)));
 			}
 		}
 		
 		synchronized public void stop() {
 			stopListening();
-			stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					getStateChanger().setState(JobState.INCOMPLETE);
-				}
-			});
+			stateHandler.waitToWhen(new IsStoppable(), () -> getStateChanger().setState(JobState.INCOMPLETE));
 		}
 		
 		@Override
@@ -295,9 +265,9 @@ implements
 	
 	interface GrabListener {
 
-		public void stop();
+		void stop();
 		
-		public void stopListening();
+		void stopListening();
 	}
 	
 	/**
@@ -307,8 +277,8 @@ implements
 	class ChildWatcher
 	implements GrabListener, StateListener {
 
-		private final StateChanger<JobState> stateChanger = 
-			new OrderedStateChanger<JobState>(getStateChanger(), stateHandler);
+		private final StateChanger<JobState> stateChanger =
+				new OrderedStateChanger<>(getStateChanger(), stateHandler);
 		
 		private final Stateful child; 
 		
@@ -323,7 +293,7 @@ implements
 		@Override
 		public void jobStateChange(StateEvent event) {
 			State state = event.getState();
-			Date time = event.getTime();
+			StateInstant time = event.getStateInstant();
 			
 			if (state.isReady()) {
 				stateChanger.setState(JobState.READY, time);
@@ -380,11 +350,7 @@ implements
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
 			logger().debug("Stop requested.");
 
-			if (!stateHandler.waitToWhen(new IsStoppable(), new Runnable() {
-				public void run() {
-					stop = true;
-				}
-			})) {
+			if (!stateHandler.waitToWhen(new IsStoppable(), () -> stop = true)) {
 				logger().debug("Not in a stoppable state.");
 				return;			
 			}
@@ -417,23 +383,21 @@ implements
 	 */
 	public boolean softReset() {
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
-			return stateHandler.waitToWhen(new IsSoftResetable(), new Runnable() {
-				public void run() {
+			return stateHandler.waitToWhen(new IsSoftResetable(), () -> {
 
-					logger().debug("Propagating Soft Reset to children.");			
+				logger().debug("Propagating Soft Reset to children.");
 
-					if (listener != null) {
-						listener.stopListening();
-					}
-
-					childHelper.softResetChildren();
-					reset();
-					getStateChanger().setState(JobState.READY);
-					stop = false;
-
-					logger().info("Soft reset complete.");
+				if (listener != null) {
+					listener.stopListening();
 				}
-			});	
+
+				childHelper.softResetChildren();
+				reset();
+				getStateChanger().setState(JobState.READY);
+				stop = false;
+
+				logger().info("Soft reset complete.");
+			});
 		}
 	}
 	
@@ -443,21 +407,19 @@ implements
 	public boolean hardReset() {
 		
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {		
-			return stateHandler.waitToWhen(new IsHardResetable(), new Runnable() {
-				public void run() {
-					logger().debug("Propagating Hard Reset to children.");			
+			return stateHandler.waitToWhen(new IsHardResetable(), () -> {
+				logger().debug("Propagating Hard Reset to children.");
 
-					if (listener != null) {
-						listener.stopListening();
-					}
-
-					childHelper.hardResetChildren();
-					reset();
-					getStateChanger().setState(JobState.READY);
-					stop = false;
-
-					logger().info("Hard reset complete.");
+				if (listener != null) {
+					listener.stopListening();
 				}
+
+				childHelper.hardResetChildren();
+				reset();
+				getStateChanger().setState(JobState.READY);
+				stop = false;
+
+				logger().info("Hard reset complete.");
 			});
 		}
 	}
@@ -564,8 +526,8 @@ implements
 
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		StateEvent.SerializableNoSource savedEvent = 
-				(StateEvent.SerializableNoSource) s.readObject();
+		StateDetail savedEvent =
+				(StateDetail) s.readObject();
 		
 		completeConstruction();
 		
@@ -580,11 +542,9 @@ implements
 	 */
 	protected void fireDestroyedState() {
 		
-		if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-			public void run() {
-				stateHandler().setState(JobState.DESTROYED);
-				stateHandler().fireEvent();
-			}
+		if (!stateHandler().waitToWhen(new IsAnyState(), () -> {
+			stateHandler().setState(JobState.DESTROYED);
+			stateHandler().fireEvent();
 		})) {
 			throw new IllegalStateException("[" + GrabJob.this + "] Failed set state DESTROYED");
 		}

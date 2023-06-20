@@ -10,8 +10,6 @@ import org.oddjob.OddjobException;
 import org.oddjob.OjTestCase;
 
 import java.io.*;
-import java.time.Instant;
-import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 
@@ -56,9 +54,11 @@ public class JobStateEventTest extends OjTestCase {
 	throws IOException, ClassNotFoundException {
 		
 		OurStateful source = new OurStateful();
-		
-		StateEvent event = new StateEvent(source, 
-				JobState.EXCEPTION, new Date(1234), 
+
+		StateInstant instant = StateInstant.parse("2023-06-15T06:24:30Z");
+
+		StateEvent event = StateEvent.exceptionAtInstant(source,
+				JobState.EXCEPTION, instant,
 				new OddjobException(message));
 
 		StateEvent.SerializableNoSource event2 = 
@@ -66,7 +66,7 @@ public class JobStateEventTest extends OjTestCase {
 						event.serializable());
 		
 		assertEquals(JobState.EXCEPTION, event2.getState());
-		assertEquals(1234, event2.getTime().getTime());
+		assertEquals(instant.getInstant(), event2.getInstant());
 		assertEquals(message, event2.getException().getMessage());
 	}
 	
@@ -75,9 +75,11 @@ public class JobStateEventTest extends OjTestCase {
 	throws IOException, ClassNotFoundException {
 		
 		OurStateful source = new OurStateful();
-		
-		StateEvent event = new StateEvent(source, 
-				JobState.EXCEPTION, new Date(1234), 
+
+		StateInstant instant = StateInstant.parse("2023-06-15T06:24:30Z");
+
+		StateEvent event = StateEvent.exceptionAtInstant(source,
+				JobState.EXCEPTION, instant,
 				new NotSerializableException());
 
 		StateEvent.SerializableNoSource event2 = 
@@ -85,7 +87,7 @@ public class JobStateEventTest extends OjTestCase {
 						event.serializable());
 		
 		assertEquals(JobState.EXCEPTION, event2.getState());
-		assertEquals(1234, event2.getTime().getTime());
+		assertEquals(instant.getInstant(), event2.getInstant());
 		assertEquals(StateEvent.REPLACEMENT_EXCEPTION_TEXT + message, 
 				event2.getException().getMessage());
 	}
@@ -93,16 +95,18 @@ public class JobStateEventTest extends OjTestCase {
    @Test
 	public void testSerializeComplete() throws IOException, ClassNotFoundException {
 		OurStateful source = new OurStateful();
-		
-		StateEvent event = new StateEvent(source, 
-				JobState.COMPLETE, new Date(1234), null);
+
+	   StateInstant instant = StateInstant.parse("2023-06-15T06:24:30Z");
+
+	   StateEvent event = StateEvent.exceptionAtInstant(source,
+				JobState.COMPLETE, instant, null);
 
 		StateEvent.SerializableNoSource event2 = 
 				(StateEvent.SerializableNoSource) outAndBack(
 						event.serializable());
 		
 		assertEquals(JobState.COMPLETE, event2.getState());
-		assertEquals(1234, event2.getTime().getTime());
+		assertEquals(instant.getInstant(), event2.getInstant());
 		assertEquals(null, event2.getException());
 	}
 	
@@ -116,17 +120,16 @@ public class JobStateEventTest extends OjTestCase {
 
 		ByteArrayInputStream in = new ByteArrayInputStream(os.toByteArray());
 		ObjectInput oi = new ObjectInputStream(in);
-		
-		Object o = oi.readObject();
-		return o;
+
+		return oi.readObject();
 	}
 
 	@Test
 	public void testToString() {
 
-		Instant instant = Instant.parse("2022-03-07T07:01:00Z");
+		StateInstant instant = StateInstant.parse("2022-03-07T07:01:00Z");
 
-		StateEvent test = StateEvent.at(new OurStateful(), JobState.COMPLETE, instant);
+		StateEvent test = StateEvent.atInstant(new OurStateful(), JobState.COMPLETE, instant);
 
 		MatcherAssert.assertThat(test.toString(),
 				is("JobStateEvent, source=OurStateful, COMPLETE at 2022-03-07T07:01:00Z"));

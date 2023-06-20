@@ -1,14 +1,14 @@
 package org.oddjob.scheduling.state;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.state.ParentState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.state.StateOperator;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A {@link Stateful} that adapts a {@link ParentState}s to 
@@ -24,7 +24,7 @@ public class TimerStateAdapter implements Stateful {
 	private final Stateful adapting;
 	
 	private final Map<StateListener, StateListener> adaptedListeners
-		= new ConcurrentHashMap<StateListener, StateListener>();
+		= new ConcurrentHashMap<>();
 	
 	/**
 	 * Create a new instance.
@@ -72,8 +72,9 @@ public class TimerStateAdapter implements Stateful {
 		default:
 			throw new IllegalStateException(parentState.toString());
 		}
-		return new StateEvent(event.getSource(), timerState, 
-				event.getTime(), event.getException());
+		return event.copy()
+				.withState(timerState)
+				.create();
 	}
 	
 	@Override
@@ -84,13 +85,8 @@ public class TimerStateAdapter implements Stateful {
 	@Override
 	public void addStateListener(final StateListener listener)
 			throws JobDestroyedException {
-		StateListener adaptedListener = new StateListener() {
-			
-			@Override
-			public void jobStateChange(StateEvent event) {
-				listener.jobStateChange(convert(event));
-			}
-		};
+		StateListener adaptedListener =
+				event -> listener.jobStateChange(convert(event));
 		adaptedListeners.put(listener, adaptedListener);
 		adapting.addStateListener(adaptedListener);
 	}

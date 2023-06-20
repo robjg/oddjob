@@ -109,7 +109,7 @@ public class RemoteBridgeTest {
         StatefulHandlerFactory.StateData stateData =
                 results.poll(2, TimeUnit.SECONDS).getData();
 
-        assertThat(statesEquivalent(stateData.getJobState(), JobState.READY),
+        assertThat(statesEquivalent(stateData.getState(), JobState.READY),
                 is(true));
 
         remoteBridge.invoke(1, OperationType.ofName("run").returningVoid());
@@ -117,13 +117,13 @@ public class RemoteBridgeTest {
         StatefulHandlerFactory.StateData stateData2 =
                 results.poll(2, TimeUnit.SECONDS).getData();
 
-        assertThat(statesEquivalent(stateData2.getJobState(), JobState.EXECUTING),
+        assertThat(statesEquivalent(stateData2.getState(), JobState.EXECUTING),
                 is(true));
 
         StatefulHandlerFactory.StateData stateData3 =
                 results.poll(2, TimeUnit.SECONDS).getData();
 
-        assertThat(statesEquivalent(stateData3.getJobState(), JobState.COMPLETE),
+        assertThat(statesEquivalent(stateData3.getState(), JobState.COMPLETE),
                 is(true));
 
         Object text = remoteBridge.invoke(1,

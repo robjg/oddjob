@@ -1,10 +1,10 @@
 package org.oddjob.monitor.model;
 
+import org.oddjob.state.StateEvent;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Observable;
-
-import org.oddjob.state.StateEvent;
 
 /**
  * This class encapsualtes the model of a job state.
@@ -22,7 +22,7 @@ public class StateModel extends Observable {
 
 	public void change(StateEvent event) {
 		state = event.getState().toString();
-		time = event.getTime().toString();
+		time = event.getStateInstant().toString();
 		StringWriter stackBuffer = new StringWriter();
 		
 		Throwable t = event.getException();

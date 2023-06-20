@@ -3,7 +3,6 @@ package org.oddjob.state;
 import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 
-import java.util.Date;
 import java.util.Optional;
 
 /**
@@ -15,35 +14,58 @@ public class ConstStateful implements Stateful {
 
     private final StateEvent stateEvent;
 
-    public ConstStateful(State state) {
-        this(null, state);
-    }
+//    public ConstStateful(State state) {
+//        this(null, state);
+//    }
+//
+//    public ConstStateful(State state,  Throwable throwable) {
+//        this(null, state, new Date(), throwable);
+//    }
+//
+//    public ConstStateful(Object source, State state) {
+//        this(source, state, StateInstant.now(), null);
+//
+//    }
+//
+//    @Deprecated(since="1.7", forRemoval=true)
+//    public ConstStateful(Object source, State state, Date date) {
+//        this(source, state, date.toInstant(), null);
+//
+//    }
 
-    public ConstStateful(State state,  Throwable throwable) {
-        this(null, state, new Date(), throwable);
-    }
+//    @Deprecated(since="1.7", forRemoval=true)
+//    public ConstStateful(Object source, State state, Date date, Throwable exception) {
+//        this.source = source;
+//        this.stateEvent = new StateEvent(this, state, date, exception);
+//    }
 
-    public ConstStateful(Object source, State state) {
-        this(source, state, new Date());
-
-    }
-    public ConstStateful(Object source, State state, Date date) {
-        this(source, state, date, null);
-
-    }
-
-    public ConstStateful(Object source, State state, Date date, Throwable exception) {
+    private ConstStateful(Object source, State state, StateInstant instant, Throwable exception) {
         this.source = source;
-        this.stateEvent = new StateEvent(this, state, date, exception);
+        this.stateEvent = StateEvent.exceptionAtInstant(this, state, instant, exception);
+    }
+
+    public static ConstStateful atInstant(Object source, State state, StateInstant instant) {
+        return new ConstStateful(source, state, instant, null);
+    }
+
+    public static ConstStateful now(Object source, State state) {
+        return new ConstStateful(source, state, StateInstant.now(), null);
+    }
+
+    public static ConstStateful exceptionAtInstant(Object source, State state, StateInstant instant, Throwable exception) {
+        return new ConstStateful(source, state, instant, exception);
+    }
+
+    public static ConstStateful exceptionNow(Object source, State state, Throwable exception) {
+        return new ConstStateful(source, state, StateInstant.now(), exception);
     }
 
     public static StateEvent event(State state) {
-        return new ConstStateful(state).lastStateEvent();
+        return now(null, state).lastStateEvent();
     }
 
     public static StateEvent exception(State state, Throwable throwable) {
-        return new ConstStateful(state,
-                throwable).lastStateEvent();
+        return exceptionNow(null, state, throwable).lastStateEvent();
     }
 
     @Override
@@ -65,7 +87,7 @@ public class ConstStateful implements Stateful {
     public String toString() {
         return getClass().getSimpleName() +
                 Optional.ofNullable( source )
-                        .map( s -> " for " + s.toString())
+                        .map( s -> " for " + s)
                 .orElse("");
     }
 }

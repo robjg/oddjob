@@ -2,8 +2,6 @@ package org.oddjob.state;
 
 import org.oddjob.framework.JobDestroyedException;
 
-import java.time.Instant;
-
 /**
  * A {@link StateChanger} that uses a {@link StateLock}
  * to ensure updates or ordered.
@@ -27,7 +25,7 @@ public class OrderedStateChanger<S extends State> implements StateChanger<S> {
     }
 
     @Override
-    public void setState(S state, Instant instant) throws JobDestroyedException {
+    public void setState(S state, StateInstant instant) throws JobDestroyedException {
         stateLock.runLocked(() -> stateChanger.setState(state, instant));
     }
 
@@ -37,7 +35,7 @@ public class OrderedStateChanger<S extends State> implements StateChanger<S> {
     }
 
     @Override
-    public void setStateException(Throwable t, Instant instant) throws JobDestroyedException {
+    public void setStateException(Throwable t, StateInstant instant) throws JobDestroyedException {
         stateLock.runLocked(
                 () -> stateChanger.setStateException(t, instant));
     }

@@ -4,8 +4,6 @@ import org.oddjob.Stateful;
 import org.oddjob.framework.JobDestroyedException;
 import org.oddjob.state.*;
 
-import java.util.Date;
-
 /**
  * A {@link TaskView} that is based on a job that is performing the task.
  * 
@@ -24,7 +22,7 @@ abstract public class JobTaskView implements TaskView {
 		public void jobStateChange(final StateEvent event) {
 			
 			final State state = event.getState();
-			final Date time = event.getTime();
+			final StateInstant time = event.getStateInstant();
 			
 			// Called before the event is fired so the response will
 			// be known by clients waiting for the complete event.

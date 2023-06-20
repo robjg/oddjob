@@ -4,11 +4,7 @@ import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.framework.extend.SimpleJob;
-import org.oddjob.state.JobState;
-import org.oddjob.state.State;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.StateMemory;
+import org.oddjob.state.*;
 import org.oddjob.util.OddjobConfigException;
 
 /**
@@ -31,6 +27,7 @@ import org.oddjob.util.OddjobConfigException;
  * @author Rob Gordon
  */
 
+@Deprecated
 public class DependsJob extends SimpleJob implements Stoppable,
 		StateListener {
 

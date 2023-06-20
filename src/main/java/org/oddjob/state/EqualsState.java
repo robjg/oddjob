@@ -54,20 +54,18 @@ implements Stoppable {
 		
 	@Override
 	protected StateOperator getInitialStateOp() {
-		return new StateOperator() {
-			public StateEvent evaluate(StateEvent... states) {
-				if (states.length == 0) {
-					return new StateEvent(EqualsState.this, ParentState.READY);
-				}
+		return states -> {
+			if (states.length == 0) {
+				return StateEvent.now(EqualsState.this, ParentState.READY);
+			}
 
-				StateEvent state = states[0];
-				
-				if (EqualsState.this.state.test(state.getState())) {
-					return new StateEvent(EqualsState.this, ParentState.COMPLETE);
-				}
-				else {
-					return new StateEvent(EqualsState.this, ParentState.INCOMPLETE);
-				}
+			StateEvent state = states[0];
+
+			if (EqualsState.this.state.test(state.getState())) {
+				return StateEvent.now(EqualsState.this, ParentState.COMPLETE);
+			}
+			else {
+				return StateEvent.now(EqualsState.this, ParentState.INCOMPLETE);
 			}
 		};
 	}

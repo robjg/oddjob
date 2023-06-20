@@ -57,7 +57,7 @@ public class AndStateOp implements StateOperator {
                 continue;
             }
 
-            state = new StateEvent(state.getSource(), ParentState.READY);
+            state = StateEvent.now(state.getSource(), ParentState.READY);
         }
 
         return StateOperator.toParentEvent(state, parentStateConverter);

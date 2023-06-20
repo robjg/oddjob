@@ -1,19 +1,7 @@
 package org.oddjob.framework.extend;
 
 import org.junit.Test;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.MockArooaSession;
 import org.oddjob.arooa.life.ComponentPersistException;
@@ -23,27 +11,26 @@ import org.oddjob.arooa.registry.MockComponentPool;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeListener;
-import org.oddjob.framework.extend.BaseComponent;
-import org.oddjob.framework.extend.BasePrimary;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.StateIcons;
-import org.oddjob.persist.Persistable;
-import org.oddjob.state.IsAnyState;
-import org.oddjob.state.JobState;
-import org.oddjob.state.JobStateChanger;
-import org.oddjob.state.JobStateHandler;
-import org.oddjob.state.StateListener;
-import org.oddjob.state.State;
-import org.oddjob.state.StateChanger;
-import org.oddjob.state.StateEvent;
-import org.oddjob.state.StateHandler;
+import org.oddjob.state.*;
 import org.oddjob.tools.OddjobTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BaseComponentTest extends OjTestCase {
 
 	private static final Logger logger = LoggerFactory.getLogger(BaseComponentTest.class);
 	
-	private class OurComponent extends BaseComponent {
+	private static class OurComponent extends BaseComponent {
 
 		private final JobStateHandler stateHandler = new JobStateHandler(this);
 		
@@ -53,13 +40,8 @@ public class BaseComponentTest extends OjTestCase {
 		private final JobStateChanger stateChanger;
 		
 		protected OurComponent() {
-			stateChanger = new JobStateChanger(stateHandler, iconHelper, 
-					new Persistable() {					
-						@Override
-						public void persist() throws ComponentPersistException {
-							save();
-						}
-					});
+			stateChanger = new JobStateChanger(stateHandler, iconHelper,
+					this::save);
 		}
 		
 		@Override
@@ -87,11 +69,7 @@ public class BaseComponentTest extends OjTestCase {
 		}
 		
 		void complete() {
-			stateHandler.waitToWhen(new IsAnyState(), new Runnable() {
-				public void run() {
-						getStateChanger().setState(JobState.COMPLETE);
-				}
-			});
+			stateHandler.waitToWhen(new IsAnyState(), () -> getStateChanger().setState(JobState.COMPLETE));
 		}
 		
 		@Override
@@ -100,7 +78,7 @@ public class BaseComponentTest extends OjTestCase {
 		}
 	}
 
-	class OurSession extends MockArooaSession {
+	static class OurSession extends MockArooaSession {
 		@Override
 		public ComponentPool getComponentPool() {
 			return new MockComponentPool() {
@@ -179,8 +157,8 @@ public class BaseComponentTest extends OjTestCase {
 		private void readObject(ObjectInputStream s) 
 		throws IOException, ClassNotFoundException {
 			s.defaultReadObject();
-			StateEvent.SerializableNoSource savedEvent = 
-					(StateEvent.SerializableNoSource) s.readObject();
+			StateDetail savedEvent =
+					(StateDetail) s.readObject();
 			
 			completeConstruction();
 			
@@ -211,11 +189,11 @@ public class BaseComponentTest extends OjTestCase {
 		
 		assertNotNull(copy.stateHandler);
 		
-		assertEquals(event.getTime(),
-				copy.stateHandler.lastStateEvent().getTime());
+		assertEquals(event.getStateInstant(),
+				copy.stateHandler.lastStateEvent().getStateInstant());
 	}
 	
-	private class OurContext extends MockArooaContext {
+	private static class OurContext extends MockArooaContext {
 		
 		RuntimeListener listener;
 		
@@ -247,15 +225,15 @@ public class BaseComponentTest extends OjTestCase {
    @Test
 	public void testStateNotifiedOnDestroy() {
 
-		final List<State> results = new ArrayList<State>();
+		final List<State> results = new ArrayList<>();
 
 		final AtomicBoolean destroyed = new AtomicBoolean();
 		
 		BasePrimary test = new BasePrimary() {
 
-			JobStateHandler stateHandler = new JobStateHandler(this);
+			final JobStateHandler stateHandler = new JobStateHandler(this);
 			
-			IconHelper iconHelper = new IconHelper(this, 
+			final IconHelper iconHelper = new IconHelper(this,
 					StateIcons.iconFor(stateHandler.getState()));
 			
 			@Override
@@ -282,24 +260,16 @@ public class BaseComponentTest extends OjTestCase {
 			@Override
 			protected void fireDestroyedState() {
 				
-				if (!stateHandler().waitToWhen(new IsAnyState(), new Runnable() {
-					public void run() {
-						stateHandler.setState(JobState.DESTROYED);
-						stateHandler.fireEvent();
-					}
+				if (!stateHandler().waitToWhen(new IsAnyState(), () -> {
+					stateHandler.setState(JobState.DESTROYED);
+					stateHandler.fireEvent();
 				})) {
 					throw new IllegalStateException("Failed set state DESTROYED");
 				}
 			}
 		};
 				
-		test.addStateListener(new StateListener() {
-			
-			@Override
-			public void jobStateChange(StateEvent event) {
-				results.add(event.getState());
-			}
-		});
+		test.addStateListener(event -> results.add(event.getState()));
 		
 		OurContext context = new OurContext();
 		test.setArooaContext(context);

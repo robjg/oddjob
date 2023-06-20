@@ -3,13 +3,13 @@
  */
 package org.oddjob.framework.extend;
 
+import org.oddjob.images.StateIcons;
+import org.oddjob.state.StateDetail;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-import org.oddjob.images.StateIcons;
-import org.oddjob.state.StateEvent;
 
 abstract public class SerializableJob extends SimpleJob 
 implements Serializable {
@@ -46,8 +46,8 @@ implements Serializable {
 		s.defaultReadObject();
 		String name = (String) s.readObject();
 		logger((String) s.readObject());
-		StateEvent.SerializableNoSource savedEvent = 
-				(StateEvent.SerializableNoSource) s.readObject();
+		StateDetail savedEvent =
+				(StateDetail) s.readObject();
 		
 		completeConstruction();
 		

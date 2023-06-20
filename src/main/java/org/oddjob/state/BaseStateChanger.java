@@ -7,8 +7,6 @@ import org.oddjob.persist.Persistable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.Instant;
-
 /**
  * Base functionality for changing {@link State}. This utility class is
  * responsible for notifying the change with the {@link StateHandler},
@@ -41,12 +39,12 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
     }
 
     @Override
-    public void setState(S state, Instant date) {
+    public void setState(S state, StateInstant stateInstant) {
         if (state == stateHandler.getState()) {
             return;
         }
 
-        stateHandler.setState(state, date);
+        stateHandler.setState(state, stateInstant);
         iconHelper.changeIcon(StateIcons.iconFor(state));
 
         try {
@@ -69,7 +67,7 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
     }
 
     @Override
-    public void setStateException(Throwable t, Instant instant) {
+    public void setStateException(Throwable t, StateInstant instant) {
         if (exceptionState == stateHandler.getState()) {
             return;
         }
@@ -77,7 +75,7 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
         stateHandler.setStateException(exceptionState, t, instant);
         iconHelper.changeIcon(IconHelper.EXCEPTION);
 
-        if (new IsSaveable().test(exceptionState) &&
+        if (IsSaveable.state(exceptionState) &&
                 !(t instanceof ComponentPersistException)) {
             try {
                 persistable.persist();
@@ -89,4 +87,6 @@ public class BaseStateChanger<S extends State> implements StateChanger<S> {
 
         stateHandler.fireEvent();
     }
+
+
 }

@@ -3,7 +3,6 @@ package org.oddjob.state;
 import org.oddjob.framework.JobDestroyedException;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Implementations provide the ability to change something's
@@ -29,19 +28,19 @@ public interface StateChanger<S extends State> {
 	 * @param state The state.
 	 * @param date The date.
 	 */
-	@Deprecated(since="1.7", forRemoval=true)
-	default void setState(S state, Date date) throws JobDestroyedException {
-		setState(state, date.toInstant());
-	}
+//	@Deprecated(since="1.7", forRemoval=true)
+//	default void setState(S state, Date date) throws JobDestroyedException {
+//		setState(state, date.toInstant());
+//	}
 
 	/**
 	 * Set the state to the given state with the
 	 * given event time.
 	 *
 	 * @param state The state.
-	 * @param instant The date.
+	 * @param stateInstant The unique event time.
 	 */
-	void setState(S state, Instant instant) throws JobDestroyedException;
+	void setState(S state, StateInstant stateInstant) throws JobDestroyedException;
 
 	/**
 	 * Set the state to an EXCEPTION state.
@@ -58,17 +57,19 @@ public interface StateChanger<S extends State> {
 	 * @param t The Exception.
 	 * @param date The event time.
 	 */
-	@Deprecated(since="1.7", forRemoval=true)
-	default void setStateException(Throwable t, Date date) throws JobDestroyedException {
-		setStateException(t, date.toInstant());
-	}
+//	@Deprecated(since="1.7", forRemoval=true)
+//	default void setStateException(Throwable t, Date date) throws JobDestroyedException {
+//		setStateException(t, date.toInstant());
+//	}
 
 	/**
 	 * Set the state to an EXCEPTION state with
 	 * the given event time.
 	 *
 	 * @param t The Exception.
-	 * @param instant The event time.
+	 * @param stateInstant The unique event time.
 	 */
-	void setStateException(Throwable t, Instant instant) throws JobDestroyedException;
+	void setStateException(Throwable t, StateInstant stateInstant) throws JobDestroyedException;
+
+
 }

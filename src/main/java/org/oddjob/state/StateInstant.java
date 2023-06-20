@@ -1,67 +1,74 @@
 package org.oddjob.state;
 
+import java.io.Serializable;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.LongSupplier;
+import java.util.Objects;
 
 /**
  * Ensure a unique instant for each state. Some jobs will not trigger if the time
  * of the state event hasn't changed. This ensures that each run of a Job will have
  * a unique event time so subsequent tasks run as expected.
  */
-public class StateInstant {
+public class StateInstant implements Serializable {
 
-    private static final StateInstant system =
-            new StateInstant(Clock.systemUTC(), System::nanoTime);
-    private final Clock clock;
+    private static final long serialVersionUID = 2023061400L;
 
-    private final LongSupplier nanoSupplier;
+    private static final StateInstantClock system =
+            StateInstantClock.fromClock(Clock.systemUTC(), System::nanoTime);
 
-    private final AtomicReference<NowAndNano> nowAndNano;
+    private final Instant instant;
 
-    public StateInstant(Clock clock, LongSupplier nanoSupplier) {
-        this.clock = clock;
-        this.nanoSupplier = nanoSupplier;
-        nowAndNano = new AtomicReference<>(
-                new NowAndNano(clock.instant(), nanoSupplier.getAsLong()));
+    private StateInstant(Instant instant) {
+        this.instant = Objects.requireNonNull(instant);
     }
 
-    public static Instant now() {
-        return system._now();
+    public static StateInstant now(StateInstantClock clock) {
+        return new StateInstant(clock.now());
     }
 
-    public Instant _now() {
-
-        while (true) {
-
-            NowAndNano last = nowAndNano.get();
-            Instant now = clock.instant();
-            long nano = nanoSupplier.getAsLong();
-            if (now.compareTo(last.now) <= 0) {
-                long elapsed = nano - last.nano;
-                if (elapsed <= 0) {
-                    elapsed = 1;
-                }
-                now = Instant.ofEpochSecond(last.now.getEpochSecond(),
-                        elapsed + (long) last.now.getNano());
-            }
-            NowAndNano again = new NowAndNano(now, nano);
-            if (nowAndNano.compareAndSet(last, again)) {
-                return now;
-            }
-        }
+    public static StateInstant now() {
+        return now(system);
     }
 
-    static class NowAndNano {
+    public static StateInstant parse(String text) {
+        return new StateInstant(Instant.parse(text));
+    }
 
-        private final Instant now;
+    /**
+     * Required to support the deprecated constructors in {@link StateEvent}.
+     *
+     * @since 1.7
+     *
+     * @param instant The instant
+     * @return The wrapped instant.
+     */
+    @Deprecated(since="1.7", forRemoval=true)
+    public static StateInstant forOneVersionOnly(Instant instant) {
+        return new StateInstant(instant);
+    }
 
-        private final long nano;
+    public Instant getInstant() {
+        return instant;
+    }
 
-        NowAndNano(Instant now, long nano) {
-            this.now = now;
-            this.nano = nano;
-        }
+    @Override
+    public String toString() {
+        return "StateInstant{" +
+                "instant=" + instant +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StateInstant that = (StateInstant) o;
+        return instant.equals(that.instant);
+    }
+
+    @Override
+    public int hashCode() {
+        return instant.hashCode();
     }
 }

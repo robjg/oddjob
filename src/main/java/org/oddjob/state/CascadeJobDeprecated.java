@@ -11,6 +11,7 @@ package org.oddjob.state;
  * @author rob
  *
  */
+@Deprecated
 public class CascadeJobDeprecated extends CascadeJob {
 	private static final long serialVersionUID = 2015041700L;
 

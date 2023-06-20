@@ -153,8 +153,7 @@ public class StatefulHandlerFactory
         }
 
         StateEvent dataToEvent(StateData data) {
-            return new StateEvent(owner, data.getJobState(),
-                    data.getDate(), data.getThrowable());
+            return StateEvent.fromDetail(owner, data);
         }
 
         void jobStateChange(StateData data) {
@@ -259,7 +258,7 @@ public class StatefulHandlerFactory
         @Override
         public void destroy() {
             jobStateChange(new StateData(
-                    new ClientDestroyed(), new Date(), null));
+                    new ClientDestroyed(), StateInstant.now(), null));
             logger.trace("Being destroyed so removing all {} listeners for {}.", listeners, toolkit);
             synchronized (this) {
                 if (!listeners.isEmpty()) {
@@ -298,7 +297,7 @@ public class StatefulHandlerFactory
             toolkit.runSynchronized(() -> {
                 StateData newEvent = new StateData(
                         event.getState(),
-                        event.getTime(),
+                        event.getStateInstant(),
                         event.getException());
                 Notification<StateData> notification =
                         toolkit.createNotification(STATE_CHANGE_NOTIF_TYPE, newEvent);
@@ -329,18 +328,23 @@ public class StatefulHandlerFactory
         }
     }
 
-    public static class StateData implements Serializable {
-        private static final long serialVersionUID = 2009063000L;
+    public static class StateData implements Serializable, StateDetail {
+        private static final long serialVersionUID = 2023061500L;
 
         private final GenericState jobState;
 
-        private final Date date;
+        private final StateInstant instant;
 
         private final Throwable throwable;
 
-        public StateData(State state, Date date, Throwable throwable) {
+//        @Deprecated(since="1.7", forRemoval=true)
+//        public StateData(State state, Date date, Throwable throwable) {
+//            this(state, date.toInstant(), throwable);
+//        }
+
+        public StateData(State state, StateInstant instant, Throwable throwable) {
             this.jobState = GenericState.from(state);
-            this.date = date;
+            this.instant = instant;
             if (throwable == null) {
                 this.throwable = null;
             } else {
@@ -348,16 +352,39 @@ public class StatefulHandlerFactory
             }
         }
 
+        @Deprecated(since="1.7", forRemoval=true)
         public State getJobState() {
             return jobState;
         }
 
-        public Date getDate() {
-            return date;
+        @Override
+        public State getState() {
+            return jobState;
         }
 
+        @Deprecated(since="1.7", forRemoval=true)
+        public Date getDate() {
+            return Date.from(instant.getInstant());
+        }
+
+        @Override
+        public StateInstant getStateInstant() {
+            return instant;
+        }
+
+        @Deprecated(since="1.7", forRemoval=true)
         public Throwable getThrowable() {
             return throwable;
+        }
+
+        @Override
+        public Throwable getException() {
+            return throwable;
+        }
+
+        @Override
+        public StateEvent toEvent(Stateful source) {
+            return null;
         }
     }
 

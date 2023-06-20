@@ -34,6 +34,6 @@ public class DestroyHandlingStateOp implements StateOperator {
 	}
 	
 	protected StateEvent onDestroyed(int index) {
-		return new ConstStateful(ParentState.EXCEPTION).lastStateEvent();
+		return ConstStateful.event(ParentState.EXCEPTION);
 	}
 }

@@ -116,7 +116,7 @@ public class StructuralStateHelper implements Stateful {
 						((Stateful) child).addStateListener(listener);
 					}
 					else {
-						stateHolder.set(new ConstStateful(JobState.COMPLETE).lastStateEvent());
+						stateHolder.set(ConstStateful.event(JobState.COMPLETE));
 					}
 
 					listeners.add(index, listener);
@@ -177,10 +177,10 @@ public class StructuralStateHelper implements Stateful {
 
 				if (stateEvent.getState().isException()) {
 					stateHandler.setStateException((ParentState) stateEvent.getState(),
-							stateEvent.getException(), stateEvent.getTime());
+							stateEvent.getException(), stateEvent.getStateInstant());
 				}
 				else {
-					stateHandler.setState((ParentState) stateEvent.getState(), stateEvent.getTime());
+					stateHandler.setState((ParentState) stateEvent.getState(), stateEvent.getStateInstant());
 				}
 			}
 			stateHandler.fireEvent();
