@@ -27,7 +27,7 @@ public class StatefulHandlerFactory
 
     private static final Logger logger = LoggerFactory.getLogger(StatefulHandlerFactory.class);
 
-    public static final HandlerVersion VERSION = new HandlerVersion(4, 0);
+    public static final HandlerVersion VERSION = new HandlerVersion(5, 0);
 
     public static final NotificationType<StateData> STATE_CHANGE_NOTIF_TYPE =
             NotificationType.ofName("org.oddjob.statechange")
@@ -78,7 +78,7 @@ public class StatefulHandlerFactory
 
     @Override
     public List<NotificationType<?>> getNotificationTypes() {
-        return Arrays.asList(STATE_CHANGE_NOTIF_TYPE);
+        return Collections.singletonList(STATE_CHANGE_NOTIF_TYPE);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class StatefulHandlerFactory
         public ClientStatefulHandler(Stateful owner, ClientSideToolkit toolkit) {
             this.owner = owner;
             this.toolkit = toolkit;
-            lastEvent = new StateEvent(this.owner, JobState.READY, null);
+            lastEvent = StateEvent.now(this.owner, JobState.READY);
         }
 
         StateEvent dataToEvent(StateData data) {
@@ -337,10 +337,10 @@ public class StatefulHandlerFactory
 
         private final Throwable throwable;
 
-//        @Deprecated(since="1.7", forRemoval=true)
-//        public StateData(State state, Date date, Throwable throwable) {
-//            this(state, date.toInstant(), throwable);
-//        }
+        @Deprecated(since="1.7", forRemoval=true)
+        public StateData(State state, Date date, Throwable throwable) {
+            this(state, StateInstant.forOneVersionOnly(date.toInstant()), throwable);
+        }
 
         public StateData(State state, StateInstant instant, Throwable throwable) {
             this.jobState = GenericState.from(state);
