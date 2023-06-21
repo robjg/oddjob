@@ -1,0 +1,10 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <exists file="${oddjob.assemble.home}/run-maven.xml"/>
+                <oddjob file="${oddjob.assemble.home}/run-maven.xml"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
