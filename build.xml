@@ -5,18 +5,9 @@
 
 ============================================================================ -->
 
-<project
-		xmlns:ivy="antlib:org.apache.ivy.ant"
-		default="jar" basedir="." name="Oddjob">
+<project basedir="." name="Oddjob">
 
-	<taskdef uri="antlib:org.apache.maven.artifact.ant"
-	            resource="org/apache/maven/artifact/ant/antlib.xml"
-		classpath="../oj-assembly/antlibs/maven-ant-tasks-2.1.3.jar"/>
-	
-	<taskdef resource="org/apache/ivy/ant/antlib.xml"
-	                 uri="antlib:org.apache.ivy.ant" 
-		classpath="../oj-assembly/antlibs/ivy-2.5.0.jar"/>
-	
+
 	<!-- =================================================================== -->
 	<!-- Initialization target                                               -->
 	<!-- =================================================================== -->
@@ -41,234 +32,19 @@
 		<echo message="using build file ${ant.file}"/>
 		<echo message="--------------------------------------------------------------"/>
 
-		<property name="debug"          value="on"/>
-		<property name="optimize"       value="off"/>
-		<property name="deprecation"    value="off"/>
-		<property name="nowarn"         value="on"/>
-		<!-- <property name="build.compiler" value="classic"/> -->
-
-		<property name="oddjob.package"  		value="org/oddjob"/>
 		<property name="src.dir"      			value="./src"/>
- 		<property name="test.dir"     			value="./test"/>
-        <property name="main.java"        		value="${src.dir}/main/java"/>
-        <property name="main.resource"   		value="${src.dir}/main/resources"/>
-        <property name="test.java"        		value="${src.dir}/test/java"/>
-        <property name="test.resources"   		value="${src.dir}/test/resources"/>
-		<property name="packages"     			value="org.oddjob"/>
-		
-		<property name="build.dir"      		location="build"/>
-		<property name="build.src"      		value="${build.dir}/src"/>
-		<property name="build.classes"     		value="${build.dir}/classes"/>
-		<property name="build.test"      		value="${build.dir}/test"/>
-		<property name="build.tests"     value="${build.dir}/test-classes"/>
-		<property name="build.javadocs" 		value="${build.dir}/javadocs"/>
+		<property name="test.dir"      			value="./test"/>
 
 		<property name="target.dir"      		location="target"/>
 
-		<property name="work.dir"     value="${build.dir}/work"/>
-		<property name="lib.dir"      value="${build.dir}"/>
-		<property name="opt.dir"      value="${build.dir}/opt"/>
-		<property name="opt.lib"      value="${opt.dir}/lib"/>
-
-		<property name="test.reports" value="${build.dir}/test-reports"/>
-			
-		<property name="jar.name"       	value="${name}-${build.version}.jar"/>
-		<property name="sources.jar.name"   value="${name}-${build.version}-sources.jar"/>
-		<property name="javadoc.jar.name"   value="${name}-${build.version}-javadoc.jar"/>
-		
-        <property name="antlr.src.dir"              value="${src.dir}/main/antlr4"/>
-		<property name="generated.src.dir"			value="${build.dir}/generated"/>
-
-		
-		<filter token="Name"    value="${Name}"/>
-		<filter token="name"    value="${name}"/>
-		<filter token="version" value="${build.version}"/>
-		<filter token="date"    value="${TODAY}"/>
-		<filter token="log"     value="true"/>
-		<filter token="verbose" value="true"/>
-		<filter token="reference" value="../reference"/>
-		<filter token="javadoc" value="../api"/>
-		<filter token="userguide" value="../userguide"/>
-		<filter token="devguide" value="../devguide"/>
-
 	</target>
 
-	<!-- =================================================================== -->
-	<!-- Prepare for the build                                               -->
-	<!-- =================================================================== -->
-	<target name="prepare" depends="init">
-
-		<mkdir dir="${build.dir}"/>
-
-        <ivy:settings file="../oj-assembly/ivysettings.xml"/>
-
-        <ivy:cachepath pathid="provided-cachepath" conf="provided" />
-
-		<ivy:cachepath pathid="test-cachepath" conf="test" />
-			
-        <ivy:cachepath pathid="antlr-classpath" conf="antlr" />
-
-		<path id="classpath">
-            <path refid="provided-cachepath"/>
-		</path>
-		
-		<path id="test-classpath">
-			<path refid="test-cachepath"/>
-			<pathelement path="${build.classes}" />
-		</path>
-
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Prepares the source code                                            -->
-	<!-- =================================================================== -->
-
-	<target name="prepare-src-main" depends="prepare">
-
-		<mkdir dir="${build.src}"/>
-		<mkdir dir="${generated.src.dir}"/>
-		<mkdir dir="${build.classes}"/>
-		
-		<copy todir="${build.src}" filtering="on">
-			<fileset dir="${main.java}"/>
-		</copy>
-
-		<java classname="org.antlr.v4.Tool" classpathref="antlr-classpath" fork="true">
-			<arg value="-o"/>
-			<arg value="${generated.src.dir}/org/oddjob/state/antlr"/>
-			<arg value="-package"/>
-			<arg value="org.oddjob.state.antlr"/>
-			<arg value="${antlr.src.dir}/org/oddjob/state/antlr/StateCondition.g4"/>
-		</java>
-		
-        <copy todir="${build.src}">
-            <fileset dir="${generated.src.dir}"/>
-        </copy>
-
-	</target>
-
-	<target name="jar-sources" depends="prepare-src-main">
-	    <jar destfile="${build.dir}/${sources.jar.name}"
-	         basedir="${build.src}">
-	    </jar>
-		
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Compiles the source directory                                       -->
-	<!-- =================================================================== -->
-	<target name="compile" depends="prepare-src-main"
-          description="Compiles the source code">
-
-        <copy todir="${build.classes}">
-            <fileset dir="${main.resource}"/>
-        </copy>
-
-		<echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
-
-		<javac srcdir="${build.src}"
-           destdir="${build.classes}"
-           debug="${debug}"
-           optimize="${optimize}"
-           deprecation="${deprecation}"
-           nowarn="${nowarn}">
-			<classpath refid="classpath"/>
-		</javac>
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Creates the jar file                                                -->
-	<!-- =================================================================== -->
-
-	<target name="jar" depends="compile" description="Generates the jar packages">
-
-	    <jar destfile="${lib.dir}/${jar.name}"
-	         basedir="${build.classes}">
-			<metainf dir=".">
-				<include name="LICENSE.txt"/>
-				<include name="NOTICE.txt"/>
-			</metainf>
-	    </jar>
-		
-	</target>
-
-
-	<!-- =================================================================== -->
-	<!-- Set a variable if javadoc is already up-to-date.                    -->
-	<!-- =================================================================== -->
-	<target name="javadocs_check">
-		<mkdir dir="${build.javadocs}"/>
-		<uptodate property="javadocs.notrequired" targetfile="${build.javadocs}/index.html" >
-			<srcfiles dir= "${build.src}" includes="**/*.java,**/package.html"/>
-		</uptodate>
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- If javadoc is already up-to-date, print a message saying so.        -->
-	<!-- =================================================================== -->
-	<target name="javadocs_done" if="javadocs.notrequired">
-		<echo message="-------------------------------------------------------------"/>
-		<echo message="Not rebuilding Javadocs, as they are up-to-date:"/>
-		<echo message="  ${build.javadocs}/index.html is more recent than"/>
-		<echo message="  ${build.src}/**/*.java"/>
-		<echo message="-------------------------------------------------------------"/>
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Creates the API documentation                                       -->
-	<!-- =================================================================== -->
-	<target name="javadocs" depends="prepare-src-main, javadocs_check, javadocs_done"
-         unless="javadocs.notrequired"
-         description="Builds the API documentation (javadocs)">
-		
-		<javadoc packagenames="${packages}.*"
-             sourcepath="${build.src}"
-             destdir="${build.javadocs}"
-             author="true"
-             version="true"
-             use="false"
-             noindex="true"
-             windowtitle="${Name} API"
-             doctitle="${Name}">
-			<classpath refid="classpath"/>
-			<tag name="oddjob.element" description="Oddjob Element: "/>
-			<tag name="oddjob.property" description="Oddjob Property: "/>
-			<tag name="oddjob.description" description="Description: "/>
-			<tag name="oddjob.example" description="Example: "/>
-			<tag name="oddjob.required" description="Required: "/>
-			<tag name="see"/>
-			<tag name="author"/>
-			<tag name="version"/>
-			<tag name="since"/>
-			<tag name="param"/>
-			<tag name="return"/>
-			<tag name="throws"/>
-		</javadoc>
-		
-	</target>
-	
-	<target name="jar-javadoc" depends="javadocs">
-	    <jar destfile="${build.dir}/${javadoc.jar.name}"
-	         basedir="${build.javadocs}">
-	    </jar>		
-	</target>
-
-	<!-- =================================================================== -->
-	<!-- Publish the jars in local ivy                                       -->
-	<!-- =================================================================== -->
-	<target name="install" depends="jar">
-
-		<ivy:publish resolver="local" pubrevision="${build.version}" overwrite="true" update="true">
-			<artifacts pattern="${build.dir}/[artifact]-[revision].[ext]" />
-		</ivy:publish>
-
-	</target>
-	
 	<!-- =================================================================== -->
 	<!-- Prepares the source distribution                                    -->
 	<!-- =================================================================== -->
-	<target name="dist-src" depends="init" if="dist.src.dir"
-          description="Prepares the source distribution">
+	<target name="dist-src" depends="init"
+            description="Prepares the source distribution"
+			if="dist.src.dir">
 
 		<property name="to.dir" value="${dist.src.dir}/${name}"/>
 		
@@ -291,7 +67,7 @@
 				<include name="server-jobs.xml"/>
 				<include name="client.xml"/>
                 <include name="build.xml"/>
-                <include name="ivy.xml"/>
+                <include name="oj-assemble.xml"/>
 				<include name="LICENSE.txt"/>
 				<include name="NOTICE.txt"/>
 				<include name="README.md"/>
@@ -316,100 +92,14 @@
 	</target>
 
 	<!-- =================================================================== -->
-	<!-- Test targets                                                       -->
-	<!-- =================================================================== -->
-	
-	<target name="compile-tests" depends="compile" description="Compile jUnit tests">
-
-		<copy todir="${build.tests}" filtering="off">
-			<fileset dir="${test.resources}"/>
-		</copy>
-		
-        <echo message="Compiling with Java ${ant.java.version}, debug ${debug}, optimize ${optimize}, deprecation ${deprecation}"/>
-
-		<!-- Compile tests -->
-		<javac srcdir="${test.java}"
-            destdir="${build.tests}"
-            debug="${debug}"
-            optimize="${optimize}"
-            deprecation="${deprecation}">
-			<classpath>
-				<path refid="test-classpath"/>
-			</classpath>
-		</javac>
-
-	</target>
-
-	<!-- Note that 'jar' target is required because some tests exec oddjob. -->
-	<target name="all-tests" depends="compile-tests, jar" description="Perform jUnit tests">
-		<delete dir="${work.dir}"/>
-		<mkdir dir="${work.dir}"/>
-		<mkdir dir="${test.reports}"/>
-		
-		<junit printsummary="on" haltonfailure="no" 
-				failureproperty="junit.failure"
-				fork="yes" forkmode="once" maxmemory="2G">
-			<classpath>
-				<pathelement location="${build.tests}" />
-			</classpath>
-			<classpath refid="test-classpath"/>
-			<batchtest todir="${test.reports}">
-				<fileset dir="${build.tests}">
-					<include name="**/test/*TestCase.class"/>
-					<include name="**/*Test.class" />
-					<exclude name="**/AllTest.class" />
-					<exclude name="**/*$$*Test.class" />
-				</fileset>
-			</batchtest>
-			<formatter type="xml" />
-			<sysproperty key="basedir" value="${basedir}"/>
-			<sysproperty key="oddjob.home" value="${oddjob.home}"/>
-			<sysproperty key="ant.file" value="${ant.file}"/>
-			<sysproperty key="logback.configurationFile" value="logback-maven.xml"></sysproperty>
-			<sysproperty key="build.directory" value="${build.dir}"></sysproperty>
-		</junit>
-		
-		<junitreport todir="${test.reports}">
-			<fileset dir="${test.reports}">
-		    	<include name="TEST-*.xml" />
-			</fileset>
-		    <report todir="${test.reports}" />
-		</junitreport>
-		
-		<fail if="junit.failure" message="Unit test(s) failed. See reports in ${test.reports}."/>	
-	</target>
-
-	<target name="single-test" depends="compile-tests, jar" description="Single JUnit test">
-		<mkdir dir="${work.dir}"/>
-			
-		<junit printsummary="yes" haltonfailure="yes" fork="yes">
-			<classpath>
-				<pathelement location="${build.tests}" />
-			</classpath>
-            <classpath>
-                <pathelement location="${java.home}/../lib/tools.jar"/>
-            </classpath>
-			<classpath refid="test-classpath"/>
-			<formatter type="plain" usefile="no" />
-			<test name="${junit.test}"/>
-			<sysproperty key="basedir" value="${basedir}"/>
-			<sysproperty key="oddjob.home" value="${oddjob.home}"/>
-			<sysproperty key="ant.file" value="${ant.file}"/>
-		</junit>
-	</target>
-	
-
-	<!-- =================================================================== -->
 	<!-- Clean targets                                                       -->
 	<!-- =================================================================== -->
 	
 	<target name="clean" depends="init" description="Cleans the build directories">
 		<delete dir="${target.dir}"/>
-		<delete dir="${build.dir}"/>
 		<delete file="${test.dir}/classloader/AJob.class"/>
 		<delete dir="${test.dir}/oddballs/apple/classes"/>
 		<delete dir="${test.dir}/oddballs/orange/classes"/>
-		<delete dir="${work.dir}"/>
 	</target>
 
 </project>

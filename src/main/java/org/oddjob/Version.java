@@ -2,6 +2,8 @@ package org.oddjob;
 
 import org.oddjob.arooa.ArooaConstants;
 import org.oddjob.arooa.utils.DateTimeHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,7 +24,7 @@ import java.util.regex.Pattern;
  */
 public class Version implements Comparable<Version>{
 
-
+	private static final Logger logger = LoggerFactory.getLogger(Version.class);
 	private static final Version current;
 	
 	static {
@@ -215,12 +217,12 @@ public class Version implements Comparable<Version>{
 	public static Version versionFromManifest() throws IOException {
 		Manifest manifest = manifestFor(Version.class);
 		if (manifest == null) {
+			logger.warn("Failed to load Manifest for {}, classloader {}",
+					Version.class, Version.class.getClassLoader());
 			return null;
 		}
 		else {
-			Manifest mf = Objects.requireNonNull(
-					Version.manifestFor(Version.class), "Failed to Load Manifest for Version");
-			Attributes attributes = mf.getMainAttributes();
+			Attributes attributes = manifest.getMainAttributes();
 			String version = attributes.getValue("Implementation-Version");
 			if (version == null) {
 				return null;
@@ -236,12 +238,17 @@ public class Version implements Comparable<Version>{
 
 		String location = aClass.getProtectionDomain().getCodeSource().getLocation().toString();
 
+		logger.trace("Looking for Manifest in {}", location);
+
 		Enumeration<URL> manifests = aClass.getClassLoader().getResources("META-INF/MANIFEST.MF");
 		while (manifests.hasMoreElements()) {
 			URL url = manifests.nextElement();
-			if (url.toString().startsWith(location)) {
+			// startsWith is not good enough since these jars have 'jar:' prepended.
+			if (url.toString().contains(location)) {
+				logger.trace("Found {}", url);
 				return new Manifest(url.openStream());
 			}
+			logger.trace("Ignoring {}", url);
 		}
 
 		return null;
