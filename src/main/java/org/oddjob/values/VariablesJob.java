@@ -1,22 +1,16 @@
 package org.oddjob.values;
 
+import org.apache.commons.beanutils.*;
+import org.oddjob.arooa.ArooaConstants;
+import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
+import org.oddjob.framework.extend.SimpleJob;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.beanutils.ConversionException;
-import org.apache.commons.beanutils.DynaBean;
-import org.apache.commons.beanutils.DynaClass;
-import org.apache.commons.beanutils.DynaProperty;
-import org.apache.commons.beanutils.LazyDynaBean;
-import org.apache.commons.beanutils.LazyDynaMap;
-import org.apache.commons.beanutils.MutableDynaClass;
-import org.oddjob.arooa.ArooaConstants;
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.beanutils.BeanUtilsPropertyAccessor;
-import org.oddjob.framework.extend.SimpleJob;
 
 
 /**
@@ -44,18 +38,10 @@ import org.oddjob.framework.extend.SimpleJob;
 public class VariablesJob extends SimpleJob
 		implements DynaBean {
 	
-	private final Map<String, Object> values = 
-		new LinkedHashMap<String, Object>();
+	private final Map<String, Object> values = new LinkedHashMap<>();
 	
-	/** The LazyDynaBean to delagate to. 
-	 *  
-	 *  For the refererence:
-	 * 
-	 * 
-     * @oddjob.property <i>Any type</i>
-     * @oddjob.description Any type.
-     * @oddjob.required No.
-	 * 
+	/**
+	 * The LazyDynaBean to delegate to.
 	 */
 	private final LazyDynaBean dynaBean = new LazyDynaMap(values);
 	
@@ -89,7 +75,7 @@ public class VariablesJob extends SimpleJob
 	@Override
 	protected void onReset() {
 		// Stop concurrent modification exception.
-		List<String> keySet = new ArrayList<String>(values.keySet());
+		List<String> keySet = new ArrayList<>(values.keySet());
 		
 		for (String name : keySet) {
 			if (ArooaConstants.ID_PROPERTY.equals(name)) {
@@ -272,7 +258,7 @@ public class VariablesJob extends SimpleJob
      * {@link org.oddjob.arooa.ArooaValue} as the type
      * for all properties.
      * 
-     * @see org.apche.commons.beanutils.LazyDynaBean
+     * @see org.apache.commons.beanutils.LazyDynaBean
      */
     static class VariablesDynaClass implements MutableDynaClass, Serializable {
     	private static final long serialVersionUID = 20070124;
@@ -334,14 +320,12 @@ public class VariablesJob extends SimpleJob
         }
         
     	@Override
-        public void add(String name, 
-        		@SuppressWarnings("rawtypes") Class type) {
+        public void add(String name, Class<?> type) {
         	delegate.add(name, type);
         }
         
     	@Override
-        public void add(String name, 
-        		@SuppressWarnings("rawtypes") Class type, boolean readable,
+        public void add(String name, Class<?> type, boolean readable,
         		boolean writeable) {
         	delegate.add(name, type, readable, writeable);
         }

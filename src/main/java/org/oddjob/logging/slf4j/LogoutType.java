@@ -1,5 +1,6 @@
 package org.oddjob.logging.slf4j;
 
+import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
@@ -21,10 +22,10 @@ import java.util.function.Consumer;
  * 
  * Copy the contents of a file to the logger.
  * 
- * {@oddjob.xml.resource org/oddjob/logging/log4j/LogoutExample.xml}
+ * {@oddjob.xml.resource org/oddjob/logging/slf4j/LogoutExample.xml}
  * 
  */
-public class LogoutType {
+public class LogoutType implements ArooaValue {
 
 	public static class Conversions implements ConversionProvider {
 
