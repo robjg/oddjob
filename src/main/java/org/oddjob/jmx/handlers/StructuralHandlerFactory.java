@@ -9,6 +9,7 @@ import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.*;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.ChildMatch;
 import org.oddjob.structural.StructuralEvent;
@@ -16,13 +17,13 @@ import org.oddjob.structural.StructuralListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class StructuralHandlerFactory
@@ -73,7 +74,7 @@ public class StructuralHandlerFactory
 
     @Override
     public List<NotificationType<?>> getNotificationTypes() {
-        return Arrays.asList(STRUCTURAL_NOTIF_TYPE);
+        return Collections.singletonList(STRUCTURAL_NOTIF_TYPE);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class StructuralHandlerFactory
                             notification -> {
                                 ChildData childData = notification.getData();
 
-                                new ChildMatch<Long>(childNames) {
+                                new ChildMatch<>(childNames) {
                                     @Override
                                     protected void insertChild(int index, Long childName) {
                                         Object childProxy = toolkit.getClientSession().create(childName);
@@ -237,7 +238,7 @@ public class StructuralHandlerFactory
                     logger.info("Server loopback detected.");
                     duplicate = true;
                     return;
-                } catch (JMException e2) {
+                } catch (RemoteException e2) {
                     logger.error("Failed creating child for [" + childComponent + "]", e2);
                     return;
                 }
@@ -290,7 +291,7 @@ public class StructuralHandlerFactory
 
                 try {
                     toolkit.getServerSession().destroy(child);
-                } catch (JMException e1) {
+                } catch (RemoteException e1) {
                     logger.error("Failed destroying child [" + e.getChild() + "]", e1);
                 }
                 logger.debug("Child removed [" + e.getChild().toString() + "], index [" + e.getIndex() + "]");

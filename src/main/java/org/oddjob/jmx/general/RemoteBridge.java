@@ -188,6 +188,11 @@ public class RemoteBridge implements RemoteConnection {
         }
     }
 
+    @Override
+    public void close() throws RemoteException {
+
+    }
+
     /**
      * Create a JMX filter for Notification Type.
      *

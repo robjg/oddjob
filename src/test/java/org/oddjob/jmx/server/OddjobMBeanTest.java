@@ -25,6 +25,7 @@ import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.remote.Notification;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -133,14 +134,14 @@ public class OddjobMBeanTest extends OjTestCase {
 
             public void addStateListener(StateListener listener) {
                 jsl = listener;
-                listener.jobStateChange(new StateEvent(this, JobState.READY, null));
+                listener.jobStateChange(StateEvent.now(this, JobState.READY));
             }
 
             public void removeStateListener(StateListener listener) {
             }
 
             public void foo() {
-                jsl.jobStateChange(new StateEvent(this, JobState.COMPLETE, null));
+                jsl.jobStateChange(StateEvent.now(this, JobState.COMPLETE));
             }
         }
         MyStateful myJob = new MyStateful();
@@ -196,7 +197,7 @@ public class OddjobMBeanTest extends OjTestCase {
      */
     @Test
     public void testNotifyStructure()
-            throws JMException {
+            throws JMException, RemoteException {
         final Object myChild = new Object() {
             public String toString() {
                 return "my child";

@@ -7,6 +7,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
 import org.oddjob.describe.NoDescribe;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.RemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,7 +252,7 @@ public class JMXServerJob implements ArooaSessionAware, JmxServer {
     }
 
     public void start()
-            throws JMException, IOException, ServerLoopBackException {
+            throws JMException, IOException, ServerLoopBackException, RemoteException {
         if (root == null) {
             throw new OddjobException("No root node.");
         }

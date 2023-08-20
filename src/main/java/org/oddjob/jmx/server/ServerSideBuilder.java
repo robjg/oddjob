@@ -4,12 +4,12 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.jmx.RemoteIdMappings;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerConnection;
 import java.util.Map;
@@ -60,7 +60,7 @@ public class ServerSideBuilder {
         return this;
     }
 
-    public ServerSide buildWith(MBeanServer mBeanServer, String serverId, Object root) throws JMException {
+    public ServerSide buildWith(MBeanServer mBeanServer, String serverId, Object root) throws RemoteException {
         return new Impl(this,
                 Objects.requireNonNull(mBeanServer),
                 Objects.requireNonNull(serverId),
@@ -82,7 +82,7 @@ public class ServerSideBuilder {
         private final MBeanServerConnection serverConnection;
 
         Impl(ServerSideBuilder builder, MBeanServer mBeanServer,
-             String serverId, Object root) throws JMException {
+             String serverId, Object root) throws RemoteException {
 
             this.serverConnection = Objects.requireNonNull(mBeanServer);
 
@@ -144,7 +144,7 @@ public class ServerSideBuilder {
             try {
                 factory.destroy(0L);
             }
-            catch (JMException e) {
+            catch (RemoteException e) {
                 // This can happen when the RMI registry is shut before the
                 // server is stopped.
                 logger.error("Failed destroying main MBean.", e);

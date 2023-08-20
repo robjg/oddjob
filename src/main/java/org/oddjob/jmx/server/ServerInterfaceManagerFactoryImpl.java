@@ -77,7 +77,52 @@ implements ServerInterfaceManagerFactory {
 			}
 		}
 	}
-	
+
+	private ServerInterfaceManagerFactoryImpl(Map<String, ?> env,
+											 List<ServerInterfaceHandlerFactory<?, ?>> serverHandlerFactories) {
+
+		for (ServerInterfaceHandlerFactory<?, ?> factory : serverHandlerFactories) {
+			if (this.serverHandlerFactories.contains(factory)) {
+				throw new IllegalArgumentException("Failed registering [" + factory +
+						", it is already registered for class [" + factory.serverClass() +"]");
+			}
+			this.serverHandlerFactories.add(factory);
+		}
+
+		if (env != null) {
+			Object accessFile = env.get(JMXServerJob.ACCESS_FILE_PROPERTY);
+			if (accessFile != null) {
+				try {
+					accessController = new OddjobJMXFileAccessController(accessFile.toString());
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+	}
+
+	public static class Builder {
+
+		private Map<String, ?> env;
+
+		private List<ServerInterfaceHandlerFactory<?, ?>> factories = new ArrayList<>(32);
+
+		public Builder addHandlerFactory(ServerInterfaceHandlerFactory<?, ?> factory) {
+			factories.add(Objects.requireNonNull(factory));
+			return this;
+		}
+
+		public ServerInterfaceManagerFactory build() {
+
+			return new ServerInterfaceManagerFactoryImpl(env, factories);
+		}
+	}
+
+	public static Builder newBuilder() {
+
+		return new Builder();
+	}
+
 	/**
 	 * Add extra handlers.
 	 * 

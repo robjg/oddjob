@@ -2,6 +2,7 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.jmx.RemoteIdMappings;
+import org.oddjob.remote.RemoteException;
 
 import javax.management.JMException;
 
@@ -25,7 +26,7 @@ public interface ServerSession extends RemoteIdMappings {
 	 */
 	long createMBeanFor(Object child,
 			ServerContext childContext)
-	throws JMException;
+	throws RemoteException;
 
 	/**
 	 * Destroy a server MBean.
@@ -35,7 +36,7 @@ public interface ServerSession extends RemoteIdMappings {
 	 * @throws JMException
 	 */
 	void destroy(long childId)
-	throws JMException;
+	throws RemoteException;
 
 	/**
 	 * Get the session used by the server.

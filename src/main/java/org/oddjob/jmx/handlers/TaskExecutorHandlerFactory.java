@@ -17,12 +17,16 @@ import org.oddjob.jobs.tasks.TaskException;
 import org.oddjob.jobs.tasks.TaskExecutor;
 import org.oddjob.jobs.tasks.TaskView;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanException;
+import javax.management.MBeanOperationInfo;
+import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
@@ -223,7 +227,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 			try {
 				objectName = toolkit.getServerSession().createMBeanFor(
 						taskView, toolkit.getContext().addChild(taskView));
-			} catch (ServerLoopBackException | JMException e) {
+			} catch (ServerLoopBackException | RemoteException e) {
 				throw new IllegalStateException("Faild creating Task View MBean.", e);
 			}
 			
@@ -252,7 +256,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 		protected void destroyTaskViewMBean(long taskViewObjectName) {
 			try {
 				toolkit.getServerSession().destroy(taskViewObjectName);
-			} catch (JMException e1) {
+			} catch (RemoteException e1) {
 				logger.error("Failed destroying child [" + taskViewObjectName + "]", e1);
 			}
 		}

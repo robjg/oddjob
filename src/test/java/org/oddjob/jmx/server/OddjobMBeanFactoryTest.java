@@ -4,8 +4,8 @@ import org.junit.Test;
 import org.oddjob.arooa.registry.Address;
 import org.oddjob.jmx.handlers.StructuralHandlerFactory;
 import org.oddjob.jobs.structural.JobFolder;
+import org.oddjob.remote.RemoteException;
 
-import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
@@ -40,7 +40,7 @@ public class OddjobMBeanFactoryTest {
     }
 
     @Test
-    public void testStructure() throws JMException {
+    public void testStructure() throws RemoteException {
 
         JobFolder folder = new JobFolder();
 

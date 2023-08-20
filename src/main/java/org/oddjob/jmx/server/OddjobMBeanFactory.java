@@ -4,13 +4,11 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.arooa.ArooaSession;
+import org.oddjob.remote.RemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.HashMap;
@@ -60,15 +58,19 @@ public class OddjobMBeanFactory implements ServerSession {
 	 */
 	@Override
 	public long createMBeanFor(Object object, ServerContext context)
-	throws JMException {
+	throws RemoteException {
 
 		long objectId = serial.getAndIncrement();
 
 		OddjobMBean ojmb = OddjobMBean.create(object, objectId, this, context);
 		ObjectName objName = ojmb.getObjectName();
 
-		server.registerMBean(ojmb, objName);
-		
+		try {
+			server.registerMBean(ojmb, objName);
+		} catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
+			throw new RemoteException(e);
+		}
+
 		synchronized (this) {
 			names.put(object, objectId);
 			mBeans.put(objectId, ojmb);
@@ -86,7 +88,7 @@ public class OddjobMBeanFactory implements ServerSession {
 	 * @throws JMException
 	 */
 	@Override
-	public void destroy(long objectId) throws JMException {
+	public void destroy(long objectId) throws RemoteException {
 
 		OddjobMBean ojmb;
 
@@ -101,8 +103,12 @@ public class OddjobMBeanFactory implements ServerSession {
 		ojmb.destroy();
 
 		ObjectName objectName = objectName(objectId);
-		server.unregisterMBean(objectName);
-		
+		try {
+			server.unregisterMBean(objectName);
+		} catch (InstanceNotFoundException | MBeanRegistrationException e) {
+			throw new RemoteException(e);
+		}
+
 		logger.debug("Unregistered and destroyed [" + ojmb + "]");
 	}
 	
