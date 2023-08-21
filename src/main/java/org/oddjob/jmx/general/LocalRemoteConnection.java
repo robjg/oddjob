@@ -64,7 +64,7 @@ public class LocalRemoteConnection implements RemoteConnection {
         private String logFormat;
 
 
-        private final ServerInterfaceManagerFactoryImpl.Builder factories =
+        private final ServerInterfaceManagerFactoryImpl.Builder managerFactoryBuilder =
                 ServerInterfaceManagerFactoryImpl.newBuilder();
 
         public Builder(ArooaSession arooaSession,
@@ -74,10 +74,16 @@ public class LocalRemoteConnection implements RemoteConnection {
         }
 
         public Builder addHandlerFactory(ServerInterfaceHandlerFactory<?, ?> factory) {
-            factories.addHandlerFactory(factory);
+            managerFactoryBuilder.addHandlerFactory(factory);
             return this;
         }
 
+        public Builder addHandlerFactories(ServerInterfaceHandlerFactory<?, ?>[] factories) {
+            for (ServerInterfaceHandlerFactory<?, ?> factory : factories) {
+                managerFactoryBuilder.addHandlerFactory(factory);
+            }
+            return this;
+        }
         public Builder setServerId(String serverId) {
             this.serverId = serverId;
             return this;
@@ -95,7 +101,7 @@ public class LocalRemoteConnection implements RemoteConnection {
 
         public RemoteConnection remoteForRoot(Object root) {
 
-            ServerInterfaceManagerFactory simf = factories.build();
+            ServerInterfaceManagerFactory simf = managerFactoryBuilder.build();
 
             ThreadManager threadManager = new SimpleThreadManager(executor);
 
