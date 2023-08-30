@@ -2,6 +2,8 @@ package org.oddjob.input.requests;
 
 import org.oddjob.input.InputMedium;
 
+import java.util.Objects;
+
 /**
  * @oddjob.description An input request for a password.
  * 
@@ -33,6 +35,20 @@ public class InputPassword extends BaseInputRequest {
 
 	public void setPrompt(String prompt) {
 		this.prompt = prompt;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputPassword inputText = (InputPassword) o;
+		return Objects.equals(getProperty(), inputText.getProperty()) &&
+				Objects.equals(prompt, inputText.prompt);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getProperty(), prompt);
 	}
 
 }

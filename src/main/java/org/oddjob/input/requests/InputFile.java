@@ -1,11 +1,12 @@
 package org.oddjob.input.requests;
 
-import java.io.File;
-
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.design.screem.FileSelectionOptions;
 import org.oddjob.arooa.design.screem.FileSelectionOptions.SelectionMode;
 import org.oddjob.input.InputMedium;
+
+import java.io.File;
+import java.util.Objects;
 
 /**
  * @oddjob.description A request for a file or directory.
@@ -127,5 +128,21 @@ public class InputFile extends BaseInputRequest {
 	@ArooaAttribute
 	public void setFileFilterExtensions(String[] fileFilterExtensions) {
 		options.setFileFilterExtensions(fileFilterExtensions);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputFile inputFile = (InputFile) o;
+		return Objects.equals(getProperty(), inputFile.getProperty())
+				&& Objects.equals(prompt, inputFile.prompt)
+				&& Objects.equals(defaultName, inputFile.defaultName)
+				&& Objects.equals(options, inputFile.options);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getProperty(), prompt, defaultName, options);
 	}
 }

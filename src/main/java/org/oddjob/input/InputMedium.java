@@ -18,7 +18,7 @@ public interface InputMedium {
 	 * @param prompt
 	 * @param defaultValue
 	 */
-	public void prompt(String prompt, String defaultValue);
+	void prompt(String prompt, String defaultValue);
 	
 	/**
 	 * A prompt for a password. The implementing medium should not display
@@ -26,7 +26,7 @@ public interface InputMedium {
 	 * 
 	 * @param prompt
 	 */
-	public void password(String prompt);
+	void password(String prompt);
 	
 	/**
 	 * Prompt for a yes/no confirmation.
@@ -34,17 +34,17 @@ public interface InputMedium {
 	 * @param message
 	 * @param defaultValue True for yes, False for no.
 	 */
-	public void confirm(String message, Boolean defaultValue);
+	void confirm(String message, Boolean defaultValue);
 	
 	/**
 	 * Display a message. Wait for acknowledgement. (Any Key To Continue 
 	 * type thing).
 	 * 
 	 * @param message
-	 */	
-	public void message(String message);
+	 */
+	void message(String message);
 	
 	
-	public void file(String message, 
+	void file(String message,
 			String defaultValue, FileSelectionOptions options);
 }

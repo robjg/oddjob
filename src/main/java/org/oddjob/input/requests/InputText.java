@@ -2,6 +2,8 @@ package org.oddjob.input.requests;
 
 import org.oddjob.input.InputMedium;
 
+import java.util.Objects;
+
 /**
  * @oddjob.description A request for a simple line of input.
  * 
@@ -49,5 +51,19 @@ public class InputText extends BaseInputRequest {
 	public void setDefault(String defaultValue) {
 		this.defaultValue = defaultValue;
 	}
-	
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputText inputText = (InputText) o;
+		return Objects.equals(getProperty(), inputText.getProperty())
+				&& Objects.equals(prompt, inputText.prompt)
+				&& Objects.equals(defaultValue, inputText.defaultValue);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getProperty(), prompt, defaultValue);
+	}
 }

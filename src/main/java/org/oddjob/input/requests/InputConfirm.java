@@ -2,6 +2,8 @@ package org.oddjob.input.requests;
 
 import org.oddjob.input.InputMedium;
 
+import java.util.Objects;
+
 /**
  * @oddjob.description A request for a yes/no confirmation. The value
  * captured for this request is a boolean true/false value.
@@ -50,5 +52,20 @@ public class InputConfirm extends BaseInputRequest {
 
 	public void setDefault(Boolean defaultValue) {
 		this.defaultValue = defaultValue;
-	}	
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputConfirm that = (InputConfirm) o;
+		return Objects.equals(getProperty(), that.getProperty())
+				&& Objects.equals(prompt, that.prompt)
+				&& Objects.equals(defaultValue, that.defaultValue);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(getProperty(), prompt, defaultValue);
+	}
 }

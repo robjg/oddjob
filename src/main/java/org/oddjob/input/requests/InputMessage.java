@@ -1,10 +1,11 @@
 package org.oddjob.input.requests;
 
-import java.io.Serializable;
-
 import org.oddjob.arooa.deploy.annotations.ArooaText;
 import org.oddjob.input.InputMedium;
 import org.oddjob.input.InputRequest;
+
+import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * @oddjob.description A Message with a prompt to continue. 
@@ -50,5 +51,18 @@ implements InputRequest, Serializable {
 	@Override
 	public String getProperty() {
 		return null;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		InputMessage that = (InputMessage) o;
+		return Objects.equals(message, that.message);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(message);
 	}
 }
