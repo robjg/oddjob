@@ -66,4 +66,13 @@ public class InputText extends BaseInputRequest {
 	public int hashCode() {
 		return Objects.hash(getProperty(), prompt, defaultValue);
 	}
+
+	@Override
+	public String toString() {
+		return "InputText{" +
+				"property='" + getProperty() + '\'' +
+				", prompt='" + prompt + '\'' +
+				", defaultValue='" + defaultValue + '\'' +
+				'}';
+	}
 }

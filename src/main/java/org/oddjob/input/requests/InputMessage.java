@@ -65,4 +65,11 @@ implements InputRequest, Serializable {
 	public int hashCode() {
 		return Objects.hash(message);
 	}
+
+	@Override
+	public String toString() {
+		return "InputMessage{" +
+				"message='" + message + '\'' +
+				'}';
+	}
 }

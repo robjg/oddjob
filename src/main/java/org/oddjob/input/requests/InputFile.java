@@ -145,4 +145,14 @@ public class InputFile extends BaseInputRequest {
 	public int hashCode() {
 		return Objects.hash(getProperty(), prompt, defaultName, options);
 	}
+
+	@Override
+	public String toString() {
+		return "InputFile{" +
+				"property='" + getProperty() + '\'' +
+				", prompt='" + prompt + '\'' +
+				", defaultName='" + defaultName + '\'' +
+				", options=" + options +
+				'}';
+	}
 }

@@ -51,4 +51,11 @@ public class InputPassword extends BaseInputRequest {
 		return Objects.hash(getProperty(), prompt);
 	}
 
+	@Override
+	public String toString() {
+		return "InputPassword{" +
+				"property='" + getProperty() + '\'' +
+				", prompt='" + prompt + '\'' +
+				'}';
+	}
 }
