@@ -4,6 +4,9 @@
 package org.oddjob.jmx.server;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.oddjob.OjTestCase;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
@@ -14,6 +17,7 @@ import javax.management.*;
 import java.util.Collections;
 import java.util.List;
 
+@RunWith(MockitoJUnitRunner.class)
 public class InterfaceManagerImplTest extends OjTestCase {
 
     public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
@@ -85,13 +89,17 @@ public class InterfaceManagerImplTest extends OjTestCase {
         }
     }
 
+    @Mock
+    ServerSideToolkit serverSideToolkit;
+
+
     @Test
     public void testAllClientInfo() {
         MockI target = new MockI() {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, null, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
 
         Implementation<?>[] result = test.allClientInfo();
 
@@ -104,7 +112,8 @@ public class InterfaceManagerImplTest extends OjTestCase {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, null, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
+                target, serverSideToolkit,
+                new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
                 opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
         Implementation<?>[] result = test.allClientInfo();
@@ -118,7 +127,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, null, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
 
         Object result = test.invoke(
                 "foo",
@@ -141,7 +150,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, null, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
                 opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
         Object result = test.invoke(
@@ -171,7 +180,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
                 new MockInterfaceInfo();
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, null, new ServerInterfaceHandlerFactory[]{factory});
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{factory});
 
         test.destroy();
 

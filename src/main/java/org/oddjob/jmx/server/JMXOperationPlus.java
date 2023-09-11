@@ -7,6 +7,7 @@ import javax.management.MBeanOperationInfo;
 import javax.management.MBeanParameterInfo;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class JMXOperationPlus<T> extends JMXOperation<T> implements HasOperationType<T> {
 
@@ -36,8 +37,8 @@ public class JMXOperationPlus<T> extends JMXOperation<T> implements HasOperation
                              int impact,
                              List<Param> params) {
 
-        this.actionName = actionName;
-        this.returnType = returnType;
+        this.actionName = Objects.requireNonNull(actionName);
+        this.returnType = Objects.requireNonNull(returnType);
         this.description = description;
         this.impact = impact;
         this.params = new ArrayList<>(params);

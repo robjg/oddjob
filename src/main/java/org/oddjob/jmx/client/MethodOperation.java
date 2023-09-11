@@ -28,7 +28,7 @@ public class MethodOperation<T> extends RemoteOperation<T> implements HasOperati
 	public static <T> MethodOperation<T> from(Method method) {
 
 		return new MethodOperation<>(
-				new OperationType<T>(method.getName(),
+				new OperationType<>(method.getName(),
 						method.getParameterTypes(),
 						(Class<T>) method.getReturnType()));
 	}

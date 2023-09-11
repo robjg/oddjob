@@ -1,16 +1,10 @@
 package org.oddjob.jmx.general;
 
 import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.registry.Address;
-import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.registry.ServerId;
 import org.oddjob.arooa.utils.ClassUtils;
-import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.server.*;
-import org.oddjob.logging.ConsoleArchiver;
-import org.oddjob.logging.LogArchiver;
-import org.oddjob.monitor.context.AncestorContext;
 import org.oddjob.remote.*;
 import org.oddjob.remote.util.NotificationControl;
 import org.oddjob.util.SimpleThreadManager;
@@ -63,6 +57,8 @@ public class LocalRemoteConnection implements RemoteConnection {
 
         private String logFormat;
 
+        private BeanDirectoryOwner beanDirectoryOwner;
+
 
         private final ServerInterfaceManagerFactoryImpl.Builder managerFactoryBuilder =
                 ServerInterfaceManagerFactoryImpl.newBuilder();
@@ -99,7 +95,7 @@ public class LocalRemoteConnection implements RemoteConnection {
             return this;
         }
 
-        public RemoteConnection remoteForRoot(Object root) {
+        public RemoteConnection remoteForRoot(Object root) throws ServerLoopBackException, RemoteException {
 
             ServerInterfaceManagerFactory simf = managerFactoryBuilder.build();
 
@@ -116,9 +112,15 @@ public class LocalRemoteConnection implements RemoteConnection {
             LocalRemoteConnection remote = new LocalRemoteConnection(
                     simf, arooaSession, notificationControl, close);
 
-            ServerContextRoot serverContextRoot = new ServerContextRoot(model, root);
+            ServerMainBean serverMainBean = new ServerMainBean(root, arooaSession.getBeanRegistry());
 
-            remote.create(root, serverContextRoot);
+            ServerContext serverContextRoot = new ServerContextMain(model, serverMainBean);
+
+            remote.serverSession.createMBeanFor(serverMainBean, serverContextRoot);
+
+            ServerContext serverContext = serverContextRoot.addChild(root);
+
+            remote.serverSession.createMBeanFor(root, serverContext);
 
             return remote;
         }
@@ -130,10 +132,12 @@ public class LocalRemoteConnection implements RemoteConnection {
     }
 
     protected long create(Object component, ServerContext serverContext) {
+        Objects.requireNonNull(component);
+        Objects.requireNonNull(serverContext);
 
         long remoteId = nodeIds.getAndIncrement();
 
-        Remote remoteBean = new Remote(serverContext.getAddress());
+        RemoteOddjobBeanDelegate remoteBean = new RemoteOddjobBeanDelegate(serverContext.getAddress());
 
         ServerSideToolkit serverSideToolkit = ServerSideToolkitImpl
                 .create(remoteId, notificationControl, serverSession, serverContext, remoteBean);
@@ -141,7 +145,7 @@ public class LocalRemoteConnection implements RemoteConnection {
         ServerInterfaceManager sim = serverInterfaceManagerFactory.create(component, serverSideToolkit);
 
         // Chicken and egg situation with client info.
-        remoteBean.implementationsProvider = sim;
+        remoteBean.setImplementationsProvider(sim);
 
         nodes.put(remoteId, sim);
 
@@ -213,7 +217,8 @@ public class LocalRemoteConnection implements RemoteConnection {
         public long createMBeanFor(Object object, ServerContext context)
                 throws RemoteException {
 
-            long objectId = create(object, context);
+            long objectId = create(Objects.requireNonNull(object),
+                    Objects.requireNonNull(context));
 
             synchronized (this) {
                 idsByComponent.put(object, objectId);
@@ -253,101 +258,6 @@ public class LocalRemoteConnection implements RemoteConnection {
         @Override
         public ArooaSession getArooaSession() {
             return session;
-        }
-    }
-
-    static class ServerContextRoot implements ServerContext {
-
-        private final ServerModel model;
-
-        private final Object component;
-
-        /**
-         * A constructor for the top most server
-         * context.
-         */
-        public ServerContextRoot(
-                ServerModel model,
-                Object component) {
-
-            this.model = model;
-            this.component = component;
-        }
-
-        @Override
-        public Object getThisComponent() {
-            return component;
-        }
-
-        @Override
-        public AncestorContext getParent() {
-            return null;
-        }
-
-        @Override
-        public ServerContext addChild(Object child) {
-            return new ServerContextImpl(child, model, this);
-        }
-
-        @Override
-        public ServerModel getModel() {
-            return model;
-        }
-
-        @Override
-        public LogArchiver getLogArchiver() {
-            return null;
-        }
-
-        @Override
-        public ConsoleArchiver getConsoleArchiver() {
-            return null;
-        }
-
-        public ServerId getServerId() {
-            return model.getServerId();
-        }
-
-        @Override
-        public Address getAddress() {
-            return null;
-        }
-
-        @Override
-        public BeanDirectory getBeanDirectory() {
-
-            if (component instanceof BeanDirectoryOwner) {
-                return ((BeanDirectoryOwner) component).provideBeanDirectory();
-            }
-            else {
-                return null;
-            }
-        }
-    }
-
-    static class Remote implements RemoteOddjobBean {
-
-        private final Address address;
-
-        private ServerInterfaceManager implementationsProvider;
-
-        Remote(Address address) {
-            this.address = address;
-        }
-
-        /**
-         * Get the component info.
-         *
-         * @return ServerInfo for the component.
-         */
-        public ServerInfo serverInfo() {
-
-            return new ServerInfo(
-                    address,
-                    implementationsProvider.allClientInfo());
-        }
-
-        public void noop() {
         }
     }
 

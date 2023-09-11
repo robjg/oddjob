@@ -105,7 +105,7 @@ implements ServerInterfaceManagerFactory {
 
 		private Map<String, ?> env;
 
-		private List<ServerInterfaceHandlerFactory<?, ?>> factories = new ArrayList<>(32);
+		private final List<ServerInterfaceHandlerFactory<?, ?>> factories = new ArrayList<>(32);
 
 		public Builder addHandlerFactory(ServerInterfaceHandlerFactory<?, ?> factory) {
 			factories.add(Objects.requireNonNull(factory));
@@ -147,6 +147,7 @@ implements ServerInterfaceManagerFactory {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceManagerFactory#create(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)
 	 */
+	@Override
 	public ServerInterfaceManager create(Object target, ServerSideToolkit serverSideToolkit) {
 		List<ServerInterfaceHandlerFactory<?, ?>> handlers =
 				new ArrayList<>();
@@ -166,4 +167,5 @@ implements ServerInterfaceManagerFactory {
 				handlers.toArray(new ServerInterfaceHandlerFactory[0]),
 				accessController);
 	}
+
 }

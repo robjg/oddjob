@@ -6,7 +6,9 @@ package org.oddjob.jmx.server;
 
 /**
  * Something that can create {@link ServerInterfaceManager}s.
- * 
+ *
+ * @see ServerInterfaceHandlerFactory
+ *
  * @author rob
  *
  */
@@ -19,7 +21,7 @@ public interface ServerInterfaceManagerFactory {
 	 * 
 	 * @param serverSideToolkit The toolkit used for creation of the manager.
 	 * 
-	 * @return
+	 * @return A ServerInterfaceManager. Never null.
 	 */
 	ServerInterfaceManager create(
 			Object target, ServerSideToolkit serverSideToolkit);

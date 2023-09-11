@@ -32,10 +32,10 @@ public class Utils {
 	
 	/**
 	 * Convert an array of objects to Objects that can
-	 * be sent accross the wire in a remote method call.
+	 * be sent across the wire in a remote method call.
 	 * 
-	 * @param objects
-	 * @return
+	 * @param objects Array of Objects to export. Maybe be null.
+	 * @return An array of exported objects. Null if inputs are.
 	 * @throws NotSerializableException
 	 */
 	public static Serializable[] export(Object[] objects) 
@@ -44,9 +44,11 @@ public class Utils {
 			return null;
 		}
 		Serializable[] results = new Serializable[objects.length];
+
 		for (int i = 0; i < objects.length; ++i) {
 			results[i] = export(objects[i]);
 		}
+
 		return results;
 	}
 

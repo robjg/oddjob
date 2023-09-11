@@ -21,14 +21,14 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 
 	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 
-	private static final JMXOperation<ServerInfo> SERVER_INFO = 
+	public static final JMXOperation<ServerInfo> SERVER_INFO =
 		new JMXOperationFactory(RemoteOddjobBean.class 
 				).operationFor(
 						"serverInfo", 
 						"The OddjobMBean Server side information.",
 						MBeanOperationInfo.INFO);
 	
-	private static final JMXOperation<Void> NOOP =
+	public static final JMXOperation<Void> NOOP =
 		new JMXOperationFactory(RemoteOddjobBean.class 
 				).operationFor("noop", MBeanOperationInfo.INFO);
 

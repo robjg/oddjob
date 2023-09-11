@@ -15,7 +15,7 @@ public interface TaskExecutor {
 	 * 
 	 * @return
 	 */
-	public InputRequest[] getParameterInfo();
+	InputRequest[] getParameterInfo();
 	
 	/**
 	 * Execute a task.
@@ -24,6 +24,6 @@ public interface TaskExecutor {
 	 * @return
 	 * @throws TaskException
 	 */
-	public TaskView execute(Task task)
+	TaskView execute(Task task)
 	throws TaskException;
 }

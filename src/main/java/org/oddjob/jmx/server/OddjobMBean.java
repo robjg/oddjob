@@ -1,7 +1,5 @@
 package org.oddjob.jmx.server;
 
-import org.oddjob.arooa.registry.Address;
-import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,6 +76,7 @@ public class OddjobMBean implements
      * @param serverSession The factory for creating child OddjobMBeans. May be null only
      *                      if this MBean will never have children.
      * @param serverContext The server context The server context. Must not be null.
+     *
      * @return A fully initialised OddjobMBean.
      */
     public static OddjobMBean create(Object node,
@@ -88,7 +87,7 @@ public class OddjobMBean implements
         ServerInterfaceManagerFactory imf =
                 serverContext.getModel().getInterfaceManagerFactory();
 
-        Remote remoteBean = new Remote(serverContext.getAddress());
+        RemoteOddjobBeanDelegate remoteBean = new RemoteOddjobBeanDelegate(serverContext.getAddress());
 
         ObjectName objectName = OddjobMBeanFactory.objectName(remoteId);
 
@@ -99,7 +98,7 @@ public class OddjobMBean implements
                         remoteBean));
 
         // Chicken and egg situation with client info.
-        remoteBean.implementationsProvider = serverInterfaceManager;
+        remoteBean.setImplementationsProvider(serverInterfaceManager);
 
         listeners.setNotificationTypes(serverInterfaceManager.getNotificationTypes());
 
@@ -275,32 +274,6 @@ public class OddjobMBean implements
     public String toString() {
         return "OddjobMBean for [" + node +
                 "], name " + objectName;
-    }
-
-    static class Remote implements RemoteOddjobBean {
-
-        private final Address address;
-
-        private ServerInterfaceManager implementationsProvider;
-
-        Remote(Address address) {
-            this.address = address;
-        }
-
-        /**
-         * Get the component info.
-         *
-         * @return ServerInfo for the component.
-         */
-        public ServerInfo serverInfo() {
-
-            return new ServerInfo(
-                    address,
-                    implementationsProvider.allClientInfo());
-        }
-
-        public void noop() {
-        }
     }
 
 

@@ -37,14 +37,12 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
      * interface might be important but we are using a LinkedHashMap just
      * in case it is.
      */
-    private final Map<RemoteOperation<?>, ServerInterfaceHandler> operations =
-            new LinkedHashMap<>();
+    private final Map<RemoteOperation<?>, ServerInterfaceHandler> operations;
 
     /**
      * Map of remote operations.
      */
-    private final Map<RemoteOperation<?>, MBeanOperationInfo> opInfos =
-            new HashMap<>();
+    private final Map<RemoteOperation<?>, MBeanOperationInfo> opInfos;
 
     /**
      * Simple Security
@@ -60,14 +58,22 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
     /**
      * Constructor.
      *
-     * @param target                 The target object the OddjobMBean is representing.
-     * @param ojmb                   The OddjobMBean.
-     * @param serverHandlerFactories The InterfaceInfos.
+     * @param target  The target object the OddjobMBean is representing.
+     * @param toolkit The Server Side Toolkit.
+     * @param serverHandlerFactories The Interface Handler Factories.
+     * @param accessController An Access Controller.
      */
     public ServerInterfaceManagerImpl(Object target,
-                                      ServerSideToolkit ojmb,
+                                      ServerSideToolkit toolkit,
                                       ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories,
                                       OddjobJMXAccessController accessController) {
+
+        Objects.requireNonNull(target);
+        Objects.requireNonNull(toolkit);
+        Objects.requireNonNull(serverHandlerFactories);
+
+        this.operations = new LinkedHashMap<>();
+        this.opInfos = new HashMap<>();
 
         List<MBeanAttributeInfo> attributeInfo =
                 new ArrayList<>();
@@ -84,7 +90,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 
             // create the interface handler
             ServerInterfaceHandler interfaceHandler
-                    = create(target, ojmb, serverHandlerFactory);
+                    = create(target, toolkit, serverHandlerFactory);
 
             if (interfaceHandler == null) {
                 continue;
@@ -138,7 +144,107 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
         }
     }
 
-    private <S> ServerInterfaceHandler create(
+    private ServerInterfaceManagerImpl(MBeanInfo mBeanInfo,
+                                       Set<NotificationType<?>> notificationTypes,
+                                       Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>[] handlerAndFactory,
+                                       Map<RemoteOperation<?>, ServerInterfaceHandler> operations,
+                                       Map<RemoteOperation<?>, MBeanOperationInfo> opInfos,
+                                       OddjobJMXAccessController accessController) {
+        this.mBeanInfo = mBeanInfo;
+        this.notificationTypes = notificationTypes;
+        this.handlerAndFactory = handlerAndFactory;
+        this.operations = operations;
+        this.opInfos = opInfos;
+        this.accessController = accessController;
+    }
+
+    public static ServerInterfaceManager createFor(Object target,
+                                      ServerSideToolkit ojmb,
+                                      ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories,
+                                      OddjobJMXAccessController accessController) {
+
+        List<MBeanAttributeInfo> attributeInfo =
+                new ArrayList<>();
+        List<MBeanOperationInfo> operationInfo =
+                new ArrayList<>();
+        List<NotificationType<?>> notificationInfo =
+                new ArrayList<>();
+
+        Map<RemoteOperation<?>, ServerInterfaceHandler> operations =
+                new LinkedHashMap<>();
+
+        Map<RemoteOperation<?>, MBeanOperationInfo> opInfos =
+                new HashMap<>();
+
+        List<Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>> handlerAndFactory =
+                new ArrayList<>();
+
+        // Loop over all definitions.
+        for (ServerInterfaceHandlerFactory<?, ?> serverHandlerFactory : serverHandlerFactories) {
+
+            // create the interface handler
+            ServerInterfaceHandler interfaceHandler
+                    = create(target, ojmb, serverHandlerFactory);
+
+            if (interfaceHandler == null) {
+                continue;
+            }
+
+            handlerAndFactory.add(Pair.of(interfaceHandler,
+                    serverHandlerFactory));
+
+            // collate MBeanAttributeInfo.
+            attributeInfo.addAll(Arrays.asList(serverHandlerFactory.getMBeanAttributeInfo()));
+
+            // collate MBeanOperationInfo.
+            MBeanOperationInfo[] oInfo = serverHandlerFactory.getMBeanOperationInfo();
+
+
+            for (MBeanOperationInfo opInfo : oInfo) {
+                operationInfo.add(opInfo);
+                RemoteOperation<?> remoteOp =
+                        new OperationInfoOperation(opInfo);
+                operations.put(
+                        remoteOp,
+                        interfaceHandler);
+                opInfos.put(remoteOp, opInfo);
+            }
+
+            // collate MBeanNotificationInfo.
+            notificationInfo.addAll(serverHandlerFactory.getNotificationTypes());
+        }
+
+        MBeanNotificationInfo[] notificationInfos = notificationInfo.stream()
+                .map(RemoteBridge::toMBeanNotification)
+                .toArray(MBeanNotificationInfo[]::new);
+
+        Set<NotificationType<?>> notificationTypes = new HashSet<>(notificationInfo);
+
+        //noinspection unchecked
+        Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>[] handlersAndFactories
+                = handlerAndFactory.toArray(new Pair[0]);
+
+        // create an MBeanInfo from the collated information.
+        MBeanInfo mBeanInfo = new MBeanInfo(target.toString(),
+                "Description of " + target.toString(),
+                attributeInfo.toArray(new MBeanAttributeInfo[0]),
+                new MBeanConstructorInfo[0],
+                operationInfo.toArray(new MBeanOperationInfo[0]),
+                notificationInfos);
+
+        if (accessController == null) {
+            accessController = opInfo -> true;
+        }
+
+        return new ServerInterfaceManagerImpl(mBeanInfo,
+                notificationTypes,
+                handlersAndFactories,
+                operations,
+                opInfos,
+                accessController);
+    }
+
+    private static <S> ServerInterfaceHandler create(
             Object target,
             ServerSideToolkit ojmb,
             ServerInterfaceHandlerFactory<S, ?> factory) {

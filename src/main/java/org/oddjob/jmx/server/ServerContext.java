@@ -53,16 +53,18 @@ public interface ServerContext extends AncestorContext {
 
 	/**
 	 * Get the bean directory that the component this is the context for 
-	 * belongs to.
+	 * belongs to. This is used to discover the address. It need not be exposed apart from
+	 * children to search the hierarchy.
 	 * 
 	 * @return The bean directory.
 	 */
 	BeanDirectory getBeanDirectory();
 
 	/**
-	 * The address.
+	 * The address. This will only be known if the component and all it's parent
+	 * {@link org.oddjob.arooa.registry.BeanDirectoryOwner}s have an id within their {@link BeanDirectory}.
 	 * 
-	 * @return The address of this component.
+	 * @return The address of this component. Null if there is no path of id's to the component.
 	 */
 	Address getAddress();
 	

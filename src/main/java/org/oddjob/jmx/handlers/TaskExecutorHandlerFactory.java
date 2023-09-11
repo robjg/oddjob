@@ -40,14 +40,14 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	
 	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 		
-	static final JMXOperationPlus<InputRequest[]> GET_PARAMETER_INFO = 
+	public static final JMXOperationPlus<InputRequest[]> GET_PARAMETER_INFO =
 			new JMXOperationPlus<>(
 					"Tasks.getParameterInfo",
 					"Get parameter info for a task executor.",
 					InputRequest[].class, 
 					MBeanOperationInfo.INFO);
 			
-	static final JMXOperationPlus<TaskViewData> EXECUTE = 
+	public static final JMXOperationPlus<TaskViewData> EXECUTE =
 			new JMXOperationPlus<>(
 					"Tasks.execute",
 					"Execute a Task.",
@@ -214,6 +214,9 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 				catch (TaskException e) {
 					throw new MBeanException(e);
 				}
+				if (taskView == null) {
+
+				}
 				return createTaskViewMBean(taskView);
 			}
 
@@ -228,7 +231,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 				objectName = toolkit.getServerSession().createMBeanFor(
 						taskView, toolkit.getContext().addChild(taskView));
 			} catch (ServerLoopBackException | RemoteException e) {
-				throw new IllegalStateException("Faild creating Task View MBean.", e);
+				throw new IllegalStateException("Failed creating Task View MBean.", e);
 			}
 			
 			taskViews.add(objectName);
@@ -264,7 +267,7 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 	}
 
 	
-	static class TaskViewData implements Serializable {
+	public static class TaskViewData implements Serializable {
 		private static final long serialVersionUID = 2015051200L;
 		
 		private final long objectName;

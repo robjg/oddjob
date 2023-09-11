@@ -31,7 +31,7 @@ public interface ServerInterfaceHandlerFactory<S, T> {
 
 	/**
 	 * Provide the client class. This is what the client proxy will implement.
-	 * It will mainly be the same as the server class but sometime there is
+	 * It will mainly be the same as the server class but sometimes there is
 	 * extra functionality the client needs and these classes will provide that.
 	 *
 	 * @return The class. Not null.

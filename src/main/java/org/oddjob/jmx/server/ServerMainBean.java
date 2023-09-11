@@ -9,7 +9,8 @@ import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
 /**
- * The anchor bean onto which all server side state is created. 
+ * The anchor bean onto which all server side state is created.
+ * On the client this accessed via {@link org.oddjob.jmx.client.ServerView}.
  * 
  * @author rob
  *

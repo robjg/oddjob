@@ -35,14 +35,14 @@ public class BeanDirectoryHandlerFactory implements
 
 	public static final HandlerVersion VERSION = new HandlerVersion(2, 0);
 	
-	private static final JMXOperationPlus<ServerId> SERVER_ID =
+	public static final JMXOperationPlus<ServerId> SERVER_ID =
 			new JMXOperationPlus<>(
 					"serverId",
 					"Get ServerId.",
 					ServerId.class,
 					MBeanOperationInfo.INFO);
 
-	private static final JMXOperationPlus<long[]> LIST =
+	public static final JMXOperationPlus<long[]> LIST =
 		new JMXOperationPlus<>(
 				"beansList", 
 				"List Beans.",
@@ -50,7 +50,7 @@ public class BeanDirectoryHandlerFactory implements
 				MBeanOperationInfo.INFO)
 			.addParam("type", Class.class, "The type required");
 
-	private static final JMXOperationPlus<String> ID_FOR =
+	public static final JMXOperationPlus<String> ID_FOR =
 			new JMXOperationPlus<>(
 					"beansIdFor",
 					"Id For ObjectName.",
@@ -58,7 +58,7 @@ public class BeanDirectoryHandlerFactory implements
 					MBeanOperationInfo.INFO)
 			.addParam("remoteId", long.class, "The object name.");
 
-	private static final JMXOperationPlus<Object> LOOKUP =
+	public static final JMXOperationPlus<Object> LOOKUP =
 			new JMXOperationPlus<>(
 					"beansLookup",
 					"Object lookup.",
@@ -66,7 +66,7 @@ public class BeanDirectoryHandlerFactory implements
 					MBeanOperationInfo.INFO)
 			.addParam("id", String.class, "The id.");
 
-	private static final JMXOperationPlus<Object> LOOKUP_TYPE =
+	public static final JMXOperationPlus<Object> LOOKUP_TYPE =
 			new JMXOperationPlus<>(
 					"beansLookupType",
 					"Object lookup.",
@@ -353,7 +353,7 @@ public class BeanDirectoryHandlerFactory implements
 			this.remoteId = remoteId;
 		}
 
-		long getRemoteId() {
+		public long getRemoteId() {
 			return remoteId;
 		}
 	}
