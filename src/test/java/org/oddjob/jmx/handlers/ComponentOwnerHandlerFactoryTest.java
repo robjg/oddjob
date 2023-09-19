@@ -2,8 +2,6 @@ package org.oddjob.jmx.handlers;
 
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.oddjob.Oddjob;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.ArooaParseException;
@@ -26,6 +24,7 @@ import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xmlunit.matchers.CompareMatcher;
@@ -170,10 +169,14 @@ public class ComponentOwnerHandlerFactoryTest {
         @SuppressWarnings("unchecked")
         @Override
         public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) handler.invoke(
-                    remoteOperation,
-                    args);
+                throws RemoteException {
+            try {
+                return (T) handler.invoke(
+                        remoteOperation,
+                        args);
+            } catch (Throwable e) {
+                throw new RemoteException(e);
+            }
         }
 
     }
@@ -796,21 +799,8 @@ public class ComponentOwnerHandlerFactoryTest {
                 = new ComponentOwnerHandlerFactory.ClientFactory();
 
         ConfigurationOwner proxy = mock(ConfigurationOwner.class);
-        ClientSideToolkit clientToolkit = mock(ClientSideToolkit.class);
+        ClientSideToolkit clientToolkit = MockClientSideToolkit.mockToolkit(serverHandler);
 
-        doAnswer(invocation -> {
-            if (invocation.getArguments().length == 1) {
-                return serverHandler.invoke(
-                        invocation.getArgument(0), new Object[0]);
-            } else if (invocation.getArguments().length == 2) {
-                return serverHandler.invoke(
-                        invocation.getArgument(0), new Object[]{invocation.getArgument(1)});
-            } else {
-                throw new RuntimeException("How do we handle VarArgs?");
-            }
-        })
-                .when(clientToolkit)
-                .invoke(Mockito.any(RemoteOperation.class), ArgumentMatchers.any());
         Map<NotificationType<?>, NotificationListener<?>> listenerMap = new HashMap<>();
         doAnswer(invocation -> {
             listenerMap.put(invocation.getArgument(0), invocation.getArgument(1));

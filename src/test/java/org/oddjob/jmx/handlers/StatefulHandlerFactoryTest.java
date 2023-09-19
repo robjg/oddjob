@@ -14,6 +14,7 @@ import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.state.GenericState;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
@@ -29,7 +30,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
         public void addStateListener(StateListener listener) {
             assertNull(l);
             l = listener;
-            l.jobStateChange(new StateEvent(this, JobState.READY));
+            l.jobStateChange(StateEvent.now(this, JobState.READY));
         }
 
         public void removeStateListener(StateListener listener) {
@@ -41,13 +42,17 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
     private static class OurClientToolkit extends MockClientSideToolkit {
         ServerInterfaceHandler server;
 
-        NotificationListener listener;
+        NotificationListener<?> listener;
 
         @SuppressWarnings("unchecked")
         @Override
         public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) server.invoke(remoteOperation, args);
+                throws RemoteException {
+            try {
+                return (T) server.invoke(remoteOperation, args);
+            } catch (Throwable e) {
+                throw new RemoteException(e);
+            }
         }
 
         @Override
@@ -148,7 +153,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         serverToolkit.listener = clientToolkit.listener;
 
-        stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+        stateful.l.jobStateChange(StateEvent.now(stateful, JobState.COMPLETE));
 
         // check the notification is sent
         assertThat("State complete",
@@ -174,8 +179,12 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
         @SuppressWarnings("unchecked")
         @Override
         public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) server.invoke(remoteOperation, args);
+                throws RemoteException {
+            try {
+                return (T) server.invoke(remoteOperation, args);
+            } catch (Throwable e) {
+                throw new RemoteException(e);
+            }
         }
     }
 
@@ -200,7 +209,7 @@ public class StatefulHandlerFactoryTest extends OjTestCase {
 
         clientToolkit.server = serverHandler;
 
-        stateful.l.jobStateChange(new StateEvent(stateful, JobState.COMPLETE));
+        stateful.l.jobStateChange(StateEvent.now(stateful, JobState.COMPLETE));
 
         StateEvent lastStateEvent = local.lastStateEvent();
 

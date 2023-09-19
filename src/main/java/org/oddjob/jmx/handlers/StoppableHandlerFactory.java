@@ -58,10 +58,10 @@ implements ServerInterfaceHandlerFactory<Stoppable, Stoppable> {
 
 	@Override
 	public ServerInterfaceHandler createServerHandler(
-			Stoppable target, ServerSideToolkit ojmb) {
+			Stoppable target, ServerSideToolkit toolkit) {
 		
 		return new ServerAllOperationsHandler<>(
-				Stoppable.class, target);
+				Stoppable.class, target, toolkit.getRemoteId());
 	}
 
 	@Override

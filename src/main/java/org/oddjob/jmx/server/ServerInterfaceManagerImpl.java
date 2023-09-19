@@ -6,9 +6,7 @@ package org.oddjob.jmx.server;
 import org.oddjob.arooa.utils.Pair;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.general.RemoteBridge;
-import org.oddjob.remote.HasInitialisation;
-import org.oddjob.remote.Implementation;
-import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.*;
 
 import javax.management.*;
 import java.util.*;
@@ -19,6 +17,8 @@ import java.util.*;
  * @author Rob Gordon
  */
 public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
+
+    private final long remoteId;
 
     /**
      * The collective mBeanInfo
@@ -67,11 +67,11 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
                                       ServerSideToolkit toolkit,
                                       ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories,
                                       OddjobJMXAccessController accessController) {
-
         Objects.requireNonNull(target);
         Objects.requireNonNull(toolkit);
         Objects.requireNonNull(serverHandlerFactories);
 
+        this.remoteId = toolkit.getRemoteId();
         this.operations = new LinkedHashMap<>();
         this.opInfos = new HashMap<>();
 
@@ -131,25 +131,23 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 
         // create an MBeanInfo from the collated information.
         mBeanInfo = new MBeanInfo(target.toString(),
-                "Description of " + target.toString(),
+                "Description of " + target,
                 attributeInfo.toArray(new MBeanAttributeInfo[0]),
                 new MBeanConstructorInfo[0],
                 operationInfo.toArray(new MBeanOperationInfo[0]),
                 notificationInfos);
 
-        if (accessController == null) {
-            this.accessController = opInfo -> true;
-        } else {
-            this.accessController = accessController;
-        }
+        this.accessController = Objects.requireNonNullElseGet(accessController, () -> opInfo -> true);
     }
 
-    private ServerInterfaceManagerImpl(MBeanInfo mBeanInfo,
+    private ServerInterfaceManagerImpl(long remoteId,
+                                       MBeanInfo mBeanInfo,
                                        Set<NotificationType<?>> notificationTypes,
                                        Pair<ServerInterfaceHandler, ServerInterfaceHandlerFactory<?, ?>>[] handlerAndFactory,
                                        Map<RemoteOperation<?>, ServerInterfaceHandler> operations,
                                        Map<RemoteOperation<?>, MBeanOperationInfo> opInfos,
                                        OddjobJMXAccessController accessController) {
+        this.remoteId = remoteId;
         this.mBeanInfo = mBeanInfo;
         this.notificationTypes = notificationTypes;
         this.handlerAndFactory = handlerAndFactory;
@@ -159,7 +157,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
     }
 
     public static ServerInterfaceManager createFor(Object target,
-                                      ServerSideToolkit ojmb,
+                                      ServerSideToolkit toolkit,
                                       ServerInterfaceHandlerFactory<?, ?>[] serverHandlerFactories,
                                       OddjobJMXAccessController accessController) {
 
@@ -184,7 +182,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 
             // create the interface handler
             ServerInterfaceHandler interfaceHandler
-                    = create(target, ojmb, serverHandlerFactory);
+                    = create(target, toolkit, serverHandlerFactory);
 
             if (interfaceHandler == null) {
                 continue;
@@ -226,7 +224,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
 
         // create an MBeanInfo from the collated information.
         MBeanInfo mBeanInfo = new MBeanInfo(target.toString(),
-                "Description of " + target.toString(),
+                "Description of " + target,
                 attributeInfo.toArray(new MBeanAttributeInfo[0]),
                 new MBeanConstructorInfo[0],
                 operationInfo.toArray(new MBeanOperationInfo[0]),
@@ -236,7 +234,8 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
             accessController = opInfo -> true;
         }
 
-        return new ServerInterfaceManagerImpl(mBeanInfo,
+        return new ServerInterfaceManagerImpl(toolkit.getRemoteId(),
+                mBeanInfo,
                 notificationTypes,
                 handlersAndFactories,
                 operations,
@@ -321,7 +320,7 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
     @Override
     public Object invoke(String actionName,
                          Object[] params, String[] signature)
-            throws MBeanException, ReflectionException {
+            throws RemoteException {
         RemoteOperation<Object> op = new MBeanOperation(actionName, signature);
 
         ServerInterfaceHandler interfaceHandler = operations.get(op);
@@ -339,7 +338,15 @@ public class ServerInterfaceManagerImpl implements ServerInterfaceManager {
             throw new SecurityException(
                     "Access denied! Invalid access level for " + op);
         }
-        return interfaceHandler.invoke(op, params);
+
+        try {
+            return interfaceHandler.invoke(op, params);
+        } catch (RemoteException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw RemoteInvocationException.of(remoteId,
+                    actionName, signature, params, e);
+        }
     }
 
     /*

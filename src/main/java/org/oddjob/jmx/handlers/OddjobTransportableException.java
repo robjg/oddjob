@@ -12,11 +12,11 @@ package org.oddjob.jmx.handlers;
 public class OddjobTransportableException extends Exception {
 	private static final long serialVersionUID = 2012032200L; 
 
-	private final String originalExcpetionClassName;
+	private final String originalExceptionClassName;
 	
 	public OddjobTransportableException(Throwable t) {
 		super(t.getMessage());
-		this.originalExcpetionClassName = t.getClass().getName();
+		this.originalExceptionClassName = t.getClass().getName();
 		setStackTrace(t.getStackTrace());
 		if (t.getCause() != null) {
 			initCause(new OddjobTransportableException(t.getCause()));
@@ -24,14 +24,14 @@ public class OddjobTransportableException extends Exception {
 	}
 	
 	public String getOriginalExceptionClassName() {
-		return originalExcpetionClassName;
+		return originalExceptionClassName;
 	}
 	
 	@Override
 	public String toString() {
         String message = getMessage();
         return (message != null) ? 
-        		(originalExcpetionClassName + ": " + message) : 
-        			originalExcpetionClassName;
+        		(originalExceptionClassName + ": " + message) :
+				originalExceptionClassName;
 	}	
 }

@@ -4,30 +4,18 @@ import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.jmx.RemoteOddjobBean;
-import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInfo;
-import org.oddjob.jmx.server.ServerInterfaceHandler;
+import org.oddjob.remote.RemoteException;
 
 import javax.management.MBeanOperationInfo;
 
 public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 
-	private static class OurClientToolkit extends MockClientSideToolkit {
-		
-		ServerInterfaceHandler serverHandler;
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-				throws Throwable {
-			return (T) serverHandler.invoke(remoteOperation, args);
-		}
-	}
-	
 	private static class OurServerToolkit extends MockServerSideToolkit {
 		boolean noop;
 		
@@ -47,7 +35,7 @@ public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 	}
 	
    @Test
-	public void testAllOperations() {
+	public void testAllOperations() throws RemoteException {
 
 		RemoteOddjobHandlerFactory test = new RemoteOddjobHandlerFactory();
 		
@@ -56,12 +44,12 @@ public class RemoteOddjobHandlerFactoryTest extends OjTestCase {
 		ClientInterfaceHandlerFactory<RemoteOddjobBean> clientFactory =
 				new DirectInvocationClientFactory<>(RemoteOddjobBean.class);
 
-		OurClientToolkit clientToolkit = new OurClientToolkit();
 		OurServerToolkit serverToolkit = new OurServerToolkit();
-		
-		clientToolkit.serverHandler = test.createServerHandler(
-				null, serverToolkit);
-		
+
+	   ClientSideToolkit clientToolkit = MockClientSideToolkit
+			   .mockToolkit(test.createServerHandler(
+					   null, serverToolkit));
+
 		RemoteOddjobBean proxy = clientFactory.createClientHandler(null, clientToolkit);
 		
 		assertFalse(serverToolkit.noop);

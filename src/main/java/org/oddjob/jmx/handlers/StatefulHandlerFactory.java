@@ -11,13 +11,13 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.remote.Notification;
-import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.*;
 import org.oddjob.state.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
@@ -185,18 +185,20 @@ public class StatefulHandlerFactory
                                 StateData stateData = notification.getData();
                                 jobStateChange(stateData);
                             });
-                    toolkit.registerNotificationListener(
-                            STATE_CHANGE_NOTIF_TYPE, synchronizer);
-
-                    logger.trace("Created new Synchronizer for {}, toolkit {}", STATE_CHANGE_NOTIF_TYPE, toolkit);
 
                     Notification<StateData>[] lastNotifications;
+
                     try {
+                        toolkit.registerNotificationListener(
+                                STATE_CHANGE_NOTIF_TYPE, synchronizer);
+
+                        logger.trace("Created new Synchronizer for {}, toolkit {}", STATE_CHANGE_NOTIF_TYPE, toolkit);
+
                         lastNotifications = toolkit.invoke(SYNCHRONIZE);
-                    } catch (InstanceNotFoundException e) {
+                    } catch (RemoteUnknownException e) {
                         throw new JobDestroyedException(owner);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
+                    } catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
                     }
 
                     synchronizer.synchronize(lastNotifications);
@@ -227,14 +229,17 @@ public class StatefulHandlerFactory
                 if (listeners.remove(listener)) {
                     int num = listeners.size();
                     if (num == 0) {
-                        toolkit.removeNotificationListener(STATE_CHANGE_NOTIF_TYPE, synchronizer);
+                        try {
+                            toolkit.removeNotificationListener(STATE_CHANGE_NOTIF_TYPE, synchronizer);
+                        } catch (RemoteException e) {
+                            throw new RemoteRuntimeException(e);
+                        }
                         synchronizer = null;
                         logger.trace("Removed last State Listener {}, toolkit {}", listener, toolkit);
                     } else {
                         logger.trace("Removed State Listener {}, toolkit {}, {} remain", listener, toolkit, num);
                     }
-                }
-                else {
+                } else {
                     logger.trace("State Listener {} not removed from toolkit {}, as it was not registered.",
                             listener, toolkit);
                 }
@@ -308,7 +313,7 @@ public class StatefulHandlerFactory
 
         @Override
         public Object invoke(RemoteOperation<?> operation, Object[] params)
-                throws MBeanException, ReflectionException {
+                throws RemoteException {
 
             if (SYNCHRONIZE.equals(operation)) {
                 return new Notification[]{lastNotification};
@@ -317,9 +322,9 @@ public class StatefulHandlerFactory
             if (LAST_STATE_EVENT.equals(operation)) {
                 return lastNotification.getData();
             }
-            throw new ReflectionException(
-                    new IllegalStateException("invoked for an unknown method."),
-                    operation.toString());
+
+            throw NoSuchOperationException.of(toolkit.getRemoteId(),
+                    operation.getActionName(), operation.getSignature());
         }
 
         @Override
@@ -337,7 +342,7 @@ public class StatefulHandlerFactory
 
         private final Throwable throwable;
 
-        @Deprecated(since="1.7", forRemoval=true)
+        @Deprecated(since = "1.7", forRemoval = true)
         public StateData(State state, Date date, Throwable throwable) {
             this(state, StateInstant.forOneVersionOnly(date.toInstant()), throwable);
         }
@@ -352,7 +357,7 @@ public class StatefulHandlerFactory
             }
         }
 
-        @Deprecated(since="1.7", forRemoval=true)
+        @Deprecated(since = "1.7", forRemoval = true)
         public State getJobState() {
             return jobState;
         }
@@ -362,7 +367,7 @@ public class StatefulHandlerFactory
             return jobState;
         }
 
-        @Deprecated(since="1.7", forRemoval=true)
+        @Deprecated(since = "1.7", forRemoval = true)
         public Date getDate() {
             return Date.from(instant.getInstant());
         }
@@ -372,7 +377,7 @@ public class StatefulHandlerFactory
             return instant;
         }
 
-        @Deprecated(since="1.7", forRemoval=true)
+        @Deprecated(since = "1.7", forRemoval = true)
         public Throwable getThrowable() {
             return throwable;
         }

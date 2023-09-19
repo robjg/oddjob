@@ -59,9 +59,9 @@ implements ServerInterfaceHandlerFactory<Resettable, Resettable> {
 	}
 
 	@Override
-	public ServerInterfaceHandler createServerHandler(Resettable target, ServerSideToolkit ojmb) {
+	public ServerInterfaceHandler createServerHandler(Resettable target, ServerSideToolkit toolkit) {
 		return new ServerAllOperationsHandler<>(
-				Resettable.class, target);
+				Resettable.class, target, toolkit.getRemoteId());
 	}
 
 	@Override

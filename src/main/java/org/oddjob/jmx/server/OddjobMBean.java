@@ -1,6 +1,7 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.Utils;
+import org.oddjob.remote.RemoteException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,7 +239,12 @@ public class OddjobMBean implements
             // ensure null params is converted to 0 length array.
             imported = new Object[0];
         }
-        Object result = serverInterfaceManager.invoke(actionName, imported, signature);
+        Object result = null;
+        try {
+            result = serverInterfaceManager.invoke(actionName, imported, signature);
+        } catch (RemoteException e) {
+            throw new MBeanException(e);
+        }
         try {
             return Utils.export(result);
         } catch (NotSerializableException e) {

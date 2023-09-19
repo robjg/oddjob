@@ -10,12 +10,11 @@ import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
 import org.oddjob.remote.HasInitialisation;
 import org.oddjob.remote.Initialisation;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.List;
@@ -66,8 +65,8 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 	}
 
 	@Override
-	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
-		return new ServerObjectHandler(target);
+	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit toolkit) {
+		return new ServerObjectHandler(target, toolkit);
 	}
 
 	public static class ClientFactory implements ClientInterfaceHandlerFactory<Object> {
@@ -128,9 +127,12 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 	static class ServerObjectHandler implements ServerInterfaceHandler, HasInitialisation<String>  {
 	
 		private final Object object;
+
+		private final ServerSideToolkit toolkit;
 		
-		ServerObjectHandler(Object object) {
+		ServerObjectHandler(Object object, ServerSideToolkit toolkit) {
 			this.object = object;
+			this.toolkit = toolkit;
 		}
 
 		@Override
@@ -140,16 +142,14 @@ implements ServerInterfaceHandlerFactory<Object, Object> {
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params)
-		throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 			
 			if (TO_STRING.equals(operation)) {
 				return object.toString();
 			}
 			else {
-				throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.toString());				
+				throw NoSuchOperationException.of(toolkit.getRemoteId(),
+						operation.getActionName(), operation.getSignature());
 			}
 		}
 

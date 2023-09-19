@@ -82,8 +82,10 @@ public class RemoteBridge implements RemoteConnection {
                     jmxListener,
                     filter,
                     null);
-        } catch (InstanceNotFoundException | IOException e) {
-            throw new RemoteIdException(remoteId, e);
+        } catch (InstanceNotFoundException e) {
+            throw new RemoteUnknownException(remoteId, e);
+        } catch (IOException e) {
+            throw new RemoteComponentException(remoteId, e);
         }
 
         Key<T> key = new Key<>(notificationType, notificationListener);
@@ -103,7 +105,7 @@ public class RemoteBridge implements RemoteConnection {
             } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
                 logger.error("Failed removing overridden listener {}", previous, e);
             }
-            throw new RemoteIdException(remoteId, "Listener already existed for remote id [" +
+            throw new RemoteComponentException(remoteId, "Listener already existed for remote id [" +
                     remoteId + "], type [" + notificationType + "], listener [" + notificationListener + "]");
         }
     }
@@ -119,13 +121,13 @@ public class RemoteBridge implements RemoteConnection {
         Map<Key<?>, javax.management.NotificationListener> listenerMap = jmxListeners.get(remoteId);
 
         if (listenerMap == null) {
-            throw new RemoteIdException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
+            throw new RemoteComponentException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
         }
 
         javax.management.NotificationListener jmxListener = listenerMap.remove(key);
 
         if (jmxListener ==  null) {
-            throw new RemoteIdException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
+            throw new RemoteComponentException(remoteId, "No Listener for " + key + ", remoteId " + remoteId);
         }
 
         if (listenerMap.isEmpty()) {
@@ -148,8 +150,10 @@ public class RemoteBridge implements RemoteConnection {
                     operationType.getName(),
                     args,
                     signature);
-        } catch (InstanceNotFoundException | MBeanException | ReflectionException | IOException e) {
-            throw new RemoteIdException(remoteId, e);
+        } catch (InstanceNotFoundException e) {
+            throw new RemoteUnknownException(remoteId, e);
+        } catch (MBeanException | ReflectionException | IOException e) {
+            throw RemoteInvocationException.of(remoteId, operationType, args, e);
         }
 
         return ClassUtils.cast(operationType.getReturnType(), result);
@@ -183,8 +187,10 @@ public class RemoteBridge implements RemoteConnection {
                 logger.debug("Not removing JMX Listener {} as MBean {} has already been removed",
                         jmxListener, objectName);
             }
-        } catch (InstanceNotFoundException | ListenerNotFoundException | IOException e) {
-            throw new RemoteIdException(remoteId, e);
+        } catch (InstanceNotFoundException e) {
+            throw new RemoteUnknownException(remoteId, e);
+        } catch (ListenerNotFoundException | IOException e) {
+            throw new RemoteComponentException(remoteId, e);
         }
     }
 

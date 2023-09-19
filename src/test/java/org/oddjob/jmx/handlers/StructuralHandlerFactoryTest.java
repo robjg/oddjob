@@ -19,8 +19,6 @@ import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,7 +104,7 @@ public class StructuralHandlerFactoryTest {
     }
 
     @Test
-    public void testServerSide() throws MBeanException, ReflectionException, NullPointerException {
+    public void testServerSide() throws Throwable {
 
         MyStructural structural = new MyStructural();
         structural.helper.insertChild(0, new Object());
@@ -189,8 +187,7 @@ public class StructuralHandlerFactoryTest {
 
         @SuppressWarnings("unchecked")
         @Override
-        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
+        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args) {
             if (StructuralHandlerFactory.SYNCHRONIZE.equals(remoteOperation)) {
                 return null;
             }

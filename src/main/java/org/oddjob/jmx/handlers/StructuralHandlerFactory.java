@@ -7,9 +7,7 @@ import org.oddjob.Structural;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.*;
 import org.oddjob.jmx.server.*;
-import org.oddjob.remote.Notification;
-import org.oddjob.remote.NotificationType;
-import org.oddjob.remote.RemoteException;
+import org.oddjob.remote.*;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.ChildMatch;
 import org.oddjob.structural.StructuralEvent;
@@ -18,11 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -157,14 +152,15 @@ public class StructuralHandlerFactory
                                 }.match(Arrays.stream(childData.getRemoteIds())
                                         .boxed().toArray(Long[]::new));
                             });
-                    toolkit.registerNotificationListener(
-                            STRUCTURAL_NOTIF_TYPE, synchronizer);
 
                     Notification<ChildData> lastNotification;
                     try {
+                        toolkit.registerNotificationListener(
+                                STRUCTURAL_NOTIF_TYPE, synchronizer);
+
                         lastNotification = toolkit.invoke(SYNCHRONIZE);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
+                    } catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
                     }
 
                     synchronizer.synchronize(lastNotification);
@@ -184,7 +180,11 @@ public class StructuralHandlerFactory
                     structuralHelper.removeStructuralListener(listener);
 
                     if (structuralHelper.isNoListeners()) {
-                        toolkit.removeNotificationListener(STRUCTURAL_NOTIF_TYPE, synchronizer);
+                        try {
+                            toolkit.removeNotificationListener(STRUCTURAL_NOTIF_TYPE, synchronizer);
+                        } catch (RemoteException e) {
+                            throw new RemoteRuntimeException(e);
+                        }
                         synchronizer = null;
                         structuralHelper = null;
                     }
@@ -196,7 +196,11 @@ public class StructuralHandlerFactory
         public void destroy() {
             synchronized (this) {
                 if (structuralHelper != null) {
-                    toolkit.removeNotificationListener(STRUCTURAL_NOTIF_TYPE, synchronizer);
+                    try {
+                        toolkit.removeNotificationListener(STRUCTURAL_NOTIF_TYPE, synchronizer);
+                    } catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
+                    }
                     synchronizer = null;
                     structuralHelper = null;
                 }
@@ -319,16 +323,16 @@ public class StructuralHandlerFactory
         }
 
         @Override
-        public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+        public Object invoke(RemoteOperation<?> operation, Object[] params)
+                throws RemoteException {
 
 
             if (SYNCHRONIZE.equals(operation)) {
                 return lastNotification();
             }
 
-            throw new ReflectionException(
-                    new IllegalStateException("invoked for an unknown method."),
-                    operation.toString());
+            throw NoSuchOperationException.of(toolkit.getRemoteId(),
+                    operation.getActionName(), operation.getSignature());
         }
 
         @Override

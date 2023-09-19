@@ -7,12 +7,11 @@ import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogHelper;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
 import java.util.List;
@@ -105,24 +104,25 @@ implements ServerInterfaceHandlerFactory<Object, LogEnabled> {
 
 	
 	static class LogEnabledServerHandler implements ServerInterfaceHandler {
-	
+
+		private final ServerSideToolkit toolkit;
+
 		private final String loggerName;
 		
-		LogEnabledServerHandler(Object object, ServerSideToolkit ojmb) {
+		LogEnabledServerHandler(Object object, ServerSideToolkit toolkit) {
 			this.loggerName = LogHelper.getLogger(object);
+			this.toolkit = toolkit;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params)
-		throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 
 			if (GET_LOGGER.equals(operation)) {
 				return loggerName;
 			}
 			else {
-				throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.toString());				
+				throw NoSuchOperationException.of(toolkit.getRemoteId(),
+						operation.getActionName(), operation.getSignature());
 			}
 		}
 

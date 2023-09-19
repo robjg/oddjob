@@ -67,6 +67,11 @@ public class ServerMainBeanTest {
         ServerContext context;
 
         @Override
+        public long getRemoteId() {
+            return 42L;
+        }
+
+        @Override
         public ServerContext getContext() {
             return context;
         }

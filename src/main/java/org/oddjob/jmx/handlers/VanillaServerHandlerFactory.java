@@ -103,8 +103,8 @@ implements ServerInterfaceHandlerFactory<T, T> {
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandlerFactory#createServerHandler(java.lang.Object, org.oddjob.jmx.server.ServerSideToolkit)
 	 */
 	@Override
-	public ServerInterfaceHandler createServerHandler(T target, ServerSideToolkit ojmb) {
-		return new ServerAllOperationsHandler<>(cl, target);
+	public ServerInterfaceHandler createServerHandler(T target, ServerSideToolkit toolkit) {
+		return new ServerAllOperationsHandler<>(cl, target, toolkit.getRemoteId());
 	}
 
 	@Override

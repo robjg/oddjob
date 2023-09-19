@@ -6,11 +6,12 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.registry.*;
 import org.oddjob.jmx.RemoteDirectory;
 import org.oddjob.jmx.RemoteDirectoryOwner;
-import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.ClientSession;
+import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.MockClientSession;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.RemoteException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,22 +40,8 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         }
     }
 
-    static class OurClientToolkit extends MockClientSideToolkit {
-
-        ServerInterfaceHandler handler;
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) handler.invoke(
-                    remoteOperation,
-                    args);
-        }
-    }
-
     @Test
-    public void testGetServerId() {
+    public void testGetServerId() throws RemoteException {
 
         ServerSideOwner1 target = new ServerSideOwner1();
 
@@ -63,8 +50,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         ServerInterfaceHandler serverHandler = test.createServerHandler(
                 target, new OurServerToolkit1());
 
-        OurClientToolkit clientToolkit = new OurClientToolkit();
-        clientToolkit.handler = serverHandler;
+        ClientSideToolkit clientToolkit = MockClientSideToolkit.mockToolkit(serverHandler);
 
         RemoteDirectoryOwner client =
                 new BeanDirectoryHandlerFactory.ClientFactory(
@@ -112,7 +98,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
     }
 
     @Test
-    public void testLookup() throws ArooaConversionException {
+    public void testLookup() throws ArooaConversionException, RemoteException {
 
         ServerSideOwner2 target = new ServerSideOwner2();
 
@@ -121,8 +107,7 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         ServerInterfaceHandler serverHandler = test.createServerHandler(
                 target, new OurServerToolkit2());
 
-        OurClientToolkit clientToolkit = new OurClientToolkit();
-        clientToolkit.handler = serverHandler;
+        ClientSideToolkit clientToolkit = MockClientSideToolkit.mockToolkit(serverHandler);
 
         RemoteDirectoryOwner client =
                 new BeanDirectoryHandlerFactory.ClientFactory(
@@ -177,33 +162,8 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         }
     }
 
-    class OurClientToolkit3 extends MockClientSideToolkit {
-
-        ServerInterfaceHandler handler;
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) handler.invoke(
-                    remoteOperation,
-                    args);
-        }
-
-        @Override
-        public ClientSession getClientSession() {
-            return new MockClientSession() {
-                @Override
-                public Object create(long objectName) {
-                    assertEquals(dogName, objectName);
-                    return "Cat";
-                }
-            };
-        }
-    }
-
     @Test
-    public void testGetAllByType() {
+    public void testGetAllByType() throws RemoteException {
 
         ServerSideOwner3 target = new ServerSideOwner3();
 
@@ -212,8 +172,16 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
         ServerInterfaceHandler serverHandler = test.createServerHandler(
                 target, new OurServerToolkit3());
 
-        OurClientToolkit3 clientToolkit = new OurClientToolkit3();
-        clientToolkit.handler = serverHandler;
+        ClientSession clientSession =
+            new MockClientSession() {
+                @Override
+                public Object create(long objectName) {
+                    assertEquals(dogName, objectName);
+                    return "Cat";
+                }
+            };
+
+        ClientSideToolkit clientToolkit = MockClientSideToolkit.mockToolkit(serverHandler, clientSession);
 
         RemoteDirectoryOwner client =
                 new BeanDirectoryHandlerFactory.ClientFactory(

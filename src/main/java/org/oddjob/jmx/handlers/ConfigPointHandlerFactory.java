@@ -12,9 +12,7 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.remote.Notification;
-import org.oddjob.remote.NotificationListener;
-import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.*;
 import org.oddjob.remote.things.ConfigOperationInfo;
 import org.oddjob.remote.things.ConfigOperationInfoFlags;
 import org.oddjob.remote.things.ConfigPoint;
@@ -24,9 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -175,7 +171,11 @@ public class ConfigPointHandlerFactory
 
             if (consumers.isEmpty()) {
                 consumers.add(consumer);
-                clientToolkit.registerNotificationListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, this);
+                try {
+                    clientToolkit.registerNotificationListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, this);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(e);
+                }
             } else {
                 Optional.ofNullable(configOperationInfo).ifPresent(consumer);
                 consumers.add(consumer);
@@ -187,7 +187,11 @@ public class ConfigPointHandlerFactory
 
             consumers.remove(consumer);
             if (consumers.isEmpty()) {
-                clientToolkit.removeNotificationListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, this);
+                try {
+                    clientToolkit.removeNotificationListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, this);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(e);
+                }
             }
         }
 
@@ -302,13 +306,19 @@ public class ConfigPointHandlerFactory
 
     static class ServerDragPointHandler implements ServerInterfaceHandler {
 
+        private final ServerSideToolkit toolkit;
+
         private final Runnable destroyAction;
 
         private volatile DragPoint dragPoint;
 
         private volatile Notification<Integer> lastNotification;
 
-        ServerDragPointHandler(Object component, ConfigurationOwner configurationOwner, ServerSideToolkit toolkit) {
+        ServerDragPointHandler(Object component,
+                               ConfigurationOwner configurationOwner,
+                               ServerSideToolkit toolkit) {
+
+            this.toolkit = toolkit;
 
             Consumer<ConfigurationSession> sessionConsumer = configurationSession -> {
                 dragPoint = configurationSession.dragPointFor(component);
@@ -351,7 +361,7 @@ public class ConfigPointHandlerFactory
             // Or it could be loaded later
             configurationOwner.addOwnerStateListener(ownerStateListener);
 
-            toolkit.setNotifierListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, new NotifierListener<Integer>() {
+            toolkit.setNotifierListener(CONFIG_POINT_INFO_NOTIFICATION_TYPE, new NotifierListener<>() {
                 @Override
                 public void notificationListenerAdded(NotifierListenerEvent<Integer> event) {
                     Optional.ofNullable(lastNotification)
@@ -368,7 +378,7 @@ public class ConfigPointHandlerFactory
         }
 
         @Override
-        public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+        public Object invoke(RemoteOperation<?> operation, Object[] params) throws ArooaParseException, NoSuchOperationException {
 
             if (CUT.equals(operation)) {
 
@@ -378,7 +388,7 @@ public class ConfigPointHandlerFactory
                     trn.commit();
                 } catch (ArooaParseException e) {
                     trn.rollback();
-                    throw new MBeanException(e);
+                    throw e;
                 }
 
                 return copy;
@@ -397,7 +407,7 @@ public class ConfigPointHandlerFactory
                     trn.commit();
                 } catch (ArooaParseException e) {
                     trn.rollback();
-                    throw new MBeanException(e);
+                    throw e;
                 }
 
                 return null;
@@ -414,7 +424,7 @@ public class ConfigPointHandlerFactory
                     trn.commit();
                 } catch (Exception e) {
                     trn.rollback();
-                    throw new MBeanException(e);
+                    throw e;
                 }
 
                 return null;
@@ -437,10 +447,8 @@ public class ConfigPointHandlerFactory
                 return new PossibleChildren(prefixMap, tags);
             }
 
-            throw new ReflectionException(
-                    new IllegalStateException("Invoked for an unknown method [" +
-                            operation.toString() + "]"),
-                    operation.toString());
+            throw NoSuchOperationException.of(toolkit.getRemoteId(),
+                    operation.getActionName(), operation.getSignature());
         }
 
         @Override

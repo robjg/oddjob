@@ -4,7 +4,6 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.registry.BeanDirectory;
 import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.arooa.registry.ServerId;
@@ -18,12 +17,11 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
@@ -237,21 +235,20 @@ public class BeanDirectoryHandlerFactory implements
 	static class ServerBeanDirectoryHandler implements ServerInterfaceHandler {
 
 		private final BeanDirectoryOwner directoryOwner;
-		private final ServerSideToolkit serverToolkit;
+		private final ServerSideToolkit toolkit;
 
 		ServerBeanDirectoryHandler(BeanDirectoryOwner directory,
 				ServerSideToolkit ojmb) {
 			this.directoryOwner = directory;
-			this.serverToolkit = ojmb;
+			this.toolkit = ojmb;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params)
-				throws MBeanException, ReflectionException, ArooaPropertyException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException, ArooaConversionException {
 			
 			if (SERVER_ID.equals(operation)) {
 
-				return serverToolkit.getContext().getServerId();
+				return toolkit.getContext().getServerId();
 			}
 			
 			BeanDirectory directory = directoryOwner.provideBeanDirectory();
@@ -266,7 +263,7 @@ public class BeanDirectoryHandlerFactory implements
 				List<Long> names = new ArrayList<>();
 
 				for (Object object : all) {
-					long name = serverToolkit.getServerSession().idFor(object);
+					long name = toolkit.getServerSession().idFor(object);
 					if (name >= 0) {
 						names.add(name);
 					}
@@ -278,7 +275,7 @@ public class BeanDirectoryHandlerFactory implements
 			if (ID_FOR.equals(operation)) {
 				long objectName = (long) params[0];
 
-				Object object = serverToolkit.getServerSession().objectFor(objectName);
+				Object object = toolkit.getServerSession().objectFor(objectName);
 				
 				if (object == null) {
 					// This will happen when a job tree is changin quicker on the server than
@@ -300,7 +297,7 @@ public class BeanDirectoryHandlerFactory implements
 					return null;
 				}
 				
-				long objectName = serverToolkit.getServerSession().idFor(object);
+				long objectName = toolkit.getServerSession().idFor(object);
 
 				if (objectName >= 0) {
 					return new Carrier(objectName);
@@ -314,18 +311,13 @@ public class BeanDirectoryHandlerFactory implements
 				String path = (String) params[0];
 				Class<?> type = (Class<?>) params[1];
 
-				Object object;
-				try {
-					object = directory.lookup(path, type);
-				} catch (ArooaConversionException e) {
-					throw new MBeanException(e);
-				}
+				Object object = directory.lookup(path, type);
 
 				if (object == null) {
 					return null;
 				}
 				
-				long objectName = serverToolkit.getServerSession().idFor(object);
+				long objectName = toolkit.getServerSession().idFor(object);
 				
 				if (objectName >= 0) {
 					return new Carrier(objectName);
@@ -334,8 +326,8 @@ public class BeanDirectoryHandlerFactory implements
 				}
 			}
 
-			throw new ReflectionException(new IllegalStateException(
-					"invoked for an unknown method."), operation.toString());
+			throw NoSuchOperationException.of(toolkit.getRemoteId(),
+					operation.getActionName(), operation.getSignature());
 		}
 
 		@Override

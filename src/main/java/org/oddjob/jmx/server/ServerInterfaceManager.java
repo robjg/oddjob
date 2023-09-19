@@ -5,10 +5,9 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.remote.Implementation;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 
-import javax.management.MBeanException;
 import javax.management.MBeanInfo;
-import javax.management.ReflectionException;
 import java.util.Set;
 
 /**
@@ -49,11 +48,10 @@ public interface ServerInterfaceManager {
 	 * 
 	 * @return The result of the method call.
 	 * 
-	 * @throws MBeanException
-	 * @throws ReflectionException
+	 * @throws RemoteException If something goes wrong.
 	 */
 	Object invoke(String actionName, Object[] params, String[] signature)
-	throws MBeanException, ReflectionException;
+	throws RemoteException;
 
 	/**
 	 * Called when an MBean is being destroyed. Used to InterfaceHandlers

@@ -5,9 +5,10 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.MethodOperation;
+import org.oddjob.remote.NoSuchOperationException;
+import org.oddjob.remote.RemoteException;
+import org.oddjob.remote.RemoteInvocationException;
 
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -23,6 +24,8 @@ import java.util.Map;
  */
 public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 
+	private final long remoteId;
+
 	/** The object operations will be invoked on. */
 	private final Object target;
 	
@@ -34,7 +37,8 @@ public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 	 * 
 	 * @param target The object operations will be invoked on.
 	 */
-	public ServerAllOperationsHandler(Class<T> cl, T target) {
+	public ServerAllOperationsHandler(Class<T> cl, T target, long remoteId) {
+		this.remoteId = remoteId;
 		this.target = target;
 
 		for (Method m : cl.getMethods()) {
@@ -46,18 +50,21 @@ public class ServerAllOperationsHandler<T> implements ServerInterfaceHandler {
 	 * (non-Javadoc)
 	 * @see org.oddjob.jmx.server.ServerInterfaceHandler#invoke(java.lang.String, java.lang.Object[], java.lang.String[])
 	 */
-	public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+	public Object invoke(RemoteOperation<?> operation, Object[] params)
+			throws RemoteException {
 		
 		Method m = methods.get(operation);
 
 		if (m == null) {
-			throw new ReflectionException(new NoSuchMethodException(operation.toString()));
+			throw NoSuchOperationException.of(
+					remoteId, operation.toString(), operation.getSignature());
 		}
 		
 		try {
 			return m.invoke(target, params);
-		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e1) {
-			throw new ReflectionException(e1, operation.toString());
+		} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+			throw RemoteInvocationException.of(
+					remoteId, operation.toString(), operation.getSignature(), params, e);
 		}
 	}
 

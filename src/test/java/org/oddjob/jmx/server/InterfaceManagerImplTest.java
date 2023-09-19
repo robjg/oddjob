@@ -12,8 +12,11 @@ import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.remote.Implementation;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanOperationInfo;
+import javax.management.MBeanParameterInfo;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,7 +29,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 
     }
 
-    static class MockInterfaceInfo implements ServerInterfaceHandlerFactory<MockI, MockI> {
+    static class StubInterfaceInfo implements ServerInterfaceHandlerFactory<MockI, MockI> {
         boolean destroyed;
 
         @Override
@@ -99,7 +102,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new StubInterfaceInfo()});
 
         Implementation<?>[] result = test.allClientInfo();
 
@@ -113,7 +116,7 @@ public class InterfaceManagerImplTest extends OjTestCase {
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
                 target, serverSideToolkit,
-                new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
+                new ServerInterfaceHandlerFactory[]{new StubInterfaceInfo()},
                 opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
         Implementation<?>[] result = test.allClientInfo();
@@ -122,12 +125,12 @@ public class InterfaceManagerImplTest extends OjTestCase {
     }
 
     @Test
-    public void testInvoke() throws MBeanException, ReflectionException {
+    public void testInvoke() throws RemoteException {
         MockI target = new MockI() {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()});
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new StubInterfaceInfo()});
 
         Object result = test.invoke(
                 "foo",
@@ -145,12 +148,12 @@ public class InterfaceManagerImplTest extends OjTestCase {
     }
 
     @Test
-    public void testInvokeWithAccessController() throws MBeanException, ReflectionException {
+    public void testInvokeWithAccessController() throws RemoteException {
         MockI target = new MockI() {
         };
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
-                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new MockInterfaceInfo()},
+                target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{new StubInterfaceInfo()},
                 opInfo -> opInfo.getImpact() == MBeanOperationInfo.INFO);
 
         Object result = test.invoke(
@@ -176,8 +179,8 @@ public class InterfaceManagerImplTest extends OjTestCase {
         MockI target = new MockI() {
         };
 
-        MockInterfaceInfo factory =
-                new MockInterfaceInfo();
+        StubInterfaceInfo factory =
+                new StubInterfaceInfo();
 
         ServerInterfaceManager test = new ServerInterfaceManagerImpl(
                 target, serverSideToolkit, new ServerInterfaceHandlerFactory[]{factory});

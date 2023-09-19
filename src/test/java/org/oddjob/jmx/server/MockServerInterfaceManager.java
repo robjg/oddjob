@@ -2,10 +2,9 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.remote.Implementation;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 
-import javax.management.MBeanException;
 import javax.management.MBeanInfo;
-import javax.management.ReflectionException;
 import java.util.Set;
 
 public class MockServerInterfaceManager 
@@ -33,7 +32,7 @@ implements ServerInterfaceManager {
 
 	@Override
 	public Object invoke(String actionName, Object[] params, String[] signature)
-			throws MBeanException, ReflectionException {
+			throws RemoteException {
 		throw new RuntimeException("Unexpected from " + getClass());
 	}
 

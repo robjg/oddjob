@@ -10,12 +10,12 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.List;
 
@@ -150,53 +150,40 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 
 	@Override
 	public ServerInterfaceHandler createServerHandler(Object target,
-			ServerSideToolkit serverSideToolkit) {
-		return new DynaBeanServerHandler(target);
+			ServerSideToolkit toolkit) {
+		return new DynaBeanServerHandler(target, toolkit);
 	}
 
 	static class DynaBeanServerHandler implements ServerInterfaceHandler {
-	
+
+		private final ServerSideToolkit toolkit;
+
 		private final Object bean;
 		
-		DynaBeanServerHandler(Object bean) {
+		DynaBeanServerHandler(Object bean, ServerSideToolkit toolkit) {
 			this.bean = bean;
+			this.toolkit = toolkit;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params)
-		throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException, NoSuchOperationException {
 			
 			if (CONTAINS.equals(operation)) {
-				try {
+
 					return !(PropertyUtils.getMappedProperty(bean, (String) params[0],
 									(String) params[1]) == null);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
-			}		
+			}
 			else if (GET_SIMPLE.equals(operation)) {
 				String property = (String) params[0];
-				try {
 					return PropertyUtils.getProperty(bean, property);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 			}
 			else if (GET_INDEXED.equals(operation)) {
-				try {
 					return PropertyUtils.getIndexedProperty(bean, (String) params[0],
 							(Integer) params[1]);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 			}
 			else if (GET_MAPPED.equals(operation)) {
-				try {
-					return PropertyUtils.getMappedProperty(bean, (String) params[0], 
+					return PropertyUtils.getMappedProperty(bean, (String) params[0],
 							(String) params[1]);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 			}
 			else if (GET_DYNACLASS.equals(operation)) {
 				if (bean instanceof DynaBean) {
@@ -207,45 +194,28 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 				}
 			}
 			else if (REMOVE.equals(operation)) {
-				try {
-					PropertyUtils.setMappedProperty(bean, (String) params[0], 
+					PropertyUtils.setMappedProperty(bean, (String) params[0],
 						(String) params[1], null);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 				return Void.TYPE;
 			}
 			else if (SET_INDEXED.equals(operation)) {
-				try {
 					PropertyUtils.setIndexedProperty(bean, (String) params[0],
 							(Integer) params[1], params[2]);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 				return Void.TYPE;
 			}
 			else if (SET_SIMPLE.equals(operation)) {
-				try {
-					PropertyUtils.setProperty(bean, (String) params[0], 
+					PropertyUtils.setProperty(bean, (String) params[0],
 							params[1]);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 				return Void.TYPE;
 			}
 			else if (SET_MAPPED.equals(operation)) {
-				try {
-					PropertyUtils.setMappedProperty(bean, (String) params[0], 
+					PropertyUtils.setMappedProperty(bean, (String) params[0],
 							(String) params[1], params[2]);
-				} catch (Exception e) {
-					throw new MBeanException(e);
-				}
 				return Void.TYPE;
 			}
 			else {
-				throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.toString());				
+				throw NoSuchOperationException.of(toolkit.getRemoteId(),
+						operation.getActionName(), operation.getSignature());
 			}
 		}
 

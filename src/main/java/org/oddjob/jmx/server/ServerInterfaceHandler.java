@@ -5,9 +5,6 @@ package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOperation;
 
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-
 /**
  * Handle communication between an instance of an interface and
  * an MBean.
@@ -40,11 +37,9 @@ public interface ServerInterfaceHandler {
 	 * 
 	 * @return The result if any.
 	 * 
-	 * @throws MBeanException
-	 * @throws ReflectionException
+	 * @throws Throwable if anything goes wrong
 	 */
-	Object invoke(RemoteOperation<?> operation, final Object[] params)
-	throws MBeanException, ReflectionException;
+	Object invoke(RemoteOperation<?> operation, final Object[] params) throws Throwable;
 		
 	/**
 	 * Clear up any resource this handler might have created.

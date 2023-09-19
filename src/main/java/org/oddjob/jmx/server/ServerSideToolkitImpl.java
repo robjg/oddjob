@@ -1,11 +1,13 @@
 package org.oddjob.jmx.server;
 
 import org.oddjob.jmx.RemoteOddjobBean;
+import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.remote.util.NotificationControl;
 import org.oddjob.remote.util.NotifierListener;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Main Implementation of an {@link ServerSideToolkit}.
@@ -39,7 +41,7 @@ public class ServerSideToolkitImpl implements ServerSideToolkit {
     /**
      * The notification sequenceNumber
      */
-    private int sequenceNumber = 0;
+    private final AtomicInteger sequenceNumber = new AtomicInteger();
 
     public ServerSideToolkitImpl(long objectId,
                                  NotificationControl dispatch,
@@ -64,6 +66,11 @@ public class ServerSideToolkitImpl implements ServerSideToolkit {
     }
 
     @Override
+    public long getRemoteId() {
+        return this.objectId;
+    }
+
+    @Override
     public void sendNotification(org.oddjob.remote.Notification<?> notification) {
         dispatch.sendNotification(notification);
     }
@@ -75,9 +82,7 @@ public class ServerSideToolkitImpl implements ServerSideToolkit {
 
     @Override
     public <T> org.oddjob.remote.Notification<T> createNotification(NotificationType<T> type, T userData) {
-        synchronized (resyncLock) {
-            return new org.oddjob.remote.Notification<>(objectId, type, sequenceNumber++, userData);
-        }
+            return new Notification<>(objectId, type, sequenceNumber.getAndIncrement(), userData);
     }
 
 

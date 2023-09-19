@@ -10,9 +10,10 @@ import org.oddjob.remote.util.NotificationControl;
 import org.oddjob.util.SimpleThreadManager;
 import org.oddjob.util.ThreadManager;
 
-import javax.management.MBeanException;
-import javax.management.ReflectionException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -156,7 +157,7 @@ public class LocalRemoteConnection implements RemoteConnection {
     public void destroy(long remoteId) throws RemoteException {
         ServerInterfaceManager sim = nodes.get(remoteId);
         if (sim == null) {
-            throw new RemoteIdException(remoteId, "No remote Id");
+            throw new RemoteComponentException(remoteId, "No remote Id");
         }
         sim.destroy();
     }
@@ -165,16 +166,18 @@ public class LocalRemoteConnection implements RemoteConnection {
     public <T> T invoke(long remoteId, OperationType<T> operationType, Object... args) throws RemoteException {
         ServerInterfaceManager sim = nodes.get(remoteId);
         if (sim == null) {
-            throw new RemoteIdException(remoteId, "No remote Id");
+            throw new RemoteComponentException(remoteId, "No remote Id");
         }
 
         String[] paramTypes = ClassUtils.classesToStrings(operationType.getSignature());
         try {
             //noinspection unchecked
             return (T) sim.invoke(operationType.getName(), args, paramTypes);
-        } catch (MBeanException | ReflectionException e) {
-            throw new RemoteIdException(remoteId, "Failed executing " + operationType +
-                    " with args " + Arrays.toString(args), e);
+        } catch (RemoteException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw RemoteInvocationException.of(remoteId,
+                    operationType, args, e);
         }
     }
 

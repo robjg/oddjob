@@ -19,16 +19,12 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.remote.Notification;
-import org.oddjob.remote.NotificationListener;
-import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.UndeclaredThrowableException;
@@ -250,6 +246,7 @@ public class ComponentOwnerHandlerFactory
 
         private final ArooaElement rootElement;
         private volatile boolean listening;
+
         ClientComponentOwnerHandler(ConfigurationOwner proxy, final ClientSideToolkit toolkit) {
             this.clientToolkit = toolkit;
 
@@ -273,16 +270,26 @@ public class ComponentOwnerHandlerFactory
 
                 // This is a bit rubbish... we need to track Configuration Sessions in a better way.
                 updateSession();
-                toolkit.registerNotificationListener(
-                        CHANGE_NOTIF_TYPE, listener);
+                try {
+                    toolkit.registerNotificationListener(
+                            CHANGE_NOTIF_TYPE, listener);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(
+                            "Failed to register Notification Listener {" + listener + "}", e);
+                }
                 listening = true;
             });
 
             ownerSupport.setOnEmpty(() -> {
 
                 listening = false;
-                toolkit.removeNotificationListener(
-                        CHANGE_NOTIF_TYPE, listener);
+                try {
+                    toolkit.removeNotificationListener(
+                            CHANGE_NOTIF_TYPE, listener);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(
+                            "Failed to remove Notification Listener {" + listener + "}", e);
+                }
             });
 
             try {
@@ -295,6 +302,7 @@ public class ComponentOwnerHandlerFactory
                 throw new UndeclaredThrowableException(e);
             }
         }
+
         @Override
         public ConfigurationSession provideConfigurationSession() {
             if (!listening) {
@@ -306,35 +314,35 @@ public class ComponentOwnerHandlerFactory
         /**
          * Lots of complicated logic to see if the server
          * configuration session has changed.
-         *
          */
         private void updateSession() {
 
-                Integer newId;
-                try {
-                    newId = clientToolkit.invoke(SESSION_AVAILABLE);
-                } catch (Throwable e) {
-                    // need to rethink this. Fails when client has been stopped.
-                    // but why is it being called at all?
-                    logger.warn("Failed invoking {} on {}", SESSION_AVAILABLE, clientToolkit, e);
-                    newId = null;
-                }
+            Integer newId;
+            try {
+                newId = clientToolkit.invoke(SESSION_AVAILABLE);
+            } catch (Throwable e) {
+                // need to rethink this. Fails when client has been stopped.
+                // but why is it being called at all?
+                logger.warn("Failed invoking {} on {}", SESSION_AVAILABLE, clientToolkit, e);
+                newId = null;
+            }
 
-                if (newId == null) {
+            if (newId == null) {
+                ownerSupport.setConfigurationSession(null);
+            } else {
+                ClientConfigurationSessionHandler existing =
+                        (ClientConfigurationSessionHandler)
+                                ownerSupport.provideConfigurationSession();
+
+                if (existing == null || existing.id != newId) {
                     ownerSupport.setConfigurationSession(null);
-                } else {
-                    ClientConfigurationSessionHandler existing =
-                            (ClientConfigurationSessionHandler)
-                                    ownerSupport.provideConfigurationSession();
-
-                    if (existing == null || existing.id != newId) {
-                        ownerSupport.setConfigurationSession(null);
-                        ownerSupport.setConfigurationSession(
-                                new ClientConfigurationSessionHandler(
-                                        clientToolkit, newId));
-                    }
+                    ownerSupport.setConfigurationSession(
+                            new ClientConfigurationSessionHandler(
+                                    clientToolkit, newId));
                 }
+            }
         }
+
         @Override
         public void addOwnerStateListener(OwnerStateListener listener) {
             ownerSupport.addOwnerStateListener(listener);
@@ -399,10 +407,24 @@ public class ComponentOwnerHandlerFactory
             this.id = id;
             this.clientToolkit = clientToolkit;
             sessionSupport = new ConfigurationSessionSupport(this);
-            sessionSupport.setOnFirst(() -> clientToolkit.registerNotificationListener(MODIFIED_NOTIF_TYPE,
-                    listener));
-            sessionSupport.setOnEmpty(() -> clientToolkit.removeNotificationListener(MODIFIED_NOTIF_TYPE,
-                    listener));
+            sessionSupport.setOnFirst(() -> {
+                try {
+                    clientToolkit.registerNotificationListener(MODIFIED_NOTIF_TYPE,
+                            listener);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(
+                            "Failed to register Notification Listener {" + listener + "}", e);
+                }
+            });
+            sessionSupport.setOnEmpty(() -> {
+                try {
+                    clientToolkit.removeNotificationListener(MODIFIED_NOTIF_TYPE,
+                            listener);
+                } catch (RemoteException e) {
+                    throw new RemoteRuntimeException(
+                            "Failed to remove Notification Listener {" + listener + "}", e);
+                }
+            });
         }
 
         class ClientDragPoint implements DragPoint {
@@ -455,7 +477,7 @@ public class ComponentOwnerHandlerFactory
             @Override
             public void delete() {
                 transactionManager.withTransaction(
-                        transaction ->  transaction.delete = component);
+                        transaction -> transaction.delete = component);
             }
 
             @Override
@@ -709,7 +731,7 @@ public class ComponentOwnerHandlerFactory
         }
 
         @Override
-        public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+        public Object invoke(RemoteOperation<?> operation, Object[] params) throws ArooaParseException, RemoteComponentException {
 
             if (INFO.equals(operation)) {
 
@@ -725,18 +747,14 @@ public class ComponentOwnerHandlerFactory
             }
 
             if (configurationSession == null) {
-                throw new MBeanException(new IllegalStateException("No Config Session - Method " +
-                        operation + " should not have been called!"));
+                throw new RemoteComponentException(toolkit.getRemoteId(), "No Config Session - Method " +
+                        operation + " should not have been called!");
             }
 
             if (SAVE.equals(operation)) {
 
-                try {
-                    configurationSession.save();
-                    return null;
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+                configurationSession.save();
+                return null;
             }
 
             if (IS_MODIFIED.equals(operation)) {
@@ -763,11 +781,8 @@ public class ComponentOwnerHandlerFactory
                         .withNamespaceMappings(FormsLookup.formsNamespaces())
                         .withWriter(json)
                         .build();
-                try {
-                    parser.parse(configuration);
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+
+                parser.parse(configuration);
 
                 return json.toString();
             }
@@ -799,7 +814,7 @@ public class ComponentOwnerHandlerFactory
                             deleteTransaction.rollback();
                         }
                         pasteTransaction.rollback();
-                        throw new MBeanException(e);
+                        throw e;
                     }
                 }
 
@@ -808,7 +823,7 @@ public class ComponentOwnerHandlerFactory
                         deleteTransaction.commit();
                     } catch (ArooaParseException e) {
                         deleteTransaction.rollback();
-                        throw new MBeanException(e);
+                        throw e;
                     }
                 }
 
@@ -834,9 +849,10 @@ public class ComponentOwnerHandlerFactory
             }
 
             if (dragPoint == null) {
-                throw new MBeanException(new IllegalStateException("Null Drag Point for component [" +
-                        component + "] - Method " +
-                        operation + " should not have been called!"));
+                throw new RemoteComponentException(toolkit.getRemoteId(),
+                        "Null Drag Point for component [" +
+                                component + "] - Method " +
+                                operation + " should not have been called!");
             }
 
             if (FORM_FOR.equals(operation)) {
@@ -848,23 +864,15 @@ public class ComponentOwnerHandlerFactory
                         "XML Configuration for " + dragPoint,
                         dragPoint.copy());
 
-                ArooaConfiguration configuration;
-                try {
-                    configuration = formsLookup.formFor(xmlConfiguration);
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+                ArooaConfiguration configuration = formsLookup.formFor(xmlConfiguration);
 
                 StringWriter json = new StringWriter();
                 JsonArooaParser parser = new JsonArooaParserBuilder()
                         .withNamespaceMappings(FormsLookup.formsNamespaces())
                         .withWriter(json)
                         .build();
-                try {
-                    parser.parse(configuration);
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+
+                parser.parse(configuration);
 
                 return json.toString();
             }
@@ -880,48 +888,43 @@ public class ComponentOwnerHandlerFactory
                     trn.commit();
                 } catch (ArooaParseException e) {
                     trn.rollback();
-                    throw new MBeanException(e);
+                    throw e;
                 }
 
                 return copy;
-            }
-            else if (REPLACE.equals(operation)) {
+            } else if (REPLACE.equals(operation)) {
 
                 String config = (String) params[1];
 
-                try {
-                    XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-                    ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
+                XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+                ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
 
-                    SimpleParseContext documentContext = handle.getDocumentContext();
+                SimpleParseContext documentContext = handle.getDocumentContext();
 
-                    CutAndPasteSupport.replace(documentContext.getParent(),
-                            documentContext,
-                            new XMLConfiguration("Edited Config", config));
-                    handle.save();
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+                CutAndPasteSupport.replace(documentContext.getParent(),
+                        documentContext,
+                        new XMLConfiguration("Edited Config", config));
+                handle.save();
+
                 return null;
+
             } else if (REPLACE_JSON.equals(operation)) {
 
                 String config = (String) params[1];
 
-                try {
-                    XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
-                    ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
+                XMLArooaParser parser = new XMLArooaParser(configurationSession.getArooaDescriptor());
+                ConfigurationHandle<SimpleParseContext> handle = parser.parse(dragPoint);
 
-                    SimpleParseContext documentContext = handle.getDocumentContext();
+                SimpleParseContext documentContext = handle.getDocumentContext();
 
-                    CutAndPasteSupport.replace(documentContext.getParent(),
-                            documentContext,
-                            new JsonConfiguration(config)
-                                    .withNamespaceMappings(configurationSession.getArooaDescriptor()));
-                    handle.save();
-                } catch (ArooaParseException e) {
-                    throw new MBeanException(e);
-                }
+                CutAndPasteSupport.replace(documentContext.getParent(),
+                        documentContext,
+                        new JsonConfiguration(config)
+                                .withNamespaceMappings(configurationSession.getArooaDescriptor()));
+                handle.save();
+
                 return null;
+
             } else if (POSSIBLE_CHILDREN.equals(operation)) {
 
                 Map<String, String> prefixMap = new HashMap<>();
@@ -938,10 +941,9 @@ public class ComponentOwnerHandlerFactory
 
                 return new PossibleChildren(prefixMap, tags);
             } else {
-                throw new ReflectionException(
-                        new IllegalStateException("Invoked for an unknown method [" +
-                                operation.toString() + "]"),
-                        operation.toString());
+
+                throw NoSuchOperationException.of(toolkit.getRemoteId(),
+                        operation.getActionName(), operation.getSignature());
             }
         }
 

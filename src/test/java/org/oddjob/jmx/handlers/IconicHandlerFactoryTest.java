@@ -8,12 +8,14 @@ import org.oddjob.images.IconHelper;
 import org.oddjob.images.IconListener;
 import org.oddjob.images.ImageData;
 import org.oddjob.jmx.RemoteOperation;
+import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.MockServerSideToolkit;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.remote.Notification;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.RemoteException;
 
 public class IconicHandlerFactoryTest extends OjTestCase {
 
@@ -38,17 +40,6 @@ public class IconicHandlerFactoryTest extends OjTestCase {
         }
     }
 
-    static class OurClientToolkit extends MockClientSideToolkit {
-        ServerInterfaceHandler server;
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) server.invoke(remoteOperation, args);
-        }
-    }
-
     static class OurServerToolkit extends MockServerSideToolkit {
         long seq = 0;
 
@@ -68,7 +59,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
     }
 
     @Test
-    public void testClientIconFor() {
+    public void testClientIconFor() throws RemoteException {
         OurIconic iconic = new OurIconic();
 
         IconicHandlerFactory test = new IconicHandlerFactory();
@@ -78,8 +69,7 @@ public class IconicHandlerFactoryTest extends OjTestCase {
         ServerInterfaceHandler serverHandler = test.createServerHandler(
                 iconic, serverToolkit);
 
-        OurClientToolkit toolkit = new OurClientToolkit();
-        toolkit.server = serverHandler;
+        ClientSideToolkit toolkit = MockClientSideToolkit.mockToolkit(serverHandler);
 
         Iconic h =
                 new IconicHandlerFactory.ClientFactory(
@@ -98,8 +88,12 @@ public class IconicHandlerFactoryTest extends OjTestCase {
         @SuppressWarnings("unchecked")
         @Override
         public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) server.invoke(remoteOperation, args);
+                throws RemoteException {
+            try {
+                return (T) server.invoke(remoteOperation, args);
+            } catch (Throwable e) {
+                throw new RemoteException(e);
+            }
         }
 
         @Override

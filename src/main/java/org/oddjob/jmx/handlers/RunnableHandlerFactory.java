@@ -6,12 +6,11 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.util.Collections;
 import java.util.List;
 
@@ -69,25 +68,24 @@ implements ServerInterfaceHandlerFactory<Runnable, Runnable> {
 	static class RunnableServerHandler implements ServerInterfaceHandler {
 	
 		private final Runnable runnable;
-		private final ServerSideToolkit ojmb;
+		private final ServerSideToolkit toolkit;
 		
-		RunnableServerHandler(Runnable runnable, ServerSideToolkit ojmb) {
+		RunnableServerHandler(Runnable runnable, ServerSideToolkit toolkit) {
 			this.runnable = runnable;
-			this.ojmb = ojmb;
+			this.toolkit = toolkit;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 			if (RUN.equals(operation)) {
 				
-				ojmb.getContext().getModel().getThreadManager().run(
+				toolkit.getContext().getModel().getThreadManager().run(
 						runnable, "run invoked by client.");
 				return null;
 			}
 			else {
-				throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.toString());				
+				throw NoSuchOperationException.of(toolkit.getRemoteId(),
+						operation.getActionName(), operation.getSignature());
 			}
 		}
 

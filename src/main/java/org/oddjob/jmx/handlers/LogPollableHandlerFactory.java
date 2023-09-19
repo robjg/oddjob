@@ -8,9 +8,12 @@ import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.client.LogPollable;
 import org.oddjob.jmx.server.*;
 import org.oddjob.logging.LogEvent;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
-import javax.management.*;
+import javax.management.MBeanAttributeInfo;
+import javax.management.MBeanNotificationInfo;
+import javax.management.MBeanOperationInfo;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
 import java.util.List;
@@ -194,36 +197,35 @@ implements ServerInterfaceHandlerFactory<Object, LogPollable> {
 	
 		private final Object node;
 		
-		private final ServerContext srvcon;
+		private final ServerSideToolkit toolkit;
 		
-		ServerLogPollableHandler(Object object, ServerSideToolkit ojmb) {
+		ServerLogPollableHandler(Object object, ServerSideToolkit toolkit) {
 			this.node = object;
-			this.srvcon = ojmb.getContext();
+			this.toolkit = toolkit;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 			if (CONSOLE_ID.equals(operation)) {
 				return LogArchiverHelper.consoleId(
-						node, srvcon.getConsoleArchiver());
+						node, toolkit.getContext().getConsoleArchiver());
 			}
 			else if (URL.equals(operation))	{
-				return srvcon.getServerId().toString();
+				return toolkit.getContext().getServerId().toString();
 			}
 			else if (RETRIEVE_LOG_EVENTS.equals(operation)) {
-				return LogArchiverHelper.retrieveLogEvents(node, 
-						srvcon.getLogArchiver(), 
+				return LogArchiverHelper.retrieveLogEvents(node,
+						toolkit.getContext().getLogArchiver(),
 						(Long)params[0], (Integer)params[1]);
 			}	
 			else if (RETRIEVE_CONSOLE_EVENTS.equals(operation)) {
-				return LogArchiverHelper.retrieveConsoleEvents(node, 
-						srvcon.getConsoleArchiver(),
+				return LogArchiverHelper.retrieveConsoleEvents(node,
+						toolkit.getContext().getConsoleArchiver(),
 						(Long)params[0], (Integer)params[1]);
 			}				
 			else {
-				throw new ReflectionException(
-						new IllegalStateException("Invoked for an unknown method."), 
-								operation.toString());				
+				throw NoSuchOperationException.of(toolkit.getRemoteId(),
+						operation.getActionName(), operation.getSignature());
 			}
 		}
 

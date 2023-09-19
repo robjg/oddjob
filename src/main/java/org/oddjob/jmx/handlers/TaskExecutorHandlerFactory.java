@@ -16,6 +16,7 @@ import org.oddjob.jobs.tasks.Task;
 import org.oddjob.jobs.tasks.TaskException;
 import org.oddjob.jobs.tasks.TaskExecutor;
 import org.oddjob.jobs.tasks.TaskView;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.remote.RemoteException;
 import org.oddjob.state.StateEvent;
@@ -24,9 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.io.Serializable;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Collections;
@@ -201,28 +200,22 @@ implements ServerInterfaceHandlerFactory<TaskExecutor, TaskExecutor> {
 			this.toolkit = ojmb;
 		}
 
-		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws TaskException, NoSuchOperationException {
 			
 			if (GET_PARAMETER_INFO.equals(operation)) {
 				return taskExecutor.getParameterInfo();
 			}
 			else if (EXECUTE.equals(operation)) {
-				TaskView taskView;
-				try {
-					taskView = taskExecutor.execute((Task) params[0]);
-				}
-				catch (TaskException e) {
-					throw new MBeanException(e);
-				}
+				TaskView taskView = taskExecutor.execute((Task) params[0]);
+
 				if (taskView == null) {
 
 				}
 				return createTaskViewMBean(taskView);
 			}
 
-			throw new ReflectionException(
-					new IllegalStateException("invoked for an unknown method."), 
-							operation.toString());
+			throw NoSuchOperationException.of(toolkit.getRemoteId(),
+					operation.getActionName(), operation.getSignature());
 		}
 		
 		protected TaskViewData createTaskViewMBean(TaskView taskView) {

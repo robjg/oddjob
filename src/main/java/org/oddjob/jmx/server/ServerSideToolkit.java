@@ -12,6 +12,8 @@ import org.oddjob.remote.util.NotificationNotifier;
  */
 public interface ServerSideToolkit extends NotificationNotifier {
 
+	long getRemoteId();
+
 	/**
 	 * Send a notification. This can be provided by
 	 * BroadcastNotificationSupport in the implementation.

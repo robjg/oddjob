@@ -4,12 +4,11 @@ import org.oddjob.jmx.RemoteOddjobBean;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,31 +66,30 @@ implements ServerInterfaceHandlerFactory<Object, RemoteOddjobBean> {
 
 	@Override
 	public ServerInterfaceHandler createServerHandler(Object ignored, ServerSideToolkit toolkit) {
-		return new RemoteOddjobServerHandler(toolkit.getRemoteBean());
+		return new RemoteOddjobServerHandler(toolkit);
 	}
 
 	static class RemoteOddjobServerHandler implements ServerInterfaceHandler {
 	
-		private final RemoteOddjobBean ojmb;
+		private final ServerSideToolkit toolkit;
 		
-		RemoteOddjobServerHandler(RemoteOddjobBean ojmb) {
-			this.ojmb = ojmb;
+		RemoteOddjobServerHandler(ServerSideToolkit toolkit) {
+			this.toolkit = toolkit;
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params) throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 			if (SERVER_INFO.equals(operation)) {
-				return ojmb.serverInfo();
+				return toolkit.getRemoteBean().serverInfo();
 			}
 			
 			if (NOOP.equals(operation)) {
-				ojmb.noop();
+				toolkit.getRemoteBean().noop();
 				return null;
 			}
 
-			throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.toString());				
+			throw NoSuchOperationException.of(toolkit.getRemoteId(),
+					operation.getActionName(), operation.getSignature());
 		}
 		
 		@Override

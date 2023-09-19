@@ -1,5 +1,9 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.jmx.RemoteOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Proxy;
 import java.util.Objects;
 
@@ -13,7 +17,9 @@ import java.util.Objects;
  */
 public class DirectInvocationClientFactory<T> 
 implements ClientInterfaceHandlerFactory<T> {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(DirectInvocationClientFactory.class);
+
 	private final Class<T> type;
 	
 	public DirectInvocationClientFactory(Class<T> type) {
@@ -29,8 +35,12 @@ implements ClientInterfaceHandlerFactory<T> {
 		Object delegate = Proxy.newProxyInstance(
 				type.getClassLoader(), 
 				new Class<?>[] { type },
-				(proxy, method, args) -> toolkit.invoke(
-						MethodOperation.from(method), args));
+				(proxy, method, args) -> {
+					RemoteOperation<?> remoteOperation = MethodOperation.from(method);
+					logger.debug("Invoking {} with args {}", remoteOperation, args);
+					return toolkit.invoke(
+							remoteOperation, args);
+				});
 		
 		return type.cast(delegate);
 	}

@@ -5,13 +5,14 @@ import org.oddjob.Loadable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.VanillaInterfaceHandler;
 import org.oddjob.jmx.client.ClientInterfaceHandlerFactory;
+import org.oddjob.jmx.client.ClientSideToolkit;
 import org.oddjob.jmx.client.DirectInvocationClientFactory;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.*;
 import org.oddjob.remote.Implementation;
+import org.oddjob.remote.RemoteException;
 
 import java.util.Arrays;
 
@@ -39,23 +40,8 @@ public class LoadableHandlerFactoryTest {
         }
     }
 
-    private static class OurClientToolkit extends MockClientSideToolkit {
-
-        ServerInterfaceManager serverManager;
-
-        @SuppressWarnings("unchecked")
-        @Override
-        public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-                throws Throwable {
-            return (T) serverManager.invoke(
-                    remoteOperation.getActionName(),
-                    args,
-                    remoteOperation.getSignature());
-        }
-    }
-
     @Test
-    public void testCreation() throws ArooaConversionException {
+    public void testCreation() throws ArooaConversionException, RemoteException {
 
         ArooaSession session = new StandardArooaSession();
 
@@ -73,7 +59,7 @@ public class LoadableHandlerFactoryTest {
         MyLoadable loadable = new MyLoadable();
 
         ServerInterfaceManager manager =
-                managerFactory.create(loadable, new MockServerSideToolkit());
+                managerFactory.create(loadable, MockServerSideToolkit.mockToolkit(42L));
 
         Implementation<?>[] implementations = manager.allClientInfo();
 
@@ -85,8 +71,7 @@ public class LoadableHandlerFactoryTest {
         ClientInterfaceHandlerFactory<?> clientFactory =
                 new DirectInvocationClientFactory<>(Loadable.class);
 
-        OurClientToolkit clientToolkit = new OurClientToolkit();
-        clientToolkit.serverManager = manager;
+        ClientSideToolkit clientToolkit = MockClientSideToolkit.mockToolkit(manager);
 
         Loadable proxy = (Loadable)
                 clientFactory.createClientHandler(null, clientToolkit);

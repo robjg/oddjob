@@ -1,18 +1,16 @@
 package org.oddjob.jmx.handlers;
 
 import org.oddjob.Describable;
-import org.oddjob.arooa.ArooaSession;
 import org.oddjob.describe.Describer;
 import org.oddjob.describe.UniversalDescriber;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
 import org.oddjob.jmx.server.*;
+import org.oddjob.remote.NoSuchOperationException;
 import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -66,33 +64,31 @@ implements ServerInterfaceHandlerFactory<Object, Describable> {
 	}
 
 	@Override
-	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit ojmb) {
-		return new ServerDescribableHandler(target,
-				ojmb.getServerSession().getArooaSession());
+	public ServerInterfaceHandler createServerHandler(Object target, ServerSideToolkit toolkit) {
+		return new ServerDescribableHandler(target, toolkit);
 	}
 
 	static class ServerDescribableHandler implements ServerInterfaceHandler {
-	
+
 		private final Object object;
 		private final Describer describer;
-		
-		ServerDescribableHandler(Object object, ArooaSession session) {
+
+		private final ServerSideToolkit toolkit;
+		ServerDescribableHandler(Object object, ServerSideToolkit toolkit) {
 			this.object = object;
-			this.describer = new UniversalDescriber(session);
+			this.toolkit = toolkit;
+			this.describer = new UniversalDescriber(toolkit.getServerSession().getArooaSession());
 		}
 
 		@Override
-		public Object invoke(RemoteOperation<?> operation, Object[] params)
-		throws MBeanException, ReflectionException {
+		public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 
 			if (DESCRIBE.equals(operation)) {
 				return describer.describe(object);
 			}
-			else {
-				throw new ReflectionException(
-						new IllegalStateException("invoked for an unknown method."), 
-								operation.getActionName());				
-			}
+
+			throw NoSuchOperationException.of(toolkit.getRemoteId(),
+					operation.getActionName(), operation.getSignature());
 		}
 
 		@Override

@@ -11,21 +11,14 @@ import org.oddjob.jmx.server.JMXOperationPlus;
 import org.oddjob.jmx.server.ServerInterfaceHandler;
 import org.oddjob.jmx.server.ServerInterfaceHandlerFactory;
 import org.oddjob.jmx.server.ServerSideToolkit;
-import org.oddjob.remote.Notification;
-import org.oddjob.remote.NotificationType;
+import org.oddjob.remote.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanAttributeInfo;
-import javax.management.MBeanException;
 import javax.management.MBeanOperationInfo;
-import javax.management.ReflectionException;
 import java.io.Serializable;
-import java.lang.reflect.UndeclaredThrowableException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * A MBean which wraps an object providing an Oddjob management interface to the
@@ -164,8 +157,8 @@ public class IconicHandlerFactory
                 return toolkit.invoke(
                         ICON_FOR,
                         id);
-            } catch (Throwable e) {
-                throw new UndeclaredThrowableException(e);
+            } catch (RemoteException e) {
+                throw new RemoteRuntimeException(e);
             }
         }
 
@@ -193,14 +186,19 @@ public class IconicHandlerFactory
                                 IconData ie = notification.getData();
                                 iconEvent(ie);
                             });
-                    toolkit.registerNotificationListener(
-                            ICON_CHANGED_NOTIF_TYPE, synchronizer);
+                    try {
+                        toolkit.registerNotificationListener(
+                                ICON_CHANGED_NOTIF_TYPE, synchronizer);
+                    }
+                    catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
+                    }
 
                     Notification<IconData> lastNotification;
                     try {
                         lastNotification = toolkit.invoke(SYNCHRONIZE);
-                    } catch (Throwable e) {
-                        throw new UndeclaredThrowableException(e);
+                    } catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
                     }
 
                     synchronizer.synchronize(lastNotification);
@@ -220,10 +218,16 @@ public class IconicHandlerFactory
         @Override
         public void removeIconListener(IconListener listener) {
             synchronized (this) {
-                listeners.remove(listener);
-                if (listeners.size() == 0) {
-                    toolkit.removeNotificationListener(ICON_CHANGED_NOTIF_TYPE, synchronizer);
-                    synchronizer = null;
+                if (listeners.remove(Objects.requireNonNull(listener)) && listeners.size() == 0) {
+                    try {
+                        toolkit.removeNotificationListener(ICON_CHANGED_NOTIF_TYPE, synchronizer);
+                    }
+                    catch (RemoteException e) {
+                        throw new RemoteRuntimeException(e);
+                    }
+                    finally {
+                        synchronizer = null;
+                    }
                 }
             }
         }
@@ -273,8 +277,7 @@ public class IconicHandlerFactory
         }
 
         @Override
-        public Object invoke(RemoteOperation<?> operation, Object[] params)
-                throws MBeanException, ReflectionException {
+        public Object invoke(RemoteOperation<?> operation, Object[] params) throws NoSuchOperationException {
 
             if (ICON_FOR.equals(operation)) {
                 return iconic.iconForId((String) params[0]);
@@ -284,9 +287,8 @@ public class IconicHandlerFactory
                 return lastNotification;
             }
 
-            throw new ReflectionException(
-                    new IllegalStateException("invoked for an unknown method."),
-                    operation.toString());
+            throw NoSuchOperationException.of(toolkit.getRemoteId(),
+                    operation.getActionName(), operation.getSignature());
         }
 
         @Override

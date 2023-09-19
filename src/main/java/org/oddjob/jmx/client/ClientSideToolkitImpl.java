@@ -8,6 +8,7 @@ import org.oddjob.jmx.server.OddjobMBeanFactory;
 import org.oddjob.remote.NotificationListener;
 import org.oddjob.remote.NotificationType;
 import org.oddjob.remote.RemoteException;
+import org.oddjob.remote.RemoteInvocationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,13 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws Throwable {
+	public <T> T invoke(RemoteOperation<T> remote, Object... args) throws RemoteException {
 		Objects.requireNonNull(remote);
-
-		Object[] exported = Utils.export(args);
 
 		Object result;
 		try {
+			Object[] exported = Utils.export(args);
+
 			result = clientSession.getServerConnection().invoke(
 					objectName, 
 					remote.getActionName(), 
@@ -69,49 +70,40 @@ class ClientSideToolkitImpl implements ClientSideToolkit {
 
 		} catch (ReflectionException e) {
 
-			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
-					Arrays.toString(args), e);
-
-			throw e.getTargetException();
+			throw RemoteInvocationException.of(remoteId, remote.getActionName(),
+					remote.getSignature(), args, e.getTargetException());
 		} catch (MBeanException e) {
 
-			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
-					Arrays.toString(args), e);
-
-			throw e.getTargetException();
+			throw RemoteInvocationException.of(remoteId, remote.getActionName(),
+					remote.getSignature(), args, e.getTargetException());
 		} catch (Throwable t) {
 
-			logger.trace("Failed invoking {} on remote {}, args {}, result {}", remote, remoteId,
-					Arrays.toString(args), t);
-			throw t;
+			throw RemoteInvocationException.of(remoteId, remote.getActionName(),
+					remote.getSignature(), args, t);
 		}
 
 		return (T) Utils.importResolve(result, clientSession);
-
 	}
+
 
 	@Override
 	public <T> void registerNotificationListener(NotificationType<T> eventType,
-												 NotificationListener<T> notificationListener) {
-		try {
-			this.remoteBridge.addNotificationListener(remoteId, eventType, notificationListener);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+												 NotificationListener<T> notificationListener)
+	throws RemoteException {
 
-		listeners.add(Pair.of(eventType, notificationListener));
+		this.remoteBridge.addNotificationListener(remoteId, eventType, notificationListener);
+
+		this.listeners.add(Pair.of(eventType, notificationListener));
 	}
 
 	@Override
 	public <T> void removeNotificationListener(NotificationType<T> eventType,
-			NotificationListener<T> notificationListener) {
-		try {
-			this.remoteBridge.removeNotificationListener(remoteId, eventType, notificationListener);
-		} catch (RemoteException e) {
-			throw new RuntimeException(e);
-		}
+			NotificationListener<T> notificationListener)
+	throws RemoteException {
 
-		listeners.remove(Pair.of(eventType, notificationListener));
+		this.remoteBridge.removeNotificationListener(remoteId, eventType, notificationListener);
+
+		this.listeners.remove(Pair.of(eventType, notificationListener));
 	}
 	
 	public ClientSession getClientSession() {

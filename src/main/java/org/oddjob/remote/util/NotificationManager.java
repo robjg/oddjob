@@ -55,7 +55,7 @@ public class NotificationManager implements RemoteNotifier {
                             });
         }
         catch (RemoteException e) {
-            throw new RemoteIdException(remoteId, e);
+            throw new RemoteComponentException(remoteId, e);
         }
     }
 
@@ -66,7 +66,7 @@ public class NotificationManager implements RemoteNotifier {
 
         ByTypeListeners btl = byRemote.get(remoteId);
         if (btl == null) {
-            throw new RemoteIdException(remoteId, "No listener " + notificationListener +
+            throw new RemoteComponentException(remoteId, "No listener " + notificationListener +
                     " of type " + notificationType);
         }
 
@@ -83,7 +83,7 @@ public class NotificationManager implements RemoteNotifier {
             };
         }
         catch (RemoteException e) {
-            throw new RemoteIdException(remoteId, e);
+            throw new RemoteComponentException(remoteId, e);
         }
     }
 

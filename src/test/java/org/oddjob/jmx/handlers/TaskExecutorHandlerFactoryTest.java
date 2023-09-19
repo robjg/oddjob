@@ -18,6 +18,7 @@ import org.oddjob.jmx.client.MockClientSession;
 import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.*;
 import org.oddjob.jobs.tasks.*;
+import org.oddjob.remote.RemoteException;
 import org.oddjob.state.JobState;
 import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
@@ -32,7 +33,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		public void addStateListener(StateListener listener) {
 			assertNull(l);
 			l = listener;
-			l.jobStateChange(new StateEvent(this, JobState.READY));
+			l.jobStateChange(StateEvent.now(this, JobState.READY));
 		}
 		public void removeStateListener(StateListener listener) {
 			assertNotNull(l);
@@ -120,7 +121,7 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 
 		@Override
 		public StateEvent lastStateEvent() {
-			return new StateEvent(this, TaskState.INPROGRESS);
+			return StateEvent.now(this, TaskState.INPROGRESS);
 		}
 		
 	}
@@ -133,8 +134,12 @@ public class TaskExecutorHandlerFactoryTest extends OjTestCase {
 		@SuppressWarnings("unchecked")
 		@Override
 		public <T> T invoke(RemoteOperation<T> remoteOperation, Object... args)
-				throws Throwable {
-			return (T) server.invoke(remoteOperation, args);
+				throws RemoteException {
+			try {
+				return (T) server.invoke(remoteOperation, args);
+			} catch (Throwable e) {
+				throw new RemoteException(e);
+			}
 		}
 		
 		@Override
