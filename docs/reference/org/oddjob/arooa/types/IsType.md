@@ -19,7 +19,16 @@ constructor.
 
 Using <code>is</code> to set a simple property.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/IsSimple.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+<snack>
+    <fruit>
+        <is type='apple' colour='red'/>
+    </fruit>
+</snack>
+        
+
+```
+
 
 Where the <code>snack</code> bean is:
 
@@ -33,7 +42,17 @@ and the <code>fruit</code> bean is:
 
 Using <code>is</code> to set an indexed property.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/IsIndexed.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+<snack>
+    <fruit>
+        <is type='apple' colour='red'/>
+        <is type='pear' colour='green'/>
+    </fruit>
+</snack>
+        
+
+```
+
 
 Where the <code>snack</code> bean is:
 
@@ -45,7 +64,17 @@ and the <code>fruit</code> bean is as above.
 
 Using <code>is</code> to set a mapped property.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/IsMapped.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+<snack>
+    <fruit>
+        <is key='morning' type='apple' colour='red'/>
+        <is key='afternoon' type='grapes' colour='white'/>
+    </fruit>
+</snack>
+        
+
+```
+
 
 Where the <code>snack</code> bean is:
 

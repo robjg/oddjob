@@ -52,13 +52,20 @@ The value.
 
 A value that is a constant string value.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/ValueTypeExample1.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+<value value="apple"/>
+```
+
 
 #### Example 2 <a name="example2"></a>
 
 A value that is a reference to a property.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/ValueTypeExample2.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+ <value value="${vars.fruit}"/>
+ 
+```
+
 
 #### Example 3 <a name="example3"></a>
 

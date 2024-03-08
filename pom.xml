@@ -156,6 +156,7 @@
       </plugin>
 
       <plugin>
+        <!-- This creates the Reference for both Arooa and Oddjob, so we override the parent one -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.6.4-SNAPSHOT</version>
@@ -193,7 +194,7 @@
                 <additionalOption>-d</additionalOption>
                 <additionalOption>${project.basedir}/docs/reference</additionalOption>
                 <additionalOption>-loaderpath</additionalOption>
-                <additionalOption>${project.basedir}/src/test/resources</additionalOption>
+                <additionalOption>${project.basedir}/src/test/resources;${project.basedir}/../arooa/src/test/resources</additionalOption>
                 <additionalOption>-writerfactory</additionalOption>
                 <additionalOption>org.oddjob.doc.markdown.MdReferenceWriterFactory</additionalOption>
                 <additionalOption>-apiurl</additionalOption>

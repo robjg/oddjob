@@ -26,6 +26,7 @@ captured for this request is a boolean true/false value.
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
       <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
+      <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
 The default value to use, true or false.
@@ -35,6 +36,7 @@ The default value to use, true or false.
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
       <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
+      <tr><td><i>Required</i></td><td>No. Only a yes/no prompt will be displayed if missing.</td></tr>
 </table>
 
 Prompt to display.

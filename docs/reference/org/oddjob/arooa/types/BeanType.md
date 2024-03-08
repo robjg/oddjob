@@ -47,7 +47,20 @@ constant - it can not contain ${} property place holders.
 
 Creating a bean.
 
-_java.io.IOException: No Resource Found: 'org/oddjob/arooa/types/BeanExample.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+```xml
+<bean class="org.oddjob.arooa.types.PersonBean" name="John">
+    <friends>
+        <list>
+            <values>
+                <value value="Rod"/>
+                <value value="Jane"/>
+                <value value="Freddy"/>
+            </values>
+        </list>
+    </friends>
+</bean>
+```
+
 
 Where the bean is:
 
