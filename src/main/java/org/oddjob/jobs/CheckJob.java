@@ -1,9 +1,5 @@
 package org.oddjob.jobs;
 
-import java.io.Serializable;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ArooaConverter;
@@ -12,6 +8,10 @@ import org.oddjob.arooa.convert.NoConversionAvailableException;
 import org.oddjob.arooa.deploy.annotations.ArooaAttribute;
 import org.oddjob.arooa.deploy.annotations.ArooaHidden;
 import org.oddjob.arooa.life.ArooaSessionAware;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
 
 /**
  * @oddjob.description Checks a value for certain criteria. This
@@ -306,7 +306,7 @@ implements Runnable, Serializable, ArooaSessionAware {
 	}
 
 	/**
-	 * Encapsulate the a check.
+	 * Encapsulate a check.
 	 */
 	interface Check {
 		/**

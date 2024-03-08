@@ -21,14 +21,14 @@ public class InputConfirm extends BaseInputRequest {
 	/**
 	 * @oddjob.property
 	 * @oddjob.description Prompt to display.
-	 * @oddjob.required. No. Only a yes/no prompt will be displayed if missing.
+	 * @oddjob.required No. Only a yes/no prompt will be displayed if missing.
 	 */
 	private String prompt;
 	
 	/**
 	 * @oddjob.property default
 	 * @oddjob.description The default value to use, true or false.
-	 * @oddjob.required. No.
+	 * @oddjob.required No.
 	 */
 	private Boolean defaultValue;
 	

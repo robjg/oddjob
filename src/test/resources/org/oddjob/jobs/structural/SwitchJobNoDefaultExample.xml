@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="some.prop" value="123"/>
+                    </values>
+                </properties>
+                <switch id="switch">
+                    <value>
+                        <convert>
+                            <to>
+                                <class name="int"/>
+                            </to>
+                            <value>
+                                <value value="${some.prop}"/>
+                            </value>
+                        </convert>
+                    </value>
+                    <predicates>
+                        <list>
+                            <values>
+                                <comparison lt="42"/>
+                            </values>
+                        </list>
+                    </predicates>
+                    <jobs>
+                        <echo>
+                            <![CDATA[${switch.value} is less than 42]]>
+                        </echo>
+                    </jobs>
+                </switch>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

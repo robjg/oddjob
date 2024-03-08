@@ -89,6 +89,36 @@
                         </design:form>
                     </design>
                 </is>
+                <is element='switch'
+                    className='org.oddjob.jobs.structural.SwitchJob'>
+                    <design>
+                        <design:form>
+                            <formItems>
+                                <design:group bordered="true" title="General">
+                                    <formItems>
+                                        <design:text property="name" title="Name"/>
+                                    </formItems>
+                                </design:group>
+                                <design:group bordered="true" title="Switch On">
+                                    <formItems>
+                                        <design:single property="value" title="Value"/>
+                                        <design:radio>
+                                            <formItems>
+                                                <design:single property="switches" title="Switches"/>
+                                                <design:single property="predicates" title="Predicates"/>
+                                            </formItems>
+                                        </design:radio>
+                                    </formItems>
+                                </design:group>
+                                <design:group bordered="true" title="Jobs">
+                                    <formItems>
+                                        <design:indexed property="jobs"/>
+                                     </formItems>
+                                </design:group>
+                            </formItems>
+                        </design:form>
+                    </design>
+                </is>
                 <is element='sql' className='org.oddjob.sql.SQLJob'
                     designFactory='org.oddjob.designer.components.SqlDC'/>
                 <is element='sql-keeper-service' 
@@ -103,6 +133,34 @@
                     designFactory='org.oddjob.designer.components.WaitDC'/>
             </components>
             <values>
+                <is element="comparison" className="org.oddjob.values.types.ComparisonType">
+                    <design>
+                        <design:form>
+                            <formItems>
+                                <design:tabs>
+                                    <formItems>
+                                        <design:group title="Comparisons">
+                                            <formItems>
+                                                <design:text property="eq" title="Equal To"/>
+                                                <design:text property="ne" title="Not Equal To"/>
+                                                <design:text property="lt" title="Less Than"/>
+                                                <design:text property="le" title="Less or Equal To"/>
+                                                <design:text property="gt" title="Greater Than"/>
+                                                <design:text property="ge" title="Greater or Equal To"/>
+                                            </formItems>
+                                        </design:group>
+                                        <design:group title="Others">
+                                            <formItems>
+                                                <design:text property="null" title="Is Null"/>
+                                                <design:text property="z" title="Zero Length"/>
+                                            </formItems>
+                                        </design:group>
+                                    </formItems>
+                                </design:tabs>
+                            </formItems>
+                        </design:form>
+                    </design>
+                </is>
                 <is element='connection' className='org.oddjob.sql.ConnectionType'
                     designFactory='org.oddjob.designer.elements.ConnectionDE'/>
                 <is element='date' className='org.oddjob.values.types.DateType'

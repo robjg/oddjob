@@ -1,0 +1,27 @@
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="some.prop" value="green"/>
+                    </values>
+                </properties>
+                <switch id="switch">
+                    <value>
+                        <value value="${some.prop}"/>
+                    </value>
+                    <switches>
+                        <tokenizer text="red, green, blue"/>
+                    </switches>
+                    <jobs>
+                        <echo>Red</echo>
+                        <echo>Green</echo>
+                        <echo>Blue</echo>
+                        <echo>Default for ${switch.value}</echo>
+                    </jobs>
+                </switch>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

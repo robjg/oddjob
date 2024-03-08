@@ -3,30 +3,8 @@
  */
 package org.oddjob.tools;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInput;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.oddjob.Iconic;
-import org.oddjob.OddjobDescriptorFactory;
-import org.oddjob.OddjobSessionFactory;
-import org.oddjob.Stateful;
-import org.oddjob.Structural;
-import org.oddjob.arooa.ArooaConfiguration;
-import org.oddjob.arooa.ArooaConfigurationException;
-import org.oddjob.arooa.ArooaDescriptor;
-import org.oddjob.arooa.ArooaParseException;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ArooaType;
-import org.oddjob.arooa.ComponentTrinity;
+import org.oddjob.*;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.parsing.ArooaHandler;
 import org.oddjob.arooa.parsing.PrefixMappings;
@@ -47,6 +25,10 @@ import org.oddjob.state.StateListener;
 import org.oddjob.structural.StructuralEvent;
 import org.oddjob.structural.StructuralListener;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Useful utility methods and constants for tests.
  * 
@@ -56,7 +38,7 @@ public class OddjobTestHelper {
 
 	public static final long TEST_TIMEOUT = 10000L;
 	
-	public static final String LS = System.getProperty("line.separator");
+	public static final String LS = System.lineSeparator();
 	
 	/**
 	 * Get the state of a component. Assumes the component is 
@@ -71,9 +53,9 @@ public class OddjobTestHelper {
 	        public void jobStateChange(StateEvent event) {
 	            state = event.getState();
 	        }
-	    };
-	    
-		Stateful stateful = (Stateful) o;
+	    }
+
+        Stateful stateful = (Stateful) o;
 	    StateCatcher listener = new StateCatcher();
 	    stateful.addStateListener(listener);
 	    stateful.removeStateListener(listener);
@@ -82,7 +64,7 @@ public class OddjobTestHelper {
     
 	public static Object[] getChildren(Object o) {
 		class ChildCatcher implements StructuralListener {
-			List<Object> results = new ArrayList<Object>();
+			final List<Object> results = new ArrayList<>();
 			public void childAdded(StructuralEvent event) {
 				synchronized (results) {
 					results.add(event.getIndex(), event.getChild());
@@ -181,12 +163,18 @@ public class OddjobTestHelper {
     }
     
     public static Object createComponentFromXml(String xml) 
-    throws IOException, ArooaParseException {
+    throws ArooaParseException {
 	    
     	return createComponentFromConfiguration(new XMLConfiguration("TEST", xml));
     }
-    
-    public static Object createComponentFromConfiguration(ArooaConfiguration config) 
+
+	public static Object createComponentFromConfiguration(ArooaConfiguration config)
+			throws ArooaParseException {
+		return createComponentFromConfiguration(config, false);
+	}
+
+    public static Object createComponentFromConfiguration(ArooaConfiguration config,
+														  boolean configure)
     throws ArooaParseException {
 	    
     	ArooaSession session = new OddjobSessionFactory().createSession();
@@ -195,7 +183,12 @@ public class OddjobTestHelper {
     	
     	parser.setArooaType(ArooaType.COMPONENT);
     	
-    	parser.parse(config);
+    	ConfigurationHandle<ArooaContext> handler = parser.parse(config);
+
+		if (configure) {
+			ArooaContext context = handler.getDocumentContext();
+			context.getRuntime().configure();
+		}
 
     	return parser.getRoot();        
     }
@@ -268,7 +261,7 @@ public class OddjobTestHelper {
 				throw new UnsupportedOperationException();
 			}
 			@Override
-			public ConfigurationNode getConfigurationNode() {
+			public ConfigurationNode<ArooaContext> getConfigurationNode() {
 				throw new UnsupportedOperationException();
 			}
 			@Override

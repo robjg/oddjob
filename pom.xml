@@ -155,6 +155,57 @@
         </executions>
       </plugin>
 
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.4-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>reference</id>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+            <phase>none</phase>
+            <configuration>
+              <doclet>org.oddjob.doc.doclet.ReferenceDoclet</doclet>
+              <docletArtifacts>
+                <docletArtifact>
+                  <groupId>uk.co.rgordon</groupId>
+                  <artifactId>oj-doc</artifactId>
+                  <version>${project.version}</version>
+                </docletArtifact>
+                <docletArtifact>
+                  <groupId>uk.co.rgordon</groupId>
+                  <artifactId>oddjob</artifactId>
+                  <version>${project.version}</version>
+                </docletArtifact>
+                <docletArtifact>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                </docletArtifact>
+              </docletArtifacts>
+              <show>private</show>
+              <additionalJOptions>
+                <additionalJOption>-J-Dlogback.configurationFile=logback-oj-doc.xml</additionalJOption>
+              </additionalJOptions>
+              <additionalOptions>
+                <additionalOption>-d</additionalOption>
+                <additionalOption>${project.basedir}/docs/reference</additionalOption>
+                <additionalOption>-loaderpath</additionalOption>
+                <additionalOption>${project.basedir}/src/test/resources</additionalOption>
+                <additionalOption>-writerfactory</additionalOption>
+                <additionalOption>org.oddjob.doc.markdown.MdReferenceWriterFactory</additionalOption>
+                <additionalOption>-apiurl</additionalOption>
+                <additionalOption>http://rgordon.co.uk/oddjob/1.6.0/api</additionalOption>
+              </additionalOptions>
+              <useStandardDocletOptions>false</useStandardDocletOptions>
+              <includeDependencySources>true</includeDependencySources>
+              <dependencySourceIncludes>uk.co.rgordon:*</dependencySourceIncludes>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
 

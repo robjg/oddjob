@@ -82,7 +82,11 @@ public class ConsoleCapture {
 	public String[] getLines() {
 		return console.getLines().toArray(new String[0]);
 	}
-	
+
+	public List<String> getAsList() {
+		return console.getLines();
+	}
+
 	public String getAll() {
 		StringBuilder builder = new StringBuilder();
 		for (String line : console.lines) {
