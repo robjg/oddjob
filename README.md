@@ -42,36 +42,36 @@ details for configuring Oddjob's various jobs.
 This is the main module for Oddjob, however extra functionality is
 provided via Oddjob plugins called Oddballs.
 
-- [oj-ant](../oj-ant)
+- [oj-ant](https://github.com/robjg/oj-ant)
 : Run Ant from within Oddjob
 
-- [oj-net](../oj-net) 
+- [oj-net](https://github.com/robjg/oj-net) 
 : FTP jobs
 
-- [oj-mail](../oj-mail)
+- [oj-mail](https://github.com/robjg/oj-mail)
 : Mail jobs
 
-- [oj-ssh](../oj-ssh)
+- [oj-ssh](https://github.com/robjg/oj-ssh)
 : SSH jobs
 
-- [oj-web](../oj-ssh)
+- [oj-web](https://github.com/robjg/oj-ssh)
 : HTTP client and server jobs. Includes the server side for the 
 web UI.
 
 ### Building
 
 To build this module as a Shapshot you will first need to clone and 
-Maven Install [oj-parent](../oj-parent) and [arooa](../arooa).
+Maven Install [oj-parent](https://github.com/robjg/oj-parent) and [arooa](https://github.com/robjg/arooa).
 
-[oj-assembly](../oj-assembly) provides a module POM capable of building
+[oj-assembly](https://github.com/robjg/oj-assembly) provides a module POM capable of building
 all the Oddjob modules included in the distribution.
 
 
 Other modules that contribute to the final Oddjob distribution are
-[run-oddjob](../run-oddjob) - the launch framework for Oddjob,
-[oj-reactjs](../oj-reactjs) - the Web UI front end, [oj-doc](../oj-doc)
+[run-oddjob](https://github.com/robjg/run-oddjob) - the launch framework for Oddjob,
+[oj-reactjs](https://github.com/robjg/oj-reactjs) - the Web UI front end, [oj-doc](https://github.com/robjg/oj-doc)
 which builds the Reference pages amongst other things, and 
-[oj-examples](../oj-examples) which are examples and also the
+[oj-examples](https://github.com/robjg/oj-examples) which are examples and also the
 source of the Oddjob documentation.
 
 
