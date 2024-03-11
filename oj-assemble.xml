@@ -2,8 +2,8 @@
     <job>
         <sequential>
             <jobs>
-                <exists file="${oddjob.assemble.home}/run-maven.xml"/>
-                <oddjob file="${oddjob.assemble.home}/run-maven.xml"/>
+                <exists file="${oddjob.assemble.home}/run-maven.xml" name="Check run-maven.xml Exists"/>
+                <oddjob file="${oddjob.assemble.home}/run-maven.xml" name="Run Maven ${oddjob.assemble.target}"/>
             </jobs>
         </sequential>
     </job>
