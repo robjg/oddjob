@@ -193,7 +193,6 @@ A simple example.
 <exec name="Batch Example">
 cmd /C "${oddjob.dir}\bin\greeting.bat" Hello
 </exec>
- 
 ```
 
 
@@ -215,7 +214,6 @@ above is equivalent to:
         </list>
     </args>
 </exec>
- 
 ```
 
 
@@ -259,7 +257,6 @@ line help.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -283,7 +280,6 @@ can be defined with different log levels for stdout and sterr.
         </exec>
     </job>
 </oddjob>
-
 ```
 
 
@@ -331,7 +327,6 @@ java -jar "${oddjob.test.run.jar}" -f "${this.dir}/OddjobCat.xml" ${logConfigArg
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

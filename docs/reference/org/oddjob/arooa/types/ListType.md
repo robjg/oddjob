@@ -113,17 +113,16 @@ nested list that contains one String.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 Hello World
 Goodbye World
 [I'm in another list]
-</pre>
+```
 
 
 #### Example 2 <a name="example2"></a>
@@ -171,19 +170,18 @@ and array into a list of 5 separate values.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 apples
 oranges
 bananas
 kiwis
 mangos
-</pre>
+```
 
 
 #### Example 3 <a name="example3"></a>
@@ -247,19 +245,18 @@ Strings.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 grapes, red
 grapes, white
 gratefruit
 apples
 pears
-</pre>
+```
 
 
 Although it can't be seen in the output, but can be seen when this
@@ -306,16 +303,15 @@ it is also hidden from the Reference Guide generator.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 apples
 bananas
-</pre>
+```
 
 
 

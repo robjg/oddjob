@@ -140,13 +140,22 @@ Invoking a method on a bean.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 Where <code>EchoService</code> is:
 
-{@oddjob.java.resource org/oddjob/script/EchoService.java}
+```java
+package org.oddjob.script;
+
+public class EchoService {
+
+	public String echo(String text) {
+		return text;
+	}
+}
+```
+
 
 #### Example 2 <a name="example2"></a>
 
@@ -167,7 +176,6 @@ for convenience.
         </invoke>
     </job>
 </oddjob>
-
 ```
 
 

@@ -105,7 +105,6 @@ a thread - but there are situations when join is just simpler.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

@@ -121,7 +121,6 @@ daily at 11 am.
         </schedules:yearly>
     </schedules>
 </schedules:list>
-
 ```
 
 
@@ -143,7 +142,6 @@ equivalent to the above.
         </schedules:yearly>
     </schedules>
 </schedules:list>
-
 ```
 
 
@@ -154,7 +152,6 @@ A from day of year to day of year example.
 ```xml
 <schedules:yearly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
              fromDate="12-25" toDate="12-26"/>
-
 ```
 
 
@@ -165,7 +162,6 @@ An on day of year example.
 ```xml
 <schedules:yearly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
              onDate="01-01"/>
-
 ```
 
 

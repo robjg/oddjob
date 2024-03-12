@@ -92,7 +92,6 @@ Limit the Bus to 2 beans.
         </bus:bus>
     </job>
 </oddjob>
-
 ```
 
 

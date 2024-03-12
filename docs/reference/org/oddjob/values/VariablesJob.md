@@ -42,7 +42,6 @@ A simple variable.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

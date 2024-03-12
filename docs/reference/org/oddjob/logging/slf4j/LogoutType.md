@@ -60,7 +60,6 @@ Copy the contents of a file to the logger.
         </copy>
     </job>
 </oddjob>
-
 ```
 
 

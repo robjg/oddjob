@@ -19,7 +19,7 @@ a text value or matches for a regular expression.
 | [noPath](#propertynoPath) | Remove the path from the file name. | 
 | [out](#propertyout) | Where to write output to. | 
 | [regexp](#propertyregexp) | Treat the text to match as a regular expression. | 
-| [results](#propertyresults) | A collection for [org.oddjob.io.GrepLineResult](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/io/GrepLineResult.html)beans to be written to. | 
+| [results](#propertyresults) | A collection for [org.oddjob.io.GrepLineResult](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/io/GrepLineResult.html) beans to be written to. | 
 | [text](#propertytext) | Text to search for. | 
 | [withFilename](#propertywithFilename) | Prefix output with a file name. | 
 
@@ -209,7 +209,6 @@ with the line number.
         </grep>
     </job>
 </oddjob>
-
 ```
 
 

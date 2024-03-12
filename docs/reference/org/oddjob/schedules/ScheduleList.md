@@ -42,7 +42,6 @@ Schedule on Monday and a Friday.
         <schedules:weekly on="Friday"/>
     </schedules>
 </schedules:list>
-
 ```
 
 

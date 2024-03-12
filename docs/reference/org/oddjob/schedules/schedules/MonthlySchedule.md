@@ -172,7 +172,6 @@ A range of days of the month.
         <schedules:daily at="10:00"/>
      </refinement>
 </schedules:monthly>
-
 ```
 
 
@@ -186,7 +185,6 @@ On a single day of the month.
 ```xml
 <schedules:monthly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
                      onDay="15"/>
-
 ```
 
 
@@ -203,7 +201,6 @@ On the last Friday of the month.
         <schedules:time at="07:00"/>
      </refinement>
 </schedules:monthly>
-
 ```
 
 

@@ -97,17 +97,16 @@ Convert a delimited list to an array of Strings.
         </foreach>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 grapes, red
 grapes, white
 gratefruit
-</pre>
+```
 
 
 #### Example 2 <a name="example2"></a>
@@ -142,20 +141,19 @@ ${vars.aNumber.is.class.name}]]></echo>
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 42
 org.oddjob.arooa.types.ConvertType
 42
 org.oddjob.arooa.types.ValueType
 42
 java.lang.Integer
-</pre>
+```
 
 
 

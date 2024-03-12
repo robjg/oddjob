@@ -212,7 +212,6 @@ For each of 3 values.
         </foreach>
     </job>
 </oddjob>
-
 ```
 
 
@@ -278,7 +277,6 @@ in as part of the unit test for this example.
         </foreach>
     </job>
 </oddjob>
-
 ```
 
 
@@ -315,7 +313,6 @@ executions to three.
         </foreach>
     </job>
 </oddjob>
-
 ```
 
 
@@ -345,7 +342,6 @@ pre-loaded, and only the last three complete jobs will remain loaded.
         </foreach>
     </job>
 </oddjob>
-
 ```
 
 

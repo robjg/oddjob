@@ -55,7 +55,6 @@ Make a directory including missing parent directories.
         <mkdir dir="${this.args[0]}/a/b/c"/>
     </job>
 </oddjob>
-
 ```
 
 

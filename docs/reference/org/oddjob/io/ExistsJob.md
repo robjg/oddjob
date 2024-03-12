@@ -97,7 +97,6 @@ A simple example checking for a single file.
         <exists file='${this.args[0]}/test/io/reference/test1.txt'/>
     </job>
 </oddjob>
-
 ```
 
 
@@ -131,7 +130,6 @@ File polling.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -164,9 +162,6 @@ Using exists and processing the files found.
         </sequential>
     </job>
 </oddjob>
-
-
-
 ```
 
 

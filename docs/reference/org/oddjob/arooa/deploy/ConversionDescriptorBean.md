@@ -67,7 +67,6 @@ Creating Gremlins
         </oddjob>
     </job>
 </oddjob>
-
 ```
 
 ```xml
@@ -90,7 +89,6 @@ Creating Gremlins
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

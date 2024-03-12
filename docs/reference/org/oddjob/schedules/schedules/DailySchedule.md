@@ -80,7 +80,6 @@ every day at 10am.
 ```xml
 <schedules:daily xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
            at="10:00"/>
-
 ```
 
 
@@ -97,7 +96,6 @@ between 10pm and 4am. The end time is 03:50 yet the last interval is
         <schedules:interval interval="00:15"/>
     </refinement>
 </schedules:daily>
-
 ```
 
 

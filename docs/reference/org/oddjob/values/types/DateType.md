@@ -112,7 +112,6 @@ A simple example of specifying a date.
 
 ```xml
 <date date="2009-12-25 12:30"/>
- 
 ```
 
 
@@ -122,7 +121,6 @@ Specifying a date in a different format.
 
 ```xml
 <date date="25/12/2009 12:30" format="dd/MM/yyyy HH:mm"/>
- 
 ```
 
 
@@ -141,7 +139,6 @@ Adjusting a date by Time Zone.
         <echo>Christmas in Hawaii starts at ${vars.xmas}.</echo>
       </jobs>
     </sequential>
-
 ```
 
 
@@ -176,7 +173,6 @@ Tomorrow is ${vars.tomorrow}.</echo>
     </sequential>
   </job>
 </oddjob>
- 
 ```
 
 

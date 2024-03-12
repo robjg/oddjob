@@ -54,7 +54,6 @@ A single file.
 
 ```xml
 <files files="onefile.txt"/>
-
 ```
 
 
@@ -122,7 +121,6 @@ specified as arguments passed in to Oddjob.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

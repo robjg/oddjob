@@ -63,7 +63,6 @@ A value that is a reference to a property.
 
 ```xml
  <value value="${vars.fruit}"/>
- 
 ```
 
 
@@ -92,20 +91,19 @@ ${vars.fruit.value.value.class}]]></echo>
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 apple
 class org.oddjob.arooa.types.ValueType
 apple
 class org.oddjob.arooa.types.ArooaObject
 apple
 class java.lang.String
-</pre>
+```
 
 
 

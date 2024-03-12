@@ -21,7 +21,6 @@ Copy from stdin to a file.
         <stdin/>
     </input>
 </copy>
-
 ```
 
 

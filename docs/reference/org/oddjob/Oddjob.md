@@ -76,7 +76,7 @@ is all about writing custom job's for Oddjob.
 | [args](#propertyargs) | An array of arguments the Oddjob configuration can use. | 
 | [classLoader](#propertyclassLoader) | The classLoader to use when loading the configuration. | 
 | [configuration](#propertyconfiguration) | The configuration. | 
-| [descriptorFactory](#propertydescriptorFactory) | An [org.oddjob.arooa.deploy.ArooaDescriptorFactory](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/deploy/ArooaDescriptorFactory.html)that will be used when loading the configuration. | 
+| [descriptorFactory](#propertydescriptorFactory) | An [org.oddjob.arooa.deploy.ArooaDescriptorFactory](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/deploy/ArooaDescriptorFactory.html) that will be used when loading the configuration. | 
 | [dir](#propertydir) | The name of the directory the configuration file is in. | 
 | [export](#propertyexport) | Values to be exported into the nested configuration. | 
 | [file](#propertyfile) | The name of the configuration file. | 
@@ -371,7 +371,6 @@ Using an argument passed into Oddjob that may or may not be set.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -392,7 +391,6 @@ Oddjob root is used as the path of the nested configuration file.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -430,7 +428,6 @@ A nested Oddjob with one argument passed to the child.
         </oddjob>
     </job>
 </oddjob>
-
 ```
 
 
@@ -442,7 +439,6 @@ And EchoArg.xml:
         <echo id='echo'>${this.args[0]}</echo>
     </job>
 </oddjob>
-
 ```
 
 
@@ -464,7 +460,6 @@ A nested Oddjob with a property past to the child.
         </oddjob>
     </job>
 </oddjob>
-
 ```
 
 
@@ -476,7 +471,6 @@ And EchoProperty.xml:
         <echo id='echo'>${our.greeting}</echo>
     </job>
 </oddjob>
-
 ```
 
 

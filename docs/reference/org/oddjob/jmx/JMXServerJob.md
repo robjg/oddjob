@@ -182,7 +182,6 @@ Creating a server using the platform MBean Server.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -216,7 +215,6 @@ Creating a server using an RMI registry.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

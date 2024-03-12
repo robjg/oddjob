@@ -88,7 +88,6 @@ A schedule that breaks for Christmas.
         <schedules:yearly fromDate="12-25" toDate="12-26"/>
     </breaks>
 </schedules:broken>
-
 ```
 
 
@@ -118,7 +117,6 @@ first day of the break, instead of the usual 10am.
         <schedules:time from="11:00"/>
     </alternative>
 </schedules:broken>
-
 ```
 
 
@@ -126,9 +124,9 @@ first day of the break, instead of the usual 10am.
 
 Examples elsewhere.
 
-- The [schedules:after](../../../../org/oddjob/schedules/schedules/AfterSchedule.md)documentation has an example that uses the <code>broken</code>schedule to calculate the day after the next working day.
-- The [schedule](../../../../org/oddjob/schedules/ScheduleType.md)documentation shows a <code>broken</code>schedule being used to calculate the next working day.
-- The [schedules:day-after](../../../../org/oddjob/schedules/schedules/DayAfterSchedule.md)and [schedules:day-before](../../../../org/oddjob/schedules/schedules/DayBeforeSchedule.md)documentation shows a <code>broken</code>schedule being used to move the last day of the month.
+- The [schedules:after](../../../../org/oddjob/schedules/schedules/AfterSchedule.md) documentation has an example that uses the <code>broken</code> schedule to calculate the day after the next working day.
+- The [schedule](../../../../org/oddjob/schedules/ScheduleType.md) documentation shows a <code>broken</code> schedule being used to calculate the next working day.
+- The [schedules:day-after](../../../../org/oddjob/schedules/schedules/DayAfterSchedule.md) and [schedules:day-before](../../../../org/oddjob/schedules/schedules/DayBeforeSchedule.md) documentation shows a <code>broken</code> schedule being used to move the last day of the month.
 
 
 

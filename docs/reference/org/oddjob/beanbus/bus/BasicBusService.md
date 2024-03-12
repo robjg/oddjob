@@ -12,13 +12,13 @@ This component parent provides the following features over other component paren
 such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 
 - Components will be automatically linked to the next component unless this is disabled.
-- Any plain [java.util.function.Consumer](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/function/Consumer.html)will appear in the bus as a service with appropriate icons and state.
+- Any plain [java.util.function.Consumer](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/function/Consumer.html) will appear in the bus as a service with appropriate icons and state.
 - Components will be run (or started) in reverse order so destinations are ready to receive data before it is sent by the previous components.
 - Components will be stopped in order so components that send data are stopped before the destinations that receive the data.
-- If a component has a property setter of type [java.lang.AutoCloseable](http://rgordon.co.uk/oddjob/1.6.0/api/java/lang/AutoCloseable.html)then one will be set automatically allowing the component to stop the bus.
-- If a component has a property setter of type [java.io.Flushable](http://rgordon.co.uk/oddjob/1.6.0/api/java/io/Flushable.html)then one will be set automatically allowing the component to flush the bus.
-- Any component that is [java.io.Flushable](http://rgordon.co.uk/oddjob/1.6.0/api/java/io/Flushable.html)will be flushed when a component flushes the bus. Flush will be called in component order. Flush will always be called when the bus stops, unless it crashes.
-- If a component wishes to both stop and flush the bus, and doesn't mind a dependency on this framework it can provide a property setter of type [org.oddjob.beanbus.BusConductor](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/beanbus/BusConductor.html)and one will be set automatically
+- If a component has a property setter of type [java.lang.AutoCloseable](http://rgordon.co.uk/oddjob/1.6.0/api/java/lang/AutoCloseable.html) then one will be set automatically allowing the component to stop the bus.
+- If a component has a property setter of type [java.io.Flushable](http://rgordon.co.uk/oddjob/1.6.0/api/java/io/Flushable.html) then one will be set automatically allowing the component to flush the bus.
+- Any component that is [java.io.Flushable](http://rgordon.co.uk/oddjob/1.6.0/api/java/io/Flushable.html) will be flushed when a component flushes the bus. Flush will be called in component order. Flush will always be called when the bus stops, unless it crashes.
+- If a component wishes to both stop and flush the bus, and doesn't mind a dependency on this framework it can provide a property setter of type [org.oddjob.beanbus.BusConductor](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/beanbus/BusConductor.html) and one will be set automatically
 - If a component enters an Exception state the bus will crash. Other components will be stopped in order.
 
 
@@ -147,7 +147,6 @@ A simple bus of 3 components.
         </bus:bus>
     </job>
 </oddjob>
-
 ```
 
 

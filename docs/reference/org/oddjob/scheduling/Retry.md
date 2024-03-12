@@ -168,7 +168,6 @@ File Polling. Check every 5 seconds for a file.
         </scheduling:retry>
     </job>
 </oddjob>
-
 ```
 
 
@@ -199,7 +198,6 @@ Using Retry with a Timer. A daily job retries twice.
         </scheduling:timer>
     </job>
 </oddjob>
-
 ```
 
 

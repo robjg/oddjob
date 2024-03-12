@@ -24,7 +24,7 @@ in addition to any output properties.
 | [language](#propertylanguage) | The name of the language the script is in. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [redirectStderr](#propertyredirectStderr) | Combine stdin and stderr. | 
-| [result](#propertyresult) | The result of executing the script or the script variable chosen as the result variable with the `resultVariable`property. | 
+| [result](#propertyresult) | The result of executing the script or the script variable chosen as the result variable with the `resultVariable` property. | 
 | [resultForState](#propertyresultForState) | If true then use the result to determine the completion state of the job. | 
 | [resultVariable](#propertyresultVariable) | The variable in the script that will be used to provide the result. | 
 | [script](#propertyscript) | The script provided as text. | 
@@ -265,7 +265,6 @@ var snack = fruit;
  </sequential>
  </job> 
 </oddjob>
-
 ```
 
 
@@ -296,7 +295,6 @@ vars.set('today', new java.util.Date());
   </sequential>
  </job>
 </oddjob>
-
 ```
 
 
@@ -335,7 +333,6 @@ Invoking a script to provide a substring function.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -356,7 +353,6 @@ var result = 1;
     </script>
   </job>
 </oddjob>
-
 ```
 
 
@@ -377,7 +373,6 @@ var result = 1;
     </script>
   </job>
 </oddjob>
-
 ```
 
 
@@ -399,7 +394,6 @@ function multiplyByTwo(x) { return new java.lang.Integer(x * 2)}
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

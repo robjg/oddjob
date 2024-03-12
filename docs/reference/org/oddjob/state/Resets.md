@@ -85,7 +85,7 @@ This flag is cleared with a reset.
 
 Examples elsewhere.
 
-- See the [state:equals](../../../org/oddjob/state/EqualsState.md)example. The resets are required because retry only sends a soft reset on retry and it must be hardened to reset the [exists](../../../org/oddjob/io/ExistsJob.md). 
+- See the [state:equals](../../../org/oddjob/state/EqualsState.md) example. The resets are required because retry only sends a soft reset on retry and it must be hardened to reset the [exists](../../../org/oddjob/io/ExistsJob.md). 
 
 
 

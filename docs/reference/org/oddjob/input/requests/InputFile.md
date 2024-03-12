@@ -20,7 +20,7 @@ A request for a file or directory.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | See [input](../../../../org/oddjob/input/InputJob.md)for an example. |
+| [Example 1](#example1) | See [input](../../../../org/oddjob/input/InputJob.md) for an example. |
 
 
 ### Property Detail

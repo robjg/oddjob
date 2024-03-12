@@ -26,7 +26,6 @@ Copy from a file to stdout.
         <stdout/>
     </output>
 </copy>
-
 ```
 
 

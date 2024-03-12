@@ -168,7 +168,6 @@ example also demonstrates using the value of a remote jobs property.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -221,7 +220,6 @@ Connect, run a remote job, and disconnect.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -273,7 +271,6 @@ A local job triggers when a server job runs.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

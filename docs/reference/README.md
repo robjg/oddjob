@@ -10,7 +10,7 @@
 - [check](org/oddjob/jobs/CheckJob.md) - Checks a value for certain criteria.
 - [copy](org/oddjob/io/CopyJob.md) - A Copy job.
 - [delete](org/oddjob/io/DeleteJob.md) - Delete a file or directory, or files and directories.
-- [depends](org/oddjob/jobs/job/DependsJob.md) - This job is deprecated, use [run](.//org/oddjob/jobs/job/RunJob.md)instead.
+- [depends](org/oddjob/jobs/job/DependsJob.md) - This job is deprecated, use [run](.//org/oddjob/jobs/job/RunJob.md) instead.
 - [echo](org/oddjob/jobs/EchoJob.md) - Echo text to the console.
 - [exec](org/oddjob/jobs/ExecJob.md) - Execute an external program.
 - [exists](org/oddjob/io/ExistsJob.md) - Test if a file exists.
@@ -40,7 +40,7 @@
 - [services](org/oddjob/framework/ServicesJob.md) - Allows objects to be registered that will automatically be injected into subsequent components that are configured for automatic dependency injection.
 - [set](org/oddjob/values/SetJob.md) - A job which sets properties in other jobs when it executes.
 - [sql](org/oddjob/sql/SQLJob.md) - Runs one or more SQL statements.
-- [sql-keeper-service](org/oddjob/sql/SQLKeeperService.md) - Provides a [org.oddjob.scheduling.Keeper](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/scheduling/Keeper.html)that uses a database table.
+- [sql-keeper-service](org/oddjob/sql/SQLKeeperService.md) - Provides a [org.oddjob.scheduling.Keeper](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/scheduling/Keeper.html) that uses a database table.
 - [sql-persister-service](org/oddjob/sql/SQLPersisterService.md) - Persists job state to a database.
 - [start](org/oddjob/jobs/job/StartJob.md) - This job will run another job.
 - [stop](org/oddjob/jobs/job/StopJob.md) - A job which stops another job.
@@ -54,7 +54,7 @@
 - [bus:driver](org/oddjob/beanbus/drivers/IterableBusDriver.md) - Drives data from an iterable (such as a [list](.//org/oddjob/arooa/types/ListType.md)) through a Bean Bus.
 - [bus:filter](org/oddjob/beanbus/destinations/BeanFilter.md) - Filter out beans passing through the bus according to an `java.util.function.Predicate`.
 - [bus:limit](org/oddjob/beanbus/destinations/BusLimit.md) - Only allow a certain number of beans passed.
-- [bus:map](org/oddjob/beanbus/destinations/BusMap.md) - Apply a [java.util.function.Function](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/function/Function.html)to beans in a Bean Bus.
+- [bus:map](org/oddjob/beanbus/destinations/BusMap.md) - Apply a [java.util.function.Function](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/function/Function.html) to beans in a Bean Bus.
 - [bus:queue](org/oddjob/beanbus/destinations/BusQueue.md) - A Queue for beans.
 - [events:for](org/oddjob/events/ForEvents.md) - An Event Source For a variable set of child Event Sources.
 - [events:list](org/oddjob/events/ListSource.md) - An event source that aggregates a list of child event sources.
@@ -102,7 +102,7 @@
 - [input-text](org/oddjob/input/requests/InputText.md) - A request for a simple line of input.
 - [invoke](org/oddjob/script/InvokeType.md) - Invoke a java method or script snippet, or JMX operation.
 - [is](org/oddjob/arooa/types/IsType.md) - Create an Object that is the class of the property.
-- [list](org/oddjob/arooa/types/ListType.md) - A list provides a way of setting properties that are either [java.util.List](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/List.html)types or arrays.
+- [list](org/oddjob/arooa/types/ListType.md) - A list provides a way of setting properties that are either [java.util.List](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/List.html) types or arrays.
 - [logout](org/oddjob/logging/slf4j/LogoutType.md) - Provide an output to a logger.
 - [magic-class](org/oddjob/values/types/MagicClassType.md) - Definition for a Magic Bean, which is a bean that can be defined dynamically.
 - [map](org/oddjob/arooa/types/MapType.md) - A map allows a map of strings to values to be created.
@@ -125,7 +125,7 @@
 - [arooa:annotation](org/oddjob/arooa/deploy/AnnotationDefinitionBean.md) - Create a synthetic annotation for a method.
 - [arooa:bean-def](org/oddjob/arooa/deploy/BeanDefinitionBean.md) - Provide an element to class name mapping for a java bean.
 - [arooa:configuration](org/oddjob/arooa/types/XMLConfigurationType.md) - Provide Configuration in XML format.
-- [arooa:conversion](org/oddjob/arooa/deploy/ConversionDescriptorBean.md) - Provide a Bean for use in an [arooa:descriptor](.//org/oddjob/arooa/deploy/ArooaDescriptorBean.md)that provides conversions.
+- [arooa:conversion](org/oddjob/arooa/deploy/ConversionDescriptorBean.md) - Provide a Bean for use in an [arooa:descriptor](.//org/oddjob/arooa/deploy/ArooaDescriptorBean.md) that provides conversions.
 - [arooa:descriptor](org/oddjob/arooa/deploy/ArooaDescriptorBean.md) - A definition of an Arooa descriptor.
 - [arooa:descriptors](org/oddjob/arooa/deploy/ListDescriptorBean.md) - An Arooa Descriptor Factory that is a container for a collection of other descriptors.
 - [arooa:magic-beans](org/oddjob/arooa/beanutils/MagicBeanDescriptorFactory.md) - Define Magic Beans.

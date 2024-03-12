@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -32,8 +33,9 @@ import java.util.List;
  * @oddjob.example
  * 
  * A simple example. A single directory is added to the class path.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/util/URLClassLoader.xml}
+ * </p>
  *
  * @oddjob.example
  *
@@ -52,7 +54,7 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 	
 	private ClassLoader parent;
 	
-	private ClassLoader classLoader;
+	private volatile URLClassLoader classLoader;
 	
 	private URL[] urls;
 	
@@ -67,7 +69,7 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 		return classLoader;
 	}
 	
-	protected ClassLoader createClassLoader() {
+	protected URLClassLoader createClassLoader() {
 		
 		final StringBuilder toString = new StringBuilder();
 		
@@ -180,7 +182,14 @@ implements ValueFactory<ClassLoader>, ArooaLifeAware {
 	
 	@Override
 	public void destroy() {
-		classLoader = null;
+		if (classLoader != null) {
+			try {
+				classLoader.close();
+			} catch (IOException e) {
+				logger.error("Failed closing classloader " + classLoader, e);
+			}
+			classLoader = null;
+		}
 	}
 	
 	@Override

@@ -97,7 +97,6 @@ Using a magic-class to create a magic bean.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

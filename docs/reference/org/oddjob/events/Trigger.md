@@ -140,7 +140,6 @@ thing1 is success and thing2 is success and not (thing3 is success or thing4 is 
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -202,7 +201,6 @@ make Trigger flushable and not let flush complete until the triggered job comple
         </parallel>
     </job>
 </oddjob>
-
 ```
 
 
@@ -232,7 +230,6 @@ Trigger with the first result of a Bean Bus pipeline.
         </events:trigger>
     </job>
 </oddjob>
-
 ```
 
 

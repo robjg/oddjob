@@ -19,7 +19,7 @@ so it can not be used to set a property on a server from an Odjdob Client.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | See [convert](../../../../org/oddjob/arooa/types/ConvertType.md)for an example. |
+| [Example 1](#example1) | See [convert](../../../../org/oddjob/arooa/types/ConvertType.md) for an example. |
 
 
 ### Property Detail

@@ -94,7 +94,6 @@ Formatting a date and number to create a file name.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -123,7 +122,6 @@ Format the current time as a property.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -133,9 +131,9 @@ but when not provided (if this is run as is) the current time is used.
 
 An example of the output is:
 
-<pre>
+```
 The time is 8:17 AM.
-</pre>
+```
 
 
 

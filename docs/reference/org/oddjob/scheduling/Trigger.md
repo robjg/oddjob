@@ -132,7 +132,6 @@ A simple trigger.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -174,7 +173,6 @@ A trigger that runs once two other jobs have completed.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -204,7 +202,6 @@ Cancelling a trigger.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

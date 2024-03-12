@@ -12,10 +12,10 @@ Once only execution:
 
 - [schedules:time](../../../org/oddjob/schedules/schedules/TimeSchedule.md)
 - [schedules:date](../../../org/oddjob/schedules/schedules/DateSchedule.md)
-- [schedules:count](../../../org/oddjob/schedules/schedules/CountSchedule.md)(With a count of 1)
+- [schedules:count](../../../org/oddjob/schedules/schedules/CountSchedule.md) (With a count of 1)
 
 Recurring executions:
-
+ 
 - [schedules:yearly](../../../org/oddjob/schedules/schedules/YearlySchedule.md)
 - [schedules:monthly](../../../org/oddjob/schedules/schedules/MonthlySchedule.md)
 - [schedules:weekly](../../../org/oddjob/schedules/schedules/WeeklySchedule.md)
@@ -23,7 +23,7 @@ Recurring executions:
 - [schedules:interval](../../../org/oddjob/schedules/schedules/IntervalSchedule.md)
 
 Holidays:
-
+ 
 - [schedules:broken](../../../org/oddjob/schedules/schedules/BrokenSchedule.md)
 - [schedules:day-after](../../../org/oddjob/schedules/schedules/DayAfterSchedule.md)
 - [schedules:day-before](../../../org/oddjob/schedules/schedules/DayBeforeSchedule.md)
@@ -254,7 +254,6 @@ A Timer that runs at 10am each day, Monday to Friday.
         </scheduling:timer>
     </job>
 </oddjob>
-
 ```
 
 
@@ -281,7 +280,6 @@ Run once at 10am or any time after.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -359,7 +357,6 @@ run manually the job will be schedule to run at the new time.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -405,7 +402,6 @@ timer will advance to it's next scheduled slot.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

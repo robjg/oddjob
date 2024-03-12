@@ -39,7 +39,7 @@ A separate tidy job should be implemented.
 
 | Property | Description |
 | -------- | ----------- |
-| [connection](#propertyconnection) | The [connection](../../../org/oddjob/sql/ConnectionType.md)to use. | 
+| [connection](#propertyconnection) | The [connection](../../../org/oddjob/sql/ConnectionType.md) to use. | 
 | [keeper](#propertykeeper) |  | 
 | [name](#propertyname) | The name. | 
 | [pollSchedule](#propertypollSchedule) | The schedule to provide the polling interval. | 

@@ -73,7 +73,7 @@ be examined by any Stoppable jobs in their processing loops.
 
 Examples elsewhere.
 
-- [jmx:client](../../../../org/oddjob/jmx/JMXClientJob.md)has an example where the stop job is used to stop a client once the connection is no longer needed.
+- [jmx:client](../../../../org/oddjob/jmx/JMXClientJob.md) has an example where the stop job is used to stop a client once the connection is no longer needed.
 
 
 

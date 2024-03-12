@@ -23,7 +23,7 @@ milliseconds between checking if the property is available.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | The [throttle](../../../org/oddjob/scheduling/ExecutorThrottleType.md)has a simple example. |
+| [Example 1](#example1) | The [throttle](../../../org/oddjob/scheduling/ExecutorThrottleType.md) has a simple example. |
 | [Example 2](#example2) | This example waits for a variable 'text' to be set. |
 
 
@@ -102,7 +102,6 @@ across the network or by a another job running in parallel.
         <echo name="Echo Text">${waitvars.text}</echo>
     </jobs>
 </sequential>
- 
 ```
 
 

@@ -102,7 +102,6 @@ will be null and so the current time will be displayed.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -136,7 +135,6 @@ in Hong Kong in the local time.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -199,7 +197,6 @@ business days. The result will be the next business day.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -262,7 +259,6 @@ experimenting with schedules.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

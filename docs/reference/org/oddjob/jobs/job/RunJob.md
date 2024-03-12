@@ -108,7 +108,7 @@ This flag is cleared with a reset.
 
 Examples elsewhere.
 
-- The [jmx:client](../../../../org/oddjob/jmx/JMXClientJob.md)job has an example that uses <code>run</code>to run a job on a remote server.
+- The [jmx:client](../../../../org/oddjob/jmx/JMXClientJob.md) job has an example that uses <code>run</code> to run a job on a remote server.
 
 
 

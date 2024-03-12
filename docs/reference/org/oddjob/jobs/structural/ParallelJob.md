@@ -143,7 +143,6 @@ two child jobs is not predictable.
         </parallel>
     </job>
 </oddjob>
-
 ```
 
 
@@ -170,7 +169,6 @@ of data into a cache for instance.
         </cascade>
     </job>
 </oddjob>
-
 ```
 
 
@@ -200,7 +198,6 @@ as complete.
         </cascade>
     </job>
 </oddjob>
-
 ```
 
 
@@ -208,7 +205,7 @@ as complete.
 
 Examples elsewhere.
 
-- [throttle](../../../../org/oddjob/scheduling/ExecutorThrottleType.md)has an example of limiting the number of concurrently executing jobs.
+- [throttle](../../../../org/oddjob/scheduling/ExecutorThrottleType.md) has an example of limiting the number of concurrently executing jobs.
 
 
 

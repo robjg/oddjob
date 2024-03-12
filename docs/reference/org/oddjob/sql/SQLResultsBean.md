@@ -92,7 +92,7 @@ in an exception.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | See [sql](../../../org/oddjob/sql/SQLJob.md)for an example. |
+| [Example 1](#example1) | See [sql](../../../org/oddjob/sql/SQLJob.md) for an example. |
 
 
 ### Property Detail

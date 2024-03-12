@@ -116,7 +116,6 @@ is uses to generate a time of day dependent greeting.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -160,7 +159,6 @@ Invoke a static method of a class.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

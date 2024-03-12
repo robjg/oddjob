@@ -68,7 +68,6 @@ if the last day of the month falls on a non working day.
         </schedules:day-after>
     </alternative>
 </schedules:broken>
-
 ```
 
 

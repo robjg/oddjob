@@ -101,7 +101,6 @@ A cascade of two jobs.
         </cascade>
     </job>
 </oddjob>
-
 ```
 
 
@@ -127,7 +126,6 @@ wait for the parallel job to finish before running the third job.
         </cascade>
     </job>
 </oddjob>
-
 ```
 
 

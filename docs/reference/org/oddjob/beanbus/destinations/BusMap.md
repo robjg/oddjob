@@ -17,7 +17,7 @@ Apply a [java.util.function.Function](http://rgordon.co.uk/oddjob/1.6.0/api/java
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | Apply a function to double the price on a `Fruit`bean. |
+| [Example 1](#example1) | Apply a function to double the price on a `Fruit` bean. |
 
 
 ### Property Detail
@@ -93,7 +93,6 @@ Apply a function to double the price on a `Fruit` bean.
         </bus:bus>
     </job>
 </oddjob>
-
 ```
 
 

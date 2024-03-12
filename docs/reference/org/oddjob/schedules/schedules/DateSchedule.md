@@ -79,7 +79,6 @@ A schedule for Christmas.
 ```xml
 <schedules:date xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
                 on="2004-12-25"/>
-
 ```
 
 

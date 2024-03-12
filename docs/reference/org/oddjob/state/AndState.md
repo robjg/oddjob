@@ -85,7 +85,6 @@ COMPLETE if both files exist, INCOMPLETE otherwise.
         <exists file="${file.two}"/>
     </jobs>
 </state:and>
-
 ```
 
 

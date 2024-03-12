@@ -93,14 +93,14 @@ A simple map with element access.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
-On a school night I am allowed 1 beer(s).</pre>
+```
+On a school night I am allowed 1 beer(s).
+```
 
 
 #### Example 2 <a name="example2"></a>
@@ -141,16 +141,15 @@ to the map.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
 The output is:
 
-<pre>
+```
 morning snack is apples
 afternoon snack is bananas
-</pre>
+```
 
 
 

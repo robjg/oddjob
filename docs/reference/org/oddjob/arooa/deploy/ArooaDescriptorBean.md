@@ -8,7 +8,7 @@ A definition of an Arooa descriptor.
 | Property | Description |
 | -------- | ----------- |
 | [components](#propertycomponents) | A list of [arooa:bean-def](../../../../org/oddjob/arooa/deploy/BeanDefinitionBean.md)s for components. | 
-| [conversions](#propertyconversions) | List of class names that must implement the [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html)interface. | 
+| [conversions](#propertyconversions) | List of class names that must implement the [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html) interface. | 
 | [namespace](#propertynamespace) | The name space that applies to all elements defined in definitions. | 
 | [prefix](#propertyprefix) | The default prefix for the name space. | 
 | [values](#propertyvalues) | A list of [arooa:bean-def](../../../../org/oddjob/arooa/deploy/BeanDefinitionBean.md)s for values. | 

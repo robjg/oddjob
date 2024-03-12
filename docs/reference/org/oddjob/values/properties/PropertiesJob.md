@@ -220,7 +220,6 @@ expansion.
    </sequential>
   </job>
  </oddjob>
- 
 ```
 
 
@@ -249,7 +248,6 @@ was defined in a file it would not need to be escaped like this.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -273,20 +271,18 @@ Loading properties from a class path resource.
         </sequential>
     </job>
 </oddjob>
-
-
 ```
 
 
 The properties file contains:
 
-<pre>
+```
 # properties for test
 
 someones.name = John Smith
 someones.name.title = Mr.
 someones.address = London
- </pre>
+```
 
 
 This will display
@@ -327,7 +323,6 @@ defined in that job take priority.
    </sequential>
   </job>
  </oddjob>
- 
 ```
 
 
@@ -356,8 +351,6 @@ same result. On Unix (generally) only <code>${env.PATH}</code> will work.
     </sequential>
   </job>
 </oddjob>
-        
-
 ```
 
 

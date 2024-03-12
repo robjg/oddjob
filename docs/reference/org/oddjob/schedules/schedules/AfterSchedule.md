@@ -99,7 +99,6 @@ A schedule for the day after a the current business day.
         <schedules:time from="08:00"/>
     </refinement>
 </schedules:after>
-
 ```
 
 

@@ -83,7 +83,6 @@ Capturing the contents of a file in a buffer.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -117,7 +116,6 @@ Accumulate output in a buffer.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -158,8 +156,6 @@ initialising the buffer with a list.
         </sequential>
     </job>
 </oddjob>
-
-
 ```
 
 
@@ -198,7 +194,6 @@ oranges]]></buffer>
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

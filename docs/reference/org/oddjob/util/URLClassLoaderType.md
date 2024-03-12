@@ -83,6 +83,7 @@ URLs to add to the classpath.
 
 A simple example. A single directory is added to the class path.
 
+
 ```xml
 <oddjob id="oddjob">
     <job>
@@ -97,8 +98,9 @@ A simple example. A single directory is added to the class path.
         </oddjob>
     </job>
 </oddjob>
-
 ```
+
+
 
 
 #### Example 2 <a name="example2"></a>

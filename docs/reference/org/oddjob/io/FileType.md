@@ -19,7 +19,7 @@ This type always resolves the canonical file name.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | Set the [copy](../../../org/oddjob/io/CopyJob.md)file copy example. |
+| [Example 1](#example1) | Set the [copy](../../../org/oddjob/io/CopyJob.md) file copy example. |
 
 
 ### Property Detail

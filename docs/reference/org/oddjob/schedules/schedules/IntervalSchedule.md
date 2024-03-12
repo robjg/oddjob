@@ -50,8 +50,6 @@ Every 20 minutes.
 ```xml
 <schedules:interval xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
      interval="00:20" />
-
-
 ```
 
 

@@ -9,9 +9,9 @@ constructor.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | Using <code>is</code>to set a simple property. |
-| [Example 2](#example2) | Using <code>is</code>to set an indexed property. |
-| [Example 3](#example3) | Using <code>is</code>to set a mapped property. |
+| [Example 1](#example1) | Using <code>is</code> to set a simple property. |
+| [Example 2](#example2) | Using <code>is</code> to set an indexed property. |
+| [Example 3](#example3) | Using <code>is</code> to set a mapped property. |
 
 
 ### Examples
@@ -25,18 +25,40 @@ Using <code>is</code> to set a simple property.
         <is type='apple' colour='red'/>
     </fruit>
 </snack>
-        
-
 ```
 
 
 Where the <code>snack</code> bean is:
 
-{@oddjob.java.resource org/oddjob/arooa/types/IsTypeTest.java#simpleBean}
+```java
+	public static class SnackBean {
+		FruitBean fruit;
+		
+		public void setFruit(FruitBean bean) {
+			this.fruit = bean;
+		}
+	}
+```
+
 
 and the <code>fruit</code> bean is:
 
-{@oddjob.java.resource org/oddjob/arooa/types/IsTypeTest.java#fruitBean}
+```java
+	public static class FruitBean {
+		
+		private String type;
+		private String colour;
+				
+		public void setType(String type) {
+			this.type = type;
+		}
+		
+		public void setColour(String colour) {
+			this.colour = colour;
+		}
+	}
+```
+
 
 #### Example 2 <a name="example2"></a>
 
@@ -49,14 +71,28 @@ Using <code>is</code> to set an indexed property.
         <is type='pear' colour='green'/>
     </fruit>
 </snack>
-        
-
 ```
 
 
 Where the <code>snack</code> bean is:
 
-{@oddjob.java.resource org/oddjob/arooa/types/IsTypeTest.java#indexedBean}
+```java
+	public static class IndexedSnack {
+		
+		private List<FruitBean> fruit = 
+			new ArrayList<FruitBean>();
+		
+		public void setFruit(int index, FruitBean bean) {
+			if (bean == null) {
+				fruit.remove(index);
+			}
+			else {
+				fruit.add(index, bean);
+			}
+		}
+	}
+```
+
 
 and the <code>fruit</code> bean is as above.
 
@@ -71,14 +107,28 @@ Using <code>is</code> to set a mapped property.
         <is key='afternoon' type='grapes' colour='white'/>
     </fruit>
 </snack>
-        
-
 ```
 
 
 Where the <code>snack</code> bean is:
 
-{@oddjob.java.resource org/oddjob/arooa/types/IsTypeTest.java#mappedBean}
+```java
+	public static class MappedSnack {
+
+		private Map<String, FruitBean> fruit =
+			new HashMap<String, FruitBean>();
+		
+		public void setFruit(String key, FruitBean bean) {
+			if (fruit == null) {
+				fruit.remove(key);
+			}
+			else {
+				this.fruit.put(key, bean);
+			}
+		}
+	}
+```
+
 
 and the <code>fruit</code> bean is as above.
 

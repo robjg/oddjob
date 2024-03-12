@@ -131,7 +131,6 @@ Copy a file.
         </copy>
     </job>
 </oddjob>
-
 ```
 
 
@@ -149,7 +148,6 @@ Copy a directory.
         </copy>
     </job>
 </oddjob>
-
 ```
 
 
@@ -181,7 +179,6 @@ Copy from a file to a buffer.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -225,7 +222,6 @@ them out in another file.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

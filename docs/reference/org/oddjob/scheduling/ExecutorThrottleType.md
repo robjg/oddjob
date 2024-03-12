@@ -11,7 +11,7 @@ number of jobs running in parallel.
 | Property | Description |
 | -------- | ----------- |
 | [limit](#propertylimit) | The maximum number of simultaneous jobs this throttle will allow. | 
-| [original](#propertyoriginal) | The `ExecuutorService`to throttle. | 
+| [original](#propertyoriginal) | The `ExecuutorService` to throttle. | 
 
 
 ### Example Summary
@@ -68,7 +68,6 @@ Throttling parallel execution.
         </parallel>
     </job>
 </oddjob>
-
 ```
 
 
@@ -115,7 +114,6 @@ both parallels is 2.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 

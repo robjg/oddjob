@@ -181,7 +181,6 @@ Example text comparisons. All these checks COMPLETE.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -210,7 +209,6 @@ Checks that are INCOMPLETE.
     </state:join>
   </job>
 </oddjob>
-
 ```
 
 
@@ -238,7 +236,6 @@ this check would not be COMPLETE because the text "999" is greater than
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -265,7 +262,6 @@ property doesn't exist.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 

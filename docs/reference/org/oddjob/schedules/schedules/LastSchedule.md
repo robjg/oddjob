@@ -51,7 +51,6 @@ Last Tuesday or Wednesday of the month, whichever is last.
         </schedules:last>
     </refinement>
 </schedules:monthly>
-
 ```
 
 

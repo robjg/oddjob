@@ -134,7 +134,6 @@ A simple example.
         </sequential>
     </job>
 </oddjob>
-
 ```
 
 
@@ -181,7 +180,6 @@ An example in BeanBus.
         </parallel>
     </job>
 </oddjob>
-
 ```
 
 

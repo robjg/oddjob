@@ -67,7 +67,6 @@ if the last day falls on a non working day.
         </schedules:day-before>
     </alternative>
 </schedules:broken>
-
 ```
 
 

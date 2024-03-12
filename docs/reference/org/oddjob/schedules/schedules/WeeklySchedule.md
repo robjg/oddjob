@@ -81,7 +81,6 @@ interval between midnight Tuesday morning and up to midnight Tuesday night.
 ```xml
 <schedules:weekly xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
     on="Tuesday"/>
-
 ```
 
 

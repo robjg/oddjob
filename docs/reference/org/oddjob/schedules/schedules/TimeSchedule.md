@@ -99,7 +99,6 @@ A simple time example.
 ```xml
 <schedules:time xmlns:schedules="http://rgordon.co.uk/oddjob/schedules"
            at="10:00"/>
-
 ```
 
 
@@ -123,7 +122,6 @@ Using an interval with time to schedule something every 15 minutes between
         <schedules:interval interval="00:15"/>
     </refinement>
 </schedules:time>
-
 ```
 
 

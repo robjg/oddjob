@@ -45,7 +45,7 @@ from <code>getParameterMetaData</code>.
 | [connection](#propertyconnection) | The connection to use. | 
 | [delimiter](#propertydelimiter) | Set the delimiter that separates SQL statements. | 
 | [delimiterType](#propertydelimiterType) | Set the delimiter type: NORMAL or ROW. | 
-| [dialect](#propertydialect) | Allows a [org.oddjob.sql.DatabaseDialect](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/sql/DatabaseDialect.html)to be provided that can tune the way the result set is processed. | 
+| [dialect](#propertydialect) | Allows a [org.oddjob.sql.DatabaseDialect](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/sql/DatabaseDialect.html) to be provided that can tune the way the result set is processed. | 
 | [encoding](#propertyencoding) | Set the string encoding to use on the SQL read in. | 
 | [escapeProcessing](#propertyescapeProcessing) | Set escape processing for statements. | 
 | [executedSQLCount](#propertyexecutedSQLCount) | The number of SQL statements executed. | 
@@ -53,7 +53,7 @@ from <code>getParameterMetaData</code>.
 | [input](#propertyinput) | The input from where to read the SQL query or DML statement(s) to run. | 
 | [keepFormat](#propertykeepFormat) | Whether or not the format of the SQL should be preserved. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [onError](#propertyonError) | What to do when a statement fails: <dl><dt>CONTINUE</dt><dd>Ignore the failure and continue executing.</dd><dt>STOP</dt><dd>Commit what has been executed but don't execute any more.</dd><dt>ABORT</dt><dd>Rollback what has been executed and don't execute any more.</dd></dl>Note that if <code>autocommit</code>is true then ABORT behaves like STOP as no roll back is possible. | 
+| [onError](#propertyonError) | What to do when a statement fails: <dl> <dt>CONTINUE</dt> <dd>Ignore the failure and continue executing.</dd> <dt>STOP</dt> <dd>Commit what has been executed but don't execute any more.</dd> <dt>ABORT</dt> <dd>Rollback what has been executed and don't execute any more.</dd> </dl> Note that if <code>autocommit</code> is true then ABORT behaves like STOP as no roll back is possible. | 
 | [parameters](#propertyparameters) | Parameters to be bound to statement(s). | 
 | [results](#propertyresults) | Optional result processor. | 
 | [successfulSQLCount](#propertysuccessfulSQLCount) | The number of SQL statements successfully executed. | 
@@ -334,7 +334,6 @@ select TEXT from GREETINGS where STYLE = ?
     </sequential>
   </job>
 </oddjob>
- 
 ```
 
 
@@ -402,7 +401,6 @@ statement.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 

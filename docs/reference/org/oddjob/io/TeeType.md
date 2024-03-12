@@ -76,7 +76,6 @@ Copy a buffer to stdout, the log, and to a file.
     </sequential>
   </job>
 </oddjob>
-
 ```
 
 
@@ -107,7 +106,6 @@ another.
         </copy>
     </job>
 </oddjob>
-
 ```
 
 

@@ -78,7 +78,6 @@ A schedule for 5 times at intervals of 15 minutes.
         <schedules:interval interval="00:15"/>
     </refinement>
 </schedules:count>
-
 ```
 
 
@@ -100,7 +99,6 @@ A schedule for 3 times each day at 5 minute intervals.
         </schedules:time>
     </refinement>
 </schedules:daily>
-
 ```
 
 
@@ -125,7 +123,6 @@ key on one of the schedules to differentiate them.
         </schedules:daily>
     </refinement>
 </schedules:count>
-
 ```
 
 

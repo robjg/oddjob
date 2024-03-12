@@ -97,8 +97,7 @@ Hello World Twice.
             </jobs>
         </sequential>
     </job>
-</oddjob> 
- 
+</oddjob>
 ```
 
 
@@ -117,7 +116,6 @@ Echo a file list.
         </echo>
     </job>
 </oddjob>
-
 ```
 
 

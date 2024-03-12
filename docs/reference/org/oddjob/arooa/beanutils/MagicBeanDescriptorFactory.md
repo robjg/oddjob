@@ -85,7 +85,6 @@ that defines properties for a <code>filespec</code> element.
         </oddjob>
     </job>
 </oddjob>
-
 ```
 
 
@@ -123,7 +122,6 @@ less than ${each.current.maxSize} bytes...</echo>
     </foreach>
   </job>
 </oddjob>
-
 ```
 
 
