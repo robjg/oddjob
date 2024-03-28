@@ -20,7 +20,7 @@ be used.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | Oddjob's descriptor!. |
+| [Example 1](#example1) | Oddjob's descriptor. |
 
 
 ### Property Detail
@@ -37,11 +37,14 @@ A list of Arooa Descriptor Factories.
 ### Examples
 #### Example 1 <a name="example1"></a>
 
-Oddjob's descriptor!. Note that it started life before the descriptor
+Oddjob's descriptor. Note that it started life before the descriptor
 elements were created, and so [is](../../../../org/oddjob/arooa/types/IsType.md) is used instead of
 [arooa:bean-def](../../../../org/oddjob/arooa/deploy/BeanDefinitionBean.md) elements.
 
-_java.io.IOException: No Resource Found: 'META-INF/arooa.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+
+It can be found <a href="https://github.com/robjg/oddjob/blob/master/src/main/resources/META-INF/arooa.xml">Here on Github</a>
+
+
 
 
 -----------------------

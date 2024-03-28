@@ -5,10 +5,10 @@ A type which can either format a
 number or a date into the given text format.
 
 
-Form more information on the number format see [java.text.DecimalFormat](http://rgordon.co.uk/oddjob/1.6.0/api/java/text/DecimalFormat.html)
+Form more information on the number format see `java.text.DecimalFormat`
 
 
-For more information on the date format see [java.text.SimpleDateFormat](http://rgordon.co.uk/oddjob/1.6.0/api/java/text/SimpleDateFormat.html)
+For more information on the date format see `java.text.SimpleDateFormat`
 
 ### Property Summary
 

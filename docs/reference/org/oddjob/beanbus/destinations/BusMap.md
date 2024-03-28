@@ -1,7 +1,7 @@
 [HOME](../../../../README.md)
 # bus:map
 
-Apply a [java.util.function.Function](http://rgordon.co.uk/oddjob/1.6.0/api/java/util/function/Function.html) to beans in a Bean Bus.
+Apply a `java.util.function.Function` to beans in a Bean Bus.
 
 ### Property Summary
 

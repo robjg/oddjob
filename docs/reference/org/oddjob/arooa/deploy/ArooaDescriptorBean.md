@@ -18,8 +18,8 @@ A definition of an Arooa descriptor.
 
 | Title | Description |
 | ----- | ----------- |
-| [Example 1](#example1) | See the Dev Guide. |
-| [Example 2](#example2) | The descriptor for the JMX client and server. |
+| [Example 1](#example1) | In the Dev Guide. |
+| [Example 2](#example2) | The descriptor for Oddjob's JMX client and server. |
 
 
 ### Property Detail
@@ -79,16 +79,18 @@ A list of [arooa:bean-def](../../../../org/oddjob/arooa/deploy/BeanDefinitionBea
 ### Examples
 #### Example 1 <a name="example1"></a>
 
-See the Dev Guide. There is an example of a custom descriptor
+In the Dev Guide. There is an example of a custom descriptor
 <a href="http://rgordon.co.uk/projects/oddjob/devguide/oddballs.html">here</a>.
 
 #### Example 2 <a name="example2"></a>
 
-The descriptor for the JMX client and server. This is the internal descriptor
+The descriptor for Oddjob's JMX client and server. This is the internal descriptor
 used by Oddjob.
 
 
-_java.io.IOException: No Resource Found: 'org/oddjob/jmx/jmx.xml', classloader=java.net.URLClassLoader@2eafb4e7_
+It can be found <a href="https://github.com/robjg/oddjob/blob/master/src/main/resources/org/oddjob/jmx/jmx.xml">Here on Github</a>
+
+
 
 
 -----------------------
