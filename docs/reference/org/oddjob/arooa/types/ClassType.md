@@ -4,7 +4,7 @@
 Returns a Class for the given name.
 
 
-This class is not `java.io.Serializable` because it requires a ClassLoader
+This class is not [java.io.Serializable](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/Serializable.html) because it requires a ClassLoader
 so it can not be used to set a property on a server from an Odjdob Client.
 
 ### Property Summary

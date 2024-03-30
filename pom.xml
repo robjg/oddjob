@@ -197,8 +197,10 @@
                 <additionalOption>${project.basedir}/src/test/resources;${project.basedir}/../arooa/src/test/resources;${project.basedir}/src/test/java;${project.basedir}/../arooa/src/test/java</additionalOption>
                 <additionalOption>-writerfactory</additionalOption>
                 <additionalOption>org.oddjob.doc.markdown.MdReferenceWriterFactory</additionalOption>
-                <additionalOption>-apiurl</additionalOption>
+                <additionalOption>-link</additionalOption>
                 <additionalOption>http://rgordon.co.uk/oddjob/1.6.0/api</additionalOption>
+                <additionalOption>-link</additionalOption>
+                <additionalOption>https://docs.oracle.com/en/java/javase/11/docs/api</additionalOption>
               </additionalOptions>
               <useStandardDocletOptions>false</useStandardDocletOptions>
               <includeDependencySources>true</includeDependencySources>
