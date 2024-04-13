@@ -54,7 +54,7 @@ provided via Oddjob plugins called Oddballs.
 - [oj-ssh](https://github.com/robjg/oj-ssh)
 : SSH jobs
 
-- [oj-web](https://github.com/robjg/oj-ssh)
+- [oj-web](https://github.com/robjg/oj-web)
 : HTTP client and server jobs. Includes the server side for the 
 web UI.
 
