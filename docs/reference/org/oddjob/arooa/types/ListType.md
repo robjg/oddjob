@@ -2,7 +2,7 @@
 # list
 
 A list provides a way of setting properties that are
-either [java.util.List](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html) types or arrays. A list can include any other
+either `java.util.List` types or arrays. A list can include any other
 type including another list or array type.
 
 

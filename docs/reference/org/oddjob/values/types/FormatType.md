@@ -5,10 +5,10 @@ A type which can either format a
 number or a date into the given text format.
 
 
-Form more information on the number format see [java.text.DecimalFormat](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/DecimalFormat.html)
+Form more information on the number format see `java.text.DecimalFormat`
 
 
-For more information on the date format see [java.text.SimpleDateFormat](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/SimpleDateFormat.html)
+For more information on the date format see `java.text.SimpleDateFormat`
 
 ### Property Summary
 

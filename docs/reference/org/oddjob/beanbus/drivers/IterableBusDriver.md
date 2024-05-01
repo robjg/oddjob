@@ -2,7 +2,7 @@
 # bus:driver
 
 Drives data from  an iterable (such as a [list](../../../../org/oddjob/arooa/types/ListType.md))
-through a Bean Bus. It can also be used outside Bean Bus to push data to any [java.util.function.Consumer](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Consumer.html).
+through a Bean Bus. It can also be used outside Bean Bus to push data to any `java.util.function.Consumer`.
 
 ### Property Summary
 

@@ -54,7 +54,7 @@
 - [bus:driver](org/oddjob/beanbus/drivers/IterableBusDriver.md) - Drives data from an iterable (such as a [list](.//org/oddjob/arooa/types/ListType.md)) through a Bean Bus.
 - [bus:filter](org/oddjob/beanbus/destinations/BeanFilter.md) - Filter out beans passing through the bus according to an `java.util.function.Predicate`.
 - [bus:limit](org/oddjob/beanbus/destinations/BusLimit.md) - Only allow a certain number of beans passed.
-- [bus:map](org/oddjob/beanbus/destinations/BusMap.md) - Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html) to beans in a Bean Bus.
+- [bus:map](org/oddjob/beanbus/destinations/BusMap.md) - Apply a `java.util.function.Function` to beans in a Bean Bus.
 - [bus:queue](org/oddjob/beanbus/destinations/BusQueue.md) - A Queue for beans.
 - [events:for](org/oddjob/events/ForEvents.md) - An Event Source For a variable set of child Event Sources.
 - [events:list](org/oddjob/events/ListSource.md) - An event source that aggregates a list of child event sources.
@@ -102,7 +102,7 @@
 - [input-text](org/oddjob/input/requests/InputText.md) - A request for a simple line of input.
 - [invoke](org/oddjob/script/InvokeType.md) - Invoke a java method or script snippet, or JMX operation.
 - [is](org/oddjob/arooa/types/IsType.md) - Create an Object that is the class of the property.
-- [list](org/oddjob/arooa/types/ListType.md) - A list provides a way of setting properties that are either [java.util.List](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/List.html) types or arrays.
+- [list](org/oddjob/arooa/types/ListType.md) - A list provides a way of setting properties that are either `java.util.List` types or arrays.
 - [logout](org/oddjob/logging/slf4j/LogoutType.md) - Provide an output to a logger.
 - [magic-class](org/oddjob/values/types/MagicClassType.md) - Definition for a Magic Bean, which is a bean that can be defined dynamically.
 - [map](org/oddjob/arooa/types/MapType.md) - A map allows a map of strings to values to be created.
