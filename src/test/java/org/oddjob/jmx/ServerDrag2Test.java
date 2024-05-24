@@ -6,6 +6,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.arooa.design.designer.ArooaContainer;
 import org.oddjob.arooa.design.designer.ArooaTransferHandler;
+import org.oddjob.arooa.design.designer.ArooaTree;
 import org.oddjob.arooa.parsing.ConfigurationOwner;
 import org.oddjob.arooa.parsing.DragPoint;
 import org.oddjob.state.StateConditions;
@@ -16,13 +17,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetContext;
-import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.*;
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -106,7 +104,8 @@ class ServerDrag2Test {
 
         assertThat(result, is(true));
 
-        String configAfter = lookup.lookup("jobs", ConfigurationOwner.class).provideConfigurationSession()
+        String configAfter = lookup.lookup("jobs", ConfigurationOwner.class)
+                .provideConfigurationSession()
                 .dragPointFor(lookup.lookup("jobs/sequential"))
                 .copy();
 
@@ -199,7 +198,7 @@ class ServerDrag2Test {
         }
     }
 
-    static class OurDropContainer extends JComponent implements ArooaContainer {
+    static class OurDropContainer extends ArooaTree {
 
         private final DragPoint dragPoint;
 
@@ -216,6 +215,11 @@ class ServerDrag2Test {
         }
 
         @Override
+        protected DragPoint getDragPoint(Object treeNode) {
+            return dragPoint;
+        }
+
+        @Override
         public DropPoint dropPointFrom(TransferHandler.TransferSupport support) {
             return new DropPoint() {
                 @Override
@@ -229,6 +233,8 @@ class ServerDrag2Test {
                 }
             };
         }
+
+
     }
 
     static class PretendDragDrop {
@@ -243,20 +249,29 @@ class ServerDrag2Test {
 
             dragContainer = new OurDragContainer(
                     owner.provideConfigurationSession().dragPointFor(node));
+            dragContainer.setTransferHandler(transferHandler);
 
             transferable = transferHandler.createTransferable(dragContainer);
         }
 
-        boolean moveTo(ConfigurationOwner owner, Object node, int index) throws Exception {
+        boolean moveTo(ConfigurationOwner owner, Object node, int index) {
 
-            OurDropContainer container = new OurDropContainer(
+            JComponent dragContainer = Objects.requireNonNull(this.dragContainer,
+                    "You need to move from first.");
+
+            OurDropContainer dropContainer = new OurDropContainer(
                     owner.provideConfigurationSession().dragPointFor(node), index);
+            dropContainer.setTransferHandler(transferHandler);
 
             DropTarget dropTarget = mock(DropTarget.class);
+
             DropTargetContext dropTargetContext = mock(DropTargetContext.class);
             when(dropTargetContext.getDropTarget()).thenReturn(dropTarget);
+            when(dropTargetContext.getComponent()).thenReturn(dropContainer);
+
             Point point = mock(Point.class);
-            DropTargetDragEvent event = new DropTargetDragEvent(dropTargetContext, point,
+
+            DropTargetDragEvent dragEvent = new DropTargetDragEvent(dropTargetContext, point,
                     DnDConstants.ACTION_MOVE, DnDConstants.ACTION_MOVE) {
                 @Override
                 public boolean isDataFlavorSupported(DataFlavor df) {
@@ -267,28 +282,48 @@ class ServerDrag2Test {
                 public Transferable getTransferable() {
                     return transferable;
                 }
+
             };
 
-            TransferHandler.TransferSupport transferSupport = new TransferHandler.TransferSupport(container, transferable);
-            Field sourceField = TransferHandler.TransferSupport.class.getDeclaredField("source");
-            sourceField.setAccessible(true);
-            sourceField.set(transferSupport, event);
-            Field isDropField = TransferHandler.TransferSupport.class.getDeclaredField("isDrop");
-            isDropField.setAccessible(true);
-            isDropField.set(transferSupport, true);
-            Field dropActionField = TransferHandler.TransferSupport.class.getDeclaredField("dropAction");
-            dropActionField.setAccessible(true);
-            dropActionField.set(transferSupport, TransferHandler.MOVE);
+            AtomicBoolean result = new AtomicBoolean();
 
-            boolean result = transferHandler.importData(transferSupport);
 
-            if (result) {
+            DropTargetDropEvent dropEvent = new DropTargetDropEvent(dropTargetContext, point,
+                    DnDConstants.ACTION_MOVE, DnDConstants.ACTION_MOVE) {
+
+                @Override
+                public boolean isDataFlavorSupported(DataFlavor df) {
+                    return true;
+                }
+
+                @Override
+                public Transferable getTransferable() {
+                    return transferable;
+                }
+
+                @Override
+                public void dropComplete(boolean success) {
+                    result.set(success);
+                }
+            };
+
+
+            TransferHandler.TransferSupport transferSupport = new TransferHandler.TransferSupport(dropContainer, transferable);
+
+            // Sets stuff in the transfer handler.
+            dropContainer.getDropTarget().dragEnter(dragEvent);
+
+            // Will call import data on target.
+            dropContainer.getDropTarget().drop(dropEvent);
+
+            // I can't work out how to get access to the dragDropEnd() - it's invoked from the
+            // DragSourceContext which seems way to complicated to mock.
+            if (result.get()) {
                 transferHandler.exportDone(dragContainer, transferable, TransferHandler.MOVE);
             }
 
-            return result;
+            return result.get();
         }
-
     }
 
 }

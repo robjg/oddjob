@@ -58,9 +58,12 @@ provided via Oddjob plugins called Oddballs.
 : HTTP client and server jobs. Includes the server side for the 
 web UI.
 
+- [oj-resolve](https://github.com/robjg/oj-resolve)
+: Resolve artifacts from Maven
+
 ### Building
 
-To build this module as a Shapshot you will first need to clone and 
+To build this module as a Snapshot you will first need to clone and 
 Maven Install [oj-parent](https://github.com/robjg/oj-parent) and [arooa](https://github.com/robjg/arooa).
 
 [oj-assembly](https://github.com/robjg/oj-assembly) provides a module POM capable of building
