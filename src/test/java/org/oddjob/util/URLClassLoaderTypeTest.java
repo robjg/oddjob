@@ -1,6 +1,5 @@
 package org.oddjob.util;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.Oddjob;
@@ -10,6 +9,7 @@ import org.oddjob.OurDirs;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.io.FilesType;
+import org.oddjob.state.ParentState;
 import org.oddjob.tools.CompileJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,6 +170,9 @@ public class URLClassLoaderTypeTest extends OjTestCase {
     }
 
     @Test
+    // Since Java 17 Nashorn isn't visible to the platform classloader, so this test failed.
+    // It had to be changed to use the application class loader, so both Oddjob and
+    // The Date are visible
     public void whenParentIsPlatformThenModulesVisibleButNotOddjob() throws ArooaConversionException {
 
         File file = new File(Objects.requireNonNull(
@@ -180,9 +183,13 @@ public class URLClassLoaderTypeTest extends OjTestCase {
 
         oddjob.run();
 
+        assertThat(oddjob.lastStateEvent().getState(), is(ParentState.COMPLETE));
+
         String text = new OddjobLookup(oddjob).lookup("echo.text", String.class);
 
-        MatcherAssert.assertThat(text, is("I can find [JavaClass java.sql.Date] and not find org.oddjob.Oddjob"));
+        // Java 11 with the Platform class loader this user to be true
+        //        assertThat(text, is("I can find [JavaClass java.sql.Date] and not find org.oddjob.Oddjob"));
+        assertThat(text, is("I can find [JavaClass java.sql.Date] and find [JavaClass org.oddjob.Oddjob]"));
 
         oddjob.destroy();
     }

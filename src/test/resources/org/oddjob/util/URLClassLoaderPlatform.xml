@@ -7,7 +7,7 @@
                     <classLoader>
                         <url-class-loader>
                             <parent>
-                                <value value="#{java.lang.ClassLoader.getPlatformClassLoader()}"/>
+                                <value value="#{java.lang.ClassLoader.getSystemClassLoader()}"/>
                             </parent>
                         </url-class-loader>
                     </classLoader>

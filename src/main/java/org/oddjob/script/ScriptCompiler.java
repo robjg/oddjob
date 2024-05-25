@@ -21,6 +21,7 @@ import org.oddjob.util.OddjobWrapperException;
 import javax.script.*;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.Objects;
 
 /**
  * This class is used to run Compile scripts.
@@ -41,13 +42,10 @@ public class ScriptCompiler {
      * @param language The language. Default to JavaScript.
      */
     public ScriptCompiler(String language, ClassLoader classLoader) {
-        if (language == null) {
-            this.language = "JavaScript";
-        }
-        else {
-        	this.language = language;
-        }
-        this.classLoader = classLoader;
+        this.language = Objects.requireNonNullElse(
+                language, "JavaScript");
+        this.classLoader = Objects.requireNonNullElseGet(
+                classLoader, () -> getClass().getClassLoader());
 	}
 
 	public Evaluatable compileScript(String script) {

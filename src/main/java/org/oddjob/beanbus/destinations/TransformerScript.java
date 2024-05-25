@@ -11,10 +11,15 @@ import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
+import java.util.Objects;
 import java.util.function.Function;
 
 /**
  * @oddjob.description Provide a Script as an {@link BusFilter}.
+ * This is a work in progress and probably isn't really necessary as the existing Map Component can
+ * be used with a script passed in as a function.
+ *
+ *
  * 
  * @oddjob.example
  * 
@@ -41,10 +46,11 @@ public class TransformerScript<F, T> extends AbstractFilter<F, T> {
 	@Configured
 	public void configured() throws ScriptException {
 		
-		if (language == null) {
-			language = "JavaScript";
-		}
-		
+		String language = Objects.requireNonNullElse(
+				this.language, "JavaScript");
+		ClassLoader classLoader = Objects.requireNonNullElseGet(
+				this.classLoader, () -> getClass().getClassLoader());
+
         ScriptEngineManager manager = new ScriptEngineManager(
         		classLoader);
 
