@@ -336,11 +336,11 @@ public class StatefulHandlerFactory
     public static class StateData implements Serializable, StateDetail {
         private static final long serialVersionUID = 2023061500L;
 
-        private final GenericState jobState;
+        private final GenericState state;
 
         private final StateInstant instant;
 
-        private final Throwable throwable;
+        private final OddjobTransportableException exception;
 
         @Deprecated(since = "1.7", forRemoval = true)
         public StateData(State state, Date date, Throwable throwable) {
@@ -348,23 +348,19 @@ public class StatefulHandlerFactory
         }
 
         public StateData(State state, StateInstant instant, Throwable throwable) {
-            this.jobState = GenericState.from(state);
+            this.state = GenericState.from(state);
             this.instant = instant;
-            if (throwable == null) {
-                this.throwable = null;
-            } else {
-                this.throwable = new OddjobTransportableException(throwable);
-            }
+            this.exception = OddjobTransportableException.from(throwable);
         }
 
         @Deprecated(since = "1.7", forRemoval = true)
         public State getJobState() {
-            return jobState;
+            return state;
         }
 
         @Override
         public State getState() {
-            return jobState;
+            return state;
         }
 
         @Deprecated(since = "1.7", forRemoval = true)
@@ -379,18 +375,14 @@ public class StatefulHandlerFactory
 
         @Deprecated(since = "1.7", forRemoval = true)
         public Throwable getThrowable() {
-            return throwable;
+            return exception;
         }
 
         @Override
-        public Throwable getException() {
-            return throwable;
+        public OddjobTransportableException getException() {
+            return exception;
         }
 
-        @Override
-        public StateEvent toEvent(Stateful source) {
-            return null;
-        }
     }
 
     @Override

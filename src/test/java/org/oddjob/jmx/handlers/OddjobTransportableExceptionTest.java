@@ -1,19 +1,19 @@
 package org.oddjob.jmx.handlers;
 
-import org.junit.Test;
-
+import org.junit.jupiter.api.Test;
+import org.oddjob.OjTestCase;
+import org.oddjob.tools.OddjobTestHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.oddjob.tools.OddjobTestHelper;
 
-import org.oddjob.OjTestCase;
+import static org.hamcrest.Matchers.is;
 
-public class OddjobTransportableExceptionTest extends OjTestCase{
+class OddjobTransportableExceptionTest extends OjTestCase{
 
 	private static final Logger logger = LoggerFactory.getLogger(OddjobTransportableExceptionTest.class);
-	
-   @Test
-	public void testCreate() throws Exception {
+
+	@Test
+	void testCreate() throws Exception {
 		
 		Exception e = new Exception("An error occurred!", 
 				new Exception("Because of this", 
@@ -26,19 +26,19 @@ public class OddjobTransportableExceptionTest extends OjTestCase{
 		
 		logger.info("The exception.", copy1);
 		
-		assertEquals("java.lang.Exception: An error occurred!", copy1.toString());
+		assertThat(copy1.toString(), is("java.lang.Exception: An error occurred!"));
 		
 		Throwable copy2 = copy1.getCause();
 
-		assertEquals("java.lang.Exception: Because of this", copy2.toString());
+		assertThat(copy2.toString(), is("java.lang.Exception: Because of this"));
 		
 		Throwable copy3 = copy2.getCause();
 
-		assertEquals("java.lang.Exception: And this", copy3.toString());
+		assertThat(copy3.toString(), is("java.lang.Exception: And this"));
 	}
-	
-   @Test
-	public void testNullMessage() {
+
+	@Test
+	void testNullMessage() {
 		
 		Exception e = new Exception();
 		
@@ -46,5 +46,32 @@ public class OddjobTransportableExceptionTest extends OjTestCase{
 				new OddjobTransportableException(e);
 
 		assertNull(test.getMessage());
+	}
+
+	@Test
+	void asBeanAndBack() {
+
+		Exception e = new Exception("An error occurred!",
+				new Exception("Because of this",
+						new Exception("And this")));
+
+		OddjobTransportableException test =
+				new OddjobTransportableException(e);
+
+		OddjobTransportableException.AsBean asBean = test.toBean();
+
+		OddjobTransportableException copy1 = OddjobTransportableException.fromBean(asBean);
+
+		logger.info("The exception.", copy1);
+
+		assertThat(copy1.toString(), is("java.lang.Exception: An error occurred!"));
+
+		Throwable copy2 = copy1.getCause();
+
+		assertThat(copy2.toString(), is("java.lang.Exception: Because of this"));
+
+		Throwable copy3 = copy2.getCause();
+
+		assertThat(copy3.toString(), is("java.lang.Exception: And this"));
 	}
 }

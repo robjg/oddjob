@@ -18,7 +18,6 @@ abstract public class StateInstantClock {
 
     static class Default extends StateInstantClock {
 
-
         private final Clock clock;
 
         private final LongSupplier nanoSupplier;

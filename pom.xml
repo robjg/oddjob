@@ -58,6 +58,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.openjdk.nashorn</groupId>
+      <artifactId>nashorn-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
       <groupId>uk.co.rgordon</groupId>
       <artifactId>arooa</artifactId>
       <version>${project.version}</version>

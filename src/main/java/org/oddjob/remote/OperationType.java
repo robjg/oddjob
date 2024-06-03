@@ -87,7 +87,8 @@ public class OperationType<T> {
         }
 
         public  OperationType<Void> returningVoid() {
-            return returning(void.class);
+            // Gson 2.11 is much fussier about exact types, so no longer void.
+            return returning(Void.class);
         }
     }
 

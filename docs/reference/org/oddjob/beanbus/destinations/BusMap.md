@@ -1,7 +1,7 @@
 [HOME](../../../../README.md)
 # bus:map
 
-Apply a `java.util.function.Function` to beans in a Bean Bus.
+Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html) to beans in a Bean Bus.
 
 ### Property Summary
 

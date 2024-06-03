@@ -1,5 +1,6 @@
 package org.oddjob.jmx.client;
 
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.Utils;
 import org.oddjob.remote.HasOperationType;
@@ -30,7 +31,7 @@ public class MethodOperation<T> extends RemoteOperation<T> implements HasOperati
 		return new MethodOperation<>(
 				new OperationType<>(method.getName(),
 						method.getParameterTypes(),
-						(Class<T>) method.getReturnType()));
+						(Class<T>) ClassUtils.wrapperClassWhenPrimitive(method.getReturnType())));
 	}
 
 
