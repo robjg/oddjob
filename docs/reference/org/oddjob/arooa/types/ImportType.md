@@ -66,7 +66,7 @@ XML as text.
 ### Examples
 #### Example 1 <a name="example1"></a>
 
-Using import for a file list. the variables pathA and pathB are identical.
+Using import for a file list. The variables pathA and pathB are identical.
 
 ```xml
 <oddjob>

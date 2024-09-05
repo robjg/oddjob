@@ -81,8 +81,8 @@ COMPLETE if either files exist, INCOMPLETE otherwise.
 <pre>
 &lt;or:and xmlns:state="http://rgordon.co.uk/oddjob/state"&gt;
 &lt;jobs&gt;
-&lt;exists file="doesntexist1"&gt;/
-&lt;exists file="doesntexist2"&gt;/
+&lt;exists file="doesntexist1"/&gt;
+&lt;exists file="doesntexist2"/&gt;
 &lt;/jobs&gt;
 &lt;/or:and&gt;
 </pre>

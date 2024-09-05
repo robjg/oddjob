@@ -165,7 +165,7 @@
         <!-- This creates the Reference for both Arooa and Oddjob, so we override the parent one -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.4-SNAPSHOT</version>
+        <version>3.10.0</version>
         <executions>
           <execution>
             <id>reference</id>
@@ -184,11 +184,6 @@
                 <docletArtifact>
                   <groupId>uk.co.rgordon</groupId>
                   <artifactId>oddjob</artifactId>
-                  <version>${project.version}</version>
-                </docletArtifact>
-                <docletArtifact>
-                  <groupId>${project.groupId}</groupId>
-                  <artifactId>${project.artifactId}</artifactId>
                   <version>${project.version}</version>
                 </docletArtifact>
               </docletArtifacts>

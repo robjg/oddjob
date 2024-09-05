@@ -66,7 +66,7 @@ The name of this job.
 ### Examples
 #### Example 1 <a name="example1"></a>
 
-An Oddjob the launches Oddjob. args[0] is org.oddjob.Main, args[1] is the
+An Oddjob the launches Oddjob. In the example, args[0] is org.oddjob.Main, args[1] is the
 oddjob home directory. The classes directory is included in the class path
 for the log4j.properties file otherwise Log4j would attempt to use one
 from ClassLoader.getSystemLoader() which will be the original application
