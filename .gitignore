@@ -2,6 +2,7 @@
 /classes
 /explorer
 /target
+/.idea
 *.iml
 /.classpath
 /.project
