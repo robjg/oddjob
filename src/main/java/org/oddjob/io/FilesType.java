@@ -3,6 +3,12 @@
  */
 package org.oddjob.io;
 
+import org.oddjob.arooa.ArooaValue;
+import org.oddjob.arooa.convert.ConversionProvider;
+import org.oddjob.arooa.convert.ConversionRegistry;
+import org.oddjob.arooa.convert.ConvertletException;
+import org.oddjob.arooa.convert.convertlets.FileConvertlets;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
@@ -10,15 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.oddjob.arooa.ArooaValue;
-import org.oddjob.arooa.convert.Convertlet;
-import org.oddjob.arooa.convert.ConvertletException;
-import org.oddjob.arooa.convert.convertlets.FileConvertlets;
-import org.oddjob.arooa.convert.ConversionProvider;
-import org.oddjob.arooa.convert.ConversionRegistry;
-
 /**
- * @oddjob.description Specify files using a wild card pattern, or a
+ * @oddjob.description Specify files using a wild card pattern, or
  * a list. The list can contain {@link FileType} or other types that 
  * can be converted into a java File object or array including this type. 
  * In this way this type can be used to build complicated collections of 
@@ -27,19 +26,19 @@ import org.oddjob.arooa.convert.ConversionRegistry;
  * @oddjob.example
  * 
  * A single file.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple1.xml}
  * 
  * @oddjob.example
  * 
  * Using a wildcard expression.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple2.xml}
  * 
  * @oddjob.example
  * 
  * Specifying a list of files.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/io/FilesTypeSimple3.xml}
  * 
  * @oddjob.example
@@ -47,7 +46,7 @@ import org.oddjob.arooa.convert.ConversionRegistry;
  * A complex version of building up a file list. It includes taking 
  * advantage of Oddjob's built in path conversion and adds in files
  * specified as arguments passed in to Oddjob.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/io/FilesTypeMixedList.xml}
  * 
  * 
@@ -61,22 +60,20 @@ public class FilesType implements ArooaValue, Serializable {
 	public static class Conversions implements ConversionProvider {
 		
 		public void registerWith(ConversionRegistry registry) {
-	    	registry.register(FilesType.class, File[].class, 
-	    			new Convertlet<FilesType, File[]>() {
-	    		public File[] convert(FilesType from) throws ConvertletException {
-	    			try {
-	    				return from.toFiles();
-					} catch (IOException e) {
-						throw new ConvertletException(e);
-					}
-	    		}
-	    	});
+	    	registry.register(FilesType.class, File[].class,
+                    from -> {
+                        try {
+                            return from.toFiles();
+                        } catch (IOException e) {
+                            throw new ConvertletException(e);
+                        }
+                    });
 		}
 	}
 	
     /**
      * @oddjob.property 
-     * @oddjob.description The files
+     * @oddjob.description A file pattern to use to find files with.
      * @oddjob.required No
      */
     private volatile String files;
@@ -92,9 +89,9 @@ public class FilesType implements ArooaValue, Serializable {
     private volatile File[] lastConversion; 
     
     /**
-     * Set the directory for a scan.
+     * The file pattern.
      * 
-     * @param directory The directory. 
+     * @param files The file pattern.
      */
     public void setFiles(String files) {
         this.files = files;
@@ -112,10 +109,17 @@ public class FilesType implements ArooaValue, Serializable {
     		list.add(index, files);
     	}
     }
-    
-    public File[] toFiles() throws IOException {
+
+	/**
+	 * Find all the files .
+	 *
+	 * @return An array of files.
+	 *
+	 * @throws IOException if anything goes wrong.
+	 */
+	public File[] toFiles() throws IOException {
     	
-    	List<File> all = new ArrayList<File>();
+    	List<File> all = new ArrayList<>();
     	
     	if (files != null) {
     		addFileArray(all, FilesUtil.expand(new File(files)));
@@ -125,7 +129,7 @@ public class FilesType implements ArooaValue, Serializable {
     		addFileArray(all, files);
     	}
     	
-    	this.lastConversion = all.toArray(new File[all.size()]);
+    	this.lastConversion = all.toArray(new File[0]);
     	
     	return this.lastConversion;
     }
@@ -173,7 +177,7 @@ public class FilesType implements ArooaValue, Serializable {
     			aFew = last;
     		}
 
-			text.append(new FileConvertlets().filesToPath(aFew));
+			text.append(FileConvertlets.filesToPath(aFew));
 			
     		if (aFew != last) {
     			text.append(" and ");
