@@ -12,33 +12,44 @@ import java.util.Properties;
 public class ConsoleInputHandler implements InputHandler {
 
 	@Override
-	public Properties handleInput(InputRequest[] requests) {
-		if (System.console() == null) {
-			throw new IllegalStateException(
-					"There is no console for this process.");
-		}
-		
-		Properties properties = new Properties();
-		
-		for (int i = 0; i < requests.length; ++i) {
-			ConsoleInputMedium console = new ConsoleInputMedium();
-			requests[i].render(console);
-			
-			String value = console.getValue();
-			// Input must have been cancelled with a Control-Z.
-			if (value == null) {
-				return null;
+	public Session start() {
+		return new Session() {
+			@Override
+			public Properties handleInput(InputRequest[] requests) {
+				if (System.console() == null) {
+					throw new IllegalStateException(
+							"There is no console for this process.");
+				}
+
+				Properties properties = new Properties();
+
+                for (InputRequest request : requests) {
+                    ConsoleInputMedium console = new ConsoleInputMedium();
+                    request.render(console);
+
+                    String value = console.getValue();
+                    // Input must have been cancelled with a Control-Z.
+                    if (value == null) {
+                        return null;
+                    }
+
+                    String property = request.getProperty();
+                    if (property == null) {
+                        continue;
+                    }
+                    properties.setProperty(property, value);
+                }
+				return properties;
 			}
 
-			String property = requests[i].getProperty();
-			if (property == null) {
-				continue;
+			@Override
+			public void close() {
+
 			}
-			properties.setProperty(property, value);
-		}
-		return properties;
+		};
 	}
-	
+
+
 	static class ConsoleInputMedium extends TerminalInput {
 
 		@Override

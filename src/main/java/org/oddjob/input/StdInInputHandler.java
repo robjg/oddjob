@@ -16,41 +16,59 @@ import java.util.Properties;
 public class StdInInputHandler implements InputHandler {
 
 	@Override
-	public Properties handleInput(InputRequest[] requests) {
-		if (System.in == null) {
-			throw new IllegalStateException(
-					"There is no stdin associated with the current process.");
-		}
-		
-		LineReader in = new LineReader(System.in);
-		
-		Properties properties = new Properties();
-		
-		for (int i = 0; i < requests.length; ++i) {
-			
-			StdInInputMedium console = new StdInInputMedium(in);
-			
-			requests[i].render(console);
-			
-			String value = console.getValue();
-			// Input must have been cancelled with a Control-Z.
-			if (value == null) {
-				return null;
+	public Session start() {
+
+		return new Session() {
+
+			boolean stop;
+
+			@Override
+			public Properties handleInput(InputRequest[] requests) {
+				if (System.in == null) {
+					throw new IllegalStateException(
+							"There is no stdin associated with the current process.");
+				}
+
+				LineReader in = new LineReader(System.in);
+
+				Properties properties = new Properties();
+
+                for (InputRequest request : requests) {
+
+                    if (stop) {
+                        return null;
+                    }
+
+                    StdInInputMedium console = new StdInInputMedium(in);
+
+                    request.render(console);
+
+                    String value = console.getValue();
+                    // Input must have been cancelled with a Control-Z.
+                    if (value == null) {
+                        return null;
+                    }
+
+                    String property = request.getProperty();
+                    if (property == null) {
+                        continue;
+                    }
+                    properties.setProperty(property, value);
+                    // This is here otherwise automated input via stdin
+                    // sees everything on one line.
+                    System.out.println();
+                }
+				return properties;
 			}
-						
-			String property = requests[i].getProperty();
-			if (property == null) {
-				continue;
+
+			@Override
+			public void close() {
+				stop = true;
 			}
-			properties.setProperty(property, value);
-			// This is here otherwise automated input via stdin
-			// sees everything on one line.
-			System.out.println();
-		}
-		return properties;
+		};
 	}
-	
-	class StdInInputMedium extends TerminalInput {
+
+	static class StdInInputMedium extends TerminalInput {
 		
 		private final LineReader in;
 		

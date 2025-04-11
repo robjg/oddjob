@@ -11,22 +11,37 @@ import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.persist.MapPersister;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
+import org.oddjob.tools.StateSteps;
 
+import java.io.File;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 public class InputJobTest extends OjTestCase {
 
     private static class OurInputHandler implements InputHandler {
 
         @Override
-        public Properties handleInput(InputRequest[] requests) {
+        public Session start() {
+            return new Session() {
+                @Override
+                public Properties handleInput(InputRequest[] requests) {
 
-            Properties properties = new Properties();
+                    Properties properties = new Properties();
 
-            properties.setProperty("favourite.fruit", "apples");
+                    properties.setProperty("favourite.fruit", "apples");
 
-            return properties;
+                    return properties;
+                }
+
+                @Override
+                public void close() {
+
+                }
+            };
         }
+
     }
 
     @Test
@@ -140,4 +155,74 @@ public class InputJobTest extends OjTestCase {
 
         oddjob2.destroy();
     }
+
+    static class WaitInputHandler implements InputHandler {
+
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(1);
+
+        @Override
+        public Session start() {
+            return new Session() {
+
+                @Override
+                public Properties handleInput(InputRequest[] requests) {
+                    latch1.countDown();
+                    try {
+                        latch2.await();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return null;
+                }
+
+                @Override
+                public void close() {
+                    latch2.countDown();
+                }
+            };
+        }
+    }
+
+    @Test
+    public void testStop() throws ArooaPropertyException, ArooaConversionException, InterruptedException, FailedToStopException {
+
+        File file = new File(Objects.requireNonNull(
+                getClass().getResource("InputHandlerWithStop.xml")).getFile());
+
+        Properties props = new Properties();
+        props.setProperty("prop.run.timer", "false");
+
+        WaitInputHandler inputHandler = new WaitInputHandler();
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setInheritance(OddjobInheritance.SHARED);
+        oddjob.setFile(file);
+        oddjob.setProperties(props);
+        oddjob.setInputHandler(inputHandler);
+
+
+        StateSteps steps = new StateSteps(oddjob);
+        steps.startCheck(StateSteps.definitely(ParentState.READY),
+                StateSteps.definitely(ParentState.EXECUTING));
+
+        Thread t = new Thread(oddjob);
+        t.start();
+
+        inputHandler.latch1.await();
+
+        steps.checkNow();
+
+        steps.startCheck(
+                StateSteps.definitely(ParentState.EXECUTING),
+                StateSteps.definitely(ParentState.INCOMPLETE));
+
+        new OddjobLookup(oddjob).lookup("input", Stoppable.class).stop();
+
+        steps.checkWait();
+
+        oddjob.destroy();
+
+    }
+
 }

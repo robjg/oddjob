@@ -1,12 +1,7 @@
 package org.oddjob.monitor.action;
 
-import java.util.Properties;
-
-import javax.swing.KeyStroke;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Stateful;
+import org.oddjob.input.InputHandler;
 import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.tasks.BasicTask;
 import org.oddjob.jobs.tasks.TaskException;
@@ -19,6 +14,11 @@ import org.oddjob.state.StateEvent;
 import org.oddjob.state.StateListener;
 import org.oddjob.swing.SwingInputHandler;
 import org.oddjob.util.ThreadManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.swing.*;
+import java.util.Properties;
 
 /**
  * An action that calls a parameterised execution.
@@ -26,7 +26,7 @@ import org.oddjob.util.ThreadManager;
  * @author Rob Gordon 
  */
 public class TaskAction extends JobAction 
-implements StateListener {
+implements StateListener, AutoCloseable {
 
 	private static final Logger logger = LoggerFactory.getLogger(TaskAction.class);
 	
@@ -35,7 +35,9 @@ implements StateListener {
 	
 	/** The ThreadManager that will run the job. */
 	private ThreadManager threadManager;
-	
+
+	private AutoCloseable closeable;
+
 	/*
 	 *  (non-Javadoc)
 	 * @see org.oddjob.monitor.model.JobOption#getName()
@@ -100,9 +102,14 @@ implements StateListener {
 		final TaskExecutor execution = (TaskExecutor) job;
 		
 		InputRequest[] requestsArray = execution.getParameterInfo();
-		
-		final Properties props = new SwingInputHandler(null).handleInput(requestsArray);
-		
+
+		InputHandler.Session inputSession = new SwingInputHandler(null).start();
+		this.closeable = inputSession;
+
+		final Properties props = inputSession.handleInput(requestsArray);
+
+		this.closeable = null;
+
 		if (props != null) {
 			threadManager.run(new Runnable() {
 				public void run() {
@@ -115,16 +122,21 @@ implements StateListener {
 			}, "Executing " + job);
 		}	
 	}
-	
+
+	@Override
+	public void close() throws Exception {
+		AutoCloseable closeable = this.closeable;
+		if (closeable != null) {
+			closeable.close();
+		}
+	}
+
 	/*
 	 *  (non-Javadoc)
 	 * @see org.oddjob.state.JobStateListener#jobStateChange(org.oddjob.state.JobStateEvent)
 	 */	
 	public void jobStateChange(StateEvent event) {
-		if (StateConditions.STARTED.test(event.getState())) {
-			setEnabled(true);
-		} else {
-			setEnabled(false);
-		}
+        setEnabled(StateConditions.STARTED.test(event.getState()));
 	}
+
 }

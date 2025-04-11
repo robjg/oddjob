@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -228,10 +227,9 @@ public class OddjobTest extends OjTestCase {
     /**
      * Test loading an Oddjob without a child.
      *
-     * @throws ArooaParseException
      */
     @Test
-    public void testLoadNoChild() throws ArooaParseException {
+    public void testLoadNoChild() {
         String config = "<oddjob id='this'/>";
 
         Oddjob test = new Oddjob();
@@ -289,7 +287,6 @@ public class OddjobTest extends OjTestCase {
     /**
      * Test a nested lookup.
      *
-     * @throws Exception
      */
     @Test
     public void testLookup() throws Exception {
@@ -376,17 +373,29 @@ public class OddjobTest extends OjTestCase {
         test.destroy();
     }
 
-    private class OurInputHandler implements InputHandler {
+    private static class OurInputHandler implements InputHandler {
 
         @Override
-        public Properties handleInput(InputRequest[] requests) {
+        public Session start() {
 
-            Properties properties = new Properties();
+            return new Session() {
+                @Override
+                public Properties handleInput(InputRequest[] requests) {
 
-            properties.setProperty("our.file.name", "Fruit.txt");
+                    Properties properties = new Properties();
 
-            return properties;
+                    properties.setProperty("our.file.name", "Fruit.txt");
+
+                    return properties;
+                }
+
+                @Override
+                public void close() {
+
+                }
+            };
         }
+
     }
 
     @Test
@@ -490,7 +499,7 @@ public class OddjobTest extends OjTestCase {
      * Test Component Registry management. Test Oddjob
      * adds and clears up it's children OK.
      *
-     * @throws ArooaParseException
+     * @throws ArooaParseException If parsing fails.
      */
     @Test
     public void testRegistryManagement() throws ArooaParseException {
@@ -578,6 +587,7 @@ public class OddjobTest extends OjTestCase {
 
         assertEquals(ParentState.READY, oddjob.lastStateEvent().getState());
 
+        //noinspection ResultOfMethodCallIgnored
         testFile.delete();
 
         oddjob.hardReset();

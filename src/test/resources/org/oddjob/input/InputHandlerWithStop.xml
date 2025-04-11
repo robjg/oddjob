@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <value key="prop.run.timer" value="true"/>
+                    </values>
+                </properties>
+                <state:if xmlns:state="http://rgordon.co.uk/oddjob/state">
+                    <jobs>
+                        <check eq="true" value="${prop.run.timer}"/>
+                        <scheduling:timer xmlns:scheduling="http://rgordon.co.uk/oddjob/scheduling">
+                            <schedule>
+                                <schedules:count count="1" xmlns:schedules="http://rgordon.co.uk/oddjob/schedules">
+                                    <refinement>
+                                        <schedules:after>
+                                            <schedule>
+                                                <schedules:interval interval="00:00:03"/>
+                                            </schedule>
+                                        </schedules:after>
+                                    </refinement>
+                                </schedules:count>
+                            </schedule>
+                            <job>
+                                <stop job="${input}"/>
+                            </job>
+                        </scheduling:timer>
+                    </jobs>
+                </state:if>
+                <input id="input">
+                    <requests>
+                        <input-file default="/home/oddjob/foo" prompt="Install Directory" property="config.install"/>
+                        <input-text default="Development" prompt="System" property="config.system"/>
+                        <input-text prompt="Username" property="config.username"/>
+                        <input-password prompt="Password" property="config.password"/>
+                        <input-confirm default="false" prompt="Agree To Licence" property="config.agree"/>
+                    </requests>
+                </input>
+                <state:flag id="flag" xmlns:state="http://rgordon.co.uk/oddjob/state"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

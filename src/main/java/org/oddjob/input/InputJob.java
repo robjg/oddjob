@@ -1,18 +1,19 @@
 package org.oddjob.input;
 
+import org.oddjob.FailedToStopException;
+import org.oddjob.Stoppable;
+import org.oddjob.arooa.utils.ListSetterHelper;
+import org.oddjob.values.properties.PropertiesJobBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.inject.Inject;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-
-import javax.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.oddjob.arooa.utils.ListSetterHelper;
-import org.oddjob.values.properties.PropertiesJobBase;
 
 /**
  * @oddjob.description Ask for input from the user. 
@@ -25,13 +26,13 @@ import org.oddjob.values.properties.PropertiesJobBase;
  * @oddjob.example
  * 
  * Request lots of input.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/input/InputHandlerExample.xml}
  * 
  * @author rob
  *
  */
-public class InputJob extends PropertiesJobBase {
+public class InputJob extends PropertiesJobBase implements Stoppable {
 	private static final long serialVersionUID = 2011011700L;
 
 	private static final Logger logger = LoggerFactory.getLogger(InputJob.class);
@@ -54,8 +55,10 @@ public class InputJob extends PropertiesJobBase {
 	}
 	
 	private void completeConstruction() {
-		requests = new ArrayList<InputRequest>();
+		requests = new ArrayList<>();
 	}
+
+	private AutoCloseable close;
 
 	@Override
 	protected int execute() {
@@ -63,13 +66,17 @@ public class InputJob extends PropertiesJobBase {
 		if (inputHandler == null) {
 			throw new NullPointerException("No InputHandler");
 		}
-		Properties props = null;
+		Properties props;
 		
-		InputRequest[] requestsArray = requests.toArray(
-				new InputRequest[requests.size()]);
-		
-		props = inputHandler.handleInput(requestsArray);
-		
+		InputRequest[] requestsArray = requests.toArray(new InputRequest[0]);
+
+		InputHandler.Session session = inputHandler.start();
+		this.close = session;
+
+		props = session.handleInput(requestsArray);
+
+		close = null;
+
 		if (props == null) {
 			logger.info("No Input.");
 			return 1;
@@ -79,7 +86,19 @@ public class InputJob extends PropertiesJobBase {
 			setProperties(props);
 			addPropertyLookup();
 			return 0;
-		}	
+		}
+	}
+
+	@Override
+	protected void onStop() throws FailedToStopException {
+		AutoCloseable closeable = this.close;
+		if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                throw new FailedToStopException(this, e);
+            }
+        }
 	}
 
 	public InputHandler getInputHandler() {
