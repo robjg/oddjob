@@ -19,6 +19,7 @@ import org.oddjob.util.Restore;
 
 import java.io.Flushable;
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 /**
@@ -57,9 +58,17 @@ import java.util.function.Consumer;
  *
  * @oddjob.example
  *
- * A simple bus of 3 components.
- *
+ * A simple bus of 3 components. The first component is the bus driver that sends 3 beans down the pipe.
+ * The second component is a function that doubles the price and the last component collects the
+ * results.
+ * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanTransformerExample.xml}
+ *
+ * @oddjob.example
+ *
+ * Shows how a bus can be nested to create side branches. The data is passed to each branch in turn.
+ * <p>
+ * {@oddjob.xml.resource org/oddjob/beanbus/bus/FilterExample.xml}
  *
  * @author Rob Gordon
  * 
@@ -93,6 +102,8 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 	private Consumer<Object> to;
 
 	private Consumer<Object> first;
+
+	private final AtomicInteger count = new AtomicInteger();
 
 	/**
 	 * Only constructor.
@@ -162,10 +173,6 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 			previousChild = child;
 		}
 
-		if (to != null && previousChild != null ) {
-			maybeSetConsumerOnOutbound(previousChild, to);
-		}
-
 		final SimpleBusConductor busConductor = new SimpleBusConductor(children);
 
 		BusControls busControls = new BusControls() {
@@ -219,8 +226,12 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 
 		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
 
-			if (StateConditions.STARTED.test(stateHandler().getState())) {
+			if (StateConditions.LIVE.test(stateHandler().getState())) {
+				count.incrementAndGet();
 				first.accept(bean);
+				if (to != null) {
+					to.accept(bean);
+				}
 			}
 			else {
 				logger().warn("Ignoring because service not started: {}", bean);
@@ -248,6 +259,8 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 	@Override
 	protected void onReset() {
 		this.busConductor = null;
+		this.count.set(0);
+		this.first = null;
 	}
 
 	@Override
@@ -327,5 +340,9 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 	@Destination
 	public void setTo(Consumer<Object> to) {
 		this.to = to;
+	}
+
+	public int getCount() {
+		return count.get();
 	}
 }

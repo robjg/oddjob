@@ -1,7 +1,7 @@
 package org.oddjob.beanbus.bus;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BeanBusTest {
+class BeanBusTest {
 
     static class OurService extends SimpleService {
 
@@ -42,7 +42,7 @@ public class BeanBusTest {
     }
 
     @Test
-    public void testSingleServiceStarted() throws FailedToStopException {
+    void whenSingleServiceThenBusStateStarted() throws FailedToStopException {
 
         BasicBusService basicBusService = new BasicBusService();
 
@@ -91,7 +91,6 @@ public class BeanBusTest {
                 OddjobMatchers.statefulIs(StateConditions.COMPLETE));
     }
 
-
     public static class AddTwo implements Consumer<Integer> {
 
         private Consumer<Integer> next;
@@ -112,7 +111,7 @@ public class BeanBusTest {
     }
 
     @Test
-    public void testNested() throws ArooaConversionException, FailedToStopException {
+    public void whenConsumerWithDestinationThenWrapped() throws ArooaConversionException, FailedToStopException {
 
         File file = new File(Objects.requireNonNull(
                 getClass().getResource("ServiceBusExample.xml")).getFile());
@@ -122,7 +121,7 @@ public class BeanBusTest {
 
         oddjob.run();
 
-        OddjobMatchers.statefulIs(StateConditions.ACTIVE);
+        assertThat(oddjob, OddjobMatchers.statefulIs(StateConditions.STARTED));
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
@@ -131,8 +130,11 @@ public class BeanBusTest {
 
         consumer.accept(2);
 
-        List<?> results = lookup.lookup("bus.to.values", List.class);
-        assertThat(results, Matchers.contains(4));
+        List<?> addTwoResults = lookup.lookup("addTwo.next.values", List.class);
+        assertThat(addTwoResults, Matchers.contains(4));
+
+        List<?> busResults = lookup.lookup("bus.to.values", List.class);
+        assertThat(busResults, Matchers.contains(2));
 
         oddjob.stop();
 

@@ -90,7 +90,7 @@
 - [date](org/oddjob/values/types/DateType.md) - Define a Date.
 - [file](org/oddjob/io/FileType.md) - Specify a file.
 - [file-persister](org/oddjob/persist/FilePersister.md) - Persist and load jobs from and to a file.
-- [files](org/oddjob/io/FilesType.md) - Specify files using a wild card pattern, or a a list.
+- [files](org/oddjob/io/FilesType.md) - Specify files using a wild card pattern, or a list.
 - [format](org/oddjob/values/types/FormatType.md) - A type which can either format a number or a date into the given text format.
 - [identify](org/oddjob/arooa/types/IdentifiableValueType.md) - Register a value with an Id.
 - [import](org/oddjob/arooa/types/ImportType.md) - Import XML which is processed as if it's in-line.

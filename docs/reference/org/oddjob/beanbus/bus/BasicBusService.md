@@ -42,6 +42,7 @@ such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 | Title | Description |
 | ----- | ----------- |
 | [Example 1](#example1) | A simple bus of 3 components. |
+| [Example 2](#example2) | Shows how a bus can be nested to create side branches. |
 
 
 ### Property Detail
@@ -118,7 +119,10 @@ An onward consumer so that bus services may be nested.
 ### Examples
 #### Example 1 <a name="example1"></a>
 
-A simple bus of 3 components.
+A simple bus of 3 components. The first component is the bus driver that sends 3 beans down the pipe.
+The second component is a function that doubles the price and the last component collects the
+results.
+
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -145,6 +149,60 @@ A simple bus of 3 components.
                 <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
             </of>
         </bus:bus>
+    </job>
+</oddjob>
+```
+
+
+#### Example 2 <a name="example2"></a>
+
+Shows how a bus can be nested to create side branches. The data is passed to each branch in turn.
+
+
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <cascade>
+            <jobs>
+                <bus:bus id="bus" xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="red"/>
+                                        <value value="red"/>
+                                        <value value="blue"/>
+                                        <value value="green"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </bus:driver>
+                        <bus:bus>
+                            <of>
+                                <bus:filter id="filterRed">
+                                    <predicate>
+                                        <value value="#{ function(x) { return 'red' == x }}"/>
+                                    </predicate>
+                                </bus:filter>
+                            </of>
+                        </bus:bus>
+                        <bus:bus>
+                            <of>
+                                <bus:filter id="filterBlue">
+                                    <predicate>
+                                        <value value="#{ function(x) { return 'blue' == x }}"/>
+                                    </predicate>
+                                </bus:filter>
+                            </of>
+                        </bus:bus>
+                    </of>
+                </bus:bus>
+                <check value="${filterRed.passed}" eq="2"/>
+                <check value="${filterBlue.passed}" eq="1"/>
+            </jobs>
+        </cascade>
     </job>
 </oddjob>
 ```

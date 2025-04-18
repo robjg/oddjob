@@ -2,247 +2,346 @@ package org.oddjob.state;
 
 import org.junit.Test;
 
-import org.oddjob.OjTestCase;
+import java.util.*;
 
-public class StateConditionsTest extends OjTestCase {
-	
-   @Test
-	public void testCompleteAlltates() {
-		
-		StateCondition test = StateConditions.COMPLETE;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(true, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		assertEquals(false, test.test(ParentState.READY));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(true, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
-		assertEquals(true, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));
-	}
-	
-   @Test
-	public void testDoneAllStates() {
-		
-		StateCondition test = StateConditions.DONE;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(true, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		assertEquals(false, test.test(ParentState.READY));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(false, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(true, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(false, test.test(ParentState.STARTED));
-		assertEquals(true, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));
-	}
-	
-   @Test
-	public void testFinishedAllStates() {
-		
-		StateCondition test = StateConditions.FINISHED;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(true, test.test(JobState.COMPLETE));
-		assertEquals(true, test.test(JobState.INCOMPLETE));
-		assertEquals(true, test.test(JobState.EXCEPTION));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(true, test.test(ServiceState.EXCEPTION));
-		assertEquals(true, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
-		assertEquals(true, test.test(ParentState.COMPLETE));
-		assertEquals(true, test.test(ParentState.INCOMPLETE));
-		assertEquals(true, test.test(ParentState.EXCEPTION));
-		
-	}
-	
-   @Test
-	public void testEndedAllStates() {
-		
-		StateCondition test = StateConditions.ENDED;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(true, test.test(JobState.COMPLETE));
-		assertEquals(true, test.test(JobState.INCOMPLETE));
-		assertEquals(true, test.test(JobState.EXCEPTION));
-		assertEquals(false, test.test(ParentState.READY));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(false, test.test(ServiceState.STARTED));
-		assertEquals(true, test.test(ServiceState.EXCEPTION));
-		assertEquals(true, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(false, test.test(ParentState.STARTED));
-		assertEquals(true, test.test(ParentState.COMPLETE));
-		assertEquals(true, test.test(ParentState.INCOMPLETE));
-		assertEquals(true, test.test(ParentState.EXCEPTION));
-	}
-	
-   @Test
-	public void testFailureAllStates() {
-		
-		StateCondition test = StateConditions.FAILURE;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(false, test.test(JobState.COMPLETE));
-		assertEquals(true, test.test(JobState.INCOMPLETE));
-		assertEquals(true, test.test(JobState.EXCEPTION));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(false, test.test(ServiceState.STARTED));
-		assertEquals(true, test.test(ServiceState.EXCEPTION));
-		assertEquals(false, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(false, test.test(ParentState.STARTED));
-		assertEquals(false, test.test(ParentState.COMPLETE));
-		assertEquals(true, test.test(ParentState.INCOMPLETE));
-		assertEquals(true, test.test(ParentState.EXCEPTION));
-		
-	}
-	
-   @Test
-	public void testRunningAllStates() {
-		
-		StateCondition test = StateConditions.RUNNING;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(true, test.test(JobState.EXECUTING));
-		assertEquals(false, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		assertEquals(false, test.test(ParentState.READY));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(true, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(false, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(true, test.test(ParentState.EXECUTING));
-		assertEquals(true, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
-		assertEquals(false, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));
-	}
-	
-   @Test
-	public void testStartedAllStates() {
-		
-		StateCondition test = StateConditions.STARTED;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(false, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(false, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(false, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
-		assertEquals(false, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));		
-	}
-	
-   @Test
-	public void testActiveAllStates() {
-		
-		StateCondition test = StateConditions.ACTIVE;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(false, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(false, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(false, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(true, test.test(ParentState.ACTIVE));
-		assertEquals(false, test.test(ParentState.STARTED));
-		assertEquals(false, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));		
-	}
-	
-   @Test
-	public void testLiveAllStates() {
-		
-		StateCondition test = StateConditions.LIVE;
-		
-		assertEquals(false, test.test(JobState.READY));
-		assertEquals(false, test.test(JobState.EXECUTING));
-		assertEquals(false, test.test(JobState.COMPLETE));
-		assertEquals(false, test.test(JobState.INCOMPLETE));
-		assertEquals(false, test.test(JobState.EXCEPTION));
-		
-		assertEquals(false, test.test(ServiceState.STARTABLE));
-		assertEquals(false, test.test(ServiceState.STARTING));
-		assertEquals(true, test.test(ServiceState.STARTED));
-		assertEquals(false, test.test(ServiceState.EXCEPTION));
-		assertEquals(false, test.test(ServiceState.STOPPED));
-		
-		assertEquals(false, test.test(ParentState.READY));
-		assertEquals(false, test.test(ParentState.EXECUTING));
-		assertEquals(true, test.test(ParentState.ACTIVE));
-		assertEquals(true, test.test(ParentState.STARTED));
-		assertEquals(false, test.test(ParentState.COMPLETE));
-		assertEquals(false, test.test(ParentState.INCOMPLETE));
-		assertEquals(false, test.test(ParentState.EXCEPTION));		
-	}
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
+public class StateConditionsTest {
+
+    static class Tester<T extends Enum<T> & State> {
+
+        private final StateCondition test;
+
+        private final Set<T> states;
+
+        private final List<Runnable> tests = new ArrayList<>();
+
+        Tester(StateCondition test, Class<T> stateEnum) {
+            this.test = test;
+            this.states = new HashSet<>(EnumSet.allOf(stateEnum));
+            this.states.remove(Enum.valueOf(stateEnum, "DESTROYED"));
+        }
+
+        void remove(T state) {
+            if (!states.remove(state)) {
+                throw new IllegalArgumentException(state + " not in expected states.");
+            }
+        }
+
+        Tester<T> expectFalse(T state) {
+            remove(state);
+            tests.add(() -> assertThat("Expected " + test + " condition of state " + state + " to be false ",
+                    test.test(state), is(false)));
+            return this;
+        }
+
+        Tester<T> expectTrue(T state) {
+            remove(state);
+            tests.add(() -> assertThat("Expected " + test + " condition of state " + state + " to be true ",
+                    test.test(state), is(true)));
+            return this;
+        }
+
+        void test() {
+            if (!states.isEmpty()) {
+                throw new IllegalStateException("No assertion for " + states);
+            }
+            tests.forEach(Runnable::run);
+        }
+
+    }
+
+    static <T extends Enum<T> & State> Tester<T> testOf(StateCondition test, Class<T> stateEnum) {
+
+        return new Tester<>(test, stateEnum);
+    }
+
+    @Test
+    public void testCompleteAllStates() {
+
+        testOf(StateConditions.COMPLETE, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectTrue(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.COMPLETE, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.STARTING)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectTrue(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectTrue(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.COMPLETE, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectTrue(ParentState.STARTED)
+                .expectTrue(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testDoneAllStates() {
+
+        testOf(StateConditions.DONE, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectTrue(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.DONE, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectFalse(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectTrue(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.DONE, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectFalse(ParentState.STARTED)
+                .expectTrue(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testFinishedAllStates() {
+
+        testOf(StateConditions.FINISHED, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectTrue(JobState.COMPLETE)
+                .expectTrue(JobState.INCOMPLETE)
+                .expectTrue(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.FINISHED, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectTrue(ServiceState.STARTED)
+                .expectTrue(ServiceState.EXCEPTION)
+                .expectTrue(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.FINISHED, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectTrue(ParentState.STARTED)
+                .expectTrue(ParentState.COMPLETE)
+                .expectTrue(ParentState.INCOMPLETE)
+                .expectTrue(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testEndedAllStates() {
+
+        testOf(StateConditions.ENDED, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectTrue(JobState.COMPLETE)
+                .expectTrue(JobState.INCOMPLETE)
+                .expectTrue(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.ENDED, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectFalse(ServiceState.STARTED)
+                .expectTrue(ServiceState.EXCEPTION)
+                .expectTrue(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.ENDED, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectFalse(ParentState.STARTED)
+                .expectTrue(ParentState.COMPLETE)
+                .expectTrue(ParentState.INCOMPLETE)
+                .expectTrue(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testFailureAllStates() {
+
+        testOf(StateConditions.FAILURE, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectFalse(JobState.COMPLETE)
+                .expectTrue(JobState.INCOMPLETE)
+                .expectTrue(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.FAILURE, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectFalse(ServiceState.STARTED)
+                .expectTrue(ServiceState.EXCEPTION)
+                .expectFalse(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.FAILURE, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectFalse(ParentState.STARTED)
+                .expectFalse(ParentState.COMPLETE)
+                .expectTrue(ParentState.INCOMPLETE)
+                .expectTrue(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testRunningAllStates() {
+
+        testOf(StateConditions.RUNNING, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectTrue(JobState.EXECUTING)
+                .expectTrue(JobState.ACTIVE)
+                .expectFalse(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.RUNNING, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectTrue(ServiceState.INITIALISING)
+                .expectTrue(ServiceState.STARTING)
+                .expectTrue(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectFalse(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.RUNNING, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectTrue(ParentState.EXECUTING)
+                .expectTrue(ParentState.ACTIVE)
+                .expectTrue(ParentState.STARTED)
+                .expectFalse(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testStartedAllStates() {
+
+        testOf(StateConditions.STARTED, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectFalse(JobState.ACTIVE)
+                .expectFalse(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.STARTED, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectFalse(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectTrue(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectFalse(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.STARTED, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectFalse(ParentState.ACTIVE)
+                .expectTrue(ParentState.STARTED)
+                .expectFalse(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testActiveAllStates() {
+
+        testOf(StateConditions.ACTIVE, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectTrue(JobState.ACTIVE)
+                .expectFalse(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.ACTIVE, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectTrue(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectFalse(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectFalse(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.ACTIVE, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectTrue(ParentState.ACTIVE)
+                .expectFalse(ParentState.STARTED)
+                .expectFalse(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
+
+    @Test
+    public void testLiveAllStates() {
+
+        testOf(StateConditions.LIVE, JobState.class)
+                .expectFalse(JobState.READY)
+                .expectFalse(JobState.EXECUTING)
+                .expectTrue(JobState.ACTIVE)
+                .expectFalse(JobState.COMPLETE)
+                .expectFalse(JobState.INCOMPLETE)
+                .expectFalse(JobState.EXCEPTION)
+                .test();
+
+        testOf(StateConditions.LIVE, ServiceState.class)
+                .expectFalse(ServiceState.STARTABLE)
+                .expectTrue(ServiceState.INITIALISING)
+                .expectFalse(ServiceState.STARTING)
+                .expectTrue(ServiceState.STARTED)
+                .expectFalse(ServiceState.EXCEPTION)
+                .expectFalse(ServiceState.STOPPED)
+                .test();
+
+        testOf(StateConditions.LIVE, ParentState.class)
+                .expectFalse(ParentState.READY)
+                .expectFalse(ParentState.EXECUTING)
+                .expectTrue(ParentState.ACTIVE)
+                .expectTrue(ParentState.STARTED)
+                .expectFalse(ParentState.COMPLETE)
+                .expectFalse(ParentState.INCOMPLETE)
+                .expectFalse(ParentState.EXCEPTION)
+                .test();
+    }
 }

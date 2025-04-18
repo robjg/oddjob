@@ -88,7 +88,8 @@ public enum ServiceState implements State {
 
 	/**
 	 * Indicates the service is starting. The execution thread is
-	 * still in the start method.
+	 * not in the start method. Used by asynchronous services
+	 * where initialisation is done on a separate thread.
 	 */
 	INITIALISING() {
 		@Override

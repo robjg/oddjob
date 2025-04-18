@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <cascade>
+            <jobs>
+                <bus:bus id="bus" xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="red"/>
+                                        <value value="red"/>
+                                        <value value="blue"/>
+                                        <value value="green"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </bus:driver>
+                        <bus:bus>
+                            <of>
+                                <bus:filter id="filterRed">
+                                    <predicate>
+                                        <value value="#{ function(x) { return 'red' == x }}"/>
+                                    </predicate>
+                                </bus:filter>
+                            </of>
+                        </bus:bus>
+                        <bus:bus>
+                            <of>
+                                <bus:filter id="filterBlue">
+                                    <predicate>
+                                        <value value="#{ function(x) { return 'blue' == x }}"/>
+                                    </predicate>
+                                </bus:filter>
+                            </of>
+                        </bus:bus>
+                    </of>
+                </bus:bus>
+                <check value="${filterRed.passed}" eq="2"/>
+                <check value="${filterBlue.passed}" eq="1"/>
+            </jobs>
+        </cascade>
+    </job>
+</oddjob>

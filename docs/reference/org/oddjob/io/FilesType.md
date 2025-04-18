@@ -1,7 +1,7 @@
 [HOME](../../../README.md)
 # files
 
-Specify files using a wild card pattern, or a
+Specify files using a wild card pattern, or
 a list. The list can contain [file](../../../org/oddjob/io/FileType.md) or other types that
 can be converted into a java File object or array including this type.
 In this way this type can be used to build complicated collections of
@@ -11,7 +11,7 @@ files.
 
 | Property | Description |
 | -------- | ----------- |
-| [files](#propertyfiles) | The files | 
+| [files](#propertyfiles) | A file pattern to use to find files with. | 
 | [list](#propertylist) | More files | 
 
 
@@ -34,7 +34,7 @@ files.
       <tr><td><i>Required</i></td><td>No</td></tr>
 </table>
 
-The files
+A file pattern to use to find files with.
 
 #### list <a name="propertylist"></a>
 
@@ -52,6 +52,7 @@ More files
 
 A single file.
 
+
 ```xml
 <files files="onefile.txt"/>
 ```
@@ -61,6 +62,7 @@ A single file.
 
 Using a wildcard expression.
 
+
 ```xml
 <files files="reports/*.txt"/>
 ```
@@ -69,6 +71,7 @@ Using a wildcard expression.
 #### Example 3 <a name="example3"></a>
 
 Specifying a list of files.
+
 
 ```xml
 <files>
@@ -85,6 +88,7 @@ Specifying a list of files.
 A complex version of building up a file list. It includes taking
 advantage of Oddjob's built in path conversion and adds in files
 specified as arguments passed in to Oddjob.
+
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>

@@ -3,7 +3,11 @@
     <job>
         <bus:bus xmlns:bus="oddjob:beanbus" id="bus">
             <of>
-                <bean class="org.oddjob.beanbus.bus.BeanBusTest$AddTwo"/>
+                <bean class="org.oddjob.beanbus.bus.BeanBusTest$AddTwo" id="addTwo">
+                    <next>
+                        <list/>
+                    </next>
+                </bean>
             </of>
             <to>
                 <list/>
