@@ -47,12 +47,17 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 	 */
 	private volatile T trigger;
 
+	/**
+	 * @oddjob.description This is to be a destination. A destination is a component in a
+	 * {@link org.oddjob.beanbus.bus.BasicBusService } pipeline.
+	 * @oddjob.required No.
+	 */
 	private volatile boolean beDestination;
 
 	/**
 	 * @oddjob.property
 	 * @oddjob.description The source of events. If this is not set the first child component is assumed
-	 * to be the Event Source.
+	 * to be the Event Source, unless {@link #beDestination} is set.
 	 * @oddjob.required No.
 	 */
 	private volatile EventSource<T> eventSource;
@@ -135,8 +140,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 				Object firstChild = children[0];
 
 				eventSource = EventSourceAdaptor.<T>maybeEventSourceFrom(firstChild, getArooaSession())
-						.orElseThrow(() -> new IllegalStateException("" +
-								"When Event Source provided as a property, " +
+						.orElseThrow(() -> new IllegalStateException("When Event Source provided as a property, " +
 								"the first child component is expected to be an Event Source."));
 
 				jobIndex = 1;
@@ -168,22 +172,22 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 				stateHandler().runLocked(() -> getStateChanger().setState(ParentState.ACTIVE));
 
 				EventJobBase.this.asyncSupport = executorService.submit(j);
-				logger().info("Submitted [" + j + "]");				
+                logger().info("Submitted [{}]", j);
 			}
 		};
 
 		ConsumerSwitch consumerSwitch = new ConsumerSwitch();
 
-		logger().info("Starting event source [{}]", eventSource);
-		Restore close = eventSource.subscribe(consumerSwitch);
-
 		if (job == null) {
 			EventJobBase.super.startChildStateReflector();
 		}
 		else {
-			stateHandler().waitToWhen(new IsStoppable(), 
+			stateHandler().waitToWhen(new IsStoppable(),
 					() -> getStateChanger().setState(ParentState.ACTIVE));
 		}
+
+		logger().info("Starting event source [{}]", eventSource);
+		Restore close = eventSource.subscribe(consumerSwitch);
 
 		consumerSwitch.makeSwitch(job, executor);
 
@@ -199,6 +203,25 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 			switchToChildStateReflector();
 		}
 		else {
+			if (jobIndex == 1) {
+				Object childEventSource = children[0];
+				if (childEventSource instanceof Stateful) {
+					logger().debug("Adding listener to child event source [{}]", childEventSource);
+					Stateful statefulEventSource = (Stateful) childEventSource;
+					statefulEventSource.addStateListener(event -> {
+						if (StateConditions.EXCEPTION.test(event)) {
+							unsubscribe();
+							switchToChildStateReflector();
+						}
+					});
+				}
+				else {
+					logger().debug("Child child event source [{}] is not Stateful.", childEventSource);
+				}
+			}
+		}
+
+		if (unsubscribe.get() != null) {
 			logger().info("Subscription to event source [{}] started.", eventSource);
 			onSubscriptionStarted(job, executor);
 		}
@@ -289,7 +312,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 	abstract protected void onSubscriptionStarted(Object job, Executor executor);
 
 	/**
-	 * Called when an event is received after subscription. There is no guarantee that an
+	 * Called when an event is received after subscription. There is no guarantee that
 	 * this will be called after the {@link #onSubscriptionStarted(Object, Executor)} method,
 	 * implementors are responsible for their own synchronisation if required.
 	 *
@@ -297,6 +320,11 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 	 */
 	abstract protected void onLaterEvent(T event, Object job, Executor executor);
 
+	/**
+	 * Used by subclasses to provide a state listener to be added to the child job.
+	 *
+	 * @return A State Listener. Must not be null.
+	 */
 	abstract protected StateListener stateOnChildComplete();
 
 	protected void unsubscribe() {
@@ -324,19 +352,19 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 	@Override
 	public void accept(T t) {
 		Consumer<? super T> subscribe = Optional.ofNullable(this.eventSource)
-				.map(es -> {
-					if (! (es instanceof ConsumerEventSource)) {
+				.map(eventSource -> {
+					if (! (eventSource instanceof ConsumerEventSource)) {
 						throw new IllegalStateException(
-								"Bus operation not supported - using alternative event source" + EventJobBase.this);
+								"Bus operation not supported - Use beDestination for " + EventJobBase.this);
 					}
-					ConsumerEventSource<T> ces = (ConsumerEventSource<T>) es;
+					ConsumerEventSource<T> consumerEventSource = (ConsumerEventSource<T>) eventSource;
 
-					return Optional.ofNullable(ces.subscribed)
+					return Optional.ofNullable(consumerEventSource.subscribed)
 							.orElseThrow(() -> new IllegalStateException(
-									"Bus operation not supported - not subscribed" + EventJobBase.this));
+									"Bus operation not supported - not subscribed (not started?)" + EventJobBase.this));
 				})
 				.orElseThrow(() -> new IllegalStateException(
-						"Bus operation not support - not started " + EventJobBase.this));
+						"Bus operation not supported - not started? " + EventJobBase.this));
 		subscribe.accept(t);
 	}
 
@@ -384,10 +412,7 @@ abstract public class EventJobBase<T> extends StructuralJob<Object> implements C
 	 */
 	@ArooaComponent
 	public void setJobs(int index, Object child) {
-	    logger().debug(
-	    		"Adding child [" + 
-	    		child + "], index [" + 
-	    		index + "]");
+        logger().debug("Adding child [{}], index [{}]", child, index);
 	    
 		if (child == null) {
 			childHelper.removeChildAt(index);

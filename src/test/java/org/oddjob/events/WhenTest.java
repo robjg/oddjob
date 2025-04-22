@@ -1,7 +1,7 @@
 package org.oddjob.events;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.oddjob.FailedToStopException;
 import org.oddjob.Oddjob;
@@ -18,29 +18,27 @@ import org.oddjob.util.Restore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.*;
 
-public class WhenTest {
+class WhenTest {
 
 	private static final Logger logger = LoggerFactory.getLogger(WhenTest.class);
 	
 	private static class OurSubscribable extends EventServiceBase<InstantEvent<Integer>> {
 
-		final List<InstantEvent<Integer>> ints = Arrays.asList(
-				InstantEvent.of(1), InstantEvent.of(2), InstantEvent.of(3));
-		
-		final AtomicInteger index = new AtomicInteger();
-		
 		volatile Consumer<? super InstantEvent<Integer>> consumer;
 		
 		@Override
@@ -49,13 +47,35 @@ public class WhenTest {
 			return () -> this.consumer = null;
 		}
 		
-		void next() {
-			consumer.accept(ints.get(index.getAndIncrement()));
+		void next(int number) {
+			consumer.accept(InstantEvent.of(number));
 		}
 	}
 
+	static class OurResultsJob extends SimpleJob {
+
+		final When<InstantEvent<Number>> test;
+
+		final List<InstantEvent<Number>> results = new ArrayList<>();
+
+		OurResultsJob(When<InstantEvent<Number>> test) {
+            this.test = test;
+        }
+
+		protected int execute() {
+			results.add(test.getTrigger());
+			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return "Our Job";
+		}
+
+    }
+
 	@Test
-	public void testStartedThenEventThenJobExecutedThenStop() throws FailedToStopException {
+	void whenStartedThenEventThenJobExecutedThenStop() throws FailedToStopException {
 		
 		OurSubscribable subscribe = new OurSubscribable();
 				
@@ -70,20 +90,7 @@ public class WhenTest {
 
 		When<InstantEvent<Number>> test = new When<>();
 
-		List<InstantEvent<Number>> results = new ArrayList<>();
-
-		SimpleJob job = new SimpleJob() {
-
-			protected int execute() {
-				results.add(test.getTrigger());
-				return 0;
-			}
-			
-			@Override
-			public String toString() {
-				return "Our Job";
-			}
-		};
+		OurResultsJob job = new OurResultsJob(test);
 		
 		test.setJobs(0, subscribe);
 		test.setJobs(1, job);
@@ -100,21 +107,21 @@ public class WhenTest {
 		states.startCheck(ParentState.ACTIVE, ParentState.STARTED);
 
 		logger.info("** First Event");
-		subscribe.next();
+		subscribe.next(1);
 		executions.remove().run();
 		
 		states.checkNow();
 		states.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
 
 		logger.info("** Second Event");
-		subscribe.next();
+		subscribe.next(2);
 		executions.remove().run();
 
 		states.checkNow();
 		states.startCheck(ParentState.STARTED, ParentState.ACTIVE, ParentState.STARTED);
 
 		logger.info("** Third Event");
-		subscribe.next();
+		subscribe.next(3);
 		executions.remove().run();
 
 		states.checkNow();
@@ -126,15 +133,15 @@ public class WhenTest {
 		
 		states.checkNow();
 
-		assertThat(results.get(0).getOf(), is(1));
-		assertThat(results.get(1).getOf(), is(2));
-		assertThat(results.get(2).getOf(), is(3));
+		assertThat(job.results.get(0).getOf(), is(1));
+		assertThat(job.results.get(1).getOf(), is(2));
+		assertThat(job.results.get(2).getOf(), is(3));
 		
 		verify(future, times(0)).cancel(true);
 	}
 	
 	@Test
-	public void testStopUntriggered() throws FailedToStopException {
+	void whenStoppedThenUnsubscribedAndNoTriggered() throws FailedToStopException {
 		
 		OurSubscribable subscribe = new OurSubscribable();
 		
@@ -166,11 +173,106 @@ public class WhenTest {
 		
 		states.checkNow();
 
+		assertThat(subscribe.consumer, nullValue());
+
 		Mockito.verifyNoInteractions(executorService);
 	}
-	
+
+	static class BadEventService extends EventServiceBase<Number> {
+
+		@Override
+		protected Restore doStart(Consumer<? super Number> consumer) throws Exception {
+			throw new RuntimeException("I'm Bad");
+		}
+	}
+
 	@Test
-	public void testNoChildJob() {
+	void whenBadSourceThenWhenStops() {
+
+		BadEventService subscribe = new BadEventService();
+
+		ExecutorService executorService = mock(ExecutorService.class);
+
+		When<Number> test = new When<>();
+
+		SimpleJob job = new SimpleJob() {
+
+			protected int execute() {
+				throw new RuntimeException("Unexpected");
+			}
+		};
+
+		test.setJobs(0, subscribe);
+		test.setJobs(1, job);
+		test.setExecutorService(executorService);
+
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE,
+				ParentState.EXCEPTION);
+
+		test.run();
+
+		states.checkNow();
+
+	}
+
+	@Test
+	void whenQueueStrategyThenAllExecuted() throws FailedToStopException {
+
+		OurSubscribable subscribe = new OurSubscribable();
+
+		Queue<Runnable> executions = new LinkedList<>();
+		ExecutorService executorService = mock(ExecutorService.class);
+
+		Future<?> future = mock(Future.class);
+		doAnswer(invocation -> {
+			executions.add(invocation.getArgument(0, Runnable.class));
+			return future;
+		}).when(executorService).submit(Mockito.any(Runnable.class));
+
+		When<InstantEvent<Number>> test = new When<>();
+
+		OurResultsJob job = new OurResultsJob(test);
+
+		test.setJobs(0, subscribe);
+		test.setJobs(1, job);
+		test.setExecutorService(executorService);
+		test.setTriggerStrategy(When.TriggerStrategies.QUEUE);
+
+		StateSteps states = new StateSteps(test);
+		states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+
+		logger.info("** Starting queued");
+
+		test.run();
+
+		states.checkNow();
+
+		states.startCheck(ParentState.ACTIVE, ParentState.STARTED,
+				ParentState.ACTIVE, ParentState.STARTED);
+
+		subscribe.next(1);
+		subscribe.next(2);
+
+		executions.remove().run();
+		executions.remove().run();
+
+		states.checkNow();
+
+		states.startCheck(ParentState.STARTED, ParentState.COMPLETE);
+
+		logger.info("** Stopping queued");
+
+		test.stop();
+
+		states.checkNow();
+
+		assertThat(job.results.get(0).getOf(), is(1));
+		assertThat(job.results.get(1).getOf(), is(2));
+	}
+
+	@Test
+	void noChildJob() {
 		
 		OurSubscribable subscribe = new OurSubscribable();
 				

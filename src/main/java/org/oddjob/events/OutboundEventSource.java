@@ -39,6 +39,14 @@ public class OutboundEventSource<T> implements EventSource<T>, Consumer<T>, Outb
         return subscribers.size();
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public void setTo(Consumer<? super T> destination) {
         this.next = destination;

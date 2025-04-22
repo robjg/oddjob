@@ -27,12 +27,8 @@ public class PricingWhenExampleTest {
         File configFile = new File(Objects.requireNonNull(
                 getClass().getResource("PricingWhenExample.xml")).getFile());
 
-        Properties properties = new Properties();
-        properties.setProperty("some.dir", new File(configFile.getParent(), "data").getAbsolutePath());
-
         Oddjob oddjob = new Oddjob();
         oddjob.setFile(configFile);
-        oddjob.setProperties(properties);
 
         logger.info("** Loading.");
 
@@ -69,7 +65,7 @@ public class PricingWhenExampleTest {
         File dataDir = new File(workDir.toFile(), "data");
 
         Properties properties = new Properties();
-        properties.setProperty("some.dir", dataDir.getAbsolutePath());
+        properties.setProperty("data.dir", dataDir.getAbsolutePath());
 
         logger.info("** Running Setup.");
 

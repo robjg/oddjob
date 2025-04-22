@@ -2,6 +2,7 @@
                   prefix="events" namespace="oddjob:events">
     <conversions>
         <value value='org.oddjob.events.EventOperators$Conversions'/>
+        <value value='org.oddjob.events.When$Conversions'/>
     </conversions>
     <components>
         <arooa:bean-def element='list'

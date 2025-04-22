@@ -1,6 +1,5 @@
 package org.oddjob.events;
 
-import org.oddjob.FailedToStopException;
 import org.oddjob.Resettable;
 import org.oddjob.Stateful;
 import org.oddjob.Stoppable;
@@ -22,7 +21,10 @@ import java.util.function.Consumer;
 
 /**
  * Base class for components that want Event Icons because the objects the emmit are in the style of events
- * rather than streams of data.
+ * rather than streams of data. Implementations can either be used in {@link org.oddjob.beanbus.bus.BasicBusService}
+ * or as {@link EventSource}s using an {@link EventSourceAdaptor} as happens automatically in {@link EventJobBase}.
+ * <p>
+ * Implementations need only implement {@link #doStart(Consumer)}.
  *
  * @param <T> The type of the event.
  */
@@ -158,10 +160,8 @@ abstract public class EventServiceBase<T> extends BasePrimary
      * Allow subclasses to indicate they are
      * stopping. The subclass must still implement
      * Stoppable.
-     *
-     * @throws FailedToStopException
      */
-    public final void stop() throws FailedToStopException {
+    public final void stop() {
         stateHandler.assertAlive();
 
         Optional.ofNullable(this.restore).ifPresent(Restore::close);

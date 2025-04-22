@@ -24,21 +24,13 @@ public class InputJobTest extends OjTestCase {
 
         @Override
         public Session start() {
-            return new Session() {
-                @Override
-                public Properties handleInput(InputRequest[] requests) {
+            return requests -> {
 
-                    Properties properties = new Properties();
+                Properties properties = new Properties();
 
-                    properties.setProperty("favourite.fruit", "apples");
+                properties.setProperty("favourite.fruit", "apples");
 
-                    return properties;
-                }
-
-                @Override
-                public void close() {
-
-                }
+                return properties;
             };
         }
 

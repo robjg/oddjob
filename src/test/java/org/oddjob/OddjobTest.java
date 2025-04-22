@@ -16,7 +16,6 @@ import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.input.InputHandler;
-import org.oddjob.input.InputRequest;
 import org.oddjob.jobs.EchoJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -378,24 +377,12 @@ public class OddjobTest extends OjTestCase {
         @Override
         public Session start() {
 
-            return new Session() {
-                @Override
-                public Properties handleInput(InputRequest[] requests) {
-
-                    Properties properties = new Properties();
-
-                    properties.setProperty("our.file.name", "Fruit.txt");
-
-                    return properties;
-                }
-
-                @Override
-                public void close() {
-
-                }
+            return requests -> {
+                Properties properties = new Properties();
+                properties.setProperty("our.file.name", "Fruit.txt");
+                return properties;
             };
         }
-
     }
 
     @Test

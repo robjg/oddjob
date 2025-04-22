@@ -28,7 +28,7 @@ public interface InputHandler {
 		Properties handleInput(InputRequest[] requests);
 
 		@Override
-		void close();
+		default void close() {}
 
 	}
 

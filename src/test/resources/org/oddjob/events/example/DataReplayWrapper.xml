@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="oddjob">
+    <job>
+        <sequential>
+            <jobs>
+                <properties>
+                    <values>
+                        <file file="target/work/replay-data" key="data.dir"/>
+                    </values>
+                </properties>
+                <oddjob file="${oddjob.dir}/DataReplay.xml"/>
+                <oddjob file="${oddjob.dir}/PricingWhenExample.xml"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

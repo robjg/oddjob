@@ -7,18 +7,18 @@
                     <jobs>
                         <properties name="Properties">
                             <values>
-                                <file file="${some.dir}" key="work.dir"/>
-                                <file file="${this.dir}/data" key="data.dir"/>
-                                <file file="${work.dir}/BookList" key="booklist.dir"/>
-                                <file file="${work.dir}/Book" key="book.dir"/>
-                                <file file="${work.dir}/Price" key="price.dir"/>
+                                <file file="RunTheWrapperToDefineThis" key="data.dir"/>
+                                <file file="${this.dir}/data" key="src.data.dir"/>
+                                <file file="${data.dir}/BookList" key="booklist.dir"/>
+                                <file file="${data.dir}/Book" key="book.dir"/>
+                                <file file="${data.dir}/Price" key="price.dir"/>
                                 <file file="${this.dir}/data2" key="data2.dir"/>
                                 <file file="1" key="replay.delay"/>
                             </values>
                         </properties>
                         <delete force="true" name="Delete Work Dir">
                             <files>
-                                <file file="${some.dir}"/>
+                                <file file="${data.dir}"/>
                             </files>
                         </delete>
                         <mkdir dir="${booklist.dir}" name="Create BookList Dir"/>
@@ -30,37 +30,37 @@
                     <jobs>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyBookList" name="Copy BookList" to="${booklist.dir}">
                             <from>
-                                <file file="${data.dir}/BookList/GREENGROCERS.json"/>
+                                <file file="${src.data.dir}/BookList/GREENGROCERS.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyROD" name="Copy ROD" to="${book.dir}">
                             <from>
-                                <file file="${data.dir}/Book/ROD.json"/>
+                                <file file="${src.data.dir}/Book/ROD.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyJANE" name="Copy JANE" to="${book.dir}">
                             <from>
-                                <file file="${data.dir}/Book/JANE.json"/>
+                                <file file="${src.data.dir}/Book/JANE.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyFREDDY" name="Copy FREDDY" to="${book.dir}">
                             <from>
-                                <file file="${data.dir}/Book/FREDDY.json"/>
+                                <file file="${src.data.dir}/Book/FREDDY.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyAPPLES" name="Copy APPLES" to="${price.dir}">
                             <from>
-                                <file file="${data.dir}/Price/APPLES.json"/>
+                                <file file="${src.data.dir}/Price/APPLES.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyPEARS" name="Copy PEARS" to="${price.dir}">
                             <from>
-                                <file file="${data.dir}/Price/PEARS.json"/>
+                                <file file="${src.data.dir}/Price/PEARS.json"/>
                             </from>
                         </bean>
                         <bean class="org.oddjob.events.example.AtomicCopy" id="copyORANGES" name="Copy ORANGES" to="${price.dir}">
                             <from>
-                                <file file="${data.dir}/Price/ORANGES.json"/>
+                                <file file="${src.data.dir}/Price/ORANGES.json"/>
                             </from>
                         </bean>
                     </jobs>
