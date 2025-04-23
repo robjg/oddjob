@@ -45,6 +45,8 @@
                             <formItems>
                                 <design:single property="eventSource" title="Event Source"/>
                                 <design:text property="beDestination" title="Be a Destination"/>
+                                <design:text property="haltOn" title="Halt On"/>
+                                <design:text property="triggerStrategy" title="Trigger Strategy"/>
                                 <design:indexed property="jobs" title="Jobs"/>
                             </formItems>
                         </design:group>
