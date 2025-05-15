@@ -260,7 +260,7 @@ public class CascadeJobTest extends OjTestCase {
 
         CascadeJob test = new CascadeJob();
         test.setExecutorService(executors.getPoolExecutor());
-
+        test.setCascadeOn(StateConditions.ENDED);
         test.setJobs(0, service1);
         test.setJobs(1, job2);
 
