@@ -1,8 +1,8 @@
 package org.oddjob.logging.appender;
 
 import org.oddjob.arooa.logging.Appender;
-import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.arooa.logging.LogLevel;
+import org.oddjob.arooa.logging.LoggerAdapter;
 import org.oddjob.logging.ArchiveNameResolver;
 import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogHelper;
@@ -32,9 +32,10 @@ public class AppenderArchiver implements LogArchiver {
 			});
 
 		
-		appender = new ArchiveAppender(logArchiver, LoggerAdapter.layoutFor(pattern));
+		appender = new ArchiveAppender(logArchiver);
 
-		LoggerAdapter.appenderAdapterForRoot().addAppender(appender);
+		LoggerAdapter.appenderAdapterForRoot()
+				.addAppender(appender, LoggerAdapter.layoutFor(pattern));
 	}
 		
 	public boolean hasArchive(String archive) {

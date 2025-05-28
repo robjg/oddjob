@@ -3,8 +3,6 @@
  */
 package org.oddjob.logging.appender;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.Structural;
@@ -17,110 +15,119 @@ import org.oddjob.logging.LogListener;
 import org.oddjob.logging.MockLogArchiver;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * 
+ *
  */
 public class AppenderArchiverTest extends OjTestCase {
-	
-	private class X implements LogEnabled {
-		public String loggerName() {
-			return "foo";
-		}
-	}	
 
-	private class TestListener implements LogListener {
-		LogEvent le;
-		public void logEvent(LogEvent logEvent) {
-			le = logEvent;
-		}
-	}
-	
-	// test Log4jArchiver archives a message sent to a Log4j Logger.
-   @Test
-	public void testSimpleLogOutputCaptured() {
-		X x = new X();
-		AppenderArchiver archiver = new AppenderArchiver(x, "%m");
-		
-		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo");
-		adapter.setLevel(LogLevel.DEBUG);
+    private static class X implements LogEnabled {
+        public String loggerName() {
+            return "foo";
+        }
+    }
 
-		Logger logger = LoggerFactory.getLogger("foo");
-		logger.debug("Hello World");
+    private static class TestListener implements LogListener {
+        LogEvent le;
 
-		TestListener tl = new TestListener();
-		archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
-		
-		assertEquals("event message", "Hello World", tl.le.getMessage());
-	}
-	
-	private class OurStructural implements Structural {
+        public void logEvent(LogEvent logEvent) {
+            le = logEvent;
+        }
+    }
 
-		ChildHelper<Object> children = new ChildHelper<Object>(this);
-		
-		@Override
-		public void addStructuralListener(StructuralListener listener) {
-			children.addStructuralListener(listener);
-		}
-		
-		@Override
-		public void removeStructuralListener(StructuralListener listener) {
-			children.removeStructuralListener(listener);
-		}
-	}
-	
-   @Test
-	public void testChildLogOutputCaptured() {
-		
-		X x = new X();
-		
-		OurStructural root = new OurStructural();
-		root.children.insertChild(0, x);
-		
-		AppenderArchiver archiver = new AppenderArchiver(root, "%m");
+    // test Log4jArchiver archives a message sent to a Log4j Logger.
+    @Test
+    public void testSimpleLogOutputCaptured() {
+        X x = new X();
+        AppenderArchiver archiver = new AppenderArchiver(x, "%m");
 
-		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
-				.setLevel(LogLevel.DEBUG);
-		
-		Logger logger = LoggerFactory.getLogger("foo");
-		logger.debug("Hello World");
+        AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo");
+        adapter.setLevel(LogLevel.DEBUG);
 
-		TestListener tl = new TestListener();
-		archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
-		
-		assertEquals("event message", "Hello World", tl.le.getMessage());
+        Logger logger = LoggerFactory.getLogger("foo");
+        logger.debug("Hello World");
 
-		adapter.setLevel(LogLevel.INFO);
-	}
-	
-	private class OurArchiver extends MockLogArchiver implements LogEnabled {
-		
-		public String loggerName() {
-			return "foo";
-		}
-	}
-	
-   @Test
-	public void testLogArchiverChildLogOutputCaptured() {
-		
-		OurArchiver x = new OurArchiver();
-		
-		OurStructural root = new OurStructural();
-		root.children.insertChild(0, x);
-		
-		AppenderArchiver archiver = new AppenderArchiver(root, "%m");
+        TestListener tl = new TestListener();
+        archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
 
-		AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
-				.setLevel(LogLevel.DEBUG);
-		
-		Logger logger = LoggerFactory.getLogger("foo");
-		logger.debug("Hello World");
+        assertEquals("event message", "Hello World", tl.le.getMessage());
 
-		TestListener tl = new TestListener();
-		archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
-		
-		assertEquals("event message", "Hello World", tl.le.getMessage());
-		
-		adapter.setLevel(LogLevel.INFO);
-	}
+        archiver.onDestroy();
+    }
+
+    private static class OurStructural implements Structural {
+
+        ChildHelper<Object> children = new ChildHelper<>(this);
+
+        @Override
+        public void addStructuralListener(StructuralListener listener) {
+            children.addStructuralListener(listener);
+        }
+
+        @Override
+        public void removeStructuralListener(StructuralListener listener) {
+            children.removeStructuralListener(listener);
+        }
+    }
+
+    @Test
+    public void testChildLogOutputCaptured() {
+
+        X x = new X();
+
+        OurStructural root = new OurStructural();
+        root.children.insertChild(0, x);
+
+        AppenderArchiver archiver = new AppenderArchiver(root, "%m");
+
+        AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
+                .setLevel(LogLevel.DEBUG);
+
+        Logger logger = LoggerFactory.getLogger("foo");
+        logger.debug("Hello World");
+
+        TestListener tl = new TestListener();
+        archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
+
+        assertEquals("event message", "Hello World", tl.le.getMessage());
+
+        adapter.setLevel(LogLevel.INFO);
+
+        archiver.onDestroy();
+    }
+
+    private static class OurArchiver extends MockLogArchiver implements LogEnabled {
+
+        public String loggerName() {
+            return "foo";
+        }
+    }
+
+    @Test
+    public void testLogArchiverChildLogOutputCaptured() {
+
+        OurArchiver x = new OurArchiver();
+
+        OurStructural root = new OurStructural();
+        root.children.insertChild(0, x);
+
+        AppenderArchiver archiver = new AppenderArchiver(root, "%m");
+
+        AppenderAdapter adapter = LoggerAdapter.appenderAdapterFor("foo")
+                .setLevel(LogLevel.DEBUG);
+
+        Logger logger = LoggerFactory.getLogger("foo");
+        logger.debug("Hello World");
+
+        TestListener tl = new TestListener();
+        archiver.addLogListener(tl, x, LogLevel.DEBUG, -1, 2000);
+
+        assertEquals("event message", "Hello World", tl.le.getMessage());
+
+        adapter.setLevel(LogLevel.INFO);
+
+        archiver.onDestroy();
+    }
 }

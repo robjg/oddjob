@@ -19,31 +19,30 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class OddjobThreadFactoryTest {
 
-	private static final Logger logger = LoggerFactory.getLogger(OddjobThreadFactoryTest.class);
-		
-	@Test
-	public void testLogContextInherited() throws InterruptedException {
-		
+    private static final Logger logger = LoggerFactory.getLogger(OddjobThreadFactoryTest.class);
 
-		Runnable r = () -> logger.info("Hello from thread " + Thread.currentThread().getName());
-		
-		List<String> results = new ArrayList<>();
-		
-		Appender appender = event -> results.add(event.getMdc(OddjobNDC.MDC_JOB_NAME));
-		
-		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(logger.getName());
-		appenderAdapter.addAppender(appender);
-		
-		try (Restore restore = ComponentBoundary.push("our.logger", "Some-Job")) {
-						
-			ThreadFactory test = new OddjobThreadFactory("Our-Thread");
+    @Test
+    public void testLogContextInherited() throws InterruptedException {
 
-			Thread t = test.newThread(r);
-			t.start();
-			
-			t.join();
-			
-			assertThat(results.get(0), CoreMatchers.is("Some-Job"));
-		}
-	}
+        Runnable r = () -> logger.info("Hello from thread {}", Thread.currentThread().getName());
+
+        List<String> results = new ArrayList<>();
+
+        Appender appender = event -> results.add(event.getMdc(OddjobNDC.MDC_JOB_NAME));
+
+        AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(logger.getName());
+        appenderAdapter.addAppender(appender, LoggerAdapter.layoutFor("%m"));
+
+        try (Restore ignored = ComponentBoundary.push("our.logger", "Some-Job")) {
+
+            ThreadFactory test = new OddjobThreadFactory("Our-Thread");
+
+            Thread t = test.newThread(r);
+            t.start();
+
+            t.join();
+
+            assertThat(results.get(0), CoreMatchers.is("Some-Job"));
+        }
+    }
 }

@@ -66,7 +66,7 @@ public class OddjobMBeanTest extends OjTestCase {
 
     @Before
     public void setUp() {
-        logger.debug("==================== Running " + getName() + " =====================");
+        logger.debug("==================== Running {} =====================", getName());
 
         ServerInterfaceManagerFactoryImpl imf =
                 new ServerInterfaceManagerFactoryImpl();
@@ -273,8 +273,6 @@ public class OddjobMBeanTest extends OjTestCase {
 
     /**
      * Test DynaClass of a RemoteBean.
-     *
-     * @throws Exception
      */
     @Test
     public void testGetDynaClass() throws Exception {

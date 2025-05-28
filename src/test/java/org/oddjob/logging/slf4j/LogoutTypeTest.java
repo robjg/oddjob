@@ -31,7 +31,7 @@ public class LogoutTypeTest extends OjTestCase {
 
     @Before
     public void setUp() throws Exception {
-        logger.debug("-------------------  " + getName() + "  --------------");
+        logger.debug("-------------------  {}  --------------", getName());
     }
 
 
@@ -45,7 +45,7 @@ public class LogoutTypeTest extends OjTestCase {
         }
     }
 
-    String EOL = System.getProperty("line.separator");
+    String EOL = System.lineSeparator();
 
     String logName = "org.oddjob.wow.Test";
 
@@ -54,7 +54,8 @@ public class LogoutTypeTest extends OjTestCase {
 
         Results results = new Results();
 
-        LoggerAdapter.appenderAdapterFor(logName).addAppender(results);
+        LoggerAdapter.appenderAdapterFor(logName)
+                .addAppender(results, LoggerAdapter.layoutFor("%m"));
 
         LogoutType logout = new LogoutType();
         logout.setLogger(logName);
@@ -72,11 +73,12 @@ public class LogoutTypeTest extends OjTestCase {
     }
 
     @Test
-    public void testSimpleConsumer() throws ArooaConversionException, IOException {
+    public void testSimpleConsumer() {
 
         Results results = new Results();
 
-        LoggerAdapter.appenderAdapterFor(logName).addAppender(results);
+        LoggerAdapter.appenderAdapterFor(logName)
+                .addAppender(results, LoggerAdapter.layoutFor("%m"));
 
         LogoutType logout = new LogoutType();
         logout.setLogger(logName);
@@ -131,7 +133,7 @@ public class LogoutTypeTest extends OjTestCase {
         Results results = new Results();
 
         AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(logName);
-        appenderAdapter.addAppender(results);
+        appenderAdapter.addAppender(results, LoggerAdapter.layoutFor("%m"));
 
         oddjob.run();
 
@@ -162,7 +164,7 @@ public class LogoutTypeTest extends OjTestCase {
         Results results = new Results();
 
         AppenderAdapter logger = LoggerAdapter.appenderAdapterFor(LogoutType.class);
-        logger.addAppender(results);
+        logger.addAppender(results, LoggerAdapter.layoutFor("%m"));
 
         oddjob.run();
 

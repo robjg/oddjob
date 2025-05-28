@@ -46,12 +46,12 @@ public class ArchiveAppenderTest {
 		OurArchiver archiver = new OurArchiver();
 		
 		ArchiveAppender test = new ArchiveAppender(
-				archiver, LoggerAdapter.layoutFor("%p - %m"));
+				archiver);
 		
 		
 		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(ArchiveAppenderTest.class);
 		appenderAdapter.setLevel(LogLevel.TRACE);
-		appenderAdapter.addAppender(test);
+		appenderAdapter.addAppender(test, LoggerAdapter.layoutFor("%p - %m"));
 		
 		logger.trace("trace.");
 		logger.debug("debug.");
@@ -82,12 +82,11 @@ public class ArchiveAppenderTest {
     	LogArchiverCache archiver = mock(LogArchiverCache.class);
     	when(archiver.hasArchive(logger.getName())).thenReturn(true);
     	
-		ArchiveAppender test = new ArchiveAppender(
-				archiver, LoggerAdapter.layoutFor("%m"));
+		ArchiveAppender test = new ArchiveAppender(archiver);
 		
 		
 		AppenderAdapter appenderAdapter = LoggerAdapter.appenderAdapterFor(nestedLogger.getName());
-		appenderAdapter.addAppender(test);
+		appenderAdapter.addAppender(test, LoggerAdapter.layoutFor("%m"));
 		
 		try (Restore restore = OddjobNDC.push(logger.getName(), "Our Job")) {
 			

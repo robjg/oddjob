@@ -1,7 +1,6 @@
 package org.oddjob.logging.appender;
 
 import org.oddjob.arooa.logging.Appender;
-import org.oddjob.arooa.logging.Layout;
 import org.oddjob.arooa.logging.LoggingEvent;
 import org.oddjob.logging.OddjobNDC;
 import org.oddjob.logging.cache.LogArchiverCache;
@@ -13,33 +12,29 @@ import org.oddjob.logging.cache.LogArchiverCache;
  */
 public class ArchiveAppender implements Appender {
 
-	private final LogArchiverCache logArchiver; 
-	
-	private final Layout layout;
-	
-	/**
+	private final LogArchiverCache logArchiver;
+
+    /**
 	 * Create an ArchiveAppender using the given logArchiver and layout.
 	 * 
 	 * @param logArchiver The LogArchiver to archive to.
-	 * @param layout The layout to use.
 	 */
-	public ArchiveAppender(LogArchiverCache logArchiver, Layout layout) {
+	public ArchiveAppender(LogArchiverCache logArchiver) {
 		this.logArchiver = logArchiver;
-		this.layout = layout;
-	}
+    }
 
 	@Override
 	public void append(LoggingEvent event) {
 		String archive = event.getLoggerName();
 		if (!logArchiver.hasArchive(archive)) {
 			archive = OddjobNDC.current()
-					.map(lc -> lc.getLogger())
+					.map(OddjobNDC.LogContext::getLogger)
 					.orElse(null);
 			if (!logArchiver.hasArchive(archive)) {
 				return;
 			}
 		}		
 		
-		logArchiver.addEvent(archive, event.getLevel(), this.layout.format(event));
+		logArchiver.addEvent(archive, event.getLevel(), event.getMessage());
 	}	
 }

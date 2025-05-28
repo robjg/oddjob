@@ -18,33 +18,33 @@ public interface LogArchiverCache {
 	 * @param archive The archive.
 	 * @return true if it does, false if it doesn't.
 	 */
-	public boolean hasArchive(String archive);
+    boolean hasArchive(String archive);
 		
 	
-	public long getLastMessageNumber(String archive);
+	long getLastMessageNumber(String archive);
 	
 	/**
 	 * Add a listener.
 	 * 
 	 * @param l The listener
-	 * @param archive The archive
+	 * @param component The component the log archive is for.
 	 * @param level The level
 	 * @param last The last message number.
 	 * @param history The max messages required.
 	 */
-	public void addLogListener(LogListener l, Object component,
-			LogLevel level, long last, int history);
+    void addLogListener(LogListener l, Object component,
+                        LogLevel level, long last, int history);
 		
 	/**
 	 * Remove a listener.
 	 * 
 	 * @param l The listener.
-	 * @param archive The archive.
+	 * @param component The component the log archive is for.
 	 */
-	public void removeLogListener(LogListener l, Object component);
+    void removeLogListener(LogListener l, Object component);
 	
 
-	public int getMaxHistory();
+	int getMaxHistory();
 	
 	/**
 	 * Add an event to the cache.
@@ -53,7 +53,7 @@ public interface LogArchiverCache {
 	 * @param level The level.
 	 * @param message The message.
 	 */
-	public void addEvent(String archive, LogLevel level, String message);
+    void addEvent(String archive, LogLevel level, String message);
 	
-	public abstract void destroy();
+	void destroy();
 }

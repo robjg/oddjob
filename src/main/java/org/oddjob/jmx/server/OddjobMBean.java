@@ -16,7 +16,7 @@ import java.util.Objects;
  * Once the bean is created it will sit and wait for clients to interrogate it. When
  * a client accesses the bean it should call the resync method which will cause the
  * bean to resend the notifications necessary to recreate in the client, the state
- * of the bean. During the resync the InterfaceHandlers should block any any more
+ * of the bean. During the resync the InterfaceHandlers should block any more
  * changes until the resync has completed.
  *
  * @author Rob Gordon.
@@ -24,6 +24,7 @@ import java.util.Objects;
 
 public class OddjobMBean implements
         NotificationEmitter, DynamicMBean {
+
     private static final Logger logger = LoggerFactory.getLogger(OddjobMBean.class);
 
     /**
@@ -133,7 +134,7 @@ public class OddjobMBean implements
     @Override
     public Object getAttribute(String attribute)
             throws ReflectionException, MBeanException {
-        logger.debug("getAttribute(" + attribute + ")");
+        logger.debug("getAttribute({})", attribute);
         return invoke("get", new Object[]{attribute},
                 new String[]{String.class.getName()});
     }
@@ -145,7 +146,7 @@ public class OddjobMBean implements
     @Override
     public void setAttribute(Attribute attribute)
             throws ReflectionException, MBeanException {
-        logger.debug("setAttribute(" + attribute.getName() + ")");
+        logger.debug("setAttribute({})", attribute.getName());
         invoke("set", new Object[]{attribute.getClass(), attribute.getValue()},
                 new String[]{String.class.getName(), Object.class.getName()});
     }
@@ -239,7 +240,7 @@ public class OddjobMBean implements
             // ensure null params is converted to 0 length array.
             imported = new Object[0];
         }
-        Object result = null;
+        Object result;
         try {
             result = serverInterfaceManager.invoke(actionName, imported, signature);
         } catch (RemoteException e) {
@@ -272,7 +273,7 @@ public class OddjobMBean implements
      * Destroy this node. Notify all remote listeners their peer is dead.
      */
     public void destroy() {
-        logger.debug("Destroying [" + this + "]");
+        logger.debug("Destroying [{}]", this);
         serverInterfaceManager.destroy();
     }
 

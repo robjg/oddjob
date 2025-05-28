@@ -67,15 +67,15 @@ abstract public class AbstractLoggingOutput extends OutputStream {
 	 */
 	void add(byte[] buf, int off , int length) {
 		synchronized (buffer) {
+			int currentOffset = off;
 			for (int i = off; i < off + length; ++i) {
 				if (buf[i] == '\n') {
-					buffer.write(buf, off, i - off + 1);							
+					buffer.write(buf, currentOffset, i - currentOffset + 1);
+					currentOffset = i + 1;
 					next();
-					add(buf, i+1, length - (i - off +1));
-					return;
 				}
 			}
-			buffer.write(buf, off, length);
+			buffer.write(buf, currentOffset, length - currentOffset + off);
 		}
 	}
 

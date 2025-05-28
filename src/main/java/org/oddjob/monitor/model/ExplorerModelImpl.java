@@ -56,8 +56,8 @@ public class ExplorerModelImpl implements ExplorerModel {
 		explorerActions = new ResourceActionProvider(session
 				).getExplorerActions();
 		
-		List<ContextInitialiser> initialisers = 
-			new ArrayList<ContextInitialiser>();
+		List<ContextInitialiser> initialisers =
+                new ArrayList<>();
 
 		initialisers.add(new LogContextInialiser(this));
 		initialisers.add(new ConfigContextInitialiser(this));
@@ -69,7 +69,7 @@ public class ExplorerModelImpl implements ExplorerModel {
 		}
 		
 		contextInitialisers = initialisers.toArray(
-				new ContextInitialiser[initialisers.size()]);
+                new ContextInitialiser[0]);
 	}
 	
 	

@@ -5,7 +5,6 @@ package org.oddjob.jmx;
 
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
@@ -25,7 +24,6 @@ import org.oddjob.jobs.structural.JobFolder;
 import org.oddjob.logging.LogEnabled;
 import org.oddjob.logging.LogEvent;
 import org.oddjob.logging.LogHelper;
-import org.oddjob.logging.LogListener;
 import org.oddjob.monitor.context.ExplorerContext;
 import org.oddjob.monitor.model.*;
 import org.oddjob.state.GenericState;
@@ -45,6 +43,12 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 /**
  * Test the JMXClientJob
@@ -131,7 +135,6 @@ public class JMXClientJobTest extends OjTestCase {
     /**
      * Thest running and stopping the client job.
      *
-     * @throws Exception
      */
     @Test
     public void testRun() throws Exception {
@@ -164,8 +167,6 @@ public class JMXClientJobTest extends OjTestCase {
     /**
      * Tracking down a problem with the next test.
      *
-     * @throws ArooaConversionException
-     * @throws FailedToStopException
      */
     @Test
     public void testPrinciplesOfNextTest() throws ArooaConversionException, FailedToStopException {
@@ -278,7 +279,7 @@ public class JMXClientJobTest extends OjTestCase {
 
         for (int i = 0; i < 10; ++i) {
             if (!ok[i]) {
-                fail("" + i + "failed.");
+                fail(i + "failed.");
             }
         }
 
@@ -491,7 +492,7 @@ public class JMXClientJobTest extends OjTestCase {
         assertNotNull(nested);
 
         assertThat(GenericState.statesEquivalent(ParentState.COMPLETE, OddjobTestHelper.getJobState(nested)),
-                Matchers.is(true));
+                is(true));
 
         Object echoJob = new OddjobLookup(client).lookup("oj/oj/fruit");
         assertNotNull(echoJob);
@@ -568,21 +569,12 @@ public class JMXClientJobTest extends OjTestCase {
         }
     }
 
-    private static class MockLogListener implements LogListener {
-        LogEvent e;
-
-        synchronized public void logEvent(LogEvent logEvent) {
-            this.e = logEvent;
-            notifyAll();
-        }
-    }
-
     /**
      * Test the client job as a log archiver.
      */
     @Test
     public void testLogArchiver() throws Exception {
-        try (OddjobConsole.Close close = OddjobConsole.initialise()) {
+        try (OddjobConsole.Close ignored = OddjobConsole.initialise()) {
             OurSession session = new OurSession();
 
             ThingWithLogger serverNode = new ThingWithLogger();
@@ -612,19 +604,15 @@ public class JMXClientJobTest extends OjTestCase {
             assertEquals("logger name", "org.oddjob.TestLogger",
                     LogHelper.getLogger(proxy));
 
-            MockLogListener ll = new MockLogListener();
+            BlockingQueue<LogEvent> ll = new LinkedBlockingQueue<>();
 
-            client.addLogListener(ll, proxy, LogLevel.DEBUG, -1, 10);
+            client.addLogListener(ll::add, proxy, LogLevel.DEBUG, -1, 10);
 
             // log poller runs on separate thread, so need to wait for event
-            while (ll.e == null) {
-                synchronized (ll) {
-                    ll.wait(5000L);
-                }
-            }
+            LogEvent e = ll.poll(5, TimeUnit.SECONDS);
 
-            assertNotNull("No log event", ll.e);
-            assertEquals("message", "Test", ll.e.getMessage());
+            assertThat("No log event", e, notNullValue());
+            assertThat("message", e.getMessage(), is("Test"));
 
             client.stop();
             server.stop();
@@ -693,7 +681,6 @@ public class JMXClientJobTest extends OjTestCase {
      * This is the flip side of fixing the bug {@link ForEachJobTest#testDestroyWithComplicateStructure()}
      * because fixing that caused a bug in the JMXClient.
      *
-     * @throws Exception
      */
     @Test
     public void testDestroyWithComplicatedStructure() throws Exception {
