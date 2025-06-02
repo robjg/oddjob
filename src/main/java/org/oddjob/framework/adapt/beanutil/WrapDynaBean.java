@@ -20,10 +20,11 @@ package org.oddjob.framework.adapt.beanutil;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaProperty;
-import org.apache.commons.beanutils.PropertyUtils;
+import org.oddjob.arooa.ArooaException;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaClassFactory;
 import org.oddjob.arooa.reflect.ArooaClasses;
+import org.oddjob.arooa.reflect.PropertyAccessor;
 
 /**
  * <p>Implementation of <code>DynaBean</code> that wraps a standard JavaBean
@@ -65,24 +66,6 @@ public class WrapDynaBean implements DynaBean {
 			}
 		});
 	}
-	
-    // ---------------------------------------------------------- Constructors
-
-
-    /**
-     * Construct a new <code>DynaBean</code> associated with the specified
-     * JavaBean instance.
-     *
-     * @param instance JavaBean instance to be wrapped
-     */
-    public WrapDynaBean(Object instance) {
-
-        super();
-        this.instance = instance;
-        this.dynaClass = WrapDynaClass.createDynaClass(instance.getClass());
-
-    }
-
 
     // ---------------------------------------------------- Instance Variables
 
@@ -91,13 +74,36 @@ public class WrapDynaBean implements DynaBean {
      * The <code>DynaClass</code> "base class" that this DynaBean
      * is associated with.
      */
-    protected WrapDynaClass dynaClass = null;
+    private final WrapDynaClass dynaClass;
 
 
     /**
      * The JavaBean instance wrapped by this WrapDynaBean.
      */
-    protected Object instance = null;
+    private final Object instance;
+
+    private final PropertyAccessor propertyAccessor;
+
+    // ---------------------------------------------------------- Constructors
+
+
+    /**
+     * Construct a new <code>DynaBean</code> associated with the specified
+     * JavaBean instance.
+     *
+     * @param instance JavaBean instance to be wrapped
+     * @param propertyAccessor to access properties.
+     */
+    public WrapDynaBean(Object instance, PropertyAccessor propertyAccessor) {
+
+        this.instance = instance;
+        this.dynaClass = WrapDynaClass.createDynaClass(instance.getClass(), propertyAccessor);
+        this.propertyAccessor = propertyAccessor;
+    }
+
+    public static DynaBean wrap(Object instance, PropertyAccessor propertyAccessor) {
+        return new WrapDynaBean(instance, propertyAccessor);
+    }
 
 
     // ------------------------------------------------------ DynaBean Methods
@@ -134,10 +140,10 @@ public class WrapDynaBean implements DynaBean {
     	if (!dynaClass.isReadable(name)) {
     		return null;
     	}
-        Object value = null;
+        Object value;
         try {
-            value = PropertyUtils.getSimpleProperty(instance, name);
-        } catch (Throwable t) {
+            value = propertyAccessor.getSimpleProperty(instance, name);
+        } catch (ArooaException t) {
             throw new RuntimeException("Failed getting property " + name, t);
         }
         return (value);
@@ -165,9 +171,9 @@ public class WrapDynaBean implements DynaBean {
     		return null;
     	}
     	
-        Object value = null;
+        Object value;
         try {
-            value = PropertyUtils.getIndexedProperty(instance, name, index);
+            value = propertyAccessor.getIndexedProperty(instance, name, index);
         } catch (IndexOutOfBoundsException e) {
             throw e;
         } catch (Throwable t) {
@@ -197,9 +203,9 @@ public class WrapDynaBean implements DynaBean {
     		return null;
     	}
     	
-        Object value = null;
+        Object value;
         try {
-            value = PropertyUtils.getMappedProperty(instance, name, key);
+            value = propertyAccessor.getMappedProperty(instance, name, key);
         } catch (Throwable t) {
             throw new IllegalArgumentException
                     ("Property '" + name + "' has no mapped read method");
@@ -256,7 +262,7 @@ public class WrapDynaBean implements DynaBean {
     public void set(String name, Object value) {
 
         try {
-            PropertyUtils.setSimpleProperty(instance, name, value);
+            propertyAccessor.setSimpleProperty(instance, name, value);
         } catch (Throwable t) {
             throw new IllegalArgumentException
                     ("Property '" + name + "' has no write method");
@@ -284,7 +290,7 @@ public class WrapDynaBean implements DynaBean {
     public void set(String name, int index, Object value) {
 
         try {
-            PropertyUtils.setIndexedProperty(instance, name, index, value);
+            propertyAccessor.setIndexedProperty(instance, name, index, value);
         } catch (IndexOutOfBoundsException e) {
             throw e;
         } catch (Throwable t) {
@@ -312,7 +318,7 @@ public class WrapDynaBean implements DynaBean {
     public void set(String name, String key, Object value) {
 
         try {
-            PropertyUtils.setMappedProperty(instance, name, key, value);
+            propertyAccessor.setMappedProperty(instance, name, key, value);
         } catch (Throwable t) {
             throw new IllegalArgumentException
                     ("Property '" + name + "' has no mapped write method");

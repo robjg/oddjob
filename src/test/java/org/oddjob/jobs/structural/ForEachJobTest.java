@@ -6,7 +6,6 @@ package org.oddjob.jobs.structural;
 import org.junit.Before;
 import org.junit.Test;
 import org.oddjob.*;
-import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.ComponentTrinity;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -19,7 +18,6 @@ import org.oddjob.arooa.registry.Path;
 import org.oddjob.arooa.runtime.MockRuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.standard.StandardArooaSession;
-import org.oddjob.arooa.standard.StandardPropertyLookup;
 import org.oddjob.arooa.types.XMLConfigurationType;
 import org.oddjob.arooa.utils.DateHelper;
 import org.oddjob.arooa.xml.XMLConfiguration;
@@ -808,20 +806,20 @@ public class ForEachJobTest extends OjTestCase {
      * internal configuration.
      */
     @Test
-    public void testAutoInject() {
+    public void testAutoInject() throws InterruptedException {
 
         String forEachConfig =
                 "<foreach id='test'>" +
                         " <job>" +
-                        "	<state:join xmlns:state='http://rgordon.co.uk/oddjob/state'>" +
-                        "    <job>" +
+                        "	<cascade>" +
+                        "    <jobs>" +
                         "  <parallel>" +
                         "   <jobs>" +
                         "    <echo>Hello</echo>" +
                         "   </jobs>" +
                         "  </parallel>" +
-                        "    </job>" +
-                        "   </state:join>" +
+                        "    </jobs>" +
+                        "   </cascade>" +
                         " </job>" +
                         "</foreach>";
 
@@ -852,10 +850,16 @@ public class ForEachJobTest extends OjTestCase {
 
         oddjob.setConfiguration(new XMLConfiguration("XML", ojConfig));
 
+        StateSteps oddjobState = new StateSteps(oddjob);
+        oddjobState.startCheck(StateConditions.READY, StateConditions.EXECUTING,
+                StateConditions.ACTIVE, StateConditions.COMPLETE);
+
         ConsoleCapture console = new ConsoleCapture();
         try (ConsoleCapture.Close close = console.captureConsole()) {
 
             oddjob.run();
+
+            oddjobState.checkWait();
         }
 
         String[] lines = console.getLines();

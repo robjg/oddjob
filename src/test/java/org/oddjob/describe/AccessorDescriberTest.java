@@ -3,8 +3,7 @@ package org.oddjob.describe;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.LazyDynaMap;
 import org.hamcrest.Matchers;
-import org.junit.Test;
-import org.oddjob.OjTestCase;
+import org.junit.jupiter.api.Test;
 import org.oddjob.arooa.ArooaBeanDescriptor;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.beanutils.MagicBeanDefinition;
@@ -17,9 +16,11 @@ import org.oddjob.framework.adapt.beanutil.WrapDynaBean;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AccessorDescriberTest extends OjTestCase {
+public class AccessorDescriberTest  {
 
     public static class SimpleBean {
         public String getFruit() {
@@ -63,7 +64,7 @@ public class AccessorDescriberTest extends OjTestCase {
 
         ArooaSession session = new StandardArooaSession();
 
-        WrapDynaBean wrap = new WrapDynaBean(new SetterOnlyBean());
+        WrapDynaBean wrap = new WrapDynaBean(new SetterOnlyBean(), session.getTools().getPropertyAccessor());
 
         Describer test = new AccessorDescriber(session);
 

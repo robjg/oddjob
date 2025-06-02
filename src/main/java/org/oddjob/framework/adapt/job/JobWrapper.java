@@ -92,7 +92,6 @@ public class JobWrapper extends BaseWrapper
      * deserialisation.
      */
     private void completeConstruction() {
-        this.dynaBean = new WrapDynaBean(adaptor.getComponent());
         stateHandler = new JobStateHandler((Stateful) proxy);
         iconHelper = new IconHelper(this,
                 StateIcons.iconFor(stateHandler.getState()));
@@ -106,6 +105,8 @@ public class JobWrapper extends BaseWrapper
         super.setArooaSession(session);
 
         adaptor.setArooaSession(session);
+        this.dynaBean = new WrapDynaBean(adaptor.getComponent(),
+                session.getTools().getPropertyAccessor());
 
         resettableAdaptor = new ResettableAdaptorFactory().adapt(
                 adaptor.getComponent(), session)

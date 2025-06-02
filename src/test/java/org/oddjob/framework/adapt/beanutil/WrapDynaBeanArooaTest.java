@@ -1,7 +1,5 @@
 package org.oddjob.framework.adapt.beanutil;
 
-import java.net.URL;
-
 import org.junit.Test;
 import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaParseException;
@@ -10,6 +8,7 @@ import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.life.ComponentProxyResolver;
+import org.oddjob.arooa.parsing.ArooaContext;
 import org.oddjob.arooa.reflect.ArooaClass;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.reflect.BeanOverview;
@@ -19,13 +18,15 @@ import org.oddjob.arooa.standard.StandardArooaParser;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
+import java.net.URL;
+
 public class WrapDynaBeanArooaTest extends OjTestCase {
 
 	public static class Root {
-		
+
 		@ArooaComponent
-		public void setStuff(Object stuff) {
-			
+		public void setStuff(Object ignoredStuff) {
+
 		}
 	}
 	
@@ -45,21 +46,21 @@ public class WrapDynaBeanArooaTest extends OjTestCase {
 
 		public void setText(String text) {
 			this.text = text;
-		};
-		
-		public String getText() {
+		}
+
+        public String getText() {
 			return text;
 		}
 	}
 	
-	private class OurSession extends StandardArooaSession {
+	private static class OurSession extends StandardArooaSession {
 		
 		@Override
 		public ComponentProxyResolver getComponentProxyResolver() {
 			return new ComponentProxyResolver() {
 				@Override
 				public Object resolve(Object object, ArooaSession session) {
-					return new WrapDynaBean(object);
+					return new WrapDynaBean(object, session.getTools().getPropertyAccessor());
 				}
 				@Override
 				public Object restore(Object proxy, ArooaSession session) {
@@ -87,7 +88,7 @@ public class WrapDynaBeanArooaTest extends OjTestCase {
 		
 		Root root = new Root();
 		
-		ArooaParser parser = new StandardArooaParser(root, session);
+		ArooaParser<ArooaContext> parser = new StandardArooaParser(root, session);
 		
 		parser.parse(new XMLConfiguration("TEST", xml));
 				

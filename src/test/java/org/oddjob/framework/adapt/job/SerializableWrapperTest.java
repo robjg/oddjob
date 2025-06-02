@@ -80,6 +80,7 @@ public class SerializableWrapperTest extends OjTestCase {
         ((Runnable) proxy).run();
 
         DynaBean copy = (DynaBean) OddjobTestHelper.copy(proxy);
+        ((ArooaSessionAware) copy).setArooaSession(session);
 
         assertTrue(copy instanceof Proxy);
 

@@ -412,8 +412,8 @@ public class JobWrapperTest extends OjTestCase {
             this.indexed[i] = value;
         }
 
-        public String[] getIndexed() {
-            return this.indexed;
+        public String getIndexed(int i) {
+            return this.indexed[i];
         }
 
         public void setSimple(String simple) {
@@ -442,6 +442,7 @@ public class JobWrapperTest extends OjTestCase {
         Object test = new JobProxyGenerator().generate(
                 jobAdaptor.get(),
                 getClass().getClassLoader());
+        ((ArooaSessionAware) test).setArooaSession(session);
 
         DynaBean db = (DynaBean) test;
 

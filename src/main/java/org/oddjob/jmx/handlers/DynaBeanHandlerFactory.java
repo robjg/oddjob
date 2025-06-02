@@ -3,6 +3,7 @@ package org.oddjob.jmx.handlers;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.framework.adapt.beanutil.WrapDynaClass;
 import org.oddjob.jmx.RemoteOperation;
 import org.oddjob.jmx.client.HandlerVersion;
@@ -159,10 +160,13 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 		private final ServerSideToolkit toolkit;
 
 		private final Object bean;
-		
+
+		private final PropertyAccessor propertyAccessor;
+
 		DynaBeanServerHandler(Object bean, ServerSideToolkit toolkit) {
 			this.bean = bean;
 			this.toolkit = toolkit;
+			this.propertyAccessor = toolkit.getServerSession().getArooaSession().getTools().getPropertyAccessor();
 		}
 
 		@Override
@@ -175,14 +179,14 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 			}
 			else if (GET_SIMPLE.equals(operation)) {
 				String property = (String) params[0];
-					return PropertyUtils.getProperty(bean, property);
+					return propertyAccessor.getSimpleProperty(bean, property);
 			}
 			else if (GET_INDEXED.equals(operation)) {
-					return PropertyUtils.getIndexedProperty(bean, (String) params[0],
+					return propertyAccessor.getIndexedProperty(bean, (String) params[0],
 							(Integer) params[1]);
 			}
 			else if (GET_MAPPED.equals(operation)) {
-					return PropertyUtils.getMappedProperty(bean, (String) params[0],
+					return propertyAccessor.getMappedProperty(bean, (String) params[0],
 							(String) params[1]);
 			}
 			else if (GET_DYNACLASS.equals(operation)) {
@@ -190,7 +194,7 @@ implements ServerInterfaceHandlerFactory<Object, DynaBean> {
 					return ((DynaBean) bean).getDynaClass();
 				}
 				else {
-					return WrapDynaClass.createDynaClass(bean.getClass());
+					return WrapDynaClass.createDynaClass(bean.getClass(), propertyAccessor);
 				}
 			}
 			else if (REMOVE.equals(operation)) {

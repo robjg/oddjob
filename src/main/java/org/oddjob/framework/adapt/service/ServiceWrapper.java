@@ -46,7 +46,7 @@ public class ServiceWrapper extends BaseWrapper
 
     private final Object wrapped;
 
-    private final DynaBean dynaBean;
+    private DynaBean dynaBean;
 
     private final Object proxy;
 
@@ -65,7 +65,6 @@ public class ServiceWrapper extends BaseWrapper
         this.serviceAdaptor = serviceAdaptor;
         this.proxy = proxy;
         this.wrapped = serviceAdaptor.getComponent();
-        this.dynaBean = new WrapDynaBean(wrapped);
 
         stateHandler = new ServiceStateHandler(this);
         iconHelper = new IconHelper(this,
@@ -77,6 +76,8 @@ public class ServiceWrapper extends BaseWrapper
     @Override
     public void setArooaSession(ArooaSession session) {
         super.setArooaSession(session);
+
+        this.dynaBean = new WrapDynaBean(wrapped, session.getTools().getPropertyAccessor());
 
         resettableAdaptor = new ResettableAdaptorFactory().adapt(
                 wrapped, session)
@@ -179,7 +180,7 @@ public class ServiceWrapper extends BaseWrapper
     /**
      * Used by the exception handler callback.
      *
-     * @param e
+     * @param e The exception.
      */
     protected void exceptionFromComponent(final Exception e) {
         logger().error("Exception From service:", e);

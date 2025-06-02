@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import static org.hamcrest.Matchers.is;
+
 public class SQLParametersTest extends OjTestCase {
 
     @Test
@@ -167,9 +169,6 @@ public class SQLParametersTest extends OjTestCase {
     /**
      * Test making things callable. It would be nice to test out params, but H2 doesn't
      * support that.
-     *
-     * @throws ArooaPropertyException
-     * @throws ArooaConversionException
      */
     @Test
     public void testCallable() throws ArooaPropertyException, ArooaConversionException {
@@ -194,9 +193,8 @@ public class SQLParametersTest extends OjTestCase {
         a = lookup.lookup("sql-call.parameters[0]", Integer.class);
         b = lookup.lookup("sql-call.parameters[1]", Integer.class);
 
-        // Why - This is a bug in the RunnableWRapper!
-        assertNull(a);
-        assertNull(b);
+        assertThat(a, is(2));
+        assertThat(b, is(3));
 
         Connection connection = new OddjobLookup(oddjob).lookup(
                 "vars.connection", Connection.class);
