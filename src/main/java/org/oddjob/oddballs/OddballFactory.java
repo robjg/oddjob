@@ -1,7 +1,5 @@
 package org.oddjob.oddballs;
 
-import java.io.File;
-
 /**
  * Abstraction of something that can create Oddballs.
  * <p>
@@ -14,13 +12,11 @@ public interface OddballFactory {
 	/**
 	 * Create an Oddball.
 	 * 
-	 * @param file A File that a particular factory may or
-	 * may not be able to use.
-	 * @param parentLoader
+	 * @param parentLoader The parent class loader.
 	 * 
 	 * @return An Oddball or null if the file can't be used by 
 	 * the implementing factory.
 	 */
-	Oddball createFrom(File file, ClassLoader parentLoader);
+	Oddball createFrom(ClassLoader parentLoader) throws Exception;
 	
 }

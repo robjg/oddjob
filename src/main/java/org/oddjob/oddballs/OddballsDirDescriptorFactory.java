@@ -1,11 +1,11 @@
 package org.oddjob.oddballs;
 
-import java.io.File;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
 
 public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 	
@@ -13,8 +13,6 @@ public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 	
 	private File baseDir;
 
-	private OddballFactory oddballFactory;
-	
 	public OddballsDirDescriptorFactory() {
 		
 	}
@@ -33,21 +31,13 @@ public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 		this.baseDir = baseDir;
 	}
 
-	public OddballFactory getOddballFactory() {
-		return oddballFactory;
-	}
-
-	public void setOddballFactory(OddballFactory oddballFactory) {
-		this.oddballFactory = oddballFactory;
-	}
-
 	public ArooaDescriptor createDescriptor(ClassLoader classLoader) {
 		
 		if (baseDir == null) {
 			throw new NullPointerException("Base Directory (i.e. oddballs) must be specified.");
 		}
-		
-		logger.info("Scanning directory [" + baseDir.getPath() + "] for Oddballs.");
+
+        logger.info("Scanning directory [{}] for Oddballs.", baseDir.getPath());
 		
 		File[] entries = baseDir.listFiles();
 		
@@ -58,8 +48,8 @@ public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 			return null;
 		}
 		
-		return new OddballsDescriptorFactory(
-				entries, oddballFactory).createDescriptor(classLoader);		
+		return new OddballsDescriptorFactory(entries)
+				.createDescriptor(classLoader);
 	}
 
 }

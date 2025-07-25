@@ -179,6 +179,8 @@
                 <!-- is element='magic-bean' className='org.oddjob.values.types.MagicBeanType'/ -->
                 <is element='magic-class' className='org.oddjob.values.types.MagicClassType'/>
                 <is element='schedule' className='org.oddjob.schedules.ScheduleType'/>
+                <is element='oddball'
+                    className='org.oddjob.oddballs.OddballFactoryType'/>
                 <is element='oddballs'
                     className='org.oddjob.oddballs.OddballsDescriptorFactory'/>
                 <is element='properties'

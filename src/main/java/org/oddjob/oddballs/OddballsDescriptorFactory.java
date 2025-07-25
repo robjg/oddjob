@@ -1,23 +1,25 @@
 package org.oddjob.oddballs;
 
+import org.oddjob.OddjobException;
 import org.oddjob.arooa.ArooaDescriptor;
 import org.oddjob.arooa.deploy.ArooaDescriptorBean;
 import org.oddjob.arooa.deploy.ArooaDescriptorFactory;
 import org.oddjob.arooa.deploy.ListDescriptor;
+import org.oddjob.arooa.utils.ListSetterHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @oddjob.description Create Oddjob job definition descriptors from any 
  * number of directories that follow the Oddball format. 
  * <p>
  * The Oddball directory structure is:
- * 
  * <code><pre>
  * myball
  *   classes
@@ -27,8 +29,7 @@ import java.util.Optional;
  *   lib
  *     someutil.jar
  * </pre></code>
- * 
- * You can have either a <code>lib</code> or <code>classes</code> or both 
+ * You can have either a <code>lib</code> or <code>classes</code> or both
  * but you must have something.
  * <p>
  * Additionally there can be as many <code>META-INF/arooa.xml</code> resources
@@ -38,27 +39,22 @@ import java.util.Optional;
  * @oddjob.example
  * 
  * Loading two Oddballs.
- * 
  * {@oddjob.xml.resource org/oddjob/oddballs/OddballsExample.xml}
  * 
  * This is equivalent to launching Oddjob with the oddball path option
  * set as in:
- * 
  * <code><pre>
  * java -jar run-oddjob.jar \
  *      -op test/oddballs/apple:test/oddballs/orange \
  *      -f test/launch/oddballs-launch.xml 
  * </pre></code>
- * 
  * Or if the <code>test/oddballs</code> directory only contains these two
  * directories, then using the oddball directory option:
- * 
  * <code><pre>
  * java -jar run-oddjob.jar \
  *      -ob test/oddballs \
  *      -f test/launch/oddballs-launch.xml 
  * </pre></code>
- * 
  * If the <code>apple</code> and <code>orange</code> directories were
  * copied to Oddjob's Oddballs directory they would be loaded by default.
  * 
@@ -78,29 +74,20 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 
 	/**
 	 * @oddjob.property
-	 * @oddjob.description The factory that will create the Oddball from the
-	 * file specification. At the moment this defaults to the only 
-	 * implementation which is to load an Oddball from a directory. In future
+	 * @oddjob.description Other factories for creating Oddballs. In future
 	 * it is hoped to support loading Oddballs from archives. Following the
 	 * existing java naming convention for archives they will probably be
 	 * called .oar files.
-	 * 
 	 * @oddjob.required No. Defaults to a directory loading factory.
 	 */
-	private OddballFactory oddballFactory;
+	private final ListSetterHelper<OddballFactory> oddballs = new ListSetterHelper<>();
 	
 	public OddballsDescriptorFactory() {
-		this(null, null);
+		this(null);
 	}
 	
 	public OddballsDescriptorFactory(File[] files) {
-		this(files, null);
-	}
-	
-	public OddballsDescriptorFactory(File[] files, 
-			OddballFactory oddballFactory) {
 		this.files = files;
-		this.oddballFactory = oddballFactory;
 	}
 	
 	public File[] getFiles() {
@@ -111,30 +98,38 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 		this.files = baseDir;
 	}
 
-	public OddballFactory getOddballFactory() {
-		return oddballFactory;
+	public OddballFactory getOddballs(int index) {
+		return oddballs.get(index);
 	}
 
-	public void setOddballFactory(OddballFactory oddballFactory) {
-		this.oddballFactory = oddballFactory;
+	public void setOddballs(int index, OddballFactory oddballFactory) {
+		oddballs.set(index, oddballFactory);
 	}
 
 	public ArooaDescriptor createDescriptor(ClassLoader classLoader) {
 
-		File[] files = Objects.requireNonNull(this.files,
-				"No Oddball directories given.");
+		List<OddballFactory> factories = new ArrayList<>();
+		if (files != null) {
+			factories.addAll(
+					Arrays.stream(files)
+							.map(DirectoryOddballFactory::from)
+							.collect(Collectors.toList()));
+		}
 
-		OddballFactory oddballFactory =
-				Optional.ofNullable(this.oddballFactory)
-						.orElseGet(() -> new DirectoryOddball());
+		factories.addAll(oddballs.getList());
 
 		ListDescriptor descriptor = new ListDescriptor();
 		
-		for (File file : files) {
-			
-			Oddball oddball = oddballFactory.createFrom(file, classLoader);
-			
-			if (oddball == null) {
+		for (OddballFactory factory: factories) {
+
+            Oddball oddball;
+            try {
+                oddball = factory.createFrom(classLoader);
+            } catch (Exception e) {
+                throw new OddjobException(e);
+            }
+
+            if (oddball == null) {
 				continue;
 			}
 			
@@ -142,9 +137,9 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 		}
 
 		if (descriptor.size() == 0) {
-			
-			logger.info("No Oddballs found for [" + 
-					Arrays.toString(files) + "]");
+
+            logger.info("No Oddballs found for [{}]",
+					factories);
 			
 			return null;
 		}
