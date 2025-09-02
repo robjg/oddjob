@@ -39,7 +39,7 @@ public class AsyncJobWait implements Serializable {
     /**
      * Run the job watching state
      *
-     * @param job
+     * @param job The job to wait for to start executing.
      * @return Will return true if the job is asynchronous.
      */
     public boolean runAndWaitWith(Runnable job) {
@@ -98,7 +98,7 @@ public class AsyncJobWait implements Serializable {
                 thread = null;
             }
 
-            logger.debug("State received " + now);
+            logger.debug("NoneJoin, State received {}", now);
 
             if (now.isDestroyed()) {
                 childDestroyed();
@@ -143,7 +143,7 @@ public class AsyncJobWait implements Serializable {
                     thread = null;
                 }
 
-                logger.debug("State received " + now);
+                logger.debug("Join, State received {}", now);
 
                 if (now.isDestroyed()) {
                     childDestroyed();

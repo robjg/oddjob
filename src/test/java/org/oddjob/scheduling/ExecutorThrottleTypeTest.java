@@ -162,7 +162,12 @@ public class ExecutorThrottleTypeTest extends OjTestCase {
         // Must be added before StateSteps to ensure this
         // gets State first.
         Capture capture = new Capture();
+        oddjob.load();
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+        Structural parallel = lookup.lookup("parallel", Structural.class);
+        parallel.addStructuralListener(capture);
 
+        // Now we can add state steps
         StateSteps oddjobState = new StateSteps(oddjob);
 
         oddjobState.startCheck(ParentState.READY,
@@ -173,12 +178,6 @@ public class ExecutorThrottleTypeTest extends OjTestCase {
         oddjobState.checkNow();
 
         oddjobState.startCheck(ParentState.ACTIVE, ParentState.READY);
-
-        OddjobLookup lookup = new OddjobLookup(oddjob);
-
-        Structural parallel = lookup.lookup("parallel", Structural.class);
-
-        parallel.addStructuralListener(capture);
 
         capture.waitForExecuting(2);
 

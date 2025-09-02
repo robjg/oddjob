@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * An abstract implementation of a job which provides common functionality to
@@ -156,7 +157,10 @@ implements
 	 */
 	protected void startChildStateReflector() {
 		if (!destroy) {
-			logger().debug("Starting Child State Reflector.");
+			if (logger().isDebugEnabled()) {
+				logger().debug("Starting Child State Reflector with child states of {}",
+						Arrays.toString(structuralState.getChildStates()));
+			}
 			childStateReflector.start();
 		}
 	}

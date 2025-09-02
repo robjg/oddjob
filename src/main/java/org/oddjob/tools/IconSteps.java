@@ -1,12 +1,12 @@
 package org.oddjob.tools;
 
-import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Iconic;
 import org.oddjob.images.IconEvent;
 import org.oddjob.images.IconListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Test Utility class to track icon changes.
@@ -54,9 +54,9 @@ public class IconSteps {
 				else {
 					position = "for index [" + index + "]";
 				}
-				
-				logger.info("Received Icon Id [" + event.getIconId() + 
-						"] " + position + " from [" + event.getSource() + "]");
+
+                logger.info("Received Icon Id [{}] {} from [{}]",
+						event.getIconId(), position, event.getSource());
 				
 				if (failureMessage != null) {
 					return;
@@ -68,7 +68,7 @@ public class IconSteps {
 						" (index " + index + ")";
 				}
 				else {
-					if (event.getIconId() == steps[index]) {
+					if (event.getIconId().equals(steps[index])) {
 						if (++index == steps.length) {
 							done = true;
 							IconSteps.this.notifyAll();
@@ -86,7 +86,7 @@ public class IconSteps {
 				}
 			}
 		}
-	};	
+	}
 	
 	public synchronized void startCheck(String... steps) {
 		if (listener != null) {
@@ -95,9 +95,9 @@ public class IconSteps {
 		if (steps == null || steps.length == 0) {
 			throw new IllegalStateException("No steps!");
 		}
-		
-		logger.info("Starting check on [" + iconic + "] to have icons " + 
-				Arrays.toString(steps));
+
+        logger.info("Starting check on [{}] to have icons {}",
+				iconic, Arrays.toString(steps));
 		
 		this.listener = new Listener(steps);
 		
@@ -130,10 +130,9 @@ public class IconSteps {
 		if (listener == null) {
 			throw new IllegalStateException("No Check In Progress.");
 		}
-		
-		logger.info("Waiting" +
-				" on [" + iconic + "] to have icons " + 
-				Arrays.toString(listener.steps));
+
+        logger.info("Waiting on [{}] to have icons {}",
+				iconic, Arrays.toString(listener.steps));
 		
 		if (!listener.done) {
 			wait(timeout);

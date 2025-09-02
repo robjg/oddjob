@@ -1,14 +1,14 @@
 package org.oddjob.scheduling;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An {@link ExecutorService} that limits the number of {@link Runnable}s 
@@ -33,7 +33,7 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 	/**
 	 * Outstanding work submitted to the executor
 	 */
-	private final LinkedList<Runnable> work = new LinkedList<Runnable>();
+	private final LinkedList<Runnable> work = new LinkedList<>();
 	
 	/**
 	 * The throttle limit.
@@ -79,8 +79,8 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 
 	@Override
 	public void execute(final Runnable command) {
-		
-		logger.debug("Queueing [" + command + "]");
+
+        logger.debug("Queueing [{}]", command);
 		
 		synchronized (work) {
 			work.add(new Runnable() {
@@ -88,7 +88,7 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 				public void run() {
 					try {
 						command.run();
-						logger.debug("Completed [" + command + "]");
+                        logger.debug("Completed [{}]", command);
 					}
 					finally {
 						count.decrementAndGet();
@@ -124,7 +124,7 @@ public class ExecutorServiceThrottle extends AbstractExecutorService {
 			if (count.get() < threads) {
 				count.incrementAndGet();
 				Runnable command = work.removeFirst();
-				logger.debug("Executing [" + command + "]");
+                logger.debug("Executing [{}]", command);
 				executor.execute(command);
 			}
 		}
