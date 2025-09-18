@@ -29,6 +29,7 @@ such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 | Property | Description |
 | -------- | ----------- |
 | [busConductor](#propertybusConductor) | Provides coordination facilities to the components of a bus. | 
+| [count](#propertycount) |  | 
 | [name](#propertyname) | A name, can be any text. | 
 | [noAutoLink](#propertynoAutoLink) | Bus components will automatically be linked unless this is true. | 
 | [of](#propertyof) | The components of a Bus. | 
@@ -56,6 +57,14 @@ such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 
 Provides coordination facilities to the components of a bus. Set automatically
 and exposed for advance use only.
+
+#### count <a name="propertycount"></a>
+
+<table style='font-size:smaller'>
+      <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
+</table>
+
+
 
 #### name <a name="propertyname"></a>
 

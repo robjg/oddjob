@@ -1,216 +1,243 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>uk.co.rgordon</groupId>
-    <artifactId>oj-parent</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
-  </parent>
+    <parent>
+        <groupId>uk.co.rgordon</groupId>
+        <artifactId>oj-parent</artifactId>
+        <version>1.7.0-SNAPSHOT</version>
+    </parent>
 
-  <artifactId>oddjob</artifactId>
-  <packaging>jar</packaging>
+    <artifactId>oddjob</artifactId>
+    <packaging>jar</packaging>
 
-  <name>Oddjob</name>
-  <description>Job Scheduling and Task Automation.</description>
-  <url>http://rgordon.co.uk/oddjob</url>
+    <name>Oddjob</name>
+    <description>Job Scheduling and Task Automation.</description>
+    <url>http://rgordon.co.uk/oddjob</url>
 
-  <licenses>
-    <license>
-      <name>The Apache License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-    </license>
-  </licenses>
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
-  <developers>
-    <developer>
-      <id>rob</id>
-      <name>Rob</name>
-      <email>contact@rgordon.co.uk</email>
-    </developer>
-  </developers>
+    <developers>
+        <developer>
+            <id>rob</id>
+            <name>Rob</name>
+            <email>contact@rgordon.co.uk</email>
+        </developer>
+    </developers>
 
-  <scm>
-    <url>https://github.com/robjg/oddjob</url>
-    <connection>scm:git:git://github.com/robjg/oddjob.git</connection>
-  </scm>
+    <scm>
+        <url>https://github.com/robjg/oddjob</url>
+        <connection>scm:git:git://github.com/robjg/oddjob.git</connection>
+    </scm>
 
-  <dependencies>
-    <dependency>
-      <groupId>uk.co.rgordon</groupId>
-      <artifactId>arooa</artifactId>
-    </dependency>
+    <dependencies>
+        <dependency>
+            <groupId>uk.co.rgordon</groupId>
+            <artifactId>arooa</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.antlr</groupId>
-      <artifactId>antlr4-runtime</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+        </dependency>
 
-    <dependency>
-      <groupId>org.openjdk.nashorn</groupId>
-      <artifactId>nashorn-core</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>uk.co.rgordon</groupId>
-      <artifactId>arooa</artifactId>
-      <version>${project.version}</version>
-      <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>uk.co.rgordon</groupId>
+            <artifactId>arooa</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.logging.log4j</groupId>
-      <artifactId>log4j-slf4j2-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j2-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.platform</groupId>
-      <artifactId>junit-platform-launcher</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.junit.vintage</groupId>
-      <artifactId>junit-vintage-engine</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.xmlunit</groupId>
-      <artifactId>xmlunit-core</artifactId>
-      <exclusions>
-        <exclusion>  <!-- Required when running oj-mail as an Oddball from IntelliJ -->
-          <groupId>jakarta.activation</groupId>
-          <artifactId>jakarta.activation-api</artifactId>
-        </exclusion>
-      </exclusions>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <exclusions>
+                <exclusion>  <!-- Required when running oj-mail as an Oddball from IntelliJ -->
+                    <groupId>jakarta.activation</groupId>
+                    <artifactId>jakarta.activation-api</artifactId>
+                </exclusion>
+            </exclusions>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.xmlunit</groupId>
-      <artifactId>xmlunit-matchers</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-matchers</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>org.hsqldb</groupId>
-      <artifactId>hsqldb</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>org.hsqldb</groupId>
+            <artifactId>hsqldb</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <scope>test</scope>
-    </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-  </dependencies>
+    </dependencies>
 
-  <build>
-    <plugins>
+    <build>
+        <plugins>
 
-      <plugin>
-        <groupId>org.antlr</groupId>
-        <artifactId>antlr4-maven-plugin</artifactId>
-        <version>${antlr.version}</version>
-        <configuration>
-          <arguments>
-            <argument>-package</argument>
-            <argument>org.oddjob.state.antlr</argument>
-          </arguments>
-        </configuration>
-        <executions>
-          <execution>
-            <goals>
-              <goal>antlr4</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr.version}</version>
+                <configuration>
+                    <arguments>
+                        <argument>-package</argument>
+                        <argument>org.oddjob.state.antlr</argument>
+                    </arguments>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
-      <plugin>
-        <!-- This creates the Reference for both Arooa and Oddjob, so we override the parent one -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.10.0</version>
-        <executions>
-          <execution>
-            <id>reference</id>
-            <goals>
-              <goal>javadoc</goal>
-            </goals>
-            <phase>none</phase>
-            <configuration>
-              <doclet>org.oddjob.doc.doclet.ReferenceDoclet</doclet>
-              <docletArtifacts>
-                <docletArtifact>
-                  <groupId>uk.co.rgordon</groupId>
-                  <artifactId>oj-doc</artifactId>
-                  <version>${project.version}</version>
-                </docletArtifact>
-                <docletArtifact>
-                  <groupId>uk.co.rgordon</groupId>
-                  <artifactId>oddjob</artifactId>
-                  <version>${project.version}</version>
-                </docletArtifact>
-              </docletArtifacts>
-              <show>private</show>
-              <additionalJOptions>
-                <additionalJOption>-J-Dlogback.configurationFile=logback-oj-doc.xml</additionalJOption>
-              </additionalJOptions>
-              <additionalOptions>
-                <additionalOption>-d</additionalOption>
-                <additionalOption>${project.basedir}/docs/reference</additionalOption>
-                <additionalOption>-loaderpath</additionalOption>
-                <additionalOption>${project.basedir}/src/test/resources;${project.basedir}/../arooa/src/test/resources;${project.basedir}/src/test/java;${project.basedir}/../arooa/src/test/java</additionalOption>
-                <additionalOption>-writerfactory</additionalOption>
-                <additionalOption>org.oddjob.doc.markdown.MdReferenceWriterFactory</additionalOption>
-                <additionalOption>-link</additionalOption>
-                <additionalOption>http://rgordon.co.uk/oddjob/1.6.0/api</additionalOption>
-                <additionalOption>-link</additionalOption>
-                <additionalOption>https://docs.oracle.com/en/java/javase/11/docs/api</additionalOption>
-              </additionalOptions>
-              <useStandardDocletOptions>false</useStandardDocletOptions>
-              <includeDependencySources>true</includeDependencySources>
-              <dependencySourceIncludes>uk.co.rgordon:*</dependencySourceIncludes>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-  </build>
+            <plugin>
+                <!-- This creates the Reference for both Arooa and Oddjob, so we override the parent one -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.10.0</version>
+                <executions>
+                    <execution>
+                        <id>reference</id>
+                        <goals>
+                            <goal>javadoc</goal>
+                        </goals>
+                        <phase>none</phase>
+                        <configuration>
+                            <doclet>org.oddjob.doc.doclet.ReferenceDoclet</doclet>
+                            <docletArtifacts>
+                                <docletArtifact>
+                                    <groupId>uk.co.rgordon</groupId>
+                                    <artifactId>oj-doc</artifactId>
+                                    <version>${project.version}</version>
+                                </docletArtifact>
+                                <docletArtifact>
+                                    <groupId>uk.co.rgordon</groupId>
+                                    <artifactId>oddjob</artifactId>
+                                    <version>${project.version}</version>
+                                </docletArtifact>
+                            </docletArtifacts>
+                            <additionalDependencies>
+                                <!-- required because these are optional dependencies in Arooa.
+                                 Note that the Javadoc plugin doesn't appear to include transitive dependencies
+                                 so we have to specify them too -->
+                                <additionalDependency>
+                                    <groupId>ch.qos.logback</groupId>
+                                    <artifactId>logback-classic</artifactId>
+                                    <version>${logback.version}</version>
+                                </additionalDependency>
+                                <additionalDependency>
+                                    <groupId>ch.qos.logback</groupId>
+                                    <artifactId>logback-core</artifactId>
+                                    <version>${logback.version}</version>
+                                </additionalDependency>
+                                <additionalDependency>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                    <version>${log4j2.version}</version>
+                                </additionalDependency>
+                                <additionalDependency>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-core</artifactId>
+                                    <version>${log4j2.version}</version>
+                                </additionalDependency>
+                            </additionalDependencies>
+                            <show>private</show>
+                            <additionalJOptions>
+                                <additionalJOption>-J-Dlogback.configurationFile=logback-oj-doc.xml</additionalJOption>
+                            </additionalJOptions>
+                            <additionalOptions>
+                                <additionalOption>-d</additionalOption>
+                                <additionalOption>${project.basedir}/docs/reference</additionalOption>
+                                <additionalOption>-loaderpath</additionalOption>
+                                <additionalOption>
+                                    ${project.basedir}/src/test/resources;${project.basedir}/../arooa/src/test/resources;${project.basedir}/src/test/java;${project.basedir}/../arooa/src/test/java
+                                </additionalOption>
+                                <additionalOption>-writerfactory</additionalOption>
+                                <additionalOption>org.oddjob.doc.markdown.MdReferenceWriterFactory</additionalOption>
+                                <additionalOption>-link</additionalOption>
+                                <additionalOption>http://rgordon.co.uk/oddjob/1.6.0/api</additionalOption>
+                                <additionalOption>-link</additionalOption>
+                                <additionalOption>https://docs.oracle.com/en/java/javase/11/docs/api</additionalOption>
+                            </additionalOptions>
+                            <useStandardDocletOptions>false</useStandardDocletOptions>
+                            <includeDependencySources>true</includeDependencySources>
+                            <dependencySourceIncludes>uk.co.rgordon:*</dependencySourceIncludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

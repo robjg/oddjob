@@ -10,7 +10,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 
 /**
- * @oddjob.description Create an Oddjob from various sources.
+ * @oddjob.description Create an Oddball from various sources. Primarily intended to be used
+ * with the <h href="https://github.com/robjg/oj-resolve>oj-resolve</h> project to load a
+ * maven dependency as an Oddball. See {@link OddballsDescriptorFactory}.
  *
  * @oddjob.example
  *
@@ -18,25 +20,28 @@ import java.util.Arrays;
  * {@oddjob.xml.resource org/oddjob/oddballs/OddballsExample.xml}
  *
  */
-
 public class OddballFactoryType implements ValueFactory<OddballFactory> {
 
     private static final Logger logger = LoggerFactory.getLogger(OddballFactoryType.class);
 
-    private Path directory;
-
+    /**
+     * @oddjob.property
+     * @oddjob.description Paths to create an Oddball from.
+     * @oddjob.required Either this or URLs is required.
+     */
     private Path[] paths;
 
+    /**
+     * @oddjob.property
+     * @oddjob.description URLs to create an Oddball from.
+     * @oddjob.required Either this or Paths is required.
+     */
     private URL[] urls;
 
     @Override
     public OddballFactory toValue() throws ArooaConversionException {
 
-        if (directory != null) {
-
-            return DirectoryOddballFactory.from(directory);
-        }
-        else if (paths != null) {
+        if (paths != null) {
 
             return parentLoader -> ClasspathOddball.from(parentLoader, paths);
         }
@@ -47,10 +52,6 @@ public class OddballFactoryType implements ValueFactory<OddballFactory> {
 
         logger.info("No Oddballs defined.");
         return null;
-    }
-
-    public void setDirectory(Path directory) {
-        this.directory = directory;
     }
 
     public void setPaths(Path[] paths) {
@@ -64,11 +65,7 @@ public class OddballFactoryType implements ValueFactory<OddballFactory> {
     @Override
     public String toString() {
 
-        if (directory != null) {
-
-            return "OddballFactory for directory " + directory;
-        }
-        else if (paths != null) {
+        if (paths != null) {
 
             return "OddballFactory for paths " + Arrays.toString(paths);
         }

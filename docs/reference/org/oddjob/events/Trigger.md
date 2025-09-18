@@ -16,7 +16,7 @@ firing.
 
 | Property | Description |
 | -------- | ----------- |
-| [beDestination](#propertybeDestination) |  | 
+| [beDestination](#propertybeDestination) | This is to be a destination. | 
 | [eventSource](#propertyeventSource) | The source of events. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
@@ -40,9 +40,11 @@ firing.
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
       <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
+      <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
-
+This is to be a destination. A destination is a component in a
+[bus:bus](../../../org/oddjob/beanbus/bus/BasicBusService.md) pipeline.
 
 #### eventSource <a name="propertyeventSource"></a>
 
@@ -53,7 +55,7 @@ firing.
 </table>
 
 The source of events. If this is not set the first child component is assumed
-to be the Event Source.
+to be the Event Source, unless [org.oddjob.events.EventJobBase](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/events/EventJobBase.html) is set.
 
 #### jobs <a name="propertyjobs"></a>
 

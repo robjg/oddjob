@@ -134,13 +134,13 @@ into a rules engine.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<oddjob id="this">
+<oddjob id="oddjob">
     <job>
         <sequential>
             <jobs>
                 <properties name="Properties">
                     <values>
-                        <file file="${some.dir}" key="data.dir"/>
+                        <file file="${oddjob.dir}/data" key="data.dir"/>
                     </values>
                 </properties>
                 <bean class="org.oddjob.events.example.FileFactStore" id="factStore" rootDir="${data.dir}"/>

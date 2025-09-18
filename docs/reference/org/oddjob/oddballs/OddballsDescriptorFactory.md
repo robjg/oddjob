@@ -6,7 +6,6 @@ number of directories that follow the Oddball format.
 
 
 The Oddball directory structure is:
-
 <code><pre>
 myball
 classes
@@ -16,8 +15,7 @@ MyStuff.class
 lib
 someutil.jar
 </pre></code>
-
-You can have either a <code>lib</code> or <code>classes</code> or both
+You can have either a <code>lib</code> or <code>classes</code> or both,
 but you must have something.
 
 
@@ -30,7 +28,7 @@ element mappings and conversions.
 | Property | Description |
 | -------- | ----------- |
 | [files](#propertyfiles) | The Oddball directory or directories. | 
-| [oddballFactory](#propertyoddballFactory) | The factory that will create the Oddball from the file specification. | 
+| [oddballs](#propertyoddballs) | Other factories for creating Oddballs. | 
 
 
 ### Example Summary
@@ -51,7 +49,7 @@ element mappings and conversions.
 
 The Oddball directory or directories.
 
-#### oddballFactory <a name="propertyoddballFactory"></a>
+#### oddballs <a name="propertyoddballs"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -59,10 +57,8 @@ The Oddball directory or directories.
       <tr><td><i>Required</i></td><td>No. Defaults to a directory loading factory.</td></tr>
 </table>
 
-The factory that will create the Oddball from the
-file specification. At the moment this defaults to the only
-implementation which is to load an Oddball from a directory. In future
-it is hoped to support loading Oddballs from archives. Following the
+Other factories for creating Oddballs. See [oddball](../../../org/oddjob/oddballs/OddballFactoryType.md).
+In the future, it is hoped to support loading Oddballs from archives. Following the
 existing java naming convention for archives they will probably be
 called .oar files.
 
@@ -71,47 +67,42 @@ called .oar files.
 #### Example 1 <a name="example1"></a>
 
 Loading two Oddballs.
-
 ```xml
 <oddjob id="this">
-    <job>
-        <oddjob file="${this.args[0]}/test/launch/oddballs-launch.xml">
-            <descriptorFactory>
-                <oddballs>
+<job>
+    <oddjob file="${this.args[0]}/test/launch/oddballs-launch.xml">
+        <descriptorFactory>
+            <oddballs>
+                <files>
                     <files>
-                        <files>
-                            <list>
-                                <file file="${this.args[0]}/test/oddballs/apple"/>
-                                <file file="${this.args[0]}/test/oddballs/orange"/>
-                            </list>
-                        </files>
+                        <list>
+                            <file file="${this.args[0]}/test/oddballs/apple"/>
+                            <file file="${this.args[0]}/test/oddballs/orange"/>
+                        </list>
                     </files>
-                </oddballs>
-            </descriptorFactory>
-        </oddjob>
-    </job>
+                </files>
+            </oddballs>
+        </descriptorFactory>
+    </oddjob>
+</job>
 </oddjob>
 ```
 
 
 This is equivalent to launching Oddjob with the oddball path option
 set as in:
-
 <code><pre>
 java -jar run-oddjob.jar \
 -op test/oddballs/apple:test/oddballs/orange \
 -f test/launch/oddballs-launch.xml
 </pre></code>
-
 Or if the <code>test/oddballs</code> directory only contains these two
 directories, then using the oddball directory option:
-
 <code><pre>
 java -jar run-oddjob.jar \
 -ob test/oddballs \
 -f test/launch/oddballs-launch.xml
 </pre></code>
-
 If the <code>apple</code> and <code>orange</code> directories were
 copied to Oddjob's Oddballs directory they would be loaded by default.
 

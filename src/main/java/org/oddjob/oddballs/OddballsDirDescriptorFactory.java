@@ -7,6 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
+/**
+ * Creates an Arooa Descriptor from a base directory that contains a number of Oddball directories.
+ *
+ * @see OddballsDescriptorFactory
+ */
 public class OddballsDirDescriptorFactory implements ArooaDescriptorFactory {
 	
 	private static final Logger logger = LoggerFactory.getLogger(OddballsDirDescriptorFactory.class);

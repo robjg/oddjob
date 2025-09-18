@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  *   lib
  *     someutil.jar
  * </pre></code>
- * You can have either a <code>lib</code> or <code>classes</code> or both
+ * You can have either a <code>lib</code> or <code>classes</code> or both,
  * but you must have something.
  * <p>
  * Additionally there can be as many <code>META-INF/arooa.xml</code> resources
@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
  * @oddjob.example
  * 
  * Loading two Oddballs.
- * {@oddjob.xml.resource org/oddjob/oddballs/OddballsExample.xml}
+ * {@oddjob.xml.resource org/oddjob/oddballs/OddballsFilesExample.xml}
  * 
  * This is equivalent to launching Oddjob with the oddball path option
  * set as in:
@@ -74,8 +74,8 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 
 	/**
 	 * @oddjob.property
-	 * @oddjob.description Other factories for creating Oddballs. In future
-	 * it is hoped to support loading Oddballs from archives. Following the
+	 * @oddjob.description Other factories for creating Oddballs. See {@link OddballFactoryType}.
+     * In the future, it is hoped to support loading Oddballs from archives. Following the
 	 * existing java naming convention for archives they will probably be
 	 * called .oar files.
 	 * @oddjob.required No. Defaults to a directory loading factory.

@@ -106,6 +106,7 @@
 - [logout](org/oddjob/logging/slf4j/LogoutType.md) - Provide an output to a logger.
 - [magic-class](org/oddjob/values/types/MagicClassType.md) - Definition for a Magic Bean, which is a bean that can be defined dynamically.
 - [map](org/oddjob/arooa/types/MapType.md) - A map allows a map of strings to values to be created.
+- [oddball](org/oddjob/oddballs/OddballFactoryType.md) - Create an Oddball from various sources.
 - [oddballs](org/oddjob/oddballs/OddballsDescriptorFactory.md) - Create Oddjob job definition descriptors from any number of directories that follow the Oddball format.
 - [properties](org/oddjob/values/properties/PropertiesType.md) - A type that evaluates to a java Properties object.
 - [resource](org/oddjob/io/ResourceType.md) - Specify a resource on the class path.
