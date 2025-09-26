@@ -10,12 +10,12 @@ required to run a job.
 | Property | Description |
 | -------- | ----------- |
 | [configuration](#propertyconfiguration) | The configuration that will be parsed for each value. | 
-| [eventOperator](#propertyeventOperator) | Event Operator to filter events. | 
+| [eventOperator](#propertyeventoperator) | Event Operator to filter events. | 
 | [file](#propertyfile) | The name of the configuration file. | 
 | [index](#propertyindex) | The current index in the values. | 
 | [last](#propertylast) | The last event to be passed to a consumer. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [purgeAfter](#propertypurgeAfter) | The number of completed jobs to keep. | 
+| [purgeAfter](#propertypurgeafter) | The number of completed jobs to keep. | 
 | [to](#propertyto) | The destination events will be sent to. | 
 | [values](#propertyvalues) | Any stream of values. | 
 
@@ -39,7 +39,7 @@ required to run a job.
 The configuration that will be parsed
 for each value.
 
-#### eventOperator <a name="propertyeventOperator"></a>
+#### eventOperator <a name="propertyeventoperator"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -89,7 +89,7 @@ The last event to be passed to a consumer.
 
 A name, can be any text.
 
-#### purgeAfter <a name="propertypurgeAfter"></a>
+#### purgeAfter <a name="propertypurgeafter"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

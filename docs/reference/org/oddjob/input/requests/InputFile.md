@@ -7,13 +7,13 @@ A request for a file or directory.
 
 | Property | Description |
 | -------- | ----------- |
-| [currentDirectory](#propertycurrentDirectory) | The directory to start in. | 
+| [currentDirectory](#propertycurrentdirectory) | The directory to start in. | 
 | [default](#propertydefault) | The default file name. | 
-| [fileFilterDescription](#propertyfileFilterDescription) | The description of the file filter used by visual input handlers. | 
-| [fileFilterExtensions](#propertyfileFilterExtensions) | The extensions for the file filter used by visual input handlers. | 
+| [fileFilterDescription](#propertyfilefilterdescription) | The description of the file filter used by visual input handlers. | 
+| [fileFilterExtensions](#propertyfilefilterextensions) | The extensions for the file filter used by visual input handlers. | 
 | [prompt](#propertyprompt) | Prompt to display. | 
 | [property](#propertyproperty) | The property to set. | 
-| [selectionMode](#propertyselectionMode) | File Selection Mode, FILE or DIRECTORY. | 
+| [selectionMode](#propertyselectionmode) | File Selection Mode, FILE or DIRECTORY. | 
 
 
 ### Example Summary
@@ -24,7 +24,7 @@ A request for a file or directory.
 
 
 ### Property Detail
-#### currentDirectory <a name="propertycurrentDirectory"></a>
+#### currentDirectory <a name="propertycurrentdirectory"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -42,7 +42,7 @@ The directory to start in.
 
 The default file name.
 
-#### fileFilterDescription <a name="propertyfileFilterDescription"></a>
+#### fileFilterDescription <a name="propertyfilefilterdescription"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -52,7 +52,7 @@ The default file name.
 The description of the file filter used by
 visual input handlers.
 
-#### fileFilterExtensions <a name="propertyfileFilterExtensions"></a>
+#### fileFilterExtensions <a name="propertyfilefilterextensions"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -80,7 +80,7 @@ Prompt to display.
 
 The property to set.
 
-#### selectionMode <a name="propertyselectionMode"></a>
+#### selectionMode <a name="propertyselectionmode"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

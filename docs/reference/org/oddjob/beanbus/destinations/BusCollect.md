@@ -10,13 +10,13 @@ be used in the middle of a [bus:bus](../../../../org/oddjob/beanbus/bus/BasicBus
 | -------- | ----------- |
 | [beans](#propertybeans) | The same as list. | 
 | [count](#propertycount) | Count of items collected. | 
-| [keyMapper](#propertykeyMapper) | A function that will extract a key from an item. | 
+| [keyMapper](#propertykeymapper) | A function that will extract a key from an item. | 
 | [list](#propertylist) | The collected items as list container. | 
 | [map](#propertymap) | The collected items as a map container. | 
 | [name](#propertyname) | The name of this component. | 
 | [output](#propertyoutput) | An output stream that items will be written to as strings. | 
 | [to](#propertyto) | The next component in a bus. | 
-| [valueMapper](#propertyvalueMapper) | A function that will extract a value from an item to put in the map. | 
+| [valueMapper](#propertyvaluemapper) | A function that will extract a value from an item to put in the map. | 
 
 
 ### Example Summary
@@ -45,7 +45,7 @@ The same as list. Prefer list, will be deprecated in future versions.
 
 Count of items collected.
 
-#### keyMapper <a name="propertykeyMapper"></a>
+#### keyMapper <a name="propertykeymapper"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -107,7 +107,7 @@ An output stream that items will be written to as strings.
 The next component in a bus. Set automatically in a
 [bus:bus](../../../../org/oddjob/beanbus/bus/BasicBusService.md).
 
-#### valueMapper <a name="propertyvalueMapper"></a>
+#### valueMapper <a name="propertyvaluemapper"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

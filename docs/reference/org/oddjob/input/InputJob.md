@@ -13,7 +13,7 @@ from the console, input from the console will be requested.
 
 | Property | Description |
 | -------- | ----------- |
-| [inputHandler](#propertyinputHandler) | The input handler to use. | 
+| [inputHandler](#propertyinputhandler) | The input handler to use. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [properties](#propertyproperties) | Provide all the merged properties defined by this job. | 
 | [requests](#propertyrequests) | A list of requests for input. | 
@@ -28,7 +28,7 @@ from the console, input from the console will be requested.
 
 
 ### Property Detail
-#### inputHandler <a name="propertyinputHandler"></a>
+#### inputHandler <a name="propertyinputhandler"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

@@ -55,12 +55,12 @@ More information on Oddjob servers can be found in the User Guide under
 | -------- | ----------- |
 | [address](#propertyaddress) | The address of this server. | 
 | [environment](#propertyenvironment) | An environment such as security settings. | 
-| [handlerFactories](#propertyhandlerFactories) | Additional handler factories that allow any interface to be invoked from a remote Oddjob. | 
-| [logFormat](#propertylogFormat) | The log format for formatting log messages. | 
+| [handlerFactories](#propertyhandlerfactories) | Additional handler factories that allow any interface to be invoked from a remote Oddjob. | 
+| [logFormat](#propertylogformat) | The log format for formatting log messages. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [remoteIdMappings](#propertyremoteIdMappings) |  | 
+| [remoteIdMappings](#propertyremoteidmappings) |  | 
 | [root](#propertyroot) | The root node. | 
-| [serverConnection](#propertyserverConnection) |  | 
+| [serverConnection](#propertyserverconnection) |  | 
 | [url](#propertyurl) | The JMX service URL. | 
 
 
@@ -94,7 +94,7 @@ useful for testing
 An environment such
 as security settings.
 
-#### handlerFactories <a name="propertyhandlerFactories"></a>
+#### handlerFactories <a name="propertyhandlerfactories"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -105,7 +105,7 @@ as security settings.
 Additional handler factories that allow
 any interface to be invoked from a remote Oddjob.
 
-#### logFormat <a name="propertylogFormat"></a>
+#### logFormat <a name="propertylogformat"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -127,7 +127,7 @@ http://logging.apache.org/log4j/docs/</a>
 
 A name, can be any text.
 
-#### remoteIdMappings <a name="propertyremoteIdMappings"></a>
+#### remoteIdMappings <a name="propertyremoteidmappings"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -145,7 +145,7 @@ A name, can be any text.
 
 The root node.
 
-#### serverConnection <a name="propertyserverConnection"></a>
+#### serverConnection <a name="propertyserverconnection"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

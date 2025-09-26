@@ -18,7 +18,7 @@ CONSTRAINT oddjob_pk PRIMARY KEY (path, id))
 | [connection](#propertyconnection) | The [connection](../../../org/oddjob/sql/ConnectionType.md) to use. | 
 | [name](#propertyname) | The name. | 
 | [persister](#propertypersister) | The persister. | 
-| [serializationFactory](#propertyserializationFactory) | A plugin for providers of the serialization. | 
+| [serializationFactory](#propertyserializationfactory) | A plugin for providers of the serialization. | 
 
 
 ### Example Summary
@@ -58,7 +58,7 @@ The name.
 
 The persister.
 
-#### serializationFactory <a name="propertyserializationFactory"></a>
+#### serializationFactory <a name="propertyserializationfactory"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

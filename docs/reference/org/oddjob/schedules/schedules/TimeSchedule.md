@@ -20,7 +20,7 @@ schedules.
 | [from](#propertyfrom) | The from time. | 
 | [refinement](#propertyrefinement) | Provide a refinement to this schedule. | 
 | [to](#propertyto) | The to time. | 
-| [toLast](#propertytoLast) | The to time for the end of the parent interval. | 
+| [toLast](#propertytolast) | The to time for the end of the parent interval. | 
 
 
 ### Example Summary
@@ -77,7 +77,7 @@ Provide a refinement to this schedule.
 The to time. If specified, this is the
 time on the first day of the parent interval.
 
-#### toLast <a name="propertytoLast"></a>
+#### toLast <a name="propertytolast"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

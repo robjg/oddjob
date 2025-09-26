@@ -42,9 +42,9 @@ A separate tidy job should be implemented.
 | [connection](#propertyconnection) | The [connection](../../../org/oddjob/sql/ConnectionType.md) to use. | 
 | [keeper](#propertykeeper) |  | 
 | [name](#propertyname) | The name. | 
-| [pollSchedule](#propertypollSchedule) | The schedule to provide the polling interval. | 
-| [pollerCount](#propertypollerCount) | The number of outstanding loosing outcome's polling of the database that are still in progress. | 
-| [scheduleExecutorService](#propertyscheduleExecutorService) | The scheduling service for polling. | 
+| [pollSchedule](#propertypollschedule) | The schedule to provide the polling interval. | 
+| [pollerCount](#propertypollercount) | The number of outstanding loosing outcome's polling of the database that are still in progress. | 
+| [scheduleExecutorService](#propertyscheduleexecutorservice) | The scheduling service for polling. | 
 | [table](#propertytable) | The database table name. | 
 
 
@@ -84,7 +84,7 @@ The [connection](../../../org/oddjob/sql/ConnectionType.md) to use.
 
 The name.
 
-#### pollSchedule <a name="propertypollSchedule"></a>
+#### pollSchedule <a name="propertypollschedule"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -94,7 +94,7 @@ The name.
 
 The schedule to provide the polling interval.
 
-#### pollerCount <a name="propertypollerCount"></a>
+#### pollerCount <a name="propertypollercount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -103,7 +103,7 @@ The schedule to provide the polling interval.
 The number of outstanding loosing outcome's
 polling of the database that are still in progress.
 
-#### scheduleExecutorService <a name="propertyscheduleExecutorService"></a>
+#### scheduleExecutorService <a name="propertyscheduleexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

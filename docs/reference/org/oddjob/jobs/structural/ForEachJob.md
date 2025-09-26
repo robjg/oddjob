@@ -31,14 +31,14 @@ themselves via their ids.
 | -------- | ----------- |
 | [configuration](#propertyconfiguration) | The configuration that will be parsed for each value. | 
 | [current](#propertycurrent) | The current value | 
-| [executorService](#propertyexecutorService) | The ExecutorService to use. | 
+| [executorService](#propertyexecutorservice) | The ExecutorService to use. | 
 | [file](#propertyfile) | The name of the configuration file. | 
 | [index](#propertyindex) | The current index in the values. | 
 | [loadable](#propertyloadable) |  | 
 | [name](#propertyname) | A name, can be any text. | 
 | [parallel](#propertyparallel) | Should jobs be executed in parallel. | 
-| [preLoad](#propertypreLoad) | The number of values to pre-load configurations for. | 
-| [purgeAfter](#propertypurgeAfter) | The number of completed jobs to keep. | 
+| [preLoad](#propertypreload) | The number of values to pre-load configurations for. | 
+| [purgeAfter](#propertypurgeafter) | The number of completed jobs to keep. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 | [values](#propertyvalues) | Any value. | 
 
@@ -74,7 +74,7 @@ for each value.
 
 The current value
 
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -134,7 +134,7 @@ A name, can be any text.
 
 Should jobs be executed in parallel.
 
-#### preLoad <a name="propertypreLoad"></a>
+#### preLoad <a name="propertypreload"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -150,7 +150,7 @@ certain number are pre-loaded before execution starts.
 Setting this property to 0 means that all configuration will be
 initially loaded.
 
-#### purgeAfter <a name="propertypurgeAfter"></a>
+#### purgeAfter <a name="propertypurgeafter"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

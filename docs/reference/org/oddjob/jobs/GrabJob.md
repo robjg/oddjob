@@ -16,7 +16,7 @@ multiple Oddjob processes.
 | [job](#propertyjob) | The child job. | 
 | [keeper](#propertykeeper) | The keeper of work from which this job attempts to grab work. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [onLoosing](#propertyonLoosing) | The action on loosing. | 
+| [onLoosing](#propertyonloosing) | The action on loosing. | 
 | [winner](#propertywinner) | The identifier of the winner. | 
 
 
@@ -82,7 +82,7 @@ attempts to grab work.
 
 A name, can be any text.
 
-#### onLoosing <a name="propertyonLoosing"></a>
+#### onLoosing <a name="propertyonloosing"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

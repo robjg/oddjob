@@ -14,7 +14,7 @@ even if thing it is trying to stop hasn't fully stopped.
 
 | Property | Description |
 | -------- | ----------- |
-| [executorService](#propertyexecutorService) |  | 
+| [executorService](#propertyexecutorservice) |  | 
 | [job](#propertyjob) | Job to stop | 
 | [name](#propertyname) | A name, can be any text. | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
@@ -28,7 +28,7 @@ even if thing it is trying to stop hasn't fully stopped.
 
 
 ### Property Detail
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

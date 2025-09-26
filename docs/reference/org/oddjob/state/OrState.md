@@ -9,7 +9,7 @@ A job who's return state is a logical OR of the child states.
 
 | Property | Description |
 | -------- | ----------- |
-| [executorService](#propertyexecutorService) | The ExecutorService to use. | 
+| [executorService](#propertyexecutorservice) | The ExecutorService to use. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [join](#propertyjoin) |  | 
 | [name](#propertyname) | A name, can be any text. | 
@@ -24,7 +24,7 @@ A job who's return state is a logical OR of the child states.
 
 
 ### Property Detail
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

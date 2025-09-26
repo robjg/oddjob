@@ -9,7 +9,7 @@ events are aggregated according to the provided [org.oddjob.events.EventOperator
 
 | Property | Description |
 | -------- | ----------- |
-| [eventOperator](#propertyeventOperator) | Event Operator to filter events. | 
+| [eventOperator](#propertyeventoperator) | Event Operator to filter events. | 
 | [last](#propertylast) | The last event to be passed to a consumer. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [of](#propertyof) | The event sources to combine. | 
@@ -24,7 +24,7 @@ events are aggregated according to the provided [org.oddjob.events.EventOperator
 
 
 ### Property Detail
-#### eventOperator <a name="propertyeventOperator"></a>
+#### eventOperator <a name="propertyeventoperator"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

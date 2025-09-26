@@ -74,19 +74,19 @@ is all about writing custom job's for Oddjob.
 | Property | Description |
 | -------- | ----------- |
 | [args](#propertyargs) | An array of arguments the Oddjob configuration can use. | 
-| [classLoader](#propertyclassLoader) | The classLoader to use when loading the configuration. | 
+| [classLoader](#propertyclassloader) | The classLoader to use when loading the configuration. | 
 | [configuration](#propertyconfiguration) | The configuration. | 
-| [descriptorFactory](#propertydescriptorFactory) | An [org.oddjob.arooa.deploy.ArooaDescriptorFactory](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/deploy/ArooaDescriptorFactory.html) that will be used when loading the configuration. | 
+| [descriptorFactory](#propertydescriptorfactory) | An [org.oddjob.arooa.deploy.ArooaDescriptorFactory](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/deploy/ArooaDescriptorFactory.html) that will be used when loading the configuration. | 
 | [dir](#propertydir) | The name of the directory the configuration file is in. | 
 | [export](#propertyexport) | Values to be exported into the nested configuration. | 
 | [file](#propertyfile) | The name of the configuration file. | 
 | [inheritance](#propertyinheritance) | Set how an Oddjob should share the values and properties of it's parent. | 
-| [inputHandler](#propertyinputHandler) | A handler for user input. | 
-| [lastReset](#propertylastReset) | Used internally to remember which reset to apply after loading a configuration. | 
+| [inputHandler](#propertyinputhandler) | A handler for user input. | 
+| [lastReset](#propertylastreset) | Used internally to remember which reset to apply after loading a configuration. | 
 | [loadable](#propertyloadable) | Can Oddjob be loaded. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [oddjobExecutors](#propertyoddjobExecutors) | Executors for Oddjob to use. | 
-| [oddjobServices](#propertyoddjobServices) | Services for Oddjob to use. | 
+| [oddjobExecutors](#propertyoddjobexecutors) | Executors for Oddjob to use. | 
+| [oddjobServices](#propertyoddjobservices) | Services for Oddjob to use. | 
 | [persister](#propertypersister) | A component which is able to save and restore jobs. | 
 | [properties](#propertyproperties) | Properties to be set in the nested configuration. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
@@ -117,7 +117,7 @@ is all about writing custom job's for Oddjob.
 
 An array of arguments the Oddjob configuration can use.
 
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -149,7 +149,7 @@ is to come from some other input.
 
 See also [arooa:configuration](../../org/oddjob/arooa/types/XMLConfigurationType.md)
 
-#### descriptorFactory <a name="propertydescriptorFactory"></a>
+#### descriptorFactory <a name="propertydescriptorfactory"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -221,7 +221,7 @@ Oddjobs. Any properties or values set in the child will be visible
 in the parent. This setting is particularly useful for shared common
 configuration.</dd>
 
-#### inputHandler <a name="propertyinputHandler"></a>
+#### inputHandler <a name="propertyinputhandler"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -233,7 +233,7 @@ A handler for user input. This will be
 provided internally and will only be required in specialised
 situations.
 
-#### lastReset <a name="propertylastReset"></a>
+#### lastReset <a name="propertylastreset"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -261,7 +261,7 @@ Can Oddjob be loaded. Used by the Load/Unload actions.
 
 A name, can be any text.
 
-#### oddjobExecutors <a name="propertyoddjobExecutors"></a>
+#### oddjobExecutors <a name="propertyoddjobexecutors"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -273,7 +273,7 @@ Executors for Oddjob to use. This is
 set automatically in Oddjob. For advanced use, user
 supplied [org.oddjob.OddjobExecutors](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/OddjobExecutors.html) may be provided.
 
-#### oddjobServices <a name="propertyoddjobServices"></a>
+#### oddjobServices <a name="propertyoddjobservices"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

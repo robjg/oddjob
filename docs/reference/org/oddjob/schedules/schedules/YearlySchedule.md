@@ -9,13 +9,13 @@ is specified as an integer between 1 and 12 where 1 is January and
 
 | Property | Description |
 | -------- | ----------- |
-| [fromDate](#propertyfromDate) | The from month and day. | 
-| [fromMonth](#propertyfromMonth) | The from month. | 
-| [inMonth](#propertyinMonth) | The month in which this schedule is for. | 
-| [onDate](#propertyonDate) | The day on which this schedule is for. | 
+| [fromDate](#propertyfromdate) | The from month and day. | 
+| [fromMonth](#propertyfrommonth) | The from month. | 
+| [inMonth](#propertyinmonth) | The month in which this schedule is for. | 
+| [onDate](#propertyondate) | The day on which this schedule is for. | 
 | [refinement](#propertyrefinement) | Provide a refinement to this schedule. | 
-| [toDate](#propertytoDate) | The to month and day. | 
-| [toMonth](#propertytoMonth) | The to month. | 
+| [toDate](#propertytodate) | The to month and day. | 
+| [toMonth](#propertytomonth) | The to month. | 
 
 
 ### Example Summary
@@ -28,7 +28,7 @@ is specified as an integer between 1 and 12 where 1 is January and
 
 
 ### Property Detail
-#### fromDate <a name="propertyfromDate"></a>
+#### fromDate <a name="propertyfromdate"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -37,7 +37,7 @@ is specified as an integer between 1 and 12 where 1 is January and
 
 The from month and day.
 
-#### fromMonth <a name="propertyfromMonth"></a>
+#### fromMonth <a name="propertyfrommonth"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -47,7 +47,7 @@ The from month and day.
 
 The from month.
 
-#### inMonth <a name="propertyinMonth"></a>
+#### inMonth <a name="propertyinmonth"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -58,7 +58,7 @@ The from month.
 The month in which this schedule is for.
 This has the same effect as setting fromMonth and toMonth to the same thing.
 
-#### onDate <a name="propertyonDate"></a>
+#### onDate <a name="propertyondate"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -79,7 +79,7 @@ This has the same effect as setting fromDate and toDate to the same thing.
 
 Provide a refinement to this schedule.
 
-#### toDate <a name="propertytoDate"></a>
+#### toDate <a name="propertytodate"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -88,7 +88,7 @@ Provide a refinement to this schedule.
 
 The to month and day.
 
-#### toMonth <a name="propertytoMonth"></a>
+#### toMonth <a name="propertytomonth"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

@@ -10,11 +10,11 @@ This is the default job that Oddjob runs on startup.
 | -------- | ----------- |
 | [dir](#propertydir) | The directory the file chooser should use when opening and saving Oddjobs. | 
 | [file](#propertyfile) | A file to load when the explorer starts. | 
-| [fileHistorySize](#propertyfileHistorySize) | How many lines to keep in file history. | 
-| [logFormat](#propertylogFormat) | The log format for formatting log messages. | 
+| [fileHistorySize](#propertyfilehistorysize) | How many lines to keep in file history. | 
+| [logFormat](#propertylogformat) | The log format for formatting log messages. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [oddjobServices](#propertyoddjobServices) | Internal services. | 
-| [pollingInterval](#propertypollingInterval) | How often to poll in milli seconds for property updates. | 
+| [oddjobServices](#propertyoddjobservices) | Internal services. | 
+| [pollingInterval](#propertypollinginterval) | How often to poll in milli seconds for property updates. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 
 
@@ -40,7 +40,7 @@ should use when opening and saving Oddjobs.
 
 A file to load when the explorer starts.
 
-#### fileHistorySize <a name="propertyfileHistorySize"></a>
+#### fileHistorySize <a name="propertyfilehistorysize"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -50,7 +50,7 @@ A file to load when the explorer starts.
 
 How many lines to keep in file history.
 
-#### logFormat <a name="propertylogFormat"></a>
+#### logFormat <a name="propertylogformat"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -72,7 +72,7 @@ http://logging.apache.org/log4j/docs/</a>
 
 A name, can be any text.
 
-#### oddjobServices <a name="propertyoddjobServices"></a>
+#### oddjobServices <a name="propertyoddjobservices"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -83,7 +83,7 @@ A name, can be any text.
 Internal services. Set automatically
 by Oddjob.
 
-#### pollingInterval <a name="propertypollingInterval"></a>
+#### pollingInterval <a name="propertypollinginterval"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

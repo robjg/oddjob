@@ -79,13 +79,13 @@ in an exception.
 | -------- | ----------- |
 | [name](#propertyname) | The name of this component. | 
 | [row](#propertyrow) | The result of a query when only one result is expected. | 
-| [rowCount](#propertyrowCount) | The total number of rows returned by all the queries. | 
-| [rowSetCount](#propertyrowSetCount) | The number of rows sets, which will be the same as the number of queries that returned results. | 
-| [rowSets](#propertyrowSets) | A two dimensional array of all of the rows that each individual query returned. | 
+| [rowCount](#propertyrowcount) | The total number of rows returned by all the queries. | 
+| [rowSetCount](#propertyrowsetcount) | The number of rows sets, which will be the same as the number of queries that returned results. | 
+| [rowSets](#propertyrowsets) | A two dimensional array of all of the rows that each individual query returned. | 
 | [rows](#propertyrows) | An array of the rows when the query set contains only one result returning query. | 
 | [to](#propertyto) | The next component in a bus. | 
-| [updateCount](#propertyupdateCount) | The total update count for all queries. | 
-| [updateCounts](#propertyupdateCounts) | An Array of the update counts, one element per data modification statement. | 
+| [updateCount](#propertyupdatecount) | The total update count for all queries. | 
+| [updateCounts](#propertyupdatecounts) | An Array of the update counts, one element per data modification statement. | 
 
 
 ### Example Summary
@@ -117,7 +117,7 @@ The result of a query when only one result is expected.
 If no results were returned by the queries this property is null. If
 there are more than one row an exception will occur.
 
-#### rowCount <a name="propertyrowCount"></a>
+#### rowCount <a name="propertyrowcount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -127,7 +127,7 @@ there are more than one row an exception will occur.
 The total number of rows returned by all the
 queries.
 
-#### rowSetCount <a name="propertyrowSetCount"></a>
+#### rowSetCount <a name="propertyrowsetcount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -137,7 +137,7 @@ queries.
 The number of rows sets, which will be the same
 as the number of queries that returned results.
 
-#### rowSets <a name="propertyrowSets"></a>
+#### rowSets <a name="propertyrowsets"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -170,7 +170,7 @@ there are more than one result sets an exception will occur.
 The next component in a bus. Set automatically in a
 [bus:bus](../../../org/oddjob/beanbus/bus/BasicBusService.md).
 
-#### updateCount <a name="propertyupdateCount"></a>
+#### updateCount <a name="propertyupdatecount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -179,7 +179,7 @@ The next component in a bus. Set automatically in a
 
 The total update count for all queries.
 
-#### updateCounts <a name="propertyupdateCounts"></a>
+#### updateCounts <a name="propertyupdatecounts"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

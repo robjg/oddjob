@@ -25,11 +25,11 @@ the server can be accessed from the client using the expression
 | -------- | ----------- |
 | [connection](#propertyconnection) | The JMX service URL. | 
 | [environment](#propertyenvironment) | The environment. | 
-| [handlerFactories](#propertyhandlerFactories) | Additional handler factories that allow any interface to be invoked from a remote Oddjob. | 
+| [handlerFactories](#propertyhandlerfactories) | Additional handler factories that allow any interface to be invoked from a remote Oddjob. | 
 | [heartbeat](#propertyheartbeat) | The heart beat interval, in milliseconds. | 
-| [logPollingInterval](#propertylogPollingInterval) | The number of milliseconds between polling for new log events. | 
-| [maxConsoleLines](#propertymaxConsoleLines) | The maximum number of console lines to retrieve for any component. | 
-| [maxLoggerLines](#propertymaxLoggerLines) | The maximum number of log lines to retrieve for any component. | 
+| [logPollingInterval](#propertylogpollinginterval) | The number of milliseconds between polling for new log events. | 
+| [maxConsoleLines](#propertymaxconsolelines) | The maximum number of console lines to retrieve for any component. | 
+| [maxLoggerLines](#propertymaxloggerlines) | The maximum number of log lines to retrieve for any component. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [url](#propertyurl) | This property is now deprecated in favour of connection which reflects that the connection string no longer need only be a full JMX URL. | 
 
@@ -71,7 +71,7 @@ form <code>hostname[:port][/instance-name]</code>.
 The environment. Typically username/password
 credentials.
 
-#### handlerFactories <a name="propertyhandlerFactories"></a>
+#### handlerFactories <a name="propertyhandlerfactories"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -92,7 +92,7 @@ any interface to be invoked from a remote Oddjob.
 
 The heart beat interval, in milliseconds.
 
-#### logPollingInterval <a name="propertylogPollingInterval"></a>
+#### logPollingInterval <a name="propertylogpollinginterval"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -103,7 +103,7 @@ The heart beat interval, in milliseconds.
 The number of milliseconds between polling for new
 log events. Defaults to 5.
 
-#### maxConsoleLines <a name="propertymaxConsoleLines"></a>
+#### maxConsoleLines <a name="propertymaxconsolelines"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -114,7 +114,7 @@ log events. Defaults to 5.
 The maximum number of console lines to retrieve for any
 component.
 
-#### maxLoggerLines <a name="propertymaxLoggerLines"></a>
+#### maxLoggerLines <a name="propertymaxloggerlines"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

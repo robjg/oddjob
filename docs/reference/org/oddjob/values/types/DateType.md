@@ -47,7 +47,7 @@ Since v1.3 The date can also be specified using one of these shortcuts:
 | [clock](#propertyclock) | The clock to use if a date shortcut is specified. | 
 | [date](#propertydate) | A date in text, if a format is specified it is expected to be in the format provide, otherwise it is expected to be in the default format.. | 
 | [format](#propertyformat) | The format the date is in. | 
-| [timeZone](#propertytimeZone) | The time zone the date is for. | 
+| [timeZone](#propertytimezone) | The time zone the date is for. | 
 
 
 ### Example Summary
@@ -94,7 +94,7 @@ to be in the default format..
 
 The format the date is in.
 
-#### timeZone <a name="propertytimeZone"></a>
+#### timeZone <a name="propertytimezone"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

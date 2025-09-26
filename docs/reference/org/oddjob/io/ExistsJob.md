@@ -11,7 +11,7 @@ will signal an exception if the path to the file does not exist.
 | -------- | ----------- |
 | [exists](#propertyexists) | The files that match the file specification. | 
 | [file](#propertyfile) | The file specification. | 
-| [lastModified](#propertylastModified) | If a single file is found, this is the last modified date of the file. | 
+| [lastModified](#propertylastmodified) | If a single file is found, this is the last modified date of the file. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [result](#propertyresult) |  | 
 | [size](#propertysize) | If a single file is found, this is the size of the file in bytes, or -1 if a single file hasn't been found. | 
@@ -47,7 +47,7 @@ The files that match the file specification.
 The file specification. The file specification
 can contain wild card characters.
 
-#### lastModified <a name="propertylastModified"></a>
+#### lastModified <a name="propertylastmodified"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

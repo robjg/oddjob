@@ -13,7 +13,7 @@ are probably best defined with a custom [org.oddjob.arooa.ArooaValue](http://rgo
 
 | Property | Description |
 | -------- | ----------- |
-| [elementType](#propertyelementType) | The required element type. | 
+| [elementType](#propertyelementtype) | The required element type. | 
 | [merge](#propertymerge) | If the element is a list or array the values are merged into this list. | 
 | [unique](#propertyunique) | Ensures the list contains only unique elements. | 
 | [values](#propertyvalues) | Any values. | 
@@ -30,7 +30,7 @@ are probably best defined with a custom [org.oddjob.arooa.ArooaValue](http://rgo
 
 
 ### Property Detail
-#### elementType <a name="propertyelementType"></a>
+#### elementType <a name="propertyelementtype"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

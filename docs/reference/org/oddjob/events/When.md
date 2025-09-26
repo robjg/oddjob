@@ -10,15 +10,15 @@ up-to-date information.
 
 | Property | Description |
 | -------- | ----------- |
-| [beDestination](#propertybeDestination) | This is to be a destination. | 
-| [eventSource](#propertyeventSource) | The source of events. | 
-| [haltOn](#propertyhaltOn) | The State Condition of the child job on which to halt event subscription. | 
+| [beDestination](#propertybedestination) | This is to be a destination. | 
+| [eventSource](#propertyeventsource) | The source of events. | 
+| [haltOn](#propertyhalton) | The State Condition of the child job on which to halt event subscription. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 | [to](#propertyto) | Provide the event to a Bean Bus style consumer. | 
 | [trigger](#propertytrigger) | The trigger event. | 
-| [triggerStrategy](#propertytriggerStrategy) | How to handle triggers before the child job has completed. | 
+| [triggerStrategy](#propertytriggerstrategy) | How to handle triggers before the child job has completed. | 
 
 
 ### Example Summary
@@ -30,7 +30,7 @@ up-to-date information.
 
 
 ### Property Detail
-#### beDestination <a name="propertybeDestination"></a>
+#### beDestination <a name="propertybedestination"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -41,7 +41,7 @@ up-to-date information.
 This is to be a destination. A destination is a component in a
 [bus:bus](../../../org/oddjob/beanbus/bus/BasicBusService.md) pipeline.
 
-#### eventSource <a name="propertyeventSource"></a>
+#### eventSource <a name="propertyeventsource"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -52,7 +52,7 @@ This is to be a destination. A destination is a component in a
 The source of events. If this is not set the first child component is assumed
 to be the Event Source, unless [org.oddjob.events.EventJobBase](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/events/EventJobBase.html) is set.
 
-#### haltOn <a name="propertyhaltOn"></a>
+#### haltOn <a name="propertyhalton"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -110,7 +110,7 @@ Provide the event to a Bean Bus style consumer.
 
 The trigger event.
 
-#### triggerStrategy <a name="propertytriggerStrategy"></a>
+#### triggerStrategy <a name="propertytriggerstrategy"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

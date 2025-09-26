@@ -7,13 +7,13 @@ A group of tabs.
 
 | Property | Description |
 | -------- | ----------- |
-| [formItems](#propertyformItems) | The items that will create the tabs. | 
-| [formItemsList](#propertyformItemsList) |  | 
+| [formItems](#propertyformitems) | The items that will create the tabs. | 
+| [formItemsList](#propertyformitemslist) |  | 
 | [title](#propertytitle) | An optional title. | 
 
 
 ### Property Detail
-#### formItems <a name="propertyformItems"></a>
+#### formItems <a name="propertyformitems"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -24,7 +24,7 @@ A group of tabs.
 The items that will create the tabs. The title of each
 item will be the title of the tab.
 
-#### formItemsList <a name="propertyformItemsList"></a>
+#### formItemsList <a name="propertyformitemslist"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

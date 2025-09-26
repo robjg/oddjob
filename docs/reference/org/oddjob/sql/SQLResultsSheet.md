@@ -7,7 +7,7 @@ Writes SQL results to an output stream.
 
 | Property | Description |
 | -------- | ----------- |
-| [dataOnly](#propertydataOnly) | Don't display headings. | 
+| [dataOnly](#propertydataonly) | Don't display headings. | 
 | [name](#propertyname) | The name of this component. | 
 | [output](#propertyoutput) | The output stream to write results to. | 
 | [to](#propertyto) | The next component in a bus. | 
@@ -21,7 +21,7 @@ Writes SQL results to an output stream.
 
 
 ### Property Detail
-#### dataOnly <a name="propertydataOnly"></a>
+#### dataOnly <a name="propertydataonly"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

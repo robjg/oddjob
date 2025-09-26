@@ -7,13 +7,13 @@ A form for designing a component.
 
 | Property | Description |
 | -------- | ----------- |
-| [formItems](#propertyformItems) | The form items. | 
-| [formItemsList](#propertyformItemsList) |  | 
+| [formItems](#propertyformitems) | The form items. | 
+| [formItemsList](#propertyformitemslist) |  | 
 | [title](#propertytitle) | The form title. | 
 
 
 ### Property Detail
-#### formItems <a name="propertyformItems"></a>
+#### formItems <a name="propertyformitems"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -23,7 +23,7 @@ A form for designing a component.
 
 The form items.
 
-#### formItemsList <a name="propertyformItemsList"></a>
+#### formItemsList <a name="propertyformitemslist"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

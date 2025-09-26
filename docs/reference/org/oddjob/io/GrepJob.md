@@ -9,19 +9,19 @@ a text value or matches for a regular expression.
 | Property | Description |
 | -------- | ----------- |
 | [files](#propertyfiles) | The files to search. | 
-| [ignoreCase](#propertyignoreCase) | Ignore case. | 
+| [ignoreCase](#propertyignorecase) | Ignore case. | 
 | [in](#propertyin) | The input to search. | 
 | [invert](#propertyinvert) | Invert the search. | 
-| [lineNumbers](#propertylineNumbers) | Prefix output with line numbers. | 
-| [matchedLineCount](#propertymatchedLineCount) | A count of the number of matched lines. | 
+| [lineNumbers](#propertylinenumbers) | Prefix output with line numbers. | 
+| [matchedLineCount](#propertymatchedlinecount) | A count of the number of matched lines. | 
 | [name](#propertyname) | A display name for the job. | 
-| [noFilename](#propertynoFilename) | Don't prefix output with a file name. | 
-| [noPath](#propertynoPath) | Remove the path from the file name. | 
+| [noFilename](#propertynofilename) | Don't prefix output with a file name. | 
+| [noPath](#propertynopath) | Remove the path from the file name. | 
 | [out](#propertyout) | Where to write output to. | 
 | [regexp](#propertyregexp) | Treat the text to match as a regular expression. | 
 | [results](#propertyresults) | A collection for [org.oddjob.io.GrepLineResult](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/io/GrepLineResult.html) beans to be written to. | 
 | [text](#propertytext) | Text to search for. | 
-| [withFilename](#propertywithFilename) | Prefix output with a file name. | 
+| [withFilename](#propertywithfilename) | Prefix output with a file name. | 
 
 
 ### Example Summary
@@ -42,7 +42,7 @@ a text value or matches for a regular expression.
 
 The files to search.
 
-#### ignoreCase <a name="propertyignoreCase"></a>
+#### ignoreCase <a name="propertyignorecase"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -74,7 +74,7 @@ The input to search.
 Invert the search. If true, then only lines that
 don't contain a match will be output.
 
-#### lineNumbers <a name="propertylineNumbers"></a>
+#### lineNumbers <a name="propertylinenumbers"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -86,7 +86,7 @@ Prefix output with line numbers. If true
 then the number of the match in the file or input will be prepended
 to each line of output.
 
-#### matchedLineCount <a name="propertymatchedLineCount"></a>
+#### matchedLineCount <a name="propertymatchedlinecount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -105,7 +105,7 @@ A count of the number of matched lines.
 
 A display name for the job.
 
-#### noFilename <a name="propertynoFilename"></a>
+#### noFilename <a name="propertynofilename"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -116,7 +116,7 @@ A display name for the job.
 Don't prefix output with a file name. If true
 then no file name will be prefixed to each line of output.
 
-#### noPath <a name="propertynoPath"></a>
+#### noPath <a name="propertynopath"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -170,7 +170,7 @@ to be written to.
 Text to search for. This is a regular expression
 if the regexp property is set to true.
 
-#### withFilename <a name="propertywithFilename"></a>
+#### withFilename <a name="propertywithfilename"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

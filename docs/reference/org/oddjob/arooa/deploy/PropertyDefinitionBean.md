@@ -15,7 +15,7 @@ to using annotations in the Java code or providing an
 | -------- | ----------- |
 | [annotation](#propertyannotation) | An annotation for the property. | 
 | [auto](#propertyauto) | Is the property set automatically by the framework. | 
-| [configuredHow](#propertyconfiguredHow) |  | 
+| [configuredHow](#propertyconfiguredhow) |  | 
 | [flavour](#propertyflavour) | Not used at present. | 
 | [name](#propertyname) | The name of the property. | 
 | [type](#propertytype) | The type of the property. | 
@@ -43,7 +43,7 @@ An annotation for the property.
 Is the property set automatically by the
 framework. True/False.
 
-#### configuredHow <a name="propertyconfiguredHow"></a>
+#### configuredHow <a name="propertyconfiguredhow"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

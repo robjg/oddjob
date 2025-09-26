@@ -22,10 +22,10 @@ server the trigger will enter an exception state.
 
 | Property | Description |
 | -------- | ----------- |
-| [cancelWhen](#propertycancelWhen) | A state condition that will cause the trigger to cancel. | 
+| [cancelWhen](#propertycancelwhen) | A state condition that will cause the trigger to cancel. | 
 | [job](#propertyjob) | The job to run when the trigger fires. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [newOnly](#propertynewOnly) | Fire trigger on new events only. | 
+| [newOnly](#propertynewonly) | Fire trigger on new events only. | 
 | [on](#propertyon) | The job the trigger will trigger on. | 
 | [state](#propertystate) | The state condition which will cause the trigger to fire. | 
 
@@ -41,7 +41,7 @@ server the trigger will enter an exception state.
 
 
 ### Property Detail
-#### cancelWhen <a name="propertycancelWhen"></a>
+#### cancelWhen <a name="propertycancelwhen"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -72,7 +72,7 @@ The job to run when the trigger fires.
 
 A name, can be any text.
 
-#### newOnly <a name="propertynewOnly"></a>
+#### newOnly <a name="propertynewonly"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

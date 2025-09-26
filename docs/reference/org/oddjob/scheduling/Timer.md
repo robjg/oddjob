@@ -86,15 +86,15 @@ For more information see the Scheduling section of the User Guide.
 | -------- | ----------- |
 | [clock](#propertyclock) | The clock to use. | 
 | [current](#propertycurrent) | This is the current/next result from the schedule. | 
-| [haltOn](#propertyhaltOn) | The state of the Child Job from the nextDue property when the job begins to execute. | 
-| [haltOnFailure](#propertyhaltOnFailure) | Don't reschedule if the scheduled job doesn't complete. | 
+| [haltOn](#propertyhalton) | The state of the Child Job from the nextDue property when the job begins to execute. | 
+| [haltOnFailure](#propertyhaltonfailure) | Don't reschedule if the scheduled job doesn't complete. | 
 | [job](#propertyjob) | The job to run when it's due. | 
-| [lastDue](#propertylastDue) | The time the schedule was lastDue. | 
+| [lastDue](#propertylastdue) | The time the schedule was lastDue. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [reset](#propertyreset) |  | 
 | [schedule](#propertyschedule) | The Schedule used to provide execution times. | 
-| [skipMissedRuns](#propertyskipMissedRuns) | Use the current time, not the last completed time to calculate when the job is next due. | 
-| [timeZone](#propertytimeZone) | The time zone the schedule is to run in. | 
+| [skipMissedRuns](#propertyskipmissedruns) | Use the current time, not the last completed time to calculate when the job is next due. | 
+| [timeZone](#propertytimezone) | The time zone the schedule is to run in. | 
 
 
 ### Example Summary
@@ -133,7 +133,7 @@ used to calculate the following new current property after execution. This
 property is most useful for the Timer to pass limits to
 the Retry, but is also useful for diagnostics.
 
-#### haltOn <a name="propertyhaltOn"></a>
+#### haltOn <a name="propertyhalton"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -144,7 +144,7 @@ the Retry, but is also useful for diagnostics.
 The state of the Child Job
 from the nextDue property when the job begins to execute.
 
-#### haltOnFailure <a name="propertyhaltOnFailure"></a>
+#### haltOnFailure <a name="propertyhaltonfailure"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -165,7 +165,7 @@ complete.
 
 The job to run when it's due.
 
-#### lastDue <a name="propertylastDue"></a>
+#### lastDue <a name="propertylastdue"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -205,7 +205,7 @@ A name, can be any text.
 The Schedule used to provide execution
 times.
 
-#### skipMissedRuns <a name="propertyskipMissedRuns"></a>
+#### skipMissedRuns <a name="propertyskipmissedruns"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -216,7 +216,7 @@ times.
 Use the current time, not the last completed time
 to calculate when the job is next due.
 
-#### timeZone <a name="propertytimeZone"></a>
+#### timeZone <a name="propertytimezone"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

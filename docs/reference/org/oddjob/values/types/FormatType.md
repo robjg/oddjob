@@ -17,7 +17,7 @@ For more information on the date format see [java.text.SimpleDateFormat](https:/
 | [date](#propertydate) | A date to format. | 
 | [format](#propertyformat) | The format. | 
 | [number](#propertynumber) | A number to format. | 
-| [timeZone](#propertytimeZone) | The time zone to use for a date format. | 
+| [timeZone](#propertytimezone) | The time zone to use for a date format. | 
 
 
 ### Example Summary
@@ -59,7 +59,7 @@ The format.
 
 A number to format.
 
-#### timeZone <a name="propertytimeZone"></a>
+#### timeZone <a name="propertytimezone"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

@@ -18,7 +18,7 @@ recurring schedules as in the example below.
 | [date](#propertydate) | The Date to use. | 
 | [result](#propertyresult) | The result of applying the schedule which is a ScheduleResult bean that has the properties fromDate, toDate and useNext. | 
 | [schedule](#propertyschedule) | The schedule to use. | 
-| [timeZone](#propertytimeZone) | The time zone to apply the schedule for. | 
+| [timeZone](#propertytimezone) | The time zone to apply the schedule for. | 
 
 
 ### Example Summary
@@ -60,7 +60,7 @@ useNext.
 
 The schedule to use.
 
-#### timeZone <a name="propertytimeZone"></a>
+#### timeZone <a name="propertytimezone"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

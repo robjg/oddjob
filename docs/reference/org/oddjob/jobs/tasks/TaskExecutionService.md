@@ -18,10 +18,10 @@ Future version will support multiple parallel executions of tasks.
 
 | Property | Description |
 | -------- | ----------- |
-| [arooaSession](#propertyarooaSession) |  | 
+| [arooaSession](#propertyarooasession) |  | 
 | [job](#propertyjob) | The job to pass resets on to. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [parameterInfo](#propertyparameterInfo) |  | 
+| [parameterInfo](#propertyparameterinfo) |  | 
 | [properties](#propertyproperties) |  | 
 | [requests](#propertyrequests) |  | 
 | [reset](#propertyreset) |  | 
@@ -36,7 +36,7 @@ Future version will support multiple parallel executions of tasks.
 
 
 ### Property Detail
-#### arooaSession <a name="propertyarooaSession"></a>
+#### arooaSession <a name="propertyarooasession"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -65,7 +65,7 @@ The job to pass resets on to.
 
 A name, can be any text.
 
-#### parameterInfo <a name="propertyparameterInfo"></a>
+#### parameterInfo <a name="propertyparameterinfo"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

@@ -7,8 +7,8 @@ Provide a Bean for use in an [arooa:descriptor](../../../../org/oddjob/arooa/dep
 
 | Property | Description |
 | -------- | ----------- |
-| [className](#propertyclassName) | The class name of the conversion. | 
-| [methodName](#propertymethodName) | The name of the method that provides the conversion if the conversion is not an [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html). | 
+| [className](#propertyclassname) | The class name of the conversion. | 
+| [methodName](#propertymethodname) | The name of the method that provides the conversion if the conversion is not an [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html). | 
 
 
 ### Example Summary
@@ -19,7 +19,7 @@ Provide a Bean for use in an [arooa:descriptor](../../../../org/oddjob/arooa/dep
 
 
 ### Property Detail
-#### className <a name="propertyclassName"></a>
+#### className <a name="propertyclassname"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -32,7 +32,7 @@ this is the name of the class that has that method and the conversion will be fr
 objects of that class to the return type of the method. If method is provided then
 this class name must refer to an [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html).
 
-#### methodName <a name="propertymethodName"></a>
+#### methodName <a name="propertymethodname"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

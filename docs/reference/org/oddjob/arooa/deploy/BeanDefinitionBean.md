@@ -10,9 +10,9 @@ provided for the class by specifying additional [arooa:property](../../../../org
 | Property | Description |
 | -------- | ----------- |
 | [annotations](#propertyannotations) | A list of [arooa:annotation](../../../../org/oddjob/arooa/deploy/AnnotationDefinitionBean.md). | 
-| [className](#propertyclassName) | The class name for the bean. | 
+| [className](#propertyclassname) | The class name for the bean. | 
 | [design](#propertydesign) | A class name that provides a DesignFactory for the bean. | 
-| [designFactory](#propertydesignFactory) | A class name that provides a DesignFactory for the bean. | 
+| [designFactory](#propertydesignfactory) | A class name that provides a DesignFactory for the bean. | 
 | [element](#propertyelement) | The unqualified element name for the mapping. | 
 | [interceptor](#propertyinterceptor) | A ParsingInterceptor. | 
 | [properties](#propertyproperties) | A list of [arooa:property](../../../../org/oddjob/arooa/deploy/PropertyDefinitionBean.md)s | 
@@ -29,7 +29,7 @@ provided for the class by specifying additional [arooa:property](../../../../org
 
 A list of [arooa:annotation](../../../../org/oddjob/arooa/deploy/AnnotationDefinitionBean.md).
 
-#### className <a name="propertyclassName"></a>
+#### className <a name="propertyclassname"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -50,7 +50,7 @@ The class name for the bean.
 A class name that provides a
 DesignFactory for the bean.
 
-#### designFactory <a name="propertydesignFactory"></a>
+#### designFactory <a name="propertydesignfactory"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

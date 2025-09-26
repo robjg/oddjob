@@ -11,7 +11,7 @@ so it can not be used to set a property on a server from an Odjdob Client.
 
 | Property | Description |
 | -------- | ----------- |
-| [classLoader](#propertyclassLoader) | The class loader to use to load the class. | 
+| [classLoader](#propertyclassloader) | The class loader to use to load the class. | 
 | [name](#propertyname) | The name of the class. | 
 
 
@@ -23,7 +23,7 @@ so it can not be used to set a property on a server from an Odjdob Client.
 
 
 ### Property Detail
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

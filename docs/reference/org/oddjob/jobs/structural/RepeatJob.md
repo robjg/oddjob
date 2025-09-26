@@ -18,7 +18,7 @@ Without either a until or a times or values the job will loop indefinitely.
 | -------- | ----------- |
 | [count](#propertycount) | The count of repeats. | 
 | [current](#propertycurrent) | The current value of the repeat. | 
-| [executorService](#propertyexecutorService) | The ExecutorService to use. | 
+| [executorService](#propertyexecutorservice) | The ExecutorService to use. | 
 | [index](#propertyindex) | The same as count. | 
 | [job](#propertyjob) | The job who's execution to schedule. | 
 | [name](#propertyname) | A name, can be any text. | 
@@ -55,7 +55,7 @@ The count of repeats.
 
 The current value of the repeat.
 
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

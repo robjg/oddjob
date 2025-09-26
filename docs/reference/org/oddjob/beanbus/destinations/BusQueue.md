@@ -12,7 +12,7 @@ A Queue for beans. A work in progress.
 | [put](#propertyput) |  | 
 | [size](#propertysize) | The size of the queue. | 
 | [taken](#propertytaken) | The number of items taken from the queue. | 
-| [waitingConsumers](#propertywaitingConsumers) | The number of consumers waiting. | 
+| [waitingConsumers](#propertywaitingconsumers) | The number of consumers waiting. | 
 
 
 ### Example Summary
@@ -71,7 +71,7 @@ The size of the queue.
 
 The number of items taken from the queue.
 
-#### waitingConsumers <a name="propertywaitingConsumers"></a>
+#### waitingConsumers <a name="propertywaitingconsumers"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

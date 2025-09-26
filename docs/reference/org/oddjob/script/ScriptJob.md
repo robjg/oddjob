@@ -17,16 +17,16 @@ in addition to any output properties.
 | Property | Description |
 | -------- | ----------- |
 | [beans](#propertybeans) | A named bean which is made available to the script. | 
-| [classLoader](#propertyclassLoader) | ClassLoader to load the Script Engine. | 
+| [classLoader](#propertyclassloader) | ClassLoader to load the Script Engine. | 
 | [function](#propertyfunction) |  | 
 | [input](#propertyinput) | The script provided as input from file or buffer etc. | 
 | [invocable](#propertyinvocable) | Allow a scripted function to be evaluated from elsewhere in Oddjob. | 
 | [language](#propertylanguage) | The name of the language the script is in. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [redirectStderr](#propertyredirectStderr) | Combine stdin and stderr. | 
+| [redirectStderr](#propertyredirectstderr) | Combine stdin and stderr. | 
 | [result](#propertyresult) | The result of executing the script or the script variable chosen as the result variable with the `resultVariable` property. | 
-| [resultForState](#propertyresultForState) | If true then use the result to determine the completion state of the job. | 
-| [resultVariable](#propertyresultVariable) | The variable in the script that will be used to provide the result. | 
+| [resultForState](#propertyresultforstate) | If true then use the result to determine the completion state of the job. | 
+| [resultVariable](#propertyresultvariable) | The variable in the script that will be used to provide the result. | 
 | [script](#propertyscript) | The script provided as text. | 
 | [stderr](#propertystderr) | An output to where stderr of the script will be written. | 
 | [stdin](#propertystdin) | An input stream which will act as stdin for the script. | 
@@ -60,7 +60,7 @@ in addition to any output properties.
 A named bean which is made available to
 the script.
 
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -118,7 +118,7 @@ is in.
 
 A name, can be any text.
 
-#### redirectStderr <a name="propertyredirectStderr"></a>
+#### redirectStderr <a name="propertyredirectstderr"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -138,7 +138,7 @@ The result of executing the script or the script
 variable chosen as the result variable with the `resultVariable`
 property.
 
-#### resultForState <a name="propertyresultForState"></a>
+#### resultForState <a name="propertyresultforstate"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -152,7 +152,7 @@ property will have no affect.
 If the result is a number and 0 the job will COMPLETE, any
 other value and the job will be INCOMPLETE.
 
-#### resultVariable <a name="propertyresultVariable"></a>
+#### resultVariable <a name="propertyresultvariable"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

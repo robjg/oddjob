@@ -8,8 +8,8 @@ A group of form items.
 | Property | Description |
 | -------- | ----------- |
 | [bordered](#propertybordered) | Is there a border round the group. | 
-| [formItems](#propertyformItems) | The items in the group. | 
-| [formItemsList](#propertyformItemsList) |  | 
+| [formItems](#propertyformitems) | The items in the group. | 
+| [formItemsList](#propertyformitemslist) |  | 
 | [title](#propertytitle) | The title of the group. | 
 
 
@@ -24,7 +24,7 @@ A group of form items.
 
 Is there a border round the group.
 
-#### formItems <a name="propertyformItems"></a>
+#### formItems <a name="propertyformitems"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -34,7 +34,7 @@ Is there a border round the group.
 
 The items in the group.
 
-#### formItemsList <a name="propertyformItemsList"></a>
+#### formItemsList <a name="propertyformitemslist"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

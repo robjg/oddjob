@@ -8,15 +8,15 @@ The namespace version this job is deprecated. Please use
 
 | Property | Description |
 | -------- | ----------- |
-| [cascadeOn](#propertycascadeOn) | The state to continue the cascade on. | 
-| [haltOn](#propertyhaltOn) | The state to halt the cascade on. | 
+| [cascadeOn](#propertycascadeon) | The state to continue the cascade on. | 
+| [haltOn](#propertyhalton) | The state to halt the cascade on. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 
 
 ### Property Detail
-#### cascadeOn <a name="propertycascadeOn"></a>
+#### cascadeOn <a name="propertycascadeon"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -26,7 +26,7 @@ The namespace version this job is deprecated. Please use
 
 The state to continue the cascade on.
 
-#### haltOn <a name="propertyhaltOn"></a>
+#### haltOn <a name="propertyhalton"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

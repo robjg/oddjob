@@ -11,7 +11,7 @@ See also [arooa:magic-beans](../../../../org/oddjob/arooa/beanutils/MagicBeanDes
 
 | Property | Description |
 | -------- | ----------- |
-| [classLoader](#propertyclassLoader) | The class loader. | 
+| [classLoader](#propertyclassloader) | The class loader. | 
 | [name](#propertyname) | The name of the class. | 
 | [properties](#propertyproperties) | The bean properties. | 
 
@@ -24,7 +24,7 @@ See also [arooa:magic-beans](../../../../org/oddjob/arooa/beanutils/MagicBeanDes
 
 
 ### Property Detail
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

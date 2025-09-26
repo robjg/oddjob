@@ -44,19 +44,19 @@ from <code>getParameterMetaData</code>.
 | [callable](#propertycallable) | If the statement calls a stored procedure. | 
 | [connection](#propertyconnection) | The connection to use. | 
 | [delimiter](#propertydelimiter) | Set the delimiter that separates SQL statements. | 
-| [delimiterType](#propertydelimiterType) | Set the delimiter type: NORMAL or ROW. | 
+| [delimiterType](#propertydelimitertype) | Set the delimiter type: NORMAL or ROW. | 
 | [dialect](#propertydialect) | Allows a [org.oddjob.sql.DatabaseDialect](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/sql/DatabaseDialect.html) to be provided that can tune the way the result set is processed. | 
 | [encoding](#propertyencoding) | Set the string encoding to use on the SQL read in. | 
-| [escapeProcessing](#propertyescapeProcessing) | Set escape processing for statements. | 
-| [executedSQLCount](#propertyexecutedSQLCount) | The number of SQL statements executed. | 
-| [expandProperties](#propertyexpandProperties) | Enable property expansion inside the SQL statements read from the input. | 
+| [escapeProcessing](#propertyescapeprocessing) | Set escape processing for statements. | 
+| [executedSQLCount](#propertyexecutedsqlcount) | The number of SQL statements executed. | 
+| [expandProperties](#propertyexpandproperties) | Enable property expansion inside the SQL statements read from the input. | 
 | [input](#propertyinput) | The input from where to read the SQL query or DML statement(s) to run. | 
-| [keepFormat](#propertykeepFormat) | Whether or not the format of the SQL should be preserved. | 
+| [keepFormat](#propertykeepformat) | Whether or not the format of the SQL should be preserved. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [onError](#propertyonError) | What to do when a statement fails: <dl> <dt>CONTINUE</dt> <dd>Ignore the failure and continue executing.</dd> <dt>STOP</dt> <dd>Commit what has been executed but don't execute any more.</dd> <dt>ABORT</dt> <dd>Rollback what has been executed and don't execute any more.</dd> </dl> Note that if <code>autocommit</code> is true then ABORT behaves like STOP as no roll back is possible. | 
+| [onError](#propertyonerror) | What to do when a statement fails: <dl> <dt>CONTINUE</dt> <dd>Ignore the failure and continue executing.</dd> <dt>STOP</dt> <dd>Commit what has been executed but don't execute any more.</dd> <dt>ABORT</dt> <dd>Rollback what has been executed and don't execute any more.</dd> </dl> Note that if <code>autocommit</code> is true then ABORT behaves like STOP as no roll back is possible. | 
 | [parameters](#propertyparameters) | Parameters to be bound to statement(s). | 
 | [results](#propertyresults) | Optional result processor. | 
-| [successfulSQLCount](#propertysuccessfulSQLCount) | The number of SQL statements successfully executed. | 
+| [successfulSQLCount](#propertysuccessfulsqlcount) | The number of SQL statements successfully executed. | 
 
 
 ### Example Summary
@@ -120,7 +120,7 @@ also set the <code>delimiterType</code> to "ROW".
 The delimiter is case insensitive so either "GO" or "go" can be
 used interchangeably.
 
-#### delimiterType <a name="propertydelimiterType"></a>
+#### delimiterType <a name="propertydelimitertype"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -159,7 +159,7 @@ that can tune the way the result set is processed.
 
 Set the string encoding to use on the SQL read in.
 
-#### escapeProcessing <a name="propertyescapeProcessing"></a>
+#### escapeProcessing <a name="propertyescapeprocessing"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -170,7 +170,7 @@ Set the string encoding to use on the SQL read in.
 Set escape processing for statements. See the java doc for
 <code>Statement.setEscapeProcessing</code> for more information.
 
-#### executedSQLCount <a name="propertyexecutedSQLCount"></a>
+#### executedSQLCount <a name="propertyexecutedsqlcount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -178,7 +178,7 @@ Set escape processing for statements. See the java doc for
 
 The number of SQL statements executed.
 
-#### expandProperties <a name="propertyexpandProperties"></a>
+#### expandProperties <a name="propertyexpandproperties"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -202,7 +202,7 @@ or DML statement(s) to run. Probably either [file](../../../org/oddjob/io/FileTy
 reading the SQL from a file or [buffer](../../../org/oddjob/io/BufferType.md) for configuring
 the SQL in line.
 
-#### keepFormat <a name="propertykeepFormat"></a>
+#### keepFormat <a name="propertykeepformat"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -223,7 +223,7 @@ SQL should be preserved.
 
 A name, can be any text.
 
-#### onError <a name="propertyonError"></a>
+#### onError <a name="propertyonerror"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -267,7 +267,7 @@ an id for other jobs to access.
 Optional result processor. Probably one of
 [sql-results-bean](../../../org/oddjob/sql/SQLResultsBean.md) or [sql-results-sheet](../../../org/oddjob/sql/SQLResultsSheet.md).
 
-#### successfulSQLCount <a name="propertysuccessfulSQLCount"></a>
+#### successfulSQLCount <a name="propertysuccessfulsqlcount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

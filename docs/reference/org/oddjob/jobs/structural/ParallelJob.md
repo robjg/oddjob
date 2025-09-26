@@ -19,11 +19,11 @@ and is well documented there. Likewise with the transient property.
 
 | Property | Description |
 | -------- | ----------- |
-| [executorService](#propertyexecutorService) | The ExecutorService to use. | 
+| [executorService](#propertyexecutorservice) | The ExecutorService to use. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [join](#propertyjoin) | Should the execution thread of this job wait for the execution threads of the child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [stateOperator](#propertystateOperator) | Set the way the children's state is evaluated and reflected by the parent. | 
+| [stateOperator](#propertystateoperator) | Set the way the children's state is evaluated and reflected by the parent. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 | [transient](#propertytransient) | Is this job transient. | 
 
@@ -38,7 +38,7 @@ and is well documented there. Likewise with the transient property.
 
 
 ### Property Detail
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -93,7 +93,7 @@ it is better practice to try and use the job state.
 
 A name, can be any text.
 
-#### stateOperator <a name="propertystateOperator"></a>
+#### stateOperator <a name="propertystateoperator"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

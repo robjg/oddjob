@@ -17,8 +17,8 @@ This job reflects the state of the job being executed.
 | [join](#propertyjoin) | Wait for the target job to finish executing. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [reset](#propertyreset) | The reset level. | 
-| [showJob](#propertyshowJob) | Add the target job as a child of this job. | 
-| [stateOperator](#propertystateOperator) | Set the way the children's state is evaluated and reflected by the parent. | 
+| [showJob](#propertyshowjob) | Add the target job as a child of this job. | 
+| [stateOperator](#propertystateoperator) | Set the way the children's state is evaluated and reflected by the parent. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 
 
@@ -70,7 +70,7 @@ A name, can be any text.
 
 The reset level. See [org.oddjob.jobs.job.ResetActions](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/jobs/job/ResetActions.html).
 
-#### showJob <a name="propertyshowJob"></a>
+#### showJob <a name="propertyshowjob"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -81,7 +81,7 @@ The reset level. See [org.oddjob.jobs.job.ResetActions](http://rgordon.co.uk/odd
 Add the target job as a child of this job. Allows
 the target job to be easily monitored from a UI.
 
-#### stateOperator <a name="propertystateOperator"></a>
+#### stateOperator <a name="propertystateoperator"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

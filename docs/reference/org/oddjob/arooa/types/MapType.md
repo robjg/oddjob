@@ -15,7 +15,7 @@ As yet there is no merging of maps supported by this type.
 | Property | Description |
 | -------- | ----------- |
 | [element](#propertyelement) |  | 
-| [elementType](#propertyelementType) | The required element type. | 
+| [elementType](#propertyelementtype) | The required element type. | 
 | [values](#propertyvalues) | Any values. | 
 
 
@@ -36,7 +36,7 @@ As yet there is no merging of maps supported by this type.
 
 
 
-#### elementType <a name="propertyelementType"></a>
+#### elementType <a name="propertyelementtype"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

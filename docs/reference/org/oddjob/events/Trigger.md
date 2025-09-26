@@ -16,8 +16,8 @@ firing.
 
 | Property | Description |
 | -------- | ----------- |
-| [beDestination](#propertybeDestination) | This is to be a destination. | 
-| [eventSource](#propertyeventSource) | The source of events. | 
+| [beDestination](#propertybedestination) | This is to be a destination. | 
+| [eventSource](#propertyeventsource) | The source of events. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
@@ -35,7 +35,7 @@ firing.
 
 
 ### Property Detail
-#### beDestination <a name="propertybeDestination"></a>
+#### beDestination <a name="propertybedestination"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -46,7 +46,7 @@ firing.
 This is to be a destination. A destination is a component in a
 [bus:bus](../../../org/oddjob/beanbus/bus/BasicBusService.md) pipeline.
 
-#### eventSource <a name="propertyeventSource"></a>
+#### eventSource <a name="propertyeventsource"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

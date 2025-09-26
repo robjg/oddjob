@@ -13,7 +13,7 @@ with optional properties.
 | [properties](#propertyproperties) | Properties to execute the task with. | 
 | [response](#propertyresponse) |  | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
-| [taskExecutor](#propertytaskExecutor) | The job to start | 
+| [taskExecutor](#propertytaskexecutor) | The job to start | 
 
 
 ### Example Summary
@@ -72,7 +72,7 @@ Properties to execute the task with.
 This flag is set by the stop method and should
 be examined by any Stoppable jobs in their processing loops.
 
-#### taskExecutor <a name="propertytaskExecutor"></a>
+#### taskExecutor <a name="propertytaskexecutor"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

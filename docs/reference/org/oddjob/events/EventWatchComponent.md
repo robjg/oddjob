@@ -8,7 +8,7 @@ Provides a component wrapper around a value type event source such as
 
 | Property | Description |
 | -------- | ----------- |
-| [eventSource](#propertyeventSource) | The event source being wrapped to be a component. | 
+| [eventSource](#propertyeventsource) | The event source being wrapped to be a component. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [to](#propertyto) | The destination events will be sent to. | 
 
@@ -21,7 +21,7 @@ Provides a component wrapper around a value type event source such as
 
 
 ### Property Detail
-#### eventSource <a name="propertyeventSource"></a>
+#### eventSource <a name="propertyeventsource"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

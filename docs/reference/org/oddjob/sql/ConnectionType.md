@@ -7,7 +7,7 @@ Definition for a Database connection.
 
 | Property | Description |
 | -------- | ----------- |
-| [classLoader](#propertyclassLoader) | The class loader to use to load the JDBC driver. | 
+| [classLoader](#propertyclassloader) | The class loader to use to load the JDBC driver. | 
 | [driver](#propertydriver) | The driver class name. | 
 | [password](#propertypassword) | The users password. | 
 | [url](#propertyurl) | The jdbc url. | 
@@ -22,7 +22,7 @@ Definition for a Database connection.
 
 
 ### Property Detail
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

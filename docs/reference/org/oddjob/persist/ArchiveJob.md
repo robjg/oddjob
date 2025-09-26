@@ -9,8 +9,8 @@ can be used to browse an archive created with this job.
 
 | Property | Description |
 | -------- | ----------- |
-| [archiveIdentifier](#propertyarchiveIdentifier) | The identifier of the snapshot that will be taken when this job runs. | 
-| [archiveName](#propertyarchiveName) | The name of the archive that all snapshots will be stored in. | 
+| [archiveIdentifier](#propertyarchiveidentifier) | The identifier of the snapshot that will be taken when this job runs. | 
+| [archiveName](#propertyarchivename) | The name of the archive that all snapshots will be stored in. | 
 | [archiver](#propertyarchiver) | The persister to use to store archives. | 
 | [job](#propertyjob) | The child job. | 
 | [name](#propertyname) | A name, can be any text. | 
@@ -24,7 +24,7 @@ can be used to browse an archive created with this job.
 
 
 ### Property Detail
-#### archiveIdentifier <a name="propertyarchiveIdentifier"></a>
+#### archiveIdentifier <a name="propertyarchiveidentifier"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -35,7 +35,7 @@ can be used to browse an archive created with this job.
 The identifier of the snapshot that will
 be taken when this job runs.
 
-#### archiveName <a name="propertyarchiveName"></a>
+#### archiveName <a name="propertyarchivename"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

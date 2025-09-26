@@ -7,7 +7,7 @@ Provide Configuration in XML format.
 
 | Property | Description |
 | -------- | ----------- |
-| [classLoader](#propertyclassLoader) | The class loader to use for reading a resource. | 
+| [classLoader](#propertyclassloader) | The class loader to use for reading a resource. | 
 | [file](#propertyfile) | A file containing the configuration. | 
 | [input](#propertyinput) | An input stream containing the configuration. | 
 | [resource](#propertyresource) | The name of a class path resource containing the configuration. | 
@@ -16,7 +16,7 @@ Provide Configuration in XML format.
 
 
 ### Property Detail
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

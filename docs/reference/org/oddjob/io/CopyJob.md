@@ -16,8 +16,8 @@ A Copy job. Copy either:
 | Property | Description |
 | -------- | ----------- |
 | [consumer](#propertyconsumer) | A consumer of strings. | 
-| [directoriesCopied](#propertydirectoriesCopied) | The number of directories copied. | 
-| [filesCopied](#propertyfilesCopied) | The number of files copied. | 
+| [directoriesCopied](#propertydirectoriescopied) | The number of directories copied. | 
+| [filesCopied](#propertyfilescopied) | The number of files copied. | 
 | [from](#propertyfrom) | The file to read from. | 
 | [input](#propertyinput) | An input stream. | 
 | [name](#propertyname) | A name, can be any text. | 
@@ -47,7 +47,7 @@ A Copy job. Copy either:
 A consumer of strings. Intended for use as the driver in a
 [bus:bus](../../../org/oddjob/beanbus/bus/BasicBusService.md).
 
-#### directoriesCopied <a name="propertydirectoriesCopied"></a>
+#### directoriesCopied <a name="propertydirectoriescopied"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -56,7 +56,7 @@ A consumer of strings. Intended for use as the driver in a
 
 The number of directories copied.
 
-#### filesCopied <a name="propertyfilesCopied"></a>
+#### filesCopied <a name="propertyfilescopied"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

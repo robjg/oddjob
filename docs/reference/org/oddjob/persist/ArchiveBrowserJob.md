@@ -7,14 +7,14 @@ Browse archives previously create with an [archive](../../../org/oddjob/persist/
 
 | Property | Description |
 | -------- | ----------- |
-| [archiveName](#propertyarchiveName) | The name of the archive to browse. | 
+| [archiveName](#propertyarchivename) | The name of the archive to browse. | 
 | [archiver](#propertyarchiver) | The persister to use to restore archives. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
 
 
 ### Property Detail
-#### archiveName <a name="propertyarchiveName"></a>
+#### archiveName <a name="propertyarchivename"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

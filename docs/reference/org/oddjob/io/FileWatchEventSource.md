@@ -9,7 +9,7 @@ as [file-watch](../../../org/oddjob/io/FileWatchService.md) is required to do th
 | Property | Description |
 | -------- | ----------- |
 | [file](#propertyfile) | The full path of the file to be watched. | 
-| [fileWatch](#propertyfileWatch) | The service that provides the file watching ability. | 
+| [fileWatch](#propertyfilewatch) | The service that provides the file watching ability. | 
 
 
 ### Example Summary
@@ -30,7 +30,7 @@ as [file-watch](../../../org/oddjob/io/FileWatchService.md) is required to do th
 
 The full path of the file to be watched.
 
-#### fileWatch <a name="propertyfileWatch"></a>
+#### fileWatch <a name="propertyfilewatch"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

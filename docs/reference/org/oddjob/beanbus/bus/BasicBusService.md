@@ -28,10 +28,10 @@ such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 
 | Property | Description |
 | -------- | ----------- |
-| [busConductor](#propertybusConductor) | Provides coordination facilities to the components of a bus. | 
+| [busConductor](#propertybusconductor) | Provides coordination facilities to the components of a bus. | 
 | [count](#propertycount) |  | 
 | [name](#propertyname) | A name, can be any text. | 
-| [noAutoLink](#propertynoAutoLink) | Bus components will automatically be linked unless this is true. | 
+| [noAutoLink](#propertynoautolink) | Bus components will automatically be linked unless this is true. | 
 | [of](#propertyof) | The components of a Bus. | 
 | [services](#propertyservices) | Provides services to other components of a bus. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
@@ -47,7 +47,7 @@ such as [sequential](../../../../org/oddjob/jobs/structural/SequentialJob.md):
 
 
 ### Property Detail
-#### busConductor <a name="propertybusConductor"></a>
+#### busConductor <a name="propertybusconductor"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -76,7 +76,7 @@ and exposed for advance use only.
 
 A name, can be any text.
 
-#### noAutoLink <a name="propertynoAutoLink"></a>
+#### noAutoLink <a name="propertynoautolink"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

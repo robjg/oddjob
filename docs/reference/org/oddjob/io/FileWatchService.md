@@ -28,7 +28,7 @@ in a configuration is messy. In future releases this service should be hidden fr
 | [filter](#propertyfilter) | Provide a regular expression filter on the directory to reduce the stream of events. | 
 | [kinds](#propertykinds) | Kinds of events to watch, as specified by the <a link="https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/nio/file/StandardWatchEventKinds.html">Standard Watch Event Kinds</a>, Either ENTRY_CREATE or ENTRY_MODIFY. | 
 | [name](#propertyname) | The name of this service. | 
-| [numberOfConsumers](#propertynumberOfConsumers) |  | 
+| [numberOfConsumers](#propertynumberofconsumers) |  | 
 | [paths](#propertypaths) |  | 
 | [to](#propertyto) |  | 
 
@@ -73,7 +73,7 @@ Either ENTRY_CREATE or ENTRY_MODIFY. Note that ENTRY_DELETE will not work in the
 
 The name of this service.
 
-#### numberOfConsumers <a name="propertynumberOfConsumers"></a>
+#### numberOfConsumers <a name="propertynumberofconsumers"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>

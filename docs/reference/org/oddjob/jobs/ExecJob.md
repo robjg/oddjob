@@ -21,15 +21,15 @@ for additional information.
 | [command](#propertycommand) | The command to execute. | 
 | [dir](#propertydir) | The working directory. | 
 | [environment](#propertyenvironment) | An environment variable to be set before the program is executed. | 
-| [exitValue](#propertyexitValue) | The exit value of the process. | 
+| [exitValue](#propertyexitvalue) | The exit value of the process. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [newEnvironment](#propertynewEnvironment) | Create a fresh/clean environment. | 
-| [redirectStderr](#propertyredirectStderr) | Redirect the standard error stream in standard output. | 
+| [newEnvironment](#propertynewenvironment) | Create a fresh/clean environment. | 
+| [redirectStderr](#propertyredirectstderr) | Redirect the standard error stream in standard output. | 
 | [stderr](#propertystderr) | An output to where stderr of the proces will be written. | 
 | [stdin](#propertystdin) | An input stream which will act as stdin for the process. | 
 | [stdout](#propertystdout) | An output to where stdout for the process will be written. | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
-| [stopForcibly](#propertystopForcibly) | Forcibly stop the process on stop. | 
+| [stopForcibly](#propertystopforcibly) | Forcibly stop the process on stop. | 
 
 
 ### Example Summary
@@ -91,7 +91,7 @@ An environment variable to be
 set before the program is executed. This is a
 [map](../../../org/oddjob/arooa/types/MapType.md) like property.
 
-#### exitValue <a name="propertyexitValue"></a>
+#### exitValue <a name="propertyexitvalue"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -109,7 +109,7 @@ The exit value of the process.
 
 A name, can be any text.
 
-#### newEnvironment <a name="propertynewEnvironment"></a>
+#### newEnvironment <a name="propertynewenvironment"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -119,7 +119,7 @@ A name, can be any text.
 
 Create a fresh/clean environment.
 
-#### redirectStderr <a name="propertyredirectStderr"></a>
+#### redirectStderr <a name="propertyredirectstderr"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -173,7 +173,7 @@ for the process will be written.
 This flag is set by the stop method and should
 be examined by any Stoppable jobs in their processing loops.
 
-#### stopForcibly <a name="propertystopForcibly"></a>
+#### stopForcibly <a name="propertystopforcibly"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

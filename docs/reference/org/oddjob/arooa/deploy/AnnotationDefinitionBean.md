@@ -9,7 +9,7 @@ Create a synthetic annotation for a method.
 | -------- | ----------- |
 | [method](#propertymethod) | The name of the method. | 
 | [name](#propertyname) | The name of the annotation. | 
-| [parameterTypes](#propertyparameterTypes) | The name of the parameter type classes. | 
+| [parameterTypes](#propertyparametertypes) | The name of the parameter type classes. | 
 
 
 ### Property Detail
@@ -33,7 +33,7 @@ The name of the method.
 
 The name of the annotation.
 
-#### parameterTypes <a name="propertyparameterTypes"></a>
+#### parameterTypes <a name="propertyparametertypes"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

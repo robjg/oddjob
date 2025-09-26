@@ -22,7 +22,7 @@ property.
 | Property | Description |
 | -------- | ----------- |
 | [files](#propertyfiles) | Files to add to the classpath. | 
-| [noInherit](#propertynoInherit) | Don't inherit the parent class loader. | 
+| [noInherit](#propertynoinherit) | Don't inherit the parent class loader. | 
 | [parent](#propertyparent) | The parent class loader to inherit. | 
 | [urls](#propertyurls) | URLs to add to the classpath. | 
 
@@ -46,7 +46,7 @@ property.
 
 Files to add to the classpath.
 
-#### noInherit <a name="propertynoInherit"></a>
+#### noInherit <a name="propertynoinherit"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

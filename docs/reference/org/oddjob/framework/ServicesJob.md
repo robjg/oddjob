@@ -12,7 +12,7 @@ are configured for automatic dependency injection.
 | Property | Description |
 | -------- | ----------- |
 | [name](#propertyname) | A name, can be any text. | 
-| [registeredServices](#propertyregisteredServices) | Service definitions. | 
+| [registeredServices](#propertyregisteredservices) | Service definitions. | 
 | [services](#propertyservices) | Provide access to the registered services. | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
 
@@ -35,7 +35,7 @@ are configured for automatic dependency injection.
 
 A name, can be any text.
 
-#### registeredServices <a name="propertyregisteredServices"></a>
+#### registeredServices <a name="propertyregisteredservices"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

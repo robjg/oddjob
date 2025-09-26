@@ -7,15 +7,15 @@ Create a simple listing of the properties of beans.
 
 | Property | Description |
 | -------- | ----------- |
-| [beanView](#propertybeanView) | Specifies the order and titles of the properties. | 
+| [beanView](#propertybeanview) | Specifies the order and titles of the properties. | 
 | [beans](#propertybeans) | The beans to report on. | 
 | [name](#propertyname) | The name of this job. | 
-| [noHeaders](#propertynoHeaders) | No Header is produced. | 
+| [noHeaders](#propertynoheaders) | No Header is produced. | 
 | [output](#propertyoutput) | The Output to where the report will be written. | 
 
 
 ### Property Detail
-#### beanView <a name="propertybeanView"></a>
+#### beanView <a name="propertybeanview"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -46,7 +46,7 @@ The beans to report on.
 
 The name of this job.
 
-#### noHeaders <a name="propertynoHeaders"></a>
+#### noHeaders <a name="propertynoheaders"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

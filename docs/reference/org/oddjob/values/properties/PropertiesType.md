@@ -12,7 +12,7 @@ as they share the same underlying mechanisms.
 | Property | Description |
 | -------- | ----------- |
 | [extract](#propertyextract) | Extract this prefix form property names. | 
-| [fromXML](#propertyfromXML) | If the input for the properties is in XML format. | 
+| [fromXML](#propertyfromxml) | If the input for the properties is in XML format. | 
 | [input](#propertyinput) | An input source for Properties. | 
 | [prefix](#propertyprefix) | Append this prefix to property names. | 
 | [sets](#propertysets) | Extra properties to be merged into the overall property set. | 
@@ -40,7 +40,7 @@ as they share the same underlying mechanisms.
 Extract this prefix form property names. Filters
 out properties that do not begin with this prefix.
 
-#### fromXML <a name="propertyfromXML"></a>
+#### fromXML <a name="propertyfromxml"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

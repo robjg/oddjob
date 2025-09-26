@@ -37,7 +37,7 @@ sets property of the property job).
 | -------- | ----------- |
 | [environment](#propertyenvironment) | The prefix for environment variables. | 
 | [extract](#propertyextract) | Extract this prefix form property names. | 
-| [fromXML](#propertyfromXML) | If the input for the properties is in XML format. | 
+| [fromXML](#propertyfromxml) | If the input for the properties is in XML format. | 
 | [input](#propertyinput) | An input source for Properties. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [override](#propertyoverride) | Properties of this job will override any previously set. | 
@@ -83,7 +83,7 @@ The prefix for environment variables.
 Extract this prefix form property names. Filters
 out properties that do not begin with this prefix.
 
-#### fromXML <a name="propertyfromXML"></a>
+#### fromXML <a name="propertyfromxml"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

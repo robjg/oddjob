@@ -9,8 +9,8 @@ application is launched in same JVM as Oddjob, but in it's own class loader.
 | Property | Description |
 | -------- | ----------- |
 | [args](#propertyargs) | The arguments to pass to main. | 
-| [classLoader](#propertyclassLoader) | The class loader in which to find the main class. | 
-| [className](#propertyclassName) | The name of the class that contains the main method. | 
+| [classLoader](#propertyclassloader) | The class loader in which to find the main class. | 
+| [className](#propertyclassname) | The name of the class that contains the main method. | 
 | [name](#propertyname) | The name of this job. | 
 
 
@@ -32,7 +32,7 @@ application is launched in same JVM as Oddjob, but in it's own class loader.
 
 The arguments to pass to main.
 
-#### classLoader <a name="propertyclassLoader"></a>
+#### classLoader <a name="propertyclassloader"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -42,7 +42,7 @@ The arguments to pass to main.
 
 The class loader in which to find the main class.
 
-#### className <a name="propertyclassName"></a>
+#### className <a name="propertyclassname"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

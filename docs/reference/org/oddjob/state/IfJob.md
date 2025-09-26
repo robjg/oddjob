@@ -24,7 +24,7 @@ to its next sibling and this job will also enter the ACTIVE state.
 
 | Property | Description |
 | -------- | ----------- |
-| [executorService](#propertyexecutorService) | Used for an asynchronous evaluation of the if. | 
+| [executorService](#propertyexecutorservice) | Used for an asynchronous evaluation of the if. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
 | [state](#propertystate) | The state condition to check against. | 
@@ -41,7 +41,7 @@ to its next sibling and this job will also enter the ACTIVE state.
 
 
 ### Property Detail
-#### executorService <a name="propertyexecutorService"></a>
+#### executorService <a name="propertyexecutorservice"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>

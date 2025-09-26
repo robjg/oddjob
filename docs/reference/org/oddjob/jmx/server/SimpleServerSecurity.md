@@ -13,13 +13,13 @@ The JMX Tutorial</a>.
 
 | Property | Description |
 | -------- | ----------- |
-| [accessFile](#propertyaccessFile) | The location of the access file. | 
-| [passwordFile](#propertypasswordFile) | The location of the password file. | 
-| [useSSL](#propertyuseSSL) | Use Secure Sockets (SSL). | 
+| [accessFile](#propertyaccessfile) | The location of the access file. | 
+| [passwordFile](#propertypasswordfile) | The location of the password file. | 
+| [useSSL](#propertyusessl) | Use Secure Sockets (SSL). | 
 
 
 ### Property Detail
-#### accessFile <a name="propertyaccessFile"></a>
+#### accessFile <a name="propertyaccessfile"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -29,7 +29,7 @@ The JMX Tutorial</a>.
 
 The location of the access file.
 
-#### passwordFile <a name="propertypasswordFile"></a>
+#### passwordFile <a name="propertypasswordfile"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ELEMENT</td></tr>
@@ -39,7 +39,7 @@ The location of the access file.
 
 The location of the password file.
 
-#### useSSL <a name="propertyuseSSL"></a>
+#### useSSL <a name="propertyusessl"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

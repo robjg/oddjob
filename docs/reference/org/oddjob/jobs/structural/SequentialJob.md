@@ -66,7 +66,7 @@ the completion of a sequence of jobs.
 | [independent](#propertyindependent) | Whether the child jobs are independent or not. | 
 | [jobs](#propertyjobs) | The child jobs. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [stateOperator](#propertystateOperator) | Set the way the children's state is evaluated and reflected by the parent. | 
+| [stateOperator](#propertystateoperator) | Set the way the children's state is evaluated and reflected by the parent. | 
 | [stop](#propertystop) | Read only view of the internal stop flag. | 
 | [transient](#propertytransient) | Is this job transient. | 
 
@@ -110,7 +110,7 @@ The child jobs.
 
 A name, can be any text.
 
-#### stateOperator <a name="propertystateOperator"></a>
+#### stateOperator <a name="propertystateoperator"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>

@@ -12,15 +12,15 @@ exception if an attempt is made to delete a non empty directory.
 
 | Property | Description |
 | -------- | ----------- |
-| [dirCount](#propertydirCount) | Count of the directories deleted. | 
-| [errorCount](#propertyerrorCount) | Count of the errors. | 
-| [fileCount](#propertyfileCount) | Count of the files deleted. | 
+| [dirCount](#propertydircount) | Count of the directories deleted. | 
+| [errorCount](#propertyerrorcount) | Count of the errors. | 
+| [fileCount](#propertyfilecount) | Count of the files deleted. | 
 | [files](#propertyfiles) | The file, directory, or files and directories to delete. | 
 | [force](#propertyforce) | Forceably delete non empty directories. | 
-| [logEvery](#propertylogEvery) | Logs the number of files and directories deleted every n number of items. | 
-| [maxErrors](#propertymaxErrors) | The maximum number of errors to allow before failing. | 
+| [logEvery](#propertylogevery) | Logs the number of files and directories deleted every n number of items. | 
+| [maxErrors](#propertymaxerrors) | The maximum number of errors to allow before failing. | 
 | [name](#propertyname) | A name, can be any text. | 
-| [reallyRoot](#propertyreallyRoot) | Flag to indicate that it is the intention to delete files at the root level. | 
+| [reallyRoot](#propertyreallyroot) | Flag to indicate that it is the intention to delete files at the root level. | 
 
 
 ### Example Summary
@@ -31,7 +31,7 @@ exception if an attempt is made to delete a non empty directory.
 
 
 ### Property Detail
-#### dirCount <a name="propertydirCount"></a>
+#### dirCount <a name="propertydircount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -39,7 +39,7 @@ exception if an attempt is made to delete a non empty directory.
 
 Count of the directories deleted.
 
-#### errorCount <a name="propertyerrorCount"></a>
+#### errorCount <a name="propertyerrorcount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -47,7 +47,7 @@ Count of the directories deleted.
 
 Count of the errors.
 
-#### fileCount <a name="propertyfileCount"></a>
+#### fileCount <a name="propertyfilecount"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
@@ -78,7 +78,7 @@ the [files](../../../org/oddjob/io/FilesType.md) is used to specify the files.
 
 Forceably delete non empty directories.
 
-#### logEvery <a name="propertylogEvery"></a>
+#### logEvery <a name="propertylogevery"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -91,7 +91,7 @@ every n number of items. If this property is 1 then the file or
 directory path is logged every delete. If this property is less than
 one then the counts are logged only at the end.
 
-#### maxErrors <a name="propertymaxErrors"></a>
+#### maxErrors <a name="propertymaxerrors"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
@@ -114,7 +114,7 @@ files from being deleted.
 
 A name, can be any text.
 
-#### reallyRoot <a name="propertyreallyRoot"></a>
+#### reallyRoot <a name="propertyreallyroot"></a>
 
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
