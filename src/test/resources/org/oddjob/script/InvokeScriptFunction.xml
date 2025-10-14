@@ -3,13 +3,9 @@
     <job>
         <sequential>
             <jobs>
-                <script id="substr" language="JavaScript">
-                    <input>
-                        <buffer><![CDATA[function substr(string, from, to) {
+                <script id="substr" language="JavaScript"><![CDATA[function substr(string, from, to) {
     return string.substring(from, to);
-}]]></buffer>
-                    </input>
-                </script>
+}]]></script>
                 <properties id="properties">
                     <values>
                         <value key="text.before" value="Apples and Oranges"/>

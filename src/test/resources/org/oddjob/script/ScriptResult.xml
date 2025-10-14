@@ -1,13 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
-  <job>
-    <script language='JavaScript' 
-            resultVariable="result"
-            resultForState="true">
-      <input>
-        <buffer>
-var result = 1;
-        </buffer>
-      </input>
-    </script>
-  </job>
+    <job>
+        <script language="JavaScript" resultForState="true" resultVariable="result"><![CDATA[var result = 1;]]></script>
+    </job>
 </oddjob>

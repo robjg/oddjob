@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
  * Capturing Oddjob.CONSOLE: Because tests append to the console log to 
  * avoid capturing test logging then the Logger class must be Loaded before 
  * the Oddjob class is loaded. This is because Oddjob's static initialiser
- * replaces the default stdout with it's own console capture. If the Logger
+ * replaces the default stdout with its own console capture. If the Logger
  * class loads first it will be appending to original stdout, not the
  * new stdout.
  * <p>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <script id="script" name="Define Function"><![CDATA[function add(x, y) {
+	return x + y
+}
+
+function multiply(x, y) {
+	return x * y
+}
+]]></script>
+                <echo><![CDATA[Echoed #{script.getFunction('add').apply(Java.to([2, 3]))}
+]]></echo>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

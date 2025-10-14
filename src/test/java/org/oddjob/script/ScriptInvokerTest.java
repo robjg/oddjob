@@ -2,22 +2,26 @@ package org.oddjob.script;
 
 import org.junit.Test;
 import org.oddjob.OjTestCase;
+import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.JobState;
 
 import javax.script.ScriptException;
-import java.io.IOException;
 
 public class ScriptInvokerTest extends OjTestCase {
 
    @Test
-	public void testInvokeScript() throws IOException, ScriptException, NoSuchMethodException {
+	public void testInvokeScript() throws ScriptException, NoSuchMethodException {
+
+       ArooaSession session = new StandardArooaSession();
 
 		ScriptJob scriptJob = new ScriptJob();
+        scriptJob.setArooaSession(session);
 		scriptJob.setLanguage("JavaScript");
 		scriptJob.setScript("function snack(colour) {" +
 				" return colour + ' apple'}");
-		scriptJob.setBeans("dummy", "foo");
+		scriptJob.setBind("dummy", "foo");
 		scriptJob.run();
 		
 		assertEquals(JobState.COMPLETE, 

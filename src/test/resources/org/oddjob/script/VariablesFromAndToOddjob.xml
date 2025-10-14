@@ -1,19 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
- <job> 
- <sequential>
- <jobs>
-  <script id='s' language='JavaScript'>
-   <input>
-    <buffer>
-var snack = fruit;
-    </buffer>
-   </input>
-   <beans>
-    <value key='fruit' value='apple'/>
-   </beans>
-  </script>
-  <echo id='e'>${s.variables(fruit)}</echo>
- </jobs>
- </sequential>
- </job> 
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <fruit>
+                        <value value="Apple"/>
+                    </fruit>
+                </variables>
+                <script id="script" language="JavaScript">
+                    <bind>
+                        <value key="fruit" value="${vars.fruit}"/>
+                    </bind><![CDATA[var snack = fruit;
+]]></script>
+                <echo id="echo"><![CDATA[snack=${script.variable(snack)}
+fruit=${script.variable(fruit)}]]></echo>
+            </jobs>
+        </sequential>
+    </job>
 </oddjob>

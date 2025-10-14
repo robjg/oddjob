@@ -33,7 +33,13 @@ class ScriptDesign extends BaseDC {
 
     private final SimpleDesignProperty input;
 
-    private final MappedDesignProperty beans;
+    private final MappedDesignProperty bind;
+
+    private final SimpleTextAttribute bindSession;
+
+    private final MappedDesignProperty export;
+
+    private final SimpleTextAttribute exportAll;
 
     private final SimpleDesignProperty classLoader;
 
@@ -59,8 +65,15 @@ class ScriptDesign extends BaseDC {
         input = new SimpleDesignProperty(
                 "input", this);
 
-        beans = new MappedDesignProperty(
-                "beans", this);
+        bind = new MappedDesignProperty(
+                "bind", this);
+
+        bindSession = new SimpleTextAttribute("bindSession", this);
+
+        export = new MappedDesignProperty(
+                "export", this);
+
+        exportAll = new SimpleTextAttribute("exportAll", this);
 
         classLoader = new SimpleDesignProperty(
                 "classLoader", this);
@@ -94,10 +107,17 @@ class ScriptDesign extends BaseDC {
                                 )
                                 .add(new FieldGroup("Details")
                                         .add(language.view().setTitle("Language"))
-                                        .add(beans.view().setTitle("Beans"))
+                                        .add(classLoader.view().setTitle("Class Loader"))
+                                )
+                                .add(new FieldGroup("Bind")
+                                        .add(bind.view().setTitle("Bindings"))
+                                        .add(bindSession.view().setTitle("Bind Session"))
+                                )
+                                .add(new FieldGroup("Export")
+                                        .add(export.view().setTitle("Export"))
+                                        .add(exportAll.view().setTitle("Export All"))
                                         .add(resultVariable.view().setTitle("Result Variable"))
                                         .add(resultForState.view().setTitle("Result For State"))
-                                        .add(classLoader.view().setTitle("Class Loader"))
                                 )
                                 .add(new FieldGroup("I/O")
                                         .add(redirectStderr.view().setTitle("Redirect Stderr"))
@@ -112,8 +132,9 @@ class ScriptDesign extends BaseDC {
     public DesignProperty[] children() {
         return new DesignProperty[]{
                 name, script, input,
-                language, beans, resultVariable,
-                resultForState, classLoader,
+                language, classLoader,
+                bind, bindSession,
+                export, exportAll, resultVariable, resultForState,
                 redirectStderr, stdin, stdout, stderr};
     }
 }
