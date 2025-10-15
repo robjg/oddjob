@@ -1,18 +1,26 @@
 package org.oddjob.beanbus.destinations;
 
-import org.junit.Test;
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Test;
 import org.oddjob.FailedToStopException;
+import org.oddjob.arooa.convert.ConversionFailedException;
+import org.oddjob.arooa.convert.ConversionPath;
+import org.oddjob.arooa.convert.DefaultConversionRegistry;
+import org.oddjob.arooa.convert.DefaultConverter;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class BusCollectTest {
+class BusCollectTest {
 
     @Test
-    public void whenDefaultsThenCollectToList() throws FailedToStopException {
+    void whenDefaultsThenCollectToList() throws FailedToStopException {
 
         BusCollect<String> collect = new BusCollect<>();
 
@@ -38,7 +46,7 @@ public class BusCollectTest {
     }
 
     @Test
-    public void whenKeyMapperThenCollectToMap() throws FailedToStopException {
+    void whenKeyMapperThenCollectToMap() throws FailedToStopException {
 
         BusCollect<String> collect = new BusCollect<>();
 
@@ -62,7 +70,7 @@ public class BusCollectTest {
     }
 
     @Test
-    public void whenKeyMapperAndValueMapperThenCollectToMap() throws FailedToStopException {
+    void whenKeyMapperAndValueMapperThenCollectToMap() throws FailedToStopException {
 
         BusCollect<String> collect = new BusCollect<>();
 
@@ -85,7 +93,7 @@ public class BusCollectTest {
     }
 
     @Test
-    public void whenOutputThenCollectLines() throws FailedToStopException {
+    void whenOutputThenCollectLines() throws FailedToStopException {
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -109,7 +117,7 @@ public class BusCollectTest {
     }
 
     @Test
-    public void whenListContainerToStringTheAsExpected() throws FailedToStopException {
+    void whenListContainerToStringTheAsExpected() throws FailedToStopException {
 
         BusCollect<Integer> collect = new BusCollect<>();
 
@@ -145,7 +153,7 @@ public class BusCollectTest {
     }
 
     @Test
-    public void whenMapContainerToStringTheAsExpected() throws FailedToStopException {
+    void whenMapContainerToStringTheAsExpected() throws FailedToStopException {
 
         BusCollect<Integer> collect = new BusCollect<>();
 
@@ -182,5 +190,32 @@ public class BusCollectTest {
 
         collect.stop();
     }
+
+    @Test
+    void conversions() throws ConversionFailedException {
+
+        DefaultConversionRegistry conversionRegistry = new DefaultConversionRegistry();
+
+        new BusCollect.Conversions().registerWith(conversionRegistry);
+
+        BusCollect<Integer> test = new BusCollect<>();
+        test.start();
+        test.accept(1);
+        test.accept(2);
+        test.accept(3);
+
+        ConversionPath<BusCollect.ListContainer, Iterable> path =
+                conversionRegistry.findConversion(BusCollect.ListContainer.class, Iterable.class);
+
+        assertThat(path, Matchers.notNullValue());
+
+        Iterable<?> iterable = path.convert(test.getList(), new DefaultConverter());
+
+        List<?> results = StreamSupport.stream(iterable.spliterator(), false)
+                .collect(Collectors.toList());
+
+        assertThat(results, contains(1, 2, 3));
+    }
+
 
 }
