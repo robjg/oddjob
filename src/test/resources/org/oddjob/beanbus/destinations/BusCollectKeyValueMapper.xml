@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="#{1}"/>
+                                        <value value="#{2}"/>
+                                        <value value="#{3}"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </bus:driver>
+                        <bus:collect id="collect">
+                            <keyMapper>
+                                <value value="#{function(x) { return x.toString() }}"/>
+                            </keyMapper>
+                            <valueMapper>
+                                <value value="#{function(x) { return x * x }}"/>
+                            </valueMapper>
+                        </bus:collect>
+                    </of>
+                </bus:bus>
+                <echo><![CDATA[Element '2': ${collect.map.value(2)}
+Element 2: #{collect.get('map').getValue(2)}
+Size: ${collect.map.size}
+As Text: ${collect.map}]]></echo>
+                <script name="Check List" resultForState="true" resultVariable="retval">
+                    <bind>
+                        <value key="actual" value="${collect.map}"/>
+                    </bind><![CDATA[var expected = Java.type("java.util.Map").of("1", 1.0, "2", 4.0, "3", 9.0);
+var retval = 0;
+if (!expected.equals(actual)){
+ print("Excpeted: " + expected + ", but got: " + actual);
+ retval = 1;
+}
+retval;]]></script>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

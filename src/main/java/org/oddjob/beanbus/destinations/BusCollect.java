@@ -2,6 +2,7 @@ package org.oddjob.beanbus.destinations;
 
 import org.oddjob.FailedToStopException;
 import org.oddjob.Resettable;
+import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.beanbus.AbstractFilter;
@@ -19,10 +20,46 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * @param <T> The type of the beans to be collected.
- * @author rob
- * @oddjob.description A component that collects beans in a list. Additionally, this component may
- * be used in the middle of a {@link org.oddjob.beanbus.bus.BasicBusService} so can act as a Wire Tap.
+ * @oddjob.description A component that collects what it consumes. By default, results are collected into
+ * a container that provides indexed access and conversions that allows it to be used as a list by other components.
+ * Alternatively a {@code keyMapper} or a {@code valueMapper} function may be provided that creates
+ * a container with map like access to the incoming data.
+ * These containers are available with the {@code list} and {@code map} properties respectively.
+ * If the {@code output} property is set the results of the captured objects are written to the provided
+ * output as text lines.
+ * <p>
+ * the final destination of a {@link org.oddjob.beanbus.bus.BasicBusService} or
+ * it may be used in the middle of other components so is can act as a Wire Tap.
+ * </p>
+ *
+ * @oddjob.example Collecting values into a list. The {@code echo} job shows how to access the list by element,
+ * display its size, and its contents. The script checks the result for us. The list property is converted
+ * into a Java List as it is bound to the script.
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BusCollectDefaults.xml}
+ *
+ * @oddjob.example Collecting values into a map using a Key Mapper. The mapping function uses a JavaScript
+ * expression to use the first letter of the data as the key. The {@code echo} job shows how to access the
+ * map by element, display its size, and its contents. The script checks the result for us. The map property is converted
+ * into a Java Map as it is bound to the script.
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BusCollectKeyMapper.xml}
+ *
+ * @oddjob.example Collecting values into a map using a Value Mapper. The mapping function uses a JavaScript
+ * expression to calculate the square of the numbers passed by the Bus Driver. The {@code echo} job shows how we
+ * can't access the map by element because Oddjob expression treat a mapped property key as a string. We show
+ * a roundabout way that access can be done using a JavaScript expression.
+ * As above, the script checks the result for us.
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BusCollectValueMapper.xml}
+ *
+ * @oddjob.example Collecting values into a map using a Key and Value Mapper. As above except that the
+ * key is the number as a String, so it is accessible as an Oddjob mapped property.
+ * As above, the script checks the result for us.
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BusCollectKeyValueMapper.xml}
+ *
+ * @oddjob.example Collecting values into an Output Stream. Here we use a buffer. The buffer is declared as a
+ * variable to we can access its properties to display the text it contains and validate that text
+ * as lines using a script.
+ * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BusCollectToOutput.xml}
+ *
  * @oddjob.example There are many examples elsewhere.
  * <ul>
  * 	<li>{@link Batcher}</li>
@@ -30,6 +67,9 @@ import java.util.function.Function;
  *  <li>{@link BusQueue}</li>
  *  <li>{@link BusLimit}</li>
  * </ul>
+ *
+ * @param <T> The type of the beans to be collected.
+ * @author rob
  */
 public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, Service {
 
@@ -101,12 +141,12 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
         if (output != null) {
             this.strategy = new OutputStrategy<>(output);
-        } else if (keyMapper != null) {
+        } else if (keyMapper != null || valueMapper != null) {
             if (valueMapper == null) {
                 this.strategy = new KeyMapperStrategy<>(map, keyMapper);
-            } else {
-                this.strategy = new KeyValueMapperStrategy<>(map, keyMapper, valueMapper);
-            }
+            } else
+                this.strategy = new KeyValueMapperStrategy<>(map,
+                        Objects.requireNonNullElseGet(this.keyMapper, Function::identity), valueMapper);
         } else {
             strategy = new ListStrategy<>(list);
         }
@@ -279,10 +319,13 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
             registry.register(ListContainer.class, List.class, ListContainer::getList);
             registry.register(MapContainer.class, Map.class, MapContainer::getMap);
+            // We need toString because List and Map are interfaces so don't extend Object
+            registry.register(ListContainer.class, String.class, lc -> lc.items.toString());
+            registry.register(MapContainer.class, String.class, mc -> mc.items.toString());
         }
     }
 
-    public static class ListContainer<E> {
+    public static class ListContainer<E> implements ArooaValue {
 
         private final ConcurrentLinkedQueue<E> items = new ConcurrentLinkedQueue<>();
 
@@ -359,7 +402,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
         }
     }
 
-    public static class MapContainer<K, E> {
+    public static class MapContainer<K, E> implements ArooaValue {
 
         private final ConcurrentHashMap<K, E> items = new ConcurrentHashMap<>();
 

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <text>
+                        <buffer/>
+                    </text>
+                </variables>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="Apple"/>
+                                        <value value="Orange"/>
+                                        <value value="Pear"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </bus:driver>
+                        <bus:collect id="collect">
+                            <output>
+                                <value value="${vars.text}"/>
+                            </output>
+                        </bus:collect>
+                    </of>
+                </bus:bus>
+                <echo><![CDATA[${vars.text.text}]]></echo>
+                <script name="Check Result" resultForState="true" resultVariable="retval">
+                    <bind>
+                        <value key="actual" value="${vars.text.lines}"/>
+                    </bind><![CDATA[var expected = ["Apple", "Orange", "Pear"];
+var actualJs = Java.from(actual)
+var retval = 0;
+for (i = 0; i < expected.length; ++i) {
+  if (expected[i] != actual[i]) {
+    retval = 1;
+  }
+}
+if (retval != 0){
+  print("Excpeted: " + expected + ", but got: " + actualJs);
+}
+retval;]]></script>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

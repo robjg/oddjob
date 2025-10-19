@@ -22,7 +22,7 @@ session. The {@exportAll } property will export all variables into the
 oddjob session. The result of a function can be accessed with the
 `result` property. Some scripts don't return a result, in which case
 the `resultVariable` property can be used to take the result from
-a variable. If the {code resultForState} property is true then the
+a variable. If the `resultForState` property is true then the
 result will be used to set the Completion State from the variable, 0 for
 Success, otherwise Failure.
 
@@ -36,13 +36,13 @@ that job.
 
 | Property | Description |
 | -------- | ----------- |
-| [beans](#propertybeans) |  | 
+| [beans](#propertybeans) | Deprecated. | 
 | [bind](#propertybind) | A named bean which is made available to the script. | 
 | [bindSession](#propertybindsession) | Make all Oddjob's components available to the script as bindings. | 
 | [classLoader](#propertyclassloader) | ClassLoader to load the Script Engine. | 
 | [export](#propertyexport) | Export bindings from the engine into the session using the given name. | 
 | [exportAll](#propertyexportall) | Export all bindings from the engine into Oddjob's session. | 
-| [function](#propertyfunction) |  | 
+| [function](#propertyfunction) | Adapts a script function type to a Java Function. | 
 | [input](#propertyinput) | The script provided as input from file or buffer etc. | 
 | [invocable](#propertyinvocable) | Allow a scripted function to be evaluated from elsewhere in Oddjob. | 
 | [language](#propertylanguage) | The name of the language the script is in. | 
@@ -57,7 +57,7 @@ that job.
 | [stdout](#propertystdout) | An output to where stdout for the script will be written. | 
 | [stop](#propertystop) | This flag is set by the stop method and should be examined by any Stoppable jobs in their processing loops. | 
 | [variable](#propertyvariable) | Provide access to variables declared within the script. | 
-| [variables](#propertyvariables) | Use `variable` instead. | 
+| [variables](#propertyvariables) | Deprecated. | 
 
 
 ### Example Summary
@@ -81,7 +81,7 @@ that job.
       <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
 </table>
 
-
+Deprecated. Use `bind` instead.
 
 #### bind <a name="propertybind"></a>
 
@@ -143,9 +143,12 @@ session.
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
+      <tr><td><i>Required</i></td><td>Read Only.</td></tr>
 </table>
 
-
+Adapts a script function type to a Java Function.
+This isn't really necessary with Nashorn as there is a built in Conversion to do this.
+May be useful for other script engines.
 
 #### input <a name="propertyinput"></a>
 
@@ -306,7 +309,7 @@ script.
       <tr><td><i>Required</i></td><td>Read Only.</td></tr>
 </table>
 
-Use `variable` instead.
+Deprecated. Use `variable` instead.
 
 
 ### Examples
@@ -356,7 +359,7 @@ Binding and exporting to Oddjob's session. The Variables
 job uses Identify to insert the 'Apple' into Oddjob's session with the
 name fruit. `bindSession` causes this to be available to script,
 where it is assigned to the 'snack' variable. The script also defines
-an add function. The {code exportAll} property causes both these to
+an add function. The `exportAll` property causes both these to
 be exported to Oddjob. The two echo jobs show how these variables are
 now available in Oddjob's session. When the script job is reset, the
 variables are removed from the session.

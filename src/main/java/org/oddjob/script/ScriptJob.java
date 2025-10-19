@@ -61,7 +61,7 @@ import java.util.function.Function;
  * oddjob session. The result of a function can be accessed with the
  * {@code result} property. Some scripts don't return a result, in which case
  * the {@code resultVariable} property can be used to take the result from
- * a variable. If the {code resultForState} property is true then the
+ * a variable. If the {@code resultForState} property is true then the
  * result will be used to set the Completion State from the variable, 0 for
  * Success, otherwise Failure.
  *
@@ -81,7 +81,7 @@ import java.util.function.Function;
  * job uses Identify to insert the 'Apple' into Oddjob's session with the
  * name fruit. {@code bindSession} causes this to be available to script,
  * where it is assigned to the 'snack' variable. The script also defines
- * an add function. The {code exportAll} property causes both these to
+ * an add function. The {@code exportAll} property causes both these to
  * be exported to Oddjob. The two echo jobs show how these variables are
  * now available in Oddjob's session. When the script job is reset, the
  * variables are removed from the session.
@@ -485,7 +485,8 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
     }
 
     /**
-     * Add a named bean.
+     * @oddjob.property
+     * @oddjob.description Deprecated. Use {@code bind} instead.
      *
      * @param name  The name of the bean.
      * @param value The bean.
@@ -580,6 +581,16 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
         return invocable;
     }
 
+    /**
+     * @oddjob.property
+     * @oddjob.description Adapts a script function type to a Java Function.
+     * This isn't really necessary with Nashorn as there is a built in Conversion to do this.
+     * May be useful for other script engines.
+     * @oddjob.required Read Only.
+     *
+     * @param name The name of the script function.
+     * @return A Java Function.
+     */
     public Function<Object, Object> getFunction(String name) {
 
         return new Function<>() {
@@ -638,7 +649,7 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
     }
 
     /**
-     * @oddjob.description Use {@code variable} instead.
+     * @oddjob.description Deprecated. Use {@code variable} instead.
      * @oddjob.required Read Only.
      */
     @Deprecated

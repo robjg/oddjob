@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <bus:bus xmlns:bus="oddjob:beanbus">
+                    <of>
+                        <bus:driver>
+                            <values>
+                                <list>
+                                    <values>
+                                        <value value="Apple"/>
+                                        <value value="Orange"/>
+                                        <value value="Pear"/>
+                                    </values>
+                                </list>
+                            </values>
+                        </bus:driver>
+                        <bus:collect id="collect"/>
+                    </of>
+                </bus:bus>
+                <echo><![CDATA[Index 2: ${collect.list.value[2]}
+Size: ${collect.list.size}
+As Text: ${collect.list}]]></echo>
+                <script name="Check List" resultForState="true" resultVariable="retval">
+                    <bind>
+                        <value key="actual" value="${collect.list}"/>
+                    </bind><![CDATA[var expected = Java.type("java.util.List").of("Apple", "Orange", "Pear");
+var retval = 0;
+if (!expected.equals(actual)){
+ print("Excpeted: " + expected + ", but got: " + actual);
+ retval = 1;
+}
+retval;]]></script>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

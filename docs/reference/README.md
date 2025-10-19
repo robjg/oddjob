@@ -50,7 +50,7 @@
 - [variables](org/oddjob/values/VariablesJob.md) - This job provides a 'variables' like declaration within Oddjob.
 - [wait](org/oddjob/jobs/WaitJob.md) - This Job will either wait a given number of milliseconds or will wait for a property or job to become available.
 - [bus:bus](org/oddjob/beanbus/bus/BasicBusService.md) - Links components in a data pipeline.
-- [bus:collect](org/oddjob/beanbus/destinations/BusCollect.md) - A component that collects beans in a list.
+- [bus:collect](org/oddjob/beanbus/destinations/BusCollect.md) - A component that collects what it consumes.
 - [bus:driver](org/oddjob/beanbus/drivers/IterableBusDriver.md) - Drives data from an iterable (such as a [list](.//org/oddjob/arooa/types/ListType.md)) through a Bean Bus.
 - [bus:filter](org/oddjob/beanbus/destinations/BeanFilter.md) - Filter out beans passing through the bus according to an `java.util.function.Predicate`.
 - [bus:limit](org/oddjob/beanbus/destinations/BusLimit.md) - Only allow a certain number of beans passed.

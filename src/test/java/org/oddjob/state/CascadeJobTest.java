@@ -828,7 +828,7 @@ public class CascadeJobTest extends OjTestCase {
 
         Thread t = new Thread(oddjob);
 
-        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE, ParentState.STARTED);
         oddjobState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 
         logger.info("** starting first run");
@@ -867,7 +867,7 @@ public class CascadeJobTest extends OjTestCase {
 
         Thread t2 = new Thread(oddjob);
 
-        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+        parallelState.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE, ParentState.STARTED);
 
         logger.info("** starting second run");
 

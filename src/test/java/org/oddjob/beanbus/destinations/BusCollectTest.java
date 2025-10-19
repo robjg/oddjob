@@ -1,15 +1,12 @@
 package org.oddjob.beanbus.destinations;
 
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.oddjob.FailedToStopException;
-import org.oddjob.arooa.convert.ConversionFailedException;
-import org.oddjob.arooa.convert.ConversionPath;
-import org.oddjob.arooa.convert.DefaultConversionRegistry;
-import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.arooa.convert.*;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -108,7 +105,7 @@ class BusCollectTest {
         collect.stop();
 
         assertThat(collect.getCount(), is(2));
-        assertThat(new String(out.toByteArray()), is("Apple" + System.lineSeparator()
+        assertThat(out.toString(), is("Apple" + System.lineSeparator()
                 + "Banana" + System.lineSeparator()));
 
         collect.hardReset();
@@ -191,11 +188,12 @@ class BusCollectTest {
         collect.stop();
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
-    void conversions() throws ConversionFailedException {
+    void listContainerConversions() throws ConversionFailedException {
 
         DefaultConversionRegistry conversionRegistry = new DefaultConversionRegistry();
-
+        new DefaultConversionProvider().registerWith(conversionRegistry);
         new BusCollect.Conversions().registerWith(conversionRegistry);
 
         BusCollect<Integer> test = new BusCollect<>();
@@ -207,7 +205,7 @@ class BusCollectTest {
         ConversionPath<BusCollect.ListContainer, Iterable> path =
                 conversionRegistry.findConversion(BusCollect.ListContainer.class, Iterable.class);
 
-        assertThat(path, Matchers.notNullValue());
+        assertThat(path, notNullValue());
 
         Iterable<?> iterable = path.convert(test.getList(), new DefaultConverter());
 
@@ -215,7 +213,64 @@ class BusCollectTest {
                 .collect(Collectors.toList());
 
         assertThat(results, contains(1, 2, 3));
+
+        ConversionPath<BusCollect.ListContainer, Object> path2 =
+                conversionRegistry.findConversion(BusCollect.ListContainer.class, Object.class);
+
+        assertThat(path2, notNullValue());
+
+        Object object = path2.convert(test.getList(), new DefaultConverter());
+
+        assertThat(object, instanceOf(List.class));
+
+        assertThat(object, is(results));
+
+        ConversionPath<BusCollect.ListContainer, String> path3 =
+                conversionRegistry.findConversion(BusCollect.ListContainer.class, String.class);
+
+        assertThat(path3, notNullValue());
+
+        String string = path3.convert(test.getList(), new DefaultConverter());
+
+        assertThat(string, is("[1, 2, 3]"));
     }
 
+    @SuppressWarnings("rawtypes")
+    @Test
+    void mapContainerConversions() throws ConversionFailedException {
 
+        DefaultConversionRegistry conversionRegistry = new DefaultConversionRegistry();
+
+        new BusCollect.Conversions().registerWith(conversionRegistry);
+
+        BusCollect<Integer> test = new BusCollect<>();
+        test.setKeyMapper(Function.identity());
+        test.setValueMapper(i -> i * i);
+        test.start();
+        test.accept(1);
+        test.accept(2);
+        test.accept(3);
+
+        assertThat(test.getList().getList(), empty());
+
+        ConversionPath<BusCollect.MapContainer, Object> path2 =
+                conversionRegistry.findConversion(BusCollect.MapContainer.class, Object.class);
+
+        assertThat(path2, notNullValue());
+
+        Object object = path2.convert(test.getMap(), new DefaultConverter());
+
+        assertThat(object, instanceOf(Map.class));
+
+        assertThat(object, is(Map.of(1, 1, 2, 4, 3, 9)));
+
+        ConversionPath<BusCollect.MapContainer, String> path3 =
+                conversionRegistry.findConversion(BusCollect.MapContainer.class, String.class);
+
+        assertThat(path3, notNullValue());
+
+        String string = path3.convert(test.getMap(), new DefaultConverter());
+
+        assertThat(string, is("{1=1, 2=4, 3=9}"));
+    }
 }
