@@ -9,12 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 /**
- * @oddjob.description Filter out beans passing through the bus according to an {@code java.util.function.Predicate}.
+ * @oddjob.description Filter out data passing through the bus according to an {@link java.util.function.Predicate}.
  *
  * @oddjob.example Filter out Bananas.
- *
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanFilterExample.xml}
- *
  *
  * @author rob
  *

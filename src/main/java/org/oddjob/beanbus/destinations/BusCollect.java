@@ -6,6 +6,7 @@ import org.oddjob.arooa.ArooaValue;
 import org.oddjob.arooa.convert.ConversionProvider;
 import org.oddjob.arooa.convert.ConversionRegistry;
 import org.oddjob.beanbus.AbstractFilter;
+import org.oddjob.describe.NoDescribe;
 import org.oddjob.framework.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import java.util.function.Function;
  * If the {@code output} property is set the results of the captured objects are written to the provided
  * output as text lines.
  * <p>
- * the final destination of a {@link org.oddjob.beanbus.bus.BasicBusService} or
+ * This component acn be the final destination of a {@link org.oddjob.beanbus.bus.BasicBusService} or
  * it may be used in the middle of other components so is can act as a Wire Tap.
  * </p>
  *
@@ -101,8 +102,7 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
     /**
      * @oddjob.property
-     * @oddjob.description A function that will extract a value from an item to put in the map. If this property
-     * is set, but {@link #keyMapper} is not, then it will be silently ignored.
+     * @oddjob.description A function that will extract a value from an item to put in the map.
      * @oddjob.required No.
      */
     private volatile Function<? super T, Object> valueMapper;
@@ -267,12 +267,16 @@ public class BusCollect<T> extends AbstractFilter<T, T> implements Resettable, S
 
 
     /**
-     * @return A list container.
      * @oddjob.property beans
-     * @oddjob.description The same as list. Prefer list, will be deprecated in future versions.
+     * @oddjob.description Deprecated, use list instead.
      * @oddjob.required Read only.
+     *
+     * @return A list container.
      */
+    @Deprecated
+    @NoDescribe
     public ListContainer<T> getBeans() {
+        logger.warn("Beans property is deprecated. Use list instead.");
         return list;
     }
 

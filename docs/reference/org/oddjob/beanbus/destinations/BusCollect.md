@@ -10,7 +10,7 @@ If the `output` property is set the results of the captured objects are written 
 output as text lines.
 
 
-the final destination of a [bus:bus](../../../../org/oddjob/beanbus/bus/BasicBusService.md) or
+This component acn be the final destination of a [bus:bus](../../../../org/oddjob/beanbus/bus/BasicBusService.md) or
 it may be used in the middle of other components so is can act as a Wire Tap.
 
 
@@ -19,7 +19,7 @@ it may be used in the middle of other components so is can act as a Wire Tap.
 
 | Property | Description |
 | -------- | ----------- |
-| [beans](#propertybeans) | The same as list. | 
+| [beans](#propertybeans) | Deprecated, use list instead. | 
 | [count](#propertycount) | Count of items collected. | 
 | [keyMapper](#propertykeymapper) | A function that will extract a key from an item. | 
 | [list](#propertylist) | The collected items as list container. | 
@@ -50,7 +50,7 @@ it may be used in the middle of other components so is can act as a Wire Tap.
       <tr><td><i>Required</i></td><td>Read only.</td></tr>
 </table>
 
-The same as list. Prefer list, will be deprecated in future versions.
+Deprecated, use list instead.
 
 #### count <a name="propertycount"></a>
 
@@ -131,8 +131,7 @@ The next component in a bus. Set automatically in a
       <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
-A function that will extract a value from an item to put in the map. If this property
-is set, but [bus:collect](../../../../org/oddjob/beanbus/destinations/BusCollect.md) is not, then it will be silently ignored.
+A function that will extract a value from an item to put in the map.
 
 
 ### Examples

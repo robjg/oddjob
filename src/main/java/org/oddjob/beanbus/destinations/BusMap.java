@@ -10,7 +10,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 /**
- * @oddjob.description Apply a {@link Function} to beans in a Bean Bus.
+ * @oddjob.description Apply a {@link Function} to beans in a Bean Bus. If the result of the function. If the
+ * function returns null then nothing is passed to the next component so this has the same effect as
+ * an {@link BeanFilter}
  *
  * @oddjob.example Apply a function to double the price on a {@code Fruit} bean.
  *
@@ -31,6 +33,11 @@ implements BusFilter<F, T> {
 	 */
 	private Function<? super F, ? extends T> function;
 
+    /**
+     * @oddjob.property
+     * @oddjob.description The number of items the function has been applied to.
+     * @oddjob.required Read Only.
+     */
 	private final AtomicInteger count = new AtomicInteger();
 
 	@Override

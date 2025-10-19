@@ -139,23 +139,23 @@ results.
     <job>
         <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
             <of>
-                <bus:driver xmlns:bus="oddjob:beanbus">
+                <bus:driver>
                     <values>
                         <list>
                             <values>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="42" type="Apple" price="25.5"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="24" type="Banana" price="36.2"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="15" type="Pear" price="40.4"/>
+                                <value value="#{25.5}"/>
+                                <value value="#{36.2}"/>
+                                <value value="#{40.4}"/>
                             </values>
                         </list>
                     </values>
                 </bus:driver>
-                <bus:map xmlns:bus="oddjob:beanbus">
+                <bus:map>
                     <function>
-                        <bean class="org.oddjob.beanbus.example.DoublePrice"/>
+                        <value value="#{ function(x) { return x * 2 } }"/>
                     </function>
                 </bus:map>
-                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+                <bus:collect id="results"/>
             </of>
         </bus:bus>
     </job>

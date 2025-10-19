@@ -1,7 +1,7 @@
 [HOME](../../../../README.md)
 # bus:filter
 
-Filter out beans passing through the bus according to an `java.util.function.Predicate`.
+Filter out data passing through the bus according to an [java.util.function.Predicate](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Predicate.html).
 
 ### Property Summary
 
@@ -76,30 +76,29 @@ The next component in a bus. Set automatically in a
 #### Example 1 <a name="example1"></a>
 
 Filter out Bananas.
-
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
     <job>
         <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
             <of>
-                <bus:driver xmlns:bus="oddjob:beanbus">
+                <bus:driver>
                     <values>
                         <list>
                             <values>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="42" type="Apple" price="25.5"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="24" type="Banana" price="36.2"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="15" type="Pear" price="40.4"/>
+                                <value value="Apple"/>
+                                <value value="Banana"/>
+                                <value value="Pear"/>
                             </values>
                         </list>
                     </values>
                 </bus:driver>
-                <bus:filter xmlns:bus="oddjob:beanbus">
+                <bus:filter>
                     <predicate>
-                        <bean class="org.oddjob.beanbus.example.RemoveFruit" remove="Banana"/>
+                        <value value="#{ function(x) { return x != 'Banana' }}"/>
                     </predicate>
                 </bus:filter>
-                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+                <bus:collect id="results"/>
             </of>
         </bus:bus>
     </job>

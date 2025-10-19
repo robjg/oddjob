@@ -52,7 +52,7 @@
 - [bus:bus](org/oddjob/beanbus/bus/BasicBusService.md) - Links components in a data pipeline.
 - [bus:collect](org/oddjob/beanbus/destinations/BusCollect.md) - A component that collects what it consumes.
 - [bus:driver](org/oddjob/beanbus/drivers/IterableBusDriver.md) - Drives data from an iterable (such as a [list](.//org/oddjob/arooa/types/ListType.md)) through a Bean Bus.
-- [bus:filter](org/oddjob/beanbus/destinations/BeanFilter.md) - Filter out beans passing through the bus according to an `java.util.function.Predicate`.
+- [bus:filter](org/oddjob/beanbus/destinations/BeanFilter.md) - Filter out data passing through the bus according to an [java.util.function.Predicate](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Predicate.html).
 - [bus:limit](org/oddjob/beanbus/destinations/BusLimit.md) - Only allow a certain number of beans passed.
 - [bus:map](org/oddjob/beanbus/destinations/BusMap.md) - Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html) to beans in a Bean Bus.
 - [bus:queue](org/oddjob/beanbus/destinations/BusQueue.md) - A Queue for beans.

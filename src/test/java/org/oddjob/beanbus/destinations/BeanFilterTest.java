@@ -1,5 +1,6 @@
 package org.oddjob.beanbus.destinations;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -14,7 +15,6 @@ import org.oddjob.tools.StateSteps;
 import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
 
 public class BeanFilterTest {
 
@@ -40,9 +40,9 @@ public class BeanFilterTest {
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         List<Fruit> results = lookup.lookup(
-                "results.beans", List.class);
+                "results.list", List.class);
 
-        assertThat(results.size(), is(2));
+        assertThat(results, Matchers.contains("Apple", "Pear"));
 
         Object beanBus = lookup.lookup("bean-bus");
 
@@ -50,9 +50,9 @@ public class BeanFilterTest {
         ((Runnable) beanBus).run();
 
         results = lookup.lookup(
-                "results.beans", List.class);
+                "results.list", List.class);
 
-        assertThat(results.size(), is(2));
+        assertThat(results, Matchers.contains("Apple", "Pear"));
 
         oddjob.destroy();
     }

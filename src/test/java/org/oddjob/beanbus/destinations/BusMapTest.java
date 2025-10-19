@@ -1,5 +1,6 @@
 package org.oddjob.beanbus.destinations;
 
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
@@ -48,11 +49,9 @@ public class BusMapTest {
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         List<Fruit> results = lookup.lookup(
-                "results.beans", List.class);
+                "results.list", List.class);
 
-        assertThat(results.get(0).getPrice(), is(51.0));
-        assertThat(results.get(1).getPrice(), is(72.4));
-        assertThat(results.get(2).getPrice(), is(80.8));
+        assertThat(results, Matchers.contains(51.0, 72.4, 80.8));
 
         Object beanBus = lookup.lookup("bean-bus");
 
@@ -60,15 +59,9 @@ public class BusMapTest {
         ((Runnable) beanBus).run();
 
         results = lookup.lookup(
-                "results.beans", List.class);
+                "results.list", List.class);
 
-        // demonstrates a gotcha in Arooa. The bean price isn't reconfigured in the list because the
-        // values are constant, so the doubled values don't get reset.
-        // To avoid this situation the Beans should have been immutable and the function should have created
-        // new ones.
-        assertThat(results.get(0).getPrice(), is(102.0));
-        assertThat(results.get(1).getPrice(), is(144.8));
-        assertThat(results.get(2).getPrice(), is(161.6));
+        assertThat(results, Matchers.contains(51.0, 72.4, 80.8));
 
         oddjob.destroy();
     }

@@ -23,7 +23,7 @@ public enum EventState implements State {
 	READY(EnumSet.of(StateFlag.READY)),
 
 	/**
-	 * The node is connecting to it's event source.
+	 * The node is connecting to its event source.
 	 */	
 	CONNECTING(EnumSet.of(StateFlag.EXECUTING, StateFlag.STOPPABLE)),
 

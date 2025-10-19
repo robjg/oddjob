@@ -1,13 +1,15 @@
 [HOME](../../../../README.md)
 # bus:map
 
-Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html) to beans in a Bean Bus.
+Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/Function.html) to beans in a Bean Bus. If the result of the function. If the
+function returns null then nothing is passed to the next component so this has the same effect as
+an [bus:filter](../../../../org/oddjob/beanbus/destinations/BeanFilter.md)
 
 ### Property Summary
 
 | Property | Description |
 | -------- | ----------- |
-| [count](#propertycount) |  | 
+| [count](#propertycount) | The number of items the function has been applied to. | 
 | [function](#propertyfunction) | The function to apply to beans on the bus. | 
 | [name](#propertyname) | The name of this component. | 
 | [to](#propertyto) | The next component in a bus. | 
@@ -25,9 +27,10 @@ Apply a [java.util.function.Function](https://docs.oracle.com/en/java/javase/11/
 
 <table style='font-size:smaller'>
       <tr><td><i>Access</i></td><td>READ_ONLY</td></tr>
+      <tr><td><i>Required</i></td><td>Read Only.</td></tr>
 </table>
 
-
+The number of items the function has been applied to.
 
 #### function <a name="propertyfunction"></a>
 
@@ -72,23 +75,23 @@ Apply a function to double the price on a `Fruit` bean.
     <job>
         <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
             <of>
-                <bus:driver xmlns:bus="oddjob:beanbus">
+                <bus:driver>
                     <values>
                         <list>
                             <values>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="42" type="Apple" price="25.5"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="24" type="Banana" price="36.2"/>
-                                <bean class="org.oddjob.beanbus.example.Fruit" quantity="15" type="Pear" price="40.4"/>
+                                <value value="#{25.5}"/>
+                                <value value="#{36.2}"/>
+                                <value value="#{40.4}"/>
                             </values>
                         </list>
                     </values>
                 </bus:driver>
-                <bus:map xmlns:bus="oddjob:beanbus">
+                <bus:map>
                     <function>
-                        <bean class="org.oddjob.beanbus.example.DoublePrice"/>
+                        <value value="#{ function(x) { return x * 2 } }"/>
                     </function>
                 </bus:map>
-                <bus:collect id="results" xmlns:bus="oddjob:beanbus"/>
+                <bus:collect id="results"/>
             </of>
         </bus:bus>
     </job>

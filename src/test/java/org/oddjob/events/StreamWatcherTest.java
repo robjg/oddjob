@@ -7,6 +7,7 @@ import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Stateful;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.events.state.EventState;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
@@ -41,16 +42,21 @@ class StreamWatcherTest {
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
         Stateful trigger = lookup.lookup("trigger", Stateful.class);
+        StateSteps triggerStates = new StateSteps(trigger);
+        triggerStates.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
 
-        StateSteps states = new StateSteps(trigger);
-
-        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.ACTIVE);
+        Stateful eventSource = lookup.lookup("watchForApple", Stateful.class);
+        StateSteps eventStates = new StateSteps(eventSource);
+        eventStates.startCheck(EventState.READY, EventState.CONNECTING, EventState.WAITING);
 
         oddjob.run();
 
-        states.checkWait();
+        triggerStates.checkWait();
+        // Waiting for the trigger to be active was not enough to ensure we are ready for the next
+        //  steps, because the even source is asynchronous.
+        eventStates.checkWait();
 
-        states.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
+        triggerStates.startCheck(ParentState.ACTIVE, ParentState.COMPLETE);
 
         Runnable job1 = lookup.lookup("job1", Runnable.class);
         job1.run();
@@ -60,8 +66,7 @@ class StreamWatcherTest {
         Runnable job2 = lookup.lookup("job2", Runnable.class);
         job2.run();
 
-        // Why does this fail intermittently?
-        states.checkWait();
+        triggerStates.checkWait();
 
         String text = lookup.lookup("echo.text", String.class);
 
