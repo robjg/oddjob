@@ -11,12 +11,13 @@ import java.util.Arrays;
 
 /**
  * @oddjob.description Create an Oddball from various sources. Primarily intended to be used
- * with the <h href="https://github.com/robjg/oj-resolve>oj-resolve</h> project to load a
- * maven dependency as an Oddball. See {@link OddballsDescriptorFactory}.
+ * with the <a href="https://github.com/robjg/oj-resolve">oj-resolve</a> project to load a
+ * maven dependency as an Oddball.
+ * <p>
+ *     See also {@link OddballsDescriptorFactory}.
+ * </p>
  *
- * @oddjob.example
- *
- * Loading two Oddballs.
+ * @oddjob.example Loading two Oddballs.
  * {@oddjob.xml.resource org/oddjob/oddballs/OddballsExample.xml}
  *
  */
@@ -41,17 +42,16 @@ public class OddballFactoryType implements ValueFactory<OddballFactory> {
     @Override
     public OddballFactory toValue() throws ArooaConversionException {
 
-        if (paths != null) {
+        if (paths != null && paths.length > 0) {
 
             return parentLoader -> ClasspathOddball.from(parentLoader, paths);
         }
-        else if (urls != null) {
+        else if (urls != null && urls.length > 0) {
 
             return parentLoader -> ClasspathOddball.from(parentLoader, urls);
         }
 
-        logger.info("No Oddballs defined.");
-        return null;
+        throw new ArooaConversionException("No Paths or URLs specified to create an Oddball");
     }
 
     public void setPaths(Path[] paths) {

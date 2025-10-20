@@ -151,7 +151,11 @@ public class OddballsDescriptorFactory implements ArooaDescriptorFactory {
 	public String toString() {
 		return getClass().getName() + ". " + 
 			(files == null ? 
-					"No Oddball directories!" :
-					"Odball directories: " + Arrays.toString(files));
+					"No Oddball directories" :
+					"Odball directories: " + Arrays.toString(files))
+                + ", " +
+            (oddballs.isEmpty() ?
+                    "No Other Oddballs" :
+                    oddballs.getList());
 	}
 }
