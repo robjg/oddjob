@@ -69,7 +69,6 @@ Maven Install [oj-parent](https://github.com/robjg/oj-parent) and [arooa](https:
 [oj-assembly](https://github.com/robjg/oj-assembly) provides a module POM capable of building
 all the Oddjob modules included in the distribution.
 
-
 Other modules that contribute to the final Oddjob distribution are
 [run-oddjob](https://github.com/robjg/run-oddjob) - the launch framework for Oddjob,
 [oj-reactjs](https://github.com/robjg/oj-reactjs) - the Web UI front end, [oj-doc](https://github.com/robjg/oj-doc)
@@ -77,7 +76,18 @@ which builds the Reference pages amongst other things, and
 [oj-examples](https://github.com/robjg/oj-examples) which are examples and also the
 source of the Oddjob documentation.
 
+To see how to build a full Oddjob application see 
+[The Developer Guide](http://rgordon.co.uk/oddjob/1.6.0/devguide/building.html)
 
+Bespoke Maven targets:
+- Create the reference Markdown: `javadoc:javadoc@reference`. This is defined in `oj-parent`
+  but must be run in each module.
+- Run Oddjob as an app capable of building Oddjob: `exec:exec@app -N -X`. Run in `oj-assembly`
+
+Useful standard targets:
+- Check dependencies: `versions:display-dependency-updates`
+- Check plugins: `versions:display-plugin-updates`
+  
 ### More Info
 
 More information can be found on [Oddjob's Home Page](http://rgordon.co.uk/oddjob).

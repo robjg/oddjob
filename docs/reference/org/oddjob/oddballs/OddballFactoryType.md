@@ -2,8 +2,13 @@
 # oddball
 
 Create an Oddball from various sources. Primarily intended to be used
-with the h href="https://github.com/robjg/oj-resolve>oj-resolve</h> project to load a
-maven dependency as an Oddball. See [oddballs](../../../org/oddjob/oddballs/OddballsDescriptorFactory.md).
+with the <a href="https://github.com/robjg/oj-resolve">oj-resolve</a> project to load a
+maven dependency as an Oddball.
+
+
+See also [oddballs](../../../org/oddjob/oddballs/OddballsDescriptorFactory.md).
+
+
 
 ### Property Summary
 
