@@ -87,7 +87,8 @@ Bespoke Maven targets:
 Useful standard targets:
 - Check dependencies: `versions:display-dependency-updates`
 - Check plugins: `versions:display-plugin-updates`
-  
+- Update version: `versions:set -DnewVersion=1.7.0 -DprocessAllModules`  
+
 ### More Info
 
 More information can be found on [Oddjob's Home Page](http://rgordon.co.uk/oddjob).
