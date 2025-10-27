@@ -1,7 +1,8 @@
 package org.oddjob.scheduling;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.oddjob.*;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
@@ -19,13 +20,17 @@ import org.slf4j.LoggerFactory;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ExecutorThrottleTypeTest extends OjTestCase {
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class ExecutorThrottleTypeTest {
 
     private static final Logger logger = LoggerFactory.getLogger(ExecutorThrottleTypeTest.class);
 
-    @Before
-    public void setUp() throws Exception {
-        logger.info("---------------------- " + getName() + "-----------------------");
+    @BeforeEach
+    void setUp(TestInfo testInfo) throws Exception {
+        logger.info("---------------------- {}-----------------------", testInfo.getDisplayName());
     }
 
     private static class Capture implements StructuralListener, StateListener {
@@ -167,26 +172,29 @@ public class ExecutorThrottleTypeTest extends OjTestCase {
         Structural parallel = lookup.lookup("parallel", Structural.class);
         parallel.addStructuralListener(capture);
 
-        // Now we can add state steps
-        StateSteps oddjobState = new StateSteps(oddjob);
+        // Now we can add state steps. Can't watch Oddjob because it adds StateListener to parallel before
+        // we can add Capture.
+        StateSteps parallelState = new StateSteps((Stateful) parallel);
 
-        oddjobState.startCheck(ParentState.READY,
+        parallelState.startCheck(ParentState.READY,
                 ParentState.EXECUTING, ParentState.ACTIVE);
 
         oddjob.run();
 
-        oddjobState.checkNow();
+        parallelState.checkNow();
 
-        oddjobState.startCheck(ParentState.ACTIVE, ParentState.READY);
+        parallelState.startCheck(ParentState.ACTIVE, ParentState.READY);
 
         capture.waitForExecuting(2);
 
         ((Stoppable) parallel).stop();
 
-        oddjobState.checkWait();
+        parallelState.checkWait();
 
         assertEquals(2, capture.getCompleteCount());
         assertEquals(2, capture.getReadyCount());
+
+        assertThat(oddjob.lastStateEvent().getState().isReady(), is(true));
 
         oddjob.destroy();
     }
