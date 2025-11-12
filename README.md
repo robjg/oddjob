@@ -2,10 +2,16 @@
 
 Oddjob is a task automation and scheduling solution.
 
+- [Running](#running)
+- [Configuration](#configuration)
+- [Modules](#modules)
+- [Building](#building)
+- [More Info](#more-info)
+
 ### Running
 
 Full Oddjob distributions can be [Downloaded](http://rgordon.co.uk/oddjob/download.html)
-and [Run from the Console](http://rgordon.co.uk/oddjob/1.6.0/userguide/started.html#running)
+and [Run from the Console](http://rgordon.co.uk/oddjob/current/userguide/started.html#running)
 
 Or Oddjob can be started from your favorite IDE with this Maven dependency
 
@@ -13,7 +19,7 @@ Or Oddjob can be started from your favorite IDE with this Maven dependency
 <dependency>
     <groupId>uk.co.rgordon</groupId>
     <artifactId>oddjob</artifactId>
-    <version>1.6.0</version>
+    <version>${oddjob.version}</version>
 </dependency>
 ```
 
@@ -29,7 +35,7 @@ And this main `org.oddjob.Main` with
 
 saved as `oddjob.xml` in your projects Working Directory.
 
-Oddjob can also be [Embedded](http://rgordon.co.uk/oddjob/1.6.0/devguide/embedding.html)
+Oddjob can also be [Embedded](http://rgordon.co.uk/oddjob/current/devguide/embedding.html)
 in your own applications.
 
 ### Configuration
@@ -64,7 +70,8 @@ web UI.
 ### Building
 
 To build this module as a Snapshot you will first need to clone and 
-Maven Install [oj-parent](https://github.com/robjg/oj-parent) and [arooa](https://github.com/robjg/arooa).
+`mvn install` [oj-parent](https://github.com/robjg/oj-parent) and [arooa](https://github.com/robjg/arooa). You can then run
+`mvn install` in this module.
 
 [oj-assembly](https://github.com/robjg/oj-assembly) provides a module POM capable of building
 all the Oddjob modules included in the distribution.
@@ -77,17 +84,7 @@ which builds the Reference pages amongst other things, and
 source of the Oddjob documentation.
 
 To see how to build a full Oddjob application see 
-[The Developer Guide](http://rgordon.co.uk/oddjob/1.6.0/devguide/building.html)
-
-Bespoke Maven targets:
-- Create the reference Markdown: `javadoc:javadoc@reference`. This is defined in `oj-parent`
-  but must be run in each module.
-- Run Oddjob as an app capable of building Oddjob: `exec:exec@app -N -X`. Run in `oj-assembly`
-
-Useful standard targets:
-- Check dependencies: `versions:display-dependency-updates`
-- Check plugins: `versions:display-plugin-updates`
-- Update version: `versions:set -DnewVersion=1.7.0 -DprocessAllModules`  
+[The Developer Guide](http://rgordon.co.uk/oddjob/current/devguide/building.html)
 
 ### More Info
 
