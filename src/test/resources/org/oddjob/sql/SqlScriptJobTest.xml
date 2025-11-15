@@ -1,9 +1,8 @@
-<oddjob xmlns:s="http://rgordon.co.uk/oddjob/schedules">
+<oddjob>
 	<job>
         <sql>
            	<connection>
-	            <connection driver="org.hsqldb.jdbcDriver"
-	            		url="jdbc:hsqldb:mem:test" 
+	            <connection url="jdbc:hsqldb:mem:test"
 	            		username="sa" password=""/>
            	</connection>
            	<input>

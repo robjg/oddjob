@@ -5,7 +5,7 @@
             <jobs>
                 <variables id="vars">
                     <connection>
-                        <connection driver="org.hsqldb.jdbcDriver" url="jdbc:hsqldb:mem:test" username="sa"/>
+                        <connection url="jdbc:hsqldb:mem:test" username="sa"/>
                     </connection>
                 </variables>
                 <sql name="Create table">
