@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <script id="script">
+                    <export>
+                        <value key="myRun" value="."/>
+                    </export>
+                    <stdout>
+                        <stdout/>
+                    </stdout>
+                    <![CDATA[var Run = Java.type("java.lang.Runnable");
+var MyRun = Java.extend(Run, {
+    run: function() {
+        print("JavaScript run By Oddjob");
+    }
+});
+var myRun = new MyRun(); ]]>
+                </script>
+                <run job="${myRun}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

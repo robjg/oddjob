@@ -3,15 +3,18 @@
  */
 package org.oddjob.script;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
-import org.oddjob.OjTestCase;
 import org.oddjob.Resettable;
+import org.oddjob.arooa.ArooaParseException;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.arooa.parsing.DragPoint;
+import org.oddjob.arooa.parsing.DragTransaction;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
+import org.oddjob.arooa.registry.ChangeHow;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.xml.XMLConfiguration;
 import org.oddjob.state.JobState;
@@ -25,13 +28,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  *
  */
-public class ScriptJobTest extends OjTestCase {
+public class ScriptJobTest {
     private static final Logger logger = LoggerFactory.getLogger(ScriptJobTest.class);
 
     @Test
@@ -100,7 +105,7 @@ public class ScriptJobTest extends OjTestCase {
 
         ScriptJob sc = (ScriptJob) new OddjobLookup(oj).lookup("s");
         Map<?, ?> results =
-                (Map<?, ?>) sc.getBeans("results");
+                (Map<?, ?>) sc.getBind("results");
 
         assertEquals("apple", results.get("fruit"));
     }
@@ -215,4 +220,54 @@ public class ScriptJobTest extends OjTestCase {
 
         assertThat(result2, is(6.0));
     }
+
+    String xml =
+            "<oddjob id='oddjob'>" +
+                    " <job>" +
+                    "  <script id='script'>var ourNum = 3" +
+                    "    <export><value key='ourNum' value='.'/></export>" +
+                    "  </script>" +
+                    " </job>" +
+                    "</oddjob>";
+
+    String replacement = "<script id='script'>var ourNum = 4" +
+            "<export><value key='ourNum' value='.'/></export>" +
+            "</script>";
+
+
+    @Test
+    void testCutAndPaste() throws ArooaParseException {
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+
+        oddjob.run();
+
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+        DragPoint script = oddjob.provideConfigurationSession().dragPointFor(
+                lookup.lookup("script"));
+
+        assertThat(lookup.lookup("ourNum"), is(3));
+
+        DragTransaction trn = script.beginChange(ChangeHow.FRESH);
+        script.cut();
+        trn.commit();
+
+        assertThat(lookup.lookup("ourNum"), is(nullValue()));
+
+        DragPoint paste = oddjob.provideConfigurationSession().dragPointFor(
+                new OddjobLookup(oddjob).lookup("oddjob"));
+
+        DragTransaction trn2 = paste.beginChange(ChangeHow.FRESH);
+        paste.paste(0, replacement);
+        trn2.commit();
+
+        oddjob.run();
+
+        assertThat(lookup.lookup("ourNum"), is(4));
+
+        oddjob.destroy();
+    }
+
 }

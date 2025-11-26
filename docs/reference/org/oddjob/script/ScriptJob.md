@@ -17,8 +17,8 @@ available <i>#{} expressions</i>.
 <h3>Script Results</h3>
 Variables defined within a script may be accessed in several ways.
 The `variables` mapped property may be used to access the variable
-by name. The {@export } property will export a variable to the oddjob
-session. The {@exportAll } property will export all variables into the
+by name. The `export` property will export a variable to the oddjob
+session. The `exportAll` property will export all variables into the
 oddjob session. The result of a function can be accessed with the
 `result` property. Some scripts don't return a result, in which case
 the `resultVariable` property can be used to take the result from
@@ -71,6 +71,7 @@ that job.
 | [Example 5](#example5) | Invoking a script to provide a substring function. |
 | [Example 6](#example6) | Setting the script job to not complete. |
 | [Example 7](#example7) | Defining Java Functions in JavaScript. |
+| [Example 8](#example8) | Extending a Runnable in Javascript. |
 
 
 ### Property Detail
@@ -485,6 +486,45 @@ function multiplyByTwo(x) { return new java.lang.Integer(x * 2)}
         </sequential>
     </job>
 </oddjob>
+```
+
+
+#### Example 8 <a name="example8"></a>
+
+Extending a Runnable in Javascript. The Runnable can then be
+run from elsewhere in Oddjob. Not that we redirect the scripts stdout so
+that we can capture it in Oddjob's console.
+```xml
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <sequential>
+            <jobs>
+                <script id="script">
+                    <export>
+                        <value key="myRun" value="."/>
+                    </export>
+                    <stdout>
+                        <stdout/>
+                    </stdout>
+                    <![CDATA[var Run = Java.type("java.lang.Runnable");
+var MyRun = Java.extend(Run, {
+    run: function() {
+        print("JavaScript run By Oddjob");
+    }
+});
+var myRun = new MyRun(); ]]>
+                </script>
+                <run job="${myRun}"/>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>
+```
+
+This example creates the following output:
+```
+JavaScript run By Oddjob
 ```
 
 

@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import javax.script.*;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -56,8 +57,8 @@ import java.util.function.Function;
  * <h3>Script Results</h3>
  * Variables defined within a script may be accessed in several ways.
  * The {@code variables} mapped property may be used to access the variable
- * by name. The {@export} property will export a variable to the oddjob
- * session. The {@exportAll} property will export all variables into the
+ * by name. The {@code export} property will export a variable to the oddjob
+ * session. The {@code exportAll} property will export all variables into the
  * oddjob session. The result of a function can be accessed with the
  * {@code result} property. Some scripts don't return a result, in which case
  * the {@code resultVariable} property can be used to take the result from
@@ -99,6 +100,13 @@ import java.util.function.Function;
  *
  * @oddjob.example Defining Java Functions in JavaScript.
  * {@oddjob.xml.resource org/oddjob/script/ScriptFunctions.xml}
+ *
+ * @oddjob.example Extending a Runnable in Javascript. The Runnable can then be
+ * run from elsewhere in Oddjob. Not that we redirect the scripts stdout so
+ * that we can capture it in Oddjob's console.
+ * {@oddjob.xml.resource org/oddjob/script/ScriptExtendRunnable.xml}
+ * This example creates the following output:
+ * {@oddjob.text.resource org/oddjob/script/ScriptExtendRunnableOut.txt}
  *
  * @author Rob Gordon - Based on the original from Ant.
  */
@@ -423,6 +431,12 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
         exported = null;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        onReset();
+    }
+
     public LogArchive consoleLog() {
         return consoleArchive;
     }
@@ -529,16 +543,19 @@ public class ScriptJob extends SerializableJob implements ConsoleOwner {
         if (name == null) {
             throw new IllegalArgumentException("No name");
         }
-        if (value == null) {
+        if (value == null || value.isBlank()) {
+            if (export != null) {
+                export.remove(name);
+            }
             return;
         }
         if (".".equals(value)) {
             value = name;
         }
         if (export == null) {
-            export = new HashMap<>();
+            export = new ConcurrentHashMap<>();
         }
-        logger().debug("Adding export ({}, [{}]", name, value);
+        logger().debug("Adding export of binding {} to session as {}", name, value);
         export.put(name, value);
     }
 

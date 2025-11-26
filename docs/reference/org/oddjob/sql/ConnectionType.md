@@ -9,9 +9,9 @@ Definition for a Database connection.
 | -------- | ----------- |
 | [classLoader](#propertyclassloader) | The class loader to use to load the JDBC driver. | 
 | [driver](#propertydriver) | The driver class name. | 
-| [password](#propertypassword) | The users password. | 
+| [password](#propertypassword) | The user's password. | 
 | [url](#propertyurl) | The jdbc url. | 
-| [username](#propertyusername) | The database username.. | 
+| [username](#propertyusername) | The database username. | 
 
 
 ### Example Summary
@@ -37,10 +37,11 @@ The class loader to use to load the JDBC driver.
 <table style='font-size:smaller'>
       <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
       <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
-      <tr><td><i>Required</i></td><td>Yes.</td></tr>
+      <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
-The driver class name.
+The driver class name. Only required if using a custom classpath
+when the driver won't have registered itself using the standard ServiceLoader mechanism.
 
 #### password <a name="propertypassword"></a>
 
@@ -50,7 +51,7 @@ The driver class name.
       <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
-The users password.
+The user's password.
 
 #### url <a name="propertyurl"></a>
 
@@ -70,7 +71,7 @@ The jdbc url.
       <tr><td><i>Required</i></td><td>No.</td></tr>
 </table>
 
-The database username..
+The database username.
 
 
 ### Examples
