@@ -80,7 +80,6 @@ Any values.
 
 A simple list of things. The list contains 3 things two Strings and a
 nested list that contains one String.
-
 ```xml
 <oddjob>
   <job>
@@ -116,8 +115,8 @@ nested list that contains one String.
 ```
 
 
-The output is:
 
+The output is:
 ```
 Hello World
 Goodbye World
@@ -129,7 +128,6 @@ Goodbye World
 
 A Merged list. This list merges a plain value, a sub list
 and array into a list of 5 separate values.
-
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
@@ -173,8 +171,8 @@ and array into a list of 5 separate values.
 ```
 
 
-The output is:
 
+The output is:
 ```
 apples
 oranges
@@ -188,7 +186,6 @@ mangos
 
 A Converted list. The elements of the list are converted to an array of
 Strings.
-
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
@@ -248,8 +245,8 @@ Strings.
 ```
 
 
-The output is:
 
+The output is:
 ```
 grapes, red
 grapes, white
@@ -257,6 +254,7 @@ gratefruit
 apples
 pears
 ```
+
 
 
 Although it can't be seen in the output, but can be seen when this
@@ -269,7 +267,6 @@ Add to a list the fly. This example demonstrates setting the
 hidden 'add' property. The property is hidden so that it can't be set
 via configuration which could be confusing. A side effect of this is that
 it is also hidden from the Reference Guide generator.
-
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
@@ -306,8 +303,8 @@ it is also hidden from the Reference Guide generator.
 ```
 
 
-The output is:
 
+The output is:
 ```
 apples
 bananas
