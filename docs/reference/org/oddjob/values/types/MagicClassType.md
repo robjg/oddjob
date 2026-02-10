@@ -21,6 +21,7 @@ See also [arooa:magic-beans](../../../../org/oddjob/arooa/beanutils/MagicBeanDes
 | Title | Description |
 | ----- | ----------- |
 | [Example 1](#example1) | Using a magic-class to create a magic bean. |
+| [Example 2](#example2) | See also [org.oddjob.beanbus.destinations.BeanCopy](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/beanbus/destinations/BeanCopy.html) |
 
 
 ### Property Detail
@@ -60,7 +61,6 @@ class name.
 #### Example 1 <a name="example1"></a>
 
 Using a magic-class to create a magic bean.
-
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
@@ -99,6 +99,10 @@ Using a magic-class to create a magic bean.
 </oddjob>
 ```
 
+
+#### Example 2 <a name="example2"></a>
+
+See also [org.oddjob.beanbus.destinations.BeanCopy](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/beanbus/destinations/BeanCopy.html)
 
 
 -----------------------

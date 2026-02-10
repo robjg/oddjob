@@ -1,10 +1,5 @@
 package org.oddjob.values.types;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
 import org.oddjob.arooa.beanutils.MagicBeanClassCreator;
 import org.oddjob.arooa.beanutils.MagicBeanDescriptorFactory;
 import org.oddjob.arooa.convert.ArooaConversionException;
@@ -13,6 +8,10 @@ import org.oddjob.arooa.types.ValueFactory;
 import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.beanbus.destinations.BeanCopy;
 
+import javax.inject.Inject;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * @oddjob.description Definition for a Magic Bean, which is a bean that 
  * can be defined dynamically. 
@@ -20,10 +19,9 @@ import org.oddjob.beanbus.destinations.BeanCopy;
  * See also {@link MagicBeanDescriptorFactory}.
  * 
  * @oddjob.example Using a magic-class to create a magic bean.
- * 
  * {@oddjob.xml.resource org/oddjob/values/types/MagicBeanTypeExample.xml}
  * 
- * @oddjob.exemple See also {@link BeanCopy}
+ * @oddjob.example See also {@link BeanCopy}
  * 
  * @author rob
  *
@@ -43,8 +41,8 @@ public class MagicClassType implements ValueFactory<ArooaClass>{
 	 * class name.
 	 * @oddjob.required No.
 	 */
-	private final Map<String, String> properties = 
-		new LinkedHashMap<String, String>();
+	private final Map<String, String> properties =
+            new LinkedHashMap<>();
 	
 	/** 
 	 * @oddjob.property
@@ -64,7 +62,7 @@ public class MagicClassType implements ValueFactory<ArooaClass>{
 
 	public void setProperties(String key, String className) {
 		
-		if (key == null) {
+		if (className == null) {
 			properties.remove(key);
 		}
 		else {
