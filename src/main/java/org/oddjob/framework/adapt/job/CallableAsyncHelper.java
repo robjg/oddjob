@@ -5,6 +5,8 @@ import org.oddjob.arooa.convert.ArooaConversionException;
 import org.oddjob.arooa.convert.ArooaConverter;
 import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.framework.AsyncJob;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.ExceptionListener;
 import java.lang.reflect.ParameterizedType;
@@ -19,6 +21,8 @@ import java.util.function.IntConsumer;
  * Helps to see if a Callable is Asynchronous.
  */
 public class CallableAsyncHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(CallableAsyncHelper.class);
 
     public static Optional<AsyncJob> adapt(Callable<?> callable, ArooaSession session) {
 
@@ -67,6 +71,7 @@ public class CallableAsyncHelper {
                     }
                 });
             } catch (Exception e) {
+                logger.error("Unexpected Exception.", e);
                 exceptionListener.exceptionThrown(e);
             }
         }

@@ -222,7 +222,7 @@ public class Main {
 	 * @param args The command line args.
 	 * @throws FileNotFoundException
 	 */
-	public static void main(String[] args) throws Exception {
+	public static void main(String... args) throws Exception {
 
 		Main ojm = new Main();
 

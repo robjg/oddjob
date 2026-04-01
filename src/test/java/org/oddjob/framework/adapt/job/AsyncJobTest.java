@@ -14,6 +14,8 @@ import org.oddjob.structural.OddjobChildException;
 import org.oddjob.tools.StateSteps;
 
 import java.beans.ExceptionListener;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.IntConsumer;
 
@@ -350,6 +352,39 @@ public class AsyncJobTest {
         String xml = "<oddjob>" +
                 "<job>" +
                 "<bean class='" + MyFailsImmediatelyJob.class.getName() + "'/>" +
+                "</job>" +
+                "</oddjob>";
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setConfiguration(new XMLConfiguration("XML", xml));
+
+        StateSteps states = new StateSteps(oddjob);
+        states.startCheck(ParentState.READY, ParentState.EXECUTING, ParentState.EXCEPTION);
+
+        oddjob.run();
+
+        states.checkNow();
+
+        OddjobChildException ep = (OddjobChildException) oddjob.lastStateEvent().getException();
+
+        assertThat(ep.getCause().getMessage(), is("Uh Oh"));
+    }
+
+    public static class MyFailsImmediatelyCallable implements Callable<CompletableFuture<Integer>> {
+
+        @Override
+        public CompletableFuture<Integer> call() throws Exception {
+
+            throw new RuntimeException("Uh Oh");
+        }
+    }
+
+    @Test
+    public void testCallableFailsImmediately() {
+
+        String xml = "<oddjob>" +
+                "<job>" +
+                "<bean class='" + MyFailsImmediatelyCallable.class.getName() + "'/>" +
                 "</job>" +
                 "</oddjob>";
 
