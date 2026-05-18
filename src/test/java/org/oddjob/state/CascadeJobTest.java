@@ -41,8 +41,7 @@ public class CascadeJobTest extends OjTestCase {
     @Before
     public void setUp() throws Exception {
 
-
-        logger.info("----------------  " + getName() + "  -----------------");
+        logger.info("----------------  {}  -----------------", getName());
     }
 
     private static class OurJob extends SimpleJob {
@@ -50,7 +49,7 @@ public class CascadeJobTest extends OjTestCase {
         int ran;
 
         @Override
-        protected int execute() throws Throwable {
+        protected int execute() {
             ++ran;
             return 0;
         }
@@ -112,7 +111,7 @@ public class CascadeJobTest extends OjTestCase {
         assertEquals(1, job2.ran);
         assertEquals(1, job3.ran);
 
-        ((Resettable) job2).hardReset();
+        job2.hardReset();
 
         assertEquals(ParentState.READY, test.lastStateEvent().getState());
 
@@ -338,7 +337,7 @@ public class CascadeJobTest extends OjTestCase {
         OurListener l = new OurListener();
         test.addStateListener(l);
 
-        assertEquals(ParentState.COMPLETE, results.get(0));
+        assertEquals(ParentState.COMPLETE, results.getFirst());
         assertEquals(1, results.size());
 
         test.destroy();
@@ -494,7 +493,7 @@ public class CascadeJobTest extends OjTestCase {
 
         test.stop();
 
-        job4State.checkNow();
+        job4State.checkWait();
 
         testState.checkNow();
 
@@ -652,7 +651,7 @@ public class CascadeJobTest extends OjTestCase {
 
         assertThat(jobs.size(), is(1));
 
-        jobs.get(0).run();
+        jobs.getFirst().run();
 
         assertThat(jobs.size(), is(2));
 
