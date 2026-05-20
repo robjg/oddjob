@@ -8,6 +8,7 @@ import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.registry.BeanDirectory;
 
 import javax.management.ObjectName;
+import java.lang.reflect.Type;
 import java.text.ParseException;
 
 /**
@@ -77,7 +78,7 @@ public class MBeanDirectory implements BeanDirectory {
 	}
 	
 	@Override
-	public <T> T lookup(String path, Class<T> required)
+	public <T> T lookup(String path, Type required)
 			throws ArooaPropertyException, ArooaConversionException {
 		
 		MBeanDirectoryPathParser parser = new MBeanDirectoryPathParser();

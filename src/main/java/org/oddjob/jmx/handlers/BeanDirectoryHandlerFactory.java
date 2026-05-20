@@ -22,7 +22,9 @@ import org.oddjob.remote.NotificationType;
 
 import javax.management.MBeanAttributeInfo;
 import javax.management.MBeanOperationInfo;
+import java.io.Serial;
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -155,14 +157,15 @@ public class BeanDirectoryHandlerFactory implements
 				}
 
 				@Override
-				public <T> T lookup(String path, Class<T> required) {
+				public <T> T lookup(String path, Type required) {
 					try {
 						Object result = toolkit.invoke(LOOKUP_TYPE, path, required);
 						if (result instanceof Carrier) {
 							result = toolkit.getClientSession().create(
 									((Carrier) result).getRemoteId());
 						}
-						return required.cast(result);
+                        //noinspection unchecked
+                        return (T) result;
 					} catch (Throwable e) {
 						throw new UndeclaredThrowableException(e);
 					}
@@ -337,7 +340,8 @@ public class BeanDirectoryHandlerFactory implements
 	}
 
 	public static class Carrier implements Serializable {
-		private static final long serialVersionUID = 2020062900L;
+		@Serial
+        private static final long serialVersionUID = 2020062900L;
 
 		private final long remoteId;
 

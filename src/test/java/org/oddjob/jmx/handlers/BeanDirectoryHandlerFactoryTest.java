@@ -13,6 +13,7 @@ import org.oddjob.jmx.client.MockClientSideToolkit;
 import org.oddjob.jmx.server.*;
 import org.oddjob.remote.RemoteException;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,8 +77,9 @@ public class BeanDirectoryHandlerFactoryTest extends OjTestCase {
                 }
 
                 @Override
-                public <T> T lookup(String path, Class<T> required) {
-                    return required.cast("Fish");
+                public <T> T lookup(String path, Type required) {
+                    //noinspection unchecked
+                    return (T) "Fish";
                 }
             };
         }

@@ -14,6 +14,8 @@ import org.oddjob.logging.LogArchiver;
 import org.oddjob.logging.LogListener;
 import org.oddjob.util.MockThreadManager;
 
+import java.lang.reflect.Type;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.fail;
@@ -193,7 +195,7 @@ public class ServerContextImplTest {
                     return beanDirectory.lookup(path);
                 }
 
-                public <T> T lookup(String path, Class<T> required)
+                public <T> T lookup(String path, Type required)
                         throws ArooaConversionException {
                     return beanDirectory.lookup(path, required);
                 }

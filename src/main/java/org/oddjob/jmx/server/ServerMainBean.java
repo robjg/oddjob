@@ -8,6 +8,8 @@ import org.oddjob.arooa.registry.BeanDirectoryOwner;
 import org.oddjob.structural.ChildHelper;
 import org.oddjob.structural.StructuralListener;
 
+import java.lang.reflect.Type;
+
 /**
  * The anchor bean onto which all server side state is created.
  * On the client this accessed via {@link org.oddjob.jmx.client.ServerView}.
@@ -34,21 +36,25 @@ implements BeanDirectoryOwner, Structural {
 	
 	public BeanDirectory provideBeanDirectory() {
 		return new BeanDirectory() {
-			
+
+			@Override
 			public Object lookup(String path) 
 			throws ArooaPropertyException{
 				return beanDirectory.lookup(path);
 			}
-			
-			public <T> T lookup(String path, Class<T> required)
+
+			@Override
+			public <T> T lookup(String path, Type required)
 			throws ArooaPropertyException, ArooaConversionException {
 				return beanDirectory.lookup(path, required);
 			}
-			
+
+			@Override
 			public <T> Iterable<T> getAllByType(Class<T> type) {
 				return beanDirectory.getAllByType(type);
 			}
 			
+			@Override
 			public String getIdFor(Object bean) {
 				return beanDirectory.getIdFor(bean);
 			}			
