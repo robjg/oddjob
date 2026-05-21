@@ -8,6 +8,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaInterceptor;
 import org.oddjob.arooa.runtime.RuntimeConfiguration;
 import org.oddjob.arooa.runtime.RuntimeEvent;
 import org.oddjob.arooa.runtime.RuntimeListenerAdapter;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.beanbus.*;
 import org.oddjob.beanbus.adapt.OutboundStrategies;
 import org.oddjob.framework.extend.StructuralJob;
@@ -19,6 +20,8 @@ import org.oddjob.util.Restore;
 
 import java.io.Flushable;
 import java.io.IOException;
+import java.io.Serial;
+import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -77,6 +80,7 @@ import java.util.function.Consumer;
 public class BasicBusService extends StructuralJob<Object>
 implements ConductorServiceProvider, Consumer<Object>, Flushable {
 
+    @Serial
     private static final long serialVersionUID = 2012021500L;
 
 	/**
@@ -154,9 +158,7 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 		
 		Object[] children = childHelper.getChildren();
 
-		StatefulBusSupervisor adaptor = null;
-		
-		Object previousChild = null;
+        Object previousChild = null;
 
 		for (Object child: children) {
 
@@ -212,8 +214,7 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 				public void afterConfigure(RuntimeEvent event) throws ArooaException {
 					outbound.setTo((Consumer<Object>) consumer);
 
-					logger().info("Automatically Linked Outbound [" +
-							maybeOutbound + "] to [" + consumer + "]");
+                    logger().info("Automatically Linked Outbound [{}] to [{}]", maybeOutbound, consumer);
 
 					previousRuntime.removeRuntimeListener(this);
 				}
@@ -224,7 +225,7 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 	@Override
 	public void accept(Object bean) {
 
-		try (Restore restore = ComponentBoundary.push(loggerName(), this)) {
+		try (Restore ignored = ComponentBoundary.push(loggerName(), this)) {
 
 			if (StateConditions.LIVE.test(stateHandler().getState())) {
 				count.incrementAndGet();
@@ -283,8 +284,8 @@ implements ConductorServiceProvider, Consumer<Object>, Flushable {
 		return new ConductorService() {
 			
 			@Override
-			public String serviceNameFor(Class<?> theClass, String flavour) {
-				if (theClass.isAssignableFrom(BusConductor.class)) {
+			public String serviceNameFor(Type theClass, String flavour) {
+				if (ClassUtils.rawType(theClass).isAssignableFrom(BusConductor.class)) {
 					return CONDUCTOR_SERVICE_NAME;
 				}
 				else {

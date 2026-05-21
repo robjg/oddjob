@@ -1,12 +1,14 @@
 package org.oddjob.framework;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
 import org.oddjob.arooa.types.IsType;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.framework.extend.SimpleJob;
+
+import java.lang.reflect.Type;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * @oddjob.description Allows objects to be registered that will
@@ -49,8 +51,8 @@ implements ServiceProvider {
 	 * 
 	 * @oddjob.required No, but pointless if missing.
 	 */
-	private final Map<String, ServiceDefinition> services = 
-		new LinkedHashMap<String, ServiceDefinition>();
+	private final Map<String, ServiceDefinition> services =
+            new LinkedHashMap<>();
 	
 	@Override
 	protected int execute() throws Throwable {
@@ -94,7 +96,7 @@ implements ServiceProvider {
 			}
 			
 			@Override
-			public String serviceNameFor(Class<?> theClass, String flavour) {
+			public String serviceNameFor(Type theClass, String flavour) {
 				
 				String best = null;
 				
@@ -102,7 +104,7 @@ implements ServiceProvider {
 					services.entrySet()) {
 					
 					ServiceDefinition def = entry.getValue();
-					if (theClass.isInstance(def.getService())) {
+					if (ClassUtils.rawType(theClass).isInstance(def.getService())) {
 						if (flavour == null ) {
 							if (def.getQualifier() == null || 
 									!def.isIntransigent())   {
@@ -146,8 +148,8 @@ implements ServiceProvider {
 		}
 		Object qualifier = serviceDef.getQualifier();
 		
-		String serviceName = service.toString() + 
-			(qualifier == null ? "" : ";" + qualifier.toString()); 
+		String serviceName = service +
+			(qualifier == null ? "" : ";" + qualifier);
 		
 		logger().info("Registered service " + serviceName + 
 				" for types assignable from " + service.getClass().getName());

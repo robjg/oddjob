@@ -12,6 +12,7 @@ import org.oddjob.beanbus.BusFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,13 +24,13 @@ import java.util.function.Consumer;
  * @oddjob.example
  * 
  * Copy beans into bean properties given by the class.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanCopyJavaClass.xml}
  * 
  * @oddjob.example
  * 
  * Copy beans into a dynamically created bean.
- * 
+ * <p>
  * {@oddjob.xml.resource org/oddjob/beanbus/destinations/BeanCopyMagicClass.xml}
  * 
  * @oddjob.example
@@ -109,12 +110,17 @@ implements Consumer<F>, BusFilter<F, T>, ArooaSessionAware {
 			String from = mapping.getKey();
 			String to = mapping.getValue();
 			
-			Class<?> propertyType = overview.getPropertyType(from);
+			Type propertyType = overview.getPropertyType(from);
 			
 			logger.debug("Adding property to copy [" + to + 
-					"] of type [" + propertyType + "]");
-			
-			creator.addProperty(to, propertyType);
+					"] of type [" + propertyType.getTypeName() + "]");
+
+			if  (propertyType instanceof Class<?> cl) {
+				creator.addProperty(to, cl);
+			}
+			else {
+				throw new IllegalArgumentException("Unsupported type [" + propertyType.getTypeName() + "]");
+			}
 		}
 		
 		return creator.create();

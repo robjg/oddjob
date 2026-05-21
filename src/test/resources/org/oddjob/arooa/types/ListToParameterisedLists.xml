@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob id="this">
+    <job>
+        <sequential>
+            <jobs>
+                <variables id="vars">
+                    <aList>
+                        <list>
+                            <values>
+                                <value value="1"/>
+                                <value value="2"/>
+                                <value value="3"/>
+                            </values>
+                        </list>
+                    </aList>
+                </variables>
+                <bean class="org.oddjob.arooa.types.ThingWithListProperties" id="bean">
+                    <ints>
+                        <value value="${vars.aList}"/>
+                    </ints>
+                </bean>
+            </jobs>
+        </sequential>
+    </job>
+</oddjob>

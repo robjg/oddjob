@@ -5,6 +5,7 @@ import org.oddjob.arooa.deploy.annotations.ArooaComponent;
 import org.oddjob.arooa.design.view.ScreenPresence;
 import org.oddjob.arooa.registry.ServiceProvider;
 import org.oddjob.arooa.registry.Services;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.framework.extend.SimpleService;
 import org.oddjob.images.IconHelper;
 import org.oddjob.images.ImageData;
@@ -18,10 +19,8 @@ import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -37,6 +36,7 @@ import java.util.concurrent.Future;
 public class OddjobPanel extends SimpleService
         implements ServiceProvider, Services, Serializable, Stoppable, Structural {
 
+    @Serial
     private static final long serialVersionUID = 2012091900L;
 
     protected transient ChildHelper<Object> childHelper;
@@ -101,13 +101,11 @@ public class OddjobPanel extends SimpleService
 
         for (Object child : jobs) {
 
-            if (!(child instanceof Runnable)) {
+            if (!(child instanceof Runnable job)) {
                 logger().info("Child [" + child +
                         "] is not Runnable - ignoring.");
                 continue;
             }
-
-            final Runnable job = (Runnable) child;
 
             JobButtonAction action = new JobButtonAction(job);
 
@@ -141,7 +139,7 @@ public class OddjobPanel extends SimpleService
     }
 
     @Override
-    protected void onStart() throws Throwable {
+    protected void onStart() {
         if (executorService == null) {
             throw new NullPointerException("No Executor Service.");
         }
@@ -271,8 +269,8 @@ public class OddjobPanel extends SimpleService
     }
 
     @Override
-    public String serviceNameFor(Class<?> theClass, String flavour) {
-        if (theClass.isAssignableFrom(InputHandler.class)) {
+    public String serviceNameFor(Type theClass, String flavour) {
+        if (ClassUtils.rawType(theClass).isAssignableFrom(InputHandler.class)) {
             return OddjobServices.INPUT_HANDLER;
         } else {
             return null;
@@ -280,6 +278,7 @@ public class OddjobPanel extends SimpleService
     }
 
     class JobButtonAction extends AbstractAction {
+        @Serial
         private final static long serialVersionUID = 2012091900L;
 
         private final Runnable job;
@@ -354,7 +353,7 @@ public class OddjobPanel extends SimpleService
             }
         }
 
-        class NoopAction implements Runnable {
+        static class NoopAction implements Runnable {
 
             @Override
             public void run() {
@@ -400,6 +399,7 @@ public class OddjobPanel extends SimpleService
     /**
      * Custom serialisation.
      */
+    @Serial
     private void writeObject(ObjectOutputStream s)
             throws IOException {
         s.defaultWriteObject();
@@ -408,6 +408,7 @@ public class OddjobPanel extends SimpleService
     /**
      * Custom serialisation.
      */
+    @Serial
     private void readObject(ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
@@ -416,6 +417,7 @@ public class OddjobPanel extends SimpleService
 
 
     static class FrameWithStatus extends JFrame {
+        @Serial
         private static final long serialVersionUID = 2012092800L;
 
         private final JLabel status = new JLabel(Version.current().toString());

@@ -37,7 +37,7 @@ public class ListSourceTest {
 
 
     @Test
-    public void testListSourceWithAllTwoChildren() throws Exception {
+    public void testListSourceWithAllTwoChildren() {
 
         ListSource<Integer> test = new ListSource<>();
 
@@ -147,7 +147,7 @@ public class ListSourceTest {
 
         stateSteps.checkNow();
 
-        CompositeEvent<String> result1  = results.get(0);
+        CompositeEvent<String> result1  = results.getFirst();
         assertThat(result1.getOfs(), hasItems("apple", "orange"));
         // the last event received.
         assertThat(result1.getOf(), is("orange"));

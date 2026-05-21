@@ -103,7 +103,7 @@ public class BeanDiagnostics<T> extends AbstractFilter<T, T>
         Arrays.sort(properties);
         for (String property : properties) {
             out.println("  " + property + ": " +
-                    overview.getPropertyType(property).getName() +
+                    overview.getPropertyType(property).getTypeName() +
                     (overview.isIndexed(property) ? ", indexed" : "") +
                     (overview.isMapped(property) ? ", mapped" : "") +
                     (overview.hasReadableProperty(property) ? "" : " (Write Only)") +

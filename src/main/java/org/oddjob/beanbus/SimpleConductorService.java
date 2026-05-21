@@ -1,6 +1,8 @@
 package org.oddjob.beanbus;
 
 
+import java.lang.reflect.Type;
+
 public class SimpleConductorService implements ConductorService {
 
 	private final BusConductor beanConductor;
@@ -17,7 +19,7 @@ public class SimpleConductorService implements ConductorService {
 	}
 	
 	@Override
-	public String serviceNameFor(Class<?> theClass, String flavour) {
+	public String serviceNameFor(Type theClass, String flavour) {
 		if (BusConductor.class == theClass) {
 			return CONDUCTOR_SERVICE_NAME;
 		}

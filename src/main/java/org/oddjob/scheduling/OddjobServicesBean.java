@@ -1,11 +1,13 @@
 package org.oddjob.scheduling;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-
 import org.oddjob.OddjobExecutors;
 import org.oddjob.OddjobServices;
+import org.oddjob.arooa.utils.ClassUtils;
 import org.oddjob.input.InputHandler;
+
+import java.lang.reflect.Type;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Bean implementations of {@link OddjobServices}
@@ -44,7 +46,8 @@ public class OddjobServicesBean implements OddjobServices {
 	}
 	
 	@Override
-	public String serviceNameFor(Class<?> theClass, String flavour) {
+	public String serviceNameFor(Type type, String flavour) {
+		Class<?> theClass = ClassUtils.rawType(type);
 		if (theClass.isAssignableFrom(ClassLoader.class)) {
 			return CLASSLOADER_SERVICE;
 		}

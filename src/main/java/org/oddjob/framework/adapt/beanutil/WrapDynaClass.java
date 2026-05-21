@@ -22,11 +22,9 @@ import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
+import org.oddjob.arooa.utils.ClassUtils;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 
 
@@ -41,6 +39,7 @@ import java.util.*;
  */
 
 public class WrapDynaClass implements DynaClass, Serializable {
+    @Serial
     private static final long serialVersionUID = 20051114;
 
 
@@ -109,7 +108,7 @@ public class WrapDynaClass implements DynaClass, Serializable {
 
 
     /**
-     * Return the name of this DynaClass (analogous to the
+     * Return the name of this DynaClass, analogous to the
      * <code>getName()</code> method of <code>java.lang.Class</code), which
      * allows the same <code>DynaClass</code> implementation class to support
      * different dynamic classes, with different sets of properties.
@@ -196,7 +195,7 @@ public class WrapDynaClass implements DynaClass, Serializable {
 
         synchronized (dynaClasses) {
             WrapDynaClass dynaClass =
-                    (WrapDynaClass) dynaClasses.get(beanClass);
+                    dynaClasses.get(beanClass);
             if (dynaClass == null) {
                 dynaClass = introspect(beanClass, propertyAccessor);
                 dynaClasses.put(beanClass, dynaClass);
@@ -226,20 +225,21 @@ public class WrapDynaClass implements DynaClass, Serializable {
 
             DynaProperty dynaProperty;
 
+            Class<?> rawType = ClassUtils.rawType(beanOverview.getPropertyType(propertyName));
             // indexed
             if (beanOverview.isIndexed(propertyName)) {
                 dynaProperty = new DynaProperty(propertyName,
                         List.class,
-                        beanOverview.getPropertyType(propertyName));
+                        rawType);
                 // mapped
             } else if (beanOverview.isMapped(propertyName)) {
                 dynaProperty = new DynaProperty(propertyName,
                         Map.class,
-                        beanOverview.getPropertyType(propertyName));
+                        rawType);
             } else {
                 // else a simple property.
                 dynaProperty = new DynaProperty(propertyName,
-                        beanOverview.getPropertyType(propertyName));
+                        rawType);
             }
 
             propertiesMap.put(propertyName, dynaProperty);
@@ -259,6 +259,7 @@ public class WrapDynaClass implements DynaClass, Serializable {
     /*
      * Custom serialization.
      */
+    @Serial
     private void writeObject(ObjectOutputStream s)
             throws IOException {
         s.defaultWriteObject();
@@ -267,6 +268,7 @@ public class WrapDynaClass implements DynaClass, Serializable {
     /*
      * Custom serialization.
      */
+    @Serial
     private void readObject(ObjectInputStream s)
             throws IOException, ClassNotFoundException {
         s.defaultReadObject();
