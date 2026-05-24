@@ -1,11 +1,9 @@
 package org.oddjob.jobs;
 
 import org.junit.Test;
-
-import org.oddjob.OjTestCase;
-
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.xml.XMLConfiguration;
 
 public class BeanDiagnosticsJobTest extends OjTestCase {
@@ -26,7 +24,7 @@ public class BeanDiagnosticsJobTest extends OjTestCase {
 			"Analysed 1 beans. Discovered 1 types." + EOL +
 			"Type: SimpleArooaClass: class java.lang.Object" + EOL +
 			" Properties:" + EOL +
-			"  class: java.lang.Class (Read Only)" + EOL;
+			"  class: java.lang.Class<?> (Read Only)" + EOL;
 		
 		String results = new OddjobLookup(oddjob).lookup(
 				"results-buffer", String.class); 

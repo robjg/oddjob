@@ -1,24 +1,23 @@
 package org.oddjob.beanbus.destinations;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.PrintStream;
-
-import org.oddjob.OjTestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.oddjob.Oddjob;
+import org.oddjob.OjTestCase;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.reflect.PropertyAccessor;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.state.ParentState;
 import org.oddjob.tools.ConsoleCapture;
 import org.oddjob.tools.OddjobTestHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
 
 public class BeanDiagnosticsTest extends OjTestCase {
 
@@ -81,7 +80,7 @@ public class BeanDiagnosticsTest extends OjTestCase {
 		String expected = 
 				"Type: SimpleArooaClass: class org.oddjob.beanbus.destinations.BeanDiagnosticsTest$Fruit" + LS +
 				" Properties:" + LS +
-				"  class: java.lang.Class (Read Only)" + LS +
+				"  class: java.lang.Class<?> (Read Only)" + LS +
 				"  param: java.lang.String, mapped (Read Only)" + LS +
 				"  quantity: int" + LS +
 				"  thing: java.lang.Double, indexed (Write Only)" + LS +
@@ -126,7 +125,7 @@ public class BeanDiagnosticsTest extends OjTestCase {
 				lines[5].trim());
 		assertEquals("Properties:",
 				lines[6].trim());
-		assertEquals("class: java.lang.Class (Read Only)",
+		assertEquals("class: java.lang.Class<?> (Read Only)",
 				lines[7].trim());
 		assertEquals("param: java.lang.String, mapped (Read Only)",
 				lines[8].trim());

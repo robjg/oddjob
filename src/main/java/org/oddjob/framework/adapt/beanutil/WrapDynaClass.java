@@ -20,9 +20,9 @@ package org.oddjob.framework.adapt.beanutil;
 import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.DynaClass;
 import org.apache.commons.beanutils.DynaProperty;
+import org.oddjob.arooa.convert.TypeArooaUtils;
 import org.oddjob.arooa.reflect.BeanOverview;
 import org.oddjob.arooa.reflect.PropertyAccessor;
-import org.oddjob.arooa.utils.ClassUtils;
 
 import java.io.*;
 import java.util.*;
@@ -225,7 +225,7 @@ public class WrapDynaClass implements DynaClass, Serializable {
 
             DynaProperty dynaProperty;
 
-            Class<?> rawType = ClassUtils.rawType(beanOverview.getPropertyType(propertyName));
+            Class<?> rawType = TypeArooaUtils.rawType(beanOverview.getPropertyType(propertyName));
             // indexed
             if (beanOverview.isIndexed(propertyName)) {
                 dynaProperty = new DynaProperty(propertyName,
