@@ -202,8 +202,10 @@ class BusCollectTest {
         test.accept(2);
         test.accept(3);
 
+        ConversionLookup lookup = conversionRegistry.get();
+
         ConversionPath<BusCollect.ListContainer, Iterable> path =
-                conversionRegistry.findConversion(BusCollect.ListContainer.class, Iterable.class);
+                lookup.findConversion(BusCollect.ListContainer.class, Iterable.class);
 
         assertThat(path, notNullValue());
 
@@ -215,7 +217,7 @@ class BusCollectTest {
         assertThat(results, contains(1, 2, 3));
 
         ConversionPath<BusCollect.ListContainer, Object> path2 =
-                conversionRegistry.findConversion(BusCollect.ListContainer.class, Object.class);
+                lookup.findConversion(BusCollect.ListContainer.class, Object.class);
 
         assertThat(path2, notNullValue());
 
@@ -226,7 +228,7 @@ class BusCollectTest {
         assertThat(object, is(results));
 
         ConversionPath<BusCollect.ListContainer, String> path3 =
-                conversionRegistry.findConversion(BusCollect.ListContainer.class, String.class);
+                lookup.findConversion(BusCollect.ListContainer.class, String.class);
 
         assertThat(path3, notNullValue());
 
@@ -253,8 +255,10 @@ class BusCollectTest {
 
         assertThat(test.getList().getList(), empty());
 
+        ConversionLookup lookup = conversionRegistry.get();
+
         ConversionPath<BusCollect.MapContainer, Object> path2 =
-                conversionRegistry.findConversion(BusCollect.MapContainer.class, Object.class);
+                lookup.findConversion(BusCollect.MapContainer.class, Object.class);
 
         assertThat(path2, notNullValue());
 
@@ -265,7 +269,7 @@ class BusCollectTest {
         assertThat(object, is(Map.of(1, 1, 2, 4, 3, 9)));
 
         ConversionPath<BusCollect.MapContainer, String> path3 =
-                conversionRegistry.findConversion(BusCollect.MapContainer.class, String.class);
+                lookup.findConversion(BusCollect.MapContainer.class, String.class);
 
         assertThat(path3, notNullValue());
 

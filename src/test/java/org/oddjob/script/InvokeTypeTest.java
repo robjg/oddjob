@@ -5,10 +5,7 @@ import org.junit.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.OjTestCase;
-import org.oddjob.arooa.convert.ArooaConversionException;
-import org.oddjob.arooa.convert.ArooaConverter;
-import org.oddjob.arooa.convert.DefaultConversionRegistry;
-import org.oddjob.arooa.convert.DefaultConverter;
+import org.oddjob.arooa.convert.*;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.arooa.types.ArooaObject;
@@ -28,7 +25,7 @@ public class InvokeTypeTest extends OjTestCase {
     public void setUp() throws Exception {
 
 
-        logger.info("-----------------  " + getName() + " ------------------");
+        logger.info("-----------------  {} ------------------", getName());
     }
 
     public static class Thing {
@@ -180,7 +177,9 @@ public class InvokeTypeTest extends OjTestCase {
 
         new InvokeType.Conversions().registerWith(conversions);
 
-        ArooaConverter converter = new DefaultConverter(conversions);
+        ConversionLookup lookup = conversions.get();
+
+        ArooaConverter converter = new DefaultConverter(lookup);
 
         String result = converter.convert(test, String.class);
 
