@@ -101,18 +101,8 @@ public class InvokeType
             return new ConversionStep<>() {
 
                 @Override
-                public Class<InvokeType> getFromClass() {
-                    return InvokeType.class;
-                }
-
-                @Override
                 public TypeArooa<InvokeType> getFromType() {
                     return from;
-                }
-
-                @Override
-                public Class<T> getToClass() {
-                    return to.getRawType();
                 }
 
                 @Override

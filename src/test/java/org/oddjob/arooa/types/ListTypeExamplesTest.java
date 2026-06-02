@@ -168,9 +168,8 @@ public class ListTypeExamplesTest extends OjTestCase {
 
         OddjobLookup lookup = new OddjobLookup(oddjob);
 
-        // TODO - Fix this!!!
         assertThat(lookup.lookup("bean.ints"),
-                is(List.of("1", "2", "3")));;
+                is(List.of(1, 2, 3)));;
 
         oddjob.destroy();
     }
