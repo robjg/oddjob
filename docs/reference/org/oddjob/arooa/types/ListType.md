@@ -200,7 +200,7 @@ Strings.
                             </elementType>
                             <values>
                                 <value
-                                    value='"grapes, red", "grapes, white", gratefruit'/>
+                                    value='"grapes, red", "grapes, white", grapefruit'/>
                                 <list>
                                   <values>
                                     <value value="apples"/>
@@ -250,7 +250,7 @@ The output is:
 ```
 grapes, red
 grapes, white
-gratefruit
+grapefruit
 apples
 pears
 ```

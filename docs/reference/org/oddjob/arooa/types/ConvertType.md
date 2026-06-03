@@ -69,6 +69,7 @@ The value to convert.
 
 Convert a delimited list to an array of Strings.
 
+
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob id="this">
@@ -100,7 +101,9 @@ Convert a delimited list to an array of Strings.
 ```
 
 
+
 The output is:
+
 
 ```
 grapes, red
@@ -112,6 +115,7 @@ gratefruit
 #### Example 2 <a name="example2"></a>
 
 Demonstrate the use of the is property.
+
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -144,7 +148,9 @@ ${vars.aNumber.is.class.name}]]></echo>
 ```
 
 
+
 The output is:
+
 
 ```
 42

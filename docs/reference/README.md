@@ -92,7 +92,7 @@
 - [file-persister](org/oddjob/persist/FilePersister.md) - Persist and load jobs from and to a file.
 - [files](org/oddjob/io/FilesType.md) - Specify files using a wild card pattern, or a list.
 - [format](org/oddjob/values/types/FormatType.md) - A type which can either format a number or a date into the given text format.
-- [identify](org/oddjob/arooa/types/IdentifiableValueType.md) - Register a value with an Id.
+- [identify](org/oddjob/arooa/types/IdentifiableValueType.md) - Register a value with an id.
 - [import](org/oddjob/arooa/types/ImportType.md) - Import XML which is processed as if it's in-line.
 - [inline](org/oddjob/arooa/types/InlineType.md) - A type that provides configuration.
 - [input-confirm](org/oddjob/input/requests/InputConfirm.md) - A request for a yes/no confirmation.

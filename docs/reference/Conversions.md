@@ -18,7 +18,7 @@ Conversion documentation is a Work in Progress.
 | java.lang.Character | java.lang.String |  | 
 | java.lang.Double | java.lang.String |  | 
 | java.lang.Double | java.math.BigDecimal |  | 
-| java.lang.Enum | *Various* |  | 
+| java.lang.Enum | java.lang.String | Undocumented by org.oddjob.arooa.convert.jokers.EnumConversions.FromEnumConvertlet | 
 | java.lang.Float | java.lang.String |  | 
 | java.lang.Integer | java.lang.String |  | 
 | java.lang.Integer | java.math.BigDecimal |  | 
@@ -35,13 +35,13 @@ Conversion documentation is a Work in Progress.
 | java.lang.Number | java.lang.Integer |  | 
 | java.lang.Number | java.lang.Long |  | 
 | java.lang.Number | java.lang.Short |  | 
-| java.lang.Object | *Various* |  | 
+| java.lang.Object | *Various* | Undocumented by org.oddjob.arooa.convert.jokers.ArrayConversions.ArrayJoker | 
 | java.lang.Object | java.lang.String |  | 
 | java.lang.Object | org.oddjob.arooa.ArooaValue |  | 
 | java.lang.Object | org.oddjob.script.Invoker |  | 
 | java.lang.Object[] | java.util.List |  | 
 | java.lang.Short | java.lang.String |  | 
-| java.lang.String | *Various* |  | 
+| java.lang.String | *Various* | Undocumented by org.oddjob.arooa.convert.jokers.EnumConversions.ToEnumJoker | 
 | java.lang.String | byte[] |  | 
 | java.lang.String | char[] |  | 
 | java.lang.String | java.io.File |  | 
@@ -95,17 +95,17 @@ Conversion documentation is a Work in Progress.
 | java.util.stream.Stream | java.util.Set |  | 
 | javax.script.Invocable | org.oddjob.script.Invoker |  | 
 | org.oddjob.arooa.reflect.BeanViewBean | org.oddjob.arooa.reflect.BeanView | Undocumented by org.oddjob.arooa.reflect.BeanViewBean | 
-| org.oddjob.arooa.types.ArooaObject | *Various* |  | 
+| org.oddjob.arooa.types.ArooaObject | *Various* | Wrap any Object so it can be an `ArooaValue`. Required so any bean can be used as an Oddjob Variable. | 
 | org.oddjob.arooa.types.ClassType | java.lang.Class |  | 
 | org.oddjob.arooa.types.ClassType | org.oddjob.arooa.reflect.ArooaClass |  | 
-| org.oddjob.arooa.types.ConvertType | *Various* |  | 
-| org.oddjob.arooa.types.IdentifiableValueType | *Various* |  | 
-| org.oddjob.arooa.types.ImportType | *Various* |  | 
+| org.oddjob.arooa.types.ConvertType | *Various* | Undocumented by org.oddjob.arooa.types.ConvertType.ConvertTypeJoker | 
+| org.oddjob.arooa.types.IdentifiableValueType | *Various* | Undocumented by org.oddjob.arooa.types.IdentifiableValueType.IdentifiableValueTypeJoke | 
+| org.oddjob.arooa.types.ImportType | *Various* | Undocumented by org.oddjob.arooa.types.ImportType.ImportTypeJoker | 
 | org.oddjob.arooa.types.InlineType | org.oddjob.arooa.ArooaConfiguration | A conversion to a Configuration. | 
-| org.oddjob.arooa.types.ListType | *Various* |  | 
+| org.oddjob.arooa.types.ListType | *Various* | Conversions to Lists and Arrays. | 
 | org.oddjob.arooa.types.ListType$ListConsumer | org.oddjob.arooa.types.ListType |  | 
-| org.oddjob.arooa.types.MapType | *Various* |  | 
-| org.oddjob.arooa.types.ValueType | *Various* |  | 
+| org.oddjob.arooa.types.MapType | *Various* | Provides a conversion to a Map. | 
+| org.oddjob.arooa.types.ValueType | *Various* | Undocumented by org.oddjob.arooa.types.ValueType.ValueTypeJoker | 
 | org.oddjob.arooa.types.XMLConfigurationType | org.oddjob.arooa.ArooaConfiguration | Undocumented by org.oddjob.arooa.types.XMLConfigurationType | 
 | org.oddjob.arooa.types.XMLType | java.lang.String |  | 
 | org.oddjob.arooa.types.XMLType | org.oddjob.arooa.ArooaConfiguration |  | 
@@ -144,7 +144,7 @@ Conversion documentation is a Work in Progress.
 | org.oddjob.schedules.ScheduleType | java.util.Date |  | 
 | org.oddjob.schedules.ScheduleType | org.oddjob.schedules.Interval |  | 
 | org.oddjob.scheduling.ExecutorThrottleType | java.util.concurrent.ExecutorService | Undocumented by org.oddjob.scheduling.ExecutorThrottleType | 
-| org.oddjob.script.InvokeType | *Various* |  | 
+| org.oddjob.script.InvokeType | *Various* | Undocumented by org.oddjob.script.InvokeType.InvokeJoker | 
 | org.oddjob.sql.ConnectionType | java.sql.Connection | Undocumented by org.oddjob.sql.ConnectionType | 
 | org.oddjob.util.URLClassLoaderType | java.lang.ClassLoader | Undocumented by org.oddjob.util.URLClassLoaderType | 
 | org.oddjob.values.properties.PropertiesType | java.util.Properties |  | 

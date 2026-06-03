@@ -7,6 +7,7 @@ Provide a Bean for use in an [arooa:descriptor](../../../../org/oddjob/arooa/dep
 
 | Property | Description |
 | -------- | ----------- |
+| [arooaValue](#propertyarooavalue) | Whether the conversion is from an Arooa Value. | 
 | [className](#propertyclassname) | The class name of the conversion. | 
 | [methodName](#propertymethodname) | The name of the method that provides the conversion if the conversion is not an [org.oddjob.arooa.convert.ConversionProvider](http://rgordon.co.uk/oddjob/1.6.0/api/org/oddjob/arooa/convert/ConversionProvider.html). | 
 
@@ -19,6 +20,18 @@ Provide a Bean for use in an [arooa:descriptor](../../../../org/oddjob/arooa/dep
 
 
 ### Property Detail
+#### arooaValue <a name="propertyarooavalue"></a>
+
+<table style='font-size:smaller'>
+      <tr><td><i>Configured By</i></td><td>ATTRIBUTE</td></tr>
+      <tr><td><i>Access</i></td><td>READ_WRITE</td></tr>
+      <tr><td><i>Required</i></td><td>No. Defaults to false.</td></tr>
+</table>
+
+Whether the conversion is from an Arooa Value.
+An Arooa Value is something that can only be used as a property via
+a conversion.
+
 #### className <a name="propertyclassname"></a>
 
 <table style='font-size:smaller'>

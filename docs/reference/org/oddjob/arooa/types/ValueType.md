@@ -52,6 +52,7 @@ The value.
 
 A value that is a constant string value.
 
+
 ```xml
 <value value="apple"/>
 ```
@@ -61,6 +62,7 @@ A value that is a constant string value.
 
 A value that is a reference to a property.
 
+
 ```xml
  <value value="${vars.fruit}"/>
 ```
@@ -69,6 +71,7 @@ A value that is a reference to a property.
 #### Example 3 <a name="example3"></a>
 
 Examining the internals of a value in Oddjob.
+
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -95,6 +98,7 @@ ${vars.fruit.value.value.class}]]></echo>
 
 
 The output is:
+
 
 ```
 apple

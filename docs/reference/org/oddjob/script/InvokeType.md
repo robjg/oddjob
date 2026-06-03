@@ -85,6 +85,7 @@ method then this is the class on which to invoke the method.
 Invoke a method on a bean. The method takes a single date parameter which
 is uses to generate a time of day dependent greeting.
 
+
 ```xml
 <oddjob>
     <job>
@@ -119,6 +120,7 @@ is uses to generate a time of day dependent greeting.
 ```
 
 
+
 The ${date} reference is there so that it can be injected
 during a test, to get a guaranteed result. When this is example
 is run as is, this is null so the system clock to be used
@@ -136,6 +138,7 @@ the `variables` job had run it would not give the correct greeting!
 #### Example 2 <a name="example2"></a>
 
 Invoke a static method of a class.
+
 
 ```xml
 <oddjob>
@@ -165,6 +168,7 @@ Invoke a static method of a class.
 #### Example 3 <a name="example3"></a>
 
 Invoking a function of a script.
+
 
 See the [script](../../../org/oddjob/script/ScriptJob.md) examples.
 

@@ -68,6 +68,7 @@ XML as text.
 
 Using import for a file list. The variables pathA and pathB are identical.
 
+
 ```xml
 <oddjob>
     <job>
@@ -90,7 +91,9 @@ Using import for a file list. The variables pathA and pathB are identical.
 ```
 
 
+
 The imported file is:
+
 
 ```xml
 <files>

@@ -1,12 +1,12 @@
 [HOME](../../../../README.md)
 # identify
 
-Register a value with an Id.
+Register a value with an id.
 
 
-Unlike components, values can't have an Id. This type allows
+Unlike components, values can't have an id. This type allows
 values to be registered so they can
-be referenced via the given Id elsewhere in the configuration.
+be referenced via the given id elsewhere in the configuration.
 
 
 Components are registered when the configuration is parsed
@@ -56,6 +56,7 @@ The value to register.
 #### Example 1 <a name="example1"></a>
 
 Register a value.
+
 
 ```xml
 <oddjob>

@@ -64,6 +64,7 @@ Any values.
 
 A simple map with element access.
 
+
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <oddjob>
@@ -98,6 +99,7 @@ A simple map with element access.
 
 The output is:
 
+
 ```
 On a school night I am allowed 1 beer(s).
 ```
@@ -107,6 +109,7 @@ On a school night I am allowed 1 beer(s).
 
 Adding additional elements to a map. Also demonstrates iterable access
 to the map.
+
 
 ```xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -145,6 +148,7 @@ to the map.
 
 
 The output is:
+
 
 ```
 morning snack is apples
