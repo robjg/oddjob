@@ -1,12 +1,10 @@
 package org.oddjob.values.properties;
 
-import org.oddjob.arooa.ArooaAnnotations;
-import org.oddjob.arooa.ArooaBeanDescriptor;
-import org.oddjob.arooa.ArooaSession;
-import org.oddjob.arooa.ConfiguredHow;
-import org.oddjob.arooa.ParsingInterceptor;
+import org.oddjob.arooa.*;
 import org.oddjob.arooa.deploy.NoAnnotations;
 import org.oddjob.arooa.utils.PropertiesOverrideSession;
+
+import java.lang.annotation.Annotation;
 
 /**
  * Base class for the Arooa descriptor classes for {@link PropertiesJob}
@@ -47,7 +45,12 @@ public class PropertiesBaseArooa implements ArooaBeanDescriptor {
 	public String getFlavour(String property) {
 		return null;
 	}
-	
+
+	@Override
+	public Annotation getQualifier(String property) {
+		return null;
+	}
+
 	@Override
 	public String getTextProperty() {
 		return null;

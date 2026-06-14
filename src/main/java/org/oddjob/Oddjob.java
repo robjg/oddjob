@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 /**
@@ -1127,26 +1128,37 @@ implements Loadable,
 	 */
 	public static class OddjobRootArooa implements ArooaBeanDescriptor {
 
+		@Override
 		public ParsingInterceptor getParsingInterceptor() {
 			return null;
 		}
-		
+
+		@Override
 		public String getTextProperty() {
 			return null;
 		}
-		
+
+		@Override
 		public String getComponentProperty() {
 			return "job";
 		}
-		
+
+		@Override
 		public ConfiguredHow getConfiguredHow(String property) {
 			return ConfiguredHow.ELEMENT;
 		}
-		
+
+		@Override
 		public String getFlavour(String property) {
 			return null;
 		}
-		
+
+		@Override
+		public Annotation getQualifier(String property) {
+			return null;
+		}
+
+		@Override
 		public boolean isAuto(String property) {
 			return false;
 		}

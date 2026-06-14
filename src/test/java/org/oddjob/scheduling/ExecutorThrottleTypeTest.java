@@ -17,8 +17,8 @@ import org.oddjob.tools.StateSteps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -29,17 +29,17 @@ class ExecutorThrottleTypeTest {
     private static final Logger logger = LoggerFactory.getLogger(ExecutorThrottleTypeTest.class);
 
     @BeforeEach
-    void setUp(TestInfo testInfo) throws Exception {
-        logger.info("---------------------- {}-----------------------", testInfo.getDisplayName());
+    void setUp(TestInfo testInfo) {
+        logger.info("---------------------- {} -----------------------", testInfo.getDisplayName());
     }
 
     private static class Capture implements StructuralListener, StateListener {
 
-        Set<Stateful> ready = new HashSet<>();
+        Set<Stateful> ready = ConcurrentHashMap.newKeySet();
 
-        Set<Stateful> executing = new HashSet<>();
+        Set<Stateful> executing = ConcurrentHashMap.newKeySet();
 
-        Set<Stateful> complete = new HashSet<>();
+        Set<Stateful> complete = ConcurrentHashMap.newKeySet();
 
         @Override
         public void jobStateChange(StateEvent event) {
