@@ -59,6 +59,7 @@ Conversion documentation is a Work in Progress.
 | java.lang.String | java.math.BigDecimal |  | 
 | java.lang.String | java.net.URI |  | 
 | java.lang.String | java.net.URL |  | 
+| java.lang.String | java.time.Duration | Uses the Standard format for a Java [java.time.Duration](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html). | 
 | java.lang.String | java.time.Instant |  | 
 | java.lang.String | java.util.Date |  | 
 | java.lang.String | org.oddjob.arooa.convert.ConversionProviderFactory |  | 
@@ -76,6 +77,7 @@ Conversion documentation is a Work in Progress.
 | java.net.URL | java.lang.String |  | 
 | java.net.URL | java.net.URI |  | 
 | java.nio.file.Path | java.io.File |  | 
+| java.time.Duration | java.lang.String | From a [java.time.Duration](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/time/Duration.html) to its parsable String format. | 
 | java.time.Instant | java.lang.Long |  | 
 | java.time.Instant | java.lang.String |  | 
 | java.time.Instant | java.util.Date |  | 
