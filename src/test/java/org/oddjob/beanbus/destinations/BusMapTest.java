@@ -1,15 +1,20 @@
 package org.oddjob.beanbus.destinations;
 
 import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.oddjob.Oddjob;
 import org.oddjob.OddjobLookup;
 import org.oddjob.Resettable;
 import org.oddjob.arooa.ArooaSession;
 import org.oddjob.arooa.convert.ArooaConversionException;
+import org.oddjob.arooa.logging.Appender;
+import org.oddjob.arooa.logging.LoggerAdapter;
+import org.oddjob.arooa.logging.LoggingEvent;
 import org.oddjob.arooa.reflect.ArooaPropertyException;
 import org.oddjob.arooa.standard.StandardArooaSession;
 import org.oddjob.beanbus.example.Fruit;
+import org.oddjob.logging.LogEnabled;
+import org.oddjob.logging.OddjobNDC;
 import org.oddjob.script.ScriptJob;
 import org.oddjob.state.JobState;
 import org.oddjob.state.ParentState;
@@ -21,15 +26,14 @@ import java.util.List;
 import java.util.Objects;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
-public class BusMapTest {
+class BusMapTest {
 
 
     @SuppressWarnings("unchecked")
     @Test
-    public void testExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+    void testExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
 
         File config = new File(Objects.requireNonNull(
                 getClass().getResource("BeanTransformerExample.xml")).getFile());
@@ -67,7 +71,7 @@ public class BusMapTest {
     }
 
     @Test
-    public void givenScriptFunctionThenUsedOk() {
+    void givenScriptFunctionThenUsedOk() {
 
         ArooaSession arooaSession = new StandardArooaSession();
 
@@ -91,5 +95,68 @@ public class BusMapTest {
         busMap.accept(5);
 
         assertThat(results, contains(4, 7));
+    }
+
+    private static class Messages implements Appender {
+
+        final StringBuilder messages = new StringBuilder();
+
+        final String filter;
+
+        private Messages(String filter) {
+            this.filter = filter;
+        }
+
+        @Override
+        public void append(LoggingEvent event) {
+            if (filter.equals(OddjobNDC.current()
+                    .map(OddjobNDC.LogContext::getLogger)
+                    .orElse(null))) {
+                messages.append(event.getMessage());
+            }
+        }
+    }
+
+    @Test
+    void testExceptionExample() throws ArooaPropertyException, ArooaConversionException, InterruptedException {
+
+        File config = new File(Objects.requireNonNull(
+                getClass().getResource("BusMapExceptionExample.xml")).getFile());
+
+        Oddjob oddjob = new Oddjob();
+        oddjob.setFile(config);
+
+        oddjob.load();
+
+        OddjobLookup lookup = new OddjobLookup(oddjob);
+
+        LogEnabled mapLog = lookup.lookup("bus-map", LogEnabled.class);
+
+        Messages messages = new Messages(mapLog.loggerName());
+
+
+        LoggerAdapter.appenderAdapterFor((String) null)
+                .addAppender(messages, LoggerAdapter.layoutFor("%p: %m%n"));
+
+        StateSteps states = new StateSteps(oddjob);
+        states.startCheck(ParentState.READY,
+                ParentState.EXECUTING,
+                ParentState.COMPLETE);
+
+        oddjob.run();
+
+        states.checkNow();
+
+        List<Fruit> results = lookup.lookup(
+                "results.list", List.class);
+
+        assertThat(results, Matchers.empty());
+
+        assertThat(messages.messages.toString(),
+                containsString("java.lang.IllegalArgumentException"));
+
+        LoggerAdapter.appenderAdapterFor((String) null).removeAppender(messages);
+
+        oddjob.destroy();
     }
 }

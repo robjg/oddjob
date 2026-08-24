@@ -5,6 +5,7 @@ import org.oddjob.beanbus.BusFilter;
 import org.oddjob.framework.adapt.HardReset;
 import org.oddjob.framework.adapt.SoftReset;
 
+import java.beans.ExceptionListener;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
@@ -40,12 +41,24 @@ implements BusFilter<F, T> {
      */
 	private final AtomicInteger count = new AtomicInteger();
 
+	private ExceptionListener exceptionListener;
+
 	@Override
 	protected T filter(F from) {
-		T result =  Objects.requireNonNull(function, "Function Required")
-				.apply(from);
-		count.incrementAndGet();
-		return result;
+		try {
+			T result = Objects.requireNonNull(function, "Function Required")
+					.apply(from);
+			count.incrementAndGet();
+			return result;
+		} catch (RuntimeException e) {
+			if (exceptionListener != null) {
+				exceptionListener.exceptionThrown(e);
+				return null;
+			}
+			else {
+				throw e;
+			}
+		}
 	}
 
 	@HardReset
@@ -60,6 +73,14 @@ implements BusFilter<F, T> {
 
 	public void setFunction(Function<? super F, ? extends T> filter) {
 		this.function = filter;
+	}
+
+	public ExceptionListener getExceptionListener() {
+		return exceptionListener;
+	}
+
+	public void setExceptionListener(ExceptionListener exceptionListener) {
+		this.exceptionListener = exceptionListener;
 	}
 
 	public int getCount() {

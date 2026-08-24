@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<oddjob>
+    <job>
+        <bus:bus id="bean-bus" xmlns:bus="oddjob:beanbus">
+            <of>
+                <bus:driver>
+                    <values>
+                        <list>
+                            <values>
+                                <value value="#{25.5}"/>
+                                <value value="#{36.2}"/>
+                                <value value="#{40.4}"/>
+                            </values>
+                        </list>
+                    </values>
+                </bus:driver>
+                <bus:map id="bus-map">
+                    <function>
+                        <value value="#{ function(x) { throw new Error('I do not like ' + x) } }"/>
+                    </function>
+                    <exceptionListener>
+                        <bean class="org.oddjob.values.types.ExceptionHandlers"
+                              handler="LOG_INFO"/>
+                    </exceptionListener>
+                </bus:map>
+                <bus:collect id="results"/>
+            </of>
+        </bus:bus>
+    </job>
+</oddjob>

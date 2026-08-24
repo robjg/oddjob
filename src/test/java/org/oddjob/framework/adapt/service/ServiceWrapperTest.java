@@ -47,9 +47,7 @@ public class ServiceWrapperTest extends OjTestCase {
     @Before
     public void setUp() throws Exception {
 
-
-        logger.info("-------------------------  " + getName() +
-                "  ------------------------");
+        logger.info("-------------------------  {}  ------------------------", getName());
     }
 
     private static class OurContext extends MockArooaContext {
